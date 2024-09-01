@@ -6,7 +6,7 @@ site_author: 'Clemens Rudert'
 repo_url: 'https://github.com/opengisch/georama/'
 repo_name: 'opengisch/georama'
 edit_uri: blob/main/docs/
-
+docs_dir: src
 theme:
   # 1
   name: material

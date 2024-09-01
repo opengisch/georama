@@ -81,7 +81,7 @@ This page provides documentation for our command line tools.
     #  -> docs
     #     -> scripts
     # -> src/python_package
-    mkdocs_gen_files.set_edit_path(full_doc_path, Path("../") / path)
+    mkdocs_gen_files.set_edit_path(full_doc_path, Path("../../") / path)
     # so that it correctly sets the edit path of (for example) nst_math.py to
     # <repo_url>/blob/master/src/artificial_artwork/nst_math.py instead of
     # <repo_url>/blob/master/docs/src/artificial_artwork/nst_math.py
