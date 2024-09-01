@@ -60,7 +60,6 @@ docs:
         - 'docs/*'
         - 'docs/**/*'
         - '.readthedocs.yml'
-        - 'README.rst'
         - 'README.md'
 
 ### SCRIPTS ###

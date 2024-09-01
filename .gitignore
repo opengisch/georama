@@ -22,6 +22,11 @@ test-results/
 uml-diagrams/
 pydoer-graphs/
 
+poetry.lock
+
 # LOGS
 
 cookie-py.log
+
+.venv
+docs/site
