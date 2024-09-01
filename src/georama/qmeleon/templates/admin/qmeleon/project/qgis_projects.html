@@ -1,0 +1,33 @@
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Project Group</th>
+                <th>Project</th>
+                <th>Hash</th>
+                <th>Has Config</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in qgis_project_file_structure.groups %}
+                {% for project in group.projects %}
+                <tr class="even" role="row">
+                    <td>{{ group.name }}</td>
+                    <td>{{ project.name }}</td>
+                    <td>{{ project.hash }}</td>
+                    <td>{{ project.has_config }}</td>
+                    <td>
+                        {% if project.has_config %}
+                        <a href="{% url 'georama.qmeleon:register_qgis_project' group.name project.name %}" class="btn btn-high btn-success">integrate</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
