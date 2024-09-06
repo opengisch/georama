@@ -1,14 +1,11 @@
 import logging
 from django.shortcuts import redirect
 from django.views import View
-from django.views.generic import TemplateView
-from django.template import loader
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpRequest
 from xsdata.formats.dataclass.parsers import JsonParser
 from xsdata.formats.dataclass.serializers import DictEncoder
 
-from georama.qmeleon.models import Project, VectorDataSet, RasterDataSet, Field
-from dataclasses import asdict
+from georama.qmeleon.models import Project, VectorDataSet, RasterDataSet, Field, CustomDataSet
 from georama.qmeleon.qmeleon_config import Config as QmeleonConfig
 from georama.qmeleon.admin import QgisProjectFileStructure, QgisProjectGroup, QgisProject
 from qgis_server_light.interface.qgis import Config
@@ -85,10 +82,23 @@ class RegisterQgisProject(View):
                     qgis_layer_id=layer.id,
                     crs=DictEncoder().encode(layer.crs)
                 ).save()
+            for layer in project_config.datasets.custom:
+                CustomDataSet(
+                    project=new_project,
+                    name=layer.name,
+                    title=layer.title,
+                    bbox=layer.bbox.to_string(),
+                    bbox_wgs84=layer.bbox_wgs84.to_string(),
+                    path=layer.path,
+                    style=layer.style,
+                    driver=layer.driver,
+                    source=DictEncoder().encode(layer.source),
+                    qgis_layer_id=layer.id,
+                    crs=DictEncoder().encode(layer.crs)
+                ).save()
             return redirect('admin:qmeleon_project_changelist')
+
         else:
             # TODO: Handle update etc. of projects
             log.info('Project existed. Updating process not implemented yet => delete the project and integrate it again!')
             return redirect('admin:qmeleon_project_changelist')
-
-

@@ -41,6 +41,18 @@ INSTALLED_APPS = [
     'georama.vectorparrot.apps.VectorparrotConfig',
     'georama.rasteroctopus.apps.RasteroctopusConfig',
     'georama.qmeleon.apps.QmeleonConfig',
+    # apps by clogs
+    "django.contrib.gis",
+    "corsheaders",
+    "rest_framework",
+    "rest_framework_gis",
+    "georama.clogs.apps.ClogsConfig",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "adminsortable2",
+    "treebeard",
+    "ninja",
 ]
 
 MIDDLEWARE = [
@@ -51,6 +63,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # clogs
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'georama.core.urls'

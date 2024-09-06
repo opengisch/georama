@@ -9,7 +9,7 @@ from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.urls import reverse, path
 from django.utils.safestring import mark_safe
-from georama.qmeleon.models import Project, VectorDataSet, RasterDataSet, Field
+from georama.qmeleon.models import Project, VectorDataSet, RasterDataSet, Field, CustomDataSet
 from georama.qmeleon.qmeleon_config import Config
 
 
@@ -126,7 +126,7 @@ class QgisProjectFileStructure:
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ["name", "vector_dataset_count", "raster_dataset_count", "project_file_uptodate"]
+    list_display = ["name", "vector_dataset_count", "raster_dataset_count", "custom_dataset_count", "project_file_uptodate"]
 
     def vector_dataset_count(self, obj):
         return obj.vector_datasets.count()
@@ -139,6 +139,12 @@ class ProjectAdmin(admin.ModelAdmin):
 
     raster_dataset_count.admin_order_field = "raster_dataset_count"
     raster_dataset_count.short_description = "Raster Datasets"
+
+    def custom_dataset_count(self, obj):
+        return obj.custom_datasets.count()
+
+    raster_dataset_count.admin_order_field = "custom_dataset_count"
+    raster_dataset_count.short_description = "Custom Datasets"
 
     def project_file_uptodate(self, obj):
         config = Config()
@@ -162,7 +168,7 @@ class ProjectAdmin(admin.ModelAdmin):
         ]
         return my_urls + urls
 
-    def qgis_projects(self, request: HttpRequest):
+    def qgis_projects(self, request: HttpRequest, extra_context=None):
         config = Config()
         qgis_project_file_structure = QgisProjectFileStructure(os.path.join(config.path))
         qgis_project_file_structure.create_groups(config.qgis_project_extensions)
@@ -230,6 +236,10 @@ class RasterDataSetAdmin(DataSetAdmin):
     pass
 
 
+class CustomDataSetAdmin(DataSetAdmin):
+    pass
+
+
 class VectorDataSetAdmin(DataSetAdmin):
     list_display = ["name", "group", "project_name", "field_count"]
     fields = DataSetAdmin.fields + ['fields_detail']
@@ -261,10 +271,8 @@ class VectorDataSetAdmin(DataSetAdmin):
     field_count.short_description = "Fields"
 
 
-
-
-
 # Register your models here.
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(VectorDataSet, VectorDataSetAdmin)
 admin.site.register(RasterDataSet, RasterDataSetAdmin)
+admin.site.register(CustomDataSet, CustomDataSetAdmin)

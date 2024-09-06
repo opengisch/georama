@@ -3,7 +3,8 @@ import datetime
 from django.core import serializers
 from django.db import models
 from qgis_server_light.interface.qgis import (
-    Vector, BBox, Raster, Crs, OgrSource, PostgresSource, GdalSource, WmtsSource, WmsSource, DataSource
+    Vector, BBox, Raster, Crs, OgrSource, PostgresSource, GdalSource, WmtsSource, WmsSource, DataSource,
+    Custom
 )
 from xsdata.formats.dataclass.parsers import DictDecoder
 
@@ -88,6 +89,34 @@ class RasterDataSet(DataSet):
     @property
     def to_qsl(self) -> Raster:
         return Raster(
+            name=self.name,
+            title=self.title,
+            bbox=BBox.from_string(self.bbox),
+            bbox_wgs84=BBox.from_string(self.bbox_wgs84),
+            path=self.path,
+            style=self.style,
+            driver=self.driver,
+            source=DictDecoder().decode(self.source, DataSource),
+            id=self.qgis_layer_id,
+            crs=DictDecoder().decode(self.crs, Crs)
+        )
+
+
+class CustomDataSet(DataSet):
+
+    class Meta:
+        unique_together = ('name', 'project',)
+
+    project = models.ForeignKey(
+        Project,
+        related_name="custom_datasets",
+        related_query_name="custom_dataset",
+        on_delete=models.CASCADE
+    )
+
+    @property
+    def to_qsl(self) -> Custom:
+        return Custom(
             name=self.name,
             title=self.title,
             bbox=BBox.from_string(self.bbox),

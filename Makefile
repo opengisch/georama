@@ -39,7 +39,7 @@ $(QGIS_VENV_PATH):
 	echo "/usr/share/qgis/python" > $@
 
 $(PIP_REQUIREMENTS): $(VENV_REQUIREMENTS) pyproject.toml $(QGIS_VENV_PATH)
-	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel
+	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools
 	$(VENV_BIN)/$(PIP_COMMAND) install .
 	touch $@
 
