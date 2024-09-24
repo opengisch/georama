@@ -11,16 +11,27 @@ from xsdata.formats.dataclass.parsers import DictDecoder
 log = logging.getLogger(__name__)
 
 
+class Mandant(models.Model):
+    name = models.CharField(unique=True)
+    description = models.TextField(null=True)
+
+
 class Project(models.Model):
     name = models.CharField(null=False, max_length=1000)
     title = models.CharField(max_length=1000)
     version = models.CharField(max_length=1000)
     hash = models.CharField(max_length=20000, null=True, blank=True)
     integration_date = models.DateTimeField(default=datetime.datetime.now)
-    group = models.CharField(max_length=1000, null=True)
+    mandant = models.ForeignKey(
+        Mandant,
+        related_name="mandants",
+        related_query_name="mandant",
+        on_delete=models.CASCADE,
+        null=True
+    )
 
     class Meta:
-        unique_together = ('name', 'version', 'group',)
+        unique_together = ('name', 'version', 'mandant',)
 
 
 class DataSet(models.Model):

@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import hashlib
 from dataclasses import dataclass, field
@@ -9,7 +10,7 @@ from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.urls import reverse, path
 from django.utils.safestring import mark_safe
-from georama.qmeleon.models import Project, VectorDataSet, RasterDataSet, Field, CustomDataSet
+from georama.qmeleon.models import Project, VectorDataSet, RasterDataSet, Field, CustomDataSet, Mandant
 from georama.qmeleon.qmeleon_config import Config
 
 
@@ -126,7 +127,14 @@ class QgisProjectFileStructure:
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ["name", "vector_dataset_count", "raster_dataset_count", "custom_dataset_count", "project_file_uptodate"]
+    list_display = [
+        "name",
+        "mandant_name",
+        "vector_dataset_count",
+        "raster_dataset_count",
+        "custom_dataset_count",
+        "project_file_uptodate"
+    ]
 
     def vector_dataset_count(self, obj):
         return obj.vector_datasets.count()
@@ -143,19 +151,30 @@ class ProjectAdmin(admin.ModelAdmin):
     def custom_dataset_count(self, obj):
         return obj.custom_datasets.count()
 
-    raster_dataset_count.admin_order_field = "custom_dataset_count"
-    raster_dataset_count.short_description = "Custom Datasets"
+    custom_dataset_count.admin_order_field = "custom_dataset_count"
+    custom_dataset_count.short_description = "Custom Datasets"
 
-    def project_file_uptodate(self, obj):
-        config = Config()
-        qpfs = QgisProjectFileStructure(config.path)
-        qpfs.create_groups(config.qgis_project_extensions)
-        group = qpfs.find_group_by_name(obj.group)
-        project = group.find_project_by_name(obj.name)
-        return mark_safe('&check;') if obj.hash == project.hash else ''
+    def project_file_uptodate(self, obj: Project):
+        try:
+            config = Config()
+            qpfs = QgisProjectFileStructure(config.path)
+            qpfs.create_groups(config.qgis_project_extensions)
+            group = qpfs.find_group_by_name(obj.mandant.name)
+            project = group.find_project_by_name(obj.name)
+            return mark_safe('&check;') if obj.hash == project.hash else ''
+        except Exception as e:
+            logging.error(f"Chould not check project status. Original Error: {e}")
+            return ''
 
     project_file_uptodate.admin_order_field = "project_file_uptodate"
     project_file_uptodate.short_description = "Project File uptodate"
+
+    def mandant_name(self, obj: Project):
+        # TODO: make this a link to the dedicated mandant instance details
+        return obj.mandant.name
+
+    mandant_name.admin_order_field = "project_mandant_name"
+    mandant_name.short_description = "Project Mandant Name"
 
     def get_urls(self):
         urls = super().get_urls()
@@ -241,12 +260,12 @@ class CustomDataSetAdmin(DataSetAdmin):
 
 
 class VectorDataSetAdmin(DataSetAdmin):
-    list_display = ["name", "group", "project_name", "field_count"]
+    list_display = ["name", "mandant_name", "project_name", "field_count"]
     fields = DataSetAdmin.fields + ['fields_detail']
     readonly_fields = DataSetAdmin.fields + ['fields_detail']
 
-    def group(self, obj: VectorDataSet):
-        return obj.project.group
+    def mandant_name(self, obj: VectorDataSet):
+        return obj.project.mandant.name
 
     def project_name(self, obj: VectorDataSet):
         return obj.project.name
@@ -271,8 +290,13 @@ class VectorDataSetAdmin(DataSetAdmin):
     field_count.short_description = "Fields"
 
 
+class MandantAdmin(admin.ModelAdmin):
+    pass
+
+
 # Register your models here.
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(Mandant, MandantAdmin)
 admin.site.register(VectorDataSet, VectorDataSetAdmin)
 admin.site.register(RasterDataSet, RasterDataSetAdmin)
 admin.site.register(CustomDataSet, CustomDataSetAdmin)

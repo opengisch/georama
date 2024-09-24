@@ -1,0 +1,14 @@
+html, body {
+    background-color: black;
+    border: 0;
+}
+
+h1 {
+    font-size: 80px;
+}
+
+.container-fluid {
+    color: white;
+    margin-bottom: 50px !important;
+    margin-top: 50px !important;
+}

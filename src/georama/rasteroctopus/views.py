@@ -55,29 +55,40 @@ def wms_130_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
             else:
                 raise NotImplementedError('linked dataset has to be RasterDataSet|VectorDataSet!')
             source_crs = DictDecoder().decode(dataset.crs, QSL_Crs)
-            bbox_wgs84 = BBox.from_string(dataset.bbox_wgs84)
-            bbox = BBox.from_string(dataset.bbox)
-            bbox_object = BoundingBox(
-                crs=source_crs.auth_id,
-                minx=bbox.x_min,
-                maxx=bbox.x_max,
-                miny=bbox.y_min,
-                maxy=bbox.y_max
-            )
-            ex_geographic_bounding_box_object = ExGeographicBoundingBox(
-                west_bound_longitude=bbox_wgs84.x_min,
-                east_bound_longitude=bbox_wgs84.x_max,
-                south_bound_latitude=bbox_wgs84.y_min,
-                north_bound_latitude=bbox_wgs84.y_max
-            )
-            bbox_4326 = BoundingBox(
-                crs="EPSG:4326",
-                minx=bbox_wgs84.x_min,
-                maxx=bbox_wgs84.x_max,
-                miny=bbox_wgs84.y_min,
-                maxy=bbox_wgs84.y_max
-            )
-            capapility.layer.layer.append(Layer(
+
+            bbox_object = None
+            try:
+                bbox = BBox.from_string(dataset.bbox)
+                bbox_object = BoundingBox(
+                    crs=source_crs.auth_id,
+                    minx=bbox.x_min,
+                    maxx=bbox.x_max,
+                    miny=bbox.y_min,
+                    maxy=bbox.y_max
+                )
+            except Exception as e:
+                log.info(f'no BBOX could created from string: "{dataset.bbox}"')
+
+            ex_geographic_bounding_box_object = None
+            bbox_4326 = None
+            try:
+                bbox_wgs84 = BBox.from_string(dataset.bbox_wgs84)
+                ex_geographic_bounding_box_object = ExGeographicBoundingBox(
+                    west_bound_longitude=bbox_wgs84.x_min,
+                    east_bound_longitude=bbox_wgs84.x_max,
+                    south_bound_latitude=bbox_wgs84.y_min,
+                    north_bound_latitude=bbox_wgs84.y_max
+                )
+                bbox_4326 = BoundingBox(
+                    crs="EPSG:4326",
+                    minx=bbox_wgs84.x_min,
+                    maxx=bbox_wgs84.x_max,
+                    miny=bbox_wgs84.y_min,
+                    maxy=bbox_wgs84.y_max
+                )
+            except Exception as e:
+                log.info(f'no bbox_4326 and bbox_wgs84 could created from string: "{dataset.bbox_wgs84}"')
+            layer = Layer(
                 queryable=False,
                 cascaded=0,
                 name=Name(published_as.name),
@@ -93,9 +104,17 @@ def wms_130_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
                     name=Name('default'),
                     title=Title('Default')
                 )]
-            ))
+            )
+            if bbox_object is not None:
+                layer.bounding_box.append(bbox_object)
+                if bbox_object not in capapility.layer.bounding_box:
+                    capapility.layer.bounding_box.append(bbox_object)
+            if bbox_4326 is not None:
+                layer.bounding_box.append(bbox_4326)
+                if bbox_4326 not in capapility.layer.bounding_box:
+                    capapility.layer.bounding_box.append(bbox_4326)
+            capapility.layer.layer.append(layer)
             capapility.layer.ex_geographic_bounding_box = ex_geographic_bounding_box_object
-            capapility.layer.bounding_box = [bbox_object, bbox_4326]
 
     wms_capabilities = WmsCapabilities(
         service=service,

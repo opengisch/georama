@@ -104,5 +104,5 @@ dev: setup.py build
 	$(VENV_BIN)/python $< develop
 
 .PHONY: serve
-serve: build
-	$(VENV_BIN)/pserve application.ini
+serve: $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:8000

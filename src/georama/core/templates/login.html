@@ -1,8 +1,12 @@
-<form action="/login/" method="post">
-    {% csrf_token %}
-    <label for="username">Your name: </label>
-    <input id="username" type="text" name="username" value="">
-    <label for="password">Your name: </label>
-    <input id="password" type="text" name="password" value="">
-    <input type="submit" value="OK">
-</form>
+{% extends "admin/login.html" %}
+
+{% block content_title %}
+    {% if DEBUG == True %}
+    <p>Demo use only!
+        <ul>
+            <li>user:admin</li>
+            <li>password:admin</li>
+        </ul>
+    </p>
+    {% endif %}
+{% endblock %}

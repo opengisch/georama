@@ -1,0 +1,31 @@
+{
+    "general": {
+      "locale": "en-US"
+    },
+    "languages": {
+      "translations": {
+        "en": ["mock/en.json"]
+      },
+      "defaultLanguage": "en"
+    },
+    "themes": {
+      "url": "http://localhost:8080/clogs/cartoriviera/themes.json",
+      "defaultTheme": "cadastre"
+    },
+    "basemaps": {
+      "defaultBasemap": "OpenStreetMap",
+      "OSM": true
+    },
+    "projections": {
+      "EPSG:2056": "Swiss projection"
+    },
+    "map": {
+      "srid": "EPSG:2056",
+      "scales": [70000000, 35000000, 15000000, 10000000, 4000000, 2000000, 1000000, 500000, 250000, 150000, 70000, 35000, 15000, 8000, 4000, 2000, 1000, 500],
+      "startPosition": "2545500, 1198750",
+      "startZoom": "5"
+    },
+    "map3d": {
+      "tilesetsUrls": []
+    }
+  }

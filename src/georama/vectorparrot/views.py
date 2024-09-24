@@ -289,7 +289,7 @@ def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool)
             "source_type": driver_lookup[published_as.dataset.source['path'].split('.')[-1].upper()],
             "source": os.path.join(
                 config.path,
-                published_as.dataset.project.group,
+                published_as.dataset.project.mandant.name,
                 published_as.dataset.source['path']
             ),
             "source_capabilities": {

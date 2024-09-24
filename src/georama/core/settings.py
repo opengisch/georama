@@ -94,11 +94,11 @@ WSGI_APPLICATION = 'georama.core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'HOST': 'localhost',
-        'PORT': '54321',
-        'USER': 'postgres',
-        'PASSWORD': 'test',
-        'NAME': 'postgres'
+        'HOST': os.environ.get("GEORAMA_DB_HOST", 'localhost'),
+        'PORT': os.environ.get("GEORAMA_DB_PORT", '54321'),
+        'USER': os.environ.get("GEORAMA_DB_USER", 'postgres'),
+        'PASSWORD': os.environ.get("GEORAMA_DB_PW", 'test'),
+        'NAME': os.environ.get("GEORAMA_DB_NAME", 'postgres')
     }
 }
 
@@ -121,6 +121,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CORS_ALLOWED_ORIGINS = [] + os.getenv("ALLOWED_CORS", 'https://cartoriviera.ch').split(",")
+
+if DEBUG and CORS_ALLOWED_ORIGINS:
+    CORS_ALLOW_ALL_ORIGINS = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

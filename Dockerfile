@@ -1,31 +1,48 @@
-FROM python:3.9.16-slim-bullseye as builder
+FROM ghcr.io/osgeo/gdal:ubuntu-full-3.9.1 AS base
 
-COPY poetry.lock pyproject.toml ./
-
-# Determine where to install poetry
-ENV POETRY_HOME=/opt/poetry
-
-# Install Poetry & generate a requirements.txt file
-RUN python -c 'from urllib.request import urlopen; print(urlopen("https://install.python-poetry.org").read().decode())' | python && \
-    "$POETRY_HOME/bin/poetry" export -f requirements.txt > requirements.txt
-
-FROM python:3.9.16-slim-bullseye as install
-
-# Keep the requirements.txt file from the builder image
-COPY --from=builder requirements.txt .
-
-# Pre emptively add the user's bin folder to PATH
-ENV PATH="/root/.local/bin:$PATH"
-
+USER 0
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends build-essential && \
-    pip install -U pip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    pip install --no-cache-dir --user -r requirements.txt
+    apt-get install -y \
+      python3-pip \
+      python3-setuptools
 
-COPY . .
-RUN pip install --no-cache-dir --user .
+ARG TINI_VERSION=v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
 
+#########################
+#  DEV
+#########################
+FROM base AS dev
 
-CMD [ "georama" ]
+LABEL org.opengisch.author="Clemens Rudert <clemens.rudert@bl.ch>"
+LABEL org.opengisch.image.title="georama"
+USER 0
+
+RUN apt-get install -y \
+      libpq-dev \
+      python3-gdal \
+      python3-numpy \
+      python3-venv \
+      git \
+      make
+
+WORKDIR /opt/georama/
+ADD setup.py .
+ADD pyproject.toml .
+ADD Makefile .
+
+ENV VENV_PATH=/opt/georama/venv
+
+WORKDIR /app
+
+COPY ./ .
+
+RUN VENV_PATH=${VENV_PATH} make dev
+
+ENV PYTHONUNBUFFERED=1
+ENV DJANGO_SETTINGS_MODULE=core.settings
+
+ENTRYPOINT ["/tini", "--", "make"]
+
+CMD ["serve"]

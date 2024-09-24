@@ -34,6 +34,20 @@ The habitat of geoanimals
    1. GeoGirafe Frontend
 2. Tested against multiple platforms and python versions
 
+## Quickstart docker compose
+
+```shell
+docker compose build
+docker compose up -d
+```
+
+Wait for services to be up and running.
+
+```shell
+docker compose exec georama DJANGO_SUPERUSER_PASSWORD=admin DJANGO_SUPERUSER_USERNAME=admin DJANGO_SUPERUSER_EMAIL=admin@xy.ch /opt/georama/venv/bin/python src/georama/manage.py createsuperuser --noinput
+docker compose exec georama /opt/georama/venv/bin/python src/georama/manage.py migrate
+```
+
 ## Development
 
 
@@ -96,7 +110,7 @@ poetry install --all-extras
 
 Spin up a database (for georama admin configuration):
 ```shell
-docker run --rm -d --name georama -e POSTGRES_PASSWORD=test -p 54321:5432 -v georamadb_data:/var/lib/postgresql postgis/postgis:latest
+docker run --rm -d --name georama -e POSTGRES_PASSWORD=test -p 54321:5432 -v  postgis/postgis:latest
 ```
 
 start a redis instance (for qsl integration):

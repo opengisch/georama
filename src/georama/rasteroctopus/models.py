@@ -75,7 +75,7 @@ class PublishedAsWms(PublishedAs):
             if Permission.objects.filter(codename=permission.codename).count() == 0:
                 Permission(
                     codename=permission.codename,
-                    name=f'{permission.readable_name} ({dataset.project.group}.{dataset.project.name})',
+                    name=f'{permission.readable_name} ({dataset.project.mandant.name}.{dataset.project.name})',
                     content_type=content_type
                 ).save()
 
