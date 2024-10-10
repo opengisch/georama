@@ -1,4 +1,5 @@
 import json
+import os
 
 from django.http import HttpRequest
 
@@ -10,7 +11,10 @@ class Config:
 
     @property
     def redis_url(self):
-        return "redis://localhost:1234"
+        return os.environ.get(
+            "QSL_REDIS_URL",
+            "redis://localhost:1234"
+        )
 
     @property
     def default_dpi(self) -> int:

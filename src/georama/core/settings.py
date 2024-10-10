@@ -41,16 +41,31 @@ INSTALLED_APPS = [
     'georama.vectorparrot.apps.VectorparrotConfig',
     'georama.rasteroctopus.apps.RasteroctopusConfig',
     'georama.qmeleon.apps.QmeleonConfig',
+    # apps by clogs
+    "django.contrib.gis",
+    "corsheaders",
+    "rest_framework",
+    "rest_framework_gis",
+    "georama.clogs.apps.ClogsConfig",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "adminsortable2",
+    "treebeard",
+    "ninja",
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # clogs
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'georama.core.urls'
@@ -80,11 +95,11 @@ WSGI_APPLICATION = 'georama.core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'HOST': 'localhost',
-        'PORT': '54321',
-        'USER': 'postgres',
-        'PASSWORD': 'test',
-        'NAME': 'postgres'
+        'HOST': os.environ.get("GEORAMA_DB_HOST", 'localhost'),
+        'PORT': os.environ.get("GEORAMA_DB_PORT", '54321'),
+        'USER': os.environ.get("GEORAMA_DB_USER", 'postgres'),
+        'PASSWORD': os.environ.get("GEORAMA_DB_PW", 'test'),
+        'NAME': os.environ.get("GEORAMA_DB_NAME", 'postgres')
     }
 }
 
@@ -107,6 +122,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CORS_ALLOWED_ORIGINS = [] + os.getenv("ALLOWED_CORS", 'https://localhost:8443').split(",")
+
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

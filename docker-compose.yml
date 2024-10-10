@@ -1,0 +1,45 @@
+services:
+  georama:
+    image: georama:dev
+    build:
+      context: .
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+    volumes_from:
+      - "georama-test_data:rw"
+    ports:
+      - "8080:8000"
+  georama-db:
+    image: postgis/postgis:14-3.4
+    volumes:
+      - "georama-db_data:/var/lib/postgresql/data"
+    ports:
+      - "54321:5432"
+    environment:
+      - "POSTGRES_USER=${GEORAMA_DB_USER}"
+      - "POSTGRES_PASSWORD=${GEORAMA_DB_PW}"
+      - "POSTGRES_DB=${GEORAMA_DB_NAME}"
+  georama-test_data:
+    image: ghcr.io/opengisch/georama.test_data:latest
+    volumes:
+      - "/io/data"
+  qsl-redis:
+    image: redis:7.4.0
+  qsl:
+    restart: unless-stopped
+    image: ghcr.io/opengisch/qgis-server-light:latest
+    env_file:
+      - .env
+    volumes_from:
+      - "georama-test_data:rw"
+  geogirafe:
+    image: geogirafe/viewer:latest
+    volumes:
+      - ./geogirafe/config.json:/var/www/localhost/htdocs/config.json
+    ports:
+      - "8443:443"
+
+volumes:
+  georama-db_data:

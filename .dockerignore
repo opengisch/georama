@@ -1,0 +1,13 @@
+.tox
+.github
+.git
+.venv
+build
+dist
+docs
+.env
+src/*.egg-info
+map.cartoriviera.ch.json
+mapnv.c.json
+Dockerfile
+docker-compose.yml

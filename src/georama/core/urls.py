@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
 from georama.core import views
 
 
@@ -26,5 +27,7 @@ urlpatterns = [
     path("vectorparrot", include("georama.vectorparrot.urls")),
     path("qmeleon", include("georama.qmeleon.urls")),
     path("rasteroctopus", include("georama.rasteroctopus.urls")),
-    path('admin', admin.site.urls),
+    path("clogs", include("georama.clogs.urls")),
+    path('admin/', admin.site.urls, {"extra_context": {"DEBUG": settings.DEBUG}}),
+    path("users", include("allauth.urls"))
 ]

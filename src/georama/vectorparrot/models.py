@@ -85,12 +85,13 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
         on_delete=models.CASCADE
     )
 
+
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
         if self.name is None and isinstance(self.dataset, VectorDataSet):
             # TODO: maybe we want this to be configurable?
-            self.name = f'{self.dataset.project.group}.{self.dataset.project.name}.{self.dataset.name}'
+            self.name = f'{self.dataset.project.mandant.name}.{self.dataset.project.name}.{self.dataset.name}'
         if self.title is None and isinstance(self.dataset, VectorDataSet):
             self.title = self.dataset.title
         super().save(
@@ -112,7 +113,7 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
             if Permission.objects.filter(codename=permission.codename).count() == 0:
                 Permission(
                     codename=permission.codename,
-                    name=f'{permission.readable_name} ({self.dataset.project.group}.{self.dataset.project.name})',
+                    name=f'{permission.readable_name} ({self.dataset.project.mandant.name}.{self.dataset.project.name})',
                     content_type=content_type
                 ).save()
 

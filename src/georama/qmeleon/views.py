@@ -1,14 +1,12 @@
 import logging
+
 from django.shortcuts import redirect
 from django.views import View
-from django.views.generic import TemplateView
-from django.template import loader
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpRequest
 from xsdata.formats.dataclass.parsers import JsonParser
 from xsdata.formats.dataclass.serializers import DictEncoder
 
-from georama.qmeleon.models import Project, VectorDataSet, RasterDataSet, Field
-from dataclasses import asdict
+from georama.qmeleon.models import Project, VectorDataSet, RasterDataSet, Field, CustomDataSet, Mandant
 from georama.qmeleon.qmeleon_config import Config as QmeleonConfig
 from georama.qmeleon.admin import QgisProjectFileStructure, QgisProjectGroup, QgisProject
 from qgis_server_light.interface.qgis import Config
@@ -31,28 +29,30 @@ class RegisterQgisProject(View):
             redirect('admin:qmeleon_project_changelist')
         if not project.has_config:
             redirect('admin:qmeleon_project_changelist')
+        mandant_qs = Mandant.objects.filter(name=group_name)
+        if not mandant_qs.exists():
+            mandant_db = Mandant(name=group_name)
+            mandant_db.save()
+        else:
+            # we can do so, because name is unique in DB
+            mandant_db = mandant_qs.get()
 
         project_config = JsonParser().parse(project.config_path, Config)
-        projects_db = None
-        try:
-            projects_db = Project.objects.get(
-                name=project_name,
-                group=group_name,
-                hash=project.hash
-            )
-        except Project.DoesNotExist as e:
-            log.error(e)
-        if projects_db is None:
-            new_project = Project(
-                group=group_name,
+        project_qs = Project.objects.filter(
+            name=project_name,
+            mandant=mandant_db
+        )
+        if not project_qs.exists():
+            project_db = Project(
+                mandant=mandant_db,
                 name=project_name,
                 hash=project.hash,
                 title=project_config.project.name
             )
-            new_project.save()
+            project_db.save()
             for layer in project_config.datasets.vector:
                 vector_dataset = VectorDataSet(
-                    project=new_project,
+                    project=project_db,
                     name=layer.name,
                     title=layer.title,
                     bbox=layer.bbox.to_string(),
@@ -73,7 +73,21 @@ class RegisterQgisProject(View):
                     ).save()
             for layer in project_config.datasets.raster:
                 RasterDataSet(
-                    project=new_project,
+                    project=project_db,
+                    name=layer.name,
+                    title=layer.title,
+                    bbox=layer.bbox.to_string(),
+                    bbox_wgs84=layer.bbox_wgs84.to_string(),
+                    path=layer.path,
+                    style=layer.style,
+                    driver=layer.driver,
+                    source=DictEncoder().encode(layer.source),
+                    qgis_layer_id=layer.id,
+                    crs=DictEncoder().encode(layer.crs)
+                ).save()
+            for layer in project_config.datasets.custom:
+                CustomDataSet(
+                    project=project_db,
                     name=layer.name,
                     title=layer.title,
                     bbox=layer.bbox.to_string(),
@@ -86,9 +100,8 @@ class RegisterQgisProject(View):
                     crs=DictEncoder().encode(layer.crs)
                 ).save()
             return redirect('admin:qmeleon_project_changelist')
+
         else:
             # TODO: Handle update etc. of projects
             log.info('Project existed. Updating process not implemented yet => delete the project and integrate it again!')
             return redirect('admin:qmeleon_project_changelist')
-
-

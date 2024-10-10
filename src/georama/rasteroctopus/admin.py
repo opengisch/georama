@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from georama.qmeleon.models import RasterDataSet, VectorDataSet
+from georama.qmeleon.models import RasterDataSet, VectorDataSet, CustomDataSet
 from georama.rasteroctopus.models import PublishedAsWms
 
 
@@ -28,6 +28,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         extra_context['raster_datasets'] = RasterDataSet.objects.all()
         extra_context['vector_datasets'] = VectorDataSet.objects.all()
+        extra_context['custom_datasets'] = CustomDataSet.objects.all()
         return super().add_view(
             request, form_url, extra_context=extra_context,
         )
@@ -56,8 +57,11 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         elif isinstance(obj.vector_dataset, VectorDataSet):
             dataset = obj.vector_dataset
             type_name = 'Vector'
+        elif isinstance(obj.custom_dataset, CustomDataSet):
+            dataset = obj.custom_dataset
+            type_name = 'Custom'
         else:
-            raise NotImplementedError('linked dataset has to be RasterDataSet|VectorDataSet!')
+            raise NotImplementedError('linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!')
         return mark_safe(
             f'<a href="{reverse("admin:qmeleon_rasterdataset_change", args=(dataset.pk,))}" class="btn btn-high btn-success">{dataset.title} ({dataset.name})</a><span class="badge badge-secondary">{type_name}</span>'
         )

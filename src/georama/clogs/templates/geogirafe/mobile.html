@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="GeoGirafe is an flexible application to build online geoportals." />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../../static/clogs/geogirafe/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="../../static/clogs/geogirafe/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../../static/clogs/geogirafe/favicon-16x16.png" />
+    <link rel="manifest" href="../../static/clogs/geogirafe/site.webmanifest" />
+
+    <!-- To prevent the FOUC effect (flash of unstyled content),
+         the html element is set to invisible when the application starts.
+         When all elements have been declared, the html element is made visible
+         (=> see main.ts) -->
+    <style>
+      html {
+        opacity: 0;
+        transition: opacity 1s;
+      }
+    </style>
+    <noscript>
+      <style>
+        html {
+          opacity: 1;
+        }
+      </style>
+    </noscript>
+
+    <link rel="stylesheet" media="screen" href="data:text/css;base64,aHRtbCwKYm9keSB7CiAgbWFyZ2luOiAwOwogIHBhZGRpbmc6IDA7CiAgZm9udC1mYW1pbHk6IEFyaWFsLCBzYW5zLXNlcmlmOwogIGZvbnQtc2l6ZTogMC45cmVtOwp9Cgpib2R5IHsKICAtLWJ4LXNoZHc6IDAgMCAwIDFweCByZ2JhKDAsIDAsIDAsIDAuMSksIDAgMnB4IDRweCAwIHJnYmEoMCwgMCwgMCwgMC4xNik7CiAgLS10LWJrZzogI2ZmZmZmZmJiOwogIC0tdGV4dC1jb2xvcjogIzIyMjsKICAtLXRleHQtY29sb3ItZ3JhZDE6ICM0NDQ7CiAgLS10ZXh0LWNvbG9yLWdyYWQyOiAjNjY2OwogIC0tYmtnLWNvbG9yOiByZ2IoMjU1LCAyNTUsIDI1NSk7CiAgLS1ia2ctY29sb3ItZ3JhZDE6ICNkZGQ7CiAgLS1ia2ctY29sb3ItZ3JhZDI6ICNiYmI7CiAgLS1sbms6ICMwMDAwZmY7CiAgLS1sbmstdmlzaXRlZDogIzgwMDA4MDsKICAtLWxuay1ob3ZlcjogIzAwOTlmZjsKICAtLWxuay1hY3RpdmU6ICNmZjAwMDA7CiAgLS10c3Q6ICNmZjAwMDA7CiAgLS1lcnJvci1jb2xvcjogI2JiMDAwMDsKICAtLXN2Zy1maWx0ZXI6IG5vbmU7CiAgbWF4LXdpZHRoOiAxMDB2dzsKICBtYXgtaGVpZ2h0OiAxMDB2aDsKICBvdmVyZmxvdzogaGlkZGVuOwp9CgpnaXJhZmUtdGhlbWUtc2VsZWN0IHsKICBwb3NpdGlvbjogZml4ZWQ7CiAgYm90dG9tOiAxcmVtOwogIGxlZnQ6IDFyZW07CiAgei1pbmRleDogOTsKfQoKLnN3aXRjaDNkIHsKICBwb3NpdGlvbjogZml4ZWQ7CiAgYm90dG9tOiA0cmVtOwogIGxlZnQ6IDFyZW07CiAgei1pbmRleDogODsKfQoKZ2lyYWZlLW9mZmxpbmUgewogIHBvc2l0aW9uOiBmaXhlZDsKICBib3R0b206IDdyZW07CiAgbGVmdDogMXJlbTsKICB6LWluZGV4OiA4Owp9CgpnaXJhZmUtc2VhcmNoIHsKICBwb3NpdGlvbjogZml4ZWQ7CiAgdG9wOiAzcmVtOwogIGxlZnQ6IDFyZW07CiAgcmlnaHQ6IDFyZW07CiAgei1pbmRleDogMjA7Cn0KCiNjb250ZW50IHsKICBwb3NpdGlvbjogYWJzb2x1dGU7CiAgZGlzcGxheTogZmxleDsKICBmbGV4LWRpcmVjdGlvbjogY29sdW1uOwogIHRvcDogMDsKICBib3R0b206IDA7CiAgbGVmdDogMDsKICByaWdodDogMDsKfQoKZ2lyYWZlLW1hcCB7CiAgcG9zaXRpb246IHJlbGF0aXZlOwogIHdpZHRoOiAxMDAlOwogIGhlaWdodDogMTAwJTsKfQo=" />
+    <link rel="stylesheet" media="screen" href="data:text/css;base64,LyogQ29tbW9uIGdlbmVyYWwgc3R5bGVzICovCi5oaWRkZW4gewogIGRpc3BsYXk6IG5vbmU7Cn0KCi8qIEJpZyBidXR0b24gKGljb24gb25seSkgKi8KLmdpcmFmZS1idXR0b24tYmlnIHsKICB3aWR0aDogMi41cmVtOwogIGhlaWdodDogMi41cmVtOwogIGFsaWduLWl0ZW1zOiBjZW50ZXI7CiAgcGFkZGluZzogMC41cmVtOwogIGJvcmRlci1yYWRpdXM6IDRyZW07CiAgYm9yZGVyOiBzb2xpZCAxcHggYmxhY2s7CiAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tYmtnLWNvbG9yKTsKICBkaXNwbGF5OiBmbGV4OwogIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgY29sb3I6IHZhcigtLXRleHQtY29sb3IpOwp9CgouZ2lyYWZlLWJ1dHRvbi1iaWcgaW1nIHsKICBvdmVyZmxvdzogaGlkZGVuOwp9Cg==" />
+
+    <title>GeoGirafe</title>
+    <script type="module" crossorigin src="../../static/clogs/geogirafe/assets/mobile-De-uos_D.js"></script>
+    <link rel="modulepreload" crossorigin href="../../static/clogs/geogirafe/assets/lazy-CNpw-HpO.js">
+    <link rel="modulepreload" crossorigin href="../../static/clogs/geogirafe/assets/component-DmEB9E06.js">
+  </head>
+
+  <body>
+    <girafe-theme-select></girafe-theme-select>
+    <button
+      class="switch3d girafe-button-big"
+      onclick="document.geogirafe.state.globe.display = document.geogirafe.state.globe.display==='full'?'none':'full'">
+      <img alt="switch-icon" src="../../static/clogs/geogirafe/icons/globe.svg" />
+    </button>
+    <girafe-offline></girafe-offline>
+    <girafe-search></girafe-search>
+    <div id="content">
+      <girafe-map></girafe-map>
+    </div>
+  </body>
+</html>

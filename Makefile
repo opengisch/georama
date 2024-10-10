@@ -39,7 +39,7 @@ $(QGIS_VENV_PATH):
 	echo "/usr/share/qgis/python" > $@
 
 $(PIP_REQUIREMENTS): $(VENV_REQUIREMENTS) pyproject.toml $(QGIS_VENV_PATH)
-	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel
+	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools
 	$(VENV_BIN)/$(PIP_COMMAND) install .
 	touch $@
 
@@ -101,8 +101,20 @@ updates: $(PIP_REQUIREMENTS)
 
 .PHONY: dev
 dev: setup.py build
-	$(VENV_BIN)/python $< develop
+	$(VENV_BIN)/pip install -e .
 
 .PHONY: serve
-serve: build
-	$(VENV_BIN)/pserve application.ini
+serve: $(PIP_REQUIREMENTS) dev
+	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:8000
+
+.PHONY: migrate
+migrate: $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/python src/georama/manage.py migrate
+
+.PHONY: make-migrations
+make-migrations: $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/python src/georama/manage.py makemigrations
+
+.PHONY: create-superuser
+create-superuser: $(PIP_REQUIREMENTS)
+	DJANGO_SUPERUSER_PASSWORD=admin DJANGO_SUPERUSER_USERNAME=admin DJANGO_SUPERUSER_EMAIL=admin@xy.ch $(VENV_BIN)/python src/georama/manage.py createsuperuser --noinput

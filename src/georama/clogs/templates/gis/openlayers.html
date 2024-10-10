@@ -1,0 +1,17 @@
+{% extends "gis/openlayers.html" %}
+
+{% block options %}{{ block.super }}
+if( ! document.getElementById('{{ id }}').value ) {
+  options['default_lon'] = 8.3;
+  options['default_lat'] = 46.9;
+  options['default_zoom'] = 7;
+}
+{% endblock %}
+
+{% block base_layer %}
+const base_layer = new ol.layer.Tile({
+  source: new ol.source.XYZ({
+    url: 'https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.landeskarte-grau-10/default/current/3857/{z}/{x}/{y}.png'
+  })
+});
+{% endblock %}

@@ -4,7 +4,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from georama.core.entities.models import PublishedAs, PermissionInterface
-from georama.qmeleon.models import RasterDataSet, VectorDataSet
+from georama.qmeleon.models import RasterDataSet, VectorDataSet, CustomDataSet
 
 
 class PublishedAsWms(PublishedAs):
@@ -30,6 +30,16 @@ class PublishedAsWms(PublishedAs):
         related_query_name="published_ogc_wms",
         on_delete=models.CASCADE
     )
+    custom_dataset = models.ForeignKey(
+        CustomDataSet,
+        # TODO: this seems wrong => only because error:
+        #  It is impossible to add a non-nullable field 'dataset' to ... without
+        #  specifying a default. This is because the database needs something to populate existing rows.
+        null=True,
+        related_name="published_ogc_wms",
+        related_query_name="published_ogc_wms",
+        on_delete=models.CASCADE
+    )
 
     @property
     def permissions(self) -> List[PermissionInterface]:
@@ -45,8 +55,10 @@ class PublishedAsWms(PublishedAs):
             dataset = self.raster_dataset
         elif isinstance(self.vector_dataset, VectorDataSet):
             dataset = self.vector_dataset
+        elif isinstance(self.custom_dataset, CustomDataSet):
+            dataset = self.custom_dataset
         else:
-            raise NotImplementedError('linked dataset has to be RasterDataSet|VectorDataSet!')
+            raise NotImplementedError('linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!')
         if self.name is None:
             # TODO: maybe we want this to be configurable?
             self.name = dataset.name
@@ -63,7 +75,7 @@ class PublishedAsWms(PublishedAs):
             if Permission.objects.filter(codename=permission.codename).count() == 0:
                 Permission(
                     codename=permission.codename,
-                    name=f'{permission.readable_name} ({dataset.project.group}.{dataset.project.name})',
+                    name=f'{permission.readable_name} ({dataset.project.mandant.name}.{dataset.project.name})',
                     content_type=content_type
                 ).save()
 

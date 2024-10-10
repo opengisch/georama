@@ -1,6 +1,6 @@
 .idea/
 .vscode/
-
+.env
 *.egg-info/
 *.pyc
 *\.bak
@@ -30,3 +30,8 @@ cookie-py.log
 
 .venv
 docs/site
+
+
+# GeoGirafe themes.json examples
+map.cartoriviera.ch.json
+mapnv.c.json
