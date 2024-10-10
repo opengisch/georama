@@ -206,8 +206,7 @@ class PublishedAsLayerWms(Layer):
 
     def as_dataclass(self, geogirafe_config: ThemesJson) -> WmsLayer:
         config = ParserConfig(fail_on_unknown_properties=False)
-        if self.dataset.source:
-            source = DictDecoder(config).decode(self.dataset.source, WmsSource)
+        source = DictDecoder(config).decode(self.dataset.source, WmsSource)
         metadata = None
         if self.metadata:
             metadata = DictDecoder(config).decode(self.metadata, MetaData)
