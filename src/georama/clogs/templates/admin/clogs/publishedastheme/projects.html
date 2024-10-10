@@ -1,0 +1,26 @@
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Mandant</th>
+                <th>Project</th>
+                <th>Hash</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in publishable_projects %}
+            <tr class="even" role="row">
+                <td>{{ project.mandant.name }}</td>
+                <td>{{ project.name }}</td>
+                <td>{{ project.hash }}</td>
+                <td>
+                    <a href="{% url 'publish_project' project.mandant.id project.name %}" class="btn btn-high btn-success">publish</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

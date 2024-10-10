@@ -150,18 +150,21 @@ class OgcServer(AbstractSchema):
 @dataclass
 class SnappingConfig:
     edge: bool = field(
+        default=False,
         metadata={
             "type": "Element",
             "required": False
         }
     )
     vertex: bool = field(
+        default=False,
         metadata={
             "type": "Element",
             "required": False
         }
     )
     tolerance: int = field(
+        default=0,
         metadata={
             "type": "Element",
             "required": False
@@ -395,18 +398,21 @@ class Dimensions:
 @dataclass
 class Time:
     minValue: str = field(
+        default=None,
         metadata={
             "type": "Element",
             "required": True
         }
     )
     maxValue: str = field(
+        default=None,
         metadata={
             "type": "Element",
             "required": True
         }
     )
     values: list[str] = field(
+        default_factory=list,
         metadata={
             "type": "Element",
             "required": True
@@ -414,6 +420,7 @@ class Time:
     )
     # TODO: make enumeration day|month|year|second
     resolution: str = field(
+        default=None,
         metadata={
             "type": "Element",
             "required": True
@@ -421,6 +428,7 @@ class Time:
     )
     # TODO: make enumeration range|value|disabled
     mode: str = field(
+        default=None,
         metadata={
             "type": "Element",
             "required": True
@@ -428,6 +436,7 @@ class Time:
     )
     # TODO: make enumeration slider|datepicker
     widget: str = field(
+        default=None,
         metadata={
             "type": "Element",
             "required": True
@@ -655,7 +664,7 @@ class LayerGroup:
         }
     )
     mixed: Optional[bool] = field(
-        default=None,
+        default=False,
         metadata={
             "type": "Element",
             "required": False

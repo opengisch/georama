@@ -78,7 +78,6 @@ def collections(request: HttpRequest,
     """
     response_ = _feed_response(request, 'describe_collections', collection_id)
     response = _to_django_response(*response_)
-
     return response
 
 def collection_schema(request: HttpRequest,
@@ -270,37 +269,39 @@ def handle_crs_setting(crs: str):
 
 
 def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool) -> dict:
-    handle_crs_setting(published_as.dataset.crs['ogc_uri']),
+    source, path = published_as.dataset.source_to_qsl
+    crs = published_as.dataset.crs_to_qsl
+    handle_crs_setting(crs.ogc_uri),
     config = Config()
     driver_lookup = {
         "SHP": "ESRI Shapefile",
         "GPKG": "GPKG"
     }
-    crs = [
-        published_as.dataset.crs['ogc_uri'],
+    available_crs_list = [
+        crs.ogc_uri,
         "https://www.opengis.net/def/crs/OGC/0/CRS84"
     ]
-    if config.default_crs not in crs:
-        crs.append(config.default_crs)
+    if config.default_crs not in available_crs_list:
+        available_crs_list.append(config.default_crs)
     return {
         "type": "feature",
         "name": "OGR",
         "data": {
-            "source_type": driver_lookup[published_as.dataset.source['path'].split('.')[-1].upper()],
+            "source_type": driver_lookup[source.ogr.path.split('.')[-1].upper()],
             "source": os.path.join(
                 config.path,
                 published_as.dataset.project.mandant.name,
-                published_as.dataset.source['path']
+                source.ogr.path
             ),
             "source_capabilities": {
                 "paging": True
             }
         },
         "editable": editable,
-        "crs": crs,
-        "storage_crs": published_as.dataset.crs['ogc_uri'],
+        "crs": available_crs_list,
+        "storage_crs": crs.ogc_uri,
         "id_field": "fid",
-        "layer": published_as.dataset.source['layer_name'] if published_as.dataset.source['layer_name'] is not None else os.path.basename(published_as.dataset.source['path']).split('.')[0]
+        "layer": source.ogr.layer_name if source.ogr.layer_name is not None else os.path.basename(source.ogr.path).split('.')[0]
         # TODO:
         # "id_field": "fid",
         # "title_field": "kantonsname",
@@ -308,33 +309,37 @@ def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool)
 
 
 def create_postgres_provider(published_as: PublishedAsOgcApiFeatures, editable: bool) -> dict:
-    handle_crs_setting(published_as.dataset.crs['ogc_uri']),
-    crs = [
-        published_as.dataset.crs['ogc_uri'],
+    source, path = published_as.dataset.source_to_qsl
+    crs = published_as.dataset.crs_to_qsl
+    handle_crs_setting(crs.ogc_uri)
+
+    available_crs_list = [
+        crs.ogc_uri,
         "https://www.opengis.net/def/crs/OGC/0/CRS84"
     ]
 
-    if Config().default_crs not in crs:
-        crs.append(Config().default_crs)
+    if Config().default_crs not in available_crs_list:
+        available_crs_list.append(Config().default_crs)
+
     return {
         "type": "feature",
         "name": "PostgreSQL",
         "data": {
-            "host": published_as.dataset.source['host'],
-            "port": published_as.dataset.source['port'],
-            "dbname": published_as.dataset.source['dbname'],
-            "user": published_as.dataset.source['username'],
-            "password": published_as.dataset.source['password'],
+            "host": source.postgres.host,
+            "port": source.postgres.port,
+            "dbname": source.postgres.dbname,
+            "user": source.postgres.username,
+            "password": source.postgres.password,
             "search_path": [
-                published_as.dataset.source['schema']
+                source.postgres.schema
             ]
         },
         "editable": editable,
-        "crs": crs,
-        "storage_crs": published_as.dataset.crs['ogc_uri'],
-        "id_field": published_as.dataset.source['key'],
-        "table": published_as.dataset.source['table'],
-        "geom_field": published_as.dataset.source['geometry_column']
+        "crs": available_crs_list,
+        "storage_crs": crs.ogc_uri,
+        "id_field": source.postgres.key,
+        "table": source.postgres.table,
+        "geom_field": source.postgres.geometry_column
         # TODO:
         # "id_field": "fid",
         # "title_field": "kantonsname",

@@ -38,6 +38,7 @@ def assemble_tree_to_treebeard(
         node = current_parent.add_child(name=child.name)
         db_node = LayerGroupMp.objects.get(pk=node.pk)
         db_node.theme = theme
+        db_node.themes_json_id = child.id
         db_node.save()
         if isinstance(child, LayerGroup):
             if hasattr(child, 'ogcServer'):
@@ -50,7 +51,7 @@ def assemble_tree_to_treebeard(
             db_node.mixed = child.mixed
             db_node.ogc_server = current_ogc_server
             db_node.dimensions = DictEncoder().encode(child.dimensions)
-            db_node.themes_json_id = child.id
+
             db_node.save()
             assemble_tree_to_treebeard(
                 child.children,
@@ -65,41 +66,48 @@ def assemble_tree_to_treebeard(
                 if child.ogcServer is None and current_ogc_server is not None:
                     child.ogcServer = current_ogc_server
                 ogc_server = geoportal_config.get_ogc_server_by_name(child.ogcServer)
-                source = WmsSource(
-                    # TODO: This comes from QGIS and seem to bool if legend is shown or not, we need to know
-                    #  how this transports to geogirafe
-                    contextual_wms_legend='0',
-                    # TODO: This we should make configurable or read it from capabilities of OGC Server
-                    crs="EPSG:2056",
-                    # TODO: This is normally a QGIS/Client specific thing, probably we can remove it from the
-                    #  dataclass
-                    dpi_mode='',
-                    # TODO: Find why, how this is possible to fill
-                    feature_count=0,
-                    format=child.imageType,
-                    layers=child.layers,
-                    url=ogc_server.url
-                )
-                dataset = RasterDataSet(
+                query = RasterDataSet.objects.filter(
                     project=project,
-                    name=child.name,
-                    # TODO: Fix this to correct title (via translation?)
-                    title=child.name.title(),
-                    # TODO: should we fetch this from capabilities?
-                    bbox="TODO",
-                    # TODO: should we fetch this from capabilities?
-                    bbox_wgs84="TODO",
-                    path=geoportal_config.get_ogc_server_by_name(child.ogcServer).url,
-                    style='',
-                    # this is wms for WMTS & WMS since (that comes from QGIS which handle both through
-                    #   the same driver)
-                    driver='wms',
-                    source=DictEncoder().encode(source),
-                    qgis_layer_id=child.id,
-                    # TODO: should we fetch this from capabilities?
-                    crs=DictEncoder().encode(Crs())
+                    name=child.name
                 )
-                dataset.save()
+                if query.exists():
+                    dataset = query.get()
+                else:
+                    source = WmsSource(
+                        # TODO: This comes from QGIS and seem to bool if legend is shown or not, we need to know
+                        #  how this transports to geogirafe
+                        contextual_wms_legend='0',
+                        # TODO: This we should make configurable or read it from capabilities of OGC Server
+                        crs="EPSG:2056",
+                        # TODO: This is normally a QGIS/Client specific thing, probably we can remove it from the
+                        #  dataclass
+                        dpi_mode='',
+                        # TODO: Find why, how this is possible to fill
+                        feature_count=0,
+                        format=child.imageType,
+                        layers=child.layers,
+                        url=ogc_server.url
+                    )
+                    dataset = RasterDataSet(
+                        project=project,
+                        name=child.name,
+                        # TODO: Fix this to correct title (via translation?)
+                        title=child.name.title(),
+                        # TODO: should we fetch this from capabilities?
+                        bbox="TODO",
+                        # TODO: should we fetch this from capabilities?
+                        bbox_wgs84="TODO",
+                        path=geoportal_config.get_ogc_server_by_name(child.ogcServer).url,
+                        style='',
+                        # this is wms for WMTS & WMS since (that comes from QGIS which handle both through
+                        #   the same driver)
+                        driver='wms',
+                        source=DictEncoder().encode(source),
+                        qgis_layer_id=child.id,
+                        # TODO: should we fetch this from capabilities?
+                        crs=DictEncoder().encode(Crs())
+                    )
+                    dataset.save()
                 PublishedAsLayerWms(
                     ogc_server=ogc_server.name,
                     themes_json_id=child.id,
@@ -114,40 +122,47 @@ def assemble_tree_to_treebeard(
                     dimensions=DictEncoder().encode(child.dimensions)
                 ).save()
             elif isinstance(child, WmtsLayer):
-                dataset = RasterDataSet(
+                query = RasterDataSet.objects.filter(
                     project=project,
-                    name=child.name,
-                    # TODO: Fix this to correct title (via translation?)
-                    title=child.name.title(),
-                    # TODO: should we fetch this from capabilities?
-                    bbox="TODO",
-                    # TODO: should we fetch this from capabilities?
-                    bbox_wgs84="TODO",
-                    path=child.url,
-                    style='',
-                    # this is wms for WMTS & WMS since (that comes from QGIS which handle both through
-                    #   the same driver)
-                    driver='wms',
-                    source=DictEncoder().encode(
-                        WmtsSource(
-                            url=child.url,
-                            layers=child.layer,
-                            format=child.imageType,
-                            contextual_wms_legend="0",
-                            styles="default",
-                            dpi_mode='7',
-                            feature_count=10,
-                            tile_dimensions="",
-                            tile_matrix_set="",
-                            crs="",
-                            tile_pixel_ratio="0"
-                        )
-                    ),
-                    qgis_layer_id=child.id,
-                    # TODO: should we fetch this from capabilities?
-                    crs=DictEncoder().encode(Crs())
+                    name=child.name
                 )
-                dataset.save()
+                if query.exists():
+                    dataset = query.get()
+                else:
+                    dataset = RasterDataSet(
+                        project=project,
+                        name=child.name,
+                        # TODO: Fix this to correct title (via translation?)
+                        title=child.name.title(),
+                        # TODO: should we fetch this from capabilities?
+                        bbox="TODO",
+                        # TODO: should we fetch this from capabilities?
+                        bbox_wgs84="TODO",
+                        path=child.url,
+                        style='',
+                        # this is wms for WMTS & WMS since (that comes from QGIS which handle both through
+                        #   the same driver)
+                        driver='wms',
+                        source=DictEncoder().encode(
+                            WmtsSource(
+                                url=child.url,
+                                layers=child.layer,
+                                format=child.imageType,
+                                contextual_wms_legend="0",
+                                styles="default",
+                                dpi_mode='7',
+                                feature_count=10,
+                                tile_dimensions="",
+                                tile_matrix_set="",
+                                crs="",
+                                tile_pixel_ratio="0"
+                            )
+                        ),
+                        qgis_layer_id=child.id,
+                        # TODO: should we fetch this from capabilities?
+                        crs=DictEncoder().encode(Crs())
+                    )
+                    dataset.save()
                 PublishedAsLayerWmts(
                     themes_json_id=child.id,
                     name=dataset.name,
@@ -248,7 +263,7 @@ class Themes(View):
         for child in node.get_children():
             if child.get_children():
                 # this is a group to unpack
-                group = node.as_dataclass()
+                group = child.as_dataclass()
                 layer_group.children.append(group)
                 self.assemble_themes_tree_from_treebeard(child, group, config)
             else:
@@ -280,7 +295,8 @@ class Themes(View):
         result_dict = {
             'themes': DictEncoder().encode(geogirafe_config.themes),
             'ogcServers': {},
-            'errors': []
+            'errors': [],
+            'background_layers': []
         }
         for ogc_server in geogirafe_config.ogc_servers:
             result_dict['ogcServers'][ogc_server.name] = DictEncoder().encode(ogc_server)
@@ -370,3 +386,13 @@ class Config(View):
         return HttpResponse(
             json.dumps(config_dict, indent=2), status=200, content_type='application/json'
         )
+
+
+class PublishProject(View):
+
+    def get(self, request: HttpRequest, mandant_id: int, project_name: str, **kwargs):
+        project = Project.objects.filter(name=project_name, mandant__id=mandant_id)
+        return HttpResponse(
+            f"{project_name} {mandant_id}", status=200, content_type='text/plain'
+        )
+        # return redirect('admin:clogs_publishedastheme_changelist')

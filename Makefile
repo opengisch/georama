@@ -101,8 +101,20 @@ updates: $(PIP_REQUIREMENTS)
 
 .PHONY: dev
 dev: setup.py build
-	$(VENV_BIN)/python $< develop
+	$(VENV_BIN)/pip install -e .
 
 .PHONY: serve
-serve: $(PIP_REQUIREMENTS)
+serve: $(PIP_REQUIREMENTS) dev
 	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:8000
+
+.PHONY: migrate
+migrate: $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/python src/georama/manage.py migrate
+
+.PHONY: make-migrations
+make-migrations: $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/python src/georama/manage.py makemigrations
+
+.PHONY: create-superuser
+create-superuser: $(PIP_REQUIREMENTS)
+	DJANGO_SUPERUSER_PASSWORD=admin DJANGO_SUPERUSER_USERNAME=admin DJANGO_SUPERUSER_EMAIL=admin@xy.ch $(VENV_BIN)/python src/georama/manage.py createsuperuser --noinput

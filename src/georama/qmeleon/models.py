@@ -1,10 +1,10 @@
 import logging
 import datetime
-from django.core import serializers
+import os.path
+
 from django.db import models
 from qgis_server_light.interface.qgis import (
-    Vector, BBox, Raster, Crs, OgrSource, PostgresSource, GdalSource, WmtsSource, WmsSource, DataSource,
-    Custom
+    Vector, BBox, Raster, Crs, DataSource, Custom
 )
 from xsdata.formats.dataclass.parsers import DictDecoder
 
@@ -56,6 +56,28 @@ class DataSet(models.Model):
         default=dict
     )
 
+    @property
+    def source_to_qsl(self) -> tuple[DataSource, str]:
+        # TODO: Implement an ENV Django app to manipulate datasources in a hookable way
+        datasource = DictDecoder().decode(self.source, DataSource)
+        path = self.path
+        if datasource.postgres:
+            datasource.postgres.host = "georama-test_data"
+            datasource.postgres.port = "5432"
+            path = path.replace(
+                "host=localhost port=54322",
+                f"host={datasource.postgres.host} port={datasource.postgres.port}"
+            )
+        elif datasource.ogr:
+            path = os.path.join(self.project.mandant.name, path)
+        elif datasource.gdal:
+            path = os.path.join(self.project.mandant.name, path)
+
+        return datasource, path
+
+    @property
+    def crs_to_qsl(self) -> Crs:
+        return DictDecoder().decode(self.crs, Crs)
 
 class VectorDataSet(DataSet):
 
@@ -71,17 +93,18 @@ class VectorDataSet(DataSet):
 
     @property
     def to_qsl(self) -> Vector:
+        datasource, path = self.source_to_qsl
         return Vector(
             name=self.name,
             title=self.title,
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),
-            path=self.path,
+            path=path,
             style=self.style,
             driver=self.driver,
-            source=DictDecoder().decode(self.source, DataSource),
+            source=datasource,
             id=self.qgis_layer_id,
-            crs=DictDecoder().decode(self.crs, Crs)
+            crs=self.crs_to_qsl
         )
 
 
@@ -99,17 +122,18 @@ class RasterDataSet(DataSet):
 
     @property
     def to_qsl(self) -> Raster:
+        datasource, path = self.source_to_qsl
         return Raster(
             name=self.name,
             title=self.title,
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),
-            path=self.path,
+            path=path,
             style=self.style,
             driver=self.driver,
-            source=DictDecoder().decode(self.source, DataSource),
+            source=datasource,
             id=self.qgis_layer_id,
-            crs=DictDecoder().decode(self.crs, Crs)
+            crs=self.crs_to_qsl
         )
 
 
@@ -127,17 +151,18 @@ class CustomDataSet(DataSet):
 
     @property
     def to_qsl(self) -> Custom:
+        datasource, path = self.source_to_qsl
         return Custom(
             name=self.name,
             title=self.title,
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),
-            path=self.path,
+            path=path,
             style=self.style,
             driver=self.driver,
-            source=DictDecoder().decode(self.source, DataSource),
+            source=datasource,
             id=self.qgis_layer_id,
-            crs=DictDecoder().decode(self.crs, Crs)
+            crs=self.crs_to_qsl
         )
 
 

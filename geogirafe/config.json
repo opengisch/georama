@@ -1,31 +1,104 @@
 {
-    "general": {
-      "locale": "en-US"
+  "general": {
+    "locale": "de-CH"
+  },
+  "languages": {
+    "translations": {
+      "de": ["de.json", "Mock/de.json"],
+      "en": ["en.json", "Mock/en.json"],
+      "fr": ["fr.json", "Mock/fr.json"]
     },
-    "languages": {
-      "translations": {
-        "en": ["mock/en.json"]
-      },
-      "defaultLanguage": "en"
+    "defaultLanguage": "de"
+  },
+  "interface": {
+    "defaultSelectionComponent": "grid"
+  },
+  "themes": {
+    "url": "http://localhost:8080/clogs/mapbs/themes.json",
+    "defaultTheme": "",
+    "selectionMode": "add"
+  },
+  "basemaps": {
+    "defaultBasemap": "Grundkarte farbig",
+    "OSM": true,
+    "SwissTopoVectorTiles": true
+  },
+  "treeview": {
+    "useLegendIcons": true,
+    "hideLegendWhenLayerIsDeactivated": false,
+    "defaultIconSize": {
+      "width": "21",
+      "height": "16"
+    }
+  },
+  "search": {
+    "url": "https://map.geo.bs.ch/search?limit=90&partitionlimit=15&interface=desktop&query=###SEARCHTERM###&lang=###SEARCHLANG###",
+    "objectPreview": true,
+    "layerPreview": true
+  },
+  "print": {
+    "url": "https://map.geo.bs.ch/printproxy/",
+    "defaultLayout": "print_A4_hochformat"
+  },
+  "share": {
+    "service": "gmf",
+    "createUrl": "https://map.geo.test.bs.ch/short/create"
+  },
+  "projections": {
+    "EPSG:3857": "W-M",
+    "EPSG:4326": "WGS84",
+    "EPSG:2056": "LV95"
+  },
+  "map": {
+    "srid": "EPSG:2056",
+    "scales": [200000, 75000, 40000, 20000, 10000, 7500, 5000, 3500, 2000, 1000, 500, 200, 100, 50],
+    "startPosition": "2611250,1267100",
+    "startZoom": "4",
+    "maxExtent": "2583000,1235000,2650000,1291000"
+  },
+  "map3d": {
+    "terrainUrl": "https://3d.geo.dev.fgi.cloud.bs.ch/terrainproxy/028401be-a5fc-4560-a489-f64f458cd6ad_5/",
+    "terrainImagery": {
+      "url": "https://wmts.geo.bs.ch/wmts/1.0.0/BaseMap_farbig/default/3857/{z}/{y}/{x}.png",
+      "srid": 3857,
+      "minLoD": 8,
+      "maxLoD": 17,
+      "coverageArea": [6.78, 47.05, 8.6, 47.8]
     },
-    "themes": {
-      "url": "http://localhost:8080/clogs/cartoriviera/themes.json",
-      "defaultTheme": "cadastre"
+    "tilesetsUrls": [
+      "https://3d.geo.bs.ch/cesium/tiles/av-bb-gebaude-ohne-bauprojekt/tileset.json",
+      "https://3d.geo.bs.ch/cesium/tiles/av-bb-weitere-objekte-und-bruecken-ohne-bauprojekt/tileset.json",
+      "https://3d.geo.bs.ch/cesium/tiles/av-bb-bewilligte-bauten-teilobjekte-im-bestand/tileset.json",
+      "https://3d.geo.bs.ch/cesium/tiles/av-bb-geplante-bauvorhaben-teilobjekte-im-bestand/tileset.json",
+      "https://3d.geo.bs.ch/cesium/tiles/av-bb-projektideen-teilobjekt-im-bestand/tileset.json",
+      "https://3d.geo.bs.ch/cesium/tiles/bb-bauprojekte/tileset.json",
+      "https://3d.geo.bs.ch/cesium/tiles/bl-gebaeude-2023/tileset.json",
+      "https://3d.geo.bs.ch/cesium/tiles/de-gebaeude-2023/tileset.json",
+      "https://3d.geo.bs.ch/cesium/tiles/fr-gebaeude-2023/tileset.json"
+    ]
+  },
+  "bookmarks": {
+    "service": "localStorage",
+    "get": "",
+    "post": ""
+  },
+  "metadata": {
+    "metadataUrlPrefix": "https://map.geo.bs.ch",
+    "defaultWindowWidth": "500px",
+    "defaultWindowHeight": "350px"
+  },
+  "oauth": {
+    "issuer": {
+      "url": "https://auth.geo.test.bs.ch/auth/realms/geobs",
+      "algorithm": "oidc",
+      "clientId": "MapBS-ui",
+      "checkSessionOnLoad": true
     },
-    "basemaps": {
-      "defaultBasemap": "OpenStreetMap",
-      "OSM": true
-    },
-    "projections": {
-      "EPSG:2056": "Swiss projection"
-    },
-    "map": {
-      "srid": "EPSG:2056",
-      "scales": [70000000, 35000000, 15000000, 10000000, 4000000, 2000000, 1000000, 500000, 250000, 150000, 70000, 35000, 15000, 8000, 4000, 2000, 1000, 500],
-      "startPosition": "2545500, 1198750",
-      "startZoom": "5"
-    },
-    "map3d": {
-      "tilesetsUrls": []
+    "geomapfish": {
+      "userInfoUrl": "https://map.geo.test.bs.ch/loginuser",
+      "loginUrl": "https://map.geo.test.bs.ch/KeycloakLogin",
+      "logoutUrl": "https://map.geo.test.bs.ch/KeycloakLogout",
+      "anonymousUsername": "service-account-service_mapbs_anonymous"
     }
   }
+}

@@ -85,6 +85,7 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
         on_delete=models.CASCADE
     )
 
+
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):

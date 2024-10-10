@@ -252,6 +252,7 @@ class DataSetAdmin(admin.ModelAdmin):
 
 
 class RasterDataSetAdmin(DataSetAdmin):
+
     pass
 
 

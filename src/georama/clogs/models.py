@@ -184,7 +184,7 @@ class PublishedAsLayerWms(Layer):
         related_query_name="wms_dataset",
         on_delete=models.CASCADE
     )
-    dataset = models.OneToOneField(
+    dataset = models.ForeignKey(
         RasterDataSet,
         related_name="published_as_geogirafe_wmss",
         related_query_name="published_as_geogirafe_wms",
@@ -218,7 +218,7 @@ class PublishedAsLayerWms(Layer):
             id=self.themes_json_id,
             name=self.name,
             # TODO: Fix layers, it has to written to the datasource
-            layers='',
+            layers=source.layers,
             type="WMS",
             imageType=geogirafe_config.get_ogc_server_by_name(
                 self.ogc_server
