@@ -37,16 +37,49 @@ The habitat of geoanimals
 ## Quickstart docker compose
 
 ```shell
+cp .env.example .env
+```
+
+Adapt content of `.env` as you need (usually nothing need to be changes)
+
+```shell
 docker compose build
 docker compose up -d
 ```
 
-Wait for services to be up and running.
+Wait for services to be up and running. That might last a moment since the test data (about 5GB) has to be
+fetched.
+
+If everything runs, you can prepare the Django DB
 
 ```shell
 docker compose exec georama make migrate
 docker compose exec georama make create-superuser
 ```
+
+Admin interface (user: admin password: admin): http://localhost:8080/admin/
+
+After login you can use the Clogs integration interface: http://localhost:8080/clogs
+
+Since GeoGirafe is not integrated completely yet, you need to change the following line:
+https://github.com/opengisch/georama/blob/master/geogirafe/config.json#L17
+
+The url set up is for the case where you integrated the mapbs themes.json:
+`"http://localhost:8080/clogs/mapbs/themes.json"`
+
+Change this to one of:
+
+- "http://localhost:8080/clogs/mapnv/themes.json"
+- "http://localhost:8080/clogs/cartoriviera/themes.json"
+- "http://localhost:8080/clogs/sitn/themes.json"
+
+Then you can reach your GeoGirafe at: https://localhost:8443/
+
+This uses a custom certificate which you may need to allow. In addition, the themes.json is not the fastest
+endpoint. So it may last a moment to load it (this is matter of current improvements).
+
+You should now have a GeoGirafe instance providing the content of the integrated geoportal. You can configure
+as you like in Django admin.
 
 ## Development
 
