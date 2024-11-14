@@ -1,14 +1,14 @@
-[![build](https://img.shields.io/github/workflow/status/opengisch/georama/Test%20Python%20Package/main?label=build&logo=github-actions&logoColor=%233392FF)](https://github.com/opengisch/georama/actions/workflows/test.yaml?query=branch%3Amain)
+[![build](https://img.shields.io/github/workflow/status/opengisch/georama/Test%20Python%20Package/master?label=build&logo=github-actions&logoColor=%233392FF)](https://github.com/opengisch/georama/actions/workflows/test.yaml?query=branch%3Amaster)
 [![release_version](https://img.shields.io/pypi/v/georama)](https://pypi.org/project/georama/)
 [![wheel](https://img.shields.io/pypi/wheel/georama?color=green&label=wheel)](https://pypi.org/project/georama)
 [![supported_versions](https://img.shields.io/pypi/pyversions/georama?color=blue&label=python&logo=python&logoColor=%23ccccff)](https://pypi.org/project/georama)
-[![docs](https://img.shields.io/readthedocs/georama/main?logo=readthedocs&logoColor=lightblue)](https://georama.readthedocs.io/en/main/)
-[![coverage](https://img.shields.io/codecov/c/github/opengisch/georama/main?logo=codecov)](https://app.codecov.io/gh/opengisch/georama)
+[![docs](https://img.shields.io/readthedocs/georama/master?logo=readthedocs&logoColor=lightblue)](https://georama.readthedocs.io/en/master/)
+[![coverage](https://img.shields.io/codecov/c/github/opengisch/georama/master?logo=codecov)](https://app.codecov.io/gh/opengisch/georama)
 [![maintainability](https://img.shields.io/codeclimate/maintainability/opengisch/georama)](https://codeclimate.com/github/opengisch/georama)
 [![tech-debt](https://img.shields.io/codeclimate/tech-debt/opengisch/georama)](https://codeclimate.com/github/opengisch/georama)
 [![ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
-[![gh-lic](https://img.shields.io/github/license/opengisch/georama)](https://github.com/opengisch/georama/blob/main/LICENSE)
-[![commits_since_specific_tag_on_main](https://img.shields.io/github/commits-since/opengisch/georama/v0.0.1/main?color=blue&logo=github)](https://github.com/opengisch/georama/compare/v0.0.1..main)
+[![gh-lic](https://img.shields.io/github/license/opengisch/georama)](https://github.com/opengisch/georama/blob/master/LICENSE)
+[![commits_since_specific_tag_on_master](https://img.shields.io/github/commits-since/opengisch/georama/v0.0.1/master?color=blue&logo=github)](https://github.com/opengisch/georama/compare/v0.0.1..master)
 [![commits_since_latest_github_release](https://img.shields.io/github/commits-since/opengisch/georama/latest?color=blue&logo=semver&sort=semver)]()
 
 # GEORAMA
@@ -16,7 +16,7 @@
 The habitat of geoanimals
 
 - [**Code**](https://github.com/opengisch/georama)
-- [**Docs**](https://georama.readthedocs.io/en/main/)
+- [**Docs**](https://georama.readthedocs.io/en/master/)
 - [**PyPI**](https://pypi.org/project/georama/)
 - [**CI**](https://github.com/opengisch/georama/actions/)
 
@@ -98,7 +98,7 @@ Testing, Documentation Building, Scripts, CI/CD, Static Code Analysis for this p
    1. **Continuous Deployment**
 
       `Production` 
-         1. **Python Distristribution** to `pypi.org`_, on `tags` **v***, pushed to `main` branch
+         1. **Python Distristribution** to `pypi.org`_, on `tags` **v***, pushed to `master` branch
          1. **Docker Image** to `Dockerhub`_, on every push, with automatic `Image Tagging`
       
       `Staging`
@@ -190,7 +190,7 @@ tox -e py310 -vv -s false
 
 ## License
 
-[![gh-lic](https://img.shields.io/github/license/opengisch/georama)](https://github.com/opengisch/georama/blob/main/LICENSE)
+[![gh-lic](https://img.shields.io/github/license/opengisch/georama)](https://github.com/opengisch/georama/blob/master/LICENSE)
 
 * `GNU Affero General Public License v3.0`
 
@@ -211,4 +211,4 @@ tox -e py310 -vv -s false
 - [isort](https://pycqa.github.io/isort/)
 - [black](https://black.readthedocs.io/en/stable/)
 - [GitHub Actions](https://github.com/opengisch/georama/actions)
-- [GNU Affero General Public License v3.0](https://github.com/opengisch/georama/blob/main/LICENSE)
+- [GNU Affero General Public License v3.0](https://github.com/opengisch/georama/blob/master/LICENSE)
