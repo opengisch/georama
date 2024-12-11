@@ -25,6 +25,9 @@ services:
     image: ghcr.io/opengisch/georama.test_data:latest
     volumes:
       - "/io/data"
+      - "/home/kalle/projects/opengis/georama.test_data/zg.tankkataster:/io/data/zg.tankkataster"
+    ports:
+      - "54322:5432"
   qsl-redis:
     image: redis:7.4.0
   qsl:
@@ -34,6 +37,8 @@ services:
       - .env
     volumes_from:
       - "georama-test_data:rw"
+    deploy:
+      replicas: 1
   geogirafe:
     image: geogirafe/viewer:latest
     volumes:

@@ -14,7 +14,7 @@
     "defaultSelectionComponent": "grid"
   },
   "themes": {
-    "url": "http://localhost:8080/clogs/mapbs/themes.json",
+    "url": "http://localhost:8080/clogs/cartoriviera/themes.json",
     "defaultTheme": "",
     "selectionMode": "add"
   },

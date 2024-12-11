@@ -151,21 +151,28 @@ def wms_130_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
 def extract_layers(
         request: HttpRequest,
         service_params: WmsGetMapParams
-) -> tuple[list[Raster], list[Vector], list[Custom]]:
+) -> tuple[list[Raster], list[Vector], list[Custom], float]:
     accessible_raster: list[Raster] = []
     accessible_vector: list[Vector] = []
     accessible_custom: list[Custom] = []
+    # we set the extent buffer to zero, this is used to control rendering issues like
+    # https://github.com/qgis/QGIS/issues/30251
+    vector_extent_buffer = 0.0
     for published_as in PublishedAsWms.objects.filter(name__in=[name.lower() for name in service_params.layers]):
         if published_as.has_read_permission(request.user, appname):
             if isinstance(published_as.raster_dataset, RasterDataSet):
                 accessible_raster.append(published_as.raster_dataset.to_qsl)
             elif isinstance(published_as.vector_dataset, VectorDataSet):
+                # since we will use this in the on a plain list of layers, the largest extent buffer
+                # should be applied
+                if published_as.extent_buffer > vector_extent_buffer:
+                    vector_extent_buffer = published_as.extent_buffer
                 accessible_vector.append(published_as.vector_dataset.to_qsl)
             elif isinstance(published_as.custom_dataset, CustomDataSet):
                 accessible_custom.append(published_as.custom_dataset.to_qsl)
             else:
                 raise NotImplementedError('linked dataset has to be RasterDataSet|VectorDataSet!')
-    return accessible_raster, accessible_vector, accessible_custom
+    return accessible_raster, accessible_vector, accessible_custom, vector_extent_buffer
 
 
 async def entry(request: HttpRequest):
@@ -188,12 +195,13 @@ async def entry(request: HttpRequest):
                 return HttpResponse("Only VERSION 1.3.0 is available", 500)
         elif params["REQUEST"] == "GETMAP":
             service_params = WmsGetMapParams.from_overloaded_dict(params)
-            accessible_raster, accessible_vector, accessible_custom = await sync_to_async(
+            accessible_raster, accessible_vector, accessible_custom, vector_extent_buffer = await sync_to_async(
                 extract_layers,
                 thread_sensitive=True
             )(request, service_params)
 
             job = QslGetMapJob(
+                extent_buffer=vector_extent_buffer,
                 service_params=service_params,
                 raster_layers=accessible_raster,
                 vector_layers=accessible_vector,

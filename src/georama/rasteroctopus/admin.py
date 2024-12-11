@@ -9,16 +9,10 @@ from georama.rasteroctopus.models import PublishedAsWms
 @admin.register(PublishedAsWms)
 class PublishedAsWmsAdmin(admin.ModelAdmin):
     list_display = ["name", "title", "public", "delete_link", "show_published"]
+    list_editable = ['public']
     add_form_template = "admin/rasteroctopus/publishedaswms/publish.html"
     fields = [
-        'title',
-        'name',
-        'public',
-        'description',
-        'license',
-        'fees',
-        'access_constraints',
-        'dataset_detail'
+
     ]
     readonly_fields = [
         'dataset_detail'
@@ -63,6 +57,21 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         else:
             raise NotImplementedError('linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!')
         return mark_safe(
-            f'<a href="{reverse("admin:qmeleon_rasterdataset_change", args=(dataset.pk,))}" class="btn btn-high btn-success">{dataset.title} ({dataset.name})</a><span class="badge badge-secondary">{type_name}</span>'
+            f'<a href="{reverse(f"admin:qmeleon_{type_name.lower()}dataset_change", args=(dataset.pk,))}" class="btn btn-high btn-success">{dataset.title} ({dataset.name})</a><span class="badge badge-secondary">{type_name}</span>'
         )
     dataset_detail.short_description = 'Dataset'
+
+    def get_fields(self, request, obj=None):
+        fields = [
+            'title',
+            'name',
+            'public',
+            'description',
+            'license',
+            'fees',
+            'access_constraints',
+            'dataset_detail'
+        ]
+        if isinstance(obj.vector_dataset, VectorDataSet):
+            fields.append('extent_buffer')
+        return fields
