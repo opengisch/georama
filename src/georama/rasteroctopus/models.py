@@ -40,6 +40,7 @@ class PublishedAsWms(PublishedAs):
         related_query_name="published_ogc_wms",
         on_delete=models.CASCADE
     )
+    extent_buffer = models.FloatField(default=0.0, null=False)
 
     @property
     def permissions(self) -> List[PermissionInterface]:
