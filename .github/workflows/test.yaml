@@ -79,6 +79,11 @@ jobs:
     name: Read Workflow Env Section Vars and set Github Outputs
     runs-on: ubuntu-latest
     steps:
+      - name: Prepare deps
+        id: prep-dep
+        run: |
+          apt-get update
+          apt-get install -y  libpq-dev python3-gdal python3-numpy python3-venv git make
       - name: Pass 'env' section variables to GITHUB_OUTPUT
         id: pass-env-to-output
         run: |
