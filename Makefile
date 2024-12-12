@@ -4,6 +4,7 @@ VENV_REQUIREMENTS = $(VENV_PATH)/.timestamp
 PIP_REQUIREMENTS = $(VENV_PATH)/.requirements-timestamp
 DOC_REQUIREMENTS = $(VENV_PATH)/.doc-requirements-timestamp
 TEST_REQUIREMENTS = $(VENV_PATH)/.test-requirements-timestamp
+CHECK_REQUIREMENTS = $(VENV_PATH)/.check-requirements-timestamp
 VENV_BIN = $(VENV_PATH)/bin
 PIP_COMMAND = pip3
 PYTHON_PATH = $(shell which python3)
@@ -50,6 +51,10 @@ $(DOC_REQUIREMENTS): $(PIP_REQUIREMENTS)
 
 $(TEST_REQUIREMENTS): $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/$(PIP_COMMAND) install .[test]
+	touch $@
+
+$(CHECK_REQUIREMENTS): $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/$(PIP_COMMAND) install .[check]
 	touch $@
 
 # **************
@@ -109,6 +114,10 @@ test-webgis: $(TEST_REQUIREMENTS) $(VARS_FILES)
 
 .PHONY: tests
 tests: test-core test-data_integration test-features test-maps test-shop test-webgis
+
+.PHONY: check
+check: $(CHECK_REQUIREMENTS)
+	mypy --explicit-package-bases --show-error-codes src/$(PACKAGE) tests
 
 .PHONY: doc-html
 doc-html: $(DOC_REQUIREMENTS) docs/mkdocs.yml

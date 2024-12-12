@@ -145,7 +145,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Pin 'Static Type Checking' Dependencies
-        run: tox -vv -s false -e pin-deps -- -E typing
+        run: tox -vv -s false -e pin-deps
 
       - name: Do Type Checking
         run: tox -e type -vv -s false
