@@ -18,17 +18,57 @@
 
 ### SRC ###
 # Add 'business_logic' label to any change within the 'src/cookiecutter_python' dir
-business_logic:
+core:
   - any:
     - changed-files:
       - any-glob-to-any-file:
+        - 'src/georama/core/*'
+        - 'src/georama/core/**/*'
         - 'src/georama/*'
-        - 'src/georama/*'
+  # exclude any changes within the 'tests/data/' dir
+  - all:
+      - changed-files:
+          - all-globs-to-all-files:
+              - '!src/georama/data_integration/*'
+              - '!src/georama/features/*'
+              - '!src/georama/maps/*'
+              - '!src/georama/shop/*'
+              - '!src/georama/webgis/*'
 
-stubs:
+data_integration:
   - any:
     - changed-files:
-      - any-glob-to-any-file: ['src/stubs/*', 'src/stubs/**/*']
+      - any-glob-to-any-file:
+        - 'src/georama/data_integration/*'
+        - 'src/georama/data_integration/**/*'
+
+features:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - 'src/georama/features/*'
+        - 'src/georama/features/**/*'
+
+maps:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - 'src/georama/maps/*'
+        - 'src/georama/maps/**/*'
+
+shop:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - 'src/georama/shop/*'
+        - 'src/georama/shop/**/*'
+
+webgis:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - 'src/georama/webgis/*'
+        - 'src/georama/webgis/**/*'
 
 ### TESTS ###
 ## Add 'test' label to any change within the 'tests' dir #
@@ -106,7 +146,7 @@ config:
     - changed-files:
       - any-glob-to-any-file:
         - '.bettercodehub.yml'
-        - '.coveragerc'
+        - '.coveragerc.core'
         - '.gitignore'
         - '.prospector.yml'
         - '.pylintrc'

@@ -1,0 +1,149 @@
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+    {% if vector_datasets.count > 0 %}
+        <div class="content-wrapper" style="min-height: 2211.91px;">
+            <div class="content border-bottom mb-2">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
+                            <h1 class="h4 m-0 pr-3 mr-3"> Available Vector Datasets </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="content">
+                <div class="container-fluid">
+                    <section id="content" class="content">
+                        <div class="row">
+                            <div class="card">
+                                <div class="card-body">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Title</th>
+                                                <th>Project</th>
+                                                <th>Mandant</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for dataset in vector_datasets %}
+                                                <tr class="even" role="row">
+                                                    <td>{{ dataset.name }}</td>
+                                                    <td>{{ dataset.title }}</td>
+                                                    <td>{{ dataset.project.name }}</td>
+                                                    <td>{{ dataset.project.mandant.name }}</td>
+                                                    <td><a href="{% url 'publish_vector_as_wms' dataset.pk %}" class="btn btn-high btn-success">publish</a></td>
+                                                </tr>
+
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% if raster_datasets.count > 0 %}
+    <div class="content-wrapper" style="min-height: 2211.91px;">
+        <div class="content border-bottom mb-2">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
+                        <h1 class="h4 m-0 pr-3 mr-3"> Available Vector Datasets </h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="container-fluid">
+                <section id="content" class="content">
+                    <div class="row">
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Title</th>
+                                            <th>Project</th>
+                                            <th>Mandant</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for dataset in raster_datasets %}
+                                            <tr class="even" role="row">
+                                                <td>{{ dataset.name }}</td>
+                                                <td>{{ dataset.title }}</td>
+                                                <td>{{ dataset.project.name }}</td>
+                                                <td>{{ dataset.project.mandant.name }}</td>
+                                                <td><a href="{% url 'publish_vector_as_wms' dataset.pk %}" class="btn btn-high btn-success">publish</a></td>
+                                            </tr>
+
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if custom_datasets.count > 0 %}
+    <div class="content-wrapper" style="min-height: 2211.91px;">
+        <div class="content border-bottom mb-2">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
+                        <h1 class="h4 m-0 pr-3 mr-3"> Available Vector Datasets </h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="container-fluid">
+                <section id="content" class="content">
+                    <div class="row">
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Title</th>
+                                            <th>Project</th>
+                                            <th>Mandant</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for dataset in custom_datasets %}
+                                            <tr class="even" role="row">
+                                                <td>{{ dataset.name }}</td>
+                                                <td>{{ dataset.title }}</td>
+                                                <td>{{ dataset.project.name }}</td>
+                                                <td>{{ dataset.project.mandant.name }}</td>
+                                                <td><a href="{% url 'publish_vector_as_wms' dataset.pk %}" class="btn btn-high btn-success">publish</a></td>
+                                            </tr>
+
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock %}

@@ -97,10 +97,10 @@ Testing, Documentation Building, Scripts, CI/CD, Static Code Analysis for this p
       2. Python Interpreters: `3.8`, `3.9`, `3.10`, `3.11`
    1. **Continuous Deployment**
 
-      `Production` 
+      `Production`
          1. **Python Distristribution** to `pypi.org`_, on `tags` **v***, pushed to `master` branch
          1. **Docker Image** to `Dockerhub`_, on every push, with automatic `Image Tagging`
-      
+
       `Staging`
 
          1. **Python Distristribution** to `test.pypi.org`_, on "pre-release" `tags` **v*-rc**, pushed to `release` branch
@@ -132,7 +132,7 @@ NOTE: You need poetry to be installed on your system!
 
 Install all deps:
 ```shell
-poetry install 
+poetry install
 ```
 
 or (to run tests and build docs)
@@ -167,7 +167,7 @@ Setup superuser:
 DJANGO_SUPERUSER_PASSWORD=admin DJANGO_SUPERUSER_USERNAME=admin DJANGO_SUPERUSER_EMAIL=admin@xy.ch python src/georama/manage.py createsuperuser --noinput
 ```
 
-You might want to prepare the test dataset as described in `georama.test_data` project. 
+You might want to prepare the test dataset as described in `georama.test_data` project.
 
 Force reinstall GitHub dep qgis_server_light (in the poetry shell):
 ```shell
@@ -179,7 +179,7 @@ pip install --force-reinstall --no-deps "git+ssh://git@github.com/opengisch/qgis
 Run tests locally directly with pytest (example):
 
 ```shell
-pytest -vv --cov-config .coveragerc -cov src/georama --cov-report term-missing:skip-covered tests
+pytest -vv --cov-config .coveragerc.core -cov src/georama --cov-report term-missing:skip-covered tests
 ```
 
 Run tests locally directly with tox (example):
