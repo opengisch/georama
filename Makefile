@@ -10,6 +10,7 @@ PIP_COMMAND = pip3
 PYTHON_PATH = $(shell which python3)
 PYTHON_VERSION = $(shell printf '%b' "import sys\nprint(f'{sys.version_info.major}.{sys.version_info.minor}')" | $$(which python3))
 QGIS_VENV_PATH = $(VENV_PATH)/lib/python$(PYTHON_VERSION)/site-packages/qgis_paths.pth
+PINNED_DEPS ?= reqs.txt
 
 
 QGIS_PY_PATH ?= /usr/share/qgis/python
@@ -155,3 +156,7 @@ make-migrations: $(PIP_REQUIREMENTS)
 .PHONY: create-superuser
 create-superuser: $(PIP_REQUIREMENTS)
 	DJANGO_SUPERUSER_PASSWORD=admin DJANGO_SUPERUSER_USERNAME=admin DJANGO_SUPERUSER_EMAIL=admin@xy.ch $(VENV_BIN)/python src/georama/manage.py createsuperuser --noinput
+
+.PHONY: pin-deps
+pin-deps: $(CHECK_REQUIREMENTS) $(TEST_REQUIREMENTS)
+	pip freeze --all > $(PINNED_DEPS)
