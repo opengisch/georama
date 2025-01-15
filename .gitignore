@@ -8,6 +8,7 @@
 .coverage
 .DS_Store
 *__pycache__
+reqs.txt
 
 docs/_build/
 dist/

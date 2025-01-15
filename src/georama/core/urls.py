@@ -14,20 +14,20 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
-from georama.core import views
+from django.contrib import admin
+from django.urls import include, path
 
+from georama.core import views
 
 urlpatterns = [
     path("", views.GeoramaLanding.as_view(), name="landing"),
     path("login", views.Login.as_view(), name="login"),
     path("logout", views.Logout.as_view(), name="logout"),
-    path("vectorparrot", include("georama.vectorparrot.urls")),
-    path("qmeleon", include("georama.qmeleon.urls")),
-    path("rasteroctopus", include("georama.rasteroctopus.urls")),
-    path("clogs", include("georama.clogs.urls")),
-    path('admin/', admin.site.urls, {"extra_context": {"DEBUG": settings.DEBUG}}),
-    path("users", include("allauth.urls"))
+    path("features", include("georama.features.urls")),
+    path("data_integration", include("georama.data_integration.urls")),
+    path("maps", include("georama.maps.urls")),
+    path("webgis", include("georama.webgis.urls")),
+    path("admin/", admin.site.urls, {"extra_context": {"DEBUG": settings.DEBUG}}),
+    path("users", include("allauth.urls")),
 ]

@@ -3,11 +3,14 @@ VENV_PATH ?= .venv
 VENV_REQUIREMENTS = $(VENV_PATH)/.timestamp
 PIP_REQUIREMENTS = $(VENV_PATH)/.requirements-timestamp
 DOC_REQUIREMENTS = $(VENV_PATH)/.doc-requirements-timestamp
+TEST_REQUIREMENTS = $(VENV_PATH)/.test-requirements-timestamp
+CHECK_REQUIREMENTS = $(VENV_PATH)/.check-requirements-timestamp
 VENV_BIN = $(VENV_PATH)/bin
 PIP_COMMAND = pip3
 PYTHON_PATH = $(shell which python3)
 PYTHON_VERSION = $(shell printf '%b' "import sys\nprint(f'{sys.version_info.major}.{sys.version_info.minor}')" | $$(which python3))
 QGIS_VENV_PATH = $(VENV_PATH)/lib/python$(PYTHON_VERSION)/site-packages/qgis_paths.pth
+PINNED_DEPS ?= reqs.txt
 
 
 QGIS_PY_PATH ?= /usr/share/qgis/python
@@ -17,7 +20,7 @@ QGIS_PY_PATH ?= /usr/share/qgis/python
 # ********************
 
 # Package name
-PACKAGE = qgis_server_light
+PACKAGE = georama
 LOCATION ?= ./src
 
 # Python source files
@@ -45,6 +48,14 @@ $(PIP_REQUIREMENTS): $(VENV_REQUIREMENTS) pyproject.toml $(QGIS_VENV_PATH)
 
 $(DOC_REQUIREMENTS): $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/$(PIP_COMMAND) install .[docs]
+	touch $@
+
+$(TEST_REQUIREMENTS): $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/$(PIP_COMMAND) install .[test]
+	touch $@
+
+$(CHECK_REQUIREMENTS): $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/$(PIP_COMMAND) install .[check]
 	touch $@
 
 # **************
@@ -78,9 +89,36 @@ clean-all: clean
 git-attributes:
 	git --no-pager diff --check `git log --oneline | tail -1 | cut --fields=1 --delimiter=' '`
 
-.PHONY: test
-test: $(PIP_REQUIREMENTS) $(VARS_FILES)
-	$(VENV_BIN)/py.test -vv --cov-config .coveragerc --cov $(PACKAGE) --cov-report term-missing:skip-covered tests
+.PHONY: test-core
+test-core: $(TEST_REQUIREMENTS) $(VARS_FILES)
+	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).core --cov-report term-missing:skip-covered tests/core
+
+.PHONY: test-data_integration
+test-data_integration: $(TEST_REQUIREMENTS) $(VARS_FILES)
+	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).data_integration --cov-report term-missing:skip-covered tests/data_integration
+
+.PHONY: test-features
+test-features: $(TEST_REQUIREMENTS) $(VARS_FILES)
+	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).features --cov-report term-missing:skip-covered tests/features
+
+.PHONY: test-maps
+test-maps: $(TEST_REQUIREMENTS) $(VARS_FILES)
+	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).maps --cov-report term-missing:skip-covered tests/maps
+
+.PHONY: test-shop
+test-shop: $(TEST_REQUIREMENTS) $(VARS_FILES)
+	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).shop --cov-report term-missing:skip-covered tests/shop
+
+.PHONY: test-webgis
+test-webgis: $(TEST_REQUIREMENTS) $(VARS_FILES)
+	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).webgis --cov-report term-missing:skip-covered tests/webgis
+
+.PHONY: tests
+tests: test-core test-data_integration test-features test-maps test-shop test-webgis
+
+.PHONY: check
+check: $(CHECK_REQUIREMENTS)
+	mypy --explicit-package-bases --show-error-codes src/$(PACKAGE) tests
 
 .PHONY: doc-html
 doc-html: $(DOC_REQUIREMENTS) docs/mkdocs.yml
@@ -118,3 +156,7 @@ make-migrations: $(PIP_REQUIREMENTS)
 .PHONY: create-superuser
 create-superuser: $(PIP_REQUIREMENTS)
 	DJANGO_SUPERUSER_PASSWORD=admin DJANGO_SUPERUSER_USERNAME=admin DJANGO_SUPERUSER_EMAIL=admin@xy.ch $(VENV_BIN)/python src/georama/manage.py createsuperuser --noinput
+
+.PHONY: pin-deps
+pin-deps: $(CHECK_REQUIREMENTS) $(TEST_REQUIREMENTS)
+	pip freeze --all > $(PINNED_DEPS)

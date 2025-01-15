@@ -4,8 +4,6 @@
 requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
-# Poetry
-
 # Information required for building (sdist/wheel)
 ## Also renders on pypi as 'subtitle'
 [project]
@@ -45,26 +43,6 @@ classifiers = [
     "Typing :: Typed"
 ]
 
-# PyPi url links, that appear in 'Project Links' section
-
-
-
-# Caret requirements allow SemVer compatible updates to a specified version. An update is allowed if the new version number does not modify the left-most non-zero digit in the major, minor, patch grouping. For instance, if we previously ran poetry add requests@^2.13.0 and wanted to update the library and ran poetry update requests, poetry would update us to version 2.14.0 if it was available, but would not update us to 3.0.0. If instead we had specified the version string as ^0.1.13, poetry would update to 0.1.14 but not 0.2.0. 0.0.x is not considered compatible with any other version.
-# REQUIREMENT  VERSIONS ALLOWED
-# ^1.2.3	   >=1.2.3 <2.0.0
-# ^1.2	       >=1.2.0 <2.0.0
-# ^1	       >=1.0.0 <2.0.0
-# ^0.2.3	   >=0.2.3 <0.3.0
-# ^0.0.3	   >=0.0.3 <0.0.4
-# ^0.0	       >=0.0.0 <0.1.0
-# ^0	       >=0.0.0 <1.0.0
-# "~" is the more conservative compared to "^"
-# Tilde requirements specify a minimal version with some ability to update. If you specify a major, minor, and patch version or only a major and minor version, only patch-level changes are allowed. If you only specify a major version, then minor- and patch-level changes are allowed.
-# REQUIREMENT  VERSIONS ALLOWED
-# ~1.2.3	   >=1.2.3 <1.3.0
-# ~1.2	       >=1.2.0 <1.3.0
-# ~1	       >=1.0.0 <2.0.0
-
 
 ### Dependency Constraints, aka Requirements ###
 dependencies = [
@@ -80,8 +58,7 @@ dependencies = [
     "async-timeout==4.0.3",
     "redis==5.0.8",
     "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
-    # "qgis-server-light==0.0.2",
-    # deps for clogs
+    # deps for webgis
     "django-allauth==0.63.3",
     "django-cors-headers==4.3.1",
     "django-ninja== 0.22.2",
