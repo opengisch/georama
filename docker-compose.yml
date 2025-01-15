@@ -7,8 +7,7 @@ services:
       - .env
     volumes:
       - ./:/app
-    volumes_from:
-      - "georama-test_data:rw"
+      - "${GEORAMA_LOCAL_DATA}:/io/data"
     ports:
       - "8080:8000"
   georama-db:
@@ -22,12 +21,15 @@ services:
       - "POSTGRES_PASSWORD=${GEORAMA_DB_PW}"
       - "POSTGRES_DB=${GEORAMA_DB_NAME}"
   georama-test_data:
-    image: ghcr.io/opengisch/georama.test_data:latest
+    image: postgis/postgis:14-3.4
     volumes:
-      - "/io/data"
-      - "/home/kalle/projects/opengis/georama.test_data/zg.tankkataster:/io/data/zg.tankkataster"
+      - "georama-test_data:/var/lib/postgresql/data"
     ports:
       - "54322:5432"
+    environment:
+      - "POSTGRES_USER=${GEORAMA_DB_USER}"
+      - "POSTGRES_PASSWORD=${GEORAMA_DB_PW}"
+      - "POSTGRES_DB=${GEORAMA_DB_NAME}"
   qsl-redis:
     image: redis:7.4.0
   qsl:
@@ -35,8 +37,8 @@ services:
     image: ghcr.io/opengisch/qgis-server-light:latest
     env_file:
       - .env
-    volumes_from:
-      - "georama-test_data:rw"
+    volumes:
+      - "${GEORAMA_LOCAL_DATA}:/io/data"
     deploy:
       replicas: 1
   geogirafe:
@@ -48,3 +50,4 @@ services:
 
 volumes:
   georama-db_data:
+  georama-test_data:

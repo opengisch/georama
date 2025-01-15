@@ -147,9 +147,7 @@ def extract_layers(
     # we set the extent buffer to zero, this is used to control rendering issues like
     # https://github.com/qgis/QGIS/issues/30251
     vector_extent_buffer = 0.0
-    for published_as in PublishedAsWms.objects.filter(
-        name__in=[name.lower() for name in service_params.layers]
-    ):
+    for published_as in PublishedAsWms.objects.filter(name__in=service_params.layers):
         if published_as.has_read_permission(request.user, appname):
             if isinstance(published_as.raster_dataset, RasterDataSet):
                 accessible_raster.append(published_as.raster_dataset.to_qsl)
@@ -174,13 +172,16 @@ async def entry(request: HttpRequest):
     redis_queue = RedisQueue(Config().redis_url)
     params = {}
     for key in request.GET.dict():
-        params[str(key).upper()] = str(request.GET[key]).upper()
+        if key.upper() == "LAYERS":
+            params[str(key).upper()] = str(request.GET[key])
+        else:
+            params[str(key).upper()] = str(request.GET[key]).upper()
     if "SERVICE" not in params:
         return HttpResponse("SERVICE parameter is mandatory", 500)
     if "REQUEST" not in params:
         return HttpResponse("REQUEST parameter is mandatory", 500)
 
-    if params["SERVICE"] == "WMS":
+    if params["SERVICE"].upper() == "WMS":
         if params["REQUEST"] == "GETCAPABILITIES":
             if params.get("VERSION", "1.3.0") == "1.3.0":
                 return await sync_to_async(wms_130_capabilities, thread_sensitive=True)(
@@ -190,6 +191,7 @@ async def entry(request: HttpRequest):
                 return HttpResponse("Only VERSION 1.3.0 is available", 500)
         elif params["REQUEST"] == "GETMAP":
             service_params = WmsGetMapParams.from_overloaded_dict(params)
+
             (
                 accessible_raster,
                 accessible_vector,
@@ -198,7 +200,7 @@ async def entry(request: HttpRequest):
             ) = await sync_to_async(extract_layers, thread_sensitive=True)(
                 request, service_params
             )
-
+            print(service_params, accessible_vector)
             job = QslGetMapJob(
                 extent_buffer=vector_extent_buffer,
                 service_params=service_params,

@@ -48,7 +48,7 @@ class DataSet(models.Model):
         abstract = True
 
     name = models.CharField(null=False, max_length=1000)
-    qgis_layer_id = models.CharField(null=False, max_length=1000)
+    qgis_layer_id = models.CharField(null=False, max_length=1000, unique=True)
     title = models.CharField(max_length=1000)
     bbox = models.CharField(max_length=1000)
     bbox_wgs84 = models.CharField(max_length=1000)
