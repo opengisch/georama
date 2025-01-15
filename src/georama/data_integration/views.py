@@ -26,8 +26,6 @@ log = logging.getLogger(__name__)
 
 
 class RegisterQgisProject(View):
-    # TODO: generate Landing Page depending on the installed georama apps.
-
     def get(self, request: HttpRequest, group_name: str, project_name: str, **kwargs):
         config = QmeleonConfig()
         qpfs = QgisProjectFileStructure(config.path)
@@ -71,6 +69,8 @@ class RegisterQgisProject(View):
                     source=DictEncoder().encode(layer.source),
                     qgis_layer_id=layer.id,
                     crs=DictEncoder().encode(layer.crs),
+                    minimum_scale=layer.minimum_scale,
+                    maximum_scale=layer.maximum_scale,
                 )
                 vector_dataset.save()
                 for field in layer.fields:
@@ -90,6 +90,8 @@ class RegisterQgisProject(View):
                     source=DictEncoder().encode(layer.source),
                     qgis_layer_id=layer.id,
                     crs=DictEncoder().encode(layer.crs),
+                    minimum_scale=layer.minimum_scale,
+                    maximum_scale=layer.maximum_scale,
                 ).save()
             for layer in project_config.datasets.custom:
                 CustomDataSet(
@@ -104,6 +106,8 @@ class RegisterQgisProject(View):
                     source=DictEncoder().encode(layer.source),
                     qgis_layer_id=layer.id,
                     crs=DictEncoder().encode(layer.crs),
+                    minimum_scale=layer.minimum_scale,
+                    maximum_scale=layer.maximum_scale,
                 ).save()
             return redirect("admin:data_integration_project_changelist")
 

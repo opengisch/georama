@@ -18,6 +18,13 @@ class Config:
     def default_format(self) -> str:
         return "image/png"
 
+    @property
+    def job_timeout(self) -> float:
+        """
+        Timeout in milliseconds
+        """
+        return float(os.environ.get("JOB_TIMEOUT", 1000))
+
     def service_config(self, url: str) -> str:
         service_config = {
             "Name": ServiceName.WMS.value,

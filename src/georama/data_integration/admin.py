@@ -207,7 +207,17 @@ class ProjectAdmin(admin.ModelAdmin):
 
 class DataSetAdmin(admin.ModelAdmin):
     list_display = ["name"]
-    fields = ["name", "title", "bbox", "source_detail", "crs_detail", "path", "driver"]
+    fields = [
+        "name",
+        "title",
+        "bbox",
+        "minimum_scale",
+        "maximum_scale",
+        "source_detail",
+        "crs_detail",
+        "path",
+        "driver",
+    ]
 
     readonly_fields = [
         "name",

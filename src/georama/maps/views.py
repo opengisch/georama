@@ -1,5 +1,4 @@
 import logging
-import os
 
 from asgiref.sync import sync_to_async
 from django.http import HttpRequest, HttpResponse
@@ -53,7 +52,7 @@ def wms_130_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
                 dataset = published_as.custom_dataset
             else:
                 raise NotImplementedError(
-                    "linked dataset has to be RasterDataSet|VectorDataSet!"
+                    "linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!"
                 )
             source_crs = DictDecoder().decode(dataset.crs, QSL_Crs)
 
@@ -213,7 +212,8 @@ async def entry(request: HttpRequest):
             job = QslGetFeatureInfoJob(service_params=service_params)
         else:
             return HttpResponse("Only WMS Service is available", 500)
-        result = await redis_queue.post(job, float(os.environ.get("JOB_TIMEOUT", 1000)))
+        config = Config()
+        result = await redis_queue.post(job, config.job_timeout)
         return HttpResponse(result.data, result.content_type)
     else:
         return HttpResponse("Only WMS Service is available", 500)

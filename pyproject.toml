@@ -57,8 +57,9 @@ dependencies = [
     "xsdata[cli,lxml,soap]==24.6.1",
     "async-timeout==4.0.3",
     "redis==5.0.8",
-    "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@e858981252e06fb63d2bb30f3c4281ee11996b3f",
+    "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
     # deps for webgis
+    "django-allauth==0.63.3",
     "django-cors-headers==4.3.1",
     "django-ninja== 0.22.2",
     "django-cors-headers==4.3.1",

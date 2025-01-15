@@ -44,6 +44,19 @@ class PublishedAsWms(PublishedAs):
     extent_buffer = models.FloatField(default=0.0, null=False)
 
     @property
+    def bound_dataset(self) -> VectorDataSet | RasterDataSet | CustomDataSet:
+        if isinstance(self.raster_dataset, RasterDataSet):
+            return self.raster_dataset
+        elif isinstance(self.vector_dataset, VectorDataSet):
+            return self.vector_dataset
+        elif isinstance(self.custom_dataset, CustomDataSet):
+            return self.custom_dataset
+        else:
+            raise NotImplementedError(
+                "linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!"
+            )
+
+    @property
     def permissions(self) -> List[PermissionInterface]:
         if self.public:
             return []
@@ -51,16 +64,7 @@ class PublishedAsWms(PublishedAs):
             return self.read_permissions
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        if isinstance(self.raster_dataset, RasterDataSet):
-            dataset = self.raster_dataset
-        elif isinstance(self.vector_dataset, VectorDataSet):
-            dataset = self.vector_dataset
-        elif isinstance(self.custom_dataset, CustomDataSet):
-            dataset = self.custom_dataset
-        else:
-            raise NotImplementedError(
-                "linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!"
-            )
+        dataset = self.bound_dataset
         if self.name is None:
             # TODO: maybe we want this to be configurable?
             self.name = dataset.name

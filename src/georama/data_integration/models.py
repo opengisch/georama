@@ -59,6 +59,8 @@ class DataSet(models.Model):
     driver = models.CharField(max_length=50)
     # TODO: implement ENUM (raster, vector)
     crs = models.JSONField(default=dict)
+    minimum_scale = models.FloatField(null=True)
+    maximum_scale = models.FloatField(null=True)
 
     @property
     def source_to_qsl(self) -> tuple[DataSource, str]:
@@ -113,6 +115,8 @@ class VectorDataSet(DataSet):
             source=datasource,
             id=self.qgis_layer_id,
             crs=self.crs_to_qsl,
+            minimum_scale=self.minimum_scale,
+            maximum_scale=self.maximum_scale,
         )
 
 
@@ -144,6 +148,8 @@ class RasterDataSet(DataSet):
             source=datasource,
             id=self.qgis_layer_id,
             crs=self.crs_to_qsl,
+            minimum_scale=self.minimum_scale,
+            maximum_scale=self.maximum_scale,
         )
 
 
@@ -175,6 +181,8 @@ class CustomDataSet(DataSet):
             source=datasource,
             id=self.qgis_layer_id,
             crs=self.crs_to_qsl,
+            minimum_scale=self.minimum_scale,
+            maximum_scale=self.maximum_scale,
         )
 
 

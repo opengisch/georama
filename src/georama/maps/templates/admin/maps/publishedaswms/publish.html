@@ -37,7 +37,6 @@
                                                     <td>{{ dataset.project.mandant.name }}</td>
                                                     <td><a href="{% url 'publish_vector_as_wms' dataset.pk %}" class="btn btn-high btn-success">publish</a></td>
                                                 </tr>
-
                                             {% endfor %}
                                         </tbody>
                                     </table>
@@ -83,9 +82,8 @@
                                                 <td>{{ dataset.title }}</td>
                                                 <td>{{ dataset.project.name }}</td>
                                                 <td>{{ dataset.project.mandant.name }}</td>
-                                                <td><a href="{% url 'publish_vector_as_wms' dataset.pk %}" class="btn btn-high btn-success">publish</a></td>
+                                                <td><a href="{% url 'publish_raster_as_wms' dataset.pk %}" class="btn btn-high btn-success">publish</a></td>
                                             </tr>
-
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -131,9 +129,8 @@
                                                 <td>{{ dataset.title }}</td>
                                                 <td>{{ dataset.project.name }}</td>
                                                 <td>{{ dataset.project.mandant.name }}</td>
-                                                <td><a href="{% url 'publish_vector_as_wms' dataset.pk %}" class="btn btn-high btn-success">publish</a></td>
+                                                <td><a href="{% url 'publish_custom_as_wms' dataset.pk %}" class="btn btn-high btn-success">publish</a></td>
                                             </tr>
-
                                         {% endfor %}
                                     </tbody>
                                 </table>
