@@ -22,7 +22,7 @@ app_name = "georama.data_integration"
 
 urlpatterns = [
     path(
-        "register_qgis_project/<str:group_name>/<str:project_name>",
+        "register_qgis_project/<str:mandant_name>/<str:project_name>",
         views.RegisterQgisProject.as_view(),
         name="register_qgis_project",
     )
