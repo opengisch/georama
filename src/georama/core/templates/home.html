@@ -1,0 +1,20 @@
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+<div style="text-align: center; font-family: arial;">
+    <h1>{% trans 'Welcome to Georama' %}</h1>
+
+    <h2>{% trans 'Explore the modules' %}</h2>
+    <dl>
+        {% for app_name in app_list %}
+            <dl>
+                <h3>{{ app_name }}</h3>
+            </dl>
+            <dt>
+                <a class="btn btn-warning" href="{% url 'admin:index' %}" rel="noreferrer">{% translate 'Configure in admin' %}</a>
+            </dt>
+        {% endfor %}
+    </dl>
+    {% endblock %}
+</div>

@@ -29,7 +29,7 @@ from georama.webgis.models import (
 def home(request):
     form = HomeForm()
 
-    return render(request, "home.html", {"form": form})
+    return render(request, "webgis.html", {"form": form})
 
 
 def assemble_tree_to_treebeard(
