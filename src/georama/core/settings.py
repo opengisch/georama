@@ -95,6 +95,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "georama.core.wsgi.application"
 
+CSRF_TRUSTED_ORIGINS = [] + os.getenv("GEORAMA_CSRF_TRUSTED_ORIGINS", "http://localhost:8080").split(",")
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
