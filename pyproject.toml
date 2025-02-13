@@ -55,8 +55,11 @@ dependencies = [
     # django stuff
     "django==5.0.6",
     "django-jazzmin==3.0.0",
-    # qsl deps
-    "xsdata[lxml]==24.6.1",
+    "gdal==3.9.1",
+    "psycopg2==2.9.9",
+    "geoalchemy2==0.15.2",
+    "SQLAlchemy<2.0.0",
+    "xsdata[cli,lxml,soap]==24.12",
     "async-timeout==4.0.3",
     "redis==5.0.8",
     "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",

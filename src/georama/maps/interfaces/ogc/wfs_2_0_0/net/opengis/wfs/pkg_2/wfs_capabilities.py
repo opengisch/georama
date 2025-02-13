@@ -1,0 +1,12 @@
+from dataclasses import dataclass
+
+from wfs_2_0_0.net.opengis.wfs.pkg_2.wfs_capabilities_type import WfsCapabilitiesType
+
+__NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
+
+
+@dataclass
+class WfsCapabilities(WfsCapabilitiesType):
+    class Meta:
+        name = "WFS_Capabilities"
+        namespace = "http://www.opengis.net/wfs/2.0"
