@@ -15,7 +15,7 @@ RUN chmod +x /tini
 #########################
 FROM base AS dev
 
-LABEL org.opengisch.author="Clemens Rudert <clemens.rudert@bl.ch>"
+LABEL org.opengisch.author="Clemens Rudert <clemens@opengis.ch>"
 LABEL org.opengisch.image.title="georama"
 USER 0
 
