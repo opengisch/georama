@@ -53,8 +53,8 @@ fetched.
 If everything runs, you can prepare the Django DB
 
 ```shell
-docker compose exec georama make migrate
-docker compose exec georama make create-superuser
+docker compose exec app make migrate
+docker compose exec app make create-superuser
 ```
 
 Admin interface (user: admin password: admin): http://localhost:8080/admin/
