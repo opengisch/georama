@@ -154,8 +154,10 @@ make-migrations: $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py makemigrations
 
 .PHONY: create-superuser
-create-superuser: $(PIP_REQUIREMENTS)
-	DJANGO_SUPERUSER_PASSWORD=admin DJANGO_SUPERUSER_USERNAME=admin DJANGO_SUPERUSER_EMAIL=admin@xy.ch $(VENV_BIN)/python src/georama/manage.py createsuperuser --noinput
+create-superuser: $(PIP_REQUIREMENTS) migrate
+	$(VENV_BIN)/python src/georama/manage.py createsuperuser --username admin --email admin@xy.ch
+
+
 
 .PHONY: pin-deps
 pin-deps: $(CHECK_REQUIREMENTS) $(TEST_REQUIREMENTS)
