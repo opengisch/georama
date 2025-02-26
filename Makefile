@@ -145,6 +145,11 @@ dev: setup.py build
 serve: $(PIP_REQUIREMENTS) dev
 	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:8000
 
+MANAGE_ACTION="shell_plus"
+.PHONY: manage
+manage: $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/python src/georama/manage.py $(MANAGE_ACTION)
+
 .PHONY: migrate
 migrate: $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py migrate

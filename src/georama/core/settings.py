@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "adminsortable2",
     "treebeard",
     "ninja",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [

@@ -67,7 +67,8 @@ dependencies = [
     "djangorestframework==3.15.1",
     "django-admin-sortable2==2.2.1",
     "django-simple-history==3.7.0",
-    "djangorestframework-gis @ git+https://github.com/openwisp/django-rest-framework-gis@4f244d5d8a7ad5b453fd04f64150818d15123e01"
+    "djangorestframework-gis @ git+https://github.com/openwisp/django-rest-framework-gis@4f244d5d8a7ad5b453fd04f64150818d15123e01",
+    "django-extensions==3.2.3"
 ]
 
 # Test: packages imported in test code and packages required for the "test runner"
