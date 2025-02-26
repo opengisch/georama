@@ -2,7 +2,7 @@
 [![release_version](https://img.shields.io/pypi/v/georama)](https://pypi.org/project/georama/)
 [![wheel](https://img.shields.io/pypi/wheel/georama?color=green&label=wheel)](https://pypi.org/project/georama)
 [![supported_versions](https://img.shields.io/pypi/pyversions/georama?color=blue&label=python&logo=python&logoColor=%23ccccff)](https://pypi.org/project/georama)
-[![docs](https://img.shields.io/readthedocs/georama/master?logo=readthedocs&logoColor=lightblue)](https://georama.readthedocs.io/en/master/)
+<!-- [![docs TODO](https://img.shields.io/readthedocs/georama/master?logo=readthedocs&logoColor=lightblue)](https://opengisch.github.io/georama)-->
 [![coverage](https://img.shields.io/codecov/c/github/opengisch/georama/master?logo=codecov)](https://app.codecov.io/gh/opengisch/georama)
 [![maintainability](https://img.shields.io/codeclimate/maintainability/opengisch/georama)](https://codeclimate.com/github/opengisch/georama)
 [![tech-debt](https://img.shields.io/codeclimate/tech-debt/opengisch/georama)](https://codeclimate.com/github/opengisch/georama)
@@ -16,8 +16,8 @@
 The habitat of geoanimals
 
 - [**Code**](https://github.com/opengisch/georama)
-- [**Docs**](https://georama.readthedocs.io/en/master/)
-- [**PyPI**](https://pypi.org/project/georama/)
+<!--- - [**Docs TODO**](https://opengisch.github.io/georama)-->
+<!--- - [**PyPI TODO**](https://pypi.org/project/georama/)-->
 - [**CI**](https://github.com/opengisch/georama/actions/)
 
 ## Features
