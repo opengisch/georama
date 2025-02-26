@@ -31,6 +31,7 @@ plugins:
       tags_file: tags.md
   # BASIC SEARCH PLUGIN
   - search
+  - autorefs
   # MERMAID Render Support
   - mermaid2
   # Directives Provider for docstrings parsing
@@ -49,7 +50,7 @@ plugins:
 markdown_extensions:
   - mkdocs-click
   - pymdownx.highlight
-  
+
 nav:
   - Home:
     - "Quick Start": index.md
