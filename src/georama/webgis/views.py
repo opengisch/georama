@@ -94,9 +94,9 @@ def assemble_tree_to_treebeard(
                         # TODO: Fix this to correct title (via translation?)
                         title=child.name.title(),
                         # TODO: should we fetch this from capabilities?
-                        bbox="TODO",
+                        bbox="0,0,0,4000000,4000000,4000000",
                         # TODO: should we fetch this from capabilities?
-                        bbox_wgs84="TODO",
+                        bbox_wgs84="-90.0,-180.0,0.0,90.0,180.0,10000",
                         path=geoportal_config.get_ogc_server_by_name(child.ogcServer).url,
                         style="",
                         # this is wms for WMTS & WMS since (that comes from QGIS which handle both through
@@ -132,9 +132,9 @@ def assemble_tree_to_treebeard(
                         # TODO: Fix this to correct title (via translation?)
                         title=child.name.title(),
                         # TODO: should we fetch this from capabilities?
-                        bbox="TODO",
+                        bbox="0,0,0,4000000,4000000,4000000",
                         # TODO: should we fetch this from capabilities?
-                        bbox_wgs84="TODO",
+                        bbox_wgs84="-90.0,-180.0,0.0,90.0,180.0,10000",
                         path=child.url,
                         style="",
                         # this is wms for WMTS & WMS since (that comes from QGIS which handle both through
