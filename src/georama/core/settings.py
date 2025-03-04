@@ -74,6 +74,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # webgis
     "allauth.account.middleware.AccountMiddleware",
+    "georama.core.middleware.basic_http_authentication_middleware"
 ]
 
 ROOT_URLCONF = "georama.core.urls"
