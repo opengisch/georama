@@ -13,8 +13,6 @@ from qgis_server_light.interface.job import (
 from qgis_server_light.interface.qgis import BBox
 from qgis_server_light.interface.qgis import Crs as QSL_Crs
 from qgis_server_light.interface.qgis import Custom, Raster, Vector
-from rest_framework.request import Request
-from rest_framework.decorators import api_view
 from xsdata.formats.dataclass.parsers import DictDecoder, JsonParser
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 
@@ -38,8 +36,7 @@ from georama.maps.models import PublishedAsWms
 log = logging.getLogger(__name__)
 
 
-@api_view()
-def wms_130_capabilities(request: Request, params: dict) -> HttpResponse:
+def wms_130_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
     url = request.build_absolute_uri()
     config = Config()
     parser = JsonParser()
@@ -224,8 +221,7 @@ async def entry(request: HttpRequest):
         return HttpResponse("Only WMS Service is available", 500)
 
 
-@api_view()
-def admin_publish_raster_as_wms(request: Request, dataset_id: str):
+def admin_publish_raster_as_wms(request: HttpRequest, dataset_id: str):
     """
     helper function to hide actual connection in the database but make publishing straight forward.
     """
@@ -237,8 +233,7 @@ def admin_publish_raster_as_wms(request: Request, dataset_id: str):
     return redirect("admin:maps_publishedaswms_changelist")
 
 
-@api_view()
-def admin_publish_vector_as_wms(request: Request, dataset_id: str):
+def admin_publish_vector_as_wms(request: HttpRequest, dataset_id: str):
     """
     helper function to hide actual connection in the database but make publishing straight forward.
     """
@@ -250,8 +245,7 @@ def admin_publish_vector_as_wms(request: Request, dataset_id: str):
     return redirect("admin:maps_publishedaswms_changelist")
 
 
-@api_view()
-def admin_publish_custom_as_wms(request: Request, dataset_id: str):
+def admin_publish_custom_as_wms(request: HttpRequest, dataset_id: str):
     """
     helper function to hide actual connection in the database but make publishing straight forward.
     """
