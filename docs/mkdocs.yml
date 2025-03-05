@@ -60,6 +60,9 @@ plugins:
 markdown_extensions:
   - mkdocs-click
   - pymdownx.highlight
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
 
 
 extra:

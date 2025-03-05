@@ -2,7 +2,9 @@
 
 ## In a container
 
-Follow the [quick start](quick_start). Check if everything is running.
+Follow the
+<a href="https://github.com/opengisch/georama?tab=readme-ov-file#quickstart" target="_blank">
+Quickstart in README.md</a>. Check if everything is running.
 
 The setup is mounting the project code into the container of the `georama` service. So hot reload is enabled
 if you change code while the docker composition is running.
@@ -12,8 +14,8 @@ service. The correct path inside the container is: `/opt/georama/venv`
 
 ## Locally
 
-| :exclamation:  This can be used with python 3.10 or lower! |
-|------------------------------------------------------------|
+!!! info
+    This can be used with python 3.10 or lower!
 
 *Dependencies*
 
