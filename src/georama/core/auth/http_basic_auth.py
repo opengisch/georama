@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from django.utils.translation import gettext_lazy as _
+from rest_framework.exceptions import AuthenticationFailed
 
 from georama.core.auth import BaseAuthentication, get_authorization_header
 
@@ -83,23 +84,23 @@ def basic_http_authentication_middleware(get_response):
     def middleware(request: HttpRequest) -> HttpResponse:
         basic_http_auth = BasicAuthentication()
         # www_authenticate_realm unused at the moment,
-        # but setting it as a reminder use it in the future
+        # but setting it as a reminder if used in the future
         basic_http_auth.www_authenticate_realm = "georama"
 
         if not request.user.is_authenticated:
             try:
                 user = basic_http_auth.authenticate(request)
-                if user is None:
-                    log.debug(_("User was not authenticated."))
-                    return HttpResponse("Unauthorized", status=401)
-                else:
+                if user is not None:
                     log.debug(_("User was authenticated."))
                     request.user = user[0]
                     response = get_response(request)
                     return response
-            except Exception as e:
+            except AuthenticationFailed:
                 # AuthenticationFailed: there was a http auth header,
                 # but auth failed: consider the user unlogged.
+                log.debug(_("User was not authenticated."))
+                return HttpResponse("Unauthorized", status=401)
+            except Exception as e:
                 log.error(e)
 
     return middleware
