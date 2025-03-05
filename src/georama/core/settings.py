@@ -32,7 +32,7 @@ LOGGING = {
     "disable_existing_loggers": False,  # retain the default loggers
 }
 
-GEORAMA_ALLOWED_HOSTS = os.environ.get("GEORAMA_ALLOWED_HOSTS", "").split(";")
+GEORAMA_ALLOWED_HOSTS = os.environ.get("GEORAMA_ALLOWED_HOSTS", "").split(" ")
 
 ALLOWED_HOSTS = [] + GEORAMA_ALLOWED_HOSTS
 
@@ -105,7 +105,7 @@ WSGI_APPLICATION = "georama.core.wsgi.application"
 
 CSRF_TRUSTED_ORIGINS = [] + os.getenv(
     "GEORAMA_CSRF_TRUSTED_ORIGINS", "http://localhost:8080"
-).split(",")
+).split(" ")
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -140,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CORS_ALLOWED_ORIGINS = [] + os.getenv("ALLOWED_CORS", "https://localhost:8443").split(",")
+CORS_ALLOWED_ORIGINS = [] + os.getenv("GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:8443").split(" ")
 
 
 CORS_ALLOW_ALL_ORIGINS = True
