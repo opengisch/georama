@@ -21,7 +21,7 @@ You can read them in the Markdown format [docs](docs/src).
 You can run a local server to read them in your browser by running:
 
 ```shell
-make docs-serve
+make doc-serve
 ```
 
 Once the server is running, you can reach the
