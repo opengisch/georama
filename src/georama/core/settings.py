@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 
+from georama.core.auth import get_authentication_methods_middlewares
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -30,7 +32,7 @@ LOGGING = {
     "disable_existing_loggers": False,  # retain the default loggers
 }
 
-GEORAMA_ALLOWED_HOSTS = os.environ.get("GEORAMA_ALLOWED_HOSTS", "").split(";")
+GEORAMA_ALLOWED_HOSTS = os.environ.get("GEORAMA_ALLOWED_HOSTS", "").split(" ")
 
 ALLOWED_HOSTS = [] + GEORAMA_ALLOWED_HOSTS
 
@@ -63,6 +65,10 @@ INSTALLED_APPS = [
     "django_extensions",
 ]
 
+GEORAMA_AUTHENTICATION_METHODS = os.environ.get(
+    "GEORAMA_AUTHENTICATION_METHODS", "DJANGO_CONTRIB_AUTH"
+).split(" ")
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -70,6 +76,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    *get_authentication_methods_middlewares(GEORAMA_AUTHENTICATION_METHODS),
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # webgis
@@ -96,7 +103,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "georama.core.wsgi.application"
 
-CSRF_TRUSTED_ORIGINS = [] + os.getenv("GEORAMA_CSRF_TRUSTED_ORIGINS", "http://localhost:8080").split(",")
+CSRF_TRUSTED_ORIGINS = [] + os.getenv(
+    "GEORAMA_CSRF_TRUSTED_ORIGINS", "http://localhost:8080"
+).split(" ")
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -131,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CORS_ALLOWED_ORIGINS = [] + os.getenv("ALLOWED_CORS", "https://localhost:8443").split(",")
+CORS_ALLOWED_ORIGINS = [] + os.getenv("GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:8443").split(" ")
 
 
 CORS_ALLOW_ALL_ORIGINS = True
