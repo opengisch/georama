@@ -11,13 +11,12 @@ from django.apps import apps
 
 class GeoramaLanding(View):
 
-    # TODO: generate Landing Page depending on the installed georama apps.
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return HttpResponse("TODO: Landingpage")
-        else:
-            return redirect('login')
 
+    def get(self, request, *args, **kwargs):
+        
+        app_list = [app.verbose_name for app in apps.get_app_configs() if "georama" in app.name]
+
+        return TemplateResponse(request, context={"app_list": app_list } ,template='home.html')
 
 class Login(View):
 
