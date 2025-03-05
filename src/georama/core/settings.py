@@ -74,7 +74,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # webgis
     "allauth.account.middleware.AccountMiddleware",
-    "georama.core.middleware.basic_http_authentication_middleware"
+    "georama.core.auth.http_basic_auth.basic_http_authentication_middleware",
 ]
 
 ROOT_URLCONF = "georama.core.urls"
@@ -97,7 +97,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "georama.core.wsgi.application"
 
-CSRF_TRUSTED_ORIGINS = [] + os.getenv("GEORAMA_CSRF_TRUSTED_ORIGINS", "http://localhost:8080").split(",")
+CSRF_TRUSTED_ORIGINS = [] + os.getenv(
+    "GEORAMA_CSRF_TRUSTED_ORIGINS", "http://localhost:8080"
+).split(",")
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -160,4 +162,3 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 APPEND_SLASH = False
-
