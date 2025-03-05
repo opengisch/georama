@@ -1,146 +1,67 @@
 {% extends 'admin/base_site.html' %}
 
 {% block content %}
-    {% if vector_datasets.count > 0 %}
-        <div class="content-wrapper" style="min-height: 2211.91px;">
-            <div class="content border-bottom mb-2">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
-                            <h1 class="h4 m-0 pr-3 mr-3"> Available Vector Datasets </h1>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="content">
-                <div class="container-fluid">
-                    <section id="content" class="content">
-                        <div class="row">
-                            <div class="card">
-                                <div class="card-body">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Title</th>
-                                                <th>Project</th>
-                                                <th>Mandant</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for dataset in vector_datasets %}
-                                                <tr class="even" role="row">
-                                                    <td>{{ dataset.name }}</td>
-                                                    <td>{{ dataset.title }}</td>
-                                                    <td>{{ dataset.project.name }}</td>
-                                                    <td>{{ dataset.project.mandant.name }}</td>
-                                                    <td><a href="{% url 'publish_vector_as_wms' dataset.pk %}" class="btn btn-high btn-success">publish</a></td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-    {% if raster_datasets.count > 0 %}
-    <div class="content-wrapper" style="min-height: 2211.91px;">
-        <div class="content border-bottom mb-2">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
-                        <h1 class="h4 m-0 pr-3 mr-3"> Available Raster Datasets </h1>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="content">
-            <div class="container-fluid">
-                <section id="content" class="content">
-                    <div class="row">
-                        <div class="card">
-                            <div class="card-body">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Title</th>
-                                            <th>Project</th>
-                                            <th>Mandant</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for dataset in raster_datasets %}
-                                            <tr class="even" role="row">
-                                                <td>{{ dataset.name }}</td>
-                                                <td>{{ dataset.title }}</td>
-                                                <td>{{ dataset.project.name }}</td>
-                                                <td>{{ dataset.project.mandant.name }}</td>
-                                                <td><a href="{% url 'publish_raster_as_wms' dataset.pk %}" class="btn btn-high btn-success">publish</a></td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    {% if custom_datasets.count > 0 %}
-    <div class="content-wrapper" style="min-height: 2211.91px;">
-        <div class="content border-bottom mb-2">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
-                        <h1 class="h4 m-0 pr-3 mr-3"> Available Custom Datasets </h1>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="content">
-            <div class="container-fluid">
-                <section id="content" class="content">
-                    <div class="row">
-                        <div class="card">
-                            <div class="card-body">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Title</th>
-                                            <th>Project</th>
-                                            <th>Mandant</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for dataset in custom_datasets %}
-                                            <tr class="even" role="row">
-                                                <td>{{ dataset.name }}</td>
-                                                <td>{{ dataset.title }}</td>
-                                                <td>{{ dataset.project.name }}</td>
-                                                <td>{{ dataset.project.mandant.name }}</td>
-                                                <td><a href="{% url 'publish_custom_as_wms' dataset.pk %}" class="btn btn-high btn-success">publish</a></td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+       <!-- Bootstrap CSS -->
+{#   <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">#}
 
+   <!-- Bootstrap JS and dependencies -->
+{#   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>#}
+{#   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>#}
+
+
+    <div class="content-wrapper">
+        <div class="content border-bottom mb-2">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
+                        <h1 class="h4 m-0 pr-3 mr-3"> Available Datasets </h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs" id="datasetTabs" role="tablist">
+            {% if vector_datasets.count > 0 %}
+                <li class="nav-item">
+                    <a class="nav-link active" id="vector-tab" data-toggle="tab" href="#vector" role="tab" aria-controls="vector" aria-selected="true">
+                        Vector Datasets
+                    </a>
+                </li>
+            {% endif %}
+            {% if raster_datasets.count > 0 %}
+                <li class="nav-item">
+                    <a class="nav-link" id="raster-tab" data-toggle="tab" href="#raster" role="tab" aria-controls="raster" aria-selected="false">
+                        Raster Datasets
+                    </a>
+                </li>
+            {% endif %}
+            {% if custom_datasets.count > 0 %}
+                <li class="nav-item">
+                    <a class="nav-link " id="custom-tab" data-toggle="tab" href="#custom" role="tab" aria-controls="custom" aria-selected="false">
+                        Custom Datasets
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="datasetTabsContent">
+            {% if vector_datasets.count > 0 %}
+                <div class="tab-pane fade active show" id="vector" role="tabpanel" aria-labelledby="vector-tab">
+                        {% include 'admin/maps/publishedaswms/datatable.html' with datasets=vector_datasets model="vector" %}
+                </div>
+            {% endif %}
+            {% if raster_datasets.count > 0 %}
+                <div class="tab-pane fade " id="raster" role="tabpanel" aria-labelledby="raster-tab">
+                        {% include 'admin/maps/publishedaswms/datatable.html' with datasets=raster_datasets model="raster" %}
+                </div>
+            {% endif %}
+            {% if custom_datasets.count > 0 %}
+                <div class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">
+                        {% include 'admin/maps/publishedaswms/datatable.html' with datasets=custom_datasets model="custom" %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
