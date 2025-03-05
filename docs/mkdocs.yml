@@ -1,12 +1,22 @@
-site_name: 'GeoRama'
+site_name: 'Georama'
 site_url: 'https://opengisch.github.io/georama'
-site_description: 'GeoRama Documentation Pages.'
+site_description: 'Georama Documentation Pages.'
 site_author: 'Clemens Rudert'
 
 repo_url: 'https://github.com/opengisch/georama/'
 repo_name: 'opengisch/georama'
-edit_uri: blob/main/docs/
+edit_uri: docs/
 docs_dir: src
+nav:
+  - "Welcome": index.md
+  - "Quick Start": quick_start.md
+  - "DEV Setup": dev_setup.md
+  - "General Hints": general_hints.md
+  - API References: reference/
+  - Topics:
+    - "Docker": build-process_DAG.md
+    - "CI/CD": cicd.md
+  - tags: tags.md
 theme:
   # 1
   name: material
@@ -50,15 +60,9 @@ plugins:
 markdown_extensions:
   - mkdocs-click
   - pymdownx.highlight
-
-nav:
-  - Home:
-    - "Quick Start": index.md
-  - API References: reference/
-  - Topics:
-    - "Docker": build-process_DAG.md
-    - "CI/CD": cicd.md
-  - tags: tags.md
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
 
 
 extra:
