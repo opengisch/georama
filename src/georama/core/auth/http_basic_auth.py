@@ -5,6 +5,7 @@ from typing import Tuple
 
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import AuthenticationFailed
@@ -34,11 +35,11 @@ class BasicAuthentication(BaseAuthentication):
         if len(auth) == 1:
             msg = _("Invalid basic header. No credentials provided.")
             log.debug(msg)
-            return None
+            raise PermissionDenied(msg)
         elif len(auth) > 2:
             msg = _("Invalid basic header. Credentials string should not contain spaces.")
             log.debug(msg)
-            return None
+            raise PermissionDenied(msg)
 
         try:
             try:
@@ -50,7 +51,7 @@ class BasicAuthentication(BaseAuthentication):
         except (TypeError, ValueError, UnicodeDecodeError, binascii.Error):
             msg = _("Invalid basic header. Credentials not correctly base64 encoded.")
             log.debug(msg)
-            return None
+            raise PermissionDenied(msg)
 
         return self.authenticate_credentials(userid, password, request)
 
@@ -67,12 +68,12 @@ class BasicAuthentication(BaseAuthentication):
         if user is None:
             msg = _("Invalid username/password.")
             log.debug(msg)
-            return None
+            raise PermissionDenied(msg)
 
         if not user.is_active:
             msg = _("User inactive or deleted.")
             log.debug(msg)
-            return None
+            raise PermissionDenied(msg)
 
         return user, None
 
@@ -89,10 +90,10 @@ def basic_http_authentication_middleware(get_response):
 
         if not request.user.is_authenticated:
             try:
-                user = basic_http_auth.authenticate(request)
-                if user is not None:
+                user_token = basic_http_auth.authenticate(request)
+                if user_token is not None:
                     log.debug(_("User was authenticated."))
-                    request.user = user[0]
+                    request.user = user_token[0]
                     response = get_response(request)
                     return response
             except AuthenticationFailed:
