@@ -30,7 +30,9 @@ LOGGING = {
     "disable_existing_loggers": False,  # retain the default loggers
 }
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
+GEORAMA_ALLOWED_HOSTS = os.environ.get("GEORAMA_ALLOWED_HOSTS", "").split(";")
+
+ALLOWED_HOSTS = [] + GEORAMA_ALLOWED_HOSTS
 
 # Application definition
 
