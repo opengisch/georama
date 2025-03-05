@@ -94,8 +94,6 @@ def basic_http_authentication_middleware(get_response):
                 if user_token is not None:
                     log.debug(_("User was authenticated."))
                     request.user = user_token[0]
-                    response = get_response(request)
-                    return response
             except AuthenticationFailed:
                 # AuthenticationFailed: there was a http auth header,
                 # but auth failed: consider the user unlogged.
@@ -103,5 +101,7 @@ def basic_http_authentication_middleware(get_response):
                 return HttpResponse("Unauthorized", status=401)
             except Exception as e:
                 log.error(e)
+        response = get_response(request)
+        return response
 
     return middleware

@@ -1,7 +1,20 @@
 from django.http import HttpRequest
+from typing import List
 
 # Header encoding (see RFC5987)
 HTTP_HEADER_ENCODING = "iso-8859-1"
+
+ALL_AUTHENTICATION_METHODS = [
+  ("DJANGO_CONTRIB_AUTH", "django.contrib.auth.middleware.AuthenticationMiddleware"),
+  ("BASIC_HTTP", "georama.core.auth.http_basic_auth.basic_http_authentication_middleware"),
+]
+
+
+def get_authentication_methods_middlewares(selected_auth_methods: List[str]) -> List[str]:
+    return [
+        m for auth_method, m in ALL_AUTHENTICATION_METHODS
+        if auth_method in selected_auth_methods
+    ]
 
 
 class BaseAuthentication:
