@@ -23,7 +23,7 @@ class BaseAuthentication:
         """
 
 
-def get_authorization_header(request):
+def get_authorization_header(request: HttpRequest):
     """
     Return request's 'Authorization:' header, as a bytestring.
 
