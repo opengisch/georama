@@ -9,7 +9,7 @@ VENV_BIN = $(VENV_PATH)/bin
 PIP_COMMAND = pip3
 PYTHON_PATH = $(shell which python3)
 PYTHON_VERSION = $(shell printf '%b' "import sys\nprint(f'{sys.version_info.major}.{sys.version_info.minor}')" | $$(which python3))
-QGIS_VENV_PATH = $(VENV_PATH)/lib/python$(PYTHON_VERSION)/site-packages/qgis_paths.pth
+EDITABLE_GEORAMA_PATH = $(VENV_PATH)/lib/python$(PYTHON_VERSION)/site-packages/editable_georama.pth
 PINNED_DEPS ?= reqs.txt
 
 
@@ -35,13 +35,13 @@ BUILD_ENV += \
 # *******************
 
 $(VENV_REQUIREMENTS):
-	$(PYTHON_PATH) -m venv $(VENV_PATH)
+	$(PYTHON_PATH) -m venv --system-site-packages $(VENV_PATH)
 	touch $@
 
-$(QGIS_VENV_PATH):
-	echo "/usr/share/qgis/python" > $@
+$(EDITABLE_GEORAMA_PATH):
+	echo $(shell pwd)/src > $@
 
-$(PIP_REQUIREMENTS): $(VENV_REQUIREMENTS) pyproject.toml $(QGIS_VENV_PATH)
+$(PIP_REQUIREMENTS): $(VENV_REQUIREMENTS) pyproject.toml
 	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools
 	$(VENV_BIN)/$(PIP_COMMAND) install .
 	touch $@
@@ -138,11 +138,11 @@ updates: $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/pip list --outdated
 
 .PHONY: dev
-dev: setup.py build
+dev: setup.py install
 	$(VENV_BIN)/pip install -e .
 
 .PHONY: serve
-serve: $(PIP_REQUIREMENTS) dev
+serve: $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:8000
 
 MANAGE_ACTION="shell_plus"

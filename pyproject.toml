@@ -46,14 +46,16 @@ classifiers = [
 
 ### Dependency Constraints, aka Requirements ###
 dependencies = [
+    # cli tooling
     "click==8.1.7",
+    # pygeoapi and its friends
     "pygeoapi==0.17.0",
+    "psycopg2",
+    "geoalchemy2",
+    # django stuff
     "django==5.0.6",
     "django-jazzmin==3.0.0",
-    "gdal==3.9.1",
-    "psycopg2==2.9.9",
-    "geoalchemy2==0.15.2",
-    "SQLAlchemy<2.0.0",
+    # qsl deps
     "xsdata[cli,lxml,soap]==24.6.1",
     "async-timeout==4.0.3",
     "redis==5.0.8",
@@ -61,13 +63,9 @@ dependencies = [
     # deps for webgis
     "django-allauth==0.63.3",
     "django-cors-headers==4.3.1",
-    "django-ninja== 0.22.2",
-    "django-cors-headers==4.3.1",
     "django-treebeard==4.7.1",
-    "djangorestframework==3.15.1",
     "django-admin-sortable2==2.2.1",
     "django-simple-history==3.7.0",
-    "djangorestframework-gis @ git+https://github.com/openwisp/django-rest-framework-gis@4f244d5d8a7ad5b453fd04f64150818d15123e01",
     "django-extensions==3.2.3"
 ]
 

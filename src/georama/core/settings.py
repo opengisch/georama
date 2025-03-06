@@ -51,17 +51,13 @@ INSTALLED_APPS = [
     "georama.maps.apps.RasteroctopusConfig",
     "georama.data_integration.apps.QmeleonConfig",
     # apps by webgis
-    "django.contrib.gis",
     "corsheaders",
-    "rest_framework",
-    "rest_framework_gis",
     "georama.webgis.apps.ClogsConfig",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "adminsortable2",
     "treebeard",
-    "ninja",
     "django_extensions",
 ]
 

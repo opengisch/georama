@@ -11,3 +11,14 @@ geodata out of QGIS projects. It handles the following usecases:
 - integration with external identity providers via third party django apps
 
 #
+
+## Local installation
+
+System dependencies which have to be installed before you can run the make targets:
+
+### Ubuntu
+
+```shell
+python3-psycopg2
+python3-gdal
+```
