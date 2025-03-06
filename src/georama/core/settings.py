@@ -70,7 +70,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     *get_authentication_methods_middlewares(GEORAMA_AUTHENTICATION_METHODS),
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -136,7 +136,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CORS_ALLOWED_ORIGINS = [] + os.getenv("GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:8443").split(" ")
+CORS_ALLOWED_ORIGINS = [] + os.getenv(
+    "GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:8443"
+).split(" ")
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -161,3 +163,11 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 APPEND_SLASH = False
+
+# add custom providers to pygeoapi
+print("loading provider")
+import pygeoapi.plugin
+
+pygeoapi.plugin.PLUGINS["provider"][
+    "OG_POSTGRES"
+] = "georama.features.pygeoapi_providers.postgres.PostgresProvider"

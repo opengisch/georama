@@ -36,11 +36,11 @@ WORKDIR /app
 
 COPY ./ .
 
-RUN VENV_PATH=${VENV_PATH} make dev
+RUN VENV_PATH=${VENV_PATH} make install-dev
 
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=core.settings
 
 ENTRYPOINT ["/tini", "--", "make"]
 
-CMD ["serve"]
+CMD ["serve-dev"]

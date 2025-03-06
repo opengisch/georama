@@ -28,7 +28,7 @@ service. The correct path inside the container is: `/opt/georama/venv`
 To prepare a local virtual environment (in the folder `.venv`) run the following command:
 
 ```shell
-make dev
+make install-dev
 ```
 
 In case you are using an IDE you can point it to that venv to have code completion and code inspection.
@@ -62,7 +62,7 @@ docker run --rm -d -p 1234:6379 --name georama-redis redis
 You can spin up a self reloading DEV server which detects code changes automatically with:
 
 ```shell
-make serve
+make serve-dev
 ```
 
 Once the server is running, open another terminal to create the database structure for Georama.

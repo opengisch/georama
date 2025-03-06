@@ -1,5 +1,6 @@
 import pygeoapi.api as inittime_api
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import BadRequest, PermissionDenied
+from pygeoapi.openapi import get_oas
 
 from georama.features.features_config import Config
 
@@ -8,6 +9,7 @@ inittime_api.DEFAULT_CRS = Config().default_crs
 import os.path
 import typing
 
+import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
@@ -16,8 +18,7 @@ from qgis_server_light.interface.qgis import BBox
 
 from georama.data_integration.models import VectorDataSet
 from georama.features.apps import appname
-from georama.features.config_openapi import config_openapi
-from georama.features.config_server import config_server
+from georama.features.config_server import ServerConfig
 from georama.features.models import PublishedAsOgcApiFeatures
 
 
@@ -29,10 +30,7 @@ def landing_page(request: HttpRequest) -> HttpResponse:
 
     :returns: Django HTTP Response
     """
-    response_ = _feed_response(request, "landing_page")
-    response = _to_django_response(*response_)
-
-    return response
+    return execute_from_django(core_api.landing_page, request)
 
 
 def openapi(request: HttpRequest) -> HttpResponse:
@@ -43,10 +41,7 @@ def openapi(request: HttpRequest) -> HttpResponse:
 
     :returns: Django HTTP Response
     """
-    response_ = _feed_response(request, "openapi_")
-    response = _to_django_response(*response_)
-
-    return response
+    return execute_from_django(core_api.openapi_, request)
 
 
 def conformance(request: HttpRequest) -> HttpResponse:
@@ -57,10 +52,7 @@ def conformance(request: HttpRequest) -> HttpResponse:
 
     :returns: Django HTTP Response
     """
-    response_ = _feed_response(request, "conformance")
-    response = _to_django_response(*response_)
-
-    return response
+    return execute_from_django(core_api.conformance, request)
 
 
 def collections(
@@ -74,9 +66,7 @@ def collections(
 
     :returns: Django HTTP Response
     """
-    response_ = _feed_response(request, "describe_collections", collection_id)
-    response = _to_django_response(*response_)
-    return response
+    return execute_from_django(core_api.describe_collections, request, collection_id)
 
 
 def collection_schema(
@@ -93,10 +83,7 @@ def collection_schema(
     if PublishedAsOgcApiFeatures.objects.get(identifier=collection_id).has_read_permission(
         request.user, appname
     ):
-        response_ = _feed_response(request, "get_collection_schema", collection_id)
-        response = _to_django_response(*response_)
-
-        return response
+        return execute_from_django(core_api.get_collection_schema, request, collection_id)
     else:
         raise PermissionDenied()
 
@@ -175,6 +162,8 @@ def collection_items(request: HttpRequest, collection_id: str) -> HttpResponse:
             )
         else:
             raise PermissionDenied()
+    else:
+        raise BadRequest()
 
     return response_
 
@@ -234,65 +223,44 @@ def collection_item(request: HttpRequest, collection_id: str, item_id: str) -> H
             )
         else:
             raise PermissionDenied()
+    else:
+        raise BadRequest()
 
     return response_
 
 
 def handle_runtime_config(request: HttpRequest) -> tuple[dict, dict]:
-    server_config = config_server()
-    openapi_config = config_openapi()
+    server_config = ServerConfig().get()
     server_config["server"]["url"] = f"http://{request.get_host()}/features"
-    openapi_config["servers"][0]["url"] = server_config["server"]["url"]
     for published_as in PublishedAsOgcApiFeatures.objects.all():
         if published_as.has_general_permission(request.user, appname):
             server_config["resources"][str(published_as.identifier)] = create_resource(
                 published_as, request
             )
-            for path in create_oapi_cfg(published_as):
-                openapi_config["paths"].update(path)
-    return server_config, openapi_config
-
-
-def _to_django_response(
-    headers: typing.Mapping, status_code: int, content: str
-) -> HttpResponse:
-    """Convert API payload to a django response"""
-
-    response = HttpResponse(content, status=status_code)
-
-    for key, value in headers.items():
-        response[key] = value
-    return response
-
-
-def _feed_response(
-    request: HttpRequest, api_definition: str, *args, **kwargs
-) -> typing.Tuple[typing.Dict, int, str]:
-    """Use pygeoapi api to process the input request"""
-    # TODO: make all this directly available from data integration and config DB
-    server_config, openapi_config = handle_runtime_config(request)
-    api = getattr(API(server_config, openapi_config), api_definition)
-
-    return api(request, *args, **kwargs)
+    return server_config, get_oas(server_config)
 
 
 def execute_from_django(
     api_function, request: HttpRequest, *args, skip_valid_check=False
 ) -> HttpResponse:
-
-    api_: API
-    # TODO: make all this directly available from data integration and config DB
     server_config, openapi_config = handle_runtime_config(request)
-    api_ = API(server_config, openapi_config)
-    api_request = APIRequest.from_django(request, api_.locales)
+    api = API(server_config, openapi_config)
+
+    api_request = APIRequest.from_django(request, api.locales)
     content: typing.Union[str, bytes]
     if not skip_valid_check and not api_request.is_valid():
-        headers, status, content = api_.get_format_exception(api_request)
+        headers, status, content = api.get_format_exception(api_request)
     else:
 
-        headers, status, content = api_function(api_, api_request, *args)
+        headers, status, content = api_function(api, api_request, *args)
         content = apply_gzip(headers, content)
-    return _to_django_response(headers, status, content)
+
+    # Convert API payload to a django response
+    response = HttpResponse(content, status=status)
+
+    for key, value in headers.items():
+        response[key] = value
+    return response
 
 
 def handle_crs_setting(crs: str):
@@ -346,7 +314,7 @@ def create_postgres_provider(published_as: PublishedAsOgcApiFeatures, editable: 
 
     return {
         "type": "feature",
-        "name": "PostgreSQL",
+        "name": "OG_POSTGRES",
         "data": {
             "host": source.postgres.host,
             "port": source.postgres.port,
@@ -405,208 +373,6 @@ def create_resource(published_as: PublishedAsOgcApiFeatures, request: HttpReques
         },
         "providers": [provider],
     }
-
-
-def create_oapi_cfg(published_as: PublishedAsOgcApiFeatures) -> list[dict]:
-    dataset_name = str(published_as.identifier)
-    return [
-        {
-            f"/collections/{dataset_name}": {
-                "get": {
-                    "description": published_as.description,
-                    "operationId": f"describe{dataset_name}Collection",
-                    "parameters": [
-                        {"$ref": "#/components/parameters/f"},
-                        {"$ref": "#/components/parameters/lang"},
-                    ],
-                    "responses": {
-                        "200": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/Collection"
-                        },
-                        "400": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/InvalidParameter"
-                        },
-                        "404": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/NotFound"
-                        },
-                        "500": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError"
-                        },
-                    },
-                    "summary": "Get feature collection metadata",
-                    "tags": [published_as.name],
-                }
-            }
-        },
-        {
-            f"/collections/{dataset_name}/items": {
-                "get": {
-                    "description": published_as.description,
-                    "operationId": f"get{dataset_name}Features",
-                    "parameters": [
-                        {
-                            "description": "The optional f parameter indicates the output format which the "
-                            "server shall provide as part of the response document. "
-                            "The default format is GeoJSON.",
-                            "explode": False,
-                            "in": "query",
-                            "name": "f",
-                            "required": False,
-                            "schema": {
-                                "default": "json",
-                                "enum": ["json", "html", "csv"],
-                                "type": "string",
-                            },
-                            "style": "form",
-                        },
-                        {"$ref": "#/components/parameters/f"},
-                        {"$ref": "#/components/parameters/lang"},
-                        {"$ref": "#/components/parameters/bbox"},
-                        {
-                            "$ref": "https://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/parameters/limit"
-                        },
-                        {"$ref": "#/components/parameters/crs"},
-                        {"$ref": "#/components/parameters/bbox-crs"},
-                        {"$ref": "#/components/parameters/vendorSpecificParameters"},
-                        {
-                            "$ref": "https://raw.githubusercontent.com/opengeospatial/ogcapi-records/master/core/openapi/parameters/sortby.yaml"
-                        },
-                        {"$ref": "#/components/parameters/offset"}
-                        # TODO: add definition per column (we need to do a proper mapping from qgis infos)
-                        # {
-                        #     "explode": False,
-                        #     "in": "query",
-                        #     "name": "id",
-                        #     "required": False,
-                        #     "schema": {
-                        #         "type": "string"
-                        #     },
-                        #     "style": "form"
-                        # }
-                    ],
-                    "responses": {
-                        "200": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/Features"
-                        },
-                        "400": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/InvalidParameter"
-                        },
-                        "404": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/NotFound"
-                        },
-                        "500": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError"
-                        },
-                    },
-                    "summary": f"Get {published_as.name} features",
-                    "tags": [published_as.name],
-                    "options": {
-                        "description": published_as.description,
-                        "operationId": f"options{dataset_name}Features",
-                        "responses": {"200": {"description": "options response"}},
-                        "summary": "Options for Observations items",
-                        "tags": ["obs"],
-                    },
-                }
-            }
-        },
-        {
-            f"/collections/{dataset_name}/items/{'{featureId}'}": {
-                "get": {
-                    "description": published_as.description,
-                    "operationId": f"get{dataset_name}Feature",
-                    "parameters": [
-                        {
-                            "$ref": "https://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/parameters/featureId"
-                        },
-                        {"$ref": "#/components/parameters/crs"},
-                        {"$ref": "#/components/parameters/f"},
-                        {"$ref": "#/components/parameters/lang"},
-                    ],
-                    "responses": {
-                        "200": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/Feature"
-                        },
-                        "400": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/InvalidParameter"
-                        },
-                        "404": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/NotFound"
-                        },
-                        "500": {
-                            "$ref": "http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError"
-                        },
-                    },
-                    "summary": f"Get {published_as.name} feature by id",
-                    "tags": [published_as.name],
-                    "options": {
-                        "description": published_as.description,
-                        "operationId": f"options{published_as.name}Feature",
-                        "parameters": [
-                            {
-                                "$ref": "https://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/parameters/featureId"
-                            }
-                        ],
-                        "responses": {"200": {"description": "options response"}},
-                        "summary": "Options for Observations item by id",
-                        "tags": ["obs"],
-                    },
-                }
-            }
-        },
-        {
-            f"/collections/{dataset_name}/queryables": {
-                "get": {
-                    "description": published_as.description,
-                    "operationId": f"get{published_as.name}Queryables",
-                    "parameters": [
-                        {"$ref": "#/components/parameters/f"},
-                        {"$ref": "#/components/parameters/lang"},
-                    ],
-                    "responses": {
-                        "200": {"$ref": "#/components/responses/Queryables"},
-                        "400": {
-                            "$ref": "https://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/InvalidParameter"
-                        },
-                        "404": {
-                            "$ref": "https://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/NotFound"
-                        },
-                        "500": {
-                            "$ref": "https://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError"
-                        },
-                    },
-                    "summary": "Get Observations queryables",
-                    "tags": ["obs"],
-                }
-            }
-        },
-        {
-            f"/collections/{dataset_name}/schema": {
-                "get": {
-                    "description": published_as.description,
-                    "operationId": f"get{published_as.name}Schema",
-                    "parameters": [
-                        {"$ref": "#/components/parameters/f"},
-                        {"$ref": "#/components/parameters/lang"},
-                    ],
-                    "responses": {
-                        "200": {"$ref": "#/components/responses/Queryables"},
-                        "400": {
-                            "$ref": "https://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/InvalidParameter"
-                        },
-                        "404": {
-                            "$ref": "https://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/NotFound"
-                        },
-                        "500": {
-                            "$ref": "https://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError"
-                        },
-                    },
-                    "summary": "Get Observations schema",
-                    "tags": ["obs"],
-                }
-            }
-        },
-    ]
 
 
 def admin_publish_as_oapif(request: HttpRequest, vector_dataset_id: str):
