@@ -56,7 +56,7 @@ dependencies = [
     "django==5.0.6",
     "django-jazzmin==3.0.0",
     # qsl deps
-    "xsdata[cli,lxml,soap]==24.6.1",
+    "xsdata[lxml]==24.6.1",
     "async-timeout==4.0.3",
     "redis==5.0.8",
     "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
@@ -67,6 +67,12 @@ dependencies = [
     "django-admin-sortable2==2.2.1",
     "django-simple-history==3.7.0",
     "django-extensions==3.2.3"
+]
+
+# DEV: deps
+optional-dependencies.dev =[
+    # to derive dataclasses from xsd schemas
+    "xsdata[cli,lxml,soap]==24.6.1"
 ]
 
 # Test: packages imported in test code and packages required for the "test runner"

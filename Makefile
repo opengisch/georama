@@ -48,7 +48,7 @@ $(PIP_REQUIREMENTS): $(VENV_REQUIREMENTS) pyproject.toml
 	touch $@
 
 $(DEV_REQUIREMENTS): setup.py $(VENV_REQUIREMENTS)
-	$(VENV_BIN)/pip install -e .
+	$(VENV_BIN)/pip install -e .[dev]
 	touch $@
 
 $(DOC_REQUIREMENTS): $(PIP_REQUIREMENTS)
