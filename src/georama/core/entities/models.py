@@ -26,6 +26,12 @@ class PermissionInterface:
 
 
 class PublishedAsRoleNameSystem(models.Model):
+    """PublishedAsRoleNameSystem: a published resource with CRUD operations ruled by permissions
+  
+    This class does not have any database operation (save, update delete, ...),
+    so that interactions with permissions are fast, without any database query.
+    It should stay that way.
+    """
     published_as_type = None
     identifier = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, null=False)
     name = models.CharField(max_length=1000, null=True, default=None, blank=True)
@@ -96,10 +102,10 @@ class PublishedAsRoleNameSystem(models.Model):
         return self.to_string(self.permissions)
 
     def has_general_permission(self, user: User, app_name: str) -> bool:
-        return self.has_grained_permission(user, self.permission_codenames, app_name)
+        return self._has_grained_permission(user, self.permission_codenames, app_name)
 
     @staticmethod
-    def has_grained_permission(user: User, permissions: List[str], app_name: str) -> bool:
+    def _has_grained_permission(user: User, permissions: List[str], app_name: str) -> bool:
         permissions = [f'{app_name}.{permission}' for permission in permissions]
         if user.is_superuser:
             log.debug(f'Superuser => has access')
@@ -121,16 +127,16 @@ class PublishedAsRoleNameSystem(models.Model):
                 return False
 
     def has_read_permission(self, user: User, app_name: str):
-        return self.has_grained_permission(user, self.to_string(self.read_permissions), app_name)
+        return self._has_grained_permission(user, self.to_string(self.read_permissions), app_name)
 
     def has_create_permission(self, user: User, app_name: str):
-        return self.has_grained_permission(user, self.to_string(self.create_permissions), app_name)
+        return self._has_grained_permission(user, self.to_string(self.create_permissions), app_name)
 
     def has_update_permission(self, user: User, app_name: str):
-        return self.has_grained_permission(user, self.to_string(self.update_permissions), app_name)
+        return self._has_grained_permission(user, self.to_string(self.update_permissions), app_name)
 
     def has_delete_permission(self, user: User, app_name: str):
-        return self.has_grained_permission(user, self.to_string(self.delete_permissions), app_name)
+        return self._has_grained_permission(user, self.to_string(self.delete_permissions), app_name)
 
 
 class PublishedAs(PublishedAsRoleNameSystem):
