@@ -21,6 +21,8 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     list_editable = ["public"]
     add_form_template = "admin/maps/publishedaswms/publish.html"
     readonly_fields = ["dataset_detail"]
+    list_filter = ["name", "title"]
+
 
     def add_view(self, request, form_url="", extra_context=None):
         extra_context = extra_context or {}
