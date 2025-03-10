@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.utils.translation import gettext_lazy as _
-from rest_framework.exceptions import AuthenticationFailed
 
 from georama.core.auth import BaseAuthentication, get_authorization_header
 
@@ -94,7 +93,7 @@ def basic_http_authentication_middleware(get_response):
                 if user_token is not None:
                     log.debug(_("User was authenticated."))
                     request.user = user_token[0]
-            except AuthenticationFailed:
+            except PermissionDenied:
                 # AuthenticationFailed: there was a http auth header,
                 # but auth failed: consider the user unlogged.
                 log.debug(_("User was not authenticated."))
