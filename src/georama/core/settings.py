@@ -142,9 +142,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 CORS_ALLOWED_ORIGINS = [] + os.getenv("GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:8443").split(" ")
 
-
-CORS_ALLOW_ALL_ORIGINS = True
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
