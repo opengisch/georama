@@ -8,8 +8,6 @@ from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-from georama.data_integration.models import DataSet
-
 log = logging.getLogger(__name__)
 
 
@@ -17,16 +15,21 @@ log = logging.getLogger(__name__)
 class PermissionInterface:
     published_as_type: str
     action: str
-    identifier: str
-    name: str
+    target_identifier: str
+    target_name: str
+    target_readable_identifier: str
 
     @property
     def codename(self) -> str:
-        return f'{self.published_as_type}_{self.action}_{self.identifier}'
+        return f'{self.published_as_type}_{self.action}_{self.target_identifier}'
     
     @property
     def readable_name(self) -> str:
-        return f'Can {self.action} {self.name}'
+        return f'Can {self.action} {self.target_name}'
+
+    @property
+    def readable_identifier(self) -> str:
+        return self.readable_name + f" ({self.target_readable_identifier})"
 
 
 class PublishedAsRoleNameSystem(models.Model):
@@ -45,13 +48,18 @@ class PublishedAsRoleNameSystem(models.Model):
         abstract = True
 
     @property
+    def readable_identifier(self) -> str:
+        return self.identifier
+
+    @property
     def read_permissions(self) -> List[PermissionInterface]:
         return [] if self.public else [
             PermissionInterface(
                 published_as_type=self.published_as_type,
                 action="read",
-                identifier=self.identifier,
-                name=self.name
+                target_identifier=self.identifier,
+                target_name=self.name,
+                target_readable_identifier=self.readable_identifier
             )
         ]
 
@@ -61,8 +69,9 @@ class PublishedAsRoleNameSystem(models.Model):
             PermissionInterface(
                 published_as_type=self.published_as_type,
                 action="create",
-                identifier=self.identifier,
-                name=self.name
+                target_identifier=self.identifier,
+                target_name=self.name,
+                target_readable_identifier=self.readable_identifier
             )
         ]
 
@@ -72,8 +81,9 @@ class PublishedAsRoleNameSystem(models.Model):
             PermissionInterface(
                 published_as_type=self.published_as_type,
                 action="update",
-                identifier=self.identifier,
-                name=self.name
+                target_identifier=self.identifier,
+                target_name=self.name,
+                target_readable_identifier=self.readable_identifier
             )
         ]
 
@@ -83,8 +93,9 @@ class PublishedAsRoleNameSystem(models.Model):
             PermissionInterface(
                 published_as_type=self.published_as_type,
                 action="delete",
-                identifier=self.identifier,
-                name=self.name
+                target_identifier=self.identifier,
+                target_name=self.name,
+                target_readable_identifier=self.readable_identifier
             )
         ]
 
@@ -156,17 +167,6 @@ class PublishedAs(PublishedAsRoleNameSystem):
     fees = models.TextField(default="No fees apply.")
     access_constraints = models.TextField(default="No access constraints apply.")
 
-    class Meta:
-        abstract = True
-
-
-class DatasetPublishedAs(PublishedAs):
-    
-    @property
-    @abstractmethod
-    def bound_dataset(self) -> DataSet:
-        pass
-
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(
             force_insert=force_insert,
@@ -174,13 +174,12 @@ class DatasetPublishedAs(PublishedAs):
             using=using,
             update_fields=update_fields,
         )
-        dataset = self.bound_dataset
         content_type = ContentType.objects.get_for_model(type(self))
         for permission in self.permissions:
             if Permission.objects.filter(codename=permission.codename).count() == 0:
                 Permission(
                     codename=permission.codename,
-                    name=f"{permission.readable_name} ({dataset.project.mandant.name}.{dataset.project.name}.{self.identifier})",
+                    name=permission.readable_identifier,
                     content_type=content_type,
                 ).save()
 

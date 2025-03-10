@@ -1,7 +1,5 @@
 from typing import List
 
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.qgis import WmsSource, WmtsSource
@@ -62,6 +60,10 @@ class PublishedAsTheme(PublishedAs):
     ordering = models.IntegerField()
     history = HistoricalRecords()
 
+    @property
+    def readable_identifier(self) -> str:
+        return f"{self.project.mandant.name}.{self.project.name}.{self.identifier}"
+
     class Meta:
         ordering = ["ordering"]
         verbose_name = _("Thème")
@@ -97,21 +99,6 @@ class PublishedAsTheme(PublishedAs):
             force_update=force_update,
             using=using,
             update_fields=update_fields,
-        )
-        content_type = ContentType.objects.get_for_model(PublishedAsTheme)
-        for permission in self.permissions:
-            if Permission.objects.filter(codename=permission.codename).count() == 0:
-                Permission(
-                    codename=permission.codename,
-                    name=f"{permission.readable_name} ({self.project.mandant.name}.{self.project.name})",
-                    content_type=content_type,
-                ).save()
-
-    def delete(self, using=None, keep_parents=False):
-        Permission.objects.filter(codename__in=self.permission_codenames).delete()
-        super().delete(
-            using=using,
-            keep_parents=keep_parents,
         )
 
 

@@ -1,7 +1,5 @@
 from typing import List
 
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
@@ -55,6 +53,11 @@ class PublishedAsWms(PublishedAs):
             raise NotImplementedError(
                 "linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!"
             )
+
+    @property
+    def readable_identifier(self) -> str:
+        dataset = self.bound_dataset
+        return f"{dataset.project.mandant.name}.{dataset.project.name}.{self.identifier}",
 
     @property
     def permissions(self) -> List[PermissionInterface]:

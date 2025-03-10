@@ -1,7 +1,5 @@
 from typing import List
 
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from georama.core.entities.models import (
@@ -90,8 +88,9 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
     )
 
     @property
-    def bound_dataset(self) -> VectorDataSet:
-        return self.dataset
+    def readable_identifier(self) -> str:
+        dataset = self.dataset
+        return f"{dataset.project.mandant.name}.{dataset.project.name}.{self.identifier}"
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.name is None and isinstance(self.dataset, VectorDataSet):
