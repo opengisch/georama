@@ -53,7 +53,7 @@ class PublishedAsRoleNameSystem(models.Model):
 
     @property
     def read_permissions(self) -> List[PermissionInterface]:
-        return [] if self.public else [
+        return [
             PermissionInterface(
                 published_as_type=self.published_as_type,
                 action="read",
@@ -65,7 +65,7 @@ class PublishedAsRoleNameSystem(models.Model):
 
     @property
     def create_permissions(self) -> List[PermissionInterface]:
-        return [] if self.public else [
+        return [
             PermissionInterface(
                 published_as_type=self.published_as_type,
                 action="create",
@@ -77,7 +77,7 @@ class PublishedAsRoleNameSystem(models.Model):
 
     @property
     def update_permissions(self) -> List[PermissionInterface]:
-        return [] if self.public else [
+        return [
             PermissionInterface(
                 published_as_type=self.published_as_type,
                 action="update",
@@ -89,7 +89,7 @@ class PublishedAsRoleNameSystem(models.Model):
 
     @property
     def delete_permissions(self) -> List[PermissionInterface]:
-        return [] if self.public else [
+        return [
             PermissionInterface(
                 published_as_type=self.published_as_type,
                 action="delete",
@@ -126,10 +126,6 @@ class PublishedAsRoleNameSystem(models.Model):
             log.debug(f'Superuser => has access')
             # superusers always have access
             return True
-        if len(permissions) == 0:
-            log.debug(f'Public dataset => has access')
-            # this is a public dataset
-            return True
         else:
             matching_permissions = list(set(permissions) & user.get_all_permissions())
             log.debug(f'Matching permissions: {permissions}')
@@ -141,16 +137,18 @@ class PublishedAsRoleNameSystem(models.Model):
                 log.debug(f'Access denied')
                 return False
 
-    def has_read_permission(self, user: User, app_name: str):
+    def has_read_permission(self, user: User, app_name: str) -> bool:
+        if self.public:
+            return True
         return self._has_grained_permission(user, self.to_string(self.read_permissions), app_name)
 
-    def has_create_permission(self, user: User, app_name: str):
+    def has_create_permission(self, user: User, app_name: str) -> bool:
         return self._has_grained_permission(user, self.to_string(self.create_permissions), app_name)
 
-    def has_update_permission(self, user: User, app_name: str):
+    def has_update_permission(self, user: User, app_name: str) -> bool:
         return self._has_grained_permission(user, self.to_string(self.update_permissions), app_name)
 
-    def has_delete_permission(self, user: User, app_name: str):
+    def has_delete_permission(self, user: User, app_name: str) -> bool:
         return self._has_grained_permission(user, self.to_string(self.delete_permissions), app_name)
 
 
