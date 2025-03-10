@@ -58,10 +58,8 @@ class PublishedAsWms(PublishedAs):
 
     @property
     def permissions(self) -> List[PermissionInterface]:
-        if self.public:
-            return []
-        else:
-            return self.read_permissions
+        # No need for Update or delete with WMS...
+        return self.read_permissions 
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         dataset = self.bound_dataset
@@ -81,7 +79,7 @@ class PublishedAsWms(PublishedAs):
             if Permission.objects.filter(codename=permission.codename).count() == 0:
                 Permission(
                     codename=permission.codename,
-                    name=f"{permission.readable_name} ({dataset.project.mandant.name}.{dataset.project.name})",
+                    name=f"{permission.readable_name} ({dataset.project.mandant.name}.{dataset.project.name}.{self.identifier})",
                     content_type=content_type,
                 ).save()
 
