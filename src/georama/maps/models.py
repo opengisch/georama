@@ -74,18 +74,3 @@ class PublishedAsWms(PublishedAs):
             using=using,
             update_fields=update_fields,
         )
-        content_type = ContentType.objects.get_for_model(PublishedAsWms)
-        for permission in self.permissions:
-            if Permission.objects.filter(codename=permission.codename).count() == 0:
-                Permission(
-                    codename=permission.codename,
-                    name=f"{permission.readable_name} ({dataset.project.mandant.name}.{dataset.project.name}.{self.identifier})",
-                    content_type=content_type,
-                ).save()
-
-    def delete(self, using=None, keep_parents=False):
-        Permission.objects.filter(codename__in=self.permission_codenames).delete()
-        super().delete(
-            using=using,
-            keep_parents=keep_parents,
-        )

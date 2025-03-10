@@ -1,10 +1,14 @@
+from abc import abstractmethod
 import logging
 import uuid
 from dataclasses import dataclass
 from typing import List
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
+
+from georama.data_integration.models import DataSet
 
 log = logging.getLogger(__name__)
 
@@ -151,6 +155,41 @@ class PublishedAs(PublishedAsRoleNameSystem):
     """)
     fees = models.TextField(default="No fees apply.")
     access_constraints = models.TextField(default="No access constraints apply.")
+
+    class Meta:
+        abstract = True
+
+
+class DatasetPublishedAs(PublishedAs):
+    
+    @property
+    @abstractmethod
+    def bound_dataset(self) -> DataSet:
+        pass
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
+        dataset = self.bound_dataset
+        content_type = ContentType.objects.get_for_model(type(self))
+        for permission in self.permissions:
+            if Permission.objects.filter(codename=permission.codename).count() == 0:
+                Permission(
+                    codename=permission.codename,
+                    name=f"{permission.readable_name} ({dataset.project.mandant.name}.{dataset.project.name}.{self.identifier})",
+                    content_type=content_type,
+                ).save()
+
+    def delete(self, using=None, keep_parents=False):
+        Permission.objects.filter(codename__in=self.permission_codenames).delete()
+        super().delete(
+            using=using,
+            keep_parents=keep_parents,
+        )
 
     class Meta:
         abstract = True
