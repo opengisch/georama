@@ -57,12 +57,12 @@ class PublishedAsWms(PublishedAs):
     @property
     def readable_identifier(self) -> str:
         dataset = self.bound_dataset
-        return f"{dataset.project.mandant.name}.{dataset.project.name}.{self.identifier}",
+        return f"{dataset.project.mandant.name}.{dataset.project.name}.{self.identifier}"
 
     @property
     def permissions(self) -> List[PermissionInterface]:
         # No need for Update or delete with WMS...
-        return self.read_permissions 
+        return self.read_permissions
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         dataset = self.bound_dataset
