@@ -17,19 +17,16 @@ class PermissionInterface:
     action: str
     target_identifier: str
     target_name: str
-    target_readable_identifier: str
 
     @property
     def codename(self) -> str:
         return f'{self.published_as_type}_{self.action}_{self.target_identifier}'
     
-    @property
-    def readable_name(self) -> str:
-        return f'Can {self.action} {self.target_name}'
-
-    @property
-    def readable_identifier(self) -> str:
-        return self.readable_name + f" ({self.target_readable_identifier})"
+    def readable_name(self, target_readable_identifier) -> str:
+        """Creates the permission name stored in the db and used in the django admin
+        
+        Is a method and not a property to avoid database queries for Permission checking."""
+        return f'Can {self.action} {self.target_name} ({target_readable_identifier})'
 
 
 class PublishedAsRoleNameSystem(models.Model):
@@ -49,7 +46,7 @@ class PublishedAsRoleNameSystem(models.Model):
 
     @property
     def readable_identifier(self) -> str:
-        return self.identifier
+        return f"{self.identifier}"
 
     @property
     def read_permissions(self) -> List[PermissionInterface]:
@@ -59,7 +56,6 @@ class PublishedAsRoleNameSystem(models.Model):
                 action="read",
                 target_identifier=self.identifier,
                 target_name=self.name,
-                target_readable_identifier=self.readable_identifier
             )
         ]
 
@@ -71,7 +67,6 @@ class PublishedAsRoleNameSystem(models.Model):
                 action="create",
                 target_identifier=self.identifier,
                 target_name=self.name,
-                target_readable_identifier=self.readable_identifier
             )
         ]
 
@@ -83,7 +78,6 @@ class PublishedAsRoleNameSystem(models.Model):
                 action="update",
                 target_identifier=self.identifier,
                 target_name=self.name,
-                target_readable_identifier=self.readable_identifier
             )
         ]
 
@@ -95,7 +89,6 @@ class PublishedAsRoleNameSystem(models.Model):
                 action="delete",
                 target_identifier=self.identifier,
                 target_name=self.name,
-                target_readable_identifier=self.readable_identifier
             )
         ]
 
@@ -177,7 +170,7 @@ class PublishedAs(PublishedAsRoleNameSystem):
             if Permission.objects.filter(codename=permission.codename).count() == 0:
                 Permission(
                     codename=permission.codename,
-                    name=permission.readable_identifier,
+                    name=permission.readable_name(self.readable_identifier),
                     content_type=content_type,
                 ).save()
 
