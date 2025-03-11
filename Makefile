@@ -2,6 +2,7 @@
 VENV_PATH ?= .venv
 VENV_REQUIREMENTS = $(VENV_PATH)/.timestamp
 PIP_REQUIREMENTS = $(VENV_PATH)/.requirements-timestamp
+DEV_REQUIREMENTS = $(VENV_PATH)/.dev-requirements-timestamp
 DOC_REQUIREMENTS = $(VENV_PATH)/.doc-requirements-timestamp
 TEST_REQUIREMENTS = $(VENV_PATH)/.test-requirements-timestamp
 CHECK_REQUIREMENTS = $(VENV_PATH)/.check-requirements-timestamp
@@ -36,14 +37,18 @@ BUILD_ENV += \
 
 $(VENV_REQUIREMENTS):
 	$(PYTHON_PATH) -m venv --system-site-packages $(VENV_PATH)
+	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools
 	touch $@
 
 $(EDITABLE_GEORAMA_PATH):
 	echo $(shell pwd)/src > $@
 
 $(PIP_REQUIREMENTS): $(VENV_REQUIREMENTS) pyproject.toml
-	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools
 	$(VENV_BIN)/$(PIP_COMMAND) install .
+	touch $@
+
+$(DEV_REQUIREMENTS): setup.py $(VENV_REQUIREMENTS)
+	$(VENV_BIN)/pip install -e .[dev]
 	touch $@
 
 $(DOC_REQUIREMENTS): $(PIP_REQUIREMENTS)
@@ -83,6 +88,7 @@ clean:
 .PHONY: clean-all
 clean-all: clean
 	rm -rf $(VENV_PATH)
+	rm -rf build
 	rm -rf src/$(PACKAGE).egg-info
 
 .PHONY: git-attributes
@@ -137,12 +143,11 @@ doc-gh-deploy: $(DOC_REQUIREMENTS) docs/mkdocs.yml
 updates: $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/pip list --outdated
 
-.PHONY: dev
-dev: setup.py install
-	$(VENV_BIN)/pip install -e .
+.PHONY: install-dev
+install-dev: $(DEV_REQUIREMENTS)
 
-.PHONY: serve
-serve: $(PIP_REQUIREMENTS)
+.PHONY: serve-dev
+serve-dev: $(DEV_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:8000
 
 MANAGE_ACTION="shell_plus"

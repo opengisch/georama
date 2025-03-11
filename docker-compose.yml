@@ -3,6 +3,7 @@ services:
     image: georama:dev
     build:
       context: .
+      target: dev
     env_file:
       - .env
     volumes:
