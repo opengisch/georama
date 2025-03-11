@@ -1,7 +1,5 @@
 from typing import List
 
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from georama.core.entities.models import (
@@ -89,6 +87,11 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
         on_delete=models.CASCADE,
     )
 
+    @property
+    def readable_identifier(self) -> str:
+        dataset = self.dataset
+        return f"{dataset.project.mandant.name}.{dataset.project.name}.{self.identifier}"
+
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.name is None and isinstance(self.dataset, VectorDataSet):
             # TODO: maybe we want this to be configurable?
@@ -114,21 +117,6 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
                     title=field.name.title(),
                     public=True,
                 ).save()
-        content_type = ContentType.objects.get_for_model(PublishedAsOgcApiFeatures)
-        for permission in self.permissions:
-            if Permission.objects.filter(codename=permission.codename).count() == 0:
-                Permission(
-                    codename=permission.codename,
-                    name=f"{permission.readable_name} ({self.dataset.project.mandant.name}.{self.dataset.project.name})",
-                    content_type=content_type,
-                ).save()
-
-    def delete(self, using=None, keep_parents=False):
-        Permission.objects.filter(codename__in=self.permission_codenames).delete()
-        super().delete(
-            using=using,
-            keep_parents=keep_parents,
-        )
 
 
 class ColumnOgcApiFeatures(Column):

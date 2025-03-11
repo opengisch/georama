@@ -1,7 +1,5 @@
 from typing import List
 
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
@@ -57,11 +55,14 @@ class PublishedAsWms(PublishedAs):
             )
 
     @property
+    def readable_identifier(self) -> str:
+        dataset = self.bound_dataset
+        return f"{dataset.project.mandant.name}.{dataset.project.name}.{self.identifier}"
+
+    @property
     def permissions(self) -> List[PermissionInterface]:
-        if self.public:
-            return []
-        else:
-            return self.read_permissions
+        # No need for Update or delete with WMS...
+        return self.read_permissions
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         dataset = self.bound_dataset
@@ -75,19 +76,4 @@ class PublishedAsWms(PublishedAs):
             force_update=force_update,
             using=using,
             update_fields=update_fields,
-        )
-        content_type = ContentType.objects.get_for_model(PublishedAsWms)
-        for permission in self.permissions:
-            if Permission.objects.filter(codename=permission.codename).count() == 0:
-                Permission(
-                    codename=permission.codename,
-                    name=f"{permission.readable_name} ({dataset.project.mandant.name}.{dataset.project.name})",
-                    content_type=content_type,
-                ).save()
-
-    def delete(self, using=None, keep_parents=False):
-        Permission.objects.filter(codename__in=self.permission_codenames).delete()
-        super().delete(
-            using=using,
-            keep_parents=keep_parents,
         )
