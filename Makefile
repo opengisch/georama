@@ -146,7 +146,7 @@ updates: $(PIP_REQUIREMENTS)
 .PHONY: install-dev
 install-dev: $(DEV_REQUIREMENTS)
 
-.PHONY: serve
+.PHONY: serve-dev
 serve-dev: $(DEV_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:8000
 

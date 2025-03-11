@@ -19,7 +19,7 @@ service. The correct path inside the container is: `/opt/georama/venv`
 
 *Dependencies*
 
-- gdal 3.9.1 (incl headers have to be available)
+- gdal (incl headers have to be available)
 - make has to be installed on your system
 - general pip and virtualenv has to be available
 
