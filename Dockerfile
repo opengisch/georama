@@ -1,10 +1,16 @@
-FROM ghcr.io/osgeo/gdal:ubuntu-full-3.9.1 AS base
+FROM ubuntu:24.04 AS base
 
 USER 0
 RUN apt-get update && \
     apt-get install -y \
       python3-pip \
-      python3-setuptools
+      python3-setuptools \
+      python3-venv \
+      python3-psycopg2 \
+      python3-gdal \
+      make \
+      git \
+      curl
 
 ARG TINI_VERSION=v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
@@ -18,14 +24,6 @@ FROM base AS dev
 LABEL org.opengisch.author="Clemens Rudert <clemens@opengis.ch>"
 LABEL org.opengisch.image.title="georama"
 USER 0
-
-RUN apt-get install -y \
-      libpq-dev \
-      python3-gdal \
-      python3-numpy \
-      python3-venv \
-      git \
-      make
 
 WORKDIR /opt/georama/
 ADD setup.py .
