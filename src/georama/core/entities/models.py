@@ -170,6 +170,11 @@ class PublishedAs(PublishedAsRoleNameSystem):
     fees = models.TextField(default="No fees apply.")
     access_constraints = models.TextField(default="No access constraints apply.")
 
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        models.signals.pre_delete.connect(delete_publishedas_db_permissions, sender=cls)
+
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(
             force_insert=force_insert,
@@ -187,7 +192,6 @@ class PublishedAs(PublishedAsRoleNameSystem):
                 ).save()
 
     def delete(self, using=None, keep_parents=False):
-        Permission.objects.filter(codename__in=self.permission_codenames).delete()
         super().delete(
             using=using,
             keep_parents=keep_parents,
@@ -195,3 +199,6 @@ class PublishedAs(PublishedAsRoleNameSystem):
 
     class Meta:
         abstract = True
+
+def delete_publishedas_db_permissions(sender, instance, **kwargs):
+    Permission.objects.filter(codename__in=instance.permission_codenames).delete()
