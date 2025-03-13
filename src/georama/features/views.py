@@ -1,5 +1,6 @@
 import pygeoapi.api as inittime_api
 from django.core.exceptions import BadRequest, PermissionDenied
+from pygeoapi import l10n
 from pygeoapi.openapi import get_oas
 
 from georama.features.features_config import Config
@@ -20,6 +21,8 @@ from georama.data_integration.models import VectorDataSet
 from georama.features.apps import appname
 from georama.features.config_server import ServerConfig
 from georama.features.models import PublishedAsOgcApiFeatures
+
+api = None
 
 
 def landing_page(request: HttpRequest) -> HttpResponse:
@@ -246,6 +249,8 @@ def execute_from_django(
     server_config, openapi_config = handle_runtime_config(request)
     api = API(server_config, openapi_config)
 
+    l10n._cfg_cache = {}
+
     api_request = APIRequest.from_django(request, api.locales)
     content: typing.Union[str, bytes]
     if not skip_valid_check and not api_request.is_valid():
@@ -275,7 +280,8 @@ def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool)
     crs = published_as.dataset.crs_to_qsl
     handle_crs_setting(crs.ogc_uri),
     config = Config()
-    driver_lookup = {"SHP": "ESRI Shapefile", "GPKG": "GPKG"}
+    # TODO: make this configurable
+    driver_lookup = {"SHP": "ESRI Shapefile", "GPKG": "GPKG", "GDB": "OpenFileGDB"}
     available_crs_list = [crs.ogc_uri, "https://www.opengis.net/def/crs/OGC/0/CRS84"]
     if config.default_crs not in available_crs_list:
         available_crs_list.append(config.default_crs)
