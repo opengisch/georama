@@ -3,11 +3,15 @@ FROM ubuntu:24.04 AS base
 USER 0
 RUN apt-get update && \
     apt-get install -y \
+      unixodbc \
+      odbc-mdbtools \
+      python3-fiona \
       python3-pip \
       python3-setuptools \
       python3-venv \
       python3-psycopg2 \
       python3-gdal \
+      gdal-bin \
       make \
       git \
       curl
