@@ -1,0 +1,48 @@
+{% extends "admin/change_form.html" %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs" id="datasetTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="vector-tab" data-toggle="tab" href="#vector" role="tab"
+                   aria-controls="vector" aria-selected="true">
+                    Data
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" id="raster-tab" data-toggle="tab" href="#raster" role="tab"
+                   aria-controls="raster" aria-selected="false">
+                    Groups
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link " id="custom-tab" data-toggle="tab" href="#custom" role="tab"
+                   aria-controls="custom" aria-selected="false">
+                    Users
+                </a>
+            </li>
+
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="datasetTabsContent">
+
+            <div class="tab-pane fade active show" id="vector" role="tabpanel" aria-labelledby="vector-tab">
+                {{ block.super }}
+            </div>
+
+            <div class="tab-pane fade " id="raster" role="tabpanel" aria-labelledby="raster-tab">
+                Groups
+            </div>
+
+            <div class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">
+                Users
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

@@ -38,3 +38,23 @@ class Logout(View):
     def get(self, request, *args, **kwargs):
         logout(request)
         return redirect('login')
+
+
+def save_user_permission(request):
+    user = request.user
+    permissions = request.POST.get('permissions')
+    redirect_url = request.POST.get('redirect_url')
+
+
+    user.permissions.set(permissions)
+
+    return redirect(redirect_url)
+
+def save_group_permission(request):
+    group = request.POST.get('group')
+    permissions = request.POST.get('permissions')
+    redirect_url = request.POST.get('redirect_url')
+
+    group.permissions.set(permissions)
+
+    return redirect(redirect_url)

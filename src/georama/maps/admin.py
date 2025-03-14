@@ -20,6 +20,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     list_display = ["name", "title", "public", "delete_link", "show_published"]
     list_editable = ["public"]
     add_form_template = "admin/maps/publishedaswms/publish.html"
+    change_form_template = 'admin/maps/publishedaswms/custom_change_form.html'
     readonly_fields = ["dataset_detail"]
     list_filter = ["name", "title"]
 
