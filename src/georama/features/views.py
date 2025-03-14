@@ -246,9 +246,11 @@ def handle_runtime_config(request: HttpRequest) -> tuple[dict, dict]:
 def execute_from_django(
     api_function, request: HttpRequest, *args, skip_valid_check=False
 ) -> HttpResponse:
+    # TODO: This has to be stored somewhere, maybe a session store might be good
     server_config, openapi_config = handle_runtime_config(request)
     api = API(server_config, openapi_config)
-
+    # TODO: this only needs to be done once the config actually changes aka published features are added or
+    #       deleted!
     l10n._cfg_cache = {}
 
     api_request = APIRequest.from_django(request, api.locales)
