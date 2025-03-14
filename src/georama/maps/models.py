@@ -8,7 +8,7 @@ from georama.data_integration.models import CustomDataSet, RasterDataSet, Vector
 
 class PublishedAsWms(PublishedAs):
 
-    published_as_type = "wms"
+    published_as_type = "maps"
     raster_dataset = models.ForeignKey(
         RasterDataSet,
         # TODO: this seems wrong => only because error:

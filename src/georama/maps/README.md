@@ -1,5 +1,3 @@
-# Rasteroctopus
+# Maps
 
-![](static/maps/assets/img/logo.png)
-
-Draws Maps with QGIS power.
+Draws Maps with QGIS power via [QGIS-Server-Light](https://github.com/opengisch/qgis-server-light).
