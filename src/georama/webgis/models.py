@@ -48,7 +48,7 @@ class PublishedAsTheme(PublishedAs):
     """
 
     themes_json_id = models.IntegerField(null=True)
-    published_as_type = "geogirafe_theme"
+    published_as_type = "webgis"
     project = models.ForeignKey(
         Project,
         related_name="published_as_geogirafe_themes",
