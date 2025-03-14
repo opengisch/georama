@@ -1,6 +1,7 @@
 from dataclasses import fields
 
 from django.contrib import admin
+from django.contrib.auth.models import Group, User, Permission
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from qgis_server_light.interface.qgis import BBox
@@ -129,3 +130,27 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             if isinstance(obj.vector_dataset, VectorDataSet):
                 fields.append("extent_buffer")
         return fields
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        groups = Group.objects.all()
+        groups_with_permission = []
+
+        obj = self.get_object(request, object_id)
+        permissions = obj.permissions
+        permission_codenames = [p.codename for p in permissions]
+
+        for codename in permission_codenames:
+            for group in groups:
+                if group.permissions.filter(codename=codename).exists():
+                    groups_with_permission.append(group)
+
+        extra_context = {
+            'groups': Group.objects.all(),
+            'groups_with_permission': groups_with_permission,
+            'users': User.objects.all(),
+            'permission_codenames': permission_codenames,
+        } if extra_context else {}
+
+        print(extra_context)
+
+        return super().change_view(request, object_id, form_url, extra_context)

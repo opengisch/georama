@@ -30,12 +30,19 @@
         <!-- Tab Content -->
         <div class="tab-content" id="datasetTabsContent">
 
-            <div class="tab-pane fade active show" id="vector" role="tabpanel" aria-labelledby="vector-tab">
+            <div class="tab-pane fade" id="vector" role="tabpanel" aria-labelledby="vector-tab">
                 {{ block.super }}
             </div>
 
-            <div class="tab-pane fade " id="raster" role="tabpanel" aria-labelledby="raster-tab">
-                Groups
+            <div class="tab-pane fade active show" id="raster" role="tabpanel" aria-labelledby="raster-tab">
+                Groups<br>
+                <hr>
+{#                {% include "core/save_group_permission.html" %}#}
+                {% for p in permission_codenames %}
+                {{ p }}
+                {% endfor %}
+            <br>
+            {{ groups_with_permission }}
             </div>
 
             <div class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">
