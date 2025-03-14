@@ -101,11 +101,10 @@ class VectorDataSet(DataSet):
         on_delete=models.CASCADE,
     )
 
-    @property
-    def to_qsl(self) -> Vector:
+    def to_qsl(self, published_layer_name: str) -> Vector:
         datasource, path = self.source_to_qsl
         return Vector(
-            name=self.name,
+            name=published_layer_name,
             title=self.title,
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),
@@ -134,11 +133,10 @@ class RasterDataSet(DataSet):
         on_delete=models.CASCADE,
     )
 
-    @property
-    def to_qsl(self) -> Raster:
+    def to_qsl(self, published_layer_name: str) -> Raster:
         datasource, path = self.source_to_qsl
         return Raster(
-            name=self.name,
+            name=published_layer_name,
             title=self.title,
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),
@@ -167,11 +165,10 @@ class CustomDataSet(DataSet):
         on_delete=models.CASCADE,
     )
 
-    @property
-    def to_qsl(self) -> Custom:
+    def to_qsl(self, published_layer_name: str) -> Custom:
         datasource, path = self.source_to_qsl
         return Custom(
-            name=self.name,
+            name=published_layer_name,
             title=self.title,
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),

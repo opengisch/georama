@@ -1,4 +1,6 @@
 import logging
+import time
+from typing import List, Tuple
 
 from asgiref.sync import sync_to_async
 from django.http import HttpRequest, HttpResponse
@@ -36,24 +38,26 @@ from georama.maps.models import PublishedAsWms
 log = logging.getLogger(__name__)
 
 
-def wms_130_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
+def wms_130_capabilities(
+    request: HttpRequest, params: dict, mandant: str | None = None, project: str | None = None
+) -> HttpResponse:
     url = request.build_absolute_uri()
     config = Config()
     parser = JsonParser()
     service = parser.from_string(config.service_config(url), Service)
-    capapility = parser.from_string(config.capability_config(url), Capability)
+    capability = parser.from_string(config.capability_config(url), Capability)
+
     for published_as in PublishedAsWms.objects.all():
         if published_as.has_read_permission(request.user, appname):
-            if isinstance(published_as.raster_dataset, RasterDataSet):
-                dataset = published_as.raster_dataset
-            elif isinstance(published_as.vector_dataset, VectorDataSet):
-                dataset = published_as.vector_dataset
-            elif isinstance(published_as.custom_dataset, CustomDataSet):
-                dataset = published_as.custom_dataset
-            else:
-                raise NotImplementedError(
-                    "linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!"
-                )
+            dataset = published_as.bound_dataset
+            if project and mandant:
+                if dataset.project.mandant.name != mandant:
+                    continue
+                if dataset.project.name != project:
+                    continue
+            elif mandant and not project:
+                if dataset.project.mandant.name != mandant:
+                    continue
             source_crs = DictDecoder().decode(dataset.crs, QSL_Crs)
 
             bbox_object = None
@@ -103,16 +107,16 @@ def wms_130_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
             )
             if bbox_object is not None:
                 layer.bounding_box.append(bbox_object)
-                if bbox_object not in capapility.layer.bounding_box:
-                    capapility.layer.bounding_box.append(bbox_object)
+                if bbox_object not in capability.layer.bounding_box:
+                    capability.layer.bounding_box.append(bbox_object)
             if bbox_4326 is not None:
                 layer.bounding_box.append(bbox_4326)
-                if bbox_4326 not in capapility.layer.bounding_box:
-                    capapility.layer.bounding_box.append(bbox_4326)
-            capapility.layer.layer.append(layer)
-            capapility.layer.ex_geographic_bounding_box = ex_geographic_bounding_box_object
+                if bbox_4326 not in capability.layer.bounding_box:
+                    capability.layer.bounding_box.append(bbox_4326)
+            capability.layer.layer.append(layer)
+            capability.layer.ex_geographic_bounding_box = ex_geographic_bounding_box_object
 
-    wms_capabilities = WmsCapabilities(service=service, capability=capapility)
+    wms_capabilities = WmsCapabilities(service=service, capability=capability)
 
     allowed_formats = ["TEXT/XML", "APPLICATION/JSON"]
     requested_format = params.get("FORMAT", "TEXT/XML")
@@ -139,7 +143,7 @@ def wms_130_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
 
 
 def extract_layers(
-    request: HttpRequest, service_params: WmsGetMapParams
+    user_permissions: List[str], user_is_super_user: bool, service_params: WmsGetMapParams
 ) -> tuple[list[Raster], list[Vector], list[Custom], float]:
     accessible_raster: list[Raster] = []
     accessible_vector: list[Vector] = []
@@ -148,17 +152,17 @@ def extract_layers(
     # https://github.com/qgis/QGIS/issues/30251
     vector_extent_buffer = 0.0
     for published_as in PublishedAsWms.objects.filter(name__in=service_params.layers):
-        if published_as.has_read_permission(request.user, appname):
+        if user_is_super_user or published_as.has_read_permission(user_permissions, appname):
             if isinstance(published_as.raster_dataset, RasterDataSet):
-                accessible_raster.append(published_as.raster_dataset.to_qsl)
+                accessible_raster.append(published_as.raster_dataset.to_qsl(published_as.name))
             elif isinstance(published_as.vector_dataset, VectorDataSet):
                 # since we will use this in the on a plain list of layers, the largest extent buffer
                 # should be applied
                 if published_as.extent_buffer > vector_extent_buffer:
                     vector_extent_buffer = published_as.extent_buffer
-                accessible_vector.append(published_as.vector_dataset.to_qsl)
+                accessible_vector.append(published_as.vector_dataset.to_qsl(published_as.name))
             elif isinstance(published_as.custom_dataset, CustomDataSet):
-                accessible_custom.append(published_as.custom_dataset.to_qsl)
+                accessible_custom.append(published_as.custom_dataset.to_qsl(published_as.name))
             else:
                 raise NotImplementedError(
                     "linked dataset has to be RasterDataSet|VectorDataSet!"
@@ -166,11 +170,38 @@ def extract_layers(
     return accessible_raster, accessible_vector, accessible_custom, vector_extent_buffer
 
 
-async def entry(request: HttpRequest):
+async def global_aggregated(request: HttpRequest):
+    return await entry(request)
+
+
+async def global_mandant_aggregated(request: HttpRequest, mandant: str):
+    return await entry(request, mandant=mandant)
+
+
+async def global_mandant_and_project_aggregated(
+    request: HttpRequest, mandant: str, project: str
+):
+    return await entry(request, mandant=mandant, project=project)
+
+
+def get_user_permissions(request: HttpRequest) -> Tuple[List[str], bool]:
+    return request.user.get_all_permissions(), request.user.is_superuser
+
+
+async def entry(request: HttpRequest, mandant: str | None = None, project: str | None = None):
     # TODO: This is done because otherwise the queue cant be pointed to
     #   see this for further details: https://stackoverflow.com/questions/53724665/using-queues-results-in-asyncio-exception-got-future-future-pending-attached
     redis_queue = RedisQueue(Config().redis_url)
     params = {}
+    # we access user stuff once, instead of looping and accesing it all over again
+    start_user_permission_collection = time.time()
+    user_permissions, user_is_super_user = await sync_to_async(
+        get_user_permissions, thread_sensitive=True
+    )(request)
+    end_user_permission_collection = time.time()
+    log.error(
+        f"Permission check took: {round(1000 * (end_user_permission_collection - start_user_permission_collection), 2)}ms"
+    )
     for key in request.GET.dict():
         if key.upper() == "LAYERS":
             params[str(key).upper()] = str(request.GET[key])
@@ -185,28 +216,31 @@ async def entry(request: HttpRequest):
         if params["REQUEST"] == "GETCAPABILITIES":
             if params.get("VERSION", "1.3.0") == "1.3.0":
                 return await sync_to_async(wms_130_capabilities, thread_sensitive=True)(
-                    request, params
+                    request, params, mandant, project
                 )
             else:
                 return HttpResponse("Only VERSION 1.3.0 is available", 500)
         elif params["REQUEST"] == "GETMAP":
+            start_permission_check = time.time()
             service_params = WmsGetMapParams.from_overloaded_dict(params)
-
             (
                 accessible_raster,
                 accessible_vector,
                 accessible_custom,
                 vector_extent_buffer,
             ) = await sync_to_async(extract_layers, thread_sensitive=True)(
-                request, service_params
+                user_permissions, user_is_super_user, service_params
             )
-            print(service_params, accessible_vector)
             job = QslGetMapJob(
                 extent_buffer=vector_extent_buffer,
                 service_params=service_params,
                 raster_layers=accessible_raster,
                 vector_layers=accessible_vector,
                 custom_layers=accessible_custom,
+            )
+            end_permission_check = time.time()
+            log.error(
+                f"Permission check took: {round(1000 * (end_permission_check - start_permission_check), 2)}ms"
             )
         elif params["REQUEST"] == "GETFEATUREINFO":
             # this needs to be improved a bit, currently the layers are not sent to QSL.
@@ -215,7 +249,10 @@ async def entry(request: HttpRequest):
         else:
             return HttpResponse("Only WMS Service is available", 500)
         config = Config()
+        start_rendering = time.time()
         result = await redis_queue.post(job, config.job_timeout)
+        end_rendering = time.time()
+        log.error(f"Rendering took: {round(1000 * (end_rendering - start_rendering), 2)}ms")
         return HttpResponse(result.data, result.content_type)
     else:
         return HttpResponse("Only WMS Service is available", 500)

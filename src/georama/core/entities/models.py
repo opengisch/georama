@@ -115,43 +115,41 @@ class PublishedAsRoleNameSystem(models.Model):
         return self._has_grained_permission(user, self.permission_codenames, app_name)
 
     @staticmethod
-    def _has_grained_permission(user: User, permissions: List[str], app_name: str) -> bool:
+    def _has_grained_permission(
+        user_permissions: List[str], permissions: List[str], app_name: str
+    ) -> bool:
         permissions = [f"{app_name}.{permission}" for permission in permissions]
-        if user.is_superuser:
-            log.debug(f"Superuser => has access")
-            # superusers always have access
+
+        matching_permissions = list(set(permissions) & set(user_permissions))
+        log.debug(f"Matching permissions: {permissions}")
+        log.debug(f"Matching permissions: {matching_permissions}")
+        if len(matching_permissions) > 0:
+            log.debug(f"Access granted")
             return True
         else:
-            matching_permissions = list(set(permissions) & user.get_all_permissions())
-            log.debug(f"Matching permissions: {permissions}")
-            log.debug(f"Matching permissions: {matching_permissions}")
-            if len(matching_permissions) > 0:
-                log.debug(f"Access granted")
-                return True
-            else:
-                log.debug(f"Access denied")
-                return False
+            log.debug(f"Access denied")
+            return False
 
-    def has_read_permission(self, user: User, app_name: str) -> bool:
+    def has_read_permission(self, user_permissions: List[str], app_name: str) -> bool:
         if self.public:
             return True
         return self._has_grained_permission(
-            user, self.to_string(self.read_permissions), app_name
+            user_permissions, self.to_string(self.read_permissions), app_name
         )
 
-    def has_create_permission(self, user: User, app_name: str) -> bool:
+    def has_create_permission(self, user_permissions: List[str], app_name: str) -> bool:
         return self._has_grained_permission(
-            user, self.to_string(self.create_permissions), app_name
+            user_permissions, self.to_string(self.create_permissions), app_name
         )
 
-    def has_update_permission(self, user: User, app_name: str) -> bool:
+    def has_update_permission(self, user_permissions: List[str], app_name: str) -> bool:
         return self._has_grained_permission(
-            user, self.to_string(self.update_permissions), app_name
+            user_permissions, self.to_string(self.update_permissions), app_name
         )
 
-    def has_delete_permission(self, user: User, app_name: str) -> bool:
+    def has_delete_permission(self, user_permissions: List[str], app_name: str) -> bool:
         return self._has_grained_permission(
-            user, self.to_string(self.delete_permissions), app_name
+            user_permissions, self.to_string(self.delete_permissions), app_name
         )
 
 
@@ -199,6 +197,7 @@ class PublishedAs(PublishedAsRoleNameSystem):
 
     class Meta:
         abstract = True
+
 
 def delete_publishedas_db_permissions(sender, instance, **kwargs):
     Permission.objects.filter(codename__in=instance.permission_codenames).delete()

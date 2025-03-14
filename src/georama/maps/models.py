@@ -68,7 +68,7 @@ class PublishedAsWms(PublishedAs):
         dataset = self.bound_dataset
         if self.name is None:
             # TODO: maybe we want this to be configurable?
-            self.name = dataset.name
+            self.name = f"{dataset.project.mandant.name}.{dataset.project.name}.{dataset.name}"
         if self.title is None:
             self.title = dataset.title
         super().save(

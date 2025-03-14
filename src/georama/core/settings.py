@@ -79,6 +79,8 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
 ]
 
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+
 ROOT_URLCONF = "georama.core.urls"
 
 TEMPLATES = [
@@ -117,6 +119,13 @@ DATABASES = {
     }
 }
 
+# Cache via already existing REDIS instance
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.redis.RedisCache",
+#         "LOCATION": os.environ.get("QSL_REDIS_URL", "redis://qsl-redis"),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
