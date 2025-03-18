@@ -234,7 +234,7 @@ def collection_item(request: HttpRequest, collection_id: str, item_id: str) -> H
 
 def handle_runtime_config(request: HttpRequest) -> tuple[dict, dict]:
     server_config = ServerConfig().get()
-    server_config["server"]["url"] = f"http://{request.get_host()}/features"
+    server_config["server"]["url"] = f"{request.scheme}://{request.get_host()}/features"
     for published_as in PublishedAsOgcApiFeatures.objects.all():
         if published_as.has_general_permission(request.user, appname):
             server_config["resources"][str(published_as.identifier)] = create_resource(
