@@ -27,15 +27,27 @@ class PublishedAsVectorFeature(PublishedAs):
         abstract = True
 
     @property
+    def layer_permissions(self) -> List[PermissionInterface]:
+        """Returns only the layer-wide permissions, not the columns specific permissions"""
+        return super().permissions
+
+    @property
+    def columns_permissions(self) -> List[PermissionInterface]:
+        """Returns all the possible permissions for columns of this VectorFeature
+        
+        Doesn't check if column permissions are enabled on this VectorFeature publication"""
+        # TODISCUSS: self.columns
+        # not defined in this class
+        # and not guaranteed to exist as this is an abstract class.
+        # possible to define abstract django property/DB field?
+        return [col.permissions for col in self.columns.all()]
+
+    @property
     def permissions(self) -> List[PermissionInterface]:
-        layer_permissions = super().permissions
+        permissions = self.layer_permissions
         if self.column_permission:
-            # TODISCUSS: self.columns
-            # not defined in this class
-            # and not guaranteed to exist as this is an abstract class.
-            # possible to define abstract django property/DB field?
-            layer_permissions = layer_permissions + [col.permissions for col in self.columns.all()]
-        return layer_permissions
+            permissions = permissions + self.columns_permissions
+        return permissions
 
 
 class Column(PublishedAsRoleNameSystem):
