@@ -28,21 +28,12 @@ class PublishedAsVectorFeature(PublishedAs):
 
     @property
     def permissions(self) -> List[PermissionInterface]:
-        if self.public:
-            return []
-        else:
-            role_names = (
-                self.read_permissions
-                + self.create_permissions
-                + self.update_permissions
-                + self.delete_permissions
-            )
-            if not self.column_permission:
-                return role_names
-            else:
-                for column in self.columns.all():
-                    role_names = role_names + column.permissions
-                return role_names
+        layer_permissions = super().permissions
+        if self.column_permission:
+            # NOTE: self.columns not defined and guaranteed to exist as this is an abstract class.
+            # possible to define abstract django property/DB field?
+            layer_permissions = layer_permissions + [col.permissions for col in self.columns.all()]
+        return layer_permissions
 
 
 class Column(PublishedAsRoleNameSystem):

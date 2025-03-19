@@ -123,8 +123,6 @@ class PublishedAsRoleNameSystem(models.Model):
             return True
         else:
             matching_permissions = list(set(permissions) & user.get_all_permissions())
-            log.debug(f"Matching permissions: {permissions}")
-            log.debug(f"Matching permissions: {matching_permissions}")
             if len(matching_permissions) > 0:
                 log.debug(f"Access granted")
                 return True
@@ -184,7 +182,7 @@ class PublishedAs(PublishedAsRoleNameSystem):
         )
         content_type = ContentType.objects.get_for_model(type(self))
         for permission in self.permissions:
-            if Permission.objects.filter(codename=permission.codename).count() == 0:
+            if not Permission.objects.filter(codename=permission.codename).exists():
                 Permission(
                     codename=permission.codename,
                     name=permission.readable_name(self.readable_identifier),
