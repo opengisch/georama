@@ -5,7 +5,7 @@ from django.db import models
 from georama.core.entities.models import (
     PermissionInterface,
     PublishedAs,
-    PublishedAsRoleNameSystem,
+    PublishedAsRoleNameSystem
 )
 from georama.data_integration.models import VectorDataSet
 
@@ -30,7 +30,9 @@ class PublishedAsVectorFeature(PublishedAs):
     def permissions(self) -> List[PermissionInterface]:
         layer_permissions = super().permissions
         if self.column_permission:
-            # NOTE: self.columns not defined and guaranteed to exist as this is an abstract class.
+            # TODISCUSS: self.columns
+            # not defined in this class
+            # and not guaranteed to exist as this is an abstract class.
             # possible to define abstract django property/DB field?
             layer_permissions = layer_permissions + [col.permissions for col in self.columns.all()]
         return layer_permissions
@@ -39,6 +41,15 @@ class PublishedAsVectorFeature(PublishedAs):
 class Column(PublishedAsRoleNameSystem):
     published_as_type = "feature_column"
     title = models.CharField(max_length=1000)
+
+    def save(self, *args, **kwargs):
+        if self.name is None:
+            # TODISCUSS: self.published_definition
+            # not defined in this class
+            # and not guaranteed to exist as this is an abstract class.
+            # possible to define abstract django property/DB field?
+            self.name = f"{self.published_definition.name}.{self.title}"
+        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
