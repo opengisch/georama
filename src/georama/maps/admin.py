@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from qgis_server_light.interface.qgis import BBox
 
+
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.interfaces.ogc.wms_1_3_0.requests import (
     QslGetMapRequest,
@@ -14,7 +15,7 @@ from georama.maps.interfaces.ogc.wms_1_3_0.requests import (
     Version,
 )
 from georama.maps.models import PublishedAsWms
-
+from georama.maps.forms import GroupForm
 
 @admin.register(PublishedAsWms)
 class PublishedAsWmsAdmin(admin.ModelAdmin):
@@ -24,6 +25,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     change_form_template = 'admin/maps/publishedaswms/custom_change_form.html'
     readonly_fields = ["dataset_detail"]
     list_filter = ["name", "title"]
+
 
 
     def add_view(self, request, form_url="", extra_context=None):
@@ -134,21 +136,33 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         groups = Group.objects.all()
         groups_with_permission = []
+        groups_without_permission = []
 
         obj = self.get_object(request, object_id)
         permissions = obj.permissions
         permission_codenames = [p.codename for p in permissions]
 
+        # todo: for each permission we need to do this
+
         for codename in permission_codenames:
             for group in groups:
                 if group.permissions.filter(codename=codename).exists():
                     groups_with_permission.append(group)
+                else:
+                    groups_without_permission.append(group)
+
+        # groups_with_permission = Group.objects.filter(permissions__codename__in=permission_codenames).all()
+        # groups_without_permission = Group.objects.exclude(permissions__codename__in=permission_codenames).all()
+
+        form_groups = GroupForm(request.POST or None, instance=obj)
 
         extra_context = {
             'groups': Group.objects.all(),
             'groups_with_permission': groups_with_permission,
+            'groups_without_permission': groups_without_permission,
             'users': User.objects.all(),
             'permission_codenames': permission_codenames,
+            'form_groups': form_groups,
         } if extra_context else {}
 
         print(extra_context)

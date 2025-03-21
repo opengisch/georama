@@ -1,55 +1,350 @@
 {% extends "admin/change_form.html" %}
 
+{% load static %}
+
+{% block  extrahead %}
+    {{ block.super }}
+    {#    <script src="/static/admin/js/jquery.init.js"></script>#}
+    <script src="/static/admin/js/core.js"></script>
+    <script src="/static/admin/js/SelectBox.js"></script>
+    <script src="/static/admin/js/SelectFilter2.js"></script>
+    {#    <script>#}
+    {#        document.addEventListener('DOMContentLoaded', function () {#}
+    {#            // Initialize the filter for each select field#}
+    {#            django.jQuery('.filtered').each(function () {#}
+    {#                var fieldName = django.jQuery(this).attr('data-field-name');#}
+    {#                SelectFilter.init(fieldName, 'Groups', 0, '/static/admin/');#}
+    {#            });#}
+    {#        });#}
+    {#    </script>#}
+    {#    <script>#}
+    {#        django.jQuery(document).ready(function () {#}
+    {#            const fieldName = 'groups';  // replace with your field name#}
+    {#            const selectFrom = document.getElementById(`id_${fieldName}_from`);#}
+    {#            const selectTo = document.getElementById(`id_${fieldName}_to`);#}
+    {##}
+    {#            // Initialize the filter#}
+    {#            SelectFilter.init(fieldName, 'Groups', 0, '/static/admin/');#}
+    {##}
+    {#            // Add click handlers for the chooser buttons#}
+    {#            django.jQuery('#id_' + fieldName + '_add_link').click(function (e) {#}
+    {#                e.preventDefault();#}
+    {#                SelectBox.move(fieldName + '_from', fieldName + '_to');#}
+    {#                SelectBox.refresh(fieldName + '_to');#}
+    {#            });#}
+    {##}
+    {#            django.jQuery('#id_' + fieldName + '_remove_link').click(function (e) {#}
+    {#                e.preventDefault();#}
+    {#                SelectBox.move(fieldName + '_to', fieldName + '_from');#}
+    {#                SelectBox.refresh(fieldName + '_from');#}
+    {#            });#}
+    {##}
+    {#            // Double click handlers for the select boxes#}
+    {#            django.jQuery(`#id_${fieldName}_from`).dblclick(function () {#}
+    {#                SelectBox.move(fieldName + '_from', fieldName + '_to');#}
+    {#                SelectBox.refresh(fieldName + '_to');#}
+    {#            });#}
+    {##}
+    {#            django.jQuery(`#id_${fieldName}_to`).dblclick(function () {#}
+    {#                SelectBox.move(fieldName + '_to', fieldName + '_from');#}
+    {#                SelectBox.refresh(fieldName + '_from');#}
+    {#            });#}
+    {##}
+    {#            // Ensure form submission includes all selected items#}
+    {#            django.jQuery('form').submit(function () {#}
+    {#                SelectBox.select_all(fieldName + '_to');#}
+    {#            });#}
+    {#        });#}
+    {#    </script>#}
+
+{% endblock %}
+
 {% block content %}
-    <div class="content-wrapper">
-        <!-- Tab Navigation -->
-        <ul class="nav nav-tabs" id="datasetTabs" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" id="vector-tab" data-toggle="tab" href="#vector" role="tab"
-                   aria-controls="vector" aria-selected="true">
-                    Data
-                </a>
-            </li>
+    <div class="col-12 col-lg-9">
+        <div class="card">
+            <div class="card-body">
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs" id="datasetTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link" id="vector-tab" data-toggle="tab" href="#vector" role="tab"
+                           aria-controls="vector" aria-selected="true">
+                            Data
+                        </a>
+                    </li>
 
-            <li class="nav-item">
-                <a class="nav-link" id="raster-tab" data-toggle="tab" href="#raster" role="tab"
-                   aria-controls="raster" aria-selected="false">
-                    Groups
-                </a>
-            </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" id="raster-tab" data-toggle="tab" href="#raster" role="tab"
+                           aria-controls="raster" aria-selected="false">
+                            Groups
+                        </a>
+                    </li>
 
-            <li class="nav-item">
-                <a class="nav-link " id="custom-tab" data-toggle="tab" href="#custom" role="tab"
-                   aria-controls="custom" aria-selected="false">
-                    Users
-                </a>
-            </li>
+                    <li class="nav-item">
+                        <a class="nav-link " id="custom-tab" data-toggle="tab" href="#custom" role="tab"
+                           aria-controls="custom" aria-selected="false">
+                            Users
+                        </a>
+                    </li>
 
-        </ul>
+                </ul>
 
-        <!-- Tab Content -->
-        <div class="tab-content" id="datasetTabsContent">
+                <!-- Tab Content -->
+                <div class="tab-content" id="datasetTabsContent">
 
-            <div class="tab-pane fade" id="vector" role="tabpanel" aria-labelledby="vector-tab">
-                {{ block.super }}
+                    <div class="tab-pane fade" id="vector" role="tabpanel" aria-labelledby="vector-tab">
+                                                {{ block.super }}
+                    </div>
+
+                    <div class="tab-pane fade active show" id="raster" role="tabpanel" aria-labelledby="raster-tab">
+                        Groups<br>
+                        <hr>
+                        {#                {% include "core/save_group_permission.html" %}#}
+                        {% for p in permission_codenames %}
+                            {{ p }}
+                            {#<div class="selector">#}
+                            {#    <div class="selector-available">#}
+                            {#        <h2>Available groups</h2>#}
+                            {#        <p class="selector-filter" id="id_available_groups_filter">#}
+                            {#            <label for="id_groups_from_input">#}
+                            {#                <span class="help-tooltip search-label-icon" title="Type into this box to filter down the list of available items."></span>#}
+                            {#            </label>#}
+                            {#            <input type="text" placeholder="Filter" id="id_groups_from_input">#}
+                            {#        </p>#}
+                            {#        <select name="groups_from" id="id_groups_from" multiple class="filtered" data-field-name="groups" data-is-stacked="0">#}
+                            {#            {% for group in groups_without_permission %}#}
+                            {#                <option id="{{ group.id }}" value="{{ group.id }}">{{ group.name }}</option>#}
+                            {#            {% endfor %}#}
+                            {#        </select>#}
+                            {#    </div>#}
+                            {##}
+                            {#    <ul class="selector-chooser">#}
+                            {#        <li>#}
+                            {#            <a title="Choose" id="id_groups_add_link" href="javascript:void(0);">#}
+                            {#                <span class="arrow-right">→</span>#}
+                            {#            </a>#}
+                            {#        </li>#}
+                            {#        <li>#}
+                            {#            <a title="Remove" id="id_groups_remove_link" href="javascript:void(0);">#}
+                            {#                <span class="arrow-left">←</span>#}
+                            {#            </a>#}
+                            {#        </li>#}
+                            {#    </ul>#}
+                            {##}
+                            {#    <div class="selector-chosen">#}
+                            {#        <h2>Chosen groups</h2>#}
+                            {#        <p class="selector-filter" id="id_selected_groups_filter">#}
+                            {#            <label for="id_groups_to_input">#}
+                            {#                <span class="help-tooltip search-label-icon" title="Type into this box to filter down the list of selected items."></span>#}
+                            {#            </label>#}
+                            {#            <input type="text" placeholder="Filter" id="id_groups_to_input">#}
+                            {#        </p>#}
+                            {#        <select name="groups" id="id_groups_to" multiple class="filtered" data-field-name="groups" data-is-stacked="0">#}
+                            {#            {% for group in groups_with_permission %}#}
+                            {#                <option id="{{ group.id }}" value="{{ group.id }}">{{ group.name }}</option>#}
+                            {#            {% endfor %}#}
+                            {#        </select>#}
+                            {#    </div>#}
+                            {#</div>#}
+
+                            {#                            <div class="selector">#}
+                            {#                                <div class="selector-available"><h2>Available permissions <span#}
+                            {#                                        class="help help-tooltip help-icon"#}
+                            {#                                        title="This is the list of available permissions. You may choose some by selecting them in the box below and then clicking the &quot;Choose&quot; arrow between the two boxes."></span>#}
+                            {#                                </h2>#}
+                            {#                                    <p id="id_permissions_filter" class="selector-filter"><label#}
+                            {#                                            for="id_permissions_input"><span class="help-tooltip search-label-icon"#}
+                            {#                                                                             title="Type into this box to filter down the list of available permissions."></span></label>#}
+                            {#                                        <input type="text" placeholder="Filter" id="id_permissions_input"></p>#}
+                            {#                                    <select#}
+                            {#                                            name="permissions_old" aria-describedby="id_permissions_helptext"#}
+                            {#                                            id="id_permissions_from" multiple="" class="filtered"#}
+                            {#                                            data-field-name="permissions" data-is-stacked="0">#}
+                            {#                                        {% for group in  groups_without_permission %}#}
+                            {#                                            <option value="{{ group.id }}" title="{{ group.name }}">{{ group.name }}#}
+                            {#                                            </option>#}
+                            {#                                        {% endfor %}#}
+                            {#                                    </select><a title="Click to choose all permissions at once." href="#"#}
+                            {#                                                id="id_permissions_add_all_link" class="selector-chooseall active">Choose#}
+                            {#                                        all</a></div>#}
+                            {#                                <ul class="selector-chooser">#}
+                            {#                                    <li><a title="Choose" href="#" id="id_permissions_add_link" class="selector-add">Choose</a>#}
+                            {#                                    </li>#}
+                            {#                                    <li><a title="Remove" href="#" id="id_permissions_remove_link"#}
+                            {#                                           class="selector-remove">Remove</a></li>#}
+                            {#                                </ul>#}
+                            {#                                <div id="id_permissions_selector_chosen" class="selector-chosen"><h2>Chosen permissions#}
+                            {#                                    <span class="help help-tooltip help-icon"#}
+                            {#                                          title="This is the list of chosen permissions. You may remove some by selecting them in the box below and then clicking the &quot;Remove&quot; arrow between the two boxes."></span>#}
+                            {#                                </h2>#}
+                            {#                                    <p id="id_permissions_filter_selected" class="selector-filter"><label#}
+                            {#                                            for="id_permissions_selected_input"><span#}
+                            {#                                            class="help-tooltip search-label-icon"#}
+                            {#                                            title="Type into this box to filter down the list of selected permissions."></span></label>#}
+                            {#                                        <input type="text" placeholder="Filter" id="id_permissions_selected_input"></p>#}
+                            {#                                    <select id="id_permissions_to" multiple="" size="0" name="permissions"#}
+                            {#                                            class="filtered">#}
+                            {#                                        {% for group in  groups_with_permission %}#}
+                            {#                                            <option value="{{ group.id }}" title="{{ group.name }}">{{ group.name }}#}
+                            {#                                            </option>#}
+                            {#                                        {% endfor %}#}
+                            {#                                    </select>#}
+                            {#                                    <div class="list-footer-display"><span id="id_permissions_list-footer-display-text">0 selected options not visible</span><span#}
+                            {#                                            class="list-footer-display__clear"> (click to clear)</span></div>#}
+                            {#                                    <a title="Click to remove all chosen permissions at once." href="#"#}
+                            {#                                       id="id_permissions_remove_all_link" class="selector-clearall">Remove all</a>#}
+                            {#                                </div>#}
+                            {#                            </div>#}
+
+
+                            {#<div class="selector">#}
+                            {#    <div class="selector-available">#}
+                            {#        <h2>Available groups</h2>#}
+                            {#        <p class="selector-filter">#}
+                            {#            <label for="id_groups_from_input">#}
+                            {#                <span class="help-tooltip search-label-icon" title="Type into this box to filter down the list of available items."></span>#}
+                            {#            </label>#}
+                            {#            <input type="text" placeholder="Filter" id="id_groups_from_input">#}
+                            {#        </p>#}
+                            {#        <select name="groups_from" id="id_groups_from" multiple class="filtered form-control" data-field-name="groups">#}
+                            {#            {% for group in groups_without_permission %}#}
+                            {#                <option value="{{ group.id }}">{{ group.name }}</option>#}
+                            {#            {% endfor %}#}
+                            {#        </select>#}
+                            {#    </div>#}
+                            {##}
+                            {#    <ul class="selector-chooser">#}
+                            {#        <li>#}
+                            {#            <a title="Choose" id="id_groups_add_link" href="#" class="selector-add">#}
+                            {#                <span class="arrow-right">→</span>#}
+                            {#            </a>#}
+                            {#        </li>#}
+                            {#        <li>#}
+                            {#            <a title="Remove" id="id_groups_remove_link" href="#" class="selector-remove">#}
+                            {#                <span class="arrow-left">←</span>#}
+                            {#            </a>#}
+                            {#        </li>#}
+                            {#    </ul>#}
+                            {##}
+                            {#    <div class="selector-chosen">#}
+                            {#        <h2>Chosen groups</h2>#}
+                            {#        <p class="selector-filter">#}
+                            {#            <label for="id_groups_to_input">#}
+                            {#                <span class="help-tooltip search-label-icon" title="Type into this box to filter down the list of selected items."></span>#}
+                            {#            </label>#}
+                            {#            <input type="text" placeholder="Filter" id="id_groups_to_input">#}
+                            {#        </p>#}
+                            {#        <select name="groups" id="id_groups_to" multiple class="filtered form-control" data-field-name="groups">#}
+                            {#            {% for group in groups_with_permission %}#}
+                            {#                <option value="{{ group.id }}">{{ group.name }}</option>#}
+                            {#            {% endfor %}#}
+                            {#        </select>#}
+                            {#    </div>#}
+                            {#</div>#}
+
+                            {#                            <div class="form-group field-groups">#}
+                            {#                                <div class="row">#}
+                            {##}
+                            {#                                    <label class="col-sm-3 text-left" for="id_groups">#}
+                            {#                                        groups#}
+                            {##}
+                            {#                                    </label>#}
+                            {#                                    <div class=" col-sm-7 field-groups">#}
+                            {##}
+                            {#                                        <div class="related-widget-wrapper" data-model-ref="group">#}
+                            {#                                            <div class="selector">#}
+                            {#                                                <div class="selector-available"><h2>Available groups <span#}
+                            {#                                                        class="help help-tooltip help-icon"#}
+                            {#                                                        title="This is the list of available groups. You may choose some by selecting them in the box below and then clicking the &quot;Choose&quot; arrow between the two boxes."></span>#}
+                            {#                                                </h2>#}
+                            {#                                                    <p id="id_groups_filter" class="selector-filter"><label#}
+                            {#                                                            for="id_groups_input"><span#}
+                            {#                                                            class="help-tooltip search-label-icon"#}
+                            {#                                                            title="Type into this box to filter down the list of available groups."></span></label>#}
+                            {#                                                        <input type="text" placeholder="Filter"#}
+                            {#                                                               id="id_groups_input"></p><select#}
+                            {#                                                            name="groups_old"#}
+                            {#                                                            aria-describedby="id_groups_helptext"#}
+                            {#                                                            id="id_groups_from" multiple="" class="filtered"#}
+                            {#                                                            data-field-name="groups" data-is-stacked="0">#}
+                            {##}
+                            {#                                                        <option value="1">Office</option>#}
+                            {##}
+                            {#                                                        <option value="2">Field</option>#}
+                            {##}
+                            {##}
+                            {#                                                    </select><a title="Click to choose all groups at once."#}
+                            {#                                                                href="#" id="id_groups_add_all_link"#}
+                            {#                                                                class="selector-chooseall active">Choose all</a></div>#}
+                            {#                                                <ul class="selector-chooser">#}
+                            {#                                                    <li><a title="Choose" href="#" id="id_groups_add_link"#}
+                            {#                                                           class="selector-add active">Choose</a></li>#}
+                            {#                                                    <li><a title="Remove" href="#" id="id_groups_remove_link"#}
+                            {#                                                           class="selector-remove">Remove</a></li>#}
+                            {#                                                </ul>#}
+                            {#                                                <div id="id_groups_selector_chosen" class="selector-chosen"><h2>#}
+                            {#                                                    Chosen groups <span class="help help-tooltip help-icon"#}
+                            {#                                                                             title="This is the list of chosen groups. You may remove some by selecting them in the box below and then clicking the &quot;Remove&quot; arrow between the two boxes."></span>#}
+                            {#                                                </h2>#}
+                            {#                                                    <p id="id_groups_filter_selected" class="selector-filter">#}
+                            {#                                                        <label for="id_groups_selected_input"><span#}
+                            {#                                                                class="help-tooltip search-label-icon"#}
+                            {#                                                                title="Type into this box to filter down the list of selected groups."></span></label>#}
+                            {#                                                        <input type="text" placeholder="Filter"#}
+                            {#                                                               id="id_groups_selected_input"></p><select#}
+                            {#                                                            id="id_groups_to" multiple="" size="0"#}
+                            {#                                                            name="groups" class="filtered"></select>#}
+                            {#                                                    <div class="list-footer-display"><span#}
+                            {#                                                            id="id_groups_list-footer-display-text">0 selected options not visible</span><span#}
+                            {#                                                            class="list-footer-display__clear"> (click to clear)</span>#}
+                            {#                                                    </div>#}
+                            {#                                                    <a title="Click to remove all chosen groups at once." href="#"#}
+                            {#                                                       id="id_groups_remove_all_link" class="selector-clearall">Remove#}
+                            {#                                                        all</a></div>#}
+                            {#                                            </div>#}
+                            {##}
+                            {##}
+                            {#                                        </div>#}
+                            {##}
+                            {#                                        <div class="help-block red">#}
+                            {##}
+                            {#                                        </div>#}
+                            {##}
+                            {#                                        <div class="help-block">Hold down “Control”, or “Command” on a Mac, to select#}
+                            {#                                            more than one.#}
+                            {#                                        </div>#}
+                            {##}
+                            {#                                        <div class="help-block text-red">#}
+                            {##}
+                            {#                                        </div>#}
+                            {#                                    </div>#}
+                            {##}
+                            {#                                </div>#}
+                            {#                            </div>#}
+
+                        {% endfor %}
+                        <br>
+                        {{ groups_with_permission }}
+
+                        <form>
+                            {{ form_groups }}
+                        </form>
+
+                    </div>
+
+                    <div class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">
+                        Users
+                    </div>
+
+                </div>
             </div>
-
-            <div class="tab-pane fade active show" id="raster" role="tabpanel" aria-labelledby="raster-tab">
-                Groups<br>
-                <hr>
-{#                {% include "core/save_group_permission.html" %}#}
-                {% for p in permission_codenames %}
-                {{ p }}
-                {% endfor %}
-            <br>
-            {{ groups_with_permission }}
-            </div>
-
-            <div class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">
-                Users
-            </div>
-
         </div>
-
     </div>
+    {#    <script type="text/javascript" id="django-admin-form-add-constants" src="/static/admin/js/change_form.js"#}
+    {#            data-model-name="group"></script>#}
+    {#    <script id="django-admin-prepopulated-fields-constants" src="/static/admin/js/prepopulate_init.js"#}
+    {#            data-prepopulated-fields="[]">#}
+    {#    </script>#}
+    {##}
+    {#            <script type="text/javascript" src="/static/vendor/select2/js/select2.min.js"></script>#}
+    {#        <script type="text/javascript" src="/static/jazzmin/js/change_form.js"></script>#}
 {% endblock %}
