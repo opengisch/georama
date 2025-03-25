@@ -32,6 +32,8 @@ cookie-py.log
 .venv
 docs/site
 
+georama.log
+
 
 # GeoGirafe themes.json examples
 map.cartoriviera.ch.json

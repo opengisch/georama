@@ -1,4 +1,5 @@
 import pygeoapi.api as inittime_api
+from django.core.cache import caches
 from django.core.exceptions import BadRequest, PermissionDenied
 from pygeoapi import l10n
 from pygeoapi.openapi import get_oas
@@ -7,6 +8,7 @@ from georama.features.features_config import Config
 
 inittime_api.DEFAULT_CRS = Config().default_crs
 
+import logging
 import os.path
 import typing
 
@@ -21,8 +23,6 @@ from georama.data_integration.models import VectorDataSet
 from georama.features.apps import appname
 from georama.features.config_server import ServerConfig
 from georama.features.models import PublishedAsOgcApiFeatures
-
-api = None
 
 
 def landing_page(request: HttpRequest) -> HttpResponse:
@@ -232,11 +232,11 @@ def collection_item(request: HttpRequest, collection_id: str, item_id: str) -> H
     return response_
 
 
-def handle_runtime_config(request: HttpRequest) -> tuple[dict, dict]:
+def handle_runtime_config(request: HttpRequest) -> typing.Tuple[dict, dict]:
     server_config = ServerConfig().get()
-    server_config["server"]["url"] = f"{request.scheme}://{request.get_host()}/features"
+    server_config["server"]["url"] = f"{request.build_absolute_uri('/')}features"
     for published_as in PublishedAsOgcApiFeatures.objects.all():
-        if published_as.has_general_permission(request.user, appname):
+        if published_as.has_read_permission(request.user, appname):
             server_config["resources"][str(published_as.identifier)] = create_resource(
                 published_as, request
             )
@@ -246,9 +246,18 @@ def handle_runtime_config(request: HttpRequest) -> tuple[dict, dict]:
 def execute_from_django(
     api_function, request: HttpRequest, *args, skip_valid_check=False
 ) -> HttpResponse:
-    # TODO: This has to be stored somewhere, maybe a session store might be good
-    server_config, openapi_config = handle_runtime_config(request)
-    api = API(server_config, openapi_config)
+    if caches["default"].get(request.session.session_key, None):
+        logging.debug(f"Using cache... (Session Key: {request.session.session_key})")
+        api = caches["default"].get(request.session.session_key)
+    else:
+        logging.debug(
+            f"Setting cache, it did not exist ... (Session Key: {request.session.session_key})"
+        )
+        # TODO: This has to be stored somewhere, maybe a session store might be good
+        server_config, openapi_config = handle_runtime_config(request)
+        api = API(server_config, openapi_config)
+        caches["default"].set(request.session.session_key, api)
+
     # TODO: this only needs to be done once the config actually changes aka published features are added or
     #       deleted!
     l10n._cfg_cache = {}
@@ -355,7 +364,9 @@ def create_resource(published_as: PublishedAsOgcApiFeatures, request: HttpReques
         provider = create_ogr_provider(published_as, editable)
     else:
         raise NotImplementedError
-
+    # TODO: regarding to this code https://github.com/geopython/pygeoapi/blob/master/pygeoapi/api/__init__.py#L982-L994
+    #       BBOX can be a list of bboxes. We should find out https://github.com/geopython/pygeoapi/discussions/1970 how
+    #       this is meant to be used and fix then
     return {
         "type": "collection",
         "title": published_as.title,
@@ -375,7 +386,7 @@ def create_resource(published_as: PublishedAsOgcApiFeatures, request: HttpReques
         "links": [],
         "extents": {
             "spatial": {
-                "bbox": BBox.from_string(published_as.dataset.bbox).to_list(),
+                "bbox": BBox.from_string(published_as.dataset.bbox_wgs84).to_list(),
                 "crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
             }
         },

@@ -100,6 +100,13 @@ TEMPLATES = [
     },
 ]
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
+}
+
 WSGI_APPLICATION = "georama.core.wsgi.application"
 
 CSRF_TRUSTED_ORIGINS = [] + os.getenv(
