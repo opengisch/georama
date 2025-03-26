@@ -1,4 +1,5 @@
 from dataclasses import fields
+from typing import List
 
 from django.contrib import admin
 from django.contrib.auth.models import Group, User, Permission
@@ -15,16 +16,28 @@ from georama.maps.interfaces.ogc.wms_1_3_0.requests import (
     Version,
 )
 from georama.maps.models import PublishedAsWms
-from georama.maps.forms import GroupForm
+from georama.maps.forms import PublishedAsWmsForm
 
 @admin.register(PublishedAsWms)
 class PublishedAsWmsAdmin(admin.ModelAdmin):
     list_display = ["name", "title", "public", "delete_link", "show_published"]
     list_editable = ["public"]
     add_form_template = "admin/maps/publishedaswms/publish.html"
-    change_form_template = 'admin/maps/publishedaswms/custom_change_form.html'
+    # change_form_template = 'admin/maps/publishedaswms/custom_change_form.html'
     readonly_fields = ["dataset_detail"]
     list_filter = ["name", "title"]
+    form = PublishedAsWmsForm
+
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'title', 'public', 'description', 'license', 'fees', 'access_constraints', 'extent_buffer')
+        }),
+        ('Group permissions', {
+            'fields': ('group_read_permission',)})
+        ,
+        ('User permissions', {
+            'fields': ('user_read_permission',)})
+    )
 
 
 
@@ -133,38 +146,43 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
                 fields.append("extent_buffer")
         return fields
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        groups = Group.objects.all()
-        groups_with_permission = []
-        groups_without_permission = []
 
-        obj = self.get_object(request, object_id)
-        permissions = obj.permissions
-        permission_codenames = [p.codename for p in permissions]
+    def save_group_permissions(self, groups_selected:List[Group], permission:Permission):
+        groups_all = Group.objects.all()
+        for group in groups_all:
+            if group in groups_selected:
+                group.permissions.add(
+                    permission
+                )
+            else:
+                group.permissions.remove(
+                    permission
+                )
 
-        # todo: for each permission we need to do this
+    def save_user_permissions(self, user_selected:List[User], permission:Permission):
+        user_all = User.objects.all()
+        for user in user_all:
+            if user in user_selected:
+                user.user_permissions.add(
+                    permission
+                )
+            else:
+                user.user_permissions.remove(
+                    permission
+                )
 
-        for codename in permission_codenames:
-            for group in groups:
-                if group.permissions.filter(codename=codename).exists():
-                    groups_with_permission.append(group)
-                else:
-                    groups_without_permission.append(group)
+    def save_model(self, request, obj, form, change):
+        # read permission -> should get only one for PublishedAsWms
+        read_permission = Permission.objects.get(codename=obj.permissions[0].codename)
 
-        # groups_with_permission = Group.objects.filter(permissions__codename__in=permission_codenames).all()
-        # groups_without_permission = Group.objects.exclude(permissions__codename__in=permission_codenames).all()
+        # save group permissions
+        groups_read = form.cleaned_data.get("group_read_permission", [])
+        self.save_group_permissions(groups_read, read_permission)
 
-        form_groups = GroupForm(request.POST or None, instance=obj)
+        # save user permissions
+        users_read = form.cleaned_data.get("user_read_permission", [])
+        self.save_user_permissions(users_read, read_permission)
 
-        extra_context = {
-            'groups': Group.objects.all(),
-            'groups_with_permission': groups_with_permission,
-            'groups_without_permission': groups_without_permission,
-            'users': User.objects.all(),
-            'permission_codenames': permission_codenames,
-            'form_groups': form_groups,
-        } if extra_context else {}
 
-        print(extra_context)
+        super().save_model(request, obj, form, change)
 
-        return super().change_view(request, object_id, form_url, extra_context)
