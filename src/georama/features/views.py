@@ -277,7 +277,7 @@ def handle_crs_setting(crs: str):
         runtime_api.DEFAULT_CRS_LIST.append(crs)
 
 
-def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool) -> dict:
+def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool, features_properties: List[str] | None) -> dict:
     source, path = published_as.dataset.source_to_qsl
     crs = published_as.dataset.crs_to_qsl
     handle_crs_setting(crs.ogc_uri),
@@ -287,7 +287,7 @@ def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool)
     available_crs_list = [crs.ogc_uri, "https://www.opengis.net/def/crs/OGC/0/CRS84"]
     if config.default_crs not in available_crs_list:
         available_crs_list.append(config.default_crs)
-    return {
+    provider_definition = {
         "type": "feature",
         "name": "OGR",
         "data": {
@@ -303,14 +303,18 @@ def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool)
         "id_field": "fid",
         "layer": source.ogr.layer_name
         if source.ogr.layer_name is not None
-        else os.path.basename(source.ogr.path).split(".")[0]
+        else os.path.basename(source.ogr.path).split(".")[0],
         # TODO:
         # "id_field": "fid",
         # "title_field": "kantonsname",
     }
+    if published_as.column_permission and features_properties is not None:
+        provider_definition["properties"] = features_properties
+
+    return provider_definition
 
 
-def create_postgres_provider(published_as: PublishedAsOgcApiFeatures, editable: bool) -> dict:
+def create_postgres_provider(published_as: PublishedAsOgcApiFeatures, editable: bool, features_properties: list | None) -> dict:
     source, path = published_as.dataset.source_to_qsl
     crs = published_as.dataset.crs_to_qsl
     handle_crs_setting(crs.ogc_uri)
@@ -320,7 +324,7 @@ def create_postgres_provider(published_as: PublishedAsOgcApiFeatures, editable: 
     if Config().default_crs not in available_crs_list:
         available_crs_list.append(Config().default_crs)
 
-    return {
+    provider_definition = {
         "type": "feature",
         "name": "OG_POSTGRES",
         "data": {
@@ -341,6 +345,10 @@ def create_postgres_provider(published_as: PublishedAsOgcApiFeatures, editable: 
         # "id_field": "fid",
         # "title_field": "kantonsname",
     }
+    if published_as.column_permission and features_properties is not None:
+        provider_definition["properties"] = features_properties
+
+    return provider_definition
 
 
 def create_resource(published_as: PublishedAsOgcApiFeatures, request: HttpRequest) -> dict:
@@ -349,10 +357,15 @@ def create_resource(published_as: PublishedAsOgcApiFeatures, request: HttpReques
         or published_as.has_create_permission(request.user, appname)
         or published_as.has_delete_permission(request.user, appname)
     )
+
+    features_properties = None
+    if published_as.column_permission:
+        features_properties = [c.name for c in published_as.columns.all() if c.has_general_permission(request.user, appname)]
+
     if published_as.dataset.driver.upper() == "POSTGRES":
-        provider = create_postgres_provider(published_as, editable)
+        provider = create_postgres_provider(published_as, editable, features_properties)
     elif published_as.dataset.driver.upper() == "OGR":
-        provider = create_ogr_provider(published_as, editable)
+        provider = create_ogr_provider(published_as, editable, features_properties)
     else:
         raise NotImplementedError
 

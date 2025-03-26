@@ -40,10 +40,13 @@ class PublishedAsVectorFeature(PublishedAs):
         # not defined in this class
         # and not guaranteed to exist as this is an abstract class.
         # possible to define abstract django property/DB field?
-        return [col.permissions for col in self.columns.all()]
+        return [p for col in self.columns.all() for p in col.permissions]
 
     @property
     def permissions(self) -> List[PermissionInterface]:
+        # TODISCUSS: problem: putting columns_permissions in the PAVF.permissions
+        # makes them have the readable_identifier of the PAVF instead of the column itself
+        # is this a problem? probablyyy?
         permissions = self.layer_permissions
         if self.column_permission:
             permissions = permissions + self.columns_permissions
@@ -120,10 +123,9 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
         )
         for field in self.dataset.fields.all():
             if (
-                ColumnOgcApiFeatures.objects.filter(
+                not ColumnOgcApiFeatures.objects.filter(
                     name=field.name, published_definition=self
-                ).count()
-                == 0
+                ).exists()
             ):
                 ColumnOgcApiFeatures(
                     published_definition=self,
