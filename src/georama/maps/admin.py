@@ -2,10 +2,12 @@ from dataclasses import fields
 from typing import List
 
 from django.contrib import admin
-from django.contrib.auth.models import Group, User, Permission
+from django.contrib.auth.models import Permission
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from qgis_server_light.interface.qgis import BBox
+
+from georama.core.common import save_group_permissions, save_user_permissions
 
 
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
@@ -147,41 +149,17 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         return fields
 
 
-    def save_group_permissions(self, groups_selected:List[Group], permission:Permission):
-        groups_all = Group.objects.all()
-        for group in groups_all:
-            if group in groups_selected:
-                group.permissions.add(
-                    permission
-                )
-            else:
-                group.permissions.remove(
-                    permission
-                )
-
-    def save_user_permissions(self, user_selected:List[User], permission:Permission):
-        user_all = User.objects.all()
-        for user in user_all:
-            if user in user_selected:
-                user.user_permissions.add(
-                    permission
-                )
-            else:
-                user.user_permissions.remove(
-                    permission
-                )
-
     def save_model(self, request, obj, form, change):
         # read permission -> should get only one for PublishedAsWms
         read_permission = Permission.objects.get(codename=obj.permissions[0].codename)
 
         # save group permissions
         groups_read = form.cleaned_data.get("group_read_permission", [])
-        self.save_group_permissions(groups_read, read_permission)
+        save_group_permissions(groups_read, read_permission)
 
         # save user permissions
         users_read = form.cleaned_data.get("user_read_permission", [])
-        self.save_user_permissions(users_read, read_permission)
+        save_user_permissions(users_read, read_permission)
 
 
         super().save_model(request, obj, form, change)

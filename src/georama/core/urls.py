@@ -30,6 +30,4 @@ urlpatterns = [
     path("webgis", include("georama.webgis.urls")),
     path("admin/", admin.site.urls, {"extra_context": {"DEBUG": settings.DEBUG}}),
     path("users", include("allauth.urls")),
-    path("save_user_permission", views.save_user_permission, name="save_user_permission"),
-    path("save_group_permission", views.save_group_permission, name="save_group_permission"),
 ]
