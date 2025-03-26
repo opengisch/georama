@@ -112,6 +112,8 @@ class PublishedAsRoleNameSystem(models.Model):
         return self.to_string(self.permissions)
 
     def has_general_permission(self, user: User, app_name: str) -> bool:
+        if self.public:
+            return True
         return self._has_grained_permission(user, self.permission_codenames, app_name)
 
     @staticmethod
