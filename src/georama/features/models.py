@@ -84,8 +84,7 @@ class Column(PublishedAsRoleNameSystem):
             # possible to define abstract django property/DB field?
             self.name = f"{self.get_published_definition().name}.{self.title}"
         super().save(*args, **kwargs)
-        if self.get_published_definition().column_permission:
-            save_publishedas_db_permissions(self)
+        save_publishedas_db_permissions(self)
 
     @property
     def readable_identifier(self) -> str:
@@ -157,12 +156,6 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
             using=using,
             update_fields=update_fields,
         )
-        # create new column permissions if self.column_permission toggled
-        if self.column_permission:
-            for col in ColumnOgcApiFeatures.objects.filter(published_definition=self):
-                save_publishedas_db_permissions(col)
-
-        # create columns
         for field in self.dataset.fields.all():
             if (
                 not ColumnOgcApiFeatures.objects.filter(
