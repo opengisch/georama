@@ -78,10 +78,6 @@ class Column(PublishedAsRoleNameSystem):
 
     def save(self, *args, **kwargs):
         if self.name is None:
-            # TODISCUSS: self.published_definition
-            # not defined in this class
-            # and not guaranteed to exist as this is an abstract class.
-            # possible to define abstract django property/DB field?
             self.name = f"{self.get_published_definition().name}.{self.title}"
         super().save(*args, **kwargs)
         save_publishedas_db_permissions(self)
@@ -89,9 +85,8 @@ class Column(PublishedAsRoleNameSystem):
     @property
     def readable_identifier(self) -> str:
         """Using the publicatoin identifier at the end to make column visibly linked to their publication"""
-        dataset = self.published_definition.dataset
-        return f"{dataset.project.mandant.name}.{dataset.project.name}.{dataset.name}.{self.published_definition.identifier}.{self.name}"
-    
+        return f"{self.get_published_definition().readable_identifier}.{self.name}"
+
     class Meta:
         abstract = True
 
