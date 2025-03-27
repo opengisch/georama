@@ -112,6 +112,7 @@ class PublishedAsRoleNameSystem(models.Model):
         return self.to_string(self.permissions)
 
     def has_general_permission(self, user: User, app_name: str) -> bool:
+        """indicates the user has any kind of permission on this publication"""
         if self.public:
             return True
         return self._has_grained_permission(user, self.permission_codenames, app_name)
@@ -175,21 +176,9 @@ class PublishedAs(PublishedAsRoleNameSystem):
         super().__init_subclass__(**kwargs)
         models.signals.pre_delete.connect(delete_publishedas_db_permissions, sender=cls)
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super().save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields,
-        )
-        content_type = ContentType.objects.get_for_model(type(self))
-        for permission in self.permissions:
-            if not Permission.objects.filter(codename=permission.codename).exists():
-                Permission(
-                    codename=permission.codename,
-                    name=permission.readable_name(self.readable_identifier),
-                    content_type=content_type,
-                ).save()
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        save_publishedas_db_permissions(self)
 
     def delete(self, using=None, keep_parents=False):
         super().delete(
@@ -203,6 +192,16 @@ class PublishedAs(PublishedAsRoleNameSystem):
 
 def delete_publishedas_db_permissions(sender, instance, **kwargs):
     Permission.objects.filter(codename__in=instance.permission_codenames).delete()
+
+def save_publishedas_db_permissions(published_as):
+    content_type = ContentType.objects.get_for_model(type(published_as))
+    for permission in published_as.permissions:
+        if not Permission.objects.filter(codename=permission.codename).exists():
+            Permission(
+                codename=permission.codename,
+                name=permission.readable_name(published_as.readable_identifier),
+                content_type=content_type,
+            ).save()
 
 
 def save_group_permissions(groups_selected: List[Group], permission: Permission):
