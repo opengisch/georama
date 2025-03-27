@@ -174,3 +174,8 @@ import pygeoapi.plugin
 pygeoapi.plugin.PLUGINS["provider"][
     "OG_POSTGRES"
 ] = "georama.features.pygeoapi_providers.postgres.PostgresProvider"
+
+import pygeoapi.api as inittime_api
+from georama.features.features_config import Config
+
+inittime_api.DEFAULT_CRS = Config().default_crs

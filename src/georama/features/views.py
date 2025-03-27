@@ -1,25 +1,20 @@
-import pygeoapi.api as inittime_api
-from django.core.exceptions import BadRequest, PermissionDenied
-from pygeoapi import l10n
-from pygeoapi.openapi import get_oas
-
-from georama.features.features_config import Config
-
-inittime_api.DEFAULT_CRS = Config().default_crs
-
 import os.path
 import typing
 
-import pygeoapi.api as core_api
-import pygeoapi.api.itemtypes as itemtypes_api
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
+import pygeoapi.api as core_api
+import pygeoapi.api.itemtypes as itemtypes_api
+from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
+from pygeoapi.openapi import get_oas
 from qgis_server_light.interface.qgis import BBox
 
 from georama.data_integration.models import VectorDataSet
 from georama.features.apps import appname
 from georama.features.config_server import ServerConfig
+from georama.features.features_config import Config
 from georama.features.models import PublishedAsOgcApiFeatures
 
 api = None
