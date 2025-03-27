@@ -57,7 +57,7 @@ class PublishedAsWms(PublishedAs):
     @property
     def readable_identifier(self) -> str:
         dataset = self.bound_dataset
-        return f"{dataset.project.mandant.name}.{dataset.project.name}.{self.identifier}"
+        return f"{dataset.project.mandant.name}.{dataset.project.name}.{self.dataset.name}.{self.identifier}"
 
     @property
     def permissions(self) -> List[PermissionInterface]:

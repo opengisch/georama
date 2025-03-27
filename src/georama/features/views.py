@@ -277,7 +277,7 @@ def handle_crs_setting(crs: str):
         runtime_api.DEFAULT_CRS_LIST.append(crs)
 
 
-def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool, features_properties: List[str] | None) -> dict:
+def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool, features_properties: typing.List[str] | None) -> dict:
     source, path = published_as.dataset.source_to_qsl
     crs = published_as.dataset.crs_to_qsl
     handle_crs_setting(crs.ogc_uri),
