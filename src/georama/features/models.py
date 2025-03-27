@@ -57,6 +57,16 @@ class Column(PublishedAsRoleNameSystem):
     published_as_type = "feature_column"
     title = models.CharField(max_length=1000)
 
+    @property
+    def create_permissions(self) -> List[PermissionInterface]:
+        """create permission not relevant for specific property: property create/delete at the layer level"""
+        return []
+
+    @property
+    def delete_permissions(self) -> List[PermissionInterface]:
+        """delete permission not relevant for specific property: property create/delete at the layer level"""
+        return []
+
     def save(self, *args, **kwargs):
         if self.name is None:
             # TODISCUSS: self.published_definition
