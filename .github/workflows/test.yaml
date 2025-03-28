@@ -68,7 +68,7 @@ env:
 
   #### CODE VISUALIZATION Job ####
   ALWAYS_CODE_VIZ: "false"
-  CODE_VIZ_POLICY: '2'  # {2, 3}
+  CODE_VIZ_POLICY: '0'  # {2, 3}
   ##########################
 
 jobs:
