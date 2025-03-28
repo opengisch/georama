@@ -4,10 +4,6 @@
 import os
 import sys
 
-import click
-
-from georama import __version__
-
 this_file_location = os.path.dirname(os.path.realpath(os.path.abspath(__file__)))
 
 
@@ -18,14 +14,14 @@ def version_msg():
     and Python version.
     """
     python_version = sys.version[:3]
-    message = u"GeoRama %(version)s from {} (Python {})"
+    message = "GeoRama %(version)s from {} (Python {})"
     location = os.path.dirname(this_file_location)
     return message.format(location, python_version)
 
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'georama.core.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "georama.core.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -37,5 +33,5 @@ def main():
     execute_from_command_line(sys.argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
