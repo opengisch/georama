@@ -1,6 +1,5 @@
 services:
   georama:
-#    entrypoint: ""
     image: georama:dev
     build:
       context: .
