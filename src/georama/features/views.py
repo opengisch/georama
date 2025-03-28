@@ -1,11 +1,11 @@
 import os.path
 import typing
 
+import pygeoapi.api as core_api
+import pygeoapi.api.itemtypes as itemtypes_api
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
-import pygeoapi.api as core_api
-import pygeoapi.api.itemtypes as itemtypes_api
 from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
@@ -272,7 +272,11 @@ def handle_crs_setting(crs: str):
         runtime_api.DEFAULT_CRS_LIST.append(crs)
 
 
-def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool, features_properties: typing.List[str] | None) -> dict:
+def create_ogr_provider(
+    published_as: PublishedAsOgcApiFeatures,
+    editable: bool,
+    features_properties: typing.List[str],
+) -> dict:
     source, path = published_as.dataset.source_to_qsl
     crs = published_as.dataset.crs_to_qsl
     handle_crs_setting(crs.ogc_uri),
@@ -284,7 +288,7 @@ def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool,
         available_crs_list.append(config.default_crs)
     provider_definition = {
         "type": "feature",
-        "name": "OGR",
+        "name": "OG_OGR",
         "data": {
             "source_type": driver_lookup[source.ogr.path.split(".")[-1].upper()],
             "source": os.path.join(
@@ -303,13 +307,20 @@ def create_ogr_provider(published_as: PublishedAsOgcApiFeatures, editable: bool,
         # "id_field": "fid",
         # "title_field": "kantonsname",
     }
-    if published_as.column_permission and features_properties is not None:
+    if published_as.column_permission:
+        if len(features_properties) == 0:
+            # for OGR `geom` is the standard geometry column
+            features_properties = ["geom"]
         provider_definition["properties"] = features_properties
 
     return provider_definition
 
 
-def create_postgres_provider(published_as: PublishedAsOgcApiFeatures, editable: bool, features_properties: list | None) -> dict:
+def create_postgres_provider(
+    published_as: PublishedAsOgcApiFeatures,
+    editable: bool,
+    features_properties: typing.List[str],
+) -> dict:
     source, path = published_as.dataset.source_to_qsl
     crs = published_as.dataset.crs_to_qsl
     handle_crs_setting(crs.ogc_uri)
@@ -340,7 +351,9 @@ def create_postgres_provider(published_as: PublishedAsOgcApiFeatures, editable: 
         # "id_field": "fid",
         # "title_field": "kantonsname",
     }
-    if published_as.column_permission and features_properties is not None:
+    if published_as.column_permission:
+        if len(features_properties) == 0:
+            features_properties = [source.postgres.geometry_column]
         provider_definition["properties"] = features_properties
 
     return provider_definition
@@ -353,9 +366,13 @@ def create_resource(published_as: PublishedAsOgcApiFeatures, request: HttpReques
         or published_as.has_delete_permission(request.user, appname)
     )
 
-    features_properties = None
+    features_properties = []
     if published_as.column_permission:
-        features_properties = [c.name for c in published_as.columns.all() if c.has_general_permission(request.user, appname)]
+        features_properties = [
+            c.name
+            for c in published_as.columns.all()
+            if c.has_general_permission(request.user, appname)
+        ]
 
     if published_as.dataset.driver.upper() == "POSTGRES":
         provider = create_postgres_provider(published_as, editable, features_properties)
