@@ -35,17 +35,6 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
     list_display = ["name", "title", "public", "delete_link", "show_published"]
     inlines = [ColumnOgcApiFeaturesInline]
     add_form_template = "admin/features/publishedasvectorfeature/publish.html"
-    # fields = [
-    #     "title",
-    #     "name",
-    #     "public",
-    #     "column_permission",
-    #     "description",
-    #     "license",
-    #     "fees",
-    #     "access_constraints",
-    #     "dataset_detail",
-    # ]
     list_editable = ["public"]
     readonly_fields = ["dataset_detail"]
 
