@@ -67,8 +67,8 @@ env:
   DOCS_BUILDER_RUNTIME: "3.10"
 
   #### CODE VISUALIZATION Job ####
-  ALWAYS_CODE_VIZ: "false"
-  CODE_VIZ_POLICY: '0'  # {2, 3}
+  ALWAYS_CODE_VIZ: "true"
+  CODE_VIZ_POLICY: '2'  # {2, 3}
   ##########################
 
 jobs:
