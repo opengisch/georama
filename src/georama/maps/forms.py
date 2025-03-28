@@ -3,11 +3,11 @@ from georama.maps.models import PublishedAsWms
 from django.contrib.auth.models import Group, User
 from django.contrib.admin import widgets
 
+
 class PublishedAsWmsForm(forms.ModelForm):
     class Meta:
         model = PublishedAsWms
         fields = '__all__'
-
 
     group_read_permission = forms.ModelMultipleChoiceField(
         required=False,
@@ -27,7 +27,6 @@ class PublishedAsWmsForm(forms.ModelForm):
         return matches[0] if matches else None
 
     def __init__(self, *args, **kwargs):
-        # todo: make the permission and the form name variable, since we need it for all CRUD operations
         super().__init__(*args, **kwargs)
 
         # get the read permission, should get only one permission for PublishedAsWms
@@ -39,5 +38,6 @@ class PublishedAsWmsForm(forms.ModelForm):
         self.fields['group_read_permission'].queryset = Group.objects.all()
         self.fields['group_read_permission'].initial = Group.objects.filter(permissions__codename=permission_read)
 
-        self.fields['user_read_permission'].queryset = User.objects.all()
-        self.fields['user_read_permission'].initial = User.objects.filter(user_permissions__codename=permission_read)
+        self.fields['user_read_permission'].queryset = User.objects.all().exclude(is_superuser=True)
+        self.fields['user_read_permission'].initial = User.objects.filter(
+            user_permissions__codename=permission_read).exclude(is_superuser=True)
