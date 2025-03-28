@@ -1,9 +1,7 @@
 import inspect
 import logging
 from dataclasses import dataclass, field
-from typing import List, Tuple
-
-from georama.maps.maps_config import Config
+from typing import List
 
 log = logging.getLogger(__name__)
 
