@@ -62,13 +62,9 @@ class PublishedAsOgcApiFeaturesForm(forms.ModelForm):
         # a dict to map the fields to the permissions
         perm_fields = {field: "" for field in self.fields if "permission" in field}
 
-        print(perm_fields)
-
         # getting the permissions of the object
         permissions = kwargs["instance"].permissions
         permission_codenames = [p.codename for p in permissions]
-
-        print(permission_codenames)
 
         # mapping the permission to the field by part of the dict key
         # f.e. field "group_read_permission" to 'wms_read_bdb158db-3501-4563-be37-b2369ccf64e6'
@@ -77,9 +73,6 @@ class PublishedAsOgcApiFeaturesForm(forms.ModelForm):
             if len(permission_keys) > 0:
                 for p_key in permission_keys:
                     perm_fields[p_key] = perm
-
-
-        print(perm_fields)
 
         # filling the field with the correct queryset and initialize it with the data from the db
         for field, perm in perm_fields.items():
