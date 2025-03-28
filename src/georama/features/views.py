@@ -288,7 +288,7 @@ def create_ogr_provider(
         available_crs_list.append(config.default_crs)
     provider_definition = {
         "type": "feature",
-        "name": "OG_OGR",
+        "name": "OGR",
         "data": {
             "source_type": driver_lookup[source.ogr.path.split(".")[-1].upper()],
             "source": os.path.join(
