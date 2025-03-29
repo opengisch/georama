@@ -1,11 +1,14 @@
 from dataclasses import fields
 
 from django.contrib import admin
+from django.contrib.auth.models import Permission
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from qgis_server_light.interface.qgis import BBox
 
+from georama.core.entities.models import save_group_permissions, save_user_permissions
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
+from georama.maps.forms import PublishedAsWmsForm
 from georama.maps.interfaces.ogc.wms_1_3_0.requests import (
     QslGetMapRequest,
     RequestType,
@@ -22,7 +25,27 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     add_form_template = "admin/maps/publishedaswms/publish.html"
     readonly_fields = ["dataset_detail"]
     list_filter = ["name", "title"]
+    form = PublishedAsWmsForm
 
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "name",
+                    "title",
+                    "public",
+                    "description",
+                    "license",
+                    "fees",
+                    "access_constraints",
+                    "extent_buffer",
+                )
+            },
+        ),
+        ("Group permissions", {"fields": ("group_read_permission",)}),
+        ("User permissions", {"fields": ("user_read_permission",)}),
+    )
 
     def add_view(self, request, form_url="", extra_context=None):
         extra_context = extra_context or {}
@@ -128,3 +151,17 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             if isinstance(obj.vector_dataset, VectorDataSet):
                 fields.append("extent_buffer")
         return fields
+
+    def save_model(self, request, obj, form, change):
+        # read permission -> should get only one for PublishedAsWms
+        read_permission = Permission.objects.get(codename=obj.permissions[0].codename)
+
+        # save group permissions
+        groups_read = form.cleaned_data.get("group_read_permission", [])
+        save_group_permissions(groups_read, read_permission)
+
+        # save user permissions
+        users_read = form.cleaned_data.get("user_read_permission", [])
+        save_user_permissions(users_read, read_permission)
+
+        super().save_model(request, obj, form, change)
