@@ -28,6 +28,8 @@ poetry.lock
 # LOGS
 
 cookie-py.log
+georama.log
+src/georama/georama.log
 
 .venv
 docs/site

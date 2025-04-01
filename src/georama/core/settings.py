@@ -166,11 +166,3 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 APPEND_SLASH = False
-
-# add custom providers to pygeoapi
-print("loading provider")
-import pygeoapi.plugin
-
-pygeoapi.plugin.PLUGINS["provider"][
-    "OG_POSTGRES"
-] = "georama.features.pygeoapi_providers.postgres.PostgresProvider"

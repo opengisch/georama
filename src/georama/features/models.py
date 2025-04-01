@@ -1,11 +1,14 @@
 from typing import List
 
+from django.contrib.auth.models import User
 from django.db import models
 
 from georama.core.entities.models import (
     PermissionInterface,
     PublishedAs,
     PublishedAsRoleNameSystem,
+    delete_publishedas_db_permissions,
+    save_publishedas_db_permissions
 )
 from georama.data_integration.models import VectorDataSet
 
@@ -26,28 +29,63 @@ class PublishedAsVectorFeature(PublishedAs):
     class Meta:
         abstract = True
 
+    def get_columns(self) -> List["Column"]:
+        raise NotImplementedError
+
     @property
-    def permissions(self) -> List[PermissionInterface]:
+    def columns_permissions(self) -> List[PermissionInterface]:
+        """Returns all the possible permissions for columns of this VectorFeature
+        
+        Doesn't check if column permissions are enabled on this VectorFeature publication"""
+        return [p for col in self.get_columns() for p in col.permissions]
+
+    @property
+    def all_permissions(self) -> List[PermissionInterface]:
+        permissions = self.permissions
+        if self.column_permission:
+            permissions = permissions + self.columns_permissions
+        return permissions
+
+    def has_general_permission(self, user: User, app_name: str) -> bool:
+        """include columns permissions in this check"""
         if self.public:
-            return []
-        else:
-            role_names = (
-                self.read_permissions
-                + self.create_permissions
-                + self.update_permissions
-                + self.delete_permissions
-            )
-            if not self.column_permission:
-                return role_names
-            else:
-                for column in self.columns.all():
-                    role_names = role_names + column.permissions
-                return role_names
+            return True
+        permissions = self.permission_codenames if not self.column_permission else [p.codename for p in self.all_permissions]
+        return self._has_grained_permission(user, permissions, app_name)
 
 
 class Column(PublishedAsRoleNameSystem):
     published_as_type = "feature_column"
     title = models.CharField(max_length=1000)
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        models.signals.pre_delete.connect(delete_publishedas_db_permissions, sender=cls)
+
+    @property
+    def create_permissions(self) -> List[PermissionInterface]:
+        """delete permission not relevant for specific property: create/delete property happens at the layer level"""
+        return []
+
+    @property
+    def delete_permissions(self) -> List[PermissionInterface]:
+        """delete permission not relevant for specific property: create/delete property happens at the layer level"""
+        return []
+
+    def get_published_definition(self) -> PublishedAsVectorFeature:
+        raise NotImplementedError
+
+    def save(self, *args, **kwargs):
+        if self.name is None:
+            self.name = f"{self.get_published_definition().name}.{self.title}"
+        super().save(*args, **kwargs)
+        save_publishedas_db_permissions(self)
+
+    @property
+    def readable_identifier(self) -> str:
+        """Using the publicatoin identifier at the end to make column visibly linked to their publication"""
+        return f"{self.get_published_definition().readable_identifier}.{self.name}"
 
     class Meta:
         abstract = True
@@ -65,6 +103,9 @@ class PublishedAsWfs(PublishedAsVectorFeature):
         on_delete=models.CASCADE,
     )
 
+    def get_columns(self) -> List["ColumnWfs"]:
+        return self.columns.all()
+
 
 class ColumnWfs(Column):
     published_definition = models.ForeignKey(
@@ -73,6 +114,9 @@ class ColumnWfs(Column):
         related_query_name="column",
         on_delete=models.CASCADE,
     )
+
+    def get_published_definition(self) -> PublishedAsWfs:
+        return self.published_definition
 
 
 class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
@@ -90,7 +134,10 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
     @property
     def readable_identifier(self) -> str:
         dataset = self.dataset
-        return f"{dataset.project.mandant.name}.{dataset.project.name}.{self.identifier}"
+        return f"{dataset.project.mandant.name}.{dataset.project.name}.{dataset.name}.{self.identifier}"
+
+    def get_columns(self) -> List["ColumnOgcApiFeatures"]:
+        return self.columns.all()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.name is None and isinstance(self.dataset, VectorDataSet):
@@ -106,10 +153,9 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
         )
         for field in self.dataset.fields.all():
             if (
-                ColumnOgcApiFeatures.objects.filter(
+                not ColumnOgcApiFeatures.objects.filter(
                     name=field.name, published_definition=self
-                ).count()
-                == 0
+                ).exists()
             ):
                 ColumnOgcApiFeatures(
                     published_definition=self,
@@ -126,3 +172,8 @@ class ColumnOgcApiFeatures(Column):
         related_query_name="column",
         on_delete=models.CASCADE,
     )
+
+    def get_published_definition(self) -> PublishedAsOgcApiFeatures:
+        return self.published_definition
+
+

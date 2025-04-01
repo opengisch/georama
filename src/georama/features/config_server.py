@@ -14,7 +14,7 @@ class ServerConfig:
                     "attribution": '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
                 },
             },
-            "logging": {"level": "DEBUG"},
+            "logging": {"level": "INFO"},
             "metadata": {
                 "identification": {
                     "title": {
