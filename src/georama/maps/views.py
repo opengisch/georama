@@ -1,4 +1,5 @@
 import logging
+from xml.etree.ElementTree import QName
 
 from asgiref.sync import sync_to_async
 from django.http import HttpRequest, HttpResponse
@@ -18,9 +19,57 @@ from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import appname
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.comparison_operator_type import (
+    ComparisonOperatorType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.comparison_operators_type import (
+    ComparisonOperatorsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.filter_capabilities import (
+    ConformanceType,
+    FilterCapabilities,
+    IdCapabilitiesType,
+    ScalarCapabilitiesType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.geometry_operands_type import (
+    GeometryOperandsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.resource_identifier_type import (
+    ResourceIdentifierType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.spatial_capabilities_type import (
+    SpatialCapabilitiesType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.spatial_operator_type import (
+    SpatialOperatorType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.spatial_operators_type import (
+    SpatialOperatorsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.temporal_capabilities_type import (
+    TemporalCapabilitiesType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.temporal_operands_type import (
+    TemporalOperandsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.temporal_operator_name_type_value import (
+    TemporalOperatorNameTypeValue,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.temporal_operator_type import (
+    TemporalOperatorType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.temporal_operators_type import (
+    TemporalOperatorsType,
+)
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1 import (
+    DefaultValue,
+    OnlineResourceType,
     RequestMethodType,
     Value,
+    Wgs84BoundingBox,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.access_constraints import (
+    AccessConstraints as WfsAccessConstraints,
 )
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.allowed_values import (
     AllowedValues,
@@ -46,8 +95,21 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.service_identif
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.service_provider import (
     ServiceProvider,
 )
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.title import (
+    Title as OwsTitle,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
+    FeatureTypeType,
+    OutputFormatListType,
+    WfsCapabilitiesType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.feature_type_list import (
+    FeatureTypeList,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.title import (
+    Title as WfsTitle,
+)
 from georama.maps.interfaces.ogc.wms_1_3_0.capabilities.capabilities_1_3_0 import (
-    AccessConstraints,
     BoundingBox,
     Capability,
     Crs,
@@ -151,7 +213,6 @@ def wms_130_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
     requested_format = params.get("FORMAT", "TEXT/XML")
     if requested_format not in allowed_formats:
         requested_format = "TEXT/XML"
-    print(requested_format)
     if requested_format == "TEXT/XML":
         serializer = XmlSerializer()
         return HttpResponse(
@@ -172,14 +233,17 @@ def wms_130_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
 
 
 def wfs_200_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
-    url = request.build_absolute_uri()
-    server_identification = ServiceIdentification(
-        CodeType("WFS", "OGC"),
-        ["2", "0", "0"],
+    url = f'{request.build_absolute_uri("maps")}?'
+    service_identification = ServiceIdentification(
+        title=[OwsTitle(value="Georama WFS")],
+        service_type=CodeType(code_space="OGC", value="WFS"),
+        service_type_version=["2.0.0"],
         fees=Fees("None"),
-        access_constraints=[AccessConstraints("None")],
+        access_constraints=[WfsAccessConstraints("None")],
     )
-    ServiceProvider("OPENGIS.ch", "https://opengis.ch")
+    service_provider = ServiceProvider(
+        "OPENGIS.ch", OnlineResourceType(href="https://opengis.ch")
+    )
     get_capability_operation = Operation(
         name="GetCapabilities",
         dcp=[Dcp(Http(get=[RequestMethodType(href=url)], post=[RequestMethodType(href=url)]))],
@@ -267,31 +331,225 @@ def wfs_200_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
             describe_feature_type_operation,
             get_features_operation,
             get_property_value_operation,
-            # TODO: We omit that for the moment
-            # get_list_stored_queries_operation,
-            # get_describe_stored_queries_operation
+            # TODO: check if we need that really!
+            get_list_stored_queries_operation,
+            get_describe_stored_queries_operation,
         ],
         parameter=[DomainType(name="version", allowed_values=AllowedValues([Value("2.0.0")]))],
-        constraint=[],
+        constraint=[
+            DomainType(name="ImplementsBasicWFS", default_value=DefaultValue("TRUE")),
+            DomainType(name="ImplementsTransactionalWFS", default_value=DefaultValue("FALSE")),
+            DomainType(name="ImplementsLockingWFS", default_value=DefaultValue("FALSE")),
+            DomainType(name="KVPEncoding", default_value=DefaultValue("FALSE")),
+            DomainType(name="XMLEncoding", default_value=DefaultValue("TRUE")),
+            DomainType(name="SOAPEncoding", default_value=DefaultValue("FALSE")),
+            DomainType(name="ImplementsInheritance", default_value=DefaultValue("FALSE")),
+            DomainType(name="ImplementsRemoteResolve", default_value=DefaultValue("FALSE")),
+            DomainType(name="ImplementsResultPaging", default_value=DefaultValue("TRUE")),
+            DomainType(name="ImplementsStandardJoins", default_value=DefaultValue("FALSE")),
+            DomainType(name="ImplementsSpatialJoins", default_value=DefaultValue("FALSE")),
+            DomainType(name="ImplementsTemporalJoins", default_value=DefaultValue("FALSE")),
+            DomainType(
+                name="ImplementsFeatureVersioning", default_value=DefaultValue("FALSE")
+            ),
+            DomainType(name="ManageStoredQueries", default_value=DefaultValue("FALSE")),
+            DomainType(name="PagingIsTransactionSafe", default_value=DefaultValue("FALSE")),
+            DomainType(
+                name="QueryExpressions",
+                allowed_values=AllowedValues(
+                    value=[Value("wfs:Query"), Value("wfs:StoredQuery")]
+                ),
+            ),
+        ],
     )
-
-    config = Config()
-    parser = JsonParser()
-    parser.from_string(config.service_config(url), CodeType)
-    parser.from_string(config.capability_config(url), Capability)
+    filter_capabilities = FilterCapabilities(
+        conformance=ConformanceType(
+            constraint=[
+                DomainType(name="ImplementsQuery", default_value=DefaultValue("TRUE")),
+                DomainType(name="ImplementsAdHocQuery", default_value=DefaultValue("TRUE")),
+                DomainType(name="ImplementsFunctions", default_value=DefaultValue("FALSE")),
+                DomainType(name="ImplementsResourceId", default_value=DefaultValue("TRUE")),
+                DomainType(
+                    name="ImplementsMinStandardFilter", default_value=DefaultValue("TRUE")
+                ),
+                DomainType(
+                    name="ImplementsStandardFilter", default_value=DefaultValue("TRUE")
+                ),
+                DomainType(
+                    name="ImplementsMinSpatialFilter", default_value=DefaultValue("TRUE")
+                ),
+                DomainType(
+                    name="ImplementsSpatialFilter", default_value=DefaultValue("FALSE")
+                ),
+                DomainType(
+                    name="ImplementsMinTemporalFilter", default_value=DefaultValue("TRUE")
+                ),
+                DomainType(
+                    name="ImplementsTemporalFilter", default_value=DefaultValue("FALSE")
+                ),
+                DomainType(name="ImplementsVersionNav", default_value=DefaultValue("FALSE")),
+                DomainType(name="ImplementsSorting", default_value=DefaultValue("TRUE")),
+                DomainType(
+                    name="ImplementsExtendedOperators", default_value=DefaultValue("FALSE")
+                ),
+                DomainType(name="ImplementsMinimumXPath", default_value=DefaultValue("TRUE")),
+                DomainType(
+                    name="ImplementsSchemaElementFunc", default_value=DefaultValue("FALSE")
+                ),
+            ]
+        ),
+        id_capabilities=IdCapabilitiesType(
+            resource_identifier=[ResourceIdentifierType(name=QName("fes:ResourceId"))]
+        ),
+        scalar_capabilities=ScalarCapabilitiesType(
+            comparison_operators=ComparisonOperatorsType(
+                comparison_operator=[
+                    ComparisonOperatorType(name="PropertyIsEqualTo"),
+                    ComparisonOperatorType(name="PropertyIsNotEqualTo"),
+                    ComparisonOperatorType(name="PropertyIsLessThan"),
+                    ComparisonOperatorType(name="PropertyIsGreaterThan"),
+                    ComparisonOperatorType(name="PropertyIsLessThanOrEqualTo"),
+                    ComparisonOperatorType(name="PropertyIsGreaterThanOrEqualTo"),
+                    ComparisonOperatorType(name="PropertyIsLike"),
+                    ComparisonOperatorType(name="PropertyIsBetween"),
+                ]
+            )
+        ),
+        spatial_capabilities=SpatialCapabilitiesType(
+            geometry_operands=GeometryOperandsType(
+                geometry_operand=[
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:Point")),
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:MultiPoint")),
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:LineString")),
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:MultiLineString")),
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:Curve")),
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:MultiCurve")),
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:Polygon")),
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:MultiPolygon")),
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:Surface")),
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:MultiSurface")),
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:Box")),
+                    GeometryOperandsType.GeometryOperand(name=QName("gml:Envelope")),
+                ]
+            ),
+            spatial_operators=SpatialOperatorsType(
+                spatial_operator=[
+                    SpatialOperatorType(
+                        geometry_operands=GeometryOperandsType(
+                            geometry_operand=[
+                                GeometryOperandsType.GeometryOperand(name=QName("Equals")),
+                                GeometryOperandsType.GeometryOperand(name=QName("Disjoint")),
+                                GeometryOperandsType.GeometryOperand(name=QName("Touches")),
+                                GeometryOperandsType.GeometryOperand(name=QName("Within")),
+                                GeometryOperandsType.GeometryOperand(name=QName("Overlaps")),
+                                GeometryOperandsType.GeometryOperand(name=QName("Crosses")),
+                                GeometryOperandsType.GeometryOperand(name=QName("Intersects")),
+                                GeometryOperandsType.GeometryOperand(name=QName("Contains")),
+                                GeometryOperandsType.GeometryOperand(name=QName("DWithin")),
+                                GeometryOperandsType.GeometryOperand(name=QName("Beyond")),
+                                GeometryOperandsType.GeometryOperand(name=QName("BBOX")),
+                            ]
+                        )
+                    )
+                ]
+            ),
+        ),
+        temporal_capabilities=TemporalCapabilitiesType(
+            temporal_operands=TemporalOperandsType(
+                temporal_operand=[
+                    TemporalOperandsType.TemporalOperand(name=QName("gml:TimePeriod")),
+                    TemporalOperandsType.TemporalOperand(name=QName("gml:TimeInstant")),
+                ]
+            ),
+            temporal_operators=TemporalOperatorsType(
+                temporal_operator=[
+                    TemporalOperatorType(name=TemporalOperatorNameTypeValue.DURING)
+                ]
+            ),
+        ),
+    )
+    feature_type_list = FeatureTypeList()
     for published_as in PublishedAsWms.objects.all():
         if published_as.has_read_permission(request.user, appname):
             if isinstance(published_as.raster_dataset, RasterDataSet):
-                published_as.raster_dataset
+                dataset = published_as.raster_dataset
             elif isinstance(published_as.vector_dataset, VectorDataSet):
-                published_as.vector_dataset
+                dataset = published_as.vector_dataset
             elif isinstance(published_as.custom_dataset, CustomDataSet):
-                published_as.custom_dataset
+                dataset = published_as.custom_dataset
             else:
                 raise NotImplementedError(
                     "linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!"
                 )
+            source_crs = DictDecoder().decode(dataset.crs, QSL_Crs)
+
+            bbox_object = None
+            try:
+                bbox = BBox.from_string(dataset.bbox_wgs84)
+                bbox_object = BoundingBox(
+                    crs=source_crs.auth_id,
+                    minx=bbox.x_min,
+                    maxx=bbox.x_max,
+                    miny=bbox.y_min,
+                    maxy=bbox.y_max,
+                )
+            except Exception:
+                log.info(f'no BBOX could created from string: "{dataset.bbox}"')
+            feature_type_list.feature_type.append(
+                FeatureTypeType(
+                    name=QName(published_as.name),
+                    title=[WfsTitle(value=published_as.title)],
+                    default_crs=source_crs.ogc_uri,
+                    output_formats=OutputFormatListType(
+                        format=[
+                            "application/gml+xml; version=3.2",
+                            "text/xml; subtype=gml/3.2.1",
+                            "text/xml; subtype=gml/3.1.1",
+                            "text/xml; subtype=gml/2.1.2",
+                        ]
+                    ),
+                    wgs84_bounding_box=[
+                        Wgs84BoundingBox(
+                            lower_corner=[bbox_object.minx, bbox_object.miny],
+                            upper_corner=[bbox_object.maxx, bbox_object.maxy],
+                        )
+                    ],
+                )
+            )
+
             # TODO: Further produce Capabilities!
+    wfs_capabilities = WfsCapabilitiesType(
+        service_identification=service_identification,
+        service_provider=service_provider,
+        operations_metadata=operations_metadata,
+        filter_capabilities=filter_capabilities,
+        version="2.0.0",
+        feature_type_list=feature_type_list,
+    )
+    allowed_formats = ["TEXT/XML", "APPLICATION/JSON"]
+    requested_format = params.get("FORMAT", "TEXT/XML")
+    if requested_format not in allowed_formats:
+        requested_format = "TEXT/XML"
+    if requested_format == "TEXT/XML":
+        serializer = XmlSerializer()
+        return HttpResponse(
+            serializer.render(
+                wfs_capabilities,
+                ns_map={
+                    "wfs": "http://www.opengis.net/wfs/2.0",
+                    "xlink": "http://www.w3.org/1999/xlink",
+                    "fes": "http://www.opengis.net/fes/2.0",
+                    "ows": "http://www.opengis.net/ows/1.1",
+                    "xsi": "http://www.w3.org/2001/XMLSchema-instance",
+                },
+            ),
+            content_type="text/xml",
+        )
+    elif requested_format == "APPLICATION/JSON":
+        serializer = JsonSerializer()
+        return HttpResponse(
+            serializer.render(wfs_capabilities), content_type="application/json"
+        )
 
 
 def extract_layers(
@@ -373,6 +631,14 @@ async def entry(request: HttpRequest):
         config = Config()
         result = await redis_queue.post(job, config.job_timeout)
         return HttpResponse(result.data, result.content_type)
+    elif params["SERVICE"].upper() == "WFS":
+        if params["REQUEST"] == "GETCAPABILITIES":
+            if params.get("VERSION", "2.0.0") == "2.0.0":
+                return await sync_to_async(wfs_200_capabilities, thread_sensitive=True)(
+                    request, params
+                )
+            else:
+                return HttpResponse("Only VERSION 2.0.0 is available", 500)
     else:
         return HttpResponse("Only WMS Service is available", 500)
 
