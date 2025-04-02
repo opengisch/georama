@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from wfs_2_0_0.net.opengis.wfs.pkg_2.element import Element
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.element import Element
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

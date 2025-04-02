@@ -1,10 +1,12 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.abstract_query_expression_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.abstract_query_expression_type import (
     AbstractQueryExpressionType,
 )
-from wfs_2_0_0.net.opengis.wfs.pkg_2.parameter_type import ParameterType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.parameter_type import (
+    ParameterType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

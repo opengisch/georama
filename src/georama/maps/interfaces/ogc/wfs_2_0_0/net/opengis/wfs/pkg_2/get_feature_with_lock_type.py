@@ -1,7 +1,11 @@
 from dataclasses import dataclass, field
 
-from wfs_2_0_0.net.opengis.wfs.pkg_2.all_some_type import AllSomeType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.get_feature_type import GetFeatureType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.all_some_type import (
+    AllSomeType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.get_feature_type import (
+    GetFeatureType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

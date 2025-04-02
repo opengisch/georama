@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.abstract_reference_base_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.abstract_reference_base_type import (
     AbstractReferenceBaseType,
 )
 

@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.wfs.pkg_2.action_results_type import ActionResultsType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.transaction_summary_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.action_results_type import (
+    ActionResultsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.transaction_summary_type import (
     TransactionSummaryType,
 )
 

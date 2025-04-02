@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.reference_type import ReferenceType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.reference_type import (
+    ReferenceType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

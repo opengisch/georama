@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.get_capabilities_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.get_capabilities_type import (
     GetCapabilitiesType as GetCapabilitiesTypeGetCapabilitiesType,
 )
 

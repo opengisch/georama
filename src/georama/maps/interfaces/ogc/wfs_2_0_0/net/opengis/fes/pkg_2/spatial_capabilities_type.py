@@ -1,8 +1,12 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.geometry_operands_type import GeometryOperandsType
-from wfs_2_0_0.net.opengis.fes.pkg_2.spatial_operators_type import SpatialOperatorsType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.geometry_operands_type import (
+    GeometryOperandsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.spatial_operators_type import (
+    SpatialOperatorsType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 

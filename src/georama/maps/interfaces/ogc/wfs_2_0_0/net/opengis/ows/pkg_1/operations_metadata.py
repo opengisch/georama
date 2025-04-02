@@ -1,9 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.domain_type import DomainType
-from wfs_2_0_0.net.opengis.ows.pkg_1.extended_capabilities import ExtendedCapabilities
-from wfs_2_0_0.net.opengis.ows.pkg_1.operation import Operation
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.domain_type import (
+    DomainType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.extended_capabilities import (
+    ExtendedCapabilities,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.operation import (
+    Operation,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

@@ -1,13 +1,23 @@
 from dataclasses import dataclass, field
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.available_crs import AvailableCrs
-from wfs_2_0_0.net.opengis.ows.pkg_1.basic_identification_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.available_crs import (
+    AvailableCrs,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.basic_identification_type import (
     BasicIdentificationType,
 )
-from wfs_2_0_0.net.opengis.ows.pkg_1.bounding_box import BoundingBox
-from wfs_2_0_0.net.opengis.ows.pkg_1.output_format import OutputFormat
-from wfs_2_0_0.net.opengis.ows.pkg_1.supported_crs import SupportedCrs
-from wfs_2_0_0.net.opengis.ows.pkg_1.wgs84_bounding_box import Wgs84BoundingBox
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.bounding_box import (
+    BoundingBox,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.output_format import (
+    OutputFormat,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.supported_crs import (
+    SupportedCrs,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.wgs84_bounding_box import (
+    Wgs84BoundingBox,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

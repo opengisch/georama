@@ -18,6 +18,10 @@ from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import appname
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1 import (
+    RequestMethodType,
+    Value,
+)
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.allowed_values import (
     AllowedValues,
 )
@@ -36,17 +40,11 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.operation impor
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.operations_metadata import (
     OperationsMetadata,
 )
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.request_method_type import (
-    RequestMethodType,
-)
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.service_identification import (
     ServiceIdentification,
 )
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.service_provider import (
     ServiceProvider,
-)
-from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.type_type import (
-    TypeType,
 )
 from georama.maps.interfaces.ogc.wms_1_3_0.capabilities.capabilities_1_3_0 import (
     AccessConstraints,
@@ -181,114 +179,119 @@ def wfs_200_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
         fees=Fees("None"),
         access_constraints=[AccessConstraints("None")],
     )
-    ServiceProvider("OPENGIS.ch")
+    ServiceProvider("OPENGIS.ch", "https://opengis.ch")
+    get_capability_operation = Operation(
+        name="GetCapabilities",
+        dcp=[Dcp(Http(get=[RequestMethodType(href=url)], post=[RequestMethodType(href=url)]))],
+        parameter=[
+            DomainType(name="AcceptVersions", allowed_values=AllowedValues([Value("2.0.0")])),
+            DomainType(
+                name="AcceptFormats", allowed_values=AllowedValues([Value("text/xml")])
+            ),
+            DomainType(
+                name="Sections",
+                allowed_values=AllowedValues(
+                    [
+                        Value("ServiceIdentification"),
+                        Value("ServiceProvider"),
+                        Value("OperationsMetadata"),
+                        Value("FeatureTypeList"),
+                        Value("Filter_Capabilities"),
+                    ]
+                ),
+            ),
+        ],
+    )
+    describe_feature_type_operation = Operation(
+        name="DescribeFeatureType",
+        dcp=[Dcp(Http(get=[RequestMethodType(href=url)], post=[RequestMethodType(href=url)]))],
+        parameter=[
+            DomainType(
+                name="outputFormat",
+                allowed_values=AllowedValues(
+                    [
+                        Value("application/gml+xml; version=3.2"),
+                        Value("text/xml; subtype=gml/3.2.1"),
+                        Value("text/xml; subtype=gml/3.1.1"),
+                        Value("text/xml; subtype=gml/2.1.2"),
+                    ]
+                ),
+            )
+        ],
+    )
+    get_features_operation = Operation(
+        name="GetFeature",
+        dcp=[Dcp(Http(get=[RequestMethodType(href=url)], post=[RequestMethodType(href=url)]))],
+        parameter=[
+            DomainType(
+                name="outputFormat",
+                allowed_values=AllowedValues(
+                    [
+                        Value("application/gml+xml; version=3.2"),
+                        Value("text/xml; subtype=gml/3.2.1"),
+                        Value("text/xml; subtype=gml/3.1.1"),
+                        Value("text/xml; subtype=gml/2.1.2"),
+                    ]
+                ),
+            )
+        ],
+    )
+    get_property_value_operation = Operation(
+        name="GetPropertyValue",
+        dcp=[Dcp(Http(get=[RequestMethodType(href=url)], post=[RequestMethodType(href=url)]))],
+        parameter=[
+            DomainType(
+                name="outputFormat",
+                allowed_values=AllowedValues(
+                    [
+                        Value("application/gml+xml; version=3.2"),
+                        Value("text/xml; subtype=gml/3.2.1"),
+                        Value("text/xml; subtype=gml/3.1.1"),
+                        Value("text/xml; subtype=gml/2.1.2"),
+                    ]
+                ),
+            )
+        ],
+    )
+    get_list_stored_queries_operation = Operation(
+        name="ListStoredQueries",
+        dcp=[Dcp(Http(get=[RequestMethodType(href=url)], post=[RequestMethodType(href=url)]))],
+    )
+    get_describe_stored_queries_operation = Operation(
+        name="DescribeStoredQueries",
+        dcp=[Dcp(Http(get=[RequestMethodType(href=url)], post=[RequestMethodType(href=url)]))],
+    )
     operations_metadata = OperationsMetadata(
         operation=[
-            Operation(
-                [Dcp(Http([RequestMethodType(href=url, type_value=TypeType.SIMPLE.value)]))],
-                [DomainType(AllowedValues(["2.0.0", "1.1.0", "1.0.0"]))],
-            )
-        ]
+            get_capability_operation,
+            describe_feature_type_operation,
+            get_features_operation,
+            get_property_value_operation,
+            # TODO: We omit that for the moment
+            # get_list_stored_queries_operation,
+            # get_describe_stored_queries_operation
+        ],
+        parameter=[DomainType(name="version", allowed_values=AllowedValues([Value("2.0.0")]))],
+        constraint=[],
     )
 
     config = Config()
     parser = JsonParser()
-    service = parser.from_string(config.service_config(url), CodeType)
-    capapility = parser.from_string(config.capability_config(url), Capability)
+    parser.from_string(config.service_config(url), CodeType)
+    parser.from_string(config.capability_config(url), Capability)
     for published_as in PublishedAsWms.objects.all():
         if published_as.has_read_permission(request.user, appname):
             if isinstance(published_as.raster_dataset, RasterDataSet):
-                dataset = published_as.raster_dataset
+                published_as.raster_dataset
             elif isinstance(published_as.vector_dataset, VectorDataSet):
-                dataset = published_as.vector_dataset
+                published_as.vector_dataset
             elif isinstance(published_as.custom_dataset, CustomDataSet):
-                dataset = published_as.custom_dataset
+                published_as.custom_dataset
             else:
                 raise NotImplementedError(
                     "linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!"
                 )
-            source_crs = DictDecoder().decode(dataset.crs, QSL_Crs)
-
-            bbox_object = None
-            try:
-                bbox = BBox.from_string(dataset.bbox)
-                bbox_object = BoundingBox(
-                    crs=source_crs.auth_id,
-                    minx=bbox.x_min,
-                    maxx=bbox.x_max,
-                    miny=bbox.y_min,
-                    maxy=bbox.y_max,
-                )
-            except Exception:
-                log.info(f'no BBOX could created from string: "{dataset.bbox}"')
-
-            ex_geographic_bounding_box_object = None
-            bbox_4326 = None
-            try:
-                bbox_wgs84 = BBox.from_string(dataset.bbox_wgs84)
-                ex_geographic_bounding_box_object = ExGeographicBoundingBox(
-                    west_bound_longitude=bbox_wgs84.x_min,
-                    east_bound_longitude=bbox_wgs84.x_max,
-                    south_bound_latitude=bbox_wgs84.y_min,
-                    north_bound_latitude=bbox_wgs84.y_max,
-                )
-                bbox_4326 = BoundingBox(
-                    crs="EPSG:4326",
-                    minx=bbox_wgs84.x_min,
-                    maxx=bbox_wgs84.x_max,
-                    miny=bbox_wgs84.y_min,
-                    maxy=bbox_wgs84.y_max,
-                )
-            except Exception:
-                log.info(
-                    f'no bbox_4326 and bbox_wgs84 could created from string: "{dataset.bbox_wgs84}"'
-                )
-            layer = Layer(
-                queryable=False,
-                cascaded=0,
-                name=Name(published_as.name),
-                title=published_as.title,
-                abstract=published_as.description,
-                crs=[Crs(source_crs.auth_id), Crs("CRS:84")],
-                ex_geographic_bounding_box=ex_geographic_bounding_box_object,
-                bounding_box=[bbox_object, bbox_4326],
-                style=[Style(name=Name("default"), title=Title("Default"))],
-            )
-            if bbox_object is not None:
-                layer.bounding_box.append(bbox_object)
-                if bbox_object not in capapility.layer.bounding_box:
-                    capapility.layer.bounding_box.append(bbox_object)
-            if bbox_4326 is not None:
-                layer.bounding_box.append(bbox_4326)
-                if bbox_4326 not in capapility.layer.bounding_box:
-                    capapility.layer.bounding_box.append(bbox_4326)
-            capapility.layer.layer.append(layer)
-            capapility.layer.ex_geographic_bounding_box = ex_geographic_bounding_box_object
-
-    wms_capabilities = WmsCapabilities(service=service, capability=capapility)
-
-    allowed_formats = ["TEXT/XML", "APPLICATION/JSON"]
-    requested_format = params.get("FORMAT", "TEXT/XML")
-    if requested_format not in allowed_formats:
-        requested_format = "TEXT/XML"
-    print(requested_format)
-    if requested_format == "TEXT/XML":
-        serializer = XmlSerializer()
-        return HttpResponse(
-            serializer.render(
-                wms_capabilities,
-                ns_map={
-                    None: "http://www.opengis.net/wms",
-                    "xlink": "http://www.w3.org/1999/xlink",
-                },
-            ),
-            content_type="text/xml",
-        )
-    elif requested_format == "APPLICATION/JSON":
-        serializer = JsonSerializer()
-        return HttpResponse(
-            serializer.render(wms_capabilities), content_type="application/json"
-        )
+            # TODO: Further produce Capabilities!
 
 
 def extract_layers(

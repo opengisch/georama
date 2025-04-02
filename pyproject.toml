@@ -55,10 +55,6 @@ dependencies = [
     # django stuff
     "django==5.0.6",
     "django-jazzmin==3.0.0",
-    "gdal==3.9.1",
-    "psycopg2==2.9.9",
-    "geoalchemy2==0.15.2",
-    "SQLAlchemy<2.0.0",
     "xsdata[cli,lxml,soap]==24.12",
     "async-timeout==4.0.3",
     "redis==5.0.8",
@@ -75,7 +71,7 @@ dependencies = [
 # DEV: deps
 optional-dependencies.dev =[
     # to derive dataclasses from xsd schemas
-    "xsdata[cli,lxml,soap]==24.6.1"
+    "xsdata[cli,lxml,soap]==24.12"
 ]
 
 # Test: packages imported in test code and packages required for the "test runner"

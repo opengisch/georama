@@ -1,10 +1,16 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.maximum_value import MaximumValue
-from wfs_2_0_0.net.opengis.ows.pkg_1.minimum_value import MinimumValue
-from wfs_2_0_0.net.opengis.ows.pkg_1.range_closure_value import RangeClosureValue
-from wfs_2_0_0.net.opengis.ows.pkg_1.spacing import Spacing
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.maximum_value import (
+    MaximumValue,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.minimum_value import (
+    MinimumValue,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.range_closure_value import (
+    RangeClosureValue,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.spacing import Spacing
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

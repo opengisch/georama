@@ -1,9 +1,14 @@
 from dataclasses import dataclass, field
 from typing import Optional, Union
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.abstract_id_type import AbstractIdType
-from wfs_2_0_0.net.opengis.fes.pkg_2.version_action_tokens import VersionActionTokens
 from xsdata.models.datatype import XmlDateTime
+
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.abstract_id_type import (
+    AbstractIdType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.version_action_tokens import (
+    VersionActionTokens,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 

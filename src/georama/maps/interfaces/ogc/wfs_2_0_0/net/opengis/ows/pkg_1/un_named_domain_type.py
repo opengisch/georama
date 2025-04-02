@@ -1,16 +1,32 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.allowed_values import AllowedValues
-from wfs_2_0_0.net.opengis.ows.pkg_1.any_value import AnyValue
-from wfs_2_0_0.net.opengis.ows.pkg_1.data_type import DataType
-from wfs_2_0_0.net.opengis.ows.pkg_1.default_value import DefaultValue
-from wfs_2_0_0.net.opengis.ows.pkg_1.meaning import Meaning
-from wfs_2_0_0.net.opengis.ows.pkg_1.metadata import Metadata
-from wfs_2_0_0.net.opengis.ows.pkg_1.no_values import NoValues
-from wfs_2_0_0.net.opengis.ows.pkg_1.reference_system import ReferenceSystem
-from wfs_2_0_0.net.opengis.ows.pkg_1.uom import Uom
-from wfs_2_0_0.net.opengis.ows.pkg_1.values_reference import ValuesReference
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.allowed_values import (
+    AllowedValues,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.any_value import (
+    AnyValue,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.data_type import (
+    DataType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.default_value import (
+    DefaultValue,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.meaning import Meaning
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.metadata import (
+    Metadata,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.no_values import (
+    NoValues,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.reference_system import (
+    ReferenceSystem,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.uom import Uom
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.values_reference import (
+    ValuesReference,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

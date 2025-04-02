@@ -1,10 +1,12 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.comparison_operators_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.comparison_operators_type import (
     ComparisonOperatorsType,
 )
-from wfs_2_0_0.net.opengis.fes.pkg_2.logical_operators import LogicalOperators
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.logical_operators import (
+    LogicalOperators,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 

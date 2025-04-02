@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 
-from wfs_2_0_0.net.opengis.wfs.pkg_2.feature_type_type import FeatureTypeType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.feature_type_type import (
+    FeatureTypeType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.org.w3.pkg_1999.xlink.type_type import TypeType
+from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.type_type import (
+    TypeType,
+)
 
 __NAMESPACE__ = "http://www.w3.org/1999/xlink"
 

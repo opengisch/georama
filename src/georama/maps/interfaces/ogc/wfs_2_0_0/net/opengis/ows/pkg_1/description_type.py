@@ -1,8 +1,12 @@
 from dataclasses import dataclass, field
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.abstract import Abstract
-from wfs_2_0_0.net.opengis.ows.pkg_1.keywords import Keywords
-from wfs_2_0_0.net.opengis.ows.pkg_1.title import Title
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.abstract import (
+    Abstract,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.keywords import (
+    Keywords,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.title import Title
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

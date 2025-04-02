@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.wfs.pkg_2.features_locked_type import FeaturesLockedType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.features_not_locked_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.features_locked_type import (
+    FeaturesLockedType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.features_not_locked_type import (
     FeaturesNotLockedType,
 )
 

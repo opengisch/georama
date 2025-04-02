@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.online_resource_type import OnlineResourceType
-from wfs_2_0_0.net.opengis.ows.pkg_1.responsible_party_subset_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.online_resource_type import (
+    OnlineResourceType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.responsible_party_subset_type import (
     ResponsiblePartySubsetType,
 )
 

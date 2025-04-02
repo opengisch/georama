@@ -1,8 +1,12 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.sort_order_type import SortOrderType
-from wfs_2_0_0.net.opengis.fes.pkg_2.value_reference import ValueReference
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.sort_order_type import (
+    SortOrderType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.value_reference import (
+    ValueReference,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 

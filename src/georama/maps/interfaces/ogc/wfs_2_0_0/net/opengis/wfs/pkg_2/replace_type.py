@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.filter import Filter
-from wfs_2_0_0.net.opengis.wfs.pkg_2.abstract_transaction_action_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.filter import Filter
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.abstract_transaction_action_type import (
     AbstractTransactionActionType,
 )
 

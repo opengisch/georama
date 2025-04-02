@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.comparison_ops_type import ComparisonOpsType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.comparison_ops_type import (
+    ComparisonOpsType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 

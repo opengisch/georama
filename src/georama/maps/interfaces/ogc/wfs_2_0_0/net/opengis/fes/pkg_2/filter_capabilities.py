@@ -1,21 +1,25 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.available_functions_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.available_functions_type import (
     AvailableFunctionsType,
 )
-from wfs_2_0_0.net.opengis.fes.pkg_2.conformance_type import ConformanceType
-from wfs_2_0_0.net.opengis.fes.pkg_2.extended_capabilities_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.conformance_type import (
+    ConformanceType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.extended_capabilities_type import (
     ExtendedCapabilitiesType,
 )
-from wfs_2_0_0.net.opengis.fes.pkg_2.id_capabilities_type import IdCapabilitiesType
-from wfs_2_0_0.net.opengis.fes.pkg_2.scalar_capabilities_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.id_capabilities_type import (
+    IdCapabilitiesType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.scalar_capabilities_type import (
     ScalarCapabilitiesType,
 )
-from wfs_2_0_0.net.opengis.fes.pkg_2.spatial_capabilities_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.spatial_capabilities_type import (
     SpatialCapabilitiesType,
 )
-from wfs_2_0_0.net.opengis.fes.pkg_2.temporal_capabilities_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.temporal_capabilities_type import (
     TemporalCapabilitiesType,
 )
 

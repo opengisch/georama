@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from wfs_2_0_0.org.w3.pkg_1999.xlink.arc_type import ArcType
+from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.arc_type import ArcType
 
 __NAMESPACE__ = "http://www.w3.org/1999/xlink"
 

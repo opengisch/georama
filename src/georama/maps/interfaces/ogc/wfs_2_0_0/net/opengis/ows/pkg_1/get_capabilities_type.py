@@ -1,9 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.accept_formats_type import AcceptFormatsType
-from wfs_2_0_0.net.opengis.ows.pkg_1.accept_versions_type import AcceptVersionsType
-from wfs_2_0_0.net.opengis.ows.pkg_1.sections_type import SectionsType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.accept_formats_type import (
+    AcceptFormatsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.accept_versions_type import (
+    AcceptVersionsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.sections_type import (
+    SectionsType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

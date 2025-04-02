@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.domain_type import DomainType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.domain_type import (
+    DomainType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 

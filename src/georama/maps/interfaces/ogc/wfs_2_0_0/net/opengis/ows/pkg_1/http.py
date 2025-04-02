@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.request_method_type import RequestMethodType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.request_method_type import (
+    RequestMethodType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

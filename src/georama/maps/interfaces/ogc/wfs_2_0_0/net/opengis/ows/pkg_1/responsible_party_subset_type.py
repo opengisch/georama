@@ -1,10 +1,16 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.contact_info import ContactInfo
-from wfs_2_0_0.net.opengis.ows.pkg_1.individual_name import IndividualName
-from wfs_2_0_0.net.opengis.ows.pkg_1.position_name import PositionName
-from wfs_2_0_0.net.opengis.ows.pkg_1.role import Role
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.contact_info import (
+    ContactInfo,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.individual_name import (
+    IndividualName,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.position_name import (
+    PositionName,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.role import Role
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

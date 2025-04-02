@@ -1,10 +1,14 @@
 from dataclasses import dataclass, field
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.basic_identification_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.basic_identification_type import (
     BasicIdentificationType,
 )
-from wfs_2_0_0.net.opengis.ows.pkg_1.reference import Reference
-from wfs_2_0_0.net.opengis.ows.pkg_1.service_reference import ServiceReference
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.reference import (
+    Reference,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.service_reference import (
+    ServiceReference,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

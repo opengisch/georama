@@ -1,9 +1,11 @@
 from dataclasses import dataclass, field
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.dataset_description_summary_base_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.dataset_description_summary_base_type import (
     DatasetDescriptionSummary,
 )
-from wfs_2_0_0.net.opengis.ows.pkg_1.other_source import OtherSource
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.other_source import (
+    OtherSource,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

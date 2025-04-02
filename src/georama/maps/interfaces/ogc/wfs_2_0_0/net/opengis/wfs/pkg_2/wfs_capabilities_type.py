@@ -1,12 +1,24 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.filter_capabilities import FilterCapabilities
-from wfs_2_0_0.net.opengis.ows.pkg_1.capabilities_base_type import CapabilitiesBaseType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.feature_type_list import FeatureTypeList
-from wfs_2_0_0.org.w3.pkg_1999.xlink.actuate_type import ActuateType
-from wfs_2_0_0.org.w3.pkg_1999.xlink.show_type import ShowType
-from wfs_2_0_0.org.w3.pkg_1999.xlink.type_type import TypeType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.filter_capabilities import (
+    FilterCapabilities,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.capabilities_base_type import (
+    CapabilitiesBaseType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.feature_type_list import (
+    FeatureTypeList,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.actuate_type import (
+    ActuateType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.show_type import (
+    ShowType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.type_type import (
+    TypeType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

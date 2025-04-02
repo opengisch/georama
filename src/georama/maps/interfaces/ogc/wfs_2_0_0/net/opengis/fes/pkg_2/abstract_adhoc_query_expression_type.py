@@ -1,12 +1,14 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.abstract_query_expression_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.abstract_query_expression_type import (
     AbstractQueryExpressionType,
 )
-from wfs_2_0_0.net.opengis.fes.pkg_2.filter import Filter
-from wfs_2_0_0.net.opengis.fes.pkg_2.sort_by import SortBy
-from wfs_2_0_0.net.opengis.wfs.pkg_2.property_name import PropertyName
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.filter import Filter
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.sort_by import SortBy
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.property_name import (
+    PropertyName,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 

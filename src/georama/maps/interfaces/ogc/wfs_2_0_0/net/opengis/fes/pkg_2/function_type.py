@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.literal import Literal
-from wfs_2_0_0.net.opengis.fes.pkg_2.value_reference import ValueReference
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.literal import Literal
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.value_reference import (
+    ValueReference,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 

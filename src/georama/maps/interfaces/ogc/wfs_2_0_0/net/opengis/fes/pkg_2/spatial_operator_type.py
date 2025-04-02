@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Optional, Union
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.geometry_operands_type import GeometryOperandsType
-from wfs_2_0_0.net.opengis.fes.pkg_2.spatial_operator_name_type_value import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.geometry_operands_type import (
+    GeometryOperandsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.spatial_operator_name_type_value import (
     SpatialOperatorNameTypeValue,
 )
 

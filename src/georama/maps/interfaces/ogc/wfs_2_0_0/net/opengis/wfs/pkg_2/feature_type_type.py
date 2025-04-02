@@ -2,15 +2,25 @@ from dataclasses import dataclass, field
 from typing import Optional
 from xml.etree.ElementTree import QName
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.keywords import Keywords
-from wfs_2_0_0.net.opengis.ows.pkg_1.wgs84_bounding_box import Wgs84BoundingBox
-from wfs_2_0_0.net.opengis.wfs.pkg_2.abstract import Abstract
-from wfs_2_0_0.net.opengis.wfs.pkg_2.extended_description_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.keywords import (
+    Keywords,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.wgs84_bounding_box import (
+    Wgs84BoundingBox,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.abstract import (
+    Abstract,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.extended_description_type import (
     ExtendedDescriptionType,
 )
-from wfs_2_0_0.net.opengis.wfs.pkg_2.metadata_urltype import MetadataUrltype
-from wfs_2_0_0.net.opengis.wfs.pkg_2.output_format_list_type import OutputFormatListType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.title import Title
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.metadata_urltype import (
+    MetadataUrltype,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.output_format_list_type import (
+    OutputFormatListType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.title import Title
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

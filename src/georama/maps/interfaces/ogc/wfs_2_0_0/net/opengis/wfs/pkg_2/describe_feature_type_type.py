@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
 from xml.etree.ElementTree import QName
 
-from wfs_2_0_0.net.opengis.wfs.pkg_2.base_request_type import BaseRequestType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.base_request_type import (
+    BaseRequestType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

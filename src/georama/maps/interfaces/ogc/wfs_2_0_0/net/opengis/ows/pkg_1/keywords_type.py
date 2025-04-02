@@ -1,8 +1,12 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.code_type import CodeType
-from wfs_2_0_0.net.opengis.ows.pkg_1.language_string_type import LanguageStringType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.code_type import (
+    CodeType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.language_string_type import (
+    LanguageStringType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

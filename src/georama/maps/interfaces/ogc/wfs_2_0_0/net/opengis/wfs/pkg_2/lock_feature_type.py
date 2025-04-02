@@ -1,10 +1,16 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.wfs.pkg_2.all_some_type import AllSomeType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.base_request_type import BaseRequestType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.query import Query
-from wfs_2_0_0.net.opengis.wfs.pkg_2.stored_query import StoredQuery
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.all_some_type import (
+    AllSomeType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.base_request_type import (
+    BaseRequestType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.query import Query
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.stored_query import (
+    StoredQuery,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

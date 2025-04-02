@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.temporal_operands_type import TemporalOperandsType
-from wfs_2_0_0.net.opengis.fes.pkg_2.temporal_operators_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.temporal_operands_type import (
+    TemporalOperandsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.temporal_operators_type import (
     TemporalOperatorsType,
 )
 

@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.resource_id import ResourceId
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.resource_id import (
+    ResourceId,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

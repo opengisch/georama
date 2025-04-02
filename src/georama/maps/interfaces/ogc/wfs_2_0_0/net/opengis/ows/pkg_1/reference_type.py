@@ -1,12 +1,18 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.abstract import Abstract
-from wfs_2_0_0.net.opengis.ows.pkg_1.abstract_reference_base_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.abstract import (
+    Abstract,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.abstract_reference_base_type import (
     AbstractReferenceBaseType,
 )
-from wfs_2_0_0.net.opengis.ows.pkg_1.identifier import Identifier
-from wfs_2_0_0.net.opengis.ows.pkg_1.metadata import Metadata
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.identifier import (
+    Identifier,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.metadata import (
+    Metadata,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.abstract_adhoc_query_expression_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.abstract_adhoc_query_expression_type import (
     AbstractAdhocQueryExpressionType,
 )
 

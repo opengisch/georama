@@ -1,12 +1,22 @@
 from dataclasses import dataclass, field
 from typing import Optional, Union
 
-from wfs_2_0_0.net.opengis.wfs.pkg_2.base_request_type import BaseRequestType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.query import Query
-from wfs_2_0_0.net.opengis.wfs.pkg_2.resolve_value_type import ResolveValueType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.result_type_type import ResultTypeType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.star_string_type import StarStringType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.stored_query import StoredQuery
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.base_request_type import (
+    BaseRequestType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.query import Query
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.resolve_value_type import (
+    ResolveValueType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.result_type_type import (
+    ResultTypeType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.star_string_type import (
+    StarStringType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.stored_query import (
+    StoredQuery,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

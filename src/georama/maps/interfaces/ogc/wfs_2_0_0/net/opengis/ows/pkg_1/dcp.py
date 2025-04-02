@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.http import Http
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.http import Http
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

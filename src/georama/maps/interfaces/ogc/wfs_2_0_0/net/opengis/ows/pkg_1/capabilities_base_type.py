@@ -1,9 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.operations_metadata import OperationsMetadata
-from wfs_2_0_0.net.opengis.ows.pkg_1.service_identification import ServiceIdentification
-from wfs_2_0_0.net.opengis.ows.pkg_1.service_provider import ServiceProvider
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.operations_metadata import (
+    OperationsMetadata,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.service_identification import (
+    ServiceIdentification,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.service_provider import (
+    ServiceProvider,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

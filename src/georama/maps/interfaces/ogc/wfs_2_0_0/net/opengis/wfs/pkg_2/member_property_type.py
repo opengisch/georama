@@ -1,16 +1,29 @@
 from dataclasses import dataclass, field
 from typing import ForwardRef, Optional, Union
 
-from wfs_2_0_0.net.opengis.wfs.pkg_2.bounded_by import BoundedBy
-from wfs_2_0_0.net.opengis.wfs.pkg_2.non_negative_integer_or_unknown_value import (
+from xsdata.models.datatype import XmlDateTime
+
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.bounded_by import (
+    BoundedBy,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.non_negative_integer_or_unknown_value import (
     NonNegativeIntegerOrUnknownValue,
 )
-from wfs_2_0_0.net.opengis.wfs.pkg_2.state_value_type_value import StateValueTypeValue
-from wfs_2_0_0.net.opengis.wfs.pkg_2.truncated_response import TruncatedResponse
-from wfs_2_0_0.org.w3.pkg_1999.xlink.actuate_type import ActuateType
-from wfs_2_0_0.org.w3.pkg_1999.xlink.show_type import ShowType
-from wfs_2_0_0.org.w3.pkg_1999.xlink.type_type import TypeType
-from xsdata.models.datatype import XmlDateTime
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.state_value_type_value import (
+    StateValueTypeValue,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.truncated_response import (
+    TruncatedResponse,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.actuate_type import (
+    ActuateType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.show_type import (
+    ShowType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.type_type import (
+    TypeType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

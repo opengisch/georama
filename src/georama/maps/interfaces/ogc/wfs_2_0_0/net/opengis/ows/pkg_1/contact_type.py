@@ -1,9 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.ows.pkg_1.address_type import AddressType
-from wfs_2_0_0.net.opengis.ows.pkg_1.online_resource_type import OnlineResourceType
-from wfs_2_0_0.net.opengis.ows.pkg_1.telephone_type import TelephoneType
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.address_type import (
+    AddressType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.online_resource_type import (
+    OnlineResourceType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.telephone_type import (
+    TelephoneType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

@@ -1,9 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.org.w3.pkg_1999.xlink.actuate_type import ActuateType
-from wfs_2_0_0.org.w3.pkg_1999.xlink.show_type import ShowType
-from wfs_2_0_0.org.w3.pkg_1999.xlink.type_type import TypeType
+from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.actuate_type import (
+    ActuateType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.show_type import (
+    ShowType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.org.w3.pkg_1999.xlink.type_type import (
+    TypeType,
+)
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 

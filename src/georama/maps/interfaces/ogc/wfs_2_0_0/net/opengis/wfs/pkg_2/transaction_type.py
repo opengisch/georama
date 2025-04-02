@@ -1,13 +1,17 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.wfs.pkg_2.all_some_type import AllSomeType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.base_request_type import BaseRequestType
-from wfs_2_0_0.net.opengis.wfs.pkg_2.delete import Delete
-from wfs_2_0_0.net.opengis.wfs.pkg_2.insert import Insert
-from wfs_2_0_0.net.opengis.wfs.pkg_2.native import Native
-from wfs_2_0_0.net.opengis.wfs.pkg_2.replace import Replace
-from wfs_2_0_0.net.opengis.wfs.pkg_2.update import Update
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.all_some_type import (
+    AllSomeType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.base_request_type import (
+    BaseRequestType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.delete import Delete
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.insert import Insert
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.native import Native
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.replace import Replace
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.update import Update
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 

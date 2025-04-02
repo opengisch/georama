@@ -1,52 +1,86 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from wfs_2_0_0.net.opengis.fes.pkg_2.after import After
-from wfs_2_0_0.net.opengis.fes.pkg_2.any_interacts import AnyInteracts
-from wfs_2_0_0.net.opengis.fes.pkg_2.bbox import Bbox
-from wfs_2_0_0.net.opengis.fes.pkg_2.before import Before
-from wfs_2_0_0.net.opengis.fes.pkg_2.begins import Begins
-from wfs_2_0_0.net.opengis.fes.pkg_2.begun_by import BegunBy
-from wfs_2_0_0.net.opengis.fes.pkg_2.beyond import Beyond
-from wfs_2_0_0.net.opengis.fes.pkg_2.contains import Contains
-from wfs_2_0_0.net.opengis.fes.pkg_2.crosses import Crosses
-from wfs_2_0_0.net.opengis.fes.pkg_2.disjoint import Disjoint
-from wfs_2_0_0.net.opengis.fes.pkg_2.during import During
-from wfs_2_0_0.net.opengis.fes.pkg_2.dwithin import Dwithin
-from wfs_2_0_0.net.opengis.fes.pkg_2.ended_by import EndedBy
-from wfs_2_0_0.net.opengis.fes.pkg_2.ends import Ends
-from wfs_2_0_0.net.opengis.fes.pkg_2.equals import Equals
-from wfs_2_0_0.net.opengis.fes.pkg_2.function_type import Function
-from wfs_2_0_0.net.opengis.fes.pkg_2.intersects import Intersects
-from wfs_2_0_0.net.opengis.fes.pkg_2.logic_ops_type import LogicOpsType
-from wfs_2_0_0.net.opengis.fes.pkg_2.meets import Meets
-from wfs_2_0_0.net.opengis.fes.pkg_2.met_by import MetBy
-from wfs_2_0_0.net.opengis.fes.pkg_2.overlapped_by import OverlappedBy
-from wfs_2_0_0.net.opengis.fes.pkg_2.overlaps import Overlaps
-from wfs_2_0_0.net.opengis.fes.pkg_2.property_is_between import PropertyIsBetween
-from wfs_2_0_0.net.opengis.fes.pkg_2.property_is_equal_to import PropertyIsEqualTo
-from wfs_2_0_0.net.opengis.fes.pkg_2.property_is_greater_than import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.after import After
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.any_interacts import (
+    AnyInteracts,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.bbox import Bbox
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.before import Before
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.begins import Begins
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.begun_by import BegunBy
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.beyond import Beyond
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.contains import (
+    Contains,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.crosses import Crosses
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.disjoint import (
+    Disjoint,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.during import During
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.dwithin import Dwithin
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.ended_by import EndedBy
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.ends import Ends
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.equals import Equals
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.function_type import (
+    Function,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.intersects import (
+    Intersects,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.logic_ops_type import (
+    LogicOpsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.meets import Meets
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.met_by import MetBy
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.overlapped_by import (
+    OverlappedBy,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.overlaps import (
+    Overlaps,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.property_is_between import (
+    PropertyIsBetween,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.property_is_equal_to import (
+    PropertyIsEqualTo,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.property_is_greater_than import (
     PropertyIsGreaterThan,
 )
-from wfs_2_0_0.net.opengis.fes.pkg_2.property_is_greater_than_or_equal_to import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.property_is_greater_than_or_equal_to import (
     PropertyIsGreaterThanOrEqualTo,
 )
-from wfs_2_0_0.net.opengis.fes.pkg_2.property_is_less_than import PropertyIsLessThan
-from wfs_2_0_0.net.opengis.fes.pkg_2.property_is_less_than_or_equal_to import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.property_is_less_than import (
+    PropertyIsLessThan,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.property_is_less_than_or_equal_to import (
     PropertyIsLessThanOrEqualTo,
 )
-from wfs_2_0_0.net.opengis.fes.pkg_2.property_is_like import PropertyIsLike
-from wfs_2_0_0.net.opengis.fes.pkg_2.property_is_nil import PropertyIsNil
-from wfs_2_0_0.net.opengis.fes.pkg_2.property_is_not_equal_to import (
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.property_is_like import (
+    PropertyIsLike,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.property_is_nil import (
+    PropertyIsNil,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.property_is_not_equal_to import (
     PropertyIsNotEqualTo,
 )
-from wfs_2_0_0.net.opengis.fes.pkg_2.property_is_null import PropertyIsNull
-from wfs_2_0_0.net.opengis.fes.pkg_2.resource_id import ResourceId
-from wfs_2_0_0.net.opengis.fes.pkg_2.tcontains import Tcontains
-from wfs_2_0_0.net.opengis.fes.pkg_2.tequals import Tequals
-from wfs_2_0_0.net.opengis.fes.pkg_2.touches import Touches
-from wfs_2_0_0.net.opengis.fes.pkg_2.toverlaps import Toverlaps
-from wfs_2_0_0.net.opengis.fes.pkg_2.within import Within
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.property_is_null import (
+    PropertyIsNull,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.resource_id import (
+    ResourceId,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.tcontains import (
+    Tcontains,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.tequals import Tequals
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.touches import Touches
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.toverlaps import (
+    Toverlaps,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.within import Within
 
 __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 
