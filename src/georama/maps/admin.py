@@ -112,7 +112,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
 
         return mark_safe(
             '<a href="{}?{}" target="_blank" class="btn btn-high btn-success"><i class="fas fa-eye text-xs"/></a>'.format(
-                reverse("wms_entry"), self.create_url_params(obj)
+                reverse("ogc_entry"), self.create_url_params(obj)
             )
         )
 

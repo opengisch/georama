@@ -361,9 +361,9 @@ def create_postgres_provider(
 
 def create_resource(published_as: PublishedAsOgcApiFeatures, request: HttpRequest) -> dict:
     editable = (
-        published_as.has_update_permission(request.user, appname)
-        or published_as.has_create_permission(request.user, appname)
-        or published_as.has_delete_permission(request.user, appname)
+        published_as.has_update_permission(request.user)
+        or published_as.has_create_permission(request.user)
+        or published_as.has_delete_permission(request.user)
     )
 
     features_properties = []
@@ -371,7 +371,7 @@ def create_resource(published_as: PublishedAsOgcApiFeatures, request: HttpReques
         features_properties = [
             c.name
             for c in published_as.columns.all()
-            if c.has_general_permission(request.user, appname)
+            if c.has_general_permission(request.user)
         ]
 
     if published_as.dataset.driver.upper() == "POSTGRES":
