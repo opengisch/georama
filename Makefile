@@ -150,6 +150,7 @@ install-dev: $(DEV_REQUIREMENTS)
 serve-dev: $(DEV_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:8080
 
+MANAGE_ACTION="migrate_schemas"
 MANAGE_ACTION="shell_plus"
 .PHONY: manage
 manage: $(PIP_REQUIREMENTS)
@@ -161,7 +162,7 @@ migrate: $(PIP_REQUIREMENTS)
 
 .PHONY: make-migrations
 make-migrations: $(PIP_REQUIREMENTS)
-	$(VENV_BIN)/python src/georama/manage.py makemigrations
+	$(VENV_BIN)/python src/georama/manage.py makemigrations mandants
 
 .PHONY: create-superuser
 create-superuser: $(PIP_REQUIREMENTS) migrate
