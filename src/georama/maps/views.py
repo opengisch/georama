@@ -317,23 +317,12 @@ def wfs_200_capabilities(request: HttpRequest, params: dict) -> HttpResponse:
             )
         ],
     )
-    get_list_stored_queries_operation = Operation(
-        name="ListStoredQueries",
-        dcp=[Dcp(Http(get=[RequestMethodType(href=url)], post=[RequestMethodType(href=url)]))],
-    )
-    get_describe_stored_queries_operation = Operation(
-        name="DescribeStoredQueries",
-        dcp=[Dcp(Http(get=[RequestMethodType(href=url)], post=[RequestMethodType(href=url)]))],
-    )
     operations_metadata = OperationsMetadata(
         operation=[
             get_capability_operation,
             describe_feature_type_operation,
             get_features_operation,
             get_property_value_operation,
-            # TODO: check if we need that really!
-            get_list_stored_queries_operation,
-            get_describe_stored_queries_operation,
         ],
         parameter=[DomainType(name="version", allowed_values=AllowedValues([Value("2.0.0")]))],
         constraint=[
