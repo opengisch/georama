@@ -118,3 +118,7 @@ class Config:
             },
         }
         return json.dumps(capability_config)
+
+
+    def describe_featyures(self):
+        pass
