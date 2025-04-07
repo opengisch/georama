@@ -1,3 +1,4 @@
+import json
 import os
 
 from georama.maps.interfaces.ogc.wms_1_3_0.capabilities import ServiceName
