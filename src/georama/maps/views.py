@@ -17,6 +17,7 @@ from georama.maps.apps import appname
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
+from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 from georama.maps.services.wms_1_3_0.get_capabilities import WmsGetCapabilities
 from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
 
@@ -73,10 +74,47 @@ class OgcServer(View):
                 content_type="application/json",
             )
 
+    def wfs_get_metadata(self, request: HttpRequest, params: dict) -> HttpResponse:
+        requested_layer = params.get("LAYER")
+        language = "en-US"
+        requested_format = params.get("FORMAT", "TEXT/XML")
+        operation = WfsGetMetadata(
+            appname, f'{request.build_absolute_uri("maps")}?', request.user
+        )
+        if requested_layer:
+            if requested_format not in operation.allowed_formats:
+                return HttpResponse(
+                    operation.render_operation_parsing_failed(
+                        f"Format {requested_format} is not allowed. Allowed is {operation.allowed_formats}"
+                    ),
+                    status=400,
+                    content_type="text/xml",
+                )
+            if requested_format == "TEXT/XML":
+                return HttpResponse(
+                    operation.render_xml(operation.get_metadata(requested_layer, language)),
+                    content_type="text/xml",
+                )
+            elif requested_format == "APPLICATION/JSON":
+                return HttpResponse(
+                    operation.render_json(operation.get_metadata(requested_layer, language)),
+                    content_type="application/json",
+                )
+        else:
+            return HttpResponse(
+                operation.render_operation_parsing_failed(
+                    f"Query paramater 'layer' has to be set!"
+                ),
+                status=400,
+                content_type="text/xml",
+            )
+
     def sanitize_query_parameters(self, parameters: dict) -> dict:
         params = {}
         for key in parameters:
             if key.upper() == "LAYERS":
+                params[str(key).upper()] = str(parameters[key])
+            elif key.upper() == "LAYER":
                 params[str(key).upper()] = str(parameters[key])
             else:
                 params[str(key).upper()] = str(parameters[key]).upper()
@@ -116,10 +154,18 @@ class OgcServer(View):
 
         params = self.sanitize_query_parameters(request.GET.dict())
 
-        if "SERVICE" not in params:
-            return HttpResponse("SERVICE parameter is mandatory", 400)
         if "REQUEST" not in params:
             return HttpResponse("REQUEST parameter is mandatory", 400)
+
+        if "SERVICE" not in params:
+            if params["REQUEST"].upper() == "GETMETADATA":
+                return await sync_to_async(self.wfs_get_metadata, thread_sensitive=True)(
+                    request, params
+                )
+            else:
+                return HttpResponse(
+                    "Only request allowed without service param is GetMetadata", 400
+                )
 
         if params["SERVICE"].upper() == "WMS":
             if params["REQUEST"] == "GETCAPABILITIES":

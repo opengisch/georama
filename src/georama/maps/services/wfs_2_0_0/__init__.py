@@ -7,7 +7,9 @@ from georama.maps.services import OgcOperation
 
 
 class WfsOperation(OgcOperation):
-    def obtain_accessible_layers(self) -> List[PublishedAsWms]:
+    def obtain_accessible_layers(
+        self, layer_names: List[str] | None = None
+    ) -> List[PublishedAsWms]:
         accessible_layers = []
         for published_as in PublishedAsWms.objects.all():
             if published_as.has_read_permission(self.user, self.appname):

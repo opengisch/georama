@@ -15,7 +15,7 @@
         <ows:AccessConstraints/>
 
     </ows:ServiceIdentification>
-    <ows:ServiceProvider>
+    <ows:ServiceProvider>c
         <ows:ProviderName/>
 
         <ows:ProviderSite xlink:type="simple" xlink:href=""/>

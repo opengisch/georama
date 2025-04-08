@@ -65,7 +65,8 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             )
         )
 
-    def create_url_params(self, layer: PublishedAsWms) -> str:
+    @staticmethod
+    def create_url_params(layer: PublishedAsWms) -> str:
         dataset = layer.bound_dataset
         bbox = BBox.from_string(dataset.bbox)
         params = QslGetMapRequest(

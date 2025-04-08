@@ -10,6 +10,7 @@ from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.wgs84_bounding_box import (
     Wgs84BoundingBox,
 )
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import MetadataUrltype
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.feature_type_type import (
     FeatureTypeType,
 )
@@ -37,7 +38,7 @@ class WfsGetCapabilities(WfsOperation):
         )
 
     @staticmethod
-    def create_feature_type(name: str, title: str, crs: str, bbox: BBox):
+    def create_feature_type(name: str, title: str, crs: str, bbox: BBox, url: str):
         return FeatureTypeType(
             name=QName(name),
             title=[Title(value=title)],
@@ -56,6 +57,7 @@ class WfsGetCapabilities(WfsOperation):
                     upper_corner=[bbox.x_max, bbox.y_max],
                 )
             ],
+            metadata_url=[MetadataUrltype(href=f"{url}request=GetMetadata&layer={name}")],
         )
 
     def get_capabilities(self) -> WfsCapabilitiesType:
@@ -66,7 +68,7 @@ class WfsGetCapabilities(WfsOperation):
             bbox = BBox.from_string(dataset.bbox_wgs84)
             wfs_capabilities.feature_type_list.feature_type.append(
                 self.create_feature_type(
-                    published_as.name, published_as.title, source_crs.ogc_uri, bbox
+                    published_as.name, published_as.title, source_crs.ogc_uri, bbox, self.url
                 )
             )
         return wfs_capabilities
