@@ -517,3 +517,227 @@ class Config:
             "version": version,
         }
         return wfs_capabilities
+
+    def wfs_get_metadata_config(self, url: str) -> dict:
+        metadata = {
+            "language": {"LocalisedCharacterString": {"value": "en-US"}},
+            "hierarchyLevel": [
+                {
+                    "MD_ScopeCode": {
+                        "value": "dataset",
+                        "codeList": "http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_ScopeCode",
+                        "codeListValue": "dataset",
+                        "codeSpace": "ISOTC211/19115",
+                    }
+                }
+            ],
+            "contact": [
+                {
+                    "CI_ResponsibleParty": {
+                        "id": "contact",
+                        "individualName": {
+                            "LocalisedCharacterString": {
+                                "value": "Fachstelle für Geoinformation"
+                            }
+                        },
+                        "organisationName": {
+                            "LocalisedCharacterString": {
+                                "value": "Grundbuch- und Vermessungsamt"
+                            }
+                        },
+                        "contactInfo": {
+                            "CI_Contact": {
+                                "phone": {
+                                    "CI_Telephone": {
+                                        "voice": [
+                                            {
+                                                "LocalisedCharacterString": {
+                                                    "value": "+41612679953"
+                                                }
+                                            }
+                                        ],
+                                    },
+                                    "type": "simple",
+                                },
+                                "address": {
+                                    "CI_Address": {
+                                        "deliveryPoint": [
+                                            {
+                                                "LocalisedCharacterString": {
+                                                    "value": "Dufourstrasse 40/50, Postfach",
+                                                }
+                                            }
+                                        ],
+                                        "city": {
+                                            "LocalisedCharacterString": {"value": "Basel"}
+                                        },
+                                        "administrativeArea": {
+                                            "LocalisedCharacterString": {
+                                                "value": "Basel-Stadt"
+                                            }
+                                        },
+                                        "postalCode": {
+                                            "LocalisedCharacterString": {"value": "4001"}
+                                        },
+                                        "country": {
+                                            "LocalisedCharacterString": {"value": "Schweiz"}
+                                        },
+                                        "electronicMailAddress": [
+                                            {
+                                                "LocalisedCharacterString": {
+                                                    "value": "geo@bs.ch"
+                                                }
+                                            }
+                                        ],
+                                    },
+                                    "type": "simple",
+                                },
+                                "onlineResource": {
+                                    "CI_OnlineResource": {
+                                        "linkage": {"URL": {"value": "https://wms.geo.bs.ch"}}
+                                    },
+                                    "type": "simple",
+                                },
+                            },
+                            "type": "simple",
+                        },
+                        "role": {
+                            "CI_RoleCode": {
+                                "value": "pointOfContact",
+                                "codeList": "http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode",
+                                "codeListValue": "pointOfContact",
+                                "codeSpace": "ISOTC211/19115",
+                            }
+                        },
+                    },
+                    "type": "simple",
+                }
+            ],
+            "dateStamp": {"nilReason": "missing"},
+            "metadataStandardName": {
+                "LocalisedCharacterString": {
+                    "value": "ISO 19115:2003 - Geographic information - Metadata"
+                }
+            },
+            "metadataStandardVersion": {
+                "LocalisedCharacterString": {
+                    "value": "ISO 19115:2003",
+                }
+            },
+            "distributionInfo": {
+                "MD_Distribution": {
+                    "distributor": [
+                        {
+                            "MD_Distributor": {
+                                "distributorContact": {
+                                    "CI_ResponsibleParty": {
+                                        "id": "contact",
+                                        "individualName": {
+                                            "LocalisedCharacterString": {
+                                                "value": "Fachstelle für Geoinformation"
+                                            }
+                                        },
+                                        "organisationName": {
+                                            "LocalisedCharacterString": {
+                                                "value": "Grundbuch- und Vermessungsamt"
+                                            }
+                                        },
+                                        "contactInfo": {
+                                            "CI_Contact": {
+                                                "phone": {
+                                                    "CI_Telephone": {
+                                                        "voice": [
+                                                            {
+                                                                "LocalisedCharacterString": {
+                                                                    "value": "+41612679953",
+                                                                }
+                                                            }
+                                                        ],
+                                                        "facsimile": [],
+                                                    },
+                                                    "type": "simple",
+                                                },
+                                                "address": {
+                                                    "CI_Address": {
+                                                        "deliveryPoint": [
+                                                            {
+                                                                "LocalisedCharacterString": {
+                                                                    "value": "Dufourstrasse 40/50, Postfach",
+                                                                }
+                                                            }
+                                                        ],
+                                                        "city": {
+                                                            "LocalisedCharacterString": {
+                                                                "value": "Basel",
+                                                            },
+                                                        },
+                                                        "administrativeArea": {
+                                                            "LocalisedCharacterString": {
+                                                                "value": "Basel-Stadt",
+                                                            }
+                                                        },
+                                                        "postalCode": {
+                                                            "LocalisedCharacterString": {
+                                                                "value": "4001",
+                                                            },
+                                                        },
+                                                        "country": {
+                                                            "LocalisedCharacterString": {
+                                                                "value": "Schweiz",
+                                                            },
+                                                        },
+                                                        "electronicMailAddress": [
+                                                            {
+                                                                "LocalisedCharacterString": {
+                                                                    "value": "geo@bs.ch",
+                                                                },
+                                                            }
+                                                        ],
+                                                    },
+                                                    "type": "simple",
+                                                },
+                                                "onlineResource": {
+                                                    "CI_OnlineResource": {
+                                                        "linkage": {
+                                                            "URL": {
+                                                                "value": "https://wms.geo.bs.ch"
+                                                            },
+                                                        },
+                                                    },
+                                                    "type": "simple",
+                                                },
+                                            },
+                                            "type": "simple",
+                                        },
+                                        "role": {
+                                            "CI_RoleCode": {
+                                                "value": "pointOfContact",
+                                                "codeList": "http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode",
+                                                "codeListValue": "pointOfContact",
+                                                "codeSpace": "ISOTC211/19115",
+                                            },
+                                        },
+                                    },
+                                    "type": "simple",
+                                },
+                            },
+                            "type": "simple",
+                        }
+                    ],
+                    "transferOptions": [
+                        {
+                            "MD_DigitalTransferOptions": {
+                                "unitsOfDistribution": {
+                                    "LocalisedCharacterString": {
+                                        "value": "KB",
+                                    },
+                                },
+                            },
+                            "type": "simple",
+                        }
+                    ],
+                },
+                "type": "simple",
+            },
+        }
+        return metadata

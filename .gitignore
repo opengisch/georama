@@ -38,3 +38,5 @@ docs/site
 # GeoGirafe themes.json examples
 map.cartoriviera.ch.json
 mapnv.c.json
+test.py
+dict.py
