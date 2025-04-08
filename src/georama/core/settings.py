@@ -42,9 +42,9 @@ if bool(os.environ.get("GEORAMA_SECURE_PROXY_SSL_HEADER", False)):
 # Application definition
 
 SHARED_APPS = (
+    "jazzmin",
     'django_tenants',  # mandatory
     'mandants.apps.MandantsConfig',
-    "georama.core.apps.CoreConfig",
 
     'django.contrib.contenttypes',
 
@@ -56,7 +56,6 @@ SHARED_APPS = (
     'django.contrib.admin',
 
     # added by DDDPT
-    "jazzmin",
     "django.contrib.staticfiles",
     # apps by webgis
     "allauth",
@@ -68,35 +67,21 @@ SHARED_APPS = (
 )
 
 TENANT_APPS = (
-    'django_tenants',  # mandatory
-    'mandants.apps.MandantsConfig',
     # your tenant-specific apps
+    "jazzmin",
     "georama.core.apps.CoreConfig",
     "georama.features.apps.VectorparrotConfig",
     "georama.maps.apps.RasteroctopusConfig",
     "georama.data_integration.apps.QmeleonConfig",
     "corsheaders",
     "georama.webgis.apps.ClogsConfig",
-
-    'django.contrib.contenttypes',
-
-    # everything below here is optional
-    'django.contrib.auth',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.admin',
-
-    # added by DDDPT
-    "jazzmin",
     "django.contrib.staticfiles",
-    # apps by webgis
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "adminsortable2",
     "treebeard",
-    "django_extensions",
+
 )
 
 INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
@@ -222,3 +207,8 @@ TENANT_DOMAIN_MODEL = "mandants.Domain"  # app.Model
 SHOW_PUBLIC_IF_NO_TENANT_FOUND = True
 
 SITE_ID = 1
+
+# test to see if this reactivates jazzmin
+JAZZMIN_SETTINGS = {
+    "site_title": "GeoRama",
+}
