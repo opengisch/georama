@@ -152,6 +152,11 @@ serve-dev: $(DEV_REQUIREMENTS)
 
 MANAGE_ACTION="migrate_schemas"
 MANAGE_ACTION="shell_plus"
+MANAGE_ACTION="createsuperuser"
+MANAGE_ACTION="create_tenant_superuser"
+MANAGE_ACTION="create_tenant"
+MANAGE_ACTION="show_urls"
+MANAGE_ACTION="create_tenant_superuser"
 .PHONY: manage
 manage: $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py $(MANAGE_ACTION)
@@ -162,7 +167,7 @@ migrate: $(PIP_REQUIREMENTS)
 
 .PHONY: make-migrations
 make-migrations: $(PIP_REQUIREMENTS)
-	$(VENV_BIN)/python src/georama/manage.py makemigrations mandants
+	$(VENV_BIN)/python src/georama/manage.py makemigrations
 
 .PHONY: create-superuser
 create-superuser: $(PIP_REQUIREMENTS) migrate

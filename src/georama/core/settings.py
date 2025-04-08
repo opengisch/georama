@@ -44,6 +44,7 @@ if bool(os.environ.get("GEORAMA_SECURE_PROXY_SSL_HEADER", False)):
 SHARED_APPS = (
     'django_tenants',  # mandatory
     'mandants.apps.MandantsConfig',
+    "georama.core.apps.CoreConfig",
 
     'django.contrib.contenttypes',
 
@@ -67,6 +68,8 @@ SHARED_APPS = (
 )
 
 TENANT_APPS = (
+    'django_tenants',  # mandatory
+    'mandants.apps.MandantsConfig',
     # your tenant-specific apps
     "georama.core.apps.CoreConfig",
     "georama.features.apps.VectorparrotConfig",
@@ -74,6 +77,26 @@ TENANT_APPS = (
     "georama.data_integration.apps.QmeleonConfig",
     "corsheaders",
     "georama.webgis.apps.ClogsConfig",
+
+    'django.contrib.contenttypes',
+
+    # everything below here is optional
+    'django.contrib.auth',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.admin',
+
+    # added by DDDPT
+    "jazzmin",
+    "django.contrib.staticfiles",
+    # apps by webgis
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "adminsortable2",
+    "treebeard",
+    "django_extensions",
 )
 
 INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
@@ -98,7 +121,11 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
 ]
 
+# ROOT_URLCONF: used for tenanting
 ROOT_URLCONF = "georama.core.urls"
+
+# ROOT_URLCONF: used for the public schema
+PUBLIC_SCHEMA_URLCONF = "georama.core.urls_public"
 
 TEMPLATES = [
     {
@@ -191,3 +218,7 @@ APPEND_SLASH = False
 
 TENANT_MODEL = "mandants.Client"  # app.Model
 TENANT_DOMAIN_MODEL = "mandants.Domain"  # app.Model
+
+SHOW_PUBLIC_IF_NO_TENANT_FOUND = True
+
+SITE_ID = 1
