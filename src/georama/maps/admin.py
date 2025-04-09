@@ -65,7 +65,8 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             )
         )
 
-    def create_url_params(self, layer: PublishedAsWms) -> str:
+    @staticmethod
+    def create_url_params(layer: PublishedAsWms) -> str:
         dataset = layer.bound_dataset
         bbox = BBox.from_string(dataset.bbox)
         params = QslGetMapRequest(
@@ -112,7 +113,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
 
         return mark_safe(
             '<a href="{}?{}" target="_blank" class="btn btn-high btn-success"><i class="fas fa-eye text-xs"/></a>'.format(
-                reverse("wms_entry"), self.create_url_params(obj)
+                reverse("ogc_entry"), self.create_url_params(obj)
             )
         )
 

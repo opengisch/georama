@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding="UTF-8" ?>
+<wfs:FeatureCollection
+   xmlns:ms="http://mapserver.gis.umn.edu/mapserver"
+   xmlns:gml="http://www.opengis.net/gml/3.2"
+   xmlns:wfs="http://www.opengis.net/wfs/2.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://mapserver.gis.umn.edu/mapserver http://mapserver-vector.mapserver-vector-prod:80?SERVICE=WFS&amp;VERSION=2.0.0&amp;REQUEST=DescribeFeatureType&amp;TYPENAME=ms:DM_Gebaeudeadresse_DatenmarktAdressen_AdresseFertiggestellt&amp;OUTPUTFORMAT=application%2Fgml%2Bxml%3B%20version%3D3.2 http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd"
+   timeStamp="2025-04-03T14:59:27" numberMatched="unknown" numberReturned="1"
+   next="http://mapserver-vector.mapserver-vector-prod:80?ogcserver=WMS%20BS%20(edit)&amp;SERVICE=WFS&amp;REQUEST=GetFeature&amp;VERSION=2.0.0&amp;TYPENAMES=ms%3ADM_Gebaeudeadresse_DatenmarktAdressen_AdresseFertiggestellt&amp;COUNT=1&amp;SRSNAME=urn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A2056&amp;roles=None&amp;user_id=None&amp;STARTINDEX=1">
+      <wfs:boundedBy>
+      	<gml:Envelope srsName="urn:ogc:def:crs:EPSG::2056">
+      		<gml:lowerCorner>2612904.037000 1266309.151000</gml:lowerCorner>
+      		<gml:upperCorner>2612904.037000 1266309.151000</gml:upperCorner>
+      	</gml:Envelope>
+      </wfs:boundedBy>
+    <wfs:member>
+      <ms:DM_Gebaeudeadresse_DatenmarktAdressen_AdresseFertiggestellt gml:id="DM_Gebaeudeadresse_DatenmarktAdressen_AdresseFertiggestellt.1801009612">
+        <gml:boundedBy>
+        	<gml:Envelope srsName="urn:ogc:def:crs:EPSG::2056">
+        		<gml:lowerCorner>2612904.037000 1266309.151000</gml:lowerCorner>
+        		<gml:upperCorner>2612904.037000 1266309.151000</gml:upperCorner>
+        	</gml:Envelope>
+        </gml:boundedBy>
+        <ms:the_geom>
+          <gml:Point gml:id="DM_Gebaeudeadresse_DatenmarktAdressen_AdresseFertiggestellt.1801009612.1" srsName="urn:ogc:def:crs:EPSG::2056">
+            <gml:pos>2612904.037000 1266309.151000</gml:pos>
+          </gml:Point>
+        </ms:the_geom>
+        <ms:dm_gebaeudeadresselaufnummer>786</ms:dm_gebaeudeadresselaufnummer>
+        <ms:dm_eidgidentifikator>0</ms:dm_eidgidentifikator>
+        <ms:dm_gebaeudenummerbfs>443836</ms:dm_gebaeudenummerbfs>
+        <ms:dm_gebaeudestatus_txt>Gebäude fertiggestellt</ms:dm_gebaeudestatus_txt>
+        <ms:dm_strassenname>Adlerstrasse</ms:dm_strassenname>
+        <ms:dm_hausnummerkey>7</ms:dm_hausnummerkey>
+        <ms:dm_postleitzahl>4052</ms:dm_postleitzahl>
+        <ms:dm_ort>Basel</ms:dm_ort>
+        <ms:dm_strassenid>1</ms:dm_strassenid>
+      </ms:DM_Gebaeudeadresse_DatenmarktAdressen_AdresseFertiggestellt>
+    </wfs:member>
+</wfs:FeatureCollection>

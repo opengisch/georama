@@ -1,0 +1,67 @@
+from dataclasses import dataclass, field
+from typing import Optional
+
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.comparison_ops_type import (
+    ComparisonOpsType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.function_type import (
+    Function,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.literal import Literal
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.lower_boundary_type import (
+    LowerBoundaryType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.upper_boundary_type import (
+    UpperBoundaryType,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.value_reference import (
+    ValueReference,
+)
+
+__NAMESPACE__ = "http://www.opengis.net/fes/2.0"
+
+
+@dataclass
+class PropertyIsBetweenType(ComparisonOpsType):
+    literal: Optional[Literal] = field(
+        default=None,
+        metadata={
+            "name": "Literal",
+            "type": "Element",
+            "namespace": "http://www.opengis.net/fes/2.0",
+        },
+    )
+    function: Optional[Function] = field(
+        default=None,
+        metadata={
+            "name": "Function",
+            "type": "Element",
+            "namespace": "http://www.opengis.net/fes/2.0",
+        },
+    )
+    value_reference: Optional[ValueReference] = field(
+        default=None,
+        metadata={
+            "name": "ValueReference",
+            "type": "Element",
+            "namespace": "http://www.opengis.net/fes/2.0",
+        },
+    )
+    lower_boundary: Optional[LowerBoundaryType] = field(
+        default=None,
+        metadata={
+            "name": "LowerBoundary",
+            "type": "Element",
+            "namespace": "http://www.opengis.net/fes/2.0",
+            "required": True,
+        },
+    )
+    upper_boundary: Optional[UpperBoundaryType] = field(
+        default=None,
+        metadata={
+            "name": "UpperBoundary",
+            "type": "Element",
+            "namespace": "http://www.opengis.net/fes/2.0",
+            "required": True,
+        },
+    )

@@ -3,7 +3,7 @@ from django.urls import path
 from georama.maps import views
 
 urlpatterns = [
-    path("", views.entry, name="wms_entry"),
+    path("", views.OgcServer.as_view(), name="ogc_entry"),
     path(
         "/publish_as/wms/raster/<str:dataset_id>",
         views.admin_publish_raster_as_wms,
