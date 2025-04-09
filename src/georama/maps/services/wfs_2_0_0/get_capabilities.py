@@ -10,7 +10,10 @@ from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.wgs84_bounding_box import (
     Wgs84BoundingBox,
 )
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import MetadataUrltype
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
+    MetadataUrltype,
+    WfsCapabilities,
+)
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.feature_type_type import (
     FeatureTypeType,
 )
@@ -18,9 +21,6 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.output_format_l
     OutputFormatListType,
 )
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.title import Title
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.wfs_capabilities_type import (
-    WfsCapabilitiesType,
-)
 from georama.maps.maps_config import Config
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 
@@ -30,12 +30,10 @@ class WfsGetCapabilities(WfsOperation):
     def allowed_formats(self) -> List[str]:
         return ["TEXT/XML", "APPLICATION/JSON"]
 
-    def get_capabilities_body(self) -> WfsCapabilitiesType:
+    def get_capabilities_body(self) -> WfsCapabilities:
         config = Config()
         decoder = DictDecoder()
-        return decoder.decode(
-            config.wfs_2_0_0_capabilities_config(self.url), WfsCapabilitiesType
-        )
+        return decoder.decode(config.wfs_2_0_0_capabilities_config(self.url), WfsCapabilities)
 
     @staticmethod
     def create_feature_type(name: str, title: str, crs: str, bbox: BBox, url: str):
@@ -60,7 +58,7 @@ class WfsGetCapabilities(WfsOperation):
             metadata_url=[MetadataUrltype(href=f"{url}request=GetMetadata&layer={name}")],
         )
 
-    def get_capabilities(self) -> WfsCapabilitiesType:
+    def get_capabilities(self) -> WfsCapabilities:
         wfs_capabilities = self.get_capabilities_body()
         for published_as in self.obtain_accessible_layers():
             dataset = published_as.vector_dataset
@@ -74,7 +72,7 @@ class WfsGetCapabilities(WfsOperation):
         return wfs_capabilities
 
     @staticmethod
-    def render_xml(capabilities: WfsCapabilitiesType) -> str:
+    def render_xml(capabilities: WfsCapabilities) -> str:
         serializer = XmlSerializer()
         return serializer.render(
             capabilities,
@@ -88,11 +86,11 @@ class WfsGetCapabilities(WfsOperation):
         )
 
     @staticmethod
-    def render_json(capabilities: WfsCapabilitiesType) -> str:
+    def render_json(capabilities: WfsCapabilities) -> str:
         serializer = JsonSerializer()
         return serializer.render(capabilities)
 
-    def render(self, requested_format: str, capabilities: WfsCapabilitiesType) -> str | None:
+    def render(self, requested_format: str, capabilities: WfsCapabilities) -> str | None:
         if requested_format == "TEXT/XML":
             return self.render_xml(capabilities)
         elif requested_format == "APPLICATION/JSON":
