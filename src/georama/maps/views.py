@@ -20,6 +20,7 @@ from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
 from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 from georama.maps.services.wms_1_3_0.get_capabilities import WmsGetCapabilities
 from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
+from georama.src.georama.maps.services.wfs_2_0_0.get_property_value import WfsGetPropertyValue
 
 log = logging.getLogger(__name__)
 
@@ -120,6 +121,32 @@ class OgcServer(View):
                 params[str(key).upper()] = str(parameters[key]).upper()
         return params
 
+    def wfs_get_property_value(self, request: HttpRequest, params: dict):
+        requested_format = params.get("FORMAT", "TEXT/XML")
+        operation = WfsGetPropertyValue(
+            appname, f'{request.build_absolute_uri("maps")}?', request.user
+        )
+
+        if requested_format not in operation.allowed_formats:
+            return HttpResponse(
+                operation.render_operation_parsing_failed(
+                    f"Format {requested_format} is not allowed. Allowed is {operation.allowed_formats}"
+                ),
+                status=400,
+                content_type="text/xml",
+            )
+        if requested_format == "TEXT/XML":
+            return HttpResponse(
+                operation.render_xml(operation.get_property_value()),
+                content_type="text/xml",
+            )
+        elif requested_format == "APPLICATION/JSON":
+            # ?remove json?
+            return HttpResponse(
+                operation.render_json(operation.get_property_value()),
+                content_type="application/json",
+            )
+
     def extract_layers(
         self, request: HttpRequest, service_params: WmsGetMapParams
     ) -> tuple[list[Raster], list[Vector], list[Custom], float]:
@@ -193,13 +220,16 @@ class OgcServer(View):
             result = await redis_queue.post(job, config.job_timeout)
             return HttpResponse(result.data, result.content_type)
         elif params["SERVICE"].upper() == "WFS":
+            if params.get("VERSION", "2.0.0") != "2.0.0":                
+                return HttpResponse("Only VERSION 2.0.0 is available", 400)
             if params["REQUEST"] == "GETCAPABILITIES":
-                if params.get("VERSION", "2.0.0") == "2.0.0":
-                    return await sync_to_async(
-                        self.wfs_200_capabilities, thread_sensitive=True
-                    )(request, params)
-                else:
-                    return HttpResponse("Only VERSION 2.0.0 is available", 400)
+                return await sync_to_async(
+                    self.wfs_200_capabilities, thread_sensitive=True
+                )(request, params)
+            if params["REQUEST"] == "GETPROPERTYVALUE":
+                return await sync_to_async(
+                    self.wfs_get_property_value, thread_sensitive=True
+                )(request, params)
         else:
             return HttpResponse("Only WMS|WFS Service is available", 400)
 
