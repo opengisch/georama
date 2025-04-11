@@ -20,6 +20,7 @@ from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
 from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 from georama.maps.services.wms_1_3_0.get_capabilities import WmsGetCapabilities
 from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
+from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
 
 log = logging.getLogger(__name__)
 
@@ -108,6 +109,46 @@ class OgcServer(View):
                 status=400,
                 content_type="text/xml",
             )
+
+    def wfs_200_describefeaturetype(self, request: HttpRequest, params: dict) -> HttpResponse:
+        requested_layer = params.get("TYPENAME")
+        requested_format = params.get("outputFormat", "TEXT/XML").upper()
+        operation = WfsDescribeFeatureType(
+            appname, f'{request.build_absolute_uri("maps")}?', request.user
+        )
+        print(">> wfs describefeaturetype: ")
+        print(params)
+        print(requested_layer)
+        print(requested_format)
+
+        if requested_layer:
+            if requested_format not in operation.allowed_formats:
+                return HttpResponse(
+                    operation.render_operation_parsing_failed(
+                        f"Format {requested_format} is not allowed. Allowed is {operation.allowed_formats}"
+                    ),
+                    status=400,
+                    content_type="text/xml",
+                )
+            if requested_format == "TEXT/XML":
+                return HttpResponse(
+                    operation.render_xml(operation.describe_feature_type(requested_layer)),
+                    content_type="text/xml",
+                )
+            elif requested_format == "APPLICATION/JSON":
+                return HttpResponse(
+                    operation.render_json(operation.describe_feature_type(requested_layer)),
+                    content_type="application/json",
+                )
+        else:
+            return HttpResponse(
+                operation.render_operation_parsing_failed(
+                    f"Query paramater 'layer' has to be set!"
+                ),
+                status=400,
+                content_type="text/xml",
+            )
+
 
     def sanitize_query_parameters(self, parameters: dict) -> dict:
         params = {}
@@ -206,6 +247,15 @@ class OgcServer(View):
                     )(request, params)
                 else:
                     return HttpResponse("Only VERSION 2.0.0 is available", 400)
+            elif params["REQUEST"] == "DESCRIBEFEATURETYPE":
+                if params.get("VERSION", "2.0.0") == "2.0.0":
+                    return await sync_to_async(
+                        self.wfs_200_describefeaturetype, thread_sensitive=True
+                    )(request, params)
+                else:
+                    return HttpResponse("Only VERSION 2.0.0 is available", 400)
+            else:
+                return HttpResponse("Not supported operation", 403)
         else:
             return HttpResponse("Only WMS|WFS Service is available", 400)
 
