@@ -19,4 +19,9 @@ class WfsOperation(OgcOperation):
                     logging.debug(
                         "linked dataset has to be VectorDataSet for WFS 2.0.0, all others are ignored!"
                     )
+
+        # if layer_names in query, return only the needed ones
+        if layer_names:
+            accessible_layers = [x for x in accessible_layers if x.vector_dataset.name.upper() in layer_names]
+
         return accessible_layers
