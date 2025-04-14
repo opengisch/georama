@@ -13,9 +13,21 @@ from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 
-@lru_cache(maxsize=None)
-class ConvertDBTypesToXML:
-    pg_to_xml_map = {
+class DBtoXMLTypeMapper:
+    """
+    Class to convert Postgres DB types to XML types.
+
+    I used timeit to test the performance of the two methods, if the cache makes sense.
+
+    For 1_000_000 runs:
+    Uncached method time: 0.9060 seconds
+    Cached method time:   0.0667 seconds
+
+    For 100_000_000 runs:
+    Uncached method time: 95.7776 seconds
+    Cached method time:   8.7083 seconds
+    """
+    _PG_TO_XML_MAP = {
         # Numeric types
         'smallint': 'xs:short',
         'integer': 'xs:int',
@@ -107,14 +119,26 @@ class ConvertDBTypesToXML:
         'regtype': 'xs:string',
     }
 
+    @staticmethod
     @lru_cache(maxsize=None)
-    def remove_trailing_numbers(self, s:str) -> str:
+    def remove_trailing_numbers(s:str) -> str:
         return re.sub(r'\d+$', '', s)
 
+    @staticmethod
     @lru_cache(maxsize=None)
-    def convert(self, db_type:str) -> str:
+    def convert(db_type:str) -> str:
         print(db_type)
-        return self.pg_to_xml_map[self.remove_trailing_numbers(db_type.lower())]
+        sanitized_db_type = DBtoXMLTypeMapper.remove_trailing_numbers(db_type.lower())
+        if sanitized_db_type in DBtoXMLTypeMapper._PG_TO_XML_MAP:
+            return DBtoXMLTypeMapper._PG_TO_XML_MAP[sanitized_db_type]
+        else:
+            raise Exception(f"Type {db_type} is not supported!")
+
+
+
+# loading the converter globally
+converter = DBtoXMLTypeMapper()
+
 
 class WfsDescribeFeatureType(WfsOperation):
     @property
@@ -129,8 +153,6 @@ class WfsDescribeFeatureType(WfsOperation):
         print(type(found_layers))
         found_layer = found_layers[0]
         print(type(found_layer))
-
-        converter = ConvertDBTypesToXML()
 
         dft = Schema()
 
@@ -163,6 +185,7 @@ class WfsDescribeFeatureType(WfsOperation):
 
                 for column in layer.vector_dataset.fields.all():
                     xml_type = converter.convert(column.type)
+                    print(column.vector_dataset)
                     el = Element(
                         name=column.name,
                         type=xml_type,
@@ -202,3 +225,4 @@ class WfsDescribeFeatureType(WfsOperation):
         else:
             logging.debug("No matching Format was found.")
             return None
+
