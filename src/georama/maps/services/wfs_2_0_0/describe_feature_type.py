@@ -191,7 +191,8 @@ class WfsDescribeFeatureType(WfsOperation):
                         type=xml_type,
                         min_occurs=0,
                         max_occurs=1
-                        # Typemapping, type, minouccurs, etc
+                        # Todo: how to determinate min- maxoccurs, nillable and abstract
+                        # Todo: Typemapping, type, minouccurs, etc
                     )
                     cplxtype.complex_content.extension.sequence.elements.append(el)
 
