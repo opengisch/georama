@@ -123,6 +123,7 @@ class OgcServer(View):
 
     def wfs_get_property_value(self, request: HttpRequest, params: dict):
         requested_format = params.get("FORMAT", "TEXT/XML")
+        
         operation = WfsGetPropertyValue(
             appname, f'{request.build_absolute_uri("maps")}?', request.user
         )
@@ -194,7 +195,7 @@ class OgcServer(View):
                     "Only request allowed without service param is GetMetadata", 400
                 )
 
-        if params["SERVICE"].upper() == "WMS":
+        if params["SERVICE"] == "WMS":
             if params["REQUEST"] == "GETCAPABILITIES":
                 if params.get("VERSION", "1.3.0") == "1.3.0":
                     return await sync_to_async(
@@ -219,7 +220,7 @@ class OgcServer(View):
             config = Config()
             result = await redis_queue.post(job, config.job_timeout)
             return HttpResponse(result.data, result.content_type)
-        elif params["SERVICE"].upper() == "WFS":
+        elif params["SERVICE"] == "WFS":
             if params.get("VERSION", "2.0.0") != "2.0.0":                
                 return HttpResponse("Only VERSION 2.0.0 is available", 400)
             if params["REQUEST"] == "GETCAPABILITIES":
@@ -227,6 +228,10 @@ class OgcServer(View):
                     self.wfs_200_capabilities, thread_sensitive=True
                 )(request, params)
             if params["REQUEST"] == "GETPROPERTYVALUE":
+                if "TYPENAMES" not in params:
+                    return HttpResponse("WFS GetPropertyValue: TYPENAMES URL parameter missing", 400)
+                if "VALUEREFERENCE" not in params:
+                    return HttpResponse("WFS GetPropertyValue: VALUEREFERENCE URL parameter missing", 400)
                 return await sync_to_async(
                     self.wfs_get_property_value, thread_sensitive=True
                 )(request, params)
