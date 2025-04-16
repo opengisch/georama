@@ -114,6 +114,8 @@ class OgcServer(View):
         for key in parameters:
             if key.upper() == "LAYERS":
                 params[str(key).upper()] = str(parameters[key])
+            elif key.upper() == "STYLES":
+                params[str(key).upper()] = str(parameters[key])
             elif key.upper() == "LAYER":
                 params[str(key).upper()] = str(parameters[key])
             else:
@@ -180,9 +182,13 @@ class OgcServer(View):
                 operation = WmsGetMap(
                     appname, f'{request.build_absolute_uri("maps")}?', request.user
                 )
-                job = await sync_to_async(
-                    operation.prepare_job_content, thread_sensitive=True
-                )(service_params)
+                try:
+                    job = await sync_to_async(
+                        operation.prepare_job_content, thread_sensitive=True
+                    )(service_params)
+                except ValueError as e:
+                    return HttpResponse(e, 400)
+
             elif params["REQUEST"] == "GETFEATUREINFO":
                 # this needs to be improved a bit, currently the layers are not sent to QSL.
                 service_params = WmsGetFeatureInfoParams.from_overloaded_dict(params)

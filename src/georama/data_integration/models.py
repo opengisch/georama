@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os.path
+from typing import List
 
 from django.db import models
 from qgis_server_light.interface.qgis import (
@@ -9,6 +10,7 @@ from qgis_server_light.interface.qgis import (
     Custom,
     DataSource,
     Raster,
+    Style,
     Vector,
 )
 from xsdata.formats.dataclass.parsers import DictDecoder
@@ -54,7 +56,7 @@ class DataSet(models.Model):
     bbox_wgs84 = models.CharField(max_length=1000)
     path = models.CharField(max_length=10000)
     source = models.JSONField(default=dict)
-    style = models.TextField()
+    styles = models.JSONField(default=dict)
     # TODO: implement ENUM (wms, ogr, gdal, etc.)
     driver = models.CharField(max_length=50)
     # TODO: implement ENUM (raster, vector)
@@ -110,9 +112,9 @@ class VectorDataSet(DataSet):
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),
             path=path,
-            style=self.style,
             driver=self.driver,
             source=datasource,
+            styles=DictDecoder().decode(self.styles, List[Style]),
             id=self.qgis_layer_id,
             crs=self.crs_to_qsl,
             minimum_scale=self.minimum_scale,
@@ -143,9 +145,9 @@ class RasterDataSet(DataSet):
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),
             path=path,
-            style=self.style,
             driver=self.driver,
             source=datasource,
+            styles=DictDecoder().decode(self.styles, List[Style]),
             id=self.qgis_layer_id,
             crs=self.crs_to_qsl,
             minimum_scale=self.minimum_scale,
@@ -176,9 +178,9 @@ class CustomDataSet(DataSet):
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),
             path=path,
-            style=self.style,
             driver=self.driver,
             source=datasource,
+            styles=DictDecoder().decode(self.styles, List[Style]),
             id=self.qgis_layer_id,
             crs=self.crs_to_qsl,
             minimum_scale=self.minimum_scale,
