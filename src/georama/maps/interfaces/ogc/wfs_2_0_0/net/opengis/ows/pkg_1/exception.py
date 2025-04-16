@@ -9,5 +9,6 @@ __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 
 @dataclass
 class Exception(ExceptionType):
+    # TODISCUSS: dangerous class name?? always import with an alias solves it?
     class Meta:
         namespace = "http://www.opengis.net/ows/1.1"

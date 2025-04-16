@@ -29,10 +29,30 @@ class OgcOperation:
         return ExceptionReport(exception=[Exception(exception_text=[message])])
 
     def render_operation_parsing_failed(self, message: str) -> str:
+        """Renders the WFS OperationParsigFailed error
+        
+        Should return HTTP status code 400
+        """
         serializer = XmlSerializer()
         return serializer.render(
             self.create_operation_parsing_failed(
-                f"Format {message} is not allowed. Allowed is {self.allowed_formats}"
+                f"Operation parsing failed:  {message}"
+            ),
+            ns_map={
+                None: "http://www.opengis.net/wms",
+                "xlink": "http://www.w3.org/1999/xlink",
+            },
+        )
+    
+    def render_operation_processing_failed(self, message: str) -> str:
+        """Renders the WFS OperationParsigFailed error
+        
+        Should return HTTP status code 403
+        """
+        serializer = XmlSerializer()
+        return serializer.render(
+            self.create_operation_parsing_failed(
+                f"Operation processing failed: {message}"
             ),
             ns_map={
                 None: "http://www.opengis.net/wms",

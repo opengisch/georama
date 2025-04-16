@@ -20,7 +20,7 @@ from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
 from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 from georama.maps.services.wms_1_3_0.get_capabilities import WmsGetCapabilities
 from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
-from georama.src.georama.maps.services.wfs_2_0_0.get_property_value import WfsGetPropertyValue
+from georama.maps.services.wfs_2_0_0.get_property_value import WfsGetPropertyValue
 
 log = logging.getLogger(__name__)
 
@@ -118,7 +118,7 @@ class OgcServer(View):
             elif key.upper() == "LAYER":
                 params[str(key).upper()] = str(parameters[key])
             else:
-                params[str(key).upper()] = str(parameters[key]).upper()
+                params[str(key).upper()] = str(parameters[key])
         return params
 
     def wfs_get_property_value(self, request: HttpRequest, params: dict):
@@ -136,15 +136,26 @@ class OgcServer(View):
                 status=400,
                 content_type="text/xml",
             )
+
+        try:
+            property_values = operation.get_property_value(params)
+        except Exception as e:
+            return HttpResponse(
+                operation.render_operation_processing_failed(
+                    str(e)
+                ),
+                status=403,
+                content_type="text/xml",
+            )
+
         if requested_format == "TEXT/XML":
             return HttpResponse(
-                operation.render_xml(operation.get_property_value()),
+                operation.render_xml(property_values),
                 content_type="text/xml",
             )
         elif requested_format == "APPLICATION/JSON":
-            # ?remove json?
             return HttpResponse(
-                operation.render_json(operation.get_property_value()),
+                operation.render_json(property_values),
                 content_type="application/json",
             )
 
@@ -195,15 +206,15 @@ class OgcServer(View):
                     "Only request allowed without service param is GetMetadata", 400
                 )
 
-        if params["SERVICE"] == "WMS":
-            if params["REQUEST"] == "GETCAPABILITIES":
-                if params.get("VERSION", "1.3.0") == "1.3.0":
+        if params["SERVICE"].upper() == "WMS":
+            if params["REQUEST"].upper() == "GETCAPABILITIES":
+                if params.get("VERSION".upper(), "1.3.0") == "1.3.0":
                     return await sync_to_async(
                         self.wms_130_capabilities, thread_sensitive=True
                     )(request, params)
                 else:
                     return HttpResponse("Only VERSION 1.3.0 is available", 400)
-            elif params["REQUEST"] == "GETMAP":
+            elif params["REQUEST"].upper() == "GETMAP":
                 service_params = WmsGetMapParams.from_overloaded_dict(params)
                 operation = WmsGetMap(
                     appname, f'{request.build_absolute_uri("maps")}?', request.user
@@ -211,7 +222,7 @@ class OgcServer(View):
                 job = await sync_to_async(
                     operation.prepare_job_content, thread_sensitive=True
                 )(service_params)
-            elif params["REQUEST"] == "GETFEATUREINFO":
+            elif params["REQUEST"].upper() == "GETFEATUREINFO":
                 # this needs to be improved a bit, currently the layers are not sent to QSL.
                 service_params = WmsGetFeatureInfoParams.from_overloaded_dict(params)
                 job = QslGetFeatureInfoJob(service_params=service_params)
@@ -220,14 +231,14 @@ class OgcServer(View):
             config = Config()
             result = await redis_queue.post(job, config.job_timeout)
             return HttpResponse(result.data, result.content_type)
-        elif params["SERVICE"] == "WFS":
+        elif params["SERVICE"].upper() == "WFS":
             if params.get("VERSION", "2.0.0") != "2.0.0":                
                 return HttpResponse("Only VERSION 2.0.0 is available", 400)
-            if params["REQUEST"] == "GETCAPABILITIES":
+            if params["REQUEST"].upper() == "GETCAPABILITIES":
                 return await sync_to_async(
                     self.wfs_200_capabilities, thread_sensitive=True
                 )(request, params)
-            if params["REQUEST"] == "GETPROPERTYVALUE":
+            if params["REQUEST"].upper() == "GETPROPERTYVALUE":
                 if "TYPENAMES" not in params:
                     return HttpResponse("WFS GetPropertyValue: TYPENAMES URL parameter missing", 400)
                 if "VALUEREFERENCE" not in params:
