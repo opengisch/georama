@@ -7,10 +7,32 @@ from georama.maps.services.wms_1_3_0 import WmsOperation
 
 
 class WmsGetMap(WmsOperation):
+    default_style_name = "default"
+
     def __init__(self, appname: str, url: str, user):
         super().__init__(appname, url, user)
 
-    def prepare_job_content(self, service_params: WmsGetMapParams) -> QslGetMapJob:
+    def prepare_job_content(self, service_params: WmsGetMapParams) -> QslGetMapJob | str:
+        if not service_params.styles:
+            logging.debug(
+                "No styles were passed to the request, so we apply the default styles to all layers"
+            )
+            styles = [self.default_style_name] * len(service_params.layers)
+        else:
+            logging.debug("There were styles in the request. Processing them further...")
+            styles = service_params.styles
+            if len(styles) != len(service_params.layers):
+                logging.debug(
+                    "Layer and Style in query param are of different length. We stop here."
+                )
+                raise ValueError(
+                    "Each passed layer needs a corresponding style (comma separated lists need to be of same length)."
+                )
+        for index, style in enumerate(styles.copy()):
+            if style == "":
+                styles[index] = self.default_style_name
+        # finally we set the styles to the parameter to pass them to QSL
+        service_params.STYLES = ",".join(styles)
         # we pass the requested layers to filter DB objects
         accessible_published_as = self.obtain_accessible_layers(service_params.layers)
 
@@ -23,7 +45,7 @@ class WmsGetMap(WmsOperation):
             vector_layers=[],
             custom_layers=[],
         )
-        for published_as in accessible_published_as:
+        for index, published_as in enumerate(accessible_published_as):
             dataset = published_as.bound_dataset
             qsl_instance = dataset.to_qsl
             if isinstance(qsl_instance, Raster):

@@ -2,6 +2,7 @@ from typing import List
 
 from qgis_server_light.interface.qgis import BBox
 from qgis_server_light.interface.qgis import Crs as QslCrs
+from qgis_server_light.interface.qgis import Style as QslStyle
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 
@@ -36,7 +37,13 @@ class WmsGetCapabilities(WmsOperation):
 
     @staticmethod
     def create_layer(
-        name: str, title: str, description: str, crs: str, bbox: BBox, bbox_wgs84: BBox
+        name: str,
+        title: str,
+        description: str,
+        crs: str,
+        bbox: BBox,
+        bbox_wgs84: BBox,
+        styles: List[str],
     ) -> Layer:
         bbox_object_storage = BoundingBox(
             crs=crs,
@@ -68,7 +75,10 @@ class WmsGetCapabilities(WmsOperation):
             ex_geographic_bounding_box=ex_geographic_bounding_box_object,
             bounding_box=[bbox_object_storage, bbox_object_84],
             # TODO: We can obtain information about available styles from passed QML
-            style=[Style(name=Name("default"), title=Title("Default"))],
+            style=[
+                Style(name=Name(style_name), title=Title(style_name.title()))
+                for style_name in styles
+            ],
         )
 
     def get_capabilities(self) -> WmsCapabilities:
@@ -76,6 +86,7 @@ class WmsGetCapabilities(WmsOperation):
         for published_as in self.obtain_accessible_layers():
             dataset = published_as.bound_dataset
             source_crs = DictDecoder().decode(dataset.crs, QslCrs)
+            styles = DictDecoder().decode(dataset.styles, List[QslStyle])
             bbox = BBox.from_string(dataset.bbox)
             bbox_wgs84 = BBox.from_string(dataset.bbox_wgs84)
             layer = self.create_layer(
@@ -85,6 +96,7 @@ class WmsGetCapabilities(WmsOperation):
                 source_crs.auth_id,
                 bbox,
                 bbox_wgs84,
+                [style.name for style in styles],
             )
             capabilities.capability.layer.layer.append(layer)
 
