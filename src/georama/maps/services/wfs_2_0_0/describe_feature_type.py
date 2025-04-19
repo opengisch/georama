@@ -1,207 +1,131 @@
-import re
 import logging
-from functools import lru_cache
-from typing import List
-from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
-from xsdata.formats.dataclass.parsers import DictDecoder
-from xsdata.models.xsd import ComplexType, ComplexContent, Extension, Sequence, Element, Schema
+from typing import List, Tuple
 
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.describe_feature_type import \
-    DescribeFeatureType
-from georama.maps.maps_config import Config
+from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
+from xsdata.formats.dataclass.serializers.config import SerializerConfig
+from xsdata.models.xsd import (
+    ComplexContent,
+    ComplexType,
+    Element,
+    Extension,
+    Import,
+    Schema,
+    Sequence,
+)
+
+from georama.data_integration.models import VectorDataSet
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0 import WfsOperation
-
-
-class DBtoXMLTypeMapper:
-    """
-    Class to convert Postgres DB types to XML types.
-
-    I used timeit to test the performance of the two methods, if the cache makes sense.
-
-    For 1_000_000 runs:
-    Uncached method time: 0.9060 seconds
-    Cached method time:   0.0667 seconds
-
-    For 100_000_000 runs:
-    Uncached method time: 95.7776 seconds
-    Cached method time:   8.7083 seconds
-    """
-    _PG_TO_XML_MAP = {
-        # Numeric types
-        'smallint': 'xs:short',
-        'integer': 'xs:int',
-        'bigint': 'xs:long',
-        'decimal': 'xs:decimal',
-        'numeric': 'xs:decimal',
-        'real': 'xs:float',
-        'double precision': 'xs:double',
-        'money': 'xs:decimal',
-
-        # Character types
-        'character varying': 'xs:string',
-        'varchar': 'xs:string',
-        'character': 'xs:string',
-        'char': 'xs:string',
-        'text': 'xs:string',
-        'string': 'xs:string',
-        'citext': 'xs:string',
-
-        # Boolean type
-        'boolean': 'xs:boolean',
-
-        # Date/time types
-        'date': 'xs:date',
-        'timestamp': 'xs:dateTime',
-        'timestamp without time zone': 'xs:dateTime',
-        'timestamp with time zone': 'xs:dateTime',
-        'time': 'xs:time',
-        'time without time zone': 'xs:time',
-        'time with time zone': 'xs:time',
-        'interval': 'xs:duration',
-
-        # Binary types
-        'bytea': 'xs:base64Binary',
-
-        # UUID
-        'uuid': 'xs:string',
-
-        # JSON types
-        'json': 'xs:string',  # or 'xs:anyType' for flexibility
-        'jsonb': 'xs:string',
-
-        # XML
-        'xml': 'xs:string',
-
-        # Network types
-        'inet': 'xs:string',
-        'cidr': 'xs:string',
-        'macaddr': 'xs:string',
-        'macaddr8': 'xs:string',
-
-        # Enumerated type
-        'enum': 'xs:string',  # can be customized per enum
-
-        # Arrays (map base types, you can detect `_int4`, `_text`, etc.)
-        '_int4': 'xs:int',  # integer[]
-        '_text': 'xs:string',  # text[]
-        '_varchar': 'xs:string',  # varchar[]
-        '_bool': 'xs:boolean',  # boolean[]
-        '_uuid': 'xs:string',  # uuid[]
-        '_float8': 'xs:double',  # double precision[]
-        '_numeric': 'xs:decimal',  # numeric[]
-
-        # PostGIS types (GML or xs:string fallback)
-        'geometry': 'gml:GeometryPropertyType',
-        'geography': 'gml:GeometryPropertyType',
-        'point': 'gml:PointPropertyType',
-        'linestring': 'gml:LineStringPropertyType',
-        'polygon': 'gml:PolygonPropertyType',
-        'multipoint': 'gml:MultiPointPropertyType',
-        'multilinestring': 'gml:MultiLineStringPropertyType',
-        'multipolygon': 'gml:MultiPolygonPropertyType',
-        'geometrycollection': 'gml:GeometryCollectionPropertyType',
-
-        # Rasters (could also be GML, or left out if unsupported)
-        'raster': 'xs:base64Binary',
-
-        # Range types (stored as string or special representation)
-        'int4range': 'xs:string',
-        'numrange': 'xs:string',
-        'tsrange': 'xs:string',
-        'tstzrange': 'xs:string',
-        'daterange': 'xs:string',
-
-        # Others
-        'name': 'xs:string',
-        'oid': 'xs:unsignedLong',
-        'regclass': 'xs:string',
-        'regtype': 'xs:string',
-    }
-
-    @staticmethod
-    @lru_cache(maxsize=None)
-    def remove_trailing_numbers(s:str) -> str:
-        return re.sub(r'\d+$', '', s)
-
-    @staticmethod
-    @lru_cache(maxsize=None)
-    def convert(db_type:str) -> str:
-        print(db_type)
-        sanitized_db_type = DBtoXMLTypeMapper.remove_trailing_numbers(db_type.lower())
-        if sanitized_db_type in DBtoXMLTypeMapper._PG_TO_XML_MAP:
-            return DBtoXMLTypeMapper._PG_TO_XML_MAP[sanitized_db_type]
-        else:
-            raise Exception(f"Type {db_type} is not supported!")
-
-
-
-# loading the converter globally
-converter = DBtoXMLTypeMapper()
 
 
 class WfsDescribeFeatureType(WfsOperation):
     @property
     def allowed_formats(self) -> List[str]:
-        return ["TEXT/XML", "APPLICATION/JSON"]
+        return [
+            "APPLICATION/GML+XML; VERSION=3.2",
+            "TEXT/XML",
+            "APPLICATION/JSON",
+            "TEXT/JSON",
+        ]
 
+    def obtain_accessible_layers(self, layer_names: List[str] | None = None):
+        accessible_layers = []
+        # we do want only published vector datasets!
+        query = PublishedAsWms.objects.exclude(vector_dataset__isnull=True)
+        if layer_names:
+            query = query.filter(name__in=layer_names)
+        for published_as in query:
+            if published_as.has_read_permission(self.user, self.appname):
+                accessible_layers.append(published_as)
+        return accessible_layers
 
+    def prepare_geometry_column(self, dataset: VectorDataSet):
+        if dataset.geometry_type_wkb in ["Point", "Point25D"]:
+            column_type = "gml:PointPropertyType"
+        elif dataset.geometry_type_wkb in ["LineString", "LineString25D"]:
+            column_type = "gml:LineStringPropertyType"
+        elif dataset.geometry_type_wkb in ["Polygon", "Polygon25D"]:
+            column_type = "gml:PolygonPropertyType"
+        elif dataset.geometry_type_wkb in ["MultiPoint", "MultiPoint25D"]:
+            column_type = "gml:MultiPointPropertyType"
+        elif dataset.geometry_type_wkb in [
+            "MultiCurve",
+            "MultiLineString",
+            "MultiLineString25D",
+        ]:
+            column_type = "gml:MultiCurvePropertyType"
+        elif dataset.geometry_type_wkb in ["MultiSurface", "MultiPolygon", "MultiPolygon25D"]:
+            column_type = "gml:MultiSurfacePropertyType"
+        else:
+            logging.debug(
+                f"We casted to generic type since no match was available for type: '{dataset.geometry_type_wkb}'"
+            )
+            column_type = "gml:GeometryPropertyType"
+        return Element(
+            name="geometry",
+            type=column_type,
+            min_occurs=0,
+            max_occurs=1,
+            # TODO: Find out how to set this!
+            # alias="Geometry"
+        )
 
-    def describe_feature_type(self, layer_name: str) -> Schema | None:
-        print("layer_name", layer_name)
-        found_layers = self.obtain_accessible_layers([layer_name])
-        print(type(found_layers))
-        found_layer = found_layers[0]
-        print(type(found_layer))
+    def describe_feature_type(self, type_names: List[str] | None) -> Schema | None:
+        # typename is a comma separated list
+        found_layers = self.obtain_accessible_layers(type_names)
 
-        dft = Schema()
+        dft = Schema(
+            imports=[
+                Import(
+                    schema_location="http://schemas.opengis.net/gml/2.1.2/feature.xsd",
+                    namespace="http://www.opengis.net/gml",
+                )
+            ]
+        )
 
         for layer in found_layers:
-            if found_layer.vector_dataset:
-                print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                print(found_layer.vector_dataset.name)
-
-
-
-                # el = Element(
-                #     name=f'{found_layer.name}',
-                #     type=f'georama:{found_layer.name}Type',
-                #     substitution_group="gml:AbstractFeature"
-                # )
-
-                cplxtype = ComplexType(
-                    name=f'{layer.name}Type',
-                    complex_content=ComplexContent(
-                        extension=Extension(
-                            base="gml:AbstractFeatureType",
-                            sequence=Sequence(
-                                elements=[
-
-                                ]
-                            )
-                        )
-                    )
+            dft.elements.append(
+                Element(
+                    name=f"{layer.name}",
+                    type=f"georama:{layer.name}Type",
+                    substitution_group="gml:AbstractFeature",
                 )
-
-                for column in layer.vector_dataset.fields.all():
-                    xml_type = converter.convert(column.type)
-                    print(column.vector_dataset)
-                    el = Element(
-                        name=column.name,
-                        type=xml_type,
-                        min_occurs=0,
-                        max_occurs=1
-                        # Todo: how to determinate min- maxoccurs, nillable and abstract
-                        # Todo: Typemapping, type, minouccurs, etc
+            )
+            complex_type = ComplexType(
+                name=f"{layer.name}Type",
+                complex_content=ComplexContent(
+                    extension=Extension(
+                        base="gml:AbstractFeatureType",
+                        sequence=Sequence(
+                            elements=[
+                                # we can directly go for the vector dataset here since we checked it already
+                                self.prepare_geometry_column(layer.vector_dataset)
+                            ]
+                        ),
                     )
-                    cplxtype.complex_content.extension.sequence.elements.append(el)
+                ),
+            )
+            dft.complex_types.append(complex_type)
 
-                dft.complex_types = [cplxtype]
-            return dft
+            for column in layer.vector_dataset.fields.all():
+                el = Element(
+                    name=column.name,
+                    type=column.type_simple,
+                    min_occurs=0 if column.nullable else 1,
+                    max_occurs=1,
+                    nillable=column.nullable
+                    # TODO: Find out how to set this!
+                    # alias=column.alias
+                )
+                complex_type.complex_content.extension.sequence.elements.append(el)
+        return dft
 
-    @staticmethod
-    def render_xml(described_feature_type) -> str:
-        serializer = XmlSerializer()
+    def render_xml(self, described_feature_type) -> str:
+        serializer = XmlSerializer(
+            config=SerializerConfig(
+                xml_declaration=True, xml_version="1.0", ignore_default_attributes=True
+            )
+        )
         return serializer.render(
             described_feature_type,
             ns_map={
@@ -210,20 +134,35 @@ class WfsDescribeFeatureType(WfsOperation):
                 "fes": "http://www.opengis.net/fes/2.0",
                 "ows": "http://www.opengis.net/ows/1.1",
                 "xsi": "http://www.w3.org/2001/XMLSchema-instance",
+                "georama": "https://www.opengis.ch/georama",
+                "gml": "http://www.opengis.net/gml/3.2",
             },
         )
 
     @staticmethod
     def render_json(described_feature_type) -> str:
-        serializer = JsonSerializer()
+        serializer = JsonSerializer(
+            SerializerConfig(ignore_default_attributes=True, pretty_print=True)
+        )
         return serializer.render(described_feature_type)
 
-    def render(self, requested_format: str, described_feature_type) -> str | None:
+    def render(
+        self, requested_format: str, described_feature_type: Schema
+    ) -> Tuple[str, str, bool]:
         if requested_format == "TEXT/XML":
-            return self.render_xml(described_feature_type)
+            return self.render_xml(described_feature_type), requested_format.lower(), True
+        elif requested_format == "APPLICATION/GML+XML; VERSION=3.2":
+            return self.render_xml(described_feature_type), requested_format.lower(), True
         elif requested_format == "APPLICATION/JSON":
-            return self.render_json(described_feature_type)
+            return self.render_json(described_feature_type), requested_format.lower(), True
+        elif requested_format == "TEXT/JSON":
+            return self.render_json(described_feature_type), requested_format.lower(), True
         else:
             logging.debug("No matching Format was found.")
-            return None
-
+            return (
+                self.render_operation_parsing_failed(
+                    f"Format {requested_format} is not allowed. Allowed is {self.allowed_formats}"
+                ),
+                "text/xml",
+                False,
+            )

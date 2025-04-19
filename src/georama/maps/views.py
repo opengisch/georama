@@ -16,11 +16,11 @@ from georama.data_integration.models import CustomDataSet, RasterDataSet, Vector
 from georama.maps.apps import appname
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
+from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
 from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
 from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 from georama.maps.services.wms_1_3_0.get_capabilities import WmsGetCapabilities
 from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
-from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
 
 log = logging.getLogger(__name__)
 
@@ -111,44 +111,31 @@ class OgcServer(View):
             )
 
     def wfs_200_describefeaturetype(self, request: HttpRequest, params: dict) -> HttpResponse:
+        # refering spec document `TYPENAME` is a comma separated list of *layers* which should be described
+        # it is an optional query parameter
         requested_layer = params.get("TYPENAME")
-        requested_format = params.get("outputFormat", "TEXT/XML").upper()
+        if requested_layer:
+            requested_layer = requested_layer.split(",")
+        requested_format = params.get(
+            "OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2"
+        ).upper()
         operation = WfsDescribeFeatureType(
             appname, f'{request.build_absolute_uri("maps")}?', request.user
         )
-        print(">> wfs describefeaturetype: ")
-        print(params)
-        print(requested_layer)
-        print(requested_format)
-
-        if requested_layer:
-            if requested_format not in operation.allowed_formats:
-                return HttpResponse(
-                    operation.render_operation_parsing_failed(
-                        f"Format {requested_format} is not allowed. Allowed is {operation.allowed_formats}"
-                    ),
-                    status=400,
-                    content_type="text/xml",
-                )
-            if requested_format == "TEXT/XML":
-                return HttpResponse(
-                    operation.render_xml(operation.describe_feature_type(requested_layer)),
-                    content_type="text/xml",
-                )
-            elif requested_format == "APPLICATION/JSON":
-                return HttpResponse(
-                    operation.render_json(operation.describe_feature_type(requested_layer)),
-                    content_type="application/json",
-                )
+        content, content_type, success = operation.render(
+            requested_format, operation.describe_feature_type(requested_layer)
+        )
+        if not success:
+            return HttpResponse(
+                content,
+                status=400,
+                content_type=content_type,
+            )
         else:
             return HttpResponse(
-                operation.render_operation_parsing_failed(
-                    f"Query paramater 'layer' has to be set!"
-                ),
-                status=400,
-                content_type="text/xml",
+                content,
+                content_type=content_type,
             )
-
 
     def sanitize_query_parameters(self, parameters: dict) -> dict:
         params = {}
@@ -156,6 +143,8 @@ class OgcServer(View):
             if key.upper() == "LAYERS":
                 params[str(key).upper()] = str(parameters[key])
             elif key.upper() == "STYLES":
+                params[str(key).upper()] = str(parameters[key])
+            elif key.upper() == "TYPENAME":
                 params[str(key).upper()] = str(parameters[key])
             elif key.upper() == "LAYER":
                 params[str(key).upper()] = str(parameters[key])

@@ -102,6 +102,8 @@ class RegisterQgisProject(View):
                     crs=DictEncoder().encode(layer.crs),
                     minimum_scale=layer.minimum_scale,
                     maximum_scale=layer.maximum_scale,
+                    geometry_type_simple=layer.geometry_type_simple,
+                    geometry_type_wkb=layer.geometry_type_wkb,
                 )
             else:
                 # we found the dataset in the database and we update it
@@ -118,17 +120,29 @@ class RegisterQgisProject(View):
                     crs=DictEncoder().encode(layer.crs),
                     minimum_scale=layer.minimum_scale,
                     maximum_scale=layer.maximum_scale,
+                    geometry_type_simple=layer.geometry_type_simple,
+                    geometry_type_wkb=layer.geometry_type_wkb,
                 )
             vector_dataset.save()
             for field in layer.fields:
                 # loop through all fields in config
                 field_qs = Field.objects.filter(
-                    name=field.name, type=field.type, vector_dataset=vector_dataset
+                    name=field.name,
+                    type=field.type,
+                    type_simple=field.type_simple,
+                    alias=field.alias,
+                    nullable=field.nullable,
+                    vector_dataset=vector_dataset,
                 )
                 if not field_qs.exists():
                     # assure field does not exist in db
                     Field(
-                        name=field.name, type=field.type, vector_dataset=vector_dataset
+                        name=field.name,
+                        type=field.type,
+                        type_simple=field.type_simple,
+                        alias=field.alias,
+                        nullable=field.nullable,
+                        vector_dataset=vector_dataset,
                     ).save()
             # finally get rid of old objects in the database which are not in the config anymore
             for field_db in Field.objects.filter(vector_dataset=vector_dataset).all():
