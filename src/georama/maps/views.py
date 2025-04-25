@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from django.views import View
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import (
+    JobResult,
     QslGetFeatureInfoJob,
     WmsGetFeatureInfoParams,
     WmsGetMapParams,
@@ -18,6 +19,7 @@ from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
 from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
+from georama.maps.services.wfs_2_0_0.get_feature import WfsGetFeature
 from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 from georama.maps.services.wms_1_3_0.get_capabilities import WmsGetCapabilities
 from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
@@ -151,6 +153,38 @@ class OgcServer(View):
                 content_type=content_type,
             )
 
+    async def wfs_200_getfeature(self, request: HttpRequest, params: dict) -> HttpResponse:
+        operation = WfsGetFeature(
+            appname, f'{request.build_absolute_uri("maps")}?', request.user
+        )
+        get_feature_parameter = operation.query_parameters_to_get_feature_request(params)
+
+        job = await sync_to_async(
+            operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True
+        )(get_feature_parameter)
+        result: JobResult = await self.redis_queue_instance.post(job, Config().job_timeout)
+        content, content_type, success = operation.render(
+            get_feature_parameter.output_format,
+            operation.getfeature(
+                # we use only one query here, since this is implemented for URL GET query params
+                # TODO: This has to be improved for XML body via POST
+                get_feature_parameter,
+                result,
+            ),
+            operation.unwrap_type_names(get_feature_parameter),
+        )
+        if not success:
+            return HttpResponse(
+                content,
+                status=400,
+                content_type=content_type,
+            )
+        else:
+            return HttpResponse(
+                content,
+                content_type=content_type,
+            )
+
     def sanitize_query_parameters(self, parameters: dict) -> dict:
         params = {}
         for key in parameters:
@@ -159,6 +193,12 @@ class OgcServer(View):
             elif key.upper() == "STYLES":
                 params[str(key).upper()] = str(parameters[key])
             elif key.upper() == "TYPENAME":
+                params[str(key).upper()] = str(parameters[key])
+            elif key.upper() == "TYPENAMES":
+                params[str(key).upper()] = str(parameters[key])
+            elif key.upper() == "ALIASES":
+                params[str(key).upper()] = str(parameters[key])
+            elif key.upper() == "FILTER":
                 params[str(key).upper()] = str(parameters[key])
             elif key.upper() == "LAYER":
                 params[str(key).upper()] = str(parameters[key])
@@ -252,20 +292,20 @@ class OgcServer(View):
                     content_type="text/plain",
                 )
         elif params["SERVICE"].upper() == "WFS":
+            if params.get("VERSION", "2.0.0") == "2.0.0":
+                pass
+            else:
+                return HttpResponse("Only VERSION 2.0.0 is available", 400)
             if params["REQUEST"] == "GETCAPABILITIES":
-                if params.get("VERSION", "2.0.0") == "2.0.0":
-                    return await sync_to_async(
-                        self.wfs_200_capabilities, thread_sensitive=True
-                    )(request, params)
-                else:
-                    return HttpResponse("Only VERSION 2.0.0 is available", 400)
+                return await sync_to_async(self.wfs_200_capabilities, thread_sensitive=True)(
+                    request, params
+                )
             elif params["REQUEST"] == "DESCRIBEFEATURETYPE":
-                if params.get("VERSION", "2.0.0") == "2.0.0":
-                    return await sync_to_async(
-                        self.wfs_200_describefeaturetype, thread_sensitive=True
-                    )(request, params)
-                else:
-                    return HttpResponse("Only VERSION 2.0.0 is available", 400)
+                return await sync_to_async(
+                    self.wfs_200_describefeaturetype, thread_sensitive=True
+                )(request, params)
+            elif params["REQUEST"] == "GETFEATURE":
+                return await self.wfs_200_getfeature(request, params)
             else:
                 return HttpResponse("Not supported operation", 403)
         else:
