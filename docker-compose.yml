@@ -35,7 +35,7 @@ services:
     image: redis:7.4.0
   qsl:
     restart: unless-stopped
-    image: opengisch/qgis-server-light:dev
+    image: ghcr.io/opengisch/qgis-server-light:latest
     env_file:
       - .env
     volumes:
