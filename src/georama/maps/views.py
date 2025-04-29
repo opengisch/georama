@@ -165,7 +165,7 @@ class OgcServer(View):
         result: JobResult = await self.redis_queue_instance.post(job, Config().job_timeout)
         content, content_type, success = operation.render(
             get_feature_parameter.output_format,
-            operation.getfeature(
+            operation.get_feature(
                 # we use only one query here, since this is implemented for URL GET query params
                 # TODO: This has to be improved for XML body via POST
                 get_feature_parameter,
