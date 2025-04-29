@@ -366,7 +366,7 @@ class WfsGetFeature(WfsOperation):
             namespace = "https://www.opengis.ch/georama"
 
         for feature_collection in qsl_query_collection.feature_collections:
-            for feature in feature_collection.features:
+            for index, feature in enumerate(feature_collection.features):
                 fields = []
                 feature_dict = {}
                 for attribute in feature.attributes:
@@ -394,7 +394,9 @@ class WfsGetFeature(WfsOperation):
                 feature_object.geometry = self.prepare_geometry(
                     feature.geometry_as_bytes(), get_feature_parameter
                 )
-                feature_object.id = "TEST"
+                # this has to be unique
+                # TODO: How do we do that? Using the PK of the data?
+                feature_object.id = f"TEST.{index}"
                 wfs_feature_collection.member.append(Member(content=[feature_object]))
         return wfs_feature_collection
 
