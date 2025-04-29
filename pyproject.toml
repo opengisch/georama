@@ -63,6 +63,7 @@ dependencies = [
     "async-timeout==4.0.3",
     "redis==5.0.8",
     "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@implement-wfs-get-feature",
+    "geomet==1.1.0",
     # deps for webgis
     "django-allauth==0.63.3",
     "django-cors-headers==4.3.1",

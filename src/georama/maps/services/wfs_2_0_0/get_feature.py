@@ -25,11 +25,13 @@ post-->xsdata-->getfeature_class
 import datetime
 import logging
 import re
-from typing import List, Tuple
+from dataclasses import field, make_dataclass
+from typing import List, Tuple, Union
 
+from geomet import wkb
 from qgis_server_light.interface.job import FeatureQuery, JobResult, QslGetFeatureJob
 from qgis_server_light.interface.qgis import QueryCollection
-from xsdata.formats.dataclass.parsers import DictDecoder, XmlParser
+from xsdata.formats.dataclass.parsers import JsonParser, XmlParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
@@ -47,7 +49,20 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.value_reference
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
     FeatureCollection,
     GetFeature,
+    Member,
     Query,
+)
+from georama.maps.interfaces.opengis.gml_3_2_1 import (
+    Exterior,
+    GeometryMember,
+    GeometryMembers,
+    Interior,
+    LinearRing,
+    LineString,
+    MultiPoint,
+    Point,
+    PointMembers,
+    Polygon,
 )
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0 import WfsOperation
@@ -279,11 +294,108 @@ class WfsGetFeature(WfsOperation):
             queries=qsl_feature_queries,
         )
 
+    def prepare_geometry(
+        self, geometry_wkb_definition: bytes, get_feature_parameter: GetFeature
+    ) -> GeometryMember | GeometryMembers:
+        geojson_dict = wkb.loads(geometry_wkb_definition)
+        srs_name = get_feature_parameter.query[0].srs_name.lower()
+        if geojson_dict["type"] == "Point":
+            return GeometryMember(
+                point=Point(srs_name=srs_name, pos=" ".join(geojson_dict["coordinates"]))
+            )
+        elif geojson_dict["type"] == "MultiPoint":
+            point_members = []
+            for point_pos in geojson_dict["coordinates"]:
+                point_members.append(Point(pos=" ".join(point_pos)))
+            return GeometryMembers(
+                multi_point=[
+                    MultiPoint(
+                        srs_name=srs_name, point_members=PointMembers(point=point_members)
+                    )
+                ]
+            )
+        elif geojson_dict["type"] == "LineString":
+            return GeometryMember(
+                line_string=LineString(
+                    srs_name=srs_name, pos_list=" ".join(geojson_dict["coordinates"])
+                )
+            )
+        elif geojson_dict["type"] == "MultiLineString":
+            # TODO: ...
+            raise NotImplementedError(f"Currently not implemented: {geojson_dict['type']}")
+        elif geojson_dict["type"] == "Polygon":
+            polygon = Polygon(
+                srs_name=srs_name,
+                exterior=Exterior(
+                    linear_ring=LinearRing(
+                        pos_list=" ".join(
+                            [
+                                " ".join(map(str, inner))
+                                for inner in geojson_dict["coordinates"][0]
+                            ]
+                        )
+                    )
+                ),
+            )
+            if len(geojson_dict["coordinates"]) > 1:
+                for interior in geojson_dict["coordinates"][1:]:
+                    polygon.interior.append(
+                        Interior(
+                            linear_ring=LinearRing(
+                                pos_list=" ".join(
+                                    [" ".join(map(str, inner)) for inner in interior]
+                                )
+                            )
+                        )
+                    )
+            return GeometryMember(polygon=polygon)
+        elif geojson_dict["type"] == "MultiPolygon":
+            # TODO: ...
+            raise NotImplementedError(f"Currently not implemented: {geojson_dict['type']}")
+        elif geojson_dict["type"] == "GeometryCollection":
+            # TODO: ...
+            raise NotImplementedError(f"Currently not implemented: {geojson_dict['type']}")
+        else:
+            raise NotImplementedError(f"Currently not implemented: {geojson_dict['type']}")
+
     def get_feature(self, get_feature_parameter: GetFeature, result: JobResult):
         wfs_feature_collection = FeatureCollection()
-        qsl_query_collection = DictDecoder().decode(result.data, QueryCollection)
-        for query in qsl_query_collection:
-            pass
+        qsl_query_collection = JsonParser().from_bytes(result.data, QueryCollection)
+
+        class GeoramaMeta:
+            namespace = "https://www.opengis.ch/georama"
+
+        for feature_collection in qsl_query_collection.feature_collections:
+            for feature in feature_collection.features:
+                fields = []
+                feature_dict = {}
+                for attribute in feature.attributes:
+                    fields.append((attribute.name, type(attribute.value)))
+                    feature_dict[attribute.name] = attribute.value
+                fields.append(
+                    (
+                        "id",
+                        str,
+                        field(
+                            default=None,
+                            metadata={
+                                "type": "Attribute",
+                                "namespace": "http://www.opengis.net/gml/3.2",
+                            },
+                        ),
+                    )
+                )
+                fields.append(
+                    ("geometry", Union[GeometryMember, GeometryMembers], field(default=None))
+                )
+                feature_dataclass = make_dataclass(feature_collection.name, fields=fields)
+                feature_dataclass.Meta = GeoramaMeta
+                feature_object = feature_dataclass(**feature_dict)
+                feature_object.geometry = self.prepare_geometry(
+                    feature.geometry_as_bytes(), get_feature_parameter
+                )
+                feature_object.id = "TEST"
+                wfs_feature_collection.member.append(Member(content=[feature_object]))
         return wfs_feature_collection
 
     def render_xml(
