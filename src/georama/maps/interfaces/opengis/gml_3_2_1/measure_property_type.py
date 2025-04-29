@@ -1,0 +1,65 @@
+from dataclasses import dataclass, field
+from typing import Optional
+
+from georama.maps.interfaces.opengis.gml_3_2_1.angle_1 import Angle1
+from georama.maps.interfaces.opengis.gml_3_2_1.distance import Distance
+from georama.maps.interfaces.opengis.gml_3_2_1.length import Length
+from georama.maps.interfaces.opengis.gml_3_2_1.measure_1 import Measure1
+from georama.maps.interfaces.opengis.gml_3_2_1.scale import Scale
+
+__NAMESPACE__ = "http://www.isotc211.org/2005/gco"
+
+
+@dataclass
+class MeasurePropertyType:
+    class Meta:
+        name = "Measure_PropertyType"
+
+    scale: Optional[Scale] = field(
+        default=None,
+        metadata={
+            "name": "Scale",
+            "type": "Element",
+            "namespace": "http://www.isotc211.org/2005/gco",
+        },
+    )
+    angle: Optional[Angle1] = field(
+        default=None,
+        metadata={
+            "name": "Angle",
+            "type": "Element",
+            "namespace": "http://www.isotc211.org/2005/gco",
+        },
+    )
+    distance: Optional[Distance] = field(
+        default=None,
+        metadata={
+            "name": "Distance",
+            "type": "Element",
+            "namespace": "http://www.isotc211.org/2005/gco",
+        },
+    )
+    length: Optional[Length] = field(
+        default=None,
+        metadata={
+            "name": "Length",
+            "type": "Element",
+            "namespace": "http://www.isotc211.org/2005/gco",
+        },
+    )
+    measure: Optional[Measure1] = field(
+        default=None,
+        metadata={
+            "name": "Measure",
+            "type": "Element",
+            "namespace": "http://www.isotc211.org/2005/gco",
+        },
+    )
+    nil_reason: Optional[str] = field(
+        default=None,
+        metadata={
+            "name": "nilReason",
+            "type": "Attribute",
+            "namespace": "http://www.isotc211.org/2005/gco",
+        },
+    )
