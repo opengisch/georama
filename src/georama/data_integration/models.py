@@ -106,6 +106,8 @@ class VectorDataSet(DataSet):
         related_query_name="vector_dataset",
         on_delete=models.CASCADE,
     )
+    geometry_type_simple = models.CharField(max_length=1000, null=False, default="UNSET")
+    geometry_type_wkb = models.CharField(max_length=1000, null=False, default="UNSET")
 
     @property
     def to_qsl(self) -> Vector:
@@ -123,6 +125,8 @@ class VectorDataSet(DataSet):
             crs=self.crs_to_qsl,
             minimum_scale=self.minimum_scale,
             maximum_scale=self.maximum_scale,
+            geometry_type_simple=self.geometry_type_simple,
+            geometry_type_wkb=self.geometry_type_wkb,
         )
 
 
@@ -201,6 +205,9 @@ class Field(models.Model):
 
     name = models.CharField(null=False, max_length=1000)
     type = models.CharField(null=False, max_length=1000)
+    type_simple = models.CharField(null=False, default="UNSET", max_length=1000)
+    alias = models.CharField(null=False, default="UNSET", max_length=1000)
+    nullable = models.BooleanField(null=False, default=True)
     vector_dataset = models.ForeignKey(
         VectorDataSet,
         related_name="fields",
