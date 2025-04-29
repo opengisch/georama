@@ -16,6 +16,7 @@ from georama.data_integration.models import CustomDataSet, RasterDataSet, Vector
 from georama.maps.apps import MapsConfig
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
+from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
 from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
 from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 from georama.maps.services.wms_1_3_0.get_capabilities import WmsGetCapabilities
@@ -113,12 +114,41 @@ class OgcServer(View):
                 content_type="text/xml",
             )
 
+    def wfs_200_describefeaturetype(self, request: HttpRequest, params: dict) -> HttpResponse:
+        # refering spec document `TYPENAME` is a comma separated list of *layers* which should be described
+        # it is an optional query parameter
+        requested_layer = params.get("TYPENAME")
+        if requested_layer:
+            requested_layer = requested_layer.split(",")
+        requested_format = params.get(
+            "OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2"
+        ).upper()
+        operation = WfsDescribeFeatureType(
+            appname, f'{request.build_absolute_uri("maps")}?', request.user
+        )
+        content, content_type, success = operation.render(
+            requested_format, operation.describe_feature_type(requested_layer)
+        )
+        if not success:
+            return HttpResponse(
+                content,
+                status=400,
+                content_type=content_type,
+            )
+        else:
+            return HttpResponse(
+                content,
+                content_type=content_type,
+            )
+
     def sanitize_query_parameters(self, parameters: dict) -> dict:
         params = {}
         for key in parameters:
             if key.upper() == "LAYERS":
                 params[str(key).upper()] = str(parameters[key])
             elif key.upper() == "STYLES":
+                params[str(key).upper()] = str(parameters[key])
+            elif key.upper() == "TYPENAME":
                 params[str(key).upper()] = str(parameters[key])
             elif key.upper() == "LAYER":
                 params[str(key).upper()] = str(parameters[key])
@@ -212,6 +242,15 @@ class OgcServer(View):
                     )(request, params)
                 else:
                     return HttpResponse("Only VERSION 2.0.0 is available", 400)
+            elif params["REQUEST"] == "DESCRIBEFEATURETYPE":
+                if params.get("VERSION", "2.0.0") == "2.0.0":
+                    return await sync_to_async(
+                        self.wfs_200_describefeaturetype, thread_sensitive=True
+                    )(request, params)
+                else:
+                    return HttpResponse("Only VERSION 2.0.0 is available", 400)
+            else:
+                return HttpResponse("Not supported operation", 403)
         else:
             return HttpResponse("Only WMS|WFS Service is available", 400)
 

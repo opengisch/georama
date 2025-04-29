@@ -149,13 +149,25 @@ class RegisterQgisProject(View):
             for field in layer.fields:
 
                 field_qs = Field.objects.filter(
-                    name=field.name, type=field.type, vector_dataset=dataset
+                    name=field.name,
+                    type=field.type,
+                    type_simple=field.type_simple,
+                    alias=field.alias,
+                    nullable=field.nullable,
+                    vector_dataset=dataset,
                 )
                 if not field_qs.exists():
                     logging.debug(
                         f"   New Field {field.name} (type: {field.type}) will be added."
                     )
-                    field = Field(name=field.name, type=field.type, vector_dataset=dataset)
+                    field = Field(
+                        name=field.name,
+                        type=field.type,
+                        type_simple=field.type_simple,
+                        alias=field.alias,
+                        nullable=field.nullable,
+                        vector_dataset=dataset,
+                    )
                 else:
                     logging.debug(
                         f"   Field {field.name} (type: {field.type}) was found and will be updated."
@@ -163,6 +175,9 @@ class RegisterQgisProject(View):
                     field = field_qs.get()
                     field.name = field.name
                     field.type = field.type
+                    field.type_simple = field.type_simple
+                    field.alias = field.alias
+                    field.nullable = field.nullable
                     field.vector_dataset = dataset
                 field.save()
                 logging.debug(
