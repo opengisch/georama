@@ -141,6 +141,8 @@ class RegisterQgisProject(View):
             dataset.crs = DictEncoder().encode(layer.crs)
             dataset.minimum_scale = layer.minimum_scale
             dataset.maximum_scale = layer.maximum_scale
+            dataset.geometry_type_simple = layer.geometry_type_simple
+            dataset.geometry_type_wkb = layer.geometry_type_wkb
             dataset.save()
             logging.debug(
                 f" ✓ Dataset {layer.name} (qgis-layer-id: {layer.id}) was written to DB successfully."
