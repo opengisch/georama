@@ -176,19 +176,3 @@ create-superuser: $(PIP_REQUIREMENTS) migrate
 .PHONY: pin-deps
 pin-deps: $(CHECK_REQUIREMENTS) $(TEST_REQUIREMENTS)
 	pip freeze --all > $(PINNED_DEPS)
-
-# This target depends on the original $(PINNED_DEPS) being created first.
-$(PINNED_DEPS_FOR_CI): $(PINNED_DEPS)
-    @echo "Creating CI-specific requirements file: $(PINNED_DEPS_FOR_CI) from $(PINNED_DEPS)"
-    @# Step 1: Read $(PINNED_DEPS), filter out any existing pygeoapi AND qgis-server-light git+ lines,
-    @# and write the result to $(PINNED_DEPS_FOR_CI).
-    sed -e '/^pygeoapi @ git+/d' -e '/^qgis-server-light @ git+/d' $(PINNED_DEPS) > $(PINNED_DEPS_FOR_CI)
-    @# Step 2: Append the desired branch reference lines for both packages
-    @echo "$(PYGEOAPI_BRANCH_SPEC)" >> $(PINNED_DEPS_FOR_CI)
-    @echo "$(QGIS_SERVER_LIGHT_BRANCH_SPEC)" >> $(PINNED_DEPS_FOR_CI)
-    @echo "$(PINNED_DEPS_FOR_CI) created successfully."
-
-# Phony target to easily create the CI requirements file
-.PHONY: prepare-ci-reqs
-prepare-ci-reqs: $(PINNED_DEPS_FOR_CI)
-    @echo "CI requirements file is ready at $(PINNED_DEPS_FOR_CI)."
