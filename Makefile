@@ -12,7 +12,13 @@ PYTHON_PATH = $(shell which python3)
 PYTHON_VERSION = $(shell printf '%b' "import sys\nprint(f'{sys.version_info.major}.{sys.version_info.minor}')" | $$(which python3))
 EDITABLE_GEORAMA_PATH = $(VENV_PATH)/lib/python$(PYTHON_VERSION)/site-packages/editable_georama.pth
 PINNED_DEPS ?= reqs.txt
+PINNED_DEPS_FOR_CI ?= reqs-for-ci.txt # CI-specific requirements file
 
+# Define the exact pygeoapi line you want in the CI requirements (branch reference)
+PYGEOAPI_BRANCH_SPEC = pygeoapi @ git+https://github.com/opengisch/pygeoapi.git@respect-property-setting-in-ogr-provider#egg=pygeoapi
+
+# Define the exact qgis-server-light line you want in the CI requirements (branch reference)
+QGIS_SERVER_LIGHT_BRANCH_SPEC = qgis-server-light @ git+https://github.com/opengisch/qgis-server-light.git@master#egg=qgis-server-light
 
 QGIS_PY_PATH ?= /usr/share/qgis/python
 
@@ -170,3 +176,19 @@ create-superuser: $(PIP_REQUIREMENTS) migrate
 .PHONY: pin-deps
 pin-deps: $(CHECK_REQUIREMENTS) $(TEST_REQUIREMENTS)
 	pip freeze --all > $(PINNED_DEPS)
+
+# This target depends on the original $(PINNED_DEPS) being created first.
+$(PINNED_DEPS_FOR_CI): $(PINNED_DEPS)
+    @echo "Creating CI-specific requirements file: $(PINNED_DEPS_FOR_CI) from $(PINNED_DEPS)"
+    @# Step 1: Read $(PINNED_DEPS), filter out any existing pygeoapi AND qgis-server-light git+ lines,
+    @# and write the result to $(PINNED_DEPS_FOR_CI).
+    sed -e '/^pygeoapi @ git+/d' -e '/^qgis-server-light @ git+/d' $(PINNED_DEPS) > $(PINNED_DEPS_FOR_CI)
+    @# Step 2: Append the desired branch reference lines for both packages
+    @echo "$(PYGEOAPI_BRANCH_SPEC)" >> $(PINNED_DEPS_FOR_CI)
+    @echo "$(QGIS_SERVER_LIGHT_BRANCH_SPEC)" >> $(PINNED_DEPS_FOR_CI)
+    @echo "$(PINNED_DEPS_FOR_CI) created successfully."
+
+# Phony target to easily create the CI requirements file
+.PHONY: prepare-ci-reqs
+prepare-ci-reqs: $(PINNED_DEPS_FOR_CI)
+    @echo "CI requirements file is ready at $(PINNED_DEPS_FOR_CI)."
