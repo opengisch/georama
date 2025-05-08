@@ -49,7 +49,8 @@ dependencies = [
     # cli tooling
     "click==8.1.7",
     # pygeoapi and its friends
-    "pygeoapi @ git+https://github.com/opengisch/pygeoapi.git@respect-property-setting-in-ogr-provider",
+#    "pygeoapi @ git+https://github.com/opengisch/pygeoapi.git@respect-property-setting-in-ogr-provider",
+    "pygeoapi @ git+https://github.com/opengisch/pygeoapi.git@2820b20c6d8d68b5358ac7b6a3cca47c1ee98bd1",
     "psycopg2",
     "geoalchemy2",
     # django stuff
