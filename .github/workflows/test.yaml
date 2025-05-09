@@ -150,10 +150,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Pin 'Static Type Checking' Dependencies
-        run: tox -vv -s false -e pin-deps
+        run: REQS_FILE=reqs-test.txt tox -vv -s false -e pin-deps
 
       - name: Do Type Checking
-        run: tox -e type -vv -s false
+        run: REQS_FILE=reqs-test.txt tox -e type -vv -s false
 
       ###### TEST SUITE RUN against Edit and Sdist ######
       - name: Build and Test 'Edit' and 'Sdist' & Build Wheel(s)
