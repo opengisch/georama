@@ -1,15 +1,10 @@
 name: Build docs
-#on:
-#  push:
-#    branches:
-#      - master
 
 on:
   push:
     branches:
-      - "*"
-    tags:
-      - v*
+      - master
+
 
 jobs:
   deploy:
