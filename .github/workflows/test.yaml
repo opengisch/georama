@@ -152,7 +152,7 @@ jobs:
       - name: Pin 'Static Type Checking' Dependencies
         run: REQS_FILE=reqs-test.txt tox -vv -s false -e pin-deps
 
-      - name: Do Type Checking
+      - name: Do Type Checking With Fixed REQS
         run: REQS_FILE=reqs-test.txt tox -e type -vv -s false
 
       ###### TEST SUITE RUN against Edit and Sdist ######
