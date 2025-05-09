@@ -1,0 +1,48 @@
+name: Build docs
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      TX_TOKEN: ${{ secrets.TX_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Checkout Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Python requirements
+        run: |
+          make install-docs
+          make dev
+
+      - name: Build Docs
+        run: make doc-html
+
+      - name: Zip the site
+        run: |
+          cd docs
+          zip -r ../docs.zip .
+
+      - name: Upload docs YIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: docs.zip
+
+      - name: Upload docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: docs/site
+          if-no-files-found: error
+
+      - name: Deploy to GitHub Pages
+        run: make doc-gh-deploy
