@@ -359,7 +359,7 @@ jobs:
     with:
       run_policy: '${{ needs.set_github_outputs.outputs.PIPE_DOCS_POLICY }}'
       python_version: ${{ needs.set_github_outputs.outputs.PIPE_DOCS_PY }}
-      command: 'tox -s false -e pin-deps -- -E docs s&& tox -e docs --sitepackages -vv -s false'
+      command: 'tox -s false -e pin-deps -- -E docs && tox -e docs --sitepackages -vv -s false'
 
 ### DRAW PYTHON DEPENDENCY GRAPHS ###
   code_visualization:
