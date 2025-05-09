@@ -28,7 +28,6 @@ jobs:
       - name: Install Python requirements
         run: |
           make install-docs
-          make dev
 
       - name: Build Docs
         run: make doc-html
