@@ -13,7 +13,6 @@ PYTHON_VERSION = $(shell printf '%b' "import sys\nprint(f'{sys.version_info.majo
 EDITABLE_GEORAMA_PATH = $(VENV_PATH)/lib/python$(PYTHON_VERSION)/site-packages/editable_georama.pth
 PINNED_DEPS ?= reqs.txt
 
-
 QGIS_PY_PATH ?= /usr/share/qgis/python
 
 # ********************
