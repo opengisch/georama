@@ -25,7 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent
 SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get(
+    "GEORAMA_DEBUG", "false"
+).lower() == "true"
 
 LOGGING = {
     "version": 1,  # the dictConfig format version
@@ -142,6 +144,9 @@ AUTH_PASSWORD_VALIDATORS = [
 CORS_ALLOWED_ORIGINS = [] + os.getenv(
     "GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:8443"
 ).split(" ")
+CORS_ALLOW_CREDENTIALS = os.environ.get(
+    "GEORAMA_CORS_ALLOW_CREDENTIALS", "false"
+).lower() == "true"
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
