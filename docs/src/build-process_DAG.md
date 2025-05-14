@@ -1,3 +1,4 @@
+
 ## Docker Build Process DAG
 
 `docker build`  possible execution paths.

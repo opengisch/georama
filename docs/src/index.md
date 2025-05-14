@@ -19,17 +19,9 @@ System dependencies which have to be installed before you can run the make targe
 ### Ubuntu
 
 ```shell
+make
 python3-psycopg2
 python3-gdal
 ```
 
-## Local installation
 
-System dependencies which have to be installed before you can run the make targets:
-
-### Ubuntu
-
-```shell
-python3-psycopg2
-python3-gdal
-```

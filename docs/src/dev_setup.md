@@ -23,6 +23,11 @@ service. The correct path inside the container is: `/opt/georama/venv`
 - make has to be installed on your system
 - general pip and virtualenv has to be available
 
+### Ubuntu
+```shell
+sudo apt-get update && sudo apt-get install gdal make
+```
+
 ### Virtual environment
 
 To prepare a local virtual environment (in the folder `.venv`) run the following command:
@@ -76,3 +81,40 @@ Create a superuser which can be used to log into Georama:
 ```shell
 make create-superuser
 ```
+
+## PyCharm with Container
+
+### Prepare Dockerfile and build
+Add comment marks to the line 48+49+50 in the `Dockerfile` as shown below:
+```shell
+#ENTRYPOINT ["/tini", "--", "make"]
+#
+#CMD ["serve-dev"]
+```
+
+Now run:
+```shell
+docker compose build
+docker compose up -d
+```
+
+### Setting up the environment
+![PyCharm Docker Target](assets/pycharm_docker_target.png)
+
+Specify the interpreter path as: `/opt/georama/venv/bin/python`
+
+![PyCharm Interpreter Settings 1](assets/pycharm_interpreter_1.png)
+
+![PyCharm Interpreter Settings 2](assets/pycharm_interpreter_2.png)
+
+### Configuring Run/Debug 
+Adjust the IP in the run/debug configuration to `0.0.0.0` and the port to `8080`
+
+![PyCharm Run/Debug Configs](assets/pycharm_debug_configs.png)
+
+### Run the env
+Finally you can now connect to the pycharm debugger
+
+![PyCharm Starting](assets/pycharm_starting.png)
+
+![PyCharm Running](assets/pycharm_running.png)
