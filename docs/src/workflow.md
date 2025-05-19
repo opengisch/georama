@@ -44,4 +44,8 @@ docker run --rm -v $(pwd)/data:/io/data ghcr.io/opengisch/qgis-server-light-dev:
 - Endpoint to use WMS in e.g. QGIS Desktop for tests: http://localhost:8080/maps
 - Endpoint to use WFS in e.g. QGIS Desktop for tests: http://localhost:8080/features
 
-## 
+## Configure Project
+
+![configure project](assets/configure_project1.png)
+
+![import qgis configs](assets/configure_project2.png)
