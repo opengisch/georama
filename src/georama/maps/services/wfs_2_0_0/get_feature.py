@@ -38,10 +38,6 @@ from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 from xsdata.models.datatype import XmlDateTime
 
-from georama.maps.interfaces.iso.tc211.gmd.dataclasses import (
-    DirectPositionType,
-    Envelope,
-)
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.bbox import Bbox
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.filter import Filter
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.value_reference import (
@@ -54,6 +50,7 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
     Query,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1 import (
+    Envelope,
     Exterior,
     GeometryMember,
     GeometryMembers,
@@ -88,7 +85,22 @@ class WfsGetFeature(WfsOperation):
             "TEXT/JSON",
         ]
 
-    def obtain_accessible_layers(self, layer_names: List[str] | None = None):
+    def obtain_accessible_layers(
+        self, layer_names: List[str] | None = None
+    ) -> List[PublishedAsWms]:
+        """
+        This method derives the layers which are available for WFS operation. This Method solves multiple
+        purposes:
+            1. Find configured VECTOR layers from Georama database
+            2. Check if layers queried in request but not configured in Georama database
+            3. Check permissions of layers
+        Args:
+            layer_names: Optional list of layer names which are checked against the Georama database
+                (default: None)
+
+        Returns:
+            List of accessible layers.
+        """
         accessible_layers = []
         # we do want only published vector datasets!
         query = PublishedAsWms.objects.exclude(vector_dataset__isnull=True)
@@ -107,6 +119,15 @@ class WfsGetFeature(WfsOperation):
         return accessible_layers
 
     def handle_list_encoding(self, parameter_value: str) -> List[str]:
+        """
+        Try to derive if the parameter_value is encoded as a list as it is defined in WFS 2.0
+            => (param1,param2)(param3,param4)
+        Args:
+            parameter_value: The string which will be checked.
+        Returns:
+            The list of matches. With the example above this would be
+                => ["param1,param2", "param3,param4"]
+        """
         pattern = r"\((.+?)\)"
         matches = re.findall(pattern, parameter_value)
         if len(matches) == 0:
@@ -116,9 +137,110 @@ class WfsGetFeature(WfsOperation):
             return matches
 
     def prepare_filter_element(self, filter_definition: str) -> Filter:
+        """
+        Creates an instance of Filter from the passed XML string filter definition.
+
+        Args:
+            filter_definition: The XML string from which the Filter instance will be created.
+
+        Returns:
+            The Filter instance.
+        """
         config = ParserConfig()
         parser = XmlParser(config=config)
         return parser.parse(filter_definition, Filter)
+
+    def check_filter_empty(self, filter: Filter) -> bool:
+        """
+        Little helper method to check if a filter does not contain any set attributes. This is important,
+        since empty filters can cause trouble.
+
+        Args:
+            filter: The filter which should be checked.
+
+        Returns:
+            Whether the filter is empty or not.
+        """
+        if filter.property_is_between:
+            return False
+        elif filter.property_is_nil:
+            return False
+        elif filter.property_is_null:
+            return False
+        elif filter.property_is_like:
+            return False
+        elif filter.property_is_greater_than_or_equal_to:
+            return False
+        elif filter.property_is_less_than_or_equal_to:
+            return False
+        elif filter.property_is_greater_than:
+            return False
+        elif filter.property_is_less_than:
+            return False
+        elif filter.property_is_not_equal_to:
+            return False
+        elif filter.property_is_equal_to:
+            return False
+        elif filter.bbox:
+            return False
+        elif filter.beyond:
+            return False
+        elif filter.dwithin:
+            return False
+        elif filter.contains:
+            return False
+        elif filter.intersects:
+            return False
+        elif filter.crosses:
+            return False
+        elif filter.overlaps:
+            return False
+        elif filter.within:
+            return False
+        elif filter.touches:
+            return False
+        elif filter.equals:
+            return False
+        elif filter.any_interacts:
+            return False
+        elif filter.overlapped_by:
+            return False
+        elif filter.toverlaps:
+            return False
+        elif filter.met_by:
+            return False
+        elif filter.meets:
+            return False
+        elif filter.tequals:
+            return False
+        elif filter.ends:
+            return False
+        elif filter.ended_by:
+            return False
+        elif filter.during:
+            return False
+        elif filter.tcontains:
+            return False
+        elif filter.begun_by:
+            return False
+        elif filter.begins:
+            return False
+        elif filter.before:
+            return False
+        elif filter.after:
+            return False
+        elif filter.not_value:
+            return False
+        elif filter.or_value:
+            return False
+        elif filter.and_value:
+            return False
+        elif filter.function:
+            return False
+        elif filter.resource_id:
+            return False
+        else:
+            return True
 
     def prepare_queries(self, query_params: dict) -> List[Query]:
 
@@ -206,12 +328,8 @@ class WfsGetFeature(WfsOperation):
                     ],
                     other_element=[
                         Envelope(
-                            lower_corner=DirectPositionType(
-                                value=[bbox_list[0], bbox_list[1]]
-                            ),
-                            upper_corner=DirectPositionType(
-                                value=[bbox_list[2], bbox_list[3]]
-                            ),
+                            lower_corner=" ".join([bbox_list[0], bbox_list[1]]),
+                            upper_corner=" ".join([bbox_list[2], bbox_list[3]]),
                             srs_name=bbox_crs,
                             srs_dimension=2,
                         )
@@ -223,12 +341,21 @@ class WfsGetFeature(WfsOperation):
                     srs_name=srs_name,
                     type_names=type_names_value_list,
                     aliases=aliases_value_list,
-                    filter=fes_filter,
+                    filter=fes_filter if not self.check_filter_empty(fes_filter) else None,
                 )
             )
         return queries
 
     def query_parameters_to_get_feature_request(self, query_params: dict) -> GetFeature:
+        """
+        Transforms a dictionary of query parameters to a GetFeature object.
+
+        Args:
+            query_params: The dictionary of query parameters as they are coming from the request.
+
+        Returns:
+            The instance of GetFeature.
+        """
         return GetFeature(
             version=query_params["VERSION"],
             query=self.prepare_queries(query_params),
@@ -294,7 +421,13 @@ class WfsGetFeature(WfsOperation):
                         for layer in self.obtain_accessible_layers(query.type_names)
                     ],
                     alias=query.aliases,
-                    filter=XmlSerializer().render(query.filter, ns_map=self.name_space_map)
+                    filter=XmlSerializer().render(
+                        query.filter,
+                        ns_map={
+                            "": "http://www.opengis.net/fes/2.0",
+                            "gml": "http://www.opengis.net/gml/3.2",
+                        },
+                    )
                     if query.filter
                     else None,
                 )
@@ -309,6 +442,13 @@ class WfsGetFeature(WfsOperation):
         self, wkb: bytes, srs_definition: str
     ) -> GeometryMember | GeometryMembers:
         """
+        This method is a WIP and a demonstrator. Its main goal is to avoid nested iterations where ever
+        possible as it often comes by libraries which are parsing WKB in some GeoJSON like structure before
+        transforming it to the desired format (GML3 in our case). Instead, we directly read the bytes of WKB
+        representation and shred it into the desired objects from the GML3 interface. Some tests show, that
+        this is as fast as it can be.
+
+        TODO: Top up the different geometry types which are not implemented currently.
 
         Args:
             wkb: The WKB representation of the geometry to parse. We directly use that to have a common and
