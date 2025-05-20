@@ -25,10 +25,11 @@ post-->xsdata-->getfeature_class
 import datetime
 import logging
 import re
+import time
 from dataclasses import field, make_dataclass
 from typing import List, Tuple, Union
 
-from geomet import wkb
+import numpy as np
 from qgis_server_light.interface.job import FeatureQuery, JobResult, QslGetFeatureJob
 from qgis_server_light.interface.qgis import QueryCollection
 from xsdata.formats.dataclass.parsers import JsonParser, XmlParser
@@ -59,9 +60,7 @@ from georama.maps.interfaces.opengis.gml_3_2_1 import (
     Interior,
     LinearRing,
     LineString,
-    MultiPoint,
     Point,
-    PointMembers,
     Polygon,
 )
 from georama.maps.models import PublishedAsWms
@@ -184,11 +183,19 @@ class WfsGetFeature(WfsOperation):
                     )
             else:
                 aliases_value_list = []
-            if filter_definition or bbox_definition:
-                if filter_definition:
-                    fes_filter = self.prepare_filter_element(filter_definition)
-                else:
-                    fes_filter = Filter()
+            if filter_definition:
+                fes_filter = self.prepare_filter_element(filter_definition)
+            else:
+                fes_filter = Filter()
+            if bbox_definition:
+                bbox_list = bbox_definition.split(",")
+                try:
+                    bbox_crs = bbox_list[5]
+                except IndexError:
+                    logging.info(
+                        f"There was no SRS definition in the BBOX parameter, we assume it has the SRS of the request: {srs_name}"
+                    )
+                    bbox_crs = srs_name
                 # we expect one optional BBOX which is assigned to all passed typenames! This aligns with
                 # spec as it 7.9.2.3 of the spec doc. However, there is one example wich supports that B.8.5.4
                 # and one which states a conflicting situation B.8.5.5
@@ -199,13 +206,17 @@ class WfsGetFeature(WfsOperation):
                     ],
                     other_element=[
                         Envelope(
-                            lower_corner=DirectPositionType(value=[]),
-                            upper_corner=DirectPositionType(value=[]),
+                            lower_corner=DirectPositionType(
+                                value=[bbox_list[0], bbox_list[1]]
+                            ),
+                            upper_corner=DirectPositionType(
+                                value=[bbox_list[2], bbox_list[3]]
+                            ),
+                            srs_name=bbox_crs,
+                            srs_dimension=2,
                         )
                     ],
                 )
-            else:
-                fes_filter = None
 
             queries.append(
                 Query(
@@ -294,109 +305,210 @@ class WfsGetFeature(WfsOperation):
             queries=qsl_feature_queries,
         )
 
-    def prepare_geometry(
-        self, geometry_wkb_definition: bytes, get_feature_parameter: GetFeature
+    def parse_wkb_to_gml3(
+        self, wkb: bytes, srs_definition: str
     ) -> GeometryMember | GeometryMembers:
-        geojson_dict = wkb.loads(geometry_wkb_definition)
-        srs_name = get_feature_parameter.query[0].srs_name.lower()
-        if geojson_dict["type"] == "Point":
+        """
+
+        Args:
+            wkb: The WKB representation of the geometry to parse. We directly use that to have a common and
+                described interface to transport things between QSL and Georama. Parsing WKB on Georama side
+                also enables us to do postprocessing (permission stuff etc.).
+            srs_definition: The definition string of the SRS of the WKB geometry. This is usually something
+                like URN e.g. ``urn:ogc:def:crs:EPSG::2056`` or URL e.g.
+                ``http://www.opengis.net/def/crs/EPSG/0/2056``
+
+        Returns:
+            A GML3 object representing the parsed geometry. The exact type depends on the geometry type.
+            Single geomtry types will return an ``GeometryMember`` instance.
+            Multi geometry types will return an ``GeometryMembers`` instance.
+        """
+        # read first byte for byteorder information
+        endian = "<" if wkb[0] == 1 else ">"
+        wkb = wkb[1:]
+        # read following 4 bytes for geometry type information
+        geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+        wkb = wkb[4:]
+        if wkb[0] == 1:
+            endian_string = "little endian"
+        else:
+            endian_string = "big endian"
+        logging.debug(f"Parsing WKB '{endian_string}' of type {geometry_type}")
+        if geometry_type in [1, 1001, 2001, 3001]:
+            # POINT
+            if geometry_type == 1:
+                # XY
+                dimensions = 2
+            elif geometry_type == 1001:
+                # XYZ
+                dimensions = 3
+            elif geometry_type == 2001:
+                # XYM
+                dimensions = 3
+            elif geometry_type == 3001:
+                # XYZM
+                dimensions = 4
+            else:
+                raise NotImplementedError()
             return GeometryMember(
-                point=Point(srs_name=srs_name, pos=" ".join(geojson_dict["coordinates"]))
-            )
-        elif geojson_dict["type"] == "MultiPoint":
-            point_members = []
-            for point_pos in geojson_dict["coordinates"]:
-                point_members.append(Point(pos=" ".join(point_pos)))
-            return GeometryMembers(
-                multi_point=[
-                    MultiPoint(
-                        srs_name=srs_name, point_members=PointMembers(point=point_members)
-                    )
-                ]
-            )
-        elif geojson_dict["type"] == "LineString":
-            return GeometryMember(
-                line_string=LineString(
-                    srs_name=srs_name, pos_list=" ".join(geojson_dict["coordinates"])
+                point=Point(
+                    srs_name=srs_definition,
+                    srs_dimension=dimensions,
+                    # this is special, normally it would be a Pos object. But this does not allow to have
+                    # coords or pos's as attributes?! So we pass a string which produces output as expected.
+                    pos=" ".join(
+                        np.frombuffer(wkb[0 : dimensions * 8], dtype=endian + "f8").astype(str)
+                    ),
                 )
             )
-        elif geojson_dict["type"] == "MultiLineString":
-            # TODO: ...
-            raise NotImplementedError(f"Currently not implemented: {geojson_dict['type']}")
-        elif geojson_dict["type"] == "Polygon":
-            polygon = Polygon(
-                srs_name=srs_name,
-                exterior=Exterior(
-                    linear_ring=LinearRing(
-                        pos_list=" ".join(
-                            [
-                                " ".join(map(str, inner))
-                                for inner in geojson_dict["coordinates"][0]
-                            ]
+        elif geometry_type in [2, 1002, 2002, 3002]:
+            # LINESTRING
+            if geometry_type == 2:
+                # XY
+                dimensions = 2
+            elif geometry_type == 1002:
+                # XYZ
+                dimensions = 3
+            elif geometry_type == 2002:
+                # XYM
+                dimensions = 3
+            elif geometry_type == 3002:
+                # XYZM
+                dimensions = 4
+            else:
+                raise NotImplementedError()
+                # reading next 4 bytes of wkb
+            number_of_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+            # slicing wkb by read 4 bytes
+            wkb = wkb[4:]
+            geometry_part_offset = number_of_points * dimensions * 8
+            return GeometryMember(
+                line_string=LineString(
+                    srs_name=srs_definition,
+                    srs_dimension=dimensions,
+                    # this is special, normally it would be a PosList object. But this does not allow to have
+                    # coords or pos's as attributes?! So we pass a string which produces output as expected.
+                    pos_list=" ".join(
+                        np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8").astype(
+                            str
+                        )
+                    ),
+                )
+            )
+        elif geometry_type in [3, 1003, 2003, 3003]:
+            # POLYGON
+            if geometry_type == 3:
+                # XY
+                dimensions = 2
+            elif geometry_type == 1003:
+                # XYZ
+                dimensions = 3
+            elif geometry_type == 2003:
+                # XYM
+                dimensions = 3
+            elif geometry_type == 3003:
+                # XYZM
+                dimensions = 4
+            else:
+                raise NotImplementedError()
+            number_of_rings = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+            logging.debug(f"  parsing polygon with {number_of_rings} rings")
+            polygon = Polygon(srs_name=srs_definition, srs_dimension=dimensions)
+            # slicing wkb by interpreted parts
+            wkb = wkb[4:]
+            for ring in range(number_of_rings):
+                # reading next 4 bytes of wkb
+                number_of_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                # slicing wkb by read 4 bytes
+                wkb = wkb[4:]
+                # calculating offset to read geometry part
+                geometry_part_offset = number_of_points * dimensions * 8
+                logging.debug(f"  parsing ring:{ring} with: {number_of_points} points")
+                pos_list = " ".join(
+                    np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8").astype(str)
+                )
+                # slicing wkb be geometry part offset
+                wkb = wkb[geometry_part_offset:]
+                if ring == 0:
+                    # this is the exterior ring
+                    polygon.exterior = Exterior(
+                        linear_ring=LinearRing(
+                            # this is special, normally it would be a PosList object. But this does not allow
+                            # to have coords or pos's as attributes?! So we pass a string which produces
+                            # output as expected.
+                            pos_list=pos_list
                         )
                     )
-                ),
-            )
-            if len(geojson_dict["coordinates"]) > 1:
-                for interior in geojson_dict["coordinates"][1:]:
+                else:
+                    # all others are interior rings
                     polygon.interior.append(
                         Interior(
                             linear_ring=LinearRing(
-                                pos_list=" ".join(
-                                    [" ".join(map(str, inner)) for inner in interior]
-                                )
+                                # this is special, normally it would be a PosList object. But this does not
+                                # allow to have coords or pos's as attributes?! So we pass a string which
+                                # produces output as expected.
+                                pos_list=pos_list
                             )
                         )
                     )
             return GeometryMember(polygon=polygon)
-        elif geojson_dict["type"] == "MultiPolygon":
-            # TODO: ...
-            raise NotImplementedError(f"Currently not implemented: {geojson_dict['type']}")
-        elif geojson_dict["type"] == "GeometryCollection":
-            # TODO: ...
-            raise NotImplementedError(f"Currently not implemented: {geojson_dict['type']}")
         else:
-            raise NotImplementedError(f"Currently not implemented: {geojson_dict['type']}")
+            raise NotImplementedError()
 
     def get_feature(self, get_feature_parameter: GetFeature, result: JobResult):
-        wfs_feature_collection = FeatureCollection()
         qsl_query_collection = JsonParser().from_bytes(result.data, QueryCollection)
+        wfs_feature_collection = FeatureCollection(
+            number_returned=0, number_matched=qsl_query_collection.numbers_matched
+        )
 
         class GeoramaMeta:
             namespace = "https://www.opengis.ch/georama"
 
         for feature_collection in qsl_query_collection.feature_collections:
+            wfs_feature_collection.number_returned += len(feature_collection.features)
             for index, feature in enumerate(feature_collection.features):
                 fields = []
                 feature_dict = {}
                 for attribute in feature.attributes:
-                    fields.append((attribute.name, type(attribute.value)))
+                    print(attribute.value, type(attribute.value))
+                    if attribute.value is not None:
+                        type_name = type(attribute.value)
+                    else:
+                        # we take a save exit here, since we do not want to validate data in this step we
+                        # define all None values to be str, which can be None then -.-
+                        type_name = str
+                    fields.append((attribute.name, type_name, field(default=None)))
                     feature_dict[attribute.name] = attribute.value
-                fields.append(
-                    (
-                        "id",
-                        str,
-                        field(
-                            default=None,
-                            metadata={
-                                "type": "Attribute",
-                                "namespace": "http://www.opengis.net/gml/3.2",
-                            },
-                        ),
+                # TODO: This has to be fixed, we need to respect actual PK fields for that! Currently a
+                #       feature can have a column with name id which might not be the actual primary key
+                #       but it gets treated like one...
+                if "id" not in feature_dict:
+                    fields.append(
+                        (
+                            "id",
+                            str,
+                            field(
+                                default=None,
+                                metadata={
+                                    "type": "Attribute",
+                                    "namespace": "http://www.opengis.net/gml/3.2",
+                                },
+                            ),
+                        )
                     )
-                )
+                    feature_dict["id"] = f"TEST.{index}"
                 fields.append(
                     ("geometry", Union[GeometryMember, GeometryMembers], field(default=None))
                 )
                 feature_dataclass = make_dataclass(feature_collection.name, fields=fields)
                 feature_dataclass.Meta = GeoramaMeta
                 feature_object = feature_dataclass(**feature_dict)
-                feature_object.geometry = self.prepare_geometry(
-                    feature.geometry_as_bytes(), get_feature_parameter
+                start = time.time()
+                feature_object.geometry = self.parse_wkb_to_gml3(
+                    feature.geometry_as_bytes(),
+                    get_feature_parameter.query[0].srs_name.lower(),
                 )
-                # this has to be unique
-                # TODO: How do we do that? Using the PK of the data?
-                feature_object.id = f"TEST.{index}"
+                logging.debug(f"Rendered GML3 from WKB direct: {time.time() - start}")
                 wfs_feature_collection.member.append(Member(content=[feature_object]))
         return wfs_feature_collection
 
@@ -420,7 +532,6 @@ class WfsGetFeature(WfsOperation):
                 ),
             )
         )
-
         return serializer.render(feature_collection, ns_map=self.name_space_map)
 
     @staticmethod
