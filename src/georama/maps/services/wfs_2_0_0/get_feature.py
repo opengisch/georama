@@ -412,6 +412,18 @@ class WfsGetFeature(WfsOperation):
     def getfeature_to_qslgetfeaturejob(
         self, get_feature_parameter: GetFeature
     ) -> QslGetFeatureJob:
+        """
+        This method transforms a
+        georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.get_feature.GetFeature
+        constructed from the original request towards Georama into a
+        qgis_server_light.interface.job.QslGetFeatureJob. This is done to minimize the interface and keep
+        control about what we send over to the worker.
+        Args:
+            get_feature_parameter: The query parameters coming in from Django request.
+
+        Returns:
+            A constructed instance of QslGetFeatureJob which can be sent to QGIS-Server-Light.
+        """
         qsl_feature_queries = []
         for query in get_feature_parameter.query:
             qsl_feature_queries.append(
