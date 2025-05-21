@@ -4,10 +4,11 @@ graph LR;
   test_suite --> codecov_coverage_host
   set_github_outputs --> docker_build
   test_suite --> docker_build
-  set_github_outputs --> check_which_git_branch_we_are_on
+  set_github_outputs --> pypi_publish
   test_suite --> pypi_publish
   check_which_git_branch_we_are_on --> pypi_publish
   set_github_outputs --> lint
-  set_github_outputs --> docs
   set_github_outputs --> code_visualization
+  test_suite --> gh_release
+  check_which_git_branch_we_are_on --> gh_release
 ```

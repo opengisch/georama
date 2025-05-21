@@ -148,8 +148,8 @@ doc-html: $(DOC_REQUIREMENTS) docs/mkdocs.yml
 .PHONY: doc-live-prereqs
 doc-live-prereqs:
 	@echo "Running documentation pre-generation scripts..."
-	python ./docs/scripts/visualize-dockerfile.py -o docs/dockerfile_mermaid.md
-	python ./docs/scripts/visualize-ga-workflow.py .github/workflows/test.yaml -o docs/cicd_mermaid.md
+	python ./docs/scripts/visualize-dockerfile.py -o docs/src/dockerfile_mermaid.md
+	python ./docs/scripts/visualize-ga-workflow.py .github/workflows/test.yaml -o docs/src/cicd_mermaid.md
 
 .PHONY: doc-serve
 doc-serve: $(DOC_REQUIREMENTS) doc-live-prereqs docs/mkdocs.yml
