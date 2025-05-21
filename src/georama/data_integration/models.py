@@ -22,6 +22,9 @@ class Mandant(models.Model):
     name = models.CharField(unique=True)
     description = models.TextField(null=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Project(models.Model):
     name = models.CharField(null=False, max_length=1000)
