@@ -62,7 +62,7 @@ class WfsDescribeFeatureType(WfsOperation):
             )
             column_type = "gml:GeometryPropertyType"
         return Element(
-            name="geometry",
+            name=f"{self.own_namespace}:geometry",
             type=column_type,
             min_occurs=0,
             max_occurs=1,
@@ -72,7 +72,10 @@ class WfsDescribeFeatureType(WfsOperation):
 
     def describe_feature_type(self, type_names: List[str] | None) -> Schema | None:
         # typename is a comma separated list
-        found_layers = self.obtain_accessible_layers(type_names)
+        if type_names:
+            found_layers = self.obtain_accessible_layers(self.sanitized_typenames(type_names))
+        else:
+            found_layers = self.obtain_accessible_layers()
 
         dft = Schema(
             imports=[
@@ -86,13 +89,13 @@ class WfsDescribeFeatureType(WfsOperation):
         for layer in found_layers:
             dft.elements.append(
                 Element(
-                    name=f"{layer.name}",
-                    type=f"georama:{layer.name}Type",
+                    name=f"{self.own_namespace}:{layer.name}",
+                    type=f"{self.own_namespace}:{layer.name}Type",
                     substitution_group="gml:AbstractFeature",
                 )
             )
             complex_type = ComplexType(
-                name=f"{layer.name}Type",
+                name=f"{self.own_namespace}:{layer.name}Type",
                 complex_content=ComplexContent(
                     extension=Extension(
                         base="gml:AbstractFeatureType",
@@ -109,7 +112,7 @@ class WfsDescribeFeatureType(WfsOperation):
 
             for column in layer.vector_dataset.fields.all():
                 el = Element(
-                    name=column.name,
+                    name=f"{self.own_namespace}:{column.name}",
                     type=column.type_simple,
                     min_occurs=0 if column.nullable else 1,
                     max_occurs=1,
