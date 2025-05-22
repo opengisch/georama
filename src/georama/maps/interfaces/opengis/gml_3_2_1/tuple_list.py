@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 
+from georama.maps.interfaces.opengis.gml_3_2_1.coordinates_type import CoordinatesType
+
 __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 
 @dataclass
-class TupleList:
+class TupleList(CoordinatesType):
     """Gml:CoordinatesType consists of a list of coordinate tuples, with each
     coordinate tuple separated by the ts or tuple separator (whitespace), and each
     coordinate in the tuple by the cs or coordinate separator (comma).

@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.length_type import LengthType
+from georama.maps.interfaces.opengis.gml_3_2_1.measure_type import MeasureType
 
 __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
@@ -12,7 +13,7 @@ class SecondDefiningParameter1:
         name = "SecondDefiningParameter"
         namespace = "http://www.opengis.net/gml/3.2"
 
-    inverse_flattening: Optional[str] = field(
+    inverse_flattening: Optional[MeasureType] = field(
         default=None,
         metadata={
             "name": "inverseFlattening",

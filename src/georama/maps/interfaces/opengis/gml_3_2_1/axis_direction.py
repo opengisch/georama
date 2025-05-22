@@ -1,10 +1,14 @@
 from dataclasses import dataclass
 
+from georama.maps.interfaces.opengis.gml_3_2_1.code_with_authority_type import (
+    CodeWithAuthorityType,
+)
+
 __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 
 @dataclass
-class AxisDirection:
+class AxisDirection(CodeWithAuthorityType):
     """Gml:axisDirection is the direction of this coordinate system axis (or in the
     case of Cartesian projected coordinates, the direction of this coordinate
     system axis at the origin).

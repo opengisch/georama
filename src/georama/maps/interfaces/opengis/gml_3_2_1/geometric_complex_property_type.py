@@ -1,9 +1,12 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.gml_3_2_1.curve_property_type import CompositeCurve
 from georama.maps.interfaces.opengis.gml_3_2_1.geometric_complex import GeometricComplex
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
+)
 from georama.maps.interfaces.opengis.gml_3_2_1.show_type import ShowType
 from georama.maps.interfaces.opengis.gml_3_2_1.solid_property_type import CompositeSolid
 from georama.maps.interfaces.opengis.gml_3_2_1.surface_property_type import (
@@ -116,11 +119,12 @@ class GeometricComplexPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(

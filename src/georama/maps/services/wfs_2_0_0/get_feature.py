@@ -27,13 +27,13 @@ import logging
 import re
 import time
 from dataclasses import field, make_dataclass
-from typing import List, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 from qgis_server_light.interface.job import FeatureQuery, JobResult, QslGetFeatureJob
 from qgis_server_light.interface.qgis import QueryCollection
+from xsdata.formats.converter import Converter, converter
 from xsdata.formats.dataclass.parsers import JsonParser, XmlParser
-from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 from xsdata.models.datatype import XmlDateTime
@@ -43,6 +43,10 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.filter import F
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.value_reference import (
     ValueReference,
 )
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1 import (
+    Exception as Wfs200Exception,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1 import ExceptionReport
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
     FeatureCollection,
     GetFeature,
@@ -50,6 +54,7 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
     Query,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1 import (
+    DirectPositionType,
     Envelope,
     Exterior,
     GeometryMember,
@@ -59,9 +64,23 @@ from georama.maps.interfaces.opengis.gml_3_2_1 import (
     LineString,
     Point,
     Polygon,
+    Pos,
+    PosList,
 )
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0 import WfsOperation
+
+
+class NumpyArrayConverter(Converter):
+    def deserialize(self, value: Any, **kwargs: Any) -> np.ndarray:
+        return np.fromstring(value, dtype=float, sep=" ")
+
+    def serialize(self, value: Any, **kwargs: Any) -> Optional[str]:
+        if isinstance(value, np.ndarray):
+            return " ".join(value.astype(str))
+
+
+converter.register_converter(np.ndarray, NumpyArrayConverter())
 
 
 class WfsGetFeature(WfsOperation):
@@ -75,6 +94,46 @@ class WfsGetFeature(WfsOperation):
             "georama": "https://www.opengis.ch/georama",
             "gml": "http://www.opengis.net/gml/3.2",
         }
+        self.geometry_types = {
+            "point": [1, 1001, 2001, 3001],
+            "linestring": [2, 1002, 2002, 3002],
+            "polygon": [3, 1003, 2003, 3003],
+        }
+
+    def create_exception(self, message: str) -> ExceptionReport:
+        return ExceptionReport(
+            version="2.0.0",
+            exception=[
+                Wfs200Exception(
+                    exception_code="OperationParsingFailed",
+                    exception_text=["It was not possible to process the request"],
+                    locator="GetFeature",
+                ),
+                Wfs200Exception(
+                    exception_code="InvalidParameterValue", exception_text=[message]
+                ),
+            ],
+        )
+
+    def render_exception(self, message: str) -> str:
+        config = SerializerConfig(
+            xml_declaration=True,
+            xml_version="1.0",
+            ignore_default_attributes=True,
+            schema_location=" ".join(
+                [
+                    "http://www.opengis.net/ows/1.1",
+                    "http://schemas.opengis.net/ows/1.1.0/owsAll.xsd",
+                ]
+            ),
+        )
+        return XmlSerializer(config=config).render(
+            self.create_exception(message),
+            ns_map={
+                "": "http://www.opengis.net/ows/1.1",
+                "xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            },
+        )
 
     @property
     def allowed_formats(self) -> List[str]:
@@ -109,13 +168,17 @@ class WfsGetFeature(WfsOperation):
         found_layers = query.all()
         found_difference = set(layer_names) - {layer.name for layer in found_layers}
         if len(found_difference) > 0:
-            raise AttributeError(f"Layer(s) not found: {list(found_difference)}")
+            raise AttributeError(
+                self.render_exception(f"Layer(s) not found: {list(found_difference)}")
+            )
         for published_as in found_layers:
             if published_as.has_read_permission(self.user, self.appname):
                 accessible_layers.append(published_as)
         permission_difference = set(layer_names) - {layer.name for layer in accessible_layers}
         if len(permission_difference) > 0:
-            raise PermissionError(f"Layer(s) not permitted: {list(permission_difference)}")
+            raise PermissionError(
+                self.render_exception(f"Layer(s) not permitted: {list(permission_difference)}")
+            )
         return accessible_layers
 
     def handle_list_encoding(self, parameter_value: str) -> List[str]:
@@ -146,9 +209,10 @@ class WfsGetFeature(WfsOperation):
         Returns:
             The Filter instance.
         """
-        config = ParserConfig()
-        parser = XmlParser(config=config)
-        return parser.parse(filter_definition, Filter)
+
+        parser = XmlParser()
+        fes_filter = parser.from_string(filter_definition, Filter)
+        return fes_filter
 
     def check_filter_empty(self, filter: Filter) -> bool:
         """
@@ -272,22 +336,26 @@ class WfsGetFeature(WfsOperation):
             # we have typenames in the query
             type_names_lists = self.handle_list_encoding(type_names_param_value)
         else:
-            raise AttributeError("TypeNames is a mandatory parameter!")
+            raise AttributeError(self.render_exception("TypeNames is a mandatory parameter!"))
         if aliases_param_value:
             # we have aliases in the query
             aliases_lists = self.handle_list_encoding(aliases_param_value)
             if aliases_lists:
                 if not len(aliases_lists) == len(type_names_lists):
-                    raise AttributeError("List encoded params have to be same lenght!")
+                    raise AttributeError(
+                        self.render_exception("List encoded params have to be same lenght!")
+                    )
         else:
-            # no filters were passed, we create an empty list of same length as type_names
+            # no aliases were passed, we create an empty list of same length as type_names
             aliases_lists = [None] * len(type_names_lists)
         if filter_param_value:
             # we have filters in the query
             filters_lists = self.handle_list_encoding(filter_param_value)
             if filters_lists:
                 if not len(filters_lists) == len(type_names_lists):
-                    raise AttributeError("List encoded params have to be same lenght!")
+                    raise AttributeError(
+                        self.render_exception("List encoded params have to be same lenght!")
+                    )
         else:
             # no filters were passed, we create an empty list of same length as type_names
             filters_lists = [None] * len(type_names_lists)
@@ -299,9 +367,11 @@ class WfsGetFeature(WfsOperation):
                 aliases_value_list = aliases.split(",")
                 if len(type_names_value_list) != len(aliases_value_list):
                     raise AttributeError(
-                        "List of aliases and typenames has to be of same length. Situation is:"
-                        f" typenames: {type_names_value_list}, length: {len(type_names_value_list)}"
-                        f" aliases: {aliases_value_list}, length: {len(aliases_value_list)}"
+                        self.render_exception(
+                            "List of aliases and typenames has to be of same length. Situation is:"
+                            f" typenames: {type_names_value_list}, length: {len(type_names_value_list)}"
+                            f" aliases: {aliases_value_list}, length: {len(aliases_value_list)}"
+                        )
                     )
             else:
                 aliases_value_list = []
@@ -315,7 +385,8 @@ class WfsGetFeature(WfsOperation):
                     bbox_crs = bbox_list[5]
                 except IndexError:
                     logging.info(
-                        f"There was no SRS definition in the BBOX parameter, we assume it has the SRS of the request: {srs_name}"
+                        f"There was no SRS definition in the BBOX parameter, we assume"
+                        f" it has the SRS of the request: {srs_name}"
                     )
                     bbox_crs = srs_name
                 # we expect one optional BBOX which is assigned to all passed typenames! This aligns with
@@ -328,8 +399,8 @@ class WfsGetFeature(WfsOperation):
                     ],
                     other_element=[
                         Envelope(
-                            lower_corner=" ".join([bbox_list[0], bbox_list[1]]),
-                            upper_corner=" ".join([bbox_list[2], bbox_list[3]]),
+                            lower_corner=DirectPositionType(value=bbox_list[0:1]),
+                            upper_corner=DirectPositionType(value=bbox_list[2:3]),
                             srs_name=bbox_crs,
                             srs_dimension=2,
                         )
@@ -486,7 +557,7 @@ class WfsGetFeature(WfsOperation):
         else:
             endian_string = "big endian"
         logging.debug(f"Parsing WKB '{endian_string}' of type {geometry_type}")
-        if geometry_type in [1, 1001, 2001, 3001]:
+        if geometry_type in self.geometry_types["point"]:
             # POINT
             if geometry_type == 1:
                 # XY
@@ -501,19 +572,20 @@ class WfsGetFeature(WfsOperation):
                 # XYZM
                 dimensions = 4
             else:
+                logging.debug(
+                    f"Geometry type '{geometry_type}' is not in supported list"
+                    f" {self.geometry_types['point']}"
+                )
                 raise NotImplementedError()
             return GeometryMember(
                 point=Point(
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
-                    # this is special, normally it would be a Pos object. But this does not allow to have
-                    # coords or pos's as attributes?! So we pass a string which produces output as expected.
-                    pos=" ".join(
-                        np.frombuffer(wkb[0 : dimensions * 8], dtype=endian + "f8").astype(str)
-                    ),
+                    # we can do this because we introduced a custom converter NumpyArrayConverter!
+                    pos=Pos(value=np.frombuffer(wkb[0 : dimensions * 8], dtype=endian + "f8")),
                 )
             )
-        elif geometry_type in [2, 1002, 2002, 3002]:
+        elif geometry_type in self.geometry_types["linestring"]:
             # LINESTRING
             if geometry_type == 2:
                 # XY
@@ -528,6 +600,10 @@ class WfsGetFeature(WfsOperation):
                 # XYZM
                 dimensions = 4
             else:
+                logging.debug(
+                    f"Geometry type '{geometry_type}' is not in supported list"
+                    f" {self.geometry_types['linestring']}"
+                )
                 raise NotImplementedError()
                 # reading next 4 bytes of wkb
             number_of_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
@@ -538,16 +614,13 @@ class WfsGetFeature(WfsOperation):
                 line_string=LineString(
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
-                    # this is special, normally it would be a PosList object. But this does not allow to have
-                    # coords or pos's as attributes?! So we pass a string which produces output as expected.
-                    pos_list=" ".join(
-                        np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8").astype(
-                            str
-                        )
+                    # we can do this because we introduced a custom converter NumpyArrayConverter!
+                    pos_list=PosList(
+                        value=np.frombuffer(wkb[0 : dimensions * 8], dtype=endian + "f8")
                     ),
                 )
             )
-        elif geometry_type in [3, 1003, 2003, 3003]:
+        elif geometry_type in self.geometry_types["polygon"]:
             # POLYGON
             if geometry_type == 3:
                 # XY
@@ -562,6 +635,10 @@ class WfsGetFeature(WfsOperation):
                 # XYZM
                 dimensions = 4
             else:
+                logging.debug(
+                    f"Geometry type '{geometry_type}' is not in supported list"
+                    f" {self.geometry_types['polygon']}"
+                )
                 raise NotImplementedError()
             number_of_rings = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
             logging.debug(f"  parsing polygon with {number_of_rings} rings")
@@ -576,35 +653,27 @@ class WfsGetFeature(WfsOperation):
                 # calculating offset to read geometry part
                 geometry_part_offset = number_of_points * dimensions * 8
                 logging.debug(f"  parsing ring:{ring} with: {number_of_points} points")
-                pos_list = " ".join(
-                    np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8").astype(str)
+
+                # we can do this because we introduced a custom converter NumpyArrayConverter!
+                pos_list = PosList(
+                    value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
                 )
                 # slicing wkb be geometry part offset
                 wkb = wkb[geometry_part_offset:]
                 if ring == 0:
                     # this is the exterior ring
-                    polygon.exterior = Exterior(
-                        linear_ring=LinearRing(
-                            # this is special, normally it would be a PosList object. But this does not allow
-                            # to have coords or pos's as attributes?! So we pass a string which produces
-                            # output as expected.
-                            pos_list=pos_list
-                        )
-                    )
+                    polygon.exterior = Exterior(linear_ring=LinearRing(pos_list=pos_list))
                 else:
                     # all others are interior rings
                     polygon.interior.append(
-                        Interior(
-                            linear_ring=LinearRing(
-                                # this is special, normally it would be a PosList object. But this does not
-                                # allow to have coords or pos's as attributes?! So we pass a string which
-                                # produces output as expected.
-                                pos_list=pos_list
-                            )
-                        )
+                        Interior(linear_ring=LinearRing(pos_list=pos_list))
                     )
             return GeometryMember(polygon=polygon)
         else:
+            logging.debug(
+                f"Geometry type '{geometry_type}' is currently not supported. Supported types are:"
+                f" {self.geometry_types}"
+            )
             raise NotImplementedError()
 
     def get_feature(self, get_feature_parameter: GetFeature, result: JobResult):

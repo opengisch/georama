@@ -1,7 +1,10 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.actuate_type import ActuateType
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
+)
 from georama.maps.interfaces.opengis.gml_3_2_1.pt_locale_container import (
     PtLocaleContainer,
 )
@@ -83,11 +86,12 @@ class PtLocaleContainerPropertyType:
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
             "namespace": "http://www.isotc211.org/2005/gco",
+            "pattern": r"other:\w{2,}",
         },
     )

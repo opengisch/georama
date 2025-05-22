@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.gml_3_2_1.curve_property_type import (
@@ -10,6 +10,9 @@ from georama.maps.interfaces.opengis.gml_3_2_1.curve_property_type import (
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.line_string import LineString
 from georama.maps.interfaces.opengis.gml_3_2_1.linear_ring import LinearRing
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
+)
 from georama.maps.interfaces.opengis.gml_3_2_1.point import Point
 from georama.maps.interfaces.opengis.gml_3_2_1.polygon import Polygon
 from georama.maps.interfaces.opengis.gml_3_2_1.polyhedral_surface import (
@@ -239,11 +242,12 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(

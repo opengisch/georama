@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_topo_primitive_type import (
     AbstractTopoPrimitiveType,
@@ -7,8 +7,12 @@ from georama.maps.interfaces.opengis.gml_3_2_1.abstract_topo_primitive_type impo
 from georama.maps.interfaces.opengis.gml_3_2_1.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.gml_3_2_1.aggregation_type import AggregationType
 from georama.maps.interfaces.opengis.gml_3_2_1.curve_property import CurveProperty
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
+)
 from georama.maps.interfaces.opengis.gml_3_2_1.point_property import PointProperty
 from georama.maps.interfaces.opengis.gml_3_2_1.show_type import ShowType
+from georama.maps.interfaces.opengis.gml_3_2_1.sign_type import SignType
 from georama.maps.interfaces.opengis.gml_3_2_1.solid_property import SolidProperty
 from georama.maps.interfaces.opengis.gml_3_2_1.surface_property import SurfaceProperty
 from georama.maps.interfaces.opengis.gml_3_2_1.type_type import TypeType
@@ -87,11 +91,12 @@ class FaceOrTopoSolidPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -181,11 +186,12 @@ class NodeOrEdgePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -267,11 +273,12 @@ class NodePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -353,11 +360,12 @@ class TopoSolidPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -446,8 +454,8 @@ class DirectedNodePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    orientation: str = field(
-        default="+",
+    orientation: SignType = field(
+        default=SignType.PLUS_SIGN,
         metadata={
             "type": "Attribute",
         },
@@ -505,11 +513,12 @@ class DirectedNodePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -616,8 +625,8 @@ class DirectedEdgePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    orientation: str = field(
-        default="+",
+    orientation: SignType = field(
+        default=SignType.PLUS_SIGN,
         metadata={
             "type": "Attribute",
         },
@@ -675,11 +684,12 @@ class DirectedEdgePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -811,8 +821,8 @@ class DirectedFacePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    orientation: str = field(
-        default="+",
+    orientation: SignType = field(
+        default=SignType.PLUS_SIGN,
         metadata={
             "type": "Attribute",
         },
@@ -870,11 +880,12 @@ class DirectedFacePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -989,8 +1000,8 @@ class DirectedTopoSolidPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    orientation: str = field(
-        default="+",
+    orientation: SignType = field(
+        default=SignType.PLUS_SIGN,
         metadata={
             "type": "Attribute",
         },
@@ -1048,11 +1059,12 @@ class DirectedTopoSolidPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(

@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.actuate_type import ActuateType
+from georama.maps.interfaces.opengis.gml_3_2_1.code_type import CodeType
 from georama.maps.interfaces.opengis.gml_3_2_1.compass_point_enumeration import (
     CompassPointEnumeration,
 )
@@ -10,6 +11,9 @@ from georama.maps.interfaces.opengis.gml_3_2_1.direction_description_type import
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.direction_vector_type import (
     DirectionVectorType,
+)
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.show_type import ShowType
 from georama.maps.interfaces.opengis.gml_3_2_1.string_or_ref_type import StringOrRefType
@@ -44,7 +48,7 @@ class DirectionPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    direction_keyword: Optional[str] = field(
+    direction_keyword: Optional[CodeType] = field(
         default=None,
         metadata={
             "name": "DirectionKeyword",
@@ -119,11 +123,12 @@ class DirectionPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(

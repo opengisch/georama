@@ -1,16 +1,20 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_surface_type import (
     AbstractSurfaceType,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.gml_3_2_1.aggregation_type import AggregationType
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
+)
 from georama.maps.interfaces.opengis.gml_3_2_1.polygon import Polygon
 from georama.maps.interfaces.opengis.gml_3_2_1.polyhedral_surface import (
     PolyhedralSurface,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.show_type import ShowType
+from georama.maps.interfaces.opengis.gml_3_2_1.sign_type import SignType
 from georama.maps.interfaces.opengis.gml_3_2_1.surface import Surface
 from georama.maps.interfaces.opengis.gml_3_2_1.tin import Tin
 from georama.maps.interfaces.opengis.gml_3_2_1.triangulated_surface import (
@@ -149,11 +153,12 @@ class SurfacePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -232,8 +237,8 @@ class OrientableSurfaceType(AbstractSurfaceType):
             "required": True,
         },
     )
-    orientation: str = field(
-        default="+",
+    orientation: SignType = field(
+        default=SignType.PLUS_SIGN,
         metadata={
             "type": "Attribute",
         },

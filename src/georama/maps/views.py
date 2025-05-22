@@ -231,7 +231,6 @@ class OgcServer(View):
         # TODO: This is done because otherwise the queue cant be pointed to
         #   see this for further details: https://stackoverflow.com/questions/53724665/using-queues-results-in-asyncio-exception-got-future-future-pending-attached
         RedisQueue(Config().redis_url)
-
         params = self.sanitize_query_parameters(request.GET.dict())
 
         if "REQUEST" not in params:
@@ -292,7 +291,19 @@ class OgcServer(View):
                     self.wfs_200_describefeaturetype, thread_sensitive=True
                 )(request, params)
             elif params["REQUEST"] == "GETFEATURE":
-                return await self.wfs_200_getfeature(request, params)
+                try:
+                    return await self.wfs_200_getfeature(request, params)
+                except AttributeError as e:
+                    return HttpResponse(e, status=400, content_type="text/xml")
+                except PermissionError as e:
+                    return HttpResponse(e, status=400, content_type="text/xml")
+                # except Exception as e:
+                #     logging.error(e)
+                #     # TODO: Provide the error info also in the response if we are in DEBUG?
+                #     return HttpResponse(
+                #         "An unexpected error happened while processing the request",
+                #         400
+                #     )
             else:
                 return HttpResponse("Not supported operation", 403)
         else:

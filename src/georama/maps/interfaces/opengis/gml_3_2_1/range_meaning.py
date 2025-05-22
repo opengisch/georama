@@ -1,10 +1,14 @@
 from dataclasses import dataclass
 
+from georama.maps.interfaces.opengis.gml_3_2_1.code_with_authority_type import (
+    CodeWithAuthorityType,
+)
+
 __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 
 @dataclass
-class RangeMeaning:
+class RangeMeaning(CodeWithAuthorityType):
     """Gml:rangeMeaning describes the meaning of axis value range specified by
     gml:minimumValue and gml:maximumValue.
 

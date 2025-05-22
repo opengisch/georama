@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_feature_type import (
     AbstractFeatureType,
@@ -24,6 +24,7 @@ from georama.maps.interfaces.opengis.gml_3_2_1.grid import Grid
 from georama.maps.interfaces.opengis.gml_3_2_1.grid_coverage import GridCoverage
 from georama.maps.interfaces.opengis.gml_3_2_1.line_string import LineString
 from georama.maps.interfaces.opengis.gml_3_2_1.linear_ring import LinearRing
+from georama.maps.interfaces.opengis.gml_3_2_1.measure_type import MeasureType
 from georama.maps.interfaces.opengis.gml_3_2_1.multi_curve import MultiCurve
 from georama.maps.interfaces.opengis.gml_3_2_1.multi_curve_coverage import (
     MultiCurveCoverage,
@@ -39,6 +40,9 @@ from georama.maps.interfaces.opengis.gml_3_2_1.multi_solid_coverage import (
 from georama.maps.interfaces.opengis.gml_3_2_1.multi_surface import MultiSurface
 from georama.maps.interfaces.opengis.gml_3_2_1.multi_surface_coverage import (
     MultiSurfaceCoverage,
+)
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.point import Point
 from georama.maps.interfaces.opengis.gml_3_2_1.polygon import Polygon
@@ -226,11 +230,12 @@ class FeaturePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -348,7 +353,7 @@ class DirectedObservation(DirectedObservationType):
 
 @dataclass
 class DirectedObservationAtDistanceType(DirectedObservationType):
-    distance: Optional[str] = field(
+    distance: Optional[MeasureType] = field(
         default=None,
         metadata={
             "type": "Element",
@@ -679,11 +684,12 @@ class ProcedurePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -1053,11 +1059,12 @@ class TargetPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(

@@ -15,6 +15,7 @@ from georama.maps.interfaces.opengis.gml_3_2_1.location_name import LocationName
 from georama.maps.interfaces.opengis.gml_3_2_1.location_reference import (
     LocationReference,
 )
+from georama.maps.interfaces.opengis.gml_3_2_1.measure_type import MeasureType
 from georama.maps.interfaces.opengis.gml_3_2_1.pos import Pos
 from georama.maps.interfaces.opengis.gml_3_2_1.priority_location import PriorityLocation
 from georama.maps.interfaces.opengis.gml_3_2_1.status import Status
@@ -70,7 +71,7 @@ class MovingObjectStatusType(AbstractTimeSliceType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    speed: Optional[str] = field(
+    speed: Optional[MeasureType] = field(
         default=None,
         metadata={
             "type": "Element",
@@ -84,14 +85,14 @@ class MovingObjectStatusType(AbstractTimeSliceType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    acceleration: Optional[str] = field(
+    acceleration: Optional[MeasureType] = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    elevation: Optional[str] = field(
+    elevation: Optional[MeasureType] = field(
         default=None,
         metadata={
             "type": "Element",

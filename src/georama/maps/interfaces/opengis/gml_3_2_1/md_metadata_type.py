@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -52,6 +52,9 @@ from georama.maps.interfaces.opengis.gml_3_2_1.md_scope_code_property_type impor
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.md_spatial_representation_property_type import (
     MdSpatialRepresentationPropertyType,
+)
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.object_reference_property_type import (
     ObjectReferencePropertyType,
@@ -377,12 +380,13 @@ class MdMetadataPropertyType:
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
             "namespace": "http://www.isotc211.org/2005/gco",
+            "pattern": r"other:\w{2,}",
         },
     )
 
@@ -641,12 +645,13 @@ class DsAggregatePropertyType:
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
             "namespace": "http://www.isotc211.org/2005/gco",
+            "pattern": r"other:\w{2,}",
         },
     )
 
@@ -757,11 +762,12 @@ class DsDataSetPropertyType:
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
             "namespace": "http://www.isotc211.org/2005/gco",
+            "pattern": r"other:\w{2,}",
         },
     )

@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 
+from georama.maps.interfaces.opengis.gml_3_2_1.code_type import CodeType
+
 __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 
 @dataclass
-class AnchorDefinition:
+class AnchorDefinition(CodeType):
     """Gml:anchorDefinition is a description, possibly including coordinates, of
     the definition used to anchor the datum to the Earth. Also known as the
     "origin", especially for engineering and image datums. The codeSpace attribute

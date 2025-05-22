@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_gmltype import AbstractGmltype
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_time_primitive_type import (
@@ -35,6 +35,9 @@ from georama.maps.interfaces.opengis.gml_3_2_1.multi_curve import MultiCurve
 from georama.maps.interfaces.opengis.gml_3_2_1.multi_point import MultiPoint
 from georama.maps.interfaces.opengis.gml_3_2_1.multi_solid import MultiSolid
 from georama.maps.interfaces.opengis.gml_3_2_1.multi_surface import MultiSurface
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
+)
 from georama.maps.interfaces.opengis.gml_3_2_1.null import Null
 from georama.maps.interfaces.opengis.gml_3_2_1.point import Point
 from georama.maps.interfaces.opengis.gml_3_2_1.polygon import Polygon
@@ -887,11 +890,12 @@ class ValuePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -986,6 +990,7 @@ class ValueArrayType(CompositeValueType):
         default=None,
         metadata={
             "type": "Attribute",
+            "pattern": r"[^: \n\r\t]+",
         },
     )
 

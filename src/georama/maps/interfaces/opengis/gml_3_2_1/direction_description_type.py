@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
+from georama.maps.interfaces.opengis.gml_3_2_1.code_type import CodeType
 from georama.maps.interfaces.opengis.gml_3_2_1.compass_point_enumeration import (
     CompassPointEnumeration,
 )
@@ -31,7 +32,7 @@ class DirectionDescriptionType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    keyword: Optional[str] = field(
+    keyword: Optional[CodeType] = field(
         default=None,
         metadata={
             "type": "Element",
