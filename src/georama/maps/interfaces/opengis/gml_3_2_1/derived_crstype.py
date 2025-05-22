@@ -1,10 +1,14 @@
 from dataclasses import dataclass
 
+from georama.maps.interfaces.opengis.gml_3_2_1.code_with_authority_type import (
+    CodeWithAuthorityType,
+)
+
 __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 
 @dataclass
-class DerivedCrstype:
+class DerivedCrstype(CodeWithAuthorityType):
     """The gml:derivedCRSType property describes the type of a derived coordinate
     reference system.
 

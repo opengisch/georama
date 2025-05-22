@@ -20,6 +20,12 @@ class DirectPositionType:
     object like a point, curve, etc.
     """
 
+    value: list[float] = field(
+        default_factory=list,
+        metadata={
+            "tokens": True,
+        },
+    )
     srs_name: Optional[str] = field(
         default=None,
         metadata={
@@ -34,17 +40,19 @@ class DirectPositionType:
             "type": "Attribute",
         },
     )
-    axis_labels: Optional[str] = field(
-        default=None,
+    axis_labels: list[str] = field(
+        default_factory=list,
         metadata={
             "name": "axisLabels",
             "type": "Attribute",
+            "tokens": True,
         },
     )
-    uom_labels: Optional[str] = field(
-        default=None,
+    uom_labels: list[str] = field(
+        default_factory=list,
         metadata={
             "name": "uomLabels",
             "type": "Attribute",
+            "tokens": True,
         },
     )

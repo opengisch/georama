@@ -76,5 +76,6 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
         metadata={
             "type": "Attribute",
             "required": True,
+            "pattern": r"[^: \n\r\t]+",
         },
     )

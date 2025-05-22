@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 
+from georama.maps.interfaces.opengis.gml_3_2_1.measure_type import MeasureType
+
 __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 
 @dataclass
-class LengthType:
+class LengthType(MeasureType):
     """This is a prototypical definition for a specific measure type defined as a
     vacuous extension (i.e. aliases) of gml:MeasureType.
 

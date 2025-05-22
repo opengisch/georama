@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 
+from georama.maps.interfaces.opengis.gml_3_2_1.code_type import CodeType
+
 __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 
 @dataclass
-class LocationName:
+class LocationName(CodeType):
     """The gml:locationName property element is a convenience property where the
     text value describes the location of the feature.
 

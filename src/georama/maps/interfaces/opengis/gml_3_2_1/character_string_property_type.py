@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.character_string import CharacterString
 from georama.maps.interfaces.opengis.gml_3_2_1.ci_date_type_code import CiDateTypeCode
@@ -80,6 +80,9 @@ from georama.maps.interfaces.opengis.gml_3_2_1.md_topic_category_code import (
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.md_topology_level_code import (
     MdTopologyLevelCode,
+)
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
 )
 
 __NAMESPACE__ = "http://www.isotc211.org/2005/gco"
@@ -346,11 +349,12 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
             "namespace": "http://www.isotc211.org/2005/gco",
+            "pattern": r"other:\w{2,}",
         },
     )

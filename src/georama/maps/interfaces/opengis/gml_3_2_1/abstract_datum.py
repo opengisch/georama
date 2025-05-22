@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 
-from georama.maps.interfaces.opengis.gml_3_2_1.sc_crs_property_type import (
-    AbstractDatumType,
-)
+from georama.maps.interfaces.opengis.gml_3_2_1.abstract_crstype import AbstractDatumType
 
 __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 

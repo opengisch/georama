@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -37,7 +37,11 @@ from georama.maps.interfaces.opengis.gml_3_2_1.line_string_segment import (
     LineStringSegment,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.linear_ring import LinearRing
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
+)
 from georama.maps.interfaces.opengis.gml_3_2_1.show_type import ShowType
+from georama.maps.interfaces.opengis.gml_3_2_1.sign_type import SignType
 from georama.maps.interfaces.opengis.gml_3_2_1.type_type import TypeType
 from georama.maps.interfaces.opengis.gml_3_2_1.vector_type import VectorType
 
@@ -156,11 +160,12 @@ class CurvePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(
@@ -275,8 +280,8 @@ class OrientableCurveType(AbstractCurveType):
             "required": True,
         },
     )
-    orientation: str = field(
-        default="+",
+    orientation: SignType = field(
+        default=SignType.PLUS_SIGN,
         metadata={
             "type": "Attribute",
         },
