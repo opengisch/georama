@@ -14,6 +14,7 @@ nav:
   - "Workflow": workflow.md
   - "General Hints": general_hints.md
   - API References: reference/
+  - Endpoints: endpoints.md
   - Topics:
     - "Docker": build-process_DAG.md
     - "CI/CD": cicd.md

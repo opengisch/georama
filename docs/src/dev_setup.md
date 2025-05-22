@@ -118,3 +118,8 @@ Finally you can now connect to the pycharm debugger
 ![PyCharm Starting](assets/pycharm_starting.png)
 
 ![PyCharm Running](assets/pycharm_running.png)
+
+
+## Next Steps
+See the [Workflow](workflow.md)
+
