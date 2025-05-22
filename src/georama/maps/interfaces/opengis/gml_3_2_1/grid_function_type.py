@@ -18,11 +18,12 @@ class GridFunctionType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    start_point: Optional[str] = field(
-        default=None,
+    start_point: list[int] = field(
+        default_factory=list,
         metadata={
             "name": "startPoint",
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
+            "tokens": True,
         },
     )

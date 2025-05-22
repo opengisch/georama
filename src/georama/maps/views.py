@@ -162,7 +162,8 @@ class OgcServer(View):
         job = await sync_to_async(
             operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True
         )(get_feature_parameter)
-        result: JobResult = await self.redis_queue_instance.post(job, Config().job_timeout)
+        redis_queue = await self.redis_queue_instance
+        result = await redis_queue.post(job, Config().job_timeout)
         content, content_type, success = operation.render(
             get_feature_parameter.output_format,
             operation.get_feature(
@@ -233,11 +234,11 @@ class OgcServer(View):
                     )
         return accessible_raster, accessible_vector, accessible_custom, vector_extent_buffer
 
-    async def get(self, request: HttpRequest, *args, **kwargs):
-        # we instantiate vor every call because this is async and need to be in context of the calling event
-        # loop
-        redis_queue = await RedisQueue.create(Config().redis_url)
+    @property
+    async def redis_queue_instance(self) -> RedisQueue:
+        return await RedisQueue.create(Config().redis_url)
 
+    async def get(self, request: HttpRequest, *args, **kwargs):
         params = self.sanitize_query_parameters(request.GET.dict())
 
         if "REQUEST" not in params:
@@ -283,6 +284,7 @@ class OgcServer(View):
                 return HttpResponse("Only WMS Service is available", 500)
             config = Config()
             try:
+                redis_queue = await self.redis_queue_instance
                 result = await redis_queue.post(job, config.job_timeout)
                 return HttpResponse(result.data, result.content_type)
             except RuntimeError:
@@ -305,7 +307,19 @@ class OgcServer(View):
                     self.wfs_200_describefeaturetype, thread_sensitive=True
                 )(request, params)
             elif params["REQUEST"] == "GETFEATURE":
-                return await self.wfs_200_getfeature(request, params)
+                try:
+                    return await self.wfs_200_getfeature(request, params)
+                except AttributeError as e:
+                    return HttpResponse(e, status=400, content_type="text/xml")
+                except PermissionError as e:
+                    return HttpResponse(e, status=400, content_type="text/xml")
+                # except Exception as e:
+                #     logging.error(e)
+                #     # TODO: Provide the error info also in the response if we are in DEBUG?
+                #     return HttpResponse(
+                #         "An unexpected error happened while processing the request",
+                #         400
+                #     )
             else:
                 return HttpResponse("Not supported operation", 403)
         else:

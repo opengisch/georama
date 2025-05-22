@@ -33,17 +33,19 @@ class AbstractGeometryType(AbstractGmltype):
             "type": "Attribute",
         },
     )
-    axis_labels_attribute: Optional[str] = field(
-        default=None,
+    axis_labels_attribute: list[str] = field(
+        default_factory=list,
         metadata={
             "name": "axisLabels",
             "type": "Attribute",
+            "tokens": True,
         },
     )
-    uom_labels: Optional[str] = field(
-        default=None,
+    uom_labels: list[str] = field(
+        default_factory=list,
         metadata={
             "name": "uomLabels",
             "type": "Attribute",
+            "tokens": True,
         },
     )

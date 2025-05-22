@@ -1,9 +1,12 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.envelope import Envelope
 from georama.maps.interfaces.opengis.gml_3_2_1.envelope_with_time_period import (
     EnvelopeWithTimePeriod,
+)
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.null import Null
 
@@ -36,10 +39,11 @@ class BoundingShapeType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )

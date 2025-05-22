@@ -11,5 +11,6 @@ class UnitOfMeasureType:
         metadata={
             "type": "Attribute",
             "required": True,
+            "pattern": r"[^: \n\r\t]+",
         },
     )

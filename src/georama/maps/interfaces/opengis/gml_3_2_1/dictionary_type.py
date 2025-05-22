@@ -1,6 +1,24 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
+from georama.maps.interfaces.opengis.gml_3_2_1.abstract_crstype import (
+    CompoundCrs,
+    Conversion1,
+    DerivedCrs,
+    EngineeringCrs,
+    EngineeringDatum1,
+    GeocentricCrs,
+    GeodeticCrs,
+    GeodeticDatum1,
+    GeographicCrs,
+    ImageCrs,
+    ImageDatum1,
+    ProjectedCrs,
+    TemporalCrs,
+    TemporalDatum1,
+    VerticalCrs,
+    VerticalDatum1,
+)
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_general_operation_parameter_property_type import (
     OperationParameterGroup,
 )
@@ -29,6 +47,9 @@ from georama.maps.interfaces.opengis.gml_3_2_1.ellipsoid_1 import Ellipsoid1
 from georama.maps.interfaces.opengis.gml_3_2_1.ellipsoidal_cs_1 import EllipsoidalCs1
 from georama.maps.interfaces.opengis.gml_3_2_1.indirect_entry import IndirectEntry
 from georama.maps.interfaces.opengis.gml_3_2_1.linear_cs_1 import LinearCs1
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
+)
 from georama.maps.interfaces.opengis.gml_3_2_1.oblique_cartesian_cs import (
     ObliqueCartesianCs,
 )
@@ -38,24 +59,6 @@ from georama.maps.interfaces.opengis.gml_3_2_1.operation_parameter_1 import (
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.polar_cs_1 import PolarCs1
 from georama.maps.interfaces.opengis.gml_3_2_1.prime_meridian_1 import PrimeMeridian1
-from georama.maps.interfaces.opengis.gml_3_2_1.sc_crs_property_type import (
-    CompoundCrs,
-    Conversion1,
-    DerivedCrs,
-    EngineeringCrs,
-    EngineeringDatum1,
-    GeocentricCrs,
-    GeodeticCrs,
-    GeodeticDatum1,
-    GeographicCrs,
-    ImageCrs,
-    ImageDatum1,
-    ProjectedCrs,
-    TemporalCrs,
-    TemporalDatum1,
-    VerticalCrs,
-    VerticalDatum1,
-)
 from georama.maps.interfaces.opengis.gml_3_2_1.show_type import ShowType
 from georama.maps.interfaces.opengis.gml_3_2_1.spherical_cs_1 import SphericalCs1
 from georama.maps.interfaces.opengis.gml_3_2_1.temporal_cs import TemporalCs
@@ -602,11 +605,12 @@ class DictionaryEntryType(AbstractMemberType):
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
+            "pattern": r"other:\w{2,}",
         },
     )
     remote_schema: Optional[str] = field(

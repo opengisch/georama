@@ -19,12 +19,13 @@ class GridType(AbstractGeometryType):
             "required": True,
         },
     )
-    axis_labels: Optional[str] = field(
-        default=None,
+    axis_labels: list[str] = field(
+        default_factory=list,
         metadata={
             "name": "axisLabels",
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
+            "tokens": True,
         },
     )
     axis_name: list[str] = field(

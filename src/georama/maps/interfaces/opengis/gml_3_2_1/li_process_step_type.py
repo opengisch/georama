@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -25,6 +25,9 @@ from georama.maps.interfaces.opengis.gml_3_2_1.md_reference_system_property_type
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.md_representative_fraction_property_type import (
     MdRepresentativeFractionPropertyType,
+)
+from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
+    NilReasonEnumerationValue,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.show_type import ShowType
 from georama.maps.interfaces.opengis.gml_3_2_1.type_type import TypeType
@@ -155,12 +158,13 @@ class LiProcessStepPropertyType:
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
             "namespace": "http://www.isotc211.org/2005/gco",
+            "pattern": r"other:\w{2,}",
         },
     )
 
@@ -298,11 +302,12 @@ class LiSourcePropertyType:
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
         default=None,
         metadata={
             "name": "nilReason",
             "type": "Attribute",
             "namespace": "http://www.isotc211.org/2005/gco",
+            "pattern": r"other:\w{2,}",
         },
     )

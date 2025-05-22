@@ -1,6 +1,24 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
+from georama.maps.interfaces.opengis.gml_3_2_1.abstract_crstype import (
+    CompoundCrs,
+    Conversion1,
+    DerivedCrs,
+    EngineeringCrs,
+    EngineeringDatum1,
+    GeocentricCrs,
+    GeodeticCrs,
+    GeodeticDatum1,
+    GeographicCrs,
+    ImageCrs,
+    ImageDatum1,
+    ProjectedCrs,
+    TemporalCrs,
+    TemporalDatum1,
+    VerticalCrs,
+    VerticalDatum1,
+)
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_general_operation_parameter_property_type import (
     OperationParameterGroup,
 )
@@ -151,24 +169,6 @@ from georama.maps.interfaces.opengis.gml_3_2_1.quantity_list import QuantityList
 from georama.maps.interfaces.opengis.gml_3_2_1.rectified_grid import RectifiedGrid
 from georama.maps.interfaces.opengis.gml_3_2_1.rectified_grid_coverage import (
     RectifiedGridCoverage,
-)
-from georama.maps.interfaces.opengis.gml_3_2_1.sc_crs_property_type import (
-    CompoundCrs,
-    Conversion1,
-    DerivedCrs,
-    EngineeringCrs,
-    EngineeringDatum1,
-    GeocentricCrs,
-    GeodeticCrs,
-    GeodeticDatum1,
-    GeographicCrs,
-    ImageCrs,
-    ImageDatum1,
-    ProjectedCrs,
-    TemporalCrs,
-    TemporalDatum1,
-    VerticalCrs,
-    VerticalDatum1,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1.solid import Solid
 from georama.maps.interfaces.opengis.gml_3_2_1.solid_property_type import CompositeSolid
