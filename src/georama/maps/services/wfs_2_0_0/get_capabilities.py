@@ -66,7 +66,11 @@ class WfsGetCapabilities(WfsOperation):
             bbox = BBox.from_string(dataset.bbox_wgs84)
             wfs_capabilities.feature_type_list.feature_type.append(
                 self.create_feature_type(
-                    published_as.name, published_as.title, source_crs.ogc_uri, bbox, self.url
+                    f"{self.own_namespace}:{published_as.name}",
+                    published_as.title,
+                    source_crs.ogc_uri,
+                    bbox,
+                    self.url,
                 )
             )
         return wfs_capabilities

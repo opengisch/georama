@@ -43,10 +43,6 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.filter import F
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.value_reference import (
     ValueReference,
 )
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1 import (
-    Exception as Wfs200Exception,
-)
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1 import ExceptionReport
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
     FeatureCollection,
     GetFeature,
@@ -91,49 +87,14 @@ class WfsGetFeature(WfsOperation):
             "fes": "http://www.opengis.net/fes/2.0",
             "ows": "http://www.opengis.net/ows/1.1",
             "xsi": "http://www.w3.org/2001/XMLSchema-instance",
-            "georama": "https://www.opengis.ch/georama",
             "gml": "http://www.opengis.net/gml/3.2",
+            self.own_namespace: "https://www.opengis.ch/georama",
         }
         self.geometry_types = {
             "point": [1, 1001, 2001, 3001],
             "linestring": [2, 1002, 2002, 3002],
             "polygon": [3, 1003, 2003, 3003],
         }
-
-    def create_exception(self, message: str) -> ExceptionReport:
-        return ExceptionReport(
-            version="2.0.0",
-            exception=[
-                Wfs200Exception(
-                    exception_code="OperationParsingFailed",
-                    exception_text=["It was not possible to process the request"],
-                    locator="GetFeature",
-                ),
-                Wfs200Exception(
-                    exception_code="InvalidParameterValue", exception_text=[message]
-                ),
-            ],
-        )
-
-    def render_exception(self, message: str) -> str:
-        config = SerializerConfig(
-            xml_declaration=True,
-            xml_version="1.0",
-            ignore_default_attributes=True,
-            schema_location=" ".join(
-                [
-                    "http://www.opengis.net/ows/1.1",
-                    "http://schemas.opengis.net/ows/1.1.0/owsAll.xsd",
-                ]
-            ),
-        )
-        return XmlSerializer(config=config).render(
-            self.create_exception(message),
-            ns_map={
-                "": "http://www.opengis.net/ows/1.1",
-                "xsi": "http://www.w3.org/2001/XMLSchema-instance",
-            },
-        )
 
     @property
     def allowed_formats(self) -> List[str]:
@@ -497,22 +458,38 @@ class WfsGetFeature(WfsOperation):
         """
         qsl_feature_queries = []
         for query in get_feature_parameter.query:
+
+            # based on the sanitized list of requested layer names we fetch then the definitions of these
+            # layers (this includes permission check and existence check)
+            accessible_datasets = []
+            for layer in self.obtain_accessible_layers(
+                self.sanitized_typenames(query.type_names)
+            ):
+                accessible_datasets.append(layer.vector_dataset.to_qsl)
+            if query.filter:
+                if len(accessible_datasets) > 1:
+                    # we dont allow that, since its not possible to create filter from expression on multiple
+                    # layers in QGIS currently.
+                    raise AttributeError(
+                        self.render_exception(
+                            "Currently QGIS-Server-Light does not support querying multiple layers in one"
+                            " query and passing a filter on that. This is a limitation of QGIS."
+                        )
+                    )
+                filter = XmlSerializer().render(
+                    query.filter,
+                    ns_map={
+                        "": "http://www.opengis.net/fes/2.0",
+                        "gml": "http://www.opengis.net/gml/3.2",
+                    },
+                )
+            else:
+                filter = None
             qsl_feature_queries.append(
                 FeatureQuery(
-                    datasets=[
-                        layer.vector_dataset.to_qsl
-                        for layer in self.obtain_accessible_layers(query.type_names)
-                    ],
+                    datasets=accessible_datasets,
                     alias=query.aliases,
-                    filter=XmlSerializer().render(
-                        query.filter,
-                        ns_map={
-                            "": "http://www.opengis.net/fes/2.0",
-                            "gml": "http://www.opengis.net/gml/3.2",
-                        },
-                    )
-                    if query.filter
-                    else None,
+                    filter=filter,
                 )
             )
         return QslGetFeatureJob(
@@ -676,7 +653,9 @@ class WfsGetFeature(WfsOperation):
             )
             raise NotImplementedError()
 
-    def get_feature(self, get_feature_parameter: GetFeature, result: JobResult):
+    def get_feature(
+        self, get_feature_parameter: GetFeature, result: JobResult, job: QslGetFeatureJob
+    ):
         qsl_query_collection = JsonParser().from_bytes(result.data, QueryCollection)
         wfs_feature_collection = FeatureCollection(
             number_returned=0, number_matched=qsl_query_collection.numbers_matched
@@ -685,13 +664,14 @@ class WfsGetFeature(WfsOperation):
         class GeoramaMeta:
             namespace = "https://www.opengis.ch/georama"
 
-        for feature_collection in qsl_query_collection.feature_collections:
+        for feature_collection_index, feature_collection in enumerate(
+            qsl_query_collection.feature_collections
+        ):
             wfs_feature_collection.number_returned += len(feature_collection.features)
-            for index, feature in enumerate(feature_collection.features):
+            for feature_sequence, feature in enumerate(feature_collection.features):
                 fields = []
                 feature_dict = {}
                 for attribute in feature.attributes:
-                    print(attribute.value, type(attribute.value))
                     if attribute.value is not None:
                         type_name = type(attribute.value)
                     else:
@@ -717,7 +697,9 @@ class WfsGetFeature(WfsOperation):
                             ),
                         )
                     )
-                    feature_dict["id"] = f"TEST.{index}"
+                    feature_dict[
+                        "id"
+                    ] = f"{self.own_namespace}:{feature_collection.name}.{feature_sequence}"
                 fields.append(
                     ("geometry", Union[GeometryMember, GeometryMembers], field(default=None))
                 )
@@ -725,9 +707,19 @@ class WfsGetFeature(WfsOperation):
                 feature_dataclass.Meta = GeoramaMeta
                 feature_object = feature_dataclass(**feature_dict)
                 start = time.time()
+                if get_feature_parameter.query[0].srs_name:
+                    srs = get_feature_parameter.query[
+                        feature_collection_index
+                    ].srs_name.lower()
+                else:
+                    srs = None
+                    for dataset in job.queries[feature_collection_index].datasets:
+                        if dataset == feature_collection.name:
+                            srs = dataset.crs.ogc_uri
+                            break
                 feature_object.geometry = self.parse_wkb_to_gml3(
                     feature.geometry_as_bytes(),
-                    get_feature_parameter.query[0].srs_name.lower(),
+                    srs,
                 )
                 logging.debug(f"Rendered GML3 from WKB direct: {time.time() - start}")
                 wfs_feature_collection.member.append(Member(content=[feature_object]))

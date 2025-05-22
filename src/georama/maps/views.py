@@ -12,9 +12,12 @@ from qgis_server_light.interface.job import (
     WmsGetMapParams,
 )
 from qgis_server_light.interface.qgis import Custom, Raster, Vector
+from xsdata.exceptions import ParserError
+from xsdata.formats.dataclass.parsers import XmlParser
 
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import MapsConfig
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import GetFeature
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
@@ -160,6 +163,7 @@ class OgcServer(View):
                 # TODO: This has to be improved for XML body via POST
                 get_feature_parameter,
                 result,
+                job,
             ),
             operation.unwrap_type_names(get_feature_parameter),
         )
@@ -308,6 +312,51 @@ class OgcServer(View):
                 return HttpResponse("Not supported operation", 403)
         else:
             return HttpResponse("Only WMS|WFS Service is available", 400)
+
+    async def post(self, request: HttpRequest, *args, **kwargs):
+        try:
+
+            operation = WfsGetFeature(
+                appname, f'{request.build_absolute_uri("maps")}?', request.user
+            )
+            get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature)
+
+            job = await sync_to_async(
+                operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True
+            )(get_feature_parameter)
+            result: JobResult = await self.redis_queue_instance.post(job, Config().job_timeout)
+            content, content_type, success = operation.render(
+                get_feature_parameter.output_format.upper(),
+                operation.get_feature(
+                    # we use only one query here, since this is implemented for URL GET query params
+                    # TODO: This has to be improved for XML body via POST
+                    get_feature_parameter,
+                    result,
+                    job,
+                ),
+                operation.unwrap_type_names(get_feature_parameter),
+            )
+            if not success:
+                return HttpResponse(
+                    content,
+                    status=400,
+                    content_type=content_type,
+                )
+            else:
+                return HttpResponse(
+                    content,
+                    content_type=content_type,
+                )
+        except ParserError as e:
+            logging.error(e)
+            return HttpResponse(
+                WfsGetFeature.render_exception("Could not parse payload"),
+                status=400,
+                content_type="text/xml",
+            )
+        except AttributeError as e:
+            logging.error(e)
+            return HttpResponse(e, status=400, content_type="text/xml")
 
 
 def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):
