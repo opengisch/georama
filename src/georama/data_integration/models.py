@@ -95,6 +95,9 @@ class DataSet(models.Model):
         )
         return DictDecoder(config=config).decode(self.crs, Crs)
 
+    def __str__(self):
+        return f"{self.title} ({self.name})"
+
 
 class VectorDataSet(DataSet):
     class Meta:
