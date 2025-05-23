@@ -8,7 +8,7 @@ from georama.core.entities.models import (
     PublishedAs,
     PublishedAsRoleNameSystem,
     delete_publishedas_db_permissions,
-    save_publishedas_db_permissions
+    save_publishedas_db_permissions,
 )
 from georama.data_integration.models import VectorDataSet
 
@@ -22,9 +22,17 @@ COLUMN_TYPE_VALUES = {
 
 
 class PublishedAsVectorFeature(PublishedAs):
-
+    ON_EXCEED_CHOICES = (
+        ("ERROR", "error"),
+        ("THROTTLE", "throttle"),
+    )
     published_as_type = "feature"
     column_permission = models.BooleanField(default=False)
+    default_items = models.IntegerField(default=10, null=True)
+    max_items = models.IntegerField(default=500, null=True)
+    on_exceed = models.CharField(
+        default="ERROR", choices=ON_EXCEED_CHOICES, max_length=10, null=True
+    )
 
     class Meta:
         abstract = True
@@ -35,7 +43,7 @@ class PublishedAsVectorFeature(PublishedAs):
     @property
     def columns_permissions(self) -> List[PermissionInterface]:
         """Returns all the possible permissions for columns of this VectorFeature
-        
+
         Doesn't check if column permissions are enabled on this VectorFeature publication"""
         return [p for col in self.get_columns() for p in col.permissions]
 
@@ -50,7 +58,11 @@ class PublishedAsVectorFeature(PublishedAs):
         """include columns permissions in this check"""
         if self.public:
             return True
-        permissions = self.permission_codenames if not self.column_permission else [p.codename for p in self.all_permissions]
+        permissions = (
+            self.permission_codenames
+            if not self.column_permission
+            else [p.codename for p in self.all_permissions]
+        )
         return self._has_grained_permission(user, permissions, app_name)
 
 
@@ -152,11 +164,9 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
             update_fields=update_fields,
         )
         for field in self.dataset.fields.all():
-            if (
-                not ColumnOgcApiFeatures.objects.filter(
-                    name=field.name, published_definition=self
-                ).exists()
-            ):
+            if not ColumnOgcApiFeatures.objects.filter(
+                name=field.name, published_definition=self
+            ).exists():
                 ColumnOgcApiFeatures(
                     published_definition=self,
                     name=field.name,
@@ -175,5 +185,3 @@ class ColumnOgcApiFeatures(Column):
 
     def get_published_definition(self) -> PublishedAsOgcApiFeatures:
         return self.published_definition
-
-

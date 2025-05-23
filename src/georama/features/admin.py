@@ -54,6 +54,9 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
                     "fees",
                     "access_constraints",
                     "dataset_detail",
+                    "max_items",
+                    "default_items",
+                    "on_exceed",
                 )
             },
         ),

@@ -1,5 +1,9 @@
+from georama.features.models import PublishedAsVectorFeature
+
+
 class ServerConfig:
     def get(self) -> dict:
+        on_exceed_key, on_exceed_value = PublishedAsVectorFeature.ON_EXCEED_CHOICES[0]
         return {
             "server": {
                 "url": "OVERWRITTEN AT RUNTIME",
@@ -8,7 +12,11 @@ class ServerConfig:
                 "gzip": False,
                 "languages": ["en-US", "fr-CA"],
                 "pretty_print": True,
-                "limit": 10,
+                "limits": {
+                    "default_items": 10,
+                    "max_items": 500,
+                    "on_exceed": on_exceed_value,
+                },
                 "map": {
                     "url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                     "attribution": '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
