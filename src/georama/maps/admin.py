@@ -39,6 +39,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
                     "license",
                     "fees",
                     "access_constraints",
+                    "dataset_detail",
                     "extent_buffer",
                 )
             },

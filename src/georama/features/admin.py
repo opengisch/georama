@@ -36,7 +36,7 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
     inlines = [ColumnOgcApiFeaturesInline]
     add_form_template = "admin/features/publishedasvectorfeature/publish.html"
     list_editable = ["public"]
-    readonly_fields = ["dataset_detail"]
+    readonly_fields = ["dataset"]
 
     form = PublishedAsOgcApiFeaturesForm
 
@@ -53,7 +53,7 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
                     "license",
                     "fees",
                     "access_constraints",
-                    "dataset_detail",
+                    "dataset",
                     "max_items",
                     "default_items",
                     "on_exceed",
@@ -110,11 +110,6 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
             )
         )
 
-    def dataset_detail(self, obj: PublishedAsOgcApiFeatures):
-        return mark_safe(
-            f'<a href="{reverse("admin:features_publishedasogcapifeatures_change", args=(obj.dataset.pk,))}">{obj.dataset.title} ({obj.dataset.name})</a>'
-        )
-
     def save_model(self, request, obj, form, change):
         permissions_dct = {"read": "", "create": "", "update": "", "delete": ""}
 
@@ -134,5 +129,3 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
             save_user_permissions(users, permission)
 
         super().save_model(request, obj, form, change)
-
-    dataset_detail.short_description = "Dataset"
