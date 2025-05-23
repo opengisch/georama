@@ -12,13 +12,13 @@ PYTHON_PATH = $(shell which python3)
 PYTHON_VERSION = $(shell printf '%b' "import sys\nprint(f'{sys.version_info.major}.{sys.version_info.minor}')" | $$(which python3))
 EDITABLE_GEORAMA_PATH = $(VENV_PATH)/lib/python$(PYTHON_VERSION)/site-packages/editable_georama.pth
 PINNED_DEPS ?= reqs.txt
-PINNED_DEPS_FOR_CI ?= reqs-for-ci.txt # CI-specific requirements file
+PINNED_DEPS_FOR_CI ?= reqs-test.txt # CI-specific requirements file
 
 # Define the exact pygeoapi line you want in the CI requirements (branch reference)
-PYGEOAPI_BRANCH_SPEC = pygeoapi @ git+https://github.com/opengisch/pygeoapi.git@respect-property-setting-in-ogr-provider#egg=pygeoapi
+PYGEOAPI_BRANCH_SPEC = pygeoapi @ git+https://github.com/opengisch/pygeoapi.git@respect-property-setting-in-ogr-provider
 
 # Define the exact qgis-server-light line you want in the CI requirements (branch reference)
-QGIS_SERVER_LIGHT_BRANCH_SPEC = qgis-server-light @ git+https://github.com/opengisch/qgis-server-light.git@master#egg=qgis-server-light
+QGIS_SERVER_LIGHT_BRANCH_SPEC = qgis-server-light @ git+https://github.com/opengisch/qgis-server-light.git@master
 
 QGIS_PY_PATH ?= /usr/share/qgis/python
 
