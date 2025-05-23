@@ -405,6 +405,11 @@ def create_resource(published_as: PublishedAsOgcApiFeatures, request: HttpReques
             }
         },
         "providers": [provider],
+        "limits": {
+            "on_exceed": published_as.on_exceed,
+            "max_items": published_as.max_items,
+            "default_items": published_as.default_items,
+        },
     }
 
 

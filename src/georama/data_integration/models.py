@@ -14,6 +14,7 @@ from qgis_server_light.interface.qgis import (
     Vector,
 )
 from xsdata.formats.dataclass.parsers import DictDecoder
+from xsdata.formats.dataclass.parsers.config import ParserConfig
 
 log = logging.getLogger(__name__)
 
@@ -89,7 +90,10 @@ class DataSet(models.Model):
 
     @property
     def crs_to_qsl(self) -> Crs:
-        return DictDecoder().decode(self.crs, Crs)
+        config = ParserConfig(
+            fail_on_unknown_attributes=False, fail_on_unknown_properties=False
+        )
+        return DictDecoder(config=config).decode(self.crs, Crs)
 
 
 class VectorDataSet(DataSet):
