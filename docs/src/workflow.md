@@ -11,7 +11,7 @@ graph TB;
 
 ## QGIS Project Structure
 Your QGIS projects have to be structured as follows and should be referenced in the `.env` file:
-<pre> 
+```
 data/
 ├── project_one
 │   ├── data
@@ -27,7 +27,7 @@ data/
     ├── forest_fires.xml
     ├── print_templates
     └── styles
-</pre>
+```
 
 
 ## Prepare the QGIS Projects

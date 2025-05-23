@@ -99,18 +99,19 @@ docker compose up -d
 ```
 
 ### Setting up the environment
-![PyCharm Docker Target](assets/pycharm_docker_target.png)
+<img src="../assets/pycharm_docker_target.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
 
 Specify the interpreter path as: `/opt/georama/venv/bin/python`
 
-![PyCharm Interpreter Settings 1](assets/pycharm_interpreter_1.png)
 
-![PyCharm Interpreter Settings 2](assets/pycharm_interpreter_2.png)
+<img src="../assets/pycharm_interpreter_1.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
+
+<img src="../assets/pycharm_interpreter_2.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
 
 ### Configuring Run/Debug 
 Adjust the IP in the run/debug configuration to `0.0.0.0` and the port to `8080`
 
-![PyCharm Run/Debug Configs](assets/pycharm_debug_configs.png)
+<img src="../assets/pycharm_debug_configs.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
 
 ### Run the env
 Finally you can now connect to the pycharm debugger

@@ -34,9 +34,9 @@ Built for flexibility and integration, Georama streamlines the process of servin
 
 Ready to dive in? Start with the following resources:
 
-- [Installation Guide](installation.md)
-- [API Reference](api/overview.md)
 - [Quickstart Tutorial](quick_start.md)
+- [API Reference](api_references/overview.md)
+- [Endpoints](endpoints.md)
 
 ---
 
