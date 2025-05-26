@@ -1505,8 +1505,8 @@ class Layer:
             "type": "Element",
         },
     )
-    queryable: bool = field(
-        default=False,
+    queryable: int = field(
+        default=0,
         metadata={
             "type": "Attribute",
         },
@@ -1517,14 +1517,14 @@ class Layer:
             "type": "Attribute",
         },
     )
-    opaque: bool = field(
-        default=False,
+    opaque: int = field(
+        default=0,
         metadata={
             "type": "Attribute",
         },
     )
-    no_subsets: bool = field(
-        default=False,
+    no_subsets: int = field(
+        default=0,
         metadata={
             "name": "noSubsets",
             "type": "Attribute",

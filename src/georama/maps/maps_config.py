@@ -92,7 +92,7 @@ class Config:
             },
             "Exception": {"Format": [{"value": "text/xml"}]},
             "Layer": {
-                "queryable": False,
+                "queryable": 0,
                 "cascaded": 0,
                 "Name": "qgis_server_light",
                 "Title": {"value": "QGIS Server light"},
