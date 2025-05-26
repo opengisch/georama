@@ -1,4 +1,16 @@
+---
+tags:
+  - Setup
+  - Workflow
+---
 
+# ⚙️ Georama Workflow Guide
+
+This guide walks you through the full Georama publishing workflow — from preparing your QGIS project, configuring Georama, and integrating services, to publishing WMS and OGC API (WFS 3) layers.
+
+---
+
+## 🗺️ Overview
 ```mermaid
 graph TB;
   prepareQGIS["Prepare QGIS Project with qgis-server-light"] -. "config.json" .-> configureGeorama
@@ -9,7 +21,7 @@ graph TB;
   Publish --> PublishOGC
 ```
 
-## QGIS Project Structure
+## 📁 QGIS Project Structure
 Your QGIS projects have to be structured as follows and should be referenced in the `.env` file:
 ```
 data/
@@ -30,11 +42,12 @@ data/
 ```
 
 
-## Prepare the QGIS Projects
+## 🧰 Prepare the QGIS Projects
 
 QGIS Server Light (QSL) offers a CLI script to extract the config JSON from QGIS Projects. It is available in the DEV version of the QSL docker image from
 the github container registry.
 
+### 🔧 CLI Help
 You can use that as follows:
 
 ```shell
@@ -51,6 +64,7 @@ Remark: Having spaces in the project file name is possible but not a good idea i
 
 The JSON is written to stdout. To put it in a file the stdout has to be piped into an file.
 
+### 🚀 Generate JSON
 To generate 
 
 ```shell
@@ -62,12 +76,12 @@ docker run --rm -v $(pwd)/data:/io/data ghcr.io/opengisch/qgis-server-light-dev:
 !!! info
     The JSON can be used to configure Georama and must be available in the QGIS directory you specified in the `.env` file.
 
-## Configure Georama Basics
+## 🛠️ Configure Georama Basics
 Now you can configure the Georama basics in the admin interface.
 
 Add users and groups to configure fine grained access control later on.
 
-## Configure a Project
+## 🧩 Configure a Project
 Import a QGIS project from the generated JSON file.
 <img src="../assets/configure_project1.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
 
@@ -76,7 +90,7 @@ Import a QGIS project from the generated JSON file.
 Configure the project details.
 <img src="../assets/configure_project3.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
 
-## Publish a OGC Feature
+## 🌍 Publish a OGC Feature
 <img src="../assets/publish_ogc1.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
 
 <img src="../assets/publish_ogc2.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
@@ -95,7 +109,7 @@ Configure the project details.
 
 <img src="../assets/publish_ogc9.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
 
-## Publish a WMS layer
+## 🖼️ Publish a WMS layer
 <img src="../assets/publish_wms1.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
 
 <img src="../assets/publish_wms2.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
@@ -106,5 +120,5 @@ Configure the project details.
 
 <img src="../assets/publish_wms5.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
 
-## Accesing the published data
+## 🔗 Accesing the published data
 See [Endpoints](endpoints.md) to access the published data.

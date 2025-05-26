@@ -1,3 +1,9 @@
+---
+tags:
+  - Development
+  - Docker
+---
+
 # General hints
 
 ## Update QGIS Server light lib

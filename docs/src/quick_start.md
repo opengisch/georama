@@ -1,57 +1,73 @@
-# Quick-start
+---
+tags:
+  - Setup
+  - Quick-start
+---
 
-See the also the
+# ⚡ Quick-start Guide
+
+Set up **Georama** locally using Docker with minimal effort.
+
+📘 **Also see:**  
 <a href="https://github.com/opengisch/georama?tab=readme-ov-file#quickstart" target="_blank">
-README.md</a>
+Official README.md</a>
 
+---
 
+## 🐳 Quickstart with Docker Compose
 
-## Quickstart docker compose
+### ✅ Prerequisites
 
-### Prerequisites
-- Docker
-- Docker Compose
+Make sure you have the following installed:
 
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/)
 
-### Setup
-```shell
+---
+
+### 📦 Clone the Repository
+
+```bash
 git clone git@github.com:opengisch/georama.git
 cd georama
 ```
-#### Configuring the environment
-Create your own `.env` file by copying the example.
-```shell
+
+### ⚙️ Environment Configuration
+Copy the example environment file and customize it:
+
+```bash
 cp .env.example .env
 ```
 
-Set the path to the QGIS projects directory:
-`GEORAMA_LOCAL_DATA=<path-to-your-qgis-projects>`
+Set the path to your QGIS projects:
 
-And adapt additional values of `.env` as needed.
+```bash
+GEORAMA_LOCAL_DATA=/absolute/path/to/your/qgis/projects
+```
+Optionally, adjust other variables in the .env file to match your environment.
 
-#### Starting the services
-Then, start the services.
-```shell
+### 🚀 Start the Services
+Build and launch all containers:
+
+```bash
 docker compose build
 docker compose up -d
 ```
+⏳ Note: The first run downloads ~5GB of test data. Be patient.
 
-Wait for services to be up and running. That might last a moment since the test
-data has to be
-fetched (about 5GB).
+### 🗃️ Prepare the Django Database
+Once services are running, apply migrations and create a superuser:
 
-#### Preparing the DB
-If everything runs, you can prepare the Django DB.
-
-```shell
+```bash
 docker compose exec georama make migrate
 docker compose exec georama make create-superuser
 ```
 
-#### Accessing the services
-Admin interface (user: admin password: whatever-you-chose): http://localhost:8080/admin/
+### 🔐 Access the Admin Interface
+Admin panel: http://localhost:8080/admin/
+Login with the superuser credentials you chose.
 
-
-## Next Steps
+### ➡️ Next Steps
+Explore the recommended Workflow Guide to import data, publish services, and manage metadata.
 See the [Workflow](workflow.md)
 

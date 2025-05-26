@@ -1,3 +1,10 @@
+---
+tags:
+  - CICD
+  - Github Actions
+  - Development
+---
+
 ```mermaid
 graph LR;
   set_github_outputs --> test_suite
