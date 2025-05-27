@@ -59,7 +59,9 @@ from georama.maps.interfaces.opengis.gml_3_2_1 import (
     Interior,
     LinearRing,
     LineString,
+    MultiPoint,
     Point,
+    PointMembers,
     Polygon,
     Pos,
     PosList,
@@ -95,6 +97,10 @@ class WfsGetFeature(WfsOperation):
             "point": [1, 1001, 2001, 3001],
             "linestring": [2, 1002, 2002, 3002],
             "polygon": [3, 1003, 2003, 3003],
+            "multipoint": [4, 1004, 2004, 3004],
+            "multilinestring": [5, 1005, 2005, 3005],
+            "multipolygon": [6, 1006, 2006, 3006],
+            "geometrycollection": [7, 1007, 2007, 3007],
         }
 
     @property
@@ -525,7 +531,7 @@ class WfsGetFeature(WfsOperation):
             Multi geometry types will return an ``GeometryMembers`` instance.
         """
         # read first byte for byteorder information
-        endian = "<" if wkb[0] == 1 else ">"
+        endian = "<" if wkb[0] == 1 else ">" # < is little endian
         wkb = wkb[1:]
         # read following 4 bytes for geometry type information
         geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
@@ -560,7 +566,7 @@ class WfsGetFeature(WfsOperation):
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
                     # we can do this because we introduced a custom converter NumpyArrayConverter!
-                    pos=Pos(value=np.frombuffer(wkb[0 : dimensions * 8], dtype=endian + "f8")),
+                    pos=Pos(value=np.frombuffer(wkb[0:dimensions * 8], dtype=endian + "f8")),
                 )
             )
         elif geometry_type in self.geometry_types["linestring"]:
@@ -647,6 +653,94 @@ class WfsGetFeature(WfsOperation):
                         Interior(linear_ring=LinearRing(pos_list=pos_list))
                     )
             return GeometryMember(polygon=polygon)
+        elif geometry_type in self.geometry_types["multipoint"]:
+            detected_type = "multipoint"
+            # MULTIPOINT
+            if geometry_type == 4:
+                # XY
+                dimensions = 2
+            elif geometry_type == 1004:
+                # XYZ
+                dimensions = 3
+            elif geometry_type == 2004:
+                # XYM
+                dimensions = 3
+            elif geometry_type == 3004:
+                # XYZM
+                dimensions = 4
+            else:
+                logging.debug(
+                    f"Geometry type '{geometry_type}' is not in supported list"
+                    f" {self.geometry_types[detected_type]}"
+                )
+                raise NotImplementedError()
+                # reading next 4 bytes of wkb
+            number_of_wkb_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+            # slicing wkb by read 4 bytes
+            wkb = wkb[4:]
+
+            points = [None]*number_of_wkb_points
+
+            for i in range(number_of_wkb_points):
+            
+                # Parsing points BEGIN ADAPTATION FROM SINGLE POINT
+                # read first byte for byteorder information
+                m_endian = "<" if wkb[0] == 1 else ">" # < is little endian
+                wkb = wkb[1:]
+                # read following 4 bytes for geometry type information
+                m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                wkb = wkb[4:]
+                if wkb[0] == 1:
+                    m_endian_string = "little endian"
+                else:
+                    m_endian_string = "big endian"
+                logging.debug(f"Parsing multipoint WKB '{endian_string}' of type {m_geometry_type}")
+                if m_geometry_type not in self.geometry_types["point"]:
+                    logging.error(
+                        f"Multipoint of type '{geometry_type}' contains non-point geometry of type '{m_geometry_type}'."
+                        f" Supported point types are {self.geometry_types['point']}."
+                    )
+                    raise ValueError()
+                # POINT
+                if m_geometry_type == 1:
+                    # XY
+                    m_dimensions = 2
+                elif m_geometry_type == 1001:
+                    # XYZ
+                    m_dimensions = 3
+                elif m_geometry_type == 2001:
+                    # XYM
+                    m_dimensions = 3
+                elif m_geometry_type == 3001:
+                    # XYZM
+                    m_dimensions = 4
+                else:
+                    logging.debug(
+                        f"Geometry type '{m_geometry_type}' is not in supported list"
+                        f" {self.geometry_types['point']}"
+                    )
+                    raise NotImplementedError()
+                geometry_part_offset = m_dimensions * 8
+                points[i] = Point(
+                    srs_name=srs_definition,
+                    srs_dimension=m_dimensions,
+                    # we can do this because we introduced a custom converter NumpyArrayConverter!
+                    pos=Pos(value=np.frombuffer(wkb[0:geometry_part_offset], dtype=m_endian + "f8")),
+                )
+                # slicing wkb be geometry part offset
+                wkb = wkb[geometry_part_offset:]
+                
+                # END ADAPTATION FROM SINGLE POINT
+
+            return GeometryMember(
+                multi_point=MultiPoint(
+                    srs_name=srs_definition,
+                    srs_dimension=dimensions,
+                    # QUESTION DD: DIFFERENCE BETWEEN point_member AND point_memberS?
+                    point_member=points,
+                    point_members=PointMembers(points)
+                )
+            )
         else:
             logging.debug(
                 f"Geometry type '{geometry_type}' is currently not supported. Supported types are:"
