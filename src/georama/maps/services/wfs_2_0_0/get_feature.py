@@ -594,7 +594,7 @@ class WfsGetFeature(WfsOperation):
                     srs_dimension=dimensions,
                     # we can do this because we introduced a custom converter NumpyArrayConverter!
                     pos_list=PosList(
-                        value=np.frombuffer(wkb[0 : dimensions * 8], dtype=endian + "f8")
+                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
                     ),
                 )
             )
