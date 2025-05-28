@@ -11,8 +11,16 @@ nav:
   - "Welcome": index.md
   - "Quick Start": quick_start.md
   - "DEV Setup": dev_setup.md
+  - "Workflow": workflow.md
   - "General Hints": general_hints.md
-  - API References: reference/
+  - API References:
+    - Overview: api_references/overview.md
+    - Core: api_references/core.md
+    - Data integration: api_references/data_integration.md
+    - Maps: api_references/maps.md
+    - Features: api_references/features.md
+    - WebGIS: api_references/webgis.md
+  - Endpoints: endpoints.md
   - Topics:
     - "Docker": build-process_DAG.md
     - "CI/CD": cicd.md
@@ -45,7 +53,13 @@ plugins:
   # MERMAID Render Support
   - mermaid2
   # Directives Provider for docstrings parsing
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [ ../src ]
+          options:
+            show_submodules: true
+            show_if_no_docstring: true
   # gain the ability to tap-in to the build process
   - gen-files:
       # scripts allowing to programmatically generate .md content
@@ -61,8 +75,15 @@ markdown_extensions:
   - mkdocs-click
   - pymdownx.highlight
   - admonition
+  - codehilite
+  - toc:
+      permalink: true
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 
 
 extra:

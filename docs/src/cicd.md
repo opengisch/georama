@@ -1,6 +1,8 @@
 ---
 tags:
   - CICD
+  - Github Actions
+  - Development
 ---
 
 ## CICD Pipeline, as Github Action Workflow
