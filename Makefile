@@ -12,7 +12,13 @@ PYTHON_PATH = $(shell which python3)
 PYTHON_VERSION = $(shell printf '%b' "import sys\nprint(f'{sys.version_info.major}.{sys.version_info.minor}')" | $$(which python3))
 EDITABLE_GEORAMA_PATH = $(VENV_PATH)/lib/python$(PYTHON_VERSION)/site-packages/editable_georama.pth
 PINNED_DEPS ?= reqs.txt
+PINNED_DEPS_FOR_CI ?= reqs-test.txt # CI-specific requirements file
 
+# Define the exact pygeoapi line you want in the CI requirements (branch reference)
+PYGEOAPI_BRANCH_SPEC = pygeoapi @ git+https://github.com/opengisch/pygeoapi.git@respect-property-setting-in-ogr-provider
+
+# Define the exact qgis-server-light line you want in the CI requirements (branch reference)
+QGIS_SERVER_LIGHT_BRANCH_SPEC = qgis-server-light @ git+https://github.com/opengisch/qgis-server-light.git@master
 
 QGIS_PY_PATH ?= /usr/share/qgis/python
 
@@ -29,8 +35,16 @@ SRC_PY = $(shell find $(LOCATION)/$(PACKAGE) -name '*.py')
 
 # Environment variables used for build
 BUILD_ENV += \
-	DEVELOPMENT=${DEVELOPMENT}
+    DEVELOPMENT=${DEVELOPMENT}
 
+# *******************
+# Set up environments
+# *******************
+
+$(VENV_REQUIREMENTS):
+	$(PYTHON_PATH) -m venv --system-site-packages $(VENV_PATH)
+	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools
+	touch $@
 # *******************
 # Set up environments
 # *******************
@@ -131,8 +145,14 @@ doc-html: $(DOC_REQUIREMENTS) docs/mkdocs.yml
 	rm -rf doc/site
 	$(VENV_BIN)/mkdocs build -f docs/mkdocs.yml -d site
 
+.PHONY: doc-live-prereqs
+doc-live-prereqs:
+	@echo "Running documentation pre-generation scripts..."
+	python ./docs/scripts/visualize-dockerfile.py -o docs/src/dockerfile_mermaid.md
+	python ./docs/scripts/visualize-ga-workflow.py .github/workflows/test.yaml -o docs/src/cicd_mermaid.md
+
 .PHONY: doc-serve
-doc-serve: $(DOC_REQUIREMENTS) docs/mkdocs.yml
+doc-serve: $(DOC_REQUIREMENTS) doc-live-prereqs docs/mkdocs.yml
 	$(VENV_BIN)/mkdocs serve -f docs/mkdocs.yml
 
 .PHONY: doc-gh-deploy
@@ -170,3 +190,19 @@ create-superuser: $(PIP_REQUIREMENTS) migrate
 .PHONY: pin-deps
 pin-deps: $(CHECK_REQUIREMENTS) $(TEST_REQUIREMENTS)
 	pip freeze --all > $(PINNED_DEPS)
+
+# This target depends on the original $(PINNED_DEPS) being created first.
+$(PINNED_DEPS_FOR_CI): $(PINNED_DEPS)
+	@echo "Creating CI-specific requirements file: $(PINNED_DEPS_FOR_CI) from $(PINNED_DEPS)"
+	@# Step 1: Read $(PINNED_DEPS), filter out any existing pygeoapi AND qgis-server-light git+ lines,
+	@# and write the result to $(PINNED_DEPS_FOR_CI).
+	sed -e '/^pygeoapi @ git+/d' -e '/^qgis-server-light @ git+/d' $(PINNED_DEPS) > $(PINNED_DEPS_FOR_CI)
+	@# Step 2: Append the desired branch reference lines for both packages
+	@echo "$(PYGEOAPI_BRANCH_SPEC)" >> $(PINNED_DEPS_FOR_CI)
+	@echo "$(QGIS_SERVER_LIGHT_BRANCH_SPEC)" >> $(PINNED_DEPS_FOR_CI)
+	@echo "$(PINNED_DEPS_FOR_CI) created successfully."
+
+# Phony target to easily create the CI requirements file
+.PHONY: prepare-ci-reqs
+prepare-ci-reqs: $(PINNED_DEPS_FOR_CI)
+	@echo "CI requirements file is ready at $(PINNED_DEPS_FOR_CI)."

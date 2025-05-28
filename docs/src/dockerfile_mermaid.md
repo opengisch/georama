@@ -4,7 +4,6 @@
 
 ```mermaid
 graph TB;
-  python:3.9.16-slim-bullseye --> builder
-  python:3.9.16-slim-bullseye --> install
-  builder -. "requirements.txt" .-> install
+  ubuntu:24.04 --> base
+  base --> dev
 ```
