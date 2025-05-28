@@ -112,6 +112,9 @@ class WmsGetCapabilities(WmsOperation):
                 [style.name for style in styles],
             )
             capabilities.capability.layer.layer.append(layer)
+        # we use a 0/1 instead True/False here since this also conforms to Chapter 7.2.4.7.1 in
+        # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens
+        # compatibility with older versions of WMS spec
         capabilities.capability.layer.queryable = 0
         capabilities.capability.layer.opaque = 0
         capabilities.capability.layer.no_subsets = 0
