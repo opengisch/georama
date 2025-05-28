@@ -58,9 +58,13 @@ The CLI script opens the stated QGIS project and uses pyqgis to extract the elem
 defined QGIS project has to be available (local files, databases etc.). In most cases the process will run without complaints, But if the data is not available
 for instance the bounding boxes cant be calculated and are default values which are not the right ones.
 
+!!! info
+    QGIS project has to be available (local files, databases etc.)
+
 Since the data is touched the process lasts a bit depending on the amount of layers you have in your project.
 
-Remark: Having spaces in the project file name is possible but not a good idea in general.
+!!! info
+    Remark: Having spaces in the project file name is possible but not a good idea in general.
 
 The JSON is written to stdout. To put it in a file the stdout has to be piped into an file.
 
