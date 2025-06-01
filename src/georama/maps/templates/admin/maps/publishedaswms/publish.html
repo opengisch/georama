@@ -57,17 +57,17 @@
         <div class="tab-content" id="datasetTabsContent">
             {% if vector_datasets.count > 0 %}
                 <div class="tab-pane fade active show" id="vector" role="tabpanel" aria-labelledby="vector-tab">
-                    {% include 'admin/maps/publishedaswms/publish_datatable.html' with datasets=vector_datasets model="vector" %}
+                    {% include 'admin/maps/publishedaswms/publish_datatable.html' with datasets=vector_datasets model="vector" publish_view_name=publish_dataset_as_wms_view_name%}
                 </div>
             {% endif %}
             {% if raster_datasets.count > 0 %}
                 <div class="tab-pane fade " id="raster" role="tabpanel" aria-labelledby="raster-tab">
-                    {% include 'admin/maps/publishedaswms/publish_datatable.html' with datasets=raster_datasets model="raster" %}
+                    {% include 'admin/maps/publishedaswms/publish_datatable.html' with datasets=raster_datasets model="raster" publish_view_name=publish_dataset_as_wms_view_name%}
                 </div>
             {% endif %}
             {% if custom_datasets.count > 0 %}
                 <div class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">
-                    {% include 'admin/maps/publishedaswms/publish_datatable.html' with datasets=custom_datasets model="custom" %}
+                    {% include 'admin/maps/publishedaswms/publish_datatable.html' with datasets=custom_datasets model="custom" publish_view_name=publish_dataset_as_wms_view_name%}
                 </div>
             {% endif %}
         </div>

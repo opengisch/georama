@@ -1,7 +1,7 @@
 import logging
 
 from asgiref.sync import sync_to_async
-from django.http import HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views import View
 from qgis_server_light.interface.dispatcher import RedisQueue
@@ -25,10 +25,12 @@ log = logging.getLogger(__name__)
 
 
 class OgcServer(View):
+    model = PublishedAsWms
+
     def wms_130_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WmsGetCapabilities(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user
+            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
         )
         if requested_format not in operation.allowed_formats:
             return HttpResponse(
@@ -52,7 +54,7 @@ class OgcServer(View):
     def wfs_200_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetCapabilities(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user
+            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
         )
 
         if requested_format not in operation.allowed_formats:
@@ -131,7 +133,7 @@ class OgcServer(View):
         # we set the extent buffer to zero, this is used to control rendering issues like
         # https://github.com/qgis/QGIS/issues/30251
         vector_extent_buffer = 0.0
-        for published_as in PublishedAsWms.objects.filter(name__in=service_params.layers):
+        for published_as in self.model.objects.filter(name__in=service_params.layers):
             if published_as.has_read_permission(request.user, appname):
                 if isinstance(published_as.raster_dataset, RasterDataSet):
                     accessible_raster.append(published_as.raster_dataset.to_qsl)
@@ -180,12 +182,13 @@ class OgcServer(View):
             elif params["REQUEST"] == "GETMAP":
                 service_params = WmsGetMapParams.from_overloaded_dict(params)
                 operation = WmsGetMap(
-                    appname, f'{request.build_absolute_uri("maps")}?', request.user
+                    appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
                 )
                 try:
                     job = await sync_to_async(
                         operation.prepare_job_content, thread_sensitive=True
                     )(service_params)
+                    print(job)
                 except ValueError as e:
                     return HttpResponse(e, 400)
 
@@ -210,37 +213,26 @@ class OgcServer(View):
             return HttpResponse("Only WMS|WFS Service is available", 400)
 
 
-def admin_publish_raster_as_wms(request: HttpRequest, dataset_id: str):
+def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):
     """
     helper function to hide actual connection in the database but make publishing straight forward.
     """
-
-    published_as_wms = PublishedAsWms(
-        raster_dataset=RasterDataSet.objects.filter(id=dataset_id)[0]
-    )
-    published_as_wms.save()
-    return redirect("admin:maps_publishedaswms_changelist")
-
-
-def admin_publish_vector_as_wms(request: HttpRequest, dataset_id: str):
-    """
-    helper function to hide actual connection in the database but make publishing straight forward.
-    """
-
-    published_as_wms = PublishedAsWms(
-        vector_dataset=VectorDataSet.objects.filter(id=dataset_id)[0]
-    )
-    published_as_wms.save()
-    return redirect("admin:maps_publishedaswms_changelist")
-
-
-def admin_publish_custom_as_wms(request: HttpRequest, dataset_id: str):
-    """
-    helper function to hide actual connection in the database but make publishing straight forward.
-    """
-
-    published_as_wms = PublishedAsWms(
-        custom_dataset=CustomDataSet.objects.filter(id=dataset_id)[0]
-    )
+    allowed_dataset_types = ["raster", "vector", "custom"]
+    if dataset_type not in allowed_dataset_types:
+        raise Http404
+    if dataset_type == "raster":
+        published_as_wms = PublishedAsWms(
+            raster_dataset=RasterDataSet.objects.filter(id=dataset_id)[0]
+        )
+    elif dataset_type == "vector":
+        published_as_wms = PublishedAsWms(
+            vector_dataset=VectorDataSet.objects.filter(id=dataset_id)[0]
+        )
+    elif dataset_type == "custom":
+        published_as_wms = PublishedAsWms(
+            custom_dataset=CustomDataSet.objects.filter(id=dataset_id)[0]
+        )
+    else:
+        raise Http404
     published_as_wms.save()
     return redirect("admin:maps_publishedaswms_changelist")

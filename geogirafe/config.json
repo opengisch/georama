@@ -4,45 +4,34 @@
   },
   "languages": {
     "translations": {
-      "de": ["de.json", "Mock/de.json"],
-      "en": ["en.json", "Mock/en.json"],
-      "fr": ["fr.json", "Mock/fr.json"]
+      "de": ["i18n/de.json", "http://localhost:8080/webgis/translations/de.json"]
     },
     "defaultLanguage": "de"
   },
-  "interface": {
-    "defaultSelectionComponent": "grid"
-  },
   "themes": {
-    "url": "http://localhost:8080/clogs/cartoriviera/themes.json",
-    "defaultTheme": "",
-    "selectionMode": "add"
+    "url": "http://localhost:8080/webgis/themes.json",
+    "defaultTheme": "forest_fires"
   },
   "basemaps": {
-    "defaultBasemap": "Grundkarte farbig",
+    "defaultBasemap": "Landeskarte (farbig)",
     "OSM": true,
     "SwissTopoVectorTiles": true
   },
   "treeview": {
-    "useLegendIcons": true,
-    "hideLegendWhenLayerIsDeactivated": false,
-    "defaultIconSize": {
-      "width": "21",
-      "height": "16"
-    }
+    "hideLegendWhenLayerIsDeactivated": false
   },
   "search": {
-    "url": "https://map.geo.bs.ch/search?limit=90&partitionlimit=15&interface=desktop&query=###SEARCHTERM###&lang=###SEARCHLANG###",
+    "url": "https://map.geo.sz.ch/search?limit=30&partitionlimit=5&interface=desktop&query=###SEARCHTERM###",
     "objectPreview": true,
     "layerPreview": true
   },
   "print": {
-    "url": "https://map.geo.bs.ch/printproxy/",
-    "defaultLayout": "print_A4_hochformat"
+    "url": "https://map.geo.sz.ch/printproxy/",
+    "defaultLayout": "1 A4 portrait"
   },
   "share": {
-    "service": "gmf",
-    "createUrl": "https://map.geo.test.bs.ch/short/create"
+    "service": "lstu",
+    "createUrl": "https://lstu.fr/a"
   },
   "projections": {
     "EPSG:3857": "W-M",
@@ -51,54 +40,33 @@
   },
   "map": {
     "srid": "EPSG:2056",
-    "scales": [200000, 75000, 40000, 20000, 10000, 7500, 5000, 3500, 2000, 1000, 500, 200, 100, 50],
-    "startPosition": "2611250,1267100",
-    "startZoom": "4",
-    "maxExtent": "2583000,1235000,2650000,1291000"
+    "startZoom": "0",
+    "startPosition": "2690600,1213375",
+    "maxExtent": "2459308,1069751,2859959,1301450",
+    "scales": [200000, 75000, 40000, 20000, 10000, 7500, 5000, 3500, 2000, 1000, 500, 200]
   },
   "map3d": {
-    "terrainUrl": "https://3d.geo.dev.fgi.cloud.bs.ch/terrainproxy/028401be-a5fc-4560-a489-f64f458cd6ad_5/",
+    "terrainUrl": "https://terrain100.geo.admin.ch/1.0.0/ch.swisstopo.terrain.3d/",
     "terrainImagery": {
-      "url": "https://wmts.geo.bs.ch/wmts/1.0.0/BaseMap_farbig/default/3857/{z}/{y}/{x}.png",
-      "srid": 3857,
+      "url": "https://wmts20.geo.admin.ch/1.0.0/ch.swisstopo.swissimage-product/default/current/4326/{z}/{x}/{y}.jpeg",
       "minLoD": 8,
       "maxLoD": 17,
-      "coverageArea": [6.78, 47.05, 8.6, 47.8]
+      "coverageArea": [5.013926957923385, 45.35600133779394, 11.477436312994008, 48.27502358353741]
     },
-    "tilesetsUrls": [
-      "https://3d.geo.bs.ch/cesium/tiles/av-bb-gebaude-ohne-bauprojekt/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/av-bb-weitere-objekte-und-bruecken-ohne-bauprojekt/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/av-bb-bewilligte-bauten-teilobjekte-im-bestand/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/av-bb-geplante-bauvorhaben-teilobjekte-im-bestand/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/av-bb-projektideen-teilobjekt-im-bestand/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/bb-bauprojekte/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/bl-gebaeude-2023/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/de-gebaeude-2023/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/fr-gebaeude-2023/tileset.json"
+    "tilesetsUrls": ["https://vectortiles100.geo.admin.ch/3d-tiles/ch.swisstopo.swisstlm3d.3d/20201020/tileset.json"],
+    "maximumZoomDistance": 25000
+  },
+  "contextmenu": {
+    "crs": [
+      { "code": "EPSG:2056", "translation": "EPSG:2056", "format": "decimal", "precision": 1 },
+      { "code": "EPSG:4326", "translation": "EPSG:4326", "format": "decimal", "precision": 7 },
+      { "code": "EPSG:4326", "translation": "EPSG:4326-DMS", "format": "dms", "precision": 2 }
     ]
   },
-  "bookmarks": {
-    "service": "localStorage",
-    "get": "",
-    "post": ""
-  },
-  "metadata": {
-    "metadataUrlPrefix": "https://map.geo.bs.ch",
-    "defaultWindowWidth": "500px",
-    "defaultWindowHeight": "350px"
-  },
-  "oauth": {
-    "issuer": {
-      "url": "https://auth.geo.test.bs.ch/auth/realms/geobs",
-      "algorithm": "oidc",
-      "clientId": "MapBS-ui",
-      "checkSessionOnLoad": true
-    },
-    "geomapfish": {
-      "userInfoUrl": "https://map.geo.test.bs.ch/loginuser",
-      "loginUrl": "https://map.geo.test.bs.ch/KeycloakLogin",
-      "logoutUrl": "https://map.geo.test.bs.ch/KeycloakLogout",
-      "anonymousUsername": "service-account-service_mapbs_anonymous"
+  "crs": [
+    {
+      "code": "EPSG:2056",
+      "definition": "+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs +type=crs"
     }
-  }
+  ]
 }
