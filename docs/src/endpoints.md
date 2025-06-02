@@ -62,4 +62,4 @@ All endpoints above assume you're running Georama locally using Docker on the de
 
 ---
 
-For additional setup instructions or troubleshooting, see the [Quickstart](quickstart.md).
+For additional setup instructions or troubleshooting, see the [Quickstart](quick_start.md).
