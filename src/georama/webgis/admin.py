@@ -57,6 +57,10 @@ class LayerGroupMpAdmin(TreeAdmin):
     form = movenodeform_factory(models.LayerGroupMp)
     list_display = ("name",)
 
+    def move_node(self, request, extra_context=None):
+        # Call the original method without the extra_context
+        return super().move_node(request)
+
 
 class LayergroupmpInlines(admin.TabularInline):
     model = models.LayerGroupMp
