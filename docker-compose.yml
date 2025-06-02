@@ -48,6 +48,7 @@ services:
       - ./geogirafe/config.json:/var/www/localhost/htdocs/config.json
     ports:
       - "8443:443"
+      - "8081:80"
 
 volumes:
   georama-db_data:

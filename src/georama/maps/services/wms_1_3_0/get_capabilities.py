@@ -4,6 +4,7 @@ from qgis_server_light.interface.qgis import BBox
 from qgis_server_light.interface.qgis import Crs as QslCrs
 from qgis_server_light.interface.qgis import Style as QslStyle
 from xsdata.formats.dataclass.parsers import DictDecoder
+from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 
 from georama.maps.interfaces.ogc.wms_1_3_0.capabilities.capabilities_1_3_0 import (
@@ -83,10 +84,14 @@ class WmsGetCapabilities(WmsOperation):
 
     def get_capabilities(self) -> WmsCapabilities:
         capabilities = self.get_capabilities_body()
+        parser_config = ParserConfig(
+            fail_on_unknown_attributes=False, fail_on_unknown_properties=False
+        )
+        decoder = DictDecoder(parser_config)
         for published_as in self.obtain_accessible_layers():
             dataset = published_as.bound_dataset
-            source_crs = DictDecoder().decode(dataset.crs, QslCrs)
-            styles = DictDecoder().decode(dataset.styles, List[QslStyle])
+            source_crs = decoder.decode(dataset.crs, QslCrs)
+            styles = decoder.decode(dataset.styles, List[QslStyle])
             bbox = BBox.from_string(dataset.bbox)
             bbox_wgs84 = BBox.from_string(dataset.bbox_wgs84)
             layer = self.create_layer(

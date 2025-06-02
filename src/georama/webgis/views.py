@@ -1,13 +1,29 @@
 import json
 import logging
+from typing import List
 
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
+from django.templatetags.static import static
 from django.views import View
-from qgis_server_light.interface.qgis import Crs, WmsSource, WmtsSource
+from qgis_server_light.interface.qgis import Config as QslConfig
+from qgis_server_light.interface.qgis import Crs
+from qgis_server_light.interface.qgis import Custom as QslCustom
+from qgis_server_light.interface.qgis import Group as QslGroup
+from qgis_server_light.interface.qgis import Raster as QslRaster
+from qgis_server_light.interface.qgis import Vector as QslVector
+from qgis_server_light.interface.qgis import WmsSource, WmtsSource
 from xsdata.formats.dataclass.serializers import DictEncoder
 
-from georama.data_integration.models import Mandant, Project, RasterDataSet
+from georama.data_integration.models import (
+    CustomDataSet,
+    Mandant,
+    Project,
+    RasterDataSet,
+    VectorDataSet,
+)
+from georama.data_integration.views import RegisterQgisProject
+from georama.maps.views import OgcServer
 from georama.webgis.forms import GEOPORTAL_URLS, HomeForm
 from georama.webgis.interfaces.geomapfish import load_geoportal_config_from_url
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
@@ -17,9 +33,9 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     WmsLayer,
     WmtsLayer,
 )
+from georama.webgis.models import LayerGroupMp
+from georama.webgis.models import OgcServer as WebGisOgcServer
 from georama.webgis.models import (
-    LayerGroupMp,
-    OgcServer,
     PublishedAsLayerWms,
     PublishedAsLayerWmts,
     PublishedAsTheme,
@@ -257,13 +273,17 @@ class Themes(View):
                 else:
                     raise NotImplementedError(f"We are not aware of the passed type {node}")
 
-    def get(self, request: HttpRequest, mandant_name: str, format: str):
+    def get(self, request: HttpRequest, format: str):
         geogirafe_config = ThemesJson()
 
-        for ogc_server in Mandant.objects.get(name=mandant_name).ogc_servers.all():
+        for ogc_server in WebGisOgcServer.objects.all():
             geogirafe_config.ogc_servers.append(ogc_server.as_dataclass())
         for theme in PublishedAsTheme.objects.all():
             theme_object = theme.as_dataclass()
+            if theme_object.icon is None:
+                theme_object.icon = request.build_absolute_uri(
+                    static("/webgis/assets/images/georama.coming_soon.png")
+                )
             geogirafe_config.themes.append(theme_object)
             root_node = theme.tree_elements.first().get_root()
             self.assemble_themes_tree_from_treebeard(root_node, theme_object, geogirafe_config)
@@ -361,9 +381,216 @@ class Config(View):
 
 
 class PublishProject(View):
-    def get(self, request: HttpRequest, mandant_id: int, project_name: str, **kwargs):
-        project = Project.objects.filter(name=project_name, mandant__id=mandant_id)
-        return HttpResponse(
-            f"{project_name} {mandant_id}", status=200, content_type="text/plain"
+    @staticmethod
+    def find_dataset_by_name(
+        dataset_name: str,
+        datasets: List[QslGroup] | List[QslRaster] | List[QslVector] | List[QslCustom],
+    ) -> QslGroup | QslVector | QslRaster | QslCustom | None:
+        # TODO: This should be move directly to the QSL interface!
+        for element in datasets:
+            if element.name == dataset_name:
+                return element
+        return None
+
+    def assemble_tree_to_treebeard(
+        self,
+        children: List[str],
+        current_parent: LayerGroupMp,
+        theme: PublishedAsTheme,
+        project: Project,
+        project_config: QslConfig,
+        current_ogc_server: str | None = None,
+    ):
+        for child in children:
+            node = current_parent.add_child(name=child)
+            db_node = LayerGroupMp.objects.get(pk=node.pk)
+            db_node.theme = theme
+            db_node.save()
+            group_match = self.find_dataset_by_name(child, project_config.datasets.group)
+            if group_match:
+                # TODO: Improve regarding GMF possibilities!
+                db_node.title = group_match.title
+                db_node.metadata = {}
+                db_node.mixed = False
+                db_node.ogc_server = current_ogc_server
+                db_node.dimensions = {}
+                db_node.save()
+                self.assemble_tree_to_treebeard(
+                    project_config.tree.find_by_name(child).children,
+                    db_node,
+                    theme,
+                    project,
+                    project_config,
+                    current_ogc_server,
+                )
+            else:
+                raster_match = self.find_dataset_by_name(child, project_config.datasets.raster)
+                vector_match = self.find_dataset_by_name(child, project_config.datasets.vector)
+                custom_match = self.find_dataset_by_name(child, project_config.datasets.custom)
+                if raster_match:
+                    query = RasterDataSet.objects.filter(project=project, name=child)
+                    if query.exists():
+                        dataset = query.get()
+                    else:
+                        logging.error(f"Could not find raster dataset with name '{child}'")
+                        raise AttributeError()
+                    PublishedAsLayerWms(
+                        ogc_server=current_ogc_server,
+                        name=dataset.name,
+                        title=dataset.title,
+                        raster_dataset=dataset,
+                        layer_group=db_node,
+                        dimensions={},
+                        public=True,
+                    ).save()
+                elif vector_match:
+                    query = VectorDataSet.objects.filter(project=project, name=child)
+                    if query.exists():
+                        dataset = query.get()
+                    else:
+                        logging.error(f"Could not find vector dataset with name '{child}'")
+                        raise AttributeError()
+                    PublishedAsLayerWms(
+                        ogc_server=current_ogc_server,
+                        name=dataset.name,
+                        title=dataset.title,
+                        vector_dataset=dataset,
+                        layer_group=db_node,
+                        dimensions={},
+                        public=True,
+                    ).save()
+                elif custom_match:
+                    query = CustomDataSet.objects.filter(project=project, name=child)
+                    if query.exists():
+                        dataset = query.get()
+                    else:
+                        logging.error(f"Could not find custom dataset with name '{child}'")
+                        raise AttributeError()
+                    PublishedAsLayerWms(
+                        ogc_server=current_ogc_server,
+                        name=dataset.name,
+                        title=dataset.title,
+                        custom_dataset=dataset,
+                        layer_group=db_node,
+                        dimensions={},
+                        public=True,
+                    ).save()
+                else:
+                    raise NotImplementedError(
+                        f"Layer type is not implemented: {child.__class__.__name__}"
+                    )
+
+    def get(self, request: HttpRequest, project_id: int, **kwargs):
+        project_db = Project.objects.get(id=project_id)
+        highest_theme = PublishedAsTheme.objects.order_by("ordering").last()
+        theme = PublishedAsTheme(
+            name=project_db.name,
+            title=project_db.title,
+            project=project_db,
+            metadata={"isLegendExpanded": True, "legend": False},
+            ordering=highest_theme.ordering + 1 if highest_theme else 1,
         )
-        # return redirect('admin:clogs_publishedastheme_changelist')
+        theme.save()
+        ogc_server = insert_internal_ogc_server(request)
+        project_from_config, project_config = RegisterQgisProject.load_project_config(
+            project_db.mandant.name, project_db.name
+        )
+        root_group = LayerGroupMp.add_root(name=theme.name)
+        db_root_node = LayerGroupMp.objects.get(pk=root_group.pk)
+        db_root_node.theme = theme
+        db_root_node.save()
+        # Highly recursive task, we flatten the tree into treebeard structure
+        self.assemble_tree_to_treebeard(
+            # the element with empty string as name is always the root of the tree
+            project_config.tree.find_by_name("").children,
+            db_root_node,
+            theme,
+            project_db,
+            project_config,
+            ogc_server.name,
+        )
+        return redirect("admin:webgis_publishedastheme_changelist")
+
+
+class OgcServerWebgis(OgcServer):
+    model = PublishedAsLayerWms
+
+
+def insert_internal_ogc_server(request: HttpRequest) -> WebGisOgcServer:
+    """
+    Checks if internal OGC server was already added. If it was added, it returns the DB entity
+    if it was not added, it adds it and returns the added one.
+
+    Args:
+        request: Django request as it comes from framework request.
+
+    Returns:
+        The ogc server db entity or None if a more then one match was found (that would be an error).
+    Raises:
+        AttributeError: If more than one OGC-Server was found with the name.
+    """
+    webgis_ogc_server_name = "georama.webgis"
+    url = f'{request.build_absolute_uri("/webgis")}/maps?'
+    ogc_servers = WebGisOgcServer.objects.filter(name=webgis_ogc_server_name).all()
+    if len(ogc_servers) == 0:
+        ogc_server = WebGisOgcServer(
+            url=url,
+            url_wfs=url,
+            type=webgis_ogc_server_name,
+            credential=False,
+            image_type="image/png",
+            wfs_support=True,
+            is_single_tile=False,
+            namespace="https://www.opengis.ch/georama",
+            name=webgis_ogc_server_name,
+            description="The Georama OGC Server which publishes "
+            "all configured WebGIS Layers.",
+            attributes={},
+        )
+        ogc_server.save()
+    elif len(ogc_servers) == 1:
+        ogc_server = ogc_servers[0]
+    else:
+        logging.error(f"More than one OGC-Server was found for name {webgis_ogc_server_name}")
+        raise AttributeError()
+    return ogc_server
+
+
+def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):
+    """
+    helper function to hide actual connection in the database but make publishing straight forward.
+    """
+    allowed_dataset_types = ["raster", "vector", "custom"]
+    ogc_server = insert_internal_ogc_server(request)
+    if dataset_type not in allowed_dataset_types:
+        return HttpResponseNotFound()
+    if dataset_type == "raster":
+        published_as_wms = PublishedAsLayerWms(
+            raster_dataset=RasterDataSet.objects.filter(id=dataset_id)[0]
+        )
+    elif dataset_type == "vector":
+        published_as_wms = PublishedAsLayerWms(
+            vector_dataset=VectorDataSet.objects.filter(id=dataset_id)[0]
+        )
+    elif dataset_type == "custom":
+        published_as_wms = PublishedAsLayerWms(
+            custom_dataset=CustomDataSet.objects.filter(id=dataset_id)[0]
+        )
+    else:
+        return HttpResponseNotFound()
+    published_as_wms.ogc_server = ogc_server.name
+    published_as_wms.save()
+    return redirect("admin:webgis_publishedaslayerwms_changelist")
+
+
+def translation_json(request: HttpRequest):
+    translation = {"de": {}}
+    for layer_group in LayerGroupMp.objects.all():
+        translation["de"][layer_group.name] = layer_group.title
+    for theme in PublishedAsTheme.objects.all():
+        translation["de"][theme.name] = theme.title
+    for layer in PublishedAsLayerWms.objects.all():
+        translation["de"][layer.name] = layer.title
+    return HttpResponse(
+        json.dumps(translation, indent=2), status=200, content_type="application/json"
+    )

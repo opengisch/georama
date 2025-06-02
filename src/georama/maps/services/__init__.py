@@ -1,6 +1,7 @@
 from typing import List
 
 from django.contrib.auth.models import User
+from django.db.models import Model
 from xsdata.formats.dataclass.serializers import XmlSerializer
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.exception import (
@@ -12,10 +13,11 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.exception_repor
 
 
 class OgcOperation:
-    def __init__(self, appname: str, url: str, user):
+    def __init__(self, appname: str, url: str, user, model: Model):
         self.appname: str = appname
         self.url: str = url
         self.user: User = user
+        self.model = model
 
     @property
     def allowed_formats(self) -> List[str]:
