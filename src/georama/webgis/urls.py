@@ -20,7 +20,7 @@ from georama.webgis import views
 
 urlpatterns = [
     path("", views.home, name="home"),
-    path("/clone-geoportal", views.RegisterThemesJson.as_view(), name="clone_geoportal"),
+    # path("/clone-geoportal", views.RegisterThemesJson.as_view(), name="clone_geoportal"),
     path("/themes.<str:format>", views.Themes.as_view(), name="themes"),
     path("/<str:mandant_name>/", views.GeoGirafe.as_view(), name="geogirafe"),
     path("/<str:mandant_name>/config.json", views.Config.as_view(), name="config"),
@@ -29,7 +29,7 @@ urlpatterns = [
         views.PublishProject.as_view(),
         name="publish_project",
     ),
-    path("/maps", views.OgcServerWebgis.as_view(), name="ogc_entry"),
+    path("/maps", views.OgcServerWebgis.as_view(), name="webgis_ogc_entry"),
     path(
         "/publish_dataset_as/wms/<str:dataset_type>/<str:dataset_id>",
         views.admin_publish_dataset_as_wms,
