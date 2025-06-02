@@ -438,10 +438,10 @@ class PublishProject(View):
                         ogc_server=current_ogc_server,
                         name=dataset.name,
                         title=dataset.title,
-                        metadata={},
                         raster_dataset=dataset,
                         layer_group=db_node,
                         dimensions={},
+                        public=True,
                     ).save()
                 elif vector_match:
                     query = VectorDataSet.objects.filter(project=project, name=child)
@@ -454,10 +454,10 @@ class PublishProject(View):
                         ogc_server=current_ogc_server,
                         name=dataset.name,
                         title=dataset.title,
-                        metadata={},
                         vector_dataset=dataset,
                         layer_group=db_node,
                         dimensions={},
+                        public=True,
                     ).save()
                 elif custom_match:
                     query = CustomDataSet.objects.filter(project=project, name=child)
@@ -470,10 +470,10 @@ class PublishProject(View):
                         ogc_server=current_ogc_server,
                         name=dataset.name,
                         title=dataset.title,
-                        metadata={},
                         custom_dataset=dataset,
                         layer_group=db_node,
                         dimensions={},
+                        public=True,
                     ).save()
                 else:
                     raise NotImplementedError(

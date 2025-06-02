@@ -20,15 +20,8 @@
   "treeview": {
     "hideLegendWhenLayerIsDeactivated": false
   },
-  "search": {
-    "url": "https://map.geo.sz.ch/search?limit=30&partitionlimit=5&interface=desktop&query=###SEARCHTERM###",
-    "objectPreview": true,
-    "layerPreview": true
-  },
-  "print": {
-    "url": "https://map.geo.sz.ch/printproxy/",
-    "defaultLayout": "1 A4 portrait"
-  },
+  "search": null,
+  "print": null,
   "share": {
     "service": "lstu",
     "createUrl": "https://lstu.fr/a"
