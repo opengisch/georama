@@ -2,6 +2,7 @@ import json
 import logging
 from typing import List
 
+from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.templatetags.static import static
@@ -24,6 +25,7 @@ from georama.data_integration.models import (
 )
 from georama.data_integration.views import RegisterQgisProject
 from georama.maps.views import OgcServer
+from georama.webgis.apps import appname
 from georama.webgis.forms import GEOPORTAL_URLS, HomeForm
 from georama.webgis.interfaces.geomapfish import load_geoportal_config_from_url
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
@@ -257,17 +259,23 @@ class RegisterThemesJson(View):
 
 class Themes(View):
     def assemble_themes_tree_from_treebeard(
-        self, node: LayerGroupMp, layer_group: LayerGroup | Theme, config: ThemesJson
+        self,
+        node: LayerGroupMp,
+        layer_group: LayerGroup | Theme,
+        config: ThemesJson,
+        user: User,
     ):
         for child in node.get_children():
             if child.get_children():
                 # this is a group to unpack
                 group = child.as_dataclass()
                 layer_group.children.append(group)
-                self.assemble_themes_tree_from_treebeard(child, group, config)
+                self.assemble_themes_tree_from_treebeard(child, group, config, user)
             else:
                 if hasattr(child, "wms_datasets"):
-                    layer_group.children.append(child.wms_datasets.as_dataclass(config))
+                    # we filter for permission on the onetoone field connected published_as element
+                    if child.wms_datasets.has_read_permission(user, appname):
+                        layer_group.children.append(child.wms_datasets.as_dataclass(config))
                 elif hasattr(child, "wmts_datasets"):
                     layer_group.children.append(child.wmts_datasets.as_dataclass())
                 else:
@@ -286,7 +294,9 @@ class Themes(View):
                 )
             geogirafe_config.themes.append(theme_object)
             root_node = theme.tree_elements.first().get_root()
-            self.assemble_themes_tree_from_treebeard(root_node, theme_object, geogirafe_config)
+            self.assemble_themes_tree_from_treebeard(
+                root_node, theme_object, geogirafe_config, request.user
+            )
         result_dict = {
             "themes": DictEncoder().encode(geogirafe_config.themes),
             "ogcServers": {},

@@ -190,7 +190,9 @@ class OgcServer(View):
                     )(service_params)
                     print(job)
                 except ValueError as e:
-                    return HttpResponse(e, 400)
+                    return HttpResponse(e, status=400, content_type="text/plain")
+                except PermissionError as e:
+                    return HttpResponse(e, status=403, content_type="text/plain")
 
             elif params["REQUEST"] == "GETFEATUREINFO":
                 # this needs to be improved a bit, currently the layers are not sent to QSL.
