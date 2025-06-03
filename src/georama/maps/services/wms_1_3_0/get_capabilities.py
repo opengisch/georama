@@ -31,7 +31,10 @@ class WmsGetCapabilities(WmsOperation):
 
     def get_capabilities_body(self) -> WmsCapabilities:
         config = Config()
-        decoder = DictDecoder()
+        decoder_config = ParserConfig(
+            fail_on_unknown_properties=False, fail_on_unknown_attributes=False
+        )
+        decoder = DictDecoder(decoder_config)
         service = decoder.decode(config.wms_1_3_0_service_config(self.url), Service)
         capapility = decoder.decode(config.wms_1_3_0_capability_config(self.url), Capability)
         return WmsCapabilities(service=service, capability=capapility)
@@ -67,7 +70,12 @@ class WmsGetCapabilities(WmsOperation):
             maxy=bbox_wgs84.y_max,
         )
         return Layer(
-            queryable=False,
+            # we use a 0/1 instead True/False here since this also conforms to Chapter 7.2.4.7.1 in
+            # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens
+            # compatibility with older versions of WMS spec
+            queryable=0,
+            opaque=0,
+            no_subsets=0,
             cascaded=0,
             name=Name(value=name),
             title=Title(value=title),
@@ -104,7 +112,12 @@ class WmsGetCapabilities(WmsOperation):
                 [style.name for style in styles],
             )
             capabilities.capability.layer.layer.append(layer)
-
+        # we use a 0/1 instead True/False here since this also conforms to Chapter 7.2.4.7.1 in
+        # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens
+        # compatibility with older versions of WMS spec
+        capabilities.capability.layer.queryable = 0
+        capabilities.capability.layer.opaque = 0
+        capabilities.capability.layer.no_subsets = 0
         return capabilities
 
     @staticmethod
