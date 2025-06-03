@@ -30,6 +30,7 @@ from dataclasses import field, make_dataclass
 from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
+from django.db.models import Model
 from qgis_server_light.interface.job import FeatureQuery, JobResult, QslGetFeatureJob
 from qgis_server_light.interface.qgis import QueryCollection
 from xsdata.formats.converter import Converter, converter
@@ -80,8 +81,8 @@ converter.register_converter(np.ndarray, NumpyArrayConverter())
 
 
 class WfsGetFeature(WfsOperation):
-    def __init__(self, appname: str, url: str, user):
-        super().__init__(appname, url, user)
+    def __init__(self, appname: str, url: str, user, model: Model):
+        super().__init__(appname, url, user, model)
         self.name_space_map = {
             "wfs": "http://www.opengis.net/wfs/2.0",
             "fes": "http://www.opengis.net/fes/2.0",
@@ -360,8 +361,8 @@ class WfsGetFeature(WfsOperation):
                     ],
                     other_element=[
                         Envelope(
-                            lower_corner=DirectPositionType(value=bbox_list[0:1]),
-                            upper_corner=DirectPositionType(value=bbox_list[2:3]),
+                            lower_corner=DirectPositionType(value=bbox_list[0:2]),
+                            upper_corner=DirectPositionType(value=bbox_list[2:4]),
                             srs_name=bbox_crs,
                             srs_dimension=2,
                         )
