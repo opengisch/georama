@@ -21,11 +21,6 @@ class Migration(migrations.Migration):
             field=models.JSONField(blank=True, default=None, null=True),
         ),
         migrations.AlterField(
-            model_name="publishedaslayerwms",
-            name="queryable",
-            field=models.BooleanField(blank=True, default=False, null=True),
-        ),
-        migrations.AlterField(
             model_name="publishedaslayerwmts",
             name="dimensions",
             field=models.JSONField(blank=True, default=None, null=True),
