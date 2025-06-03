@@ -166,8 +166,8 @@ class Layer(PublishedAs):
     """
 
     themes_json_uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
-    metadata = models.JSONField(default=None, null=True)
-    dimensions = models.JSONField(default=None, null=True)
+    metadata = models.JSONField(default=None, null=True, blank=True)
+    dimensions = models.JSONField(default=None, null=True, blank=True)
 
     class Meta:
         abstract = True
