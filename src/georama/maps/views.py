@@ -99,7 +99,7 @@ class OgcServer(View):
         language = "en-US"
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetMetadata(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user
+            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
         )
         if requested_layer:
             if requested_format not in operation.allowed_formats:
@@ -139,7 +139,7 @@ class OgcServer(View):
             "OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2"
         ).upper()
         operation = WfsDescribeFeatureType(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user
+            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
         )
         content, content_type, success = operation.render(
             requested_format, operation.describe_feature_type(requested_layer)
@@ -158,7 +158,7 @@ class OgcServer(View):
 
     async def wfs_200_getfeature(self, request: HttpRequest, params: dict) -> HttpResponse:
         operation = WfsGetFeature(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user
+            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
         )
         get_feature_parameter = operation.query_parameters_to_get_feature_request(params)
 
@@ -327,7 +327,7 @@ class OgcServer(View):
         try:
 
             operation = WfsGetFeature(
-                appname, f'{request.build_absolute_uri("maps")}?', request.user
+                appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
             )
             get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature)
 
