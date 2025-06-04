@@ -62,7 +62,7 @@ class WfsDescribeFeatureType(WfsOperation):
             )
             column_type = "gml:GeometryPropertyType"
         return Element(
-            name=f"{self.own_namespace}:geometry",
+            name=f"geometry",
             type=column_type,
             min_occurs=0,
             max_occurs=1,
@@ -89,13 +89,13 @@ class WfsDescribeFeatureType(WfsOperation):
         for layer in found_layers:
             dft.elements.append(
                 Element(
-                    name=f"{self.own_namespace}:{layer.name}",
+                    name=f"{layer.name}",
                     type=f"{self.own_namespace}:{layer.name}Type",
                     substitution_group="gml:AbstractFeature",
                 )
             )
             complex_type = ComplexType(
-                name=f"{self.own_namespace}:{layer.name}Type",
+                name=f"{layer.name}Type",
                 complex_content=ComplexContent(
                     extension=Extension(
                         base="gml:AbstractFeatureType",
@@ -112,7 +112,9 @@ class WfsDescribeFeatureType(WfsOperation):
 
             for column in layer.vector_dataset.fields.all():
                 el = Element(
-                    name=f"{self.own_namespace}:{column.name}",
+                    name=f"{column.name}",
+                    # we do not prefix this with namespace, because http://www.w3.org/2001/XMLSchema
+                    # is the default namespace
                     type=column.type_simple,
                     min_occurs=0 if column.nullable else 1,
                     max_occurs=1,
@@ -139,6 +141,8 @@ class WfsDescribeFeatureType(WfsOperation):
                 "xsi": "http://www.w3.org/2001/XMLSchema-instance",
                 "georama": "https://www.opengis.ch/georama",
                 "gml": "http://www.opengis.net/gml/3.2",
+                # make this the default namespace, to avoid confusion in xml responses
+                "": "http://www.w3.org/2001/XMLSchema",
             },
         )
 
