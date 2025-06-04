@@ -17,7 +17,9 @@ from xsdata.formats.dataclass.parsers import XmlParser
 
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import MapsConfig
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import GetFeature
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
+    GetFeature as GetFeature200,
+)
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
@@ -331,15 +333,22 @@ class OgcServer(View):
 
     async def post(self, request: HttpRequest, *args, **kwargs):
         try:
-
             operation = WfsGetFeature(
                 appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
             )
-            get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature)
+            try:
+                get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature200)
+                job = await sync_to_async(
+                    operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True
+                )(get_feature_parameter)
+            except ParserError as e:
+                logging.error(e)
+                return HttpResponse(
+                    WfsGetFeature.render_exception("Could not parse payload"),
+                    status=400,
+                    content_type="text/xml",
+                )
 
-            job = await sync_to_async(
-                operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True
-            )(get_feature_parameter)
             result: JobResult = await self.redis_queue_instance.post(job, Config().job_timeout)
             content, content_type, success = operation.render(
                 get_feature_parameter.output_format.upper(),
@@ -363,13 +372,6 @@ class OgcServer(View):
                     content,
                     content_type=content_type,
                 )
-        except ParserError as e:
-            logging.error(e)
-            return HttpResponse(
-                WfsGetFeature.render_exception("Could not parse payload"),
-                status=400,
-                content_type="text/xml",
-            )
         except AttributeError as e:
             logging.error(e)
             return HttpResponse(e, status=400, content_type="text/xml")
