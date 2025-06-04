@@ -124,7 +124,7 @@ class WfsGetFeature(WfsOperation):
         """
         accessible_layers = []
         # we do want only published vector datasets!
-        query = PublishedAsWms.objects.exclude(vector_dataset__isnull=True)
+        query = self.model.objects.exclude(vector_dataset__isnull=True)
         if layer_names:
             query = query.filter(name__in=layer_names)
         found_layers = query.all()
@@ -764,25 +764,33 @@ class WfsGetFeature(WfsOperation):
         if requested_format == "TEXT/XML":
             return (
                 self.render_xml(feature_collection, requested_typenames),
-                requested_format.lower(),
+                f"{requested_format.lower()}; charset=utf-8",
                 True,
             )
         elif requested_format == "APPLICATION/GML+XML; VERSION=3.2":
             return (
                 self.render_xml(feature_collection, requested_typenames),
-                requested_format.lower(),
+                f"{requested_format.lower()}; charset=utf-8",
                 True,
             )
         elif requested_format == "APPLICATION/JSON":
-            return self.render_json(feature_collection), requested_format.lower(), True
+            return (
+                self.render_json(feature_collection),
+                f"{requested_format.lower()}; charset=utf-8",
+                True,
+            )
         elif requested_format == "TEXT/JSON":
-            return self.render_json(feature_collection), requested_format.lower(), True
+            return (
+                self.render_json(feature_collection),
+                f"{requested_format.lower()}; charset=utf-8",
+                True,
+            )
         else:
             logging.debug("No matching Format was found.")
             return (
                 self.render_operation_parsing_failed(
                     f"Format {requested_format} is not allowed. Allowed is {self.allowed_formats}"
                 ),
-                "text/xml",
+                "text/xml; charset=utf-8",
                 False,
             )
