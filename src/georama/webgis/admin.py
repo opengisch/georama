@@ -2,7 +2,7 @@ from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin
 from django.http import HttpRequest
 from django.template.response import TemplateResponse
-from django.urls import path
+from django.urls import path, reverse
 from django.utils.translation import gettext_lazy as _
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
@@ -46,6 +46,23 @@ class LayerWmsAdmin(admin.ModelAdmin):
         )
         return TemplateResponse(
             request, "admin/maps/publishedaswms/publish.html", extra_context
+        )
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context[
+            "wms_get_capabilities_url"
+        ] = "{}?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0".format(
+            reverse("webgis_ogc_entry")
+        )
+        extra_context[
+            "wfs_get_capabilities_url"
+        ] = "{}?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0".format(
+            reverse("webgis_ogc_entry")
+        )
+        return super().changelist_view(
+            request,
+            extra_context=extra_context,
         )
 
 

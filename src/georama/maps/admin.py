@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Permission
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.qgis import BBox
 
 from georama.core.entities.models import save_group_permissions, save_user_permissions
@@ -18,35 +19,26 @@ from georama.maps.interfaces.ogc.wms_1_3_0.requests import (
 from georama.maps.models import PublishedAsWms
 
 
+def wms_get_capabilities_url() -> str:
+    return "{}?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0".format(
+        reverse("maps_ogc_entry")
+    )
+
+
+def wfs_get_capabilities_url() -> str:
+    return "{}?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0".format(
+        reverse("maps_ogc_entry")
+    )
+
+
 @admin.register(PublishedAsWms)
 class PublishedAsWmsAdmin(admin.ModelAdmin):
-    list_display = ["name", "title", "public", "delete_link", "show_published"]
+    list_display = ["name", "title", "public", "queryable", "delete_link", "show_published"]
     list_editable = ["public"]
     add_form_template = "admin/maps/publishedaswms/publish.html"
     readonly_fields = ["dataset_detail"]
     list_filter = ["name", "title"]
     form = PublishedAsWmsForm
-
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    "name",
-                    "title",
-                    "public",
-                    "description",
-                    "license",
-                    "fees",
-                    "access_constraints",
-                    "dataset_detail",
-                    "extent_buffer",
-                )
-            },
-        ),
-        ("Group permissions", {"fields": ("group_read_permission",)}),
-        ("User permissions", {"fields": ("user_read_permission",)}),
-    )
 
     def add_view(self, request, form_url="", extra_context=None):
         extra_context = extra_context or {}
@@ -57,6 +49,15 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         return super().add_view(
             request,
             form_url,
+            extra_context=extra_context,
+        )
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["wms_get_capabilities_url"] = wms_get_capabilities_url()
+        extra_context["wfs_get_capabilities_url"] = wfs_get_capabilities_url()
+        return super().changelist_view(
+            request,
             extra_context=extra_context,
         )
 
@@ -97,27 +98,17 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         return "&".join(parameter_list)
 
     def show_published(self, obj: PublishedAsWms):
-        # http://localhost:8080/maps?
-        # SERVICE=WMS
-        # &VERSION=1.3.0
-        # &REQUEST=GetMap
-        # &BBOX=2686193.854178806767%2C1223001.263198361266%2C2686272.45949376747%2C1226906.964785467368
-        # &CRS=EPSG%3A2056
-        # &WIDTH=32
-        # &HEIGHT=1590
-        # &LAYERS=zg_erdverlegter_tank_ausser_betrieb
-        # &STYLES=
-        # &FORMAT=image%2Fpng
-        # &DPI=315
-        # &MAP_RESOLUTION=315
-        # &FORMAT_OPTIONS=dpi%3A315
-        # &TRANSPARENT=TRUE
-
         return mark_safe(
-            '<a href="{}?{}" target="_blank" class="btn btn-high btn-success"><i class="fas fa-eye text-xs"/></a>'.format(
-                reverse("maps_ogc_entry"), self.create_url_params(obj)
+            "".join(
+                [
+                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success" title="WMS GetMap"><i class="fas fa-eye text-xs"/></a>'.format(
+                        reverse("maps_ogc_entry"), self.create_url_params(obj)
+                    ),
+                ]
             )
         )
+
+    show_published.short_description = "Operations"
 
     def dataset_detail(self, obj: PublishedAsWms):
         if isinstance(obj.raster_dataset, RasterDataSet):
@@ -139,7 +130,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
 
     dataset_detail.short_description = "Dataset"
 
-    def get_fields(self, request, obj=None):
+    def get_fieldsets(self, request, obj=None):
         fields = [
             "title",
             "name",
@@ -153,7 +144,14 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         if obj:
             if isinstance(obj.vector_dataset, VectorDataSet):
                 fields.append("extent_buffer")
-        return fields
+        return (
+            (
+                None,
+                {"fields": fields},
+            ),
+            ("Group permissions", {"fields": ("group_read_permission",)}),
+            ("User permissions", {"fields": ("user_read_permission",)}),
+        )
 
     def save_model(self, request, obj, form, change):
         # read permission -> should get only one for PublishedAsWms
@@ -168,3 +166,15 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         save_user_permissions(users_read, read_permission)
 
         super().save_model(request, obj, form, change)
+
+
+def custom_links():
+    return {
+        "maps": [
+            {
+                "name": _("WMS Capabilities"),
+                "url": wms_get_capabilities_url(),
+                "icon": "fa fa-eye",
+            }
+        ]
+    }

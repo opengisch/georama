@@ -4,12 +4,12 @@
   },
   "languages": {
     "translations": {
-      "de": ["i18n/de.json", "http://localhost:8080/webgis/translations/de.json"]
+      "de": ["i18n/de.json", "http://localhost:4242/webgis/translations/de.json"]
     },
     "defaultLanguage": "de"
   },
   "themes": {
-    "url": "http://localhost:8080/webgis/themes.json",
+    "url": "http://localhost:4242/webgis/themes.json",
     "defaultTheme": "forest_fires"
   },
   "basemaps": {

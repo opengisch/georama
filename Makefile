@@ -168,7 +168,7 @@ install-dev: $(DEV_REQUIREMENTS)
 
 .PHONY: serve-dev
 serve-dev: $(DEV_REQUIREMENTS)
-	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:8080
+	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:4242
 
 MANAGE_ACTION="shell_plus"
 .PHONY: manage
