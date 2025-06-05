@@ -51,7 +51,6 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
     Query,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1 import (
-    CurveMember,
     CurveMembers,
     DirectPositionType,
     Envelope,
@@ -61,8 +60,8 @@ from georama.maps.interfaces.opengis.gml_3_2_1 import (
     Interior,
     LinearRing,
     LineString,
-    MultiPoint,
     MultiCurve,
+    MultiPoint,
     MultiSurface,
     Point,
     PointMembers,
@@ -91,9 +90,7 @@ class WfsGetFeature(WfsOperation):
     def __init__(self, appname: str, url: str, user, model: Model):
         super().__init__(appname, url, user, model)
         self.name_space_map = {
-            "wfs": "http://www.opengis.net/wfs/2.0",
-            "fes": "http://www.opengis.net/fes/2.0",
-            "ows": "http://www.opengis.net/ows/1.1",
+            "": "http://www.opengis.net/wfs/2.0",
             "xsi": "http://www.w3.org/2001/XMLSchema-instance",
             "gml": "http://www.opengis.net/gml/3.2",
             self.own_namespace: "https://www.opengis.ch/georama",
@@ -516,19 +513,20 @@ class WfsGetFeature(WfsOperation):
         time0 = time.process_time()
         result_recursive = self.parse_wkb_to_gml3_recursive(wkb, srs_definition)
         time1 = time.process_time()
-        execution_time_recursive = round((time1-time0)*1000,2)
-        #time.sleep(0.1) # cooldown for garbage collection/whatever
+        execution_time_recursive = round((time1 - time0) * 1000, 2)
+        # time.sleep(0.1) # cooldown for garbage collection/whatever
         time2 = time.process_time()
-        result_flat = self.parse_wkb_to_gml3_flat(wkb, srs_definition)
+        self.parse_wkb_to_gml3_flat(wkb, srs_definition)
         time3 = time.process_time()
-        execution_time_flat = round((time3-time2)*1000,2)
+        execution_time_flat = round((time3 - time2) * 1000, 2)
 
-        print(f"parse_wkb_to_gml3 execution time. rec approach: {execution_time_recursive}sec, flat approach: {execution_time_flat}sec, diff: {round(execution_time_recursive-execution_time_flat,2)}, ratio:  {round(execution_time_recursive/execution_time_flat,2)}")
+        print(
+            f"parse_wkb_to_gml3 execution time. rec approach: {execution_time_recursive}sec, flat approach: {execution_time_flat}sec, diff: {round(execution_time_recursive-execution_time_flat,2)}, ratio:  {round(execution_time_recursive/execution_time_flat,2)}"
+        )
 
         return result_recursive
-        #return self.parse_wkb_to_gml3_recursive(wkb, srs_definition)
-        #return self.parse_wkb_to_gml3_flat(wkb, srs_definition)
-    
+        # return self.parse_wkb_to_gml3_recursive(wkb, srs_definition)
+        # return self.parse_wkb_to_gml3_flat(wkb, srs_definition)
 
     def parse_wkb_to_gml3_flat(
         self, wkb: bytes, srs_definition: str
@@ -556,7 +554,7 @@ class WfsGetFeature(WfsOperation):
             Multi geometry types will return an ``GeometryMembers`` instance.
         """
         # read first byte for byteorder information
-        endian = "<" if wkb[0] == 1 else ">" # < is little endian
+        endian = "<" if wkb[0] == 1 else ">"  # < is little endian
         wkb = wkb[1:]
         # read following 4 bytes for geometry type information
         geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
@@ -594,7 +592,9 @@ class WfsGetFeature(WfsOperation):
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
                     # we can do this because we introduced a custom converter NumpyArrayConverter!
-                    pos=Pos(value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")),
+                    pos=Pos(
+                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
+                    ),
                 )
             )
         elif geometry_type in self.geometry_types["linestring"]:
@@ -712,13 +712,13 @@ class WfsGetFeature(WfsOperation):
             # slicing wkb by read 4 bytes
             wkb = wkb[4:]
 
-            points = [None]*number_of_wkb_points
+            points = [None] * number_of_wkb_points
 
             for i in range(number_of_wkb_points):
                 # Parsing single point
 
                 # read first byte for byteorder information
-                m_endian = "<" if wkb[0] == 1 else ">" # < is little endian
+                m_endian = "<" if wkb[0] == 1 else ">"  # < is little endian
                 wkb = wkb[1:]
                 # read following 4 bytes for geometry type information
                 m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
@@ -727,7 +727,9 @@ class WfsGetFeature(WfsOperation):
                     m_endian_string = "little endian"
                 else:
                     m_endian_string = "big endian"
-                logging.debug(f"Parsing multipoint WKB point '{m_endian_string}' of type {m_geometry_type}")
+                logging.debug(
+                    f"Parsing multipoint WKB point '{m_endian_string}' of type {m_geometry_type}"
+                )
                 if m_geometry_type not in self.geometry_types["point"]:
                     logging.error(
                         f"Multipoint of type '{geometry_type}' contains non-point geometry of type '{m_geometry_type}'."
@@ -757,7 +759,9 @@ class WfsGetFeature(WfsOperation):
                 points[i] = Point(
                     srs_name=srs_definition,
                     srs_dimension=m_dimensions,
-                    pos=Pos(value=np.frombuffer(wkb[0:geometry_part_offset], dtype=m_endian + "f8")),
+                    pos=Pos(
+                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=m_endian + "f8")
+                    ),
                 )
 
                 # slicing wkb be geometry part offset
@@ -767,7 +771,7 @@ class WfsGetFeature(WfsOperation):
                 multi_point=MultiPoint(
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
-                    point_members=PointMembers(points)
+                    point_members=PointMembers(points),
                 )
             )
         elif geometry_type in self.geometry_types["multilinestring"]:
@@ -798,14 +802,14 @@ class WfsGetFeature(WfsOperation):
             # slicing wkb by read 4 bytes
             wkb = wkb[4:]
 
-            lines = [None]*number_of_wkb_lines
+            lines = [None] * number_of_wkb_lines
 
             for i in range(number_of_wkb_lines):
-            
+
                 # Parsing single LineString
-                
+
                 # read first byte for byteorder information
-                m_endian = "<" if wkb[0] == 1 else ">" # < is little endian
+                m_endian = "<" if wkb[0] == 1 else ">"  # < is little endian
                 wkb = wkb[1:]
                 # read following 4 bytes for geometry type information
                 m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
@@ -814,7 +818,9 @@ class WfsGetFeature(WfsOperation):
                     m_endian_string = "little endian"
                 else:
                     m_endian_string = "big endian"
-                logging.debug(f"Parsing multiline WKB line '{m_endian_string}' of type {m_geometry_type}")
+                logging.debug(
+                    f"Parsing multiline WKB line '{m_endian_string}' of type {m_geometry_type}"
+                )
 
                 if m_geometry_type == 2:
                     # XY
@@ -846,7 +852,6 @@ class WfsGetFeature(WfsOperation):
                         value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
                     ),
                 )
-                
 
                 # slicing wkb be geometry part offset
                 wkb = wkb[geometry_part_offset:]
@@ -855,7 +860,7 @@ class WfsGetFeature(WfsOperation):
                 multi_curve=MultiCurve(
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
-                    curve_members=CurveMembers(line_string=lines)
+                    curve_members=CurveMembers(line_string=lines),
                 )
             )
         elif geometry_type in self.geometry_types["multipolygon"]:
@@ -886,12 +891,12 @@ class WfsGetFeature(WfsOperation):
             # slicing wkb by read 4 bytes
             wkb = wkb[4:]
 
-            polygons = [None]*number_of_wkb_polygons
+            polygons = [None] * number_of_wkb_polygons
 
             for i in range(number_of_wkb_polygons):
-            
+
                 # Parsing single Polygon
-                endian = "<" if wkb[0] == 1 else ">" # < is little endian
+                endian = "<" if wkb[0] == 1 else ">"  # < is little endian
                 wkb = wkb[1:]
                 # read following 4 bytes for geometry type information
                 m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
@@ -948,12 +953,11 @@ class WfsGetFeature(WfsOperation):
                         )
                 polygons[i] = polygon
 
-
             return GeometryMember(
                 multi_surface=MultiSurface(
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
-                    surface_members=SurfaceMembers(polygon=polygons)
+                    surface_members=SurfaceMembers(polygon=polygons),
                 )
             )
         else:
@@ -968,7 +972,6 @@ class WfsGetFeature(WfsOperation):
     ) -> GeometryMember | GeometryMembers:
         gm, _ = self._parse_wkb_to_gml3_recursive(wkb, srs_definition)
         return gm
-
 
     def _parse_wkb_to_gml3_recursive(
         self, wkb: bytes, srs_definition: str
@@ -997,13 +1000,13 @@ class WfsGetFeature(WfsOperation):
         """
         total_offset = 0
         # read first byte for byteorder information
-        endian = "<" if wkb[0] == 1 else ">" # < is little endian
+        endian = "<" if wkb[0] == 1 else ">"  # < is little endian
         wkb = wkb[1:]
-        total_offset+=1
+        total_offset += 1
         # read following 4 bytes for geometry type information
         geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
         wkb = wkb[4:]
-        total_offset+=4
+        total_offset += 4
         if wkb[0] == 1:
             endian_string = "little endian"
         else:
@@ -1030,14 +1033,21 @@ class WfsGetFeature(WfsOperation):
                 )
                 raise NotImplementedError()
             geometry_part_offset = dimensions * 8
-            total_offset+=geometry_part_offset
-            return GeometryMember(
-                point=Point(
-                    srs_name=srs_definition,
-                    srs_dimension=dimensions,
-                    pos=Pos(value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")),
-                )
-            ), total_offset
+            total_offset += geometry_part_offset
+            return (
+                GeometryMember(
+                    point=Point(
+                        srs_name=srs_definition,
+                        srs_dimension=dimensions,
+                        pos=Pos(
+                            value=np.frombuffer(
+                                wkb[0:geometry_part_offset], dtype=endian + "f8"
+                            )
+                        ),
+                    )
+                ),
+                total_offset,
+            )
         elif geometry_type in self.geometry_types["linestring"]:
             # LINESTRING
             if geometry_type == 2:
@@ -1062,18 +1072,23 @@ class WfsGetFeature(WfsOperation):
             number_of_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
             # slicing wkb by read 4 bytes
             wkb = wkb[4:]
-            total_offset+=4
+            total_offset += 4
             geometry_part_offset = number_of_points * dimensions * 8
-            total_offset+=geometry_part_offset
-            return GeometryMember(
-                line_string=LineString(
-                    srs_name=srs_definition,
-                    srs_dimension=dimensions,
-                    pos_list=PosList(
-                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
-                    ),
-                )
-            ), total_offset
+            total_offset += geometry_part_offset
+            return (
+                GeometryMember(
+                    line_string=LineString(
+                        srs_name=srs_definition,
+                        srs_dimension=dimensions,
+                        pos_list=PosList(
+                            value=np.frombuffer(
+                                wkb[0:geometry_part_offset], dtype=endian + "f8"
+                            )
+                        ),
+                    )
+                ),
+                total_offset,
+            )
         elif geometry_type in self.geometry_types["polygon"]:
             # POLYGON
             if geometry_type == 3:
@@ -1099,13 +1114,13 @@ class WfsGetFeature(WfsOperation):
             polygon = Polygon(srs_name=srs_definition, srs_dimension=dimensions)
             # slicing wkb by interpreted parts
             wkb = wkb[4:]
-            total_offset+=4
+            total_offset += 4
             for ring in range(number_of_rings):
                 # reading next 4 bytes of wkb
                 number_of_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
                 # slicing wkb by read 4 bytes
                 wkb = wkb[4:]
-                total_offset+=4
+                total_offset += 4
                 # calculating offset to read geometry part
                 geometry_part_offset = number_of_points * dimensions * 8
                 logging.debug(f"  parsing ring:{ring} with: {number_of_points} points")
@@ -1150,24 +1165,29 @@ class WfsGetFeature(WfsOperation):
             number_of_wkb_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
             # slicing wkb by read 4 bytes
             wkb = wkb[4:]
-            total_offset+=4
+            total_offset += 4
 
-            points = [None]*number_of_wkb_points
+            points = [None] * number_of_wkb_points
 
             for i in range(number_of_wkb_points):
-                point_geometry_member, offset = self._parse_wkb_to_gml3_recursive(wkb, srs_definition)
+                point_geometry_member, offset = self._parse_wkb_to_gml3_recursive(
+                    wkb, srs_definition
+                )
                 points[i] = point_geometry_member.point
                 # slicing wkb be geometry part offset
                 wkb = wkb[offset:]
-                total_offset+=offset
+                total_offset += offset
 
-            return GeometryMember(
-                multi_point=MultiPoint(
-                    srs_name=srs_definition,
-                    srs_dimension=dimensions,
-                    point_members=PointMembers(points)
-                )
-            ), total_offset
+            return (
+                GeometryMember(
+                    multi_point=MultiPoint(
+                        srs_name=srs_definition,
+                        srs_dimension=dimensions,
+                        point_members=PointMembers(points),
+                    )
+                ),
+                total_offset,
+            )
         elif geometry_type in self.geometry_types["multilinestring"]:
             detected_type = "multilinestring"
             # MULTILINESTRING
@@ -1193,24 +1213,29 @@ class WfsGetFeature(WfsOperation):
             number_of_wkb_lines = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
             # slicing wkb by read 4 bytes
             wkb = wkb[4:]
-            total_offset+=4
+            total_offset += 4
 
-            lines = [None]*number_of_wkb_lines
+            lines = [None] * number_of_wkb_lines
 
             for i in range(number_of_wkb_lines):
-                line_geometry_member, offset = self._parse_wkb_to_gml3_recursive(wkb, srs_definition)
+                line_geometry_member, offset = self._parse_wkb_to_gml3_recursive(
+                    wkb, srs_definition
+                )
                 lines[i] = line_geometry_member.line_string
                 # slicing wkb be geometry part offset
                 wkb = wkb[offset:]
-                total_offset+=offset
+                total_offset += offset
 
-            return GeometryMember(
-                multi_curve=MultiCurve(
-                    srs_name=srs_definition,
-                    srs_dimension=dimensions,
-                    curve_members=CurveMembers(line_string=lines)
-                )
-            ), total_offset
+            return (
+                GeometryMember(
+                    multi_curve=MultiCurve(
+                        srs_name=srs_definition,
+                        srs_dimension=dimensions,
+                        curve_members=CurveMembers(line_string=lines),
+                    )
+                ),
+                total_offset,
+            )
         elif geometry_type in self.geometry_types["multipolygon"]:
             detected_type = "multipolygon"
             # MULTIPOLYGON
@@ -1236,23 +1261,28 @@ class WfsGetFeature(WfsOperation):
             number_of_wkb_polygons = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
             # slicing wkb by read 4 bytes
             wkb = wkb[4:]
-            total_offset+=4
+            total_offset += 4
 
-            polygons = [None]*number_of_wkb_polygons
+            polygons = [None] * number_of_wkb_polygons
             for i in range(number_of_wkb_polygons):
-                surface_geometry_member, offset = self._parse_wkb_to_gml3_recursive(wkb, srs_definition)
+                surface_geometry_member, offset = self._parse_wkb_to_gml3_recursive(
+                    wkb, srs_definition
+                )
                 polygons[i] = surface_geometry_member.polygon
                 # slicing wkb be geometry part offset
                 wkb = wkb[offset:]
-                total_offset+=offset
+                total_offset += offset
 
-            return GeometryMember(
-                multi_surface=MultiSurface(
-                    srs_name=srs_definition,
-                    srs_dimension=dimensions,
-                    surface_members=SurfaceMembers(polygon=polygons)
-                )
-            ), total_offset
+            return (
+                GeometryMember(
+                    multi_surface=MultiSurface(
+                        srs_name=srs_definition,
+                        srs_dimension=dimensions,
+                        surface_members=SurfaceMembers(polygon=polygons),
+                    )
+                ),
+                total_offset,
+            )
         else:
             logging.debug(
                 f"Geometry type '{geometry_type}' is currently not supported. Supported types are:"
@@ -1323,9 +1353,7 @@ class WfsGetFeature(WfsOperation):
                 feature_object = feature_dataclass(**feature_dict)
                 start = time.time()
                 if get_feature_parameter.query[0].srs_name:
-                    srs = get_feature_parameter.query[
-                        feature_collection_index
-                    ].srs_name.lower()
+                    srs = get_feature_parameter.query[feature_collection_index].srs_name
                 else:
                     srs = None
                     for dataset in job.queries[feature_collection_index].datasets:
