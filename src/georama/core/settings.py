@@ -140,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [] + os.getenv(
-    "GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:13337"
+    "GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:9309"
 ).split(" ")
 CORS_ALLOW_CREDENTIALS = (
     os.environ.get("GEORAMA_CORS_ALLOW_CREDENTIALS", "false").lower() == "true"
