@@ -513,8 +513,21 @@ class WfsGetFeature(WfsOperation):
     def parse_wkb_to_gml3(
         self, wkb: bytes, srs_definition: str
     ) -> GeometryMember | GeometryMembers:
+        time0 = time.process_time()
+        result_recursive = self.parse_wkb_to_gml3_recursive(wkb, srs_definition)
+        time1 = time.process_time()
+        execution_time_recursive = round((time1-time0)*1000,2)
+        #time.sleep(0.1) # cooldown for garbage collection/whatever
+        time2 = time.process_time()
+        result_flat = self.parse_wkb_to_gml3_flat(wkb, srs_definition)
+        time3 = time.process_time()
+        execution_time_flat = round((time3-time2)*1000,2)
+
+        print(f"parse_wkb_to_gml3 execution time. rec approach: {execution_time_recursive}sec, flat approach: {execution_time_flat}sec, diff: {round(execution_time_recursive-execution_time_flat,2)}, ratio:  {round(execution_time_recursive/execution_time_flat,2)}")
+
+        return result_recursive
         #return self.parse_wkb_to_gml3_recursive(wkb, srs_definition)
-        return self.parse_wkb_to_gml3_flat(wkb, srs_definition)
+        #return self.parse_wkb_to_gml3_flat(wkb, srs_definition)
     
 
     def parse_wkb_to_gml3_flat(
