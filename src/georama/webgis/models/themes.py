@@ -228,7 +228,6 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     ogc_server = models.CharField(null=True)
     min_resolution_hint = models.FloatField(default=0.0)
     max_resolution_hint = models.FloatField(default=999999999.0)
-    queryable = models.BooleanField(default=True, null=True, blank=True)
 
     class Meta:
         verbose_name = f'WMS {_("Layer")}'

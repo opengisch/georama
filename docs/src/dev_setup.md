@@ -12,7 +12,7 @@ This page outlines how to develop and run **Georama** either inside a Docker con
 
 ## 🐳 Development in a Container
 
-Follow the  
+Follow the
 <a href="https://github.com/opengisch/georama?tab=readme-ov-file#quickstart" target="_blank">
 Quickstart in README.md</a>. Check if everything is running.
 
@@ -147,7 +147,7 @@ Specify the interpreter path as: `/opt/georama/venv/bin/python`
 <img src="../assets/pycharm_interpreter_2.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
 
 ### 🐞 Configure Run/Debug
-Adjust the IP in the run/debug configuration to `0.0.0.0` and the port to `8080`
+Adjust the IP in the run/debug configuration to `0.0.0.0` and the port to `4242`
 
 <img src="../assets/pycharm_debug_configs.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
 
@@ -161,4 +161,3 @@ Finally you can now connect to the pycharm debugger
 
 ## ✅ Next Steps
 See the [Workflow](workflow.md)
-

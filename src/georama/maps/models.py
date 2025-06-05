@@ -1,6 +1,7 @@
 from typing import List
 
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
@@ -12,6 +13,7 @@ class PublishedAsWmsAbstract(PublishedAs):
 
     published_as_type = "maps"
     extent_buffer = models.FloatField(default=0.0, null=False)
+    queryable = models.BooleanField(default=True, null=True, blank=True)
 
     @property
     def get_raster_dataset(self) -> RasterDataSet:
@@ -64,6 +66,9 @@ class PublishedAsWmsAbstract(PublishedAs):
 
 
 class PublishedAsWms(PublishedAsWmsAbstract):
+    class Meta:
+        verbose_name = f'WMS {_("Layer")}'
+        verbose_name_plural = f'WMS {_("Layers")}'
 
     raster_dataset = models.ForeignKey(
         RasterDataSet,
