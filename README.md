@@ -45,4 +45,4 @@ docker compose exec georama make migrate
 docker compose exec georama make create-superuser
 ```
 
-Admin interface (user: admin password: whatever-you-chose): http://localhost:42424/admin/
+Admin interface (user: admin password: whatever-you-chose): http://localhost:4242/admin/
