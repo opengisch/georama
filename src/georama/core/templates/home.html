@@ -1,54 +1,86 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Georama</title>
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      overflow: hidden;
-    }
+{% extends 'base.html' %}
 
-    .container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #f0f0f0;
-    }
+{% load i18n %}
+{% load static %}
 
-    .sharp-img {
-      position: relative;
-      z-index: 2;
-      height: 70%;
-      max-height: 70%;
-      width: auto;
-    }
-    .link-container {
-      position: absolute;
-      bottom: 20px;
-      text-align: center;
-      width: 100%;
-      font-family: Tahoma, sans-serif;
-      z-index: 3;
-    }
+{% block content %}
 
-  </style>
-</head>
-<body>
-  <div class="container">
-      <img src="{{ logo_url }}" class="sharp-img"/>
-      <div class="link-container">
-          <p><h3><a href="/login">Login Page</a></h3></p>
-          <p><h3><a href="/admin/">Admin Page</a></h3></p>
-          <p><h3><a href="/maps">WMS endpoint</a></h3></p>
-          <p><h3><a href="/features">OAPIF endpoint</a></h3></p>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <img src="{% static 'logo/georama_2.png' %}" alt="Georama Logo" class="logo mb-3" width="300px" />
+      <h1 class="display-4 fw-bold">Georama</h1>
+      <p class="lead">Panorama over your geospatial data. Integrate, explore, and serve maps with ease.</p>
+      <a href="#features" class="btn btn-light btn-lg mt-3">Learn More</a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-5">
+    <div class="container">
+      <div class="row text-center mb-4">
+        <div class="col">
+          <h2 class="fw-bold">Why Georama?</h2>
+          <p class="text-muted">A powerful framework for managing geospatial data and web maps</p>
+        </div>
       </div>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="p-4 border rounded">
+            <div class="feature-icon mb-3">🌍</div>
+            <h5 class="fw-bold">Multi-Source Integration</h5>
+            <p>Combine WMS, WFS, QGIS projects, and more into a unified platform.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 border rounded">
+            <div class="feature-icon mb-3">⚙️</div>
+            <h5 class="fw-bold">Modular Architecture</h5>
+            <p>Use Django and Ninja APIs to extend and adapt to your data workflows.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 border rounded">
+            <div class="feature-icon mb-3">🗺️</div>
+            <h5 class="fw-bold">Web GIS Ready</h5>
+            <p>Built-in support for serving layers and visualizing maps in modern web frontends.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  </div>
+  <!-- Explore Modules Section -->
+  <section class="py-5 text-center bg-light">
+    <div class="container">
+      <h3 class="fw-bold mb-4">Explore the Modules</h3>
+      <div class="d-flex flex-wrap justify-content-center gap-3">
+          <a class="btn btn-outline-primary px-4" href="/login">Login Page</a>
+          <a class="btn btn-outline-primary px-4" href="/admin/">Admin Page</a>
+          <a class="btn btn-outline-primary px-4" href="/maps">WMS endpoint</a>
+          <a class="btn btn-outline-primary px-4" href="/features">OAPIF endpoint</a>
+      </div>
+    </div>
+  </section>
 
-</body>
-</html>
+  <!-- Read the Docs Section -->
+  <section class="py-5" id="docs">
+    <div class="container text-center">
+      <h3 class="fw-bold mb-3">📘 Read the Docs</h3>
+      <p class="text-muted mb-4">Dive into the full documentation to get started with setup, API, and module structure.</p>
+      <a href="https://docs.georama.io" class="btn btn-secondary btn-lg" target="_blank">View Documentation</a>
+    </div>
+  </section>
+
+{#  <!-- Call to Action -->#}
+{#  <section class="py-5 text-center">#}
+{#    <div class="container">#}
+{#      <h3 class="fw-bold mb-3">Start building with Georama today</h3>#}
+{#      <a href="https://github.com/your-org/georama" class="btn btn-primary btn-lg">View on GitHub</a>#}
+{#    </div>#}
+{#  </section>#}
+
+
+{% endblock %}
+
