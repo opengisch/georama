@@ -3,7 +3,7 @@ from django.urls import path
 from georama.features import views
 
 urlpatterns = [
-    path("", views.landing_page, name="landing"),
+    path("/", views.landing_page, name="landing"),
     path("/conformance", views.conformance, name="conformance"),
     path("/openapi", views.openapi, name="openapi"),
     path("/collections", views.collections, name="collections"),
