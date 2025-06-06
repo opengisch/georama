@@ -2,17 +2,68 @@ from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin
 from django.http import HttpRequest
 from django.template.response import TemplateResponse
-from django.urls import path
+from django.urls import path, reverse
 from django.utils.translation import gettext_lazy as _
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from georama.data_integration.models import Project
+from georama.data_integration.models import (
+    CustomDataSet,
+    Project,
+    RasterDataSet,
+    VectorDataSet,
+)
 from georama.webgis import models
 
 
 class LayerWmsAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["name", "title", "public"]
+    list_editable = ["public"]
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path(
+                "datasets/",
+                self.admin_site.admin_view(self.datasets),
+                name="datasets",
+            )
+        ]
+        return my_urls + urls
+
+    def datasets(self, request: HttpRequest, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context.update(
+            dict(
+                # Include common variables for rendering the admin template.
+                self.admin_site.each_context(request),
+                # Anything else you want in the context...
+                raster_datasets=RasterDataSet.objects.all(),
+                vector_datasets=VectorDataSet.objects.all(),
+                custom_datasets=CustomDataSet.objects.all(),
+                publish_dataset_as_wms_view_name="webgis_publish_dataset_as_wms",
+            )
+        )
+        return TemplateResponse(
+            request, "admin/maps/publishedaswms/publish.html", extra_context
+        )
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context[
+            "wms_get_capabilities_url"
+        ] = "{}?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0".format(
+            reverse("webgis_ogc_entry")
+        )
+        extra_context[
+            "wfs_get_capabilities_url"
+        ] = "{}?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0".format(
+            reverse("webgis_ogc_entry")
+        )
+        return super().changelist_view(
+            request,
+            extra_context=extra_context,
+        )
 
 
 class LayerWmtsAdmin(admin.ModelAdmin):
@@ -23,6 +74,10 @@ class LayerGroupMpAdmin(TreeAdmin):
     form = movenodeform_factory(models.LayerGroupMp)
     list_display = ("name",)
 
+    def move_node(self, request, extra_context=None):
+        # Call the original method without the extra_context
+        return super().move_node(request)
+
 
 class LayergroupmpInlines(admin.TabularInline):
     model = models.LayerGroupMp
@@ -32,31 +87,35 @@ class LayergroupmpInlines(admin.TabularInline):
 
 
 class ThemeAdmin(SortableAdminMixin, admin.ModelAdmin):
-    list_display = ("name", "mandant_name")
-    inlines = [
-        LayergroupmpInlines,
-    ]
-
-    def mandant_name(self, obj: models.PublishedAsTheme) -> str:
-        return obj.project.mandant.name
+    # overwrite this directly to circumnavigate problem of template which otherwise is located in different
+    # path
+    change_list_template = "admin/webgis/publishedastheme/change_list.html"
+    list_display = ("name",)
+    # inlines = [
+    #     LayergroupmpInlines,
+    # ]
 
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
-            path("projects/", self.admin_site.admin_view(self.projects), name="projects")
+            path("projects", self.admin_site.admin_view(self.projects), name="projects")
         ]
         return my_urls + urls
 
     def projects(self, request: HttpRequest, extra_context=None):
         publishable_projects = Project.objects.all()
-
-        context = dict(
-            # Include common variables for rendering the admin template.
-            self.admin_site.each_context(request),
-            # Anything else you want in the context...
-            publishable_projects=publishable_projects,
+        extra_context = extra_context or {}
+        extra_context.update(
+            dict(
+                # Include common variables for rendering the admin template.
+                self.admin_site.each_context(request),
+                # Anything else you want in the context...
+                publishable_projects=publishable_projects,
+            )
         )
-        return TemplateResponse(request, "admin/clogs/publishedastheme/projects.html", context)
+        return TemplateResponse(
+            request, "admin/webgis/publishedastheme/projects.html", extra_context
+        )
 
 
 class OgcServerAdmin(admin.ModelAdmin):

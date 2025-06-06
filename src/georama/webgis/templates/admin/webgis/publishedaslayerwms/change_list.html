@@ -1,0 +1,15 @@
+{% extends 'admin/change_list.html' %}
+{% load i18n admin_list %}
+
+{% block object-tools-items %}
+    <div class="btn-group">
+        <span style="pointer-events: none" class="btn btn-high btn-success fa fa-plus-circle" aria-hidden="true"></span>
+        <a href="{% url 'admin:webgis_publishedaslayerwms_add' %}" class="btn btn-high btn-success">Publish from Dataset</a>
+        <a href="{% url 'admin:datasets' %}" class="btn btn-high btn-success">Publish from Dataset</a>
+    </div>&nbsp;
+    <div class="btn-group">
+        <span style="pointer-events: none" class="btn btn-high btn-primary fa fa-eye" aria-hidden="true"></span>
+        <a href="{{ wms_get_capabilities_url }}" target="_blank" class="btn btn-high btn-primary">WMS Capabilities</a>
+        <a href="{{ wfs_get_capabilities_url }}" target="_blank" class="btn btn-high btn-primary">WFS Capabilities</a>
+    </div>
+{% endblock %}

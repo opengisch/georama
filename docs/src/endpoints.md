@@ -17,25 +17,25 @@ This page documents the key endpoints provided by the Georama development setup.
 
 ## 🔐 Admin & Authentication
 
-- **Admin Interface**  
-  Access the Django admin panel to manage users, layers, permissions, and more.  
-  ➜ [http://localhost:8080/admin/](http://localhost:8080/admin/)
+- **Admin Interface**
+  Access the Django admin panel to manage users, layers, permissions, and more.
+  ➜ [http://localhost:4242/admin/](http://localhost:4242/admin/)
 
-- **User Login Page**  
-  Interface for authenticating standard users (with third-party provider support if enabled).  
-  ➜ [http://localhost:8080/login](http://localhost:8080/login)
+- **User Login Page**
+  Interface for authenticating standard users (with third-party provider support if enabled).
+  ➜ [http://localhost:4242/login](http://localhost:4242/login)
 
 ---
 
 ## 🗺️ Web Map Service (WMS)
 
-- **WMS Capabilities**  
-  Retrieves the WMS 1.3.0 service capabilities (layer listing, supported formats, etc.).  
-  ➜ [`GET` WMS Capabilities](http://localhost:8080/maps?service=WMS&request=GetCapabilities&version=1.3.0)
+- **WMS Capabilities**
+  Retrieves the WMS 1.3.0 service capabilities (layer listing, supported formats, etc.).
+  ➜ [`GET` WMS Capabilities](http://localhost:4242/maps?service=WMS&request=GetCapabilities&version=1.3.0)
 
-- **WMS Endpoint for QGIS Desktop**  
-  Use this endpoint to connect QGIS to your local Georama WMS service.  
-  ➜ `http://localhost:8080/maps`
+- **WMS Endpoint for QGIS Desktop**
+  Use this endpoint to connect QGIS to your local Georama WMS service.
+  ➜ `http://localhost:4242/maps`
 
 ---
 
@@ -43,16 +43,17 @@ This page documents the key endpoints provided by the Georama development setup.
 
 - **WFS Endpoint for QGIS Desktop**  
   Use this endpoint to access vector data (features) via the OGC API - Features standard (aka WFS 3).  
-  ➜ `http://localhost:8080/features/`
-  ➜ `http://localhost:8080/features/openapi`
-  ➜ `http://localhost:8080/features/conformance`
-  ➜ `http://localhost:8080/features/collections`
+  ➜ `http://localhost:4242/features/`
+  ➜ `http://localhost:4242/features/openapi`
+  ➜ `http://localhost:4242/features/conformance`
+  ➜ `http://localhost:4242/features/collections`
+
 
 ---
 
 ## 🐳 Notes on Docker-Based Development
 
-All endpoints above assume you're running Georama locally using Docker on the default development port `8080`. If you've mapped ports differently or deployed to a remote host, adjust the URLs accordingly.
+All endpoints above assume you're running Georama locally using Docker on the default development port `4242`. If you've mapped ports differently or deployed to a remote host, adjust the URLs accordingly.
 
 ---
 

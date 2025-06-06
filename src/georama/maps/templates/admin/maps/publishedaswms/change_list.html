@@ -1,0 +1,11 @@
+{% extends 'admin/change_list.html' %}
+{% load i18n admin_list %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    <div class="btn-group">
+        <span style="pointer-events: none" class="btn btn-high btn-primary fa fa-eye" aria-hidden="true"></span>
+        <a href="{{ wms_get_capabilities_url }}" target="_blank" class="btn btn-high btn-primary">WMS Capabilities</a>
+        <a href="{{ wfs_get_capabilities_url }}" target="_blank" class="btn btn-high btn-primary">WFS Capabilities</a>
+    </div>
+{% endblock %}

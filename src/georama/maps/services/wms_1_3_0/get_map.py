@@ -9,8 +9,8 @@ from georama.maps.services.wms_1_3_0 import WmsOperation
 class WmsGetMap(WmsOperation):
     default_style_name = "default"
 
-    def __init__(self, appname: str, url: str, user):
-        super().__init__(appname, url, user)
+    def __init__(self, appname: str, url: str, user, model):
+        super().__init__(appname, url, user, model)
 
     def prepare_job_content(self, service_params: WmsGetMapParams) -> QslGetMapJob | str:
         if not service_params.styles:
@@ -35,6 +35,7 @@ class WmsGetMap(WmsOperation):
         service_params.STYLES = ",".join(styles)
         # we pass the requested layers to filter DB objects
         accessible_published_as = self.obtain_accessible_layers(service_params.layers)
+        print(len(accessible_published_as))
 
         job = QslGetMapJob(
             # we set the extent buffer to zero, this is used to control rendering issues like

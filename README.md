@@ -14,18 +14,7 @@ via QGIS projects.
 
 ## Docs
 
-Currently, the docs are not published on GitHub pages.
-
-You can read them in the Markdown format [docs](docs/src).
-
-You can run a local server to read them in your browser by running:
-
-```shell
-make doc-serve
-```
-
-Once the server is running, you can reach the
-docs [here](http://127.0.0.1:8000/georama/).
+For a detailed description, please consult our [documentation](https://docs.georama.io)
 
 ## Quickstart docker compose
 
@@ -56,4 +45,4 @@ docker compose exec georama make migrate
 docker compose exec georama make create-superuser
 ```
 
-Admin interface (user: admin password: whatever-you-chose): http://localhost:8080/admin/
+Admin interface (user: admin password: whatever-you-chose): http://localhost:4242/admin/

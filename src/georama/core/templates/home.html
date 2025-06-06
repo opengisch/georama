@@ -1,20 +1,54 @@
-{% load i18n %}
-{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Georama</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
 
-{% block content %}
-<div style="text-align: center; font-family: arial;">
-    <h1>{% trans 'Welcome to Georama' %}</h1>
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f0f0;
+    }
 
-    <h2>{% trans 'Explore the modules' %}</h2>
-    <dl>
-        {% for app_name in app_list %}
-            <dl>
-                <h3>{{ app_name }}</h3>
-            </dl>
-            <dt>
-                <a class="btn btn-warning" href="{% url 'admin:index' %}" rel="noreferrer">{% translate 'Configure in admin' %}</a>
-            </dt>
-        {% endfor %}
-    </dl>
-    {% endblock %}
-</div>
+    .sharp-img {
+      position: relative;
+      z-index: 2;
+      height: 70%;
+      max-height: 70%;
+      width: auto;
+    }
+    .link-container {
+      position: absolute;
+      bottom: 20px;
+      text-align: center;
+      width: 100%;
+      font-family: Tahoma, sans-serif;
+      z-index: 3;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+      <img src="{{ logo_url }}" class="sharp-img"/>
+      <div class="link-container">
+          <p><h3><a href="/login">Login Page</a></h3></p>
+          <p><h3><a href="/admin/">Admin Page</a></h3></p>
+          <p><h3><a href="/maps">WMS endpoint</a></h3></p>
+          <p><h3><a href="/features">OAPIF endpoint</a></h3></p>
+      </div>
+
+  </div>
+
+</body>
+</html>

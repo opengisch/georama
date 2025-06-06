@@ -183,7 +183,7 @@ class Time:
 
 @dataclass
 class WmsLayer:
-    id: int = field(metadata={"type": "Element", "required": True})
+    id: str = field(metadata={"type": "Element", "required": True})
     name: str = field(metadata={"type": "Element", "required": True})
     # TODO: This has to be modeled differntly because its to ambiguous
     metadata: MetaData = field(metadata={"type": "Element", "required": True})
@@ -230,7 +230,7 @@ class WmtsLayer:
 
 @dataclass
 class LayerGroup:
-    id: int = field(metadata={"type": "Element", "required": True})
+    id: Union[int, str] = field(metadata={"type": "Element", "required": True})
     name: str = field(metadata={"type": "Element", "required": True})
     # TODO: This has to be modeled differntly because its to ambiguous
     metadata: MetaData = field(metadata={"type": "Element", "required": True})
@@ -258,7 +258,7 @@ class UniqueLayers:
 
 @dataclass
 class Theme(AbstractSchema):
-    id: int = field(metadata={"type": "Element", "required": True})
+    id: Union[int, str] = field(metadata={"type": "Element", "required": True})
     name: str = field(metadata={"type": "Element", "required": True})
     icon: str = field(metadata={"type": "Element", "required": True})
     metadata: MetaData = field(metadata={"type": "Element", "required": True})

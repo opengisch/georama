@@ -1,10 +1,12 @@
 import logging
+from typing import Tuple
 
 from django.http import HttpRequest
 from django.shortcuts import redirect
 from django.views import View
 from qgis_server_light.interface.qgis import Config, Vector
 from xsdata.formats.dataclass.parsers import JsonParser
+from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.data_integration.admin import (
@@ -47,17 +49,31 @@ class RegisterQgisProject(View):
             if vector_dataset.id == id:
                 return vector_dataset
 
-    def get(self, request: HttpRequest, mandant_name: str, project_name: str, **kwargs):
+    @staticmethod
+    def load_project_config(
+        mandant_name: str, project_name: str
+    ) -> Tuple[QgisProject, Config] | Tuple[None, None] | Tuple[QgisProject, None]:
         config = DataintgrationConfig()
         qpfs = QgisProjectFileStructure(config.path)
         qpfs.create_groups(config.qgis_project_extensions)
         group = qpfs.find_group_by_name(mandant_name)
         if not isinstance(group, QgisProjectGroup):
-            redirect("admin:data_integration_project_changelist")
+            return None, None
         project = group.find_project_by_name(project_name)
-        if not isinstance(group, QgisProject):
-            redirect("admin:data_integration_project_changelist")
+        if not isinstance(project, QgisProject):
+            return None, None
         if not project.has_config:
+            return project, None
+        parser_config = ParserConfig(
+            fail_on_unknown_properties=False, fail_on_unknown_attributes=False
+        )
+        parser = JsonParser(parser_config)
+        project_config = parser.parse(project.config_path, Config)
+        return project, project_config
+
+    def get(self, request: HttpRequest, mandant_name: str, project_name: str, **kwargs):
+        project, project_config = self.load_project_config(mandant_name, project_name)
+        if not project_config or not project:
             redirect("admin:data_integration_project_changelist")
         mandant_qs = Mandant.objects.filter(name=mandant_name)
         if not mandant_qs.exists():
@@ -66,8 +82,6 @@ class RegisterQgisProject(View):
         else:
             # we can do so, because name is unique in DB
             mandant_db = mandant_qs.get()
-
-        project_config = JsonParser().parse(project.config_path, Config)
         project_qs = Project.objects.filter(name=project_name, mandant=mandant_db)
         if not project_qs.exists():
             log.error("Project does not exists, we first create a new DB object.")

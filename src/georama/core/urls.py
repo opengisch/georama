@@ -29,5 +29,4 @@ urlpatterns = [
     path("maps", include("georama.maps.urls")),
     path("webgis", include("georama.webgis.urls")),
     path("admin/", admin.site.urls, {"extra_context": {"DEBUG": settings.DEBUG}}),
-    path("users", include("allauth.urls")),
 ]

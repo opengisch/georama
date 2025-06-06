@@ -8,7 +8,7 @@ tags:
 
 Set up **Georama** locally using Docker with minimal effort.
 
-📘 **Also see:**  
+📘 **Also see:**
 <a href="https://github.com/opengisch/georama?tab=readme-ov-file#quickstart" target="_blank">
 Official README.md</a>
 
@@ -64,10 +64,9 @@ docker compose exec georama make create-superuser
 ```
 
 ### 🔐 Access the Admin Interface
-Admin panel: http://localhost:8080/admin/
+Admin panel: http://localhost:4242/admin/
 Login with the superuser credentials you chose.
 
 ### ➡️ Next Steps
 Explore the recommended Workflow Guide to import data, publish services, and manage metadata.
 See the [Workflow](workflow.md)
-
