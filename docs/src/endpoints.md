@@ -41,9 +41,13 @@ This page documents the key endpoints provided by the Georama development setup.
 
 ## 📦 Web Feature Service (WFS / OGC API Features)
 
-- **WFS Endpoint for QGIS Desktop**
-  Use this endpoint to access vector data (features) via the OGC API - Features standard (aka WFS 3).
-  ➜ `http://localhost:4242/features`
+- **WFS Endpoint for QGIS Desktop**  
+  Use this endpoint to access vector data (features) via the OGC API - Features standard (aka WFS 3).  
+  ➜ `http://localhost:4242/features/`
+  ➜ `http://localhost:4242/features/openapi`
+  ➜ `http://localhost:4242/features/conformance`
+  ➜ `http://localhost:4242/features/collections`
+
 
 ---
 
@@ -62,4 +66,4 @@ All endpoints above assume you're running Georama locally using Docker on the de
 
 ---
 
-For additional setup instructions or troubleshooting, see the [Quickstart](quickstart.md).
+For additional setup instructions or troubleshooting, see the [Quickstart](quick_start.md).
