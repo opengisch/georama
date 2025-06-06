@@ -48,7 +48,6 @@ This page documents the key endpoints provided by the Georama development setup.
   ➜ `http://localhost:4242/features/conformance`
   ➜ `http://localhost:4242/features/collections`
 
-
 ---
 
 ## 🐳 Notes on Docker-Based Development
