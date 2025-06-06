@@ -1,9 +1,3 @@
----
-tags:
-  - Docker
-  - Development
----
-
 ## Dockerfile Flow Chart
 
 **Dockerfile: Dockerfile**
