@@ -574,11 +574,7 @@ class WfsGetFeature(WfsOperation):
         # read following 4 bytes for geometry type information
         geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
         wkb = wkb[4:]
-        if wkb[0] == 1:
-            endian_string = "little endian"
-        else:
-            endian_string = "big endian"
-        logging.debug(f"Parsing WKB '{endian_string}' of type {geometry_type}")
+
         if geometry_type in self.geometry_types["point"]:
             # POINT
             # =======================================================
@@ -737,13 +733,7 @@ class WfsGetFeature(WfsOperation):
                 # read following 4 bytes for geometry type information
                 m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
                 wkb = wkb[4:]
-                if wkb[0] == 1:
-                    m_endian_string = "little endian"
-                else:
-                    m_endian_string = "big endian"
-                logging.debug(
-                    f"Parsing multipoint WKB point '{m_endian_string}' of type {m_geometry_type}"
-                )
+
                 if m_geometry_type not in self.geometry_types["point"]:
                     logging.error(
                         f"Multipoint of type '{geometry_type}' contains non-point geometry of type '{m_geometry_type}'."
@@ -828,13 +818,6 @@ class WfsGetFeature(WfsOperation):
                 # read following 4 bytes for geometry type information
                 m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
                 wkb = wkb[4:]
-                if wkb[0] == 1:
-                    m_endian_string = "little endian"
-                else:
-                    m_endian_string = "big endian"
-                logging.debug(
-                    f"Parsing multiline WKB line '{m_endian_string}' of type {m_geometry_type}"
-                )
 
                 if m_geometry_type == 2:
                     # XY
@@ -915,11 +898,7 @@ class WfsGetFeature(WfsOperation):
                 # read following 4 bytes for geometry type information
                 m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
                 wkb = wkb[4:]
-                if wkb[0] == 1:
-                    endian_string = "little endian"
-                else:
-                    endian_string = "big endian"
-                logging.debug(f"Parsing WKB '{endian_string}' of type {m_geometry_type}")
+
                 if m_geometry_type == 3:
                     # XY
                     m_dimensions = 2
@@ -1008,13 +987,11 @@ class WfsGetFeature(WfsOperation):
         """
         # read first byte for byteorder information
         endian = "<" if wkb[0] == 1 else ">" # < is little endian
+        wkb = wkb[1:]
+
         # read following 4 bytes for geometry type information
-        geometry_type = np.frombuffer(wkb[1:5], dtype=endian + "I")[0]
-        if wkb[5] == 1:
-            endian_string = "little endian"
-        else:
-            endian_string = "big endian"
-        logging.debug(f"Parsing WKB '{endian_string}' of type {geometry_type}")
+        geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+        wkb = wkb[4:]
         
         is_multipoint = geometry_type in self.geometry_types["multipoint"]
         if geometry_type in self.geometry_types["point"] or is_multipoint:
@@ -1053,8 +1030,8 @@ class WfsGetFeature(WfsOperation):
                 raise NotImplementedError()
             
             if is_multipoint:
-                number_of_wkb_points = np.frombuffer(wkb[5:9], dtype=endian + "I")[0]
-                wkb = wkb[9:]
+                number_of_wkb_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                wkb = wkb[4:]
                 # slicing wkb by read 4 bytes
             else:
                 number_of_wkb_points=1
@@ -1068,41 +1045,44 @@ class WfsGetFeature(WfsOperation):
                 # Parsing single point
                 # -------------------------------------------            
 
-                # read first byte for byteorder information
-                m_endian = "<" if wkb[0] == 1 else ">" # < is little endian
-                wkb = wkb[1:]
-                # read following 4 bytes for geometry type information
-                m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
-                wkb = wkb[4:]
-                if wkb[0] == 1:
-                    m_endian_string = "little endian"
+
+                if is_multipoint:
+                    # read first byte for byteorder information
+                    m_endian = "<" if wkb[0] == 1 else ">" # < is little endian
+                    wkb = wkb[1:]
+                    # read following 4 bytes for geometry type information
+                    m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                    wkb = wkb[4:]
+
+                    if m_geometry_type not in self.geometry_types["point"]:
+                        logging.error(
+                            f"Multipoint of type '{geometry_type}' contains non-point geometry of type '{m_geometry_type}'."
+                            f" Supported point types are {self.geometry_types['point']}."
+                        )
+                        raise ValueError()
+                    if m_geometry_type == 1:
+                        # XY
+                        m_dimensions = 2
+                    elif m_geometry_type == 1001:
+                        # XYZ
+                        m_dimensions = 3
+                    elif m_geometry_type == 2001:
+                        # XYM
+                        m_dimensions = 3
+                    elif m_geometry_type == 3001:
+                        # XYZM
+                        m_dimensions = 4
+                    else:
+                        logging.debug(
+                            f"Geometry type '{m_geometry_type}' is not in supported list"
+                            f" {self.geometry_types['point']}"
+                        )
+                        raise NotImplementedError()
                 else:
-                    m_endian_string = "big endian"
-                logging.debug(f"Parsing multipoint WKB point '{m_endian_string}' of type {m_geometry_type}")
-                if m_geometry_type not in self.geometry_types["point"]:
-                    logging.error(
-                        f"Multipoint of type '{geometry_type}' contains non-point geometry of type '{m_geometry_type}'."
-                        f" Supported point types are {self.geometry_types['point']}."
-                    )
-                    raise ValueError()
-                if m_geometry_type == 1:
-                    # XY
-                    m_dimensions = 2
-                elif m_geometry_type == 1001:
-                    # XYZ
-                    m_dimensions = 3
-                elif m_geometry_type == 2001:
-                    # XYM
-                    m_dimensions = 3
-                elif m_geometry_type == 3001:
-                    # XYZM
-                    m_dimensions = 4
-                else:
-                    logging.debug(
-                        f"Geometry type '{m_geometry_type}' is not in supported list"
-                        f" {self.geometry_types['point']}"
-                    )
-                    raise NotImplementedError()
+                    m_endian = endian
+                    m_geometry_type = geometry_type
+                    m_dimensions = dimensions
+
                 geometry_part_offset = m_dimensions * 8
                 points[i] = Point(
                     srs_name=srs_definition,
@@ -1160,8 +1140,8 @@ class WfsGetFeature(WfsOperation):
                 raise NotImplementedError()
             
             if is_multiline:
-                number_of_wkb_lines = np.frombuffer(wkb[5:9], dtype=endian + "I")[0]
-                wkb = wkb[9:]
+                number_of_wkb_lines = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                wkb = wkb[4:]
             else:
                 number_of_wkb_lines=1
 
@@ -1175,37 +1155,37 @@ class WfsGetFeature(WfsOperation):
                 # Parsing single LineString
                 # -------------------------------------------
                 
-                # read first byte for byteorder information
-                m_endian = "<" if wkb[0] == 1 else ">" # < is little endian
-                wkb = wkb[1:]
-                # read following 4 bytes for geometry type information
-                m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
-                wkb = wkb[4:]
-                if wkb[0] == 1:
-                    m_endian_string = "little endian"
-                else:
-                    m_endian_string = "big endian"
-                logging.debug(f"Parsing multiline WKB line '{m_endian_string}' of type {m_geometry_type}")
+                if is_multiline:
+                    # read first byte for byteorder information
+                    m_endian = "<" if wkb[0] == 1 else ">" # < is little endian
+                    wkb = wkb[1:]
+                    # read following 4 bytes for geometry type information
+                    m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                    wkb = wkb[4:]
 
-                if m_geometry_type == 2:
-                    # XY
-                    m_dimensions = 2
-                elif m_geometry_type == 1002:
-                    # XYZ
-                    m_dimensions = 3
-                elif m_geometry_type == 2002:
-                    # XYM
-                    m_dimensions = 3
-                elif m_geometry_type == 3002:
-                    # XYZM
-                    m_dimensions = 4
+                    if m_geometry_type == 2:
+                        # XY
+                        m_dimensions = 2
+                    elif m_geometry_type == 1002:
+                        # XYZ
+                        m_dimensions = 3
+                    elif m_geometry_type == 2002:
+                        # XYM
+                        m_dimensions = 3
+                    elif m_geometry_type == 3002:
+                        # XYZM
+                        m_dimensions = 4
+                    else:
+                        logging.error(
+                            f"Geometry type '{m_geometry_type}' is not in supported list"
+                            f" {self.geometry_types['linestring']}"
+                        )
+                        raise NotImplementedError()
+                        # reading next 4 bytes of wkb
                 else:
-                    logging.error(
-                        f"Geometry type '{m_geometry_type}' is not in supported list"
-                        f" {self.geometry_types['linestring']}"
-                    )
-                    raise NotImplementedError()
-                    # reading next 4 bytes of wkb
+                    m_endian = endian
+                    m_geometry_type = geometry_type
+                    m_dimensions = dimensions
                 m_number_of_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
                 # slicing wkb by read 4 bytes
                 wkb = wkb[4:]
@@ -1240,7 +1220,6 @@ class WfsGetFeature(WfsOperation):
 
             is_multipolygon = geometry_type in self.geometry_types["multipolygon"]
 
-
             if geometry_type == 3:
                 # XY
                 dimensions = 2
@@ -1270,16 +1249,14 @@ class WfsGetFeature(WfsOperation):
                     f"Geometry type '{geometry_type}' is not in supported list"
                 )
                 raise NotImplementedError()
-                # reading next 4 bytes of wkb
 
             
             if is_multipolygon:
-                number_of_wkb_polygons = np.frombuffer(wkb[5:9], dtype=endian + "I")[0]
-                wkb = wkb[9:]
+                number_of_wkb_polygons = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                wkb = wkb[4:]
             else:
                 number_of_wkb_polygons=1
 
-            # slicing wkb by read 4 bytes
 
             polygons = [None]*number_of_wkb_polygons
 
@@ -1288,35 +1265,36 @@ class WfsGetFeature(WfsOperation):
                 # Parsing single Polygon
                 # -------------------------------------------
 
-                endian = "<" if wkb[0] == 1 else ">" # < is little endian
-                wkb = wkb[1:]
-                # read following 4 bytes for geometry type information
-                m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
-                wkb = wkb[4:]
-                if wkb[0] == 1:
-                    endian_string = "little endian"
+                if is_multipolygon:
+                    endian = "<" if wkb[0] == 1 else ">" # < is little endian
+                    wkb = wkb[1:]
+                    # read following 4 bytes for geometry type information
+                    m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                    wkb = wkb[4:]
+                    
+                    if m_geometry_type == 3:
+                        # XY
+                        m_dimensions = 2
+                    elif m_geometry_type == 1003:
+                        # XYZ
+                        m_dimensions = 3
+                    elif m_geometry_type == 2003:
+                        # XYM
+                        m_dimensions = 3
+                    elif m_geometry_type == 3003:
+                        # XYZM
+                        m_dimensions = 4
+                    else:
+                        logging.error(
+                            f"Geometry type '{m_geometry_type}' is not in supported list"
+                            f" {self.geometry_types['polygon']}"
+                        )
+                        raise NotImplementedError()                    
                 else:
-                    endian_string = "big endian"
-                logging.debug(f"Parsing WKB '{endian_string}' of type {m_geometry_type}")
-                
-                if m_geometry_type == 3:
-                    # XY
-                    m_dimensions = 2
-                elif m_geometry_type == 1003:
-                    # XYZ
-                    m_dimensions = 3
-                elif m_geometry_type == 2003:
-                    # XYM
-                    m_dimensions = 3
-                elif m_geometry_type == 3003:
-                    # XYZM
-                    m_dimensions = 4
-                else:
-                    logging.error(
-                        f"Geometry type '{m_geometry_type}' is not in supported list"
-                        f" {self.geometry_types['polygon']}"
-                    )
-                    raise NotImplementedError()
+                    m_endian = endian
+                    m_geometry_type = geometry_type
+                    m_dimensions = dimensions
+
                 number_of_rings = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
                 logging.debug(f"  parsing polygon with {number_of_rings} rings")
                 polygon = Polygon(srs_name=srs_definition, srs_dimension=m_dimensions)
@@ -1398,11 +1376,6 @@ class WfsGetFeature(WfsOperation):
         geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
         wkb = wkb[4:]
         total_offset += 4
-        if wkb[0] == 1:
-            endian_string = "little endian"
-        else:
-            endian_string = "big endian"
-        logging.debug(f"Parsing WKB '{endian_string}' of type {geometry_type}")
         if geometry_type in self.geometry_types["point"]:
             # POINT
             if geometry_type == 1:
