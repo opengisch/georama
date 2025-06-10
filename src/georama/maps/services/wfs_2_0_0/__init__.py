@@ -85,7 +85,10 @@ class WfsOperation(OgcOperation):
     ) -> List[PublishedAsWms]:
         accessible_layers = []
         for published_as in PublishedAsWms.objects.all():
-            if published_as.has_read_permission(self.user, self.appname):
+            if (
+                published_as.has_read_permission(self.user, self.appname)
+                and published_as.queryable
+            ):
                 if isinstance(published_as.vector_dataset, VectorDataSet):
                     accessible_layers.append(published_as)
                 else:

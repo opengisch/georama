@@ -35,7 +35,7 @@ def wfs_get_capabilities_url() -> str:
 @admin.register(PublishedAsWms)
 class PublishedAsWmsAdmin(admin.ModelAdmin):
     list_display = ["icon_column", "name", "title", "public", "queryable", "delete_link", "show_published"]
-    list_editable = ["public"]
+    list_editable = ["public", "queryable"]
     add_form_template = "admin/maps/publishedaswms/publish.html"
     readonly_fields = ["dataset_detail"]
     list_filter = ["name", "title"]
@@ -155,6 +155,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             "fees",
             "access_constraints",
             "dataset_detail",
+            "queryable",
         ]
         if obj:
             if isinstance(obj.vector_dataset, VectorDataSet):
