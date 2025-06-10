@@ -35,7 +35,10 @@ class WfsDescribeFeatureType(WfsOperation):
         if layer_names:
             query = query.filter(name__in=layer_names)
         for published_as in query:
-            if published_as.has_read_permission(self.user, self.appname):
+            if (
+                published_as.has_read_permission(self.user, self.appname)
+                and published_as.queryable
+            ):
                 accessible_layers.append(published_as)
         return accessible_layers
 
