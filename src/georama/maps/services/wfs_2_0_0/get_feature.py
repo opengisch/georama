@@ -142,7 +142,10 @@ class WfsGetFeature(WfsOperation):
                 self.render_exception(f"Layer(s) not found: {list(found_difference)}")
             )
         for published_as in found_layers:
-            if published_as.has_read_permission(self.user, self.appname):
+            if (
+                published_as.has_read_permission(self.user, self.appname)
+                and published_as.queryable
+            ):
                 accessible_layers.append(published_as)
         permission_difference = set(layer_names) - {layer.name for layer in accessible_layers}
         if len(permission_difference) > 0:
