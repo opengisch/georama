@@ -48,6 +48,7 @@ class WmsGetCapabilities(WmsOperation):
         bbox: BBox,
         bbox_wgs84: BBox,
         styles: List[str],
+        queryable: bool,
     ) -> Layer:
         bbox_object_storage = BoundingBox(
             crs=crs,
@@ -73,7 +74,7 @@ class WmsGetCapabilities(WmsOperation):
             # we use a 0/1 instead True/False here since this also conforms to Chapter 7.2.4.7.1 in
             # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens
             # compatibility with older versions of WMS spec
-            queryable=0,
+            queryable=queryable,
             opaque=0,
             no_subsets=0,
             cascaded=0,
@@ -110,6 +111,7 @@ class WmsGetCapabilities(WmsOperation):
                 bbox,
                 bbox_wgs84,
                 [style.name for style in styles],
+                published_as.queryable,
             )
             capabilities.capability.layer.layer.append(layer)
         # we use a 0/1 instead True/False here since this also conforms to Chapter 7.2.4.7.1 in
