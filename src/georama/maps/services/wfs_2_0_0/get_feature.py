@@ -513,23 +513,35 @@ class WfsGetFeature(WfsOperation):
     def parse_wkb_to_gml3(
         self, wkb: bytes, srs_definition: str
     ) -> GeometryMember | GeometryMembers:
+        
+
         time0 = time.process_time()
         result_recursive = self.parse_wkb_to_gml3_recursive(wkb, srs_definition)
         time1 = time.process_time()
         execution_time_recursive = round((time1 - time0) * 1000, 2)
+        
         # time.sleep(0.1) # cooldown for garbage collection/whatever
         time2 = time.process_time()
-        self.parse_wkb_to_gml3_flat(wkb, srs_definition)
+        result_flat = self.parse_wkb_to_gml3_flat(wkb, srs_definition)
         time3 = time.process_time()
         execution_time_flat = round((time3 - time2) * 1000, 2)
 
-        print(
-            f"parse_wkb_to_gml3 execution time. rec approach: {execution_time_recursive}sec, flat approach: {execution_time_flat}sec, diff: {round(execution_time_recursive-execution_time_flat,2)}, ratio:  {round(execution_time_recursive/execution_time_flat,2)}"
-        )
+        time4 = time.process_time()
+        result_iterative = self.parse_wkb_to_gml3_iterative(wkb, srs_definition)
+        time5 = time.process_time()
+        execution_time_iterative = round((time5 - time4) * 1000, 2)
 
-        return result_recursive
+        
+        print(f"pwtg execution time, flat {execution_time_flat}s, rec: {execution_time_recursive}s, ite: {execution_time_iterative}s, "+
+              f"diff-rec: {'{:5.2f}'.format(execution_time_recursive-execution_time_flat)}, diff-ite: {'{:5.2f}'.format(execution_time_iterative-execution_time_flat)}, "+
+              f"ratio-rec:  {'{:5.2f}'.format(execution_time_recursive/execution_time_flat)}, ratio-ite:  {'{:5.2f}'.format(execution_time_iterative/execution_time_flat)}"
+        )
+        
+
+        return result_iterative
         # return self.parse_wkb_to_gml3_recursive(wkb, srs_definition)
         # return self.parse_wkb_to_gml3_flat(wkb, srs_definition)
+        #return self.parse_wkb_to_gml3_iterative(wkb, srs_definition)
 
     def parse_wkb_to_gml3_flat(
         self, wkb: bytes, srs_definition: str
@@ -691,7 +703,6 @@ class WfsGetFeature(WfsOperation):
             # MULTIPOINT
             # =======================================================
 
-            print("parsing multipoint")
             if geometry_type == 4:
                 # XY
                 dimensions = 2
@@ -969,6 +980,383 @@ class WfsGetFeature(WfsOperation):
                 f" {self.geometry_types}"
             )
             raise NotImplementedError()
+
+    def parse_wkb_to_gml3_iterative(
+        self, wkb: bytes, srs_definition: str
+    ) -> GeometryMember | GeometryMembers:
+        """
+        This method is a WIP and a demonstrator. Its main goal is to avoid nested iterations where ever
+        possible as it often comes by libraries which are parsing WKB in some GeoJSON like structure before
+        transforming it to the desired format (GML3 in our case). Instead, we directly read the bytes of WKB
+        representation and shred it into the desired objects from the GML3 interface. Some tests show, that
+        this is as fast as it can be.
+
+        TODO: Top up the different geometry types which are not implemented currently.
+
+        Args:
+            wkb: The WKB representation of the geometry to parse. We directly use that to have a common and
+                described interface to transport things between QSL and Georama. Parsing WKB on Georama side
+                also enables us to do postprocessing (permission stuff etc.).
+            srs_definition: The definition string of the SRS of the WKB geometry. This is usually something
+                like URN e.g. ``urn:ogc:def:crs:EPSG::2056`` or URL e.g.
+                ``http://www.opengis.net/def/crs/EPSG/0/2056``
+
+        Returns:
+            A GML3 object representing the parsed geometry. The exact type depends on the geometry type.
+            Single geomtry types will return an ``GeometryMember`` instance.
+            Multi geometry types will return an ``GeometryMembers`` instance.
+        """
+        # read first byte for byteorder information
+        endian = "<" if wkb[0] == 1 else ">" # < is little endian
+        # read following 4 bytes for geometry type information
+        geometry_type = np.frombuffer(wkb[1:5], dtype=endian + "I")[0]
+        if wkb[5] == 1:
+            endian_string = "little endian"
+        else:
+            endian_string = "big endian"
+        logging.debug(f"Parsing WKB '{endian_string}' of type {geometry_type}")
+        
+        is_multipoint = geometry_type in self.geometry_types["multipoint"]
+        if geometry_type in self.geometry_types["point"] or is_multipoint:
+
+            # POINT or MULTIPOINT
+            # ==================================================================
+
+            if geometry_type == 1:
+                # XY
+                dimensions = 2
+            elif geometry_type == 1001:
+                # XYZ
+                dimensions = 3
+            elif geometry_type == 2001:
+                # XYM
+                dimensions = 3
+            elif geometry_type == 3001:
+                # XYZM
+                dimensions = 4
+            elif geometry_type == 4:
+                # XY
+                dimensions = 2
+            elif geometry_type == 1004:
+                # XYZ
+                dimensions = 3
+            elif geometry_type == 2004:
+                # XYM
+                dimensions = 3
+            elif geometry_type == 3004:
+                # XYZM
+                dimensions = 4
+            else:
+                logging.debug(
+                    f"Geometry type '{geometry_type}' is not in supported list"
+                )
+                raise NotImplementedError()
+            
+            if is_multipoint:
+                number_of_wkb_points = np.frombuffer(wkb[5:9], dtype=endian + "I")[0]
+                wkb = wkb[9:]
+                # slicing wkb by read 4 bytes
+            else:
+                number_of_wkb_points=1
+
+            geometry_part_offset = dimensions * 8
+
+            points = [None]*number_of_wkb_points
+
+            for i in range(number_of_wkb_points):
+
+                # Parsing single point
+                # -------------------------------------------            
+
+                # read first byte for byteorder information
+                m_endian = "<" if wkb[0] == 1 else ">" # < is little endian
+                wkb = wkb[1:]
+                # read following 4 bytes for geometry type information
+                m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                wkb = wkb[4:]
+                if wkb[0] == 1:
+                    m_endian_string = "little endian"
+                else:
+                    m_endian_string = "big endian"
+                logging.debug(f"Parsing multipoint WKB point '{m_endian_string}' of type {m_geometry_type}")
+                if m_geometry_type not in self.geometry_types["point"]:
+                    logging.error(
+                        f"Multipoint of type '{geometry_type}' contains non-point geometry of type '{m_geometry_type}'."
+                        f" Supported point types are {self.geometry_types['point']}."
+                    )
+                    raise ValueError()
+                if m_geometry_type == 1:
+                    # XY
+                    m_dimensions = 2
+                elif m_geometry_type == 1001:
+                    # XYZ
+                    m_dimensions = 3
+                elif m_geometry_type == 2001:
+                    # XYM
+                    m_dimensions = 3
+                elif m_geometry_type == 3001:
+                    # XYZM
+                    m_dimensions = 4
+                else:
+                    logging.debug(
+                        f"Geometry type '{m_geometry_type}' is not in supported list"
+                        f" {self.geometry_types['point']}"
+                    )
+                    raise NotImplementedError()
+                geometry_part_offset = m_dimensions * 8
+                points[i] = Point(
+                    srs_name=srs_definition,
+                    srs_dimension=m_dimensions,
+                    pos=Pos(value=np.frombuffer(wkb[0:geometry_part_offset], dtype=m_endian + "f8")),
+                )
+                wkb = wkb[geometry_part_offset:]
+
+            if is_multipoint:
+                return GeometryMember(
+                    multi_point=MultiPoint(
+                        srs_name=srs_definition,
+                        srs_dimension=dimensions,
+                        point_members=PointMembers(points)
+                    )
+                )
+            else:
+                return GeometryMember(
+                    point=points[0]
+                )
+        elif geometry_type in self.geometry_types["linestring"] or geometry_type in self.geometry_types["multilinestring"]:
+            # LINESTRING and MULTILINE
+            # ==================================================================
+
+            is_multiline = geometry_type in self.geometry_types["multilinestring"]
+            
+            if geometry_type == 2:
+                # XY
+                dimensions = 2
+            elif geometry_type == 1002:
+                # XYZ
+                dimensions = 3
+            elif geometry_type == 2002:
+                # XYM
+                dimensions = 3
+            elif geometry_type == 3002:
+                # XYZM
+                dimensions = 4
+            elif geometry_type == 5:
+                # XY
+                dimensions = 2
+            elif geometry_type == 1005:
+                # XYZ
+                dimensions = 3
+            elif geometry_type == 2005:
+                # XYM
+                dimensions = 3
+            elif geometry_type == 3005:
+                # XYZM
+                dimensions = 4
+            else:
+                logging.debug(
+                    f"Geometry type '{geometry_type}' is not in supported list"
+                )
+                raise NotImplementedError()
+            
+            if is_multiline:
+                number_of_wkb_lines = np.frombuffer(wkb[5:9], dtype=endian + "I")[0]
+                wkb = wkb[9:]
+            else:
+                number_of_wkb_lines=1
+
+            # slicing wkb by read 4 bytes
+            #wkb = wkb[4:]
+
+            lines = [None]*number_of_wkb_lines
+
+            for i in range(number_of_wkb_lines):
+            
+                # Parsing single LineString
+                # -------------------------------------------
+                
+                # read first byte for byteorder information
+                m_endian = "<" if wkb[0] == 1 else ">" # < is little endian
+                wkb = wkb[1:]
+                # read following 4 bytes for geometry type information
+                m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                wkb = wkb[4:]
+                if wkb[0] == 1:
+                    m_endian_string = "little endian"
+                else:
+                    m_endian_string = "big endian"
+                logging.debug(f"Parsing multiline WKB line '{m_endian_string}' of type {m_geometry_type}")
+
+                if m_geometry_type == 2:
+                    # XY
+                    m_dimensions = 2
+                elif m_geometry_type == 1002:
+                    # XYZ
+                    m_dimensions = 3
+                elif m_geometry_type == 2002:
+                    # XYM
+                    m_dimensions = 3
+                elif m_geometry_type == 3002:
+                    # XYZM
+                    m_dimensions = 4
+                else:
+                    logging.error(
+                        f"Geometry type '{m_geometry_type}' is not in supported list"
+                        f" {self.geometry_types['linestring']}"
+                    )
+                    raise NotImplementedError()
+                    # reading next 4 bytes of wkb
+                m_number_of_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                # slicing wkb by read 4 bytes
+                wkb = wkb[4:]
+                geometry_part_offset = m_number_of_points * m_dimensions * 8
+                lines[i] = LineString(
+                    srs_name=srs_definition,
+                    srs_dimension=m_dimensions,
+                    pos_list=PosList(
+                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
+                    ),
+                )
+                
+
+                # slicing wkb be geometry part offset
+                wkb = wkb[geometry_part_offset:]
+
+            if is_multiline:
+                return GeometryMember(
+                    multi_curve=MultiCurve(
+                        srs_name=srs_definition,
+                        srs_dimension=dimensions,
+                        curve_members=CurveMembers(line_string=lines)
+                    )
+                )
+            else: 
+                return GeometryMember(
+                    line_string=lines[0]
+                )
+        elif geometry_type in self.geometry_types["polygon"] or geometry_type in self.geometry_types["multipolygon"]:
+            # POLYGON and MULTIPOLYGON
+            # ==================================================================
+
+            is_multipolygon = geometry_type in self.geometry_types["multipolygon"]
+
+
+            if geometry_type == 3:
+                # XY
+                dimensions = 2
+            elif geometry_type == 1003:
+                # XYZ
+                dimensions = 3
+            elif geometry_type == 2003:
+                # XYM
+                dimensions = 3
+            elif geometry_type == 3003:
+                # XYZM
+                dimensions = 4
+            elif geometry_type == 6:
+                # XY
+                dimensions = 2
+            elif geometry_type == 1006:
+                # XYZ
+                dimensions = 3
+            elif geometry_type == 2006:
+                # XYM
+                dimensions = 3
+            elif geometry_type == 3006:
+                # XYZM
+                dimensions = 4
+            else:
+                logging.debug(
+                    f"Geometry type '{geometry_type}' is not in supported list"
+                )
+                raise NotImplementedError()
+                # reading next 4 bytes of wkb
+
+            
+            if is_multipolygon:
+                number_of_wkb_polygons = np.frombuffer(wkb[5:9], dtype=endian + "I")[0]
+                wkb = wkb[9:]
+            else:
+                number_of_wkb_polygons=1
+
+            # slicing wkb by read 4 bytes
+
+            polygons = [None]*number_of_wkb_polygons
+
+            for i in range(number_of_wkb_polygons):
+            
+                # Parsing single Polygon
+                # -------------------------------------------
+
+                endian = "<" if wkb[0] == 1 else ">" # < is little endian
+                wkb = wkb[1:]
+                # read following 4 bytes for geometry type information
+                m_geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                wkb = wkb[4:]
+                if wkb[0] == 1:
+                    endian_string = "little endian"
+                else:
+                    endian_string = "big endian"
+                logging.debug(f"Parsing WKB '{endian_string}' of type {m_geometry_type}")
+                
+                if m_geometry_type == 3:
+                    # XY
+                    m_dimensions = 2
+                elif m_geometry_type == 1003:
+                    # XYZ
+                    m_dimensions = 3
+                elif m_geometry_type == 2003:
+                    # XYM
+                    m_dimensions = 3
+                elif m_geometry_type == 3003:
+                    # XYZM
+                    m_dimensions = 4
+                else:
+                    logging.error(
+                        f"Geometry type '{m_geometry_type}' is not in supported list"
+                        f" {self.geometry_types['polygon']}"
+                    )
+                    raise NotImplementedError()
+                number_of_rings = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                logging.debug(f"  parsing polygon with {number_of_rings} rings")
+                polygon = Polygon(srs_name=srs_definition, srs_dimension=m_dimensions)
+                # slicing wkb by interpreted parts
+                wkb = wkb[4:]
+                for ring in range(number_of_rings):
+                    # reading next 4 bytes of wkb
+                    number_of_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
+                    # slicing wkb by read 4 bytes
+                    wkb = wkb[4:]
+                    # calculating offset to read geometry part
+                    geometry_part_offset = number_of_points * m_dimensions * 8
+                    logging.debug(f"  parsing ring:{ring} with: {number_of_points} points")
+
+                    pos_list = PosList(
+                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
+                    )
+                    # slicing wkb be geometry part offset
+                    wkb = wkb[geometry_part_offset:]
+                    if ring == 0:
+                        # this is the exterior ring
+                        polygon.exterior = Exterior(linear_ring=LinearRing(pos_list=pos_list))
+                    else:
+                        # all others are interior rings
+                        polygon.interior.append(
+                            Interior(linear_ring=LinearRing(pos_list=pos_list))
+                        )
+                polygons[i] = polygon
+
+            if is_multipolygon:
+                return GeometryMember(
+                    multi_surface=MultiSurface(
+                        srs_name=srs_definition,
+                        srs_dimension=dimensions,
+                        surface_members=SurfaceMembers(polygon=polygons)
+                    )
+                )
+            else: 
+                return GeometryMember(polygon=polygons[0])
+
 
     def parse_wkb_to_gml3_recursive(
         self, wkb: bytes, srs_definition: str
