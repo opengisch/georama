@@ -23,7 +23,7 @@ class WfsDescribeFeatureType(WfsOperation):
     def allowed_formats(self) -> List[str]:
         return [
             "APPLICATION/GML+XML; VERSION=3.2",
-            "TEXT/XML",
+            "GML3" "TEXT/XML",
             "APPLICATION/JSON",
             "TEXT/JSON",
         ]
@@ -163,6 +163,12 @@ class WfsDescribeFeatureType(WfsOperation):
             return self.render_xml(described_feature_type), requested_format.lower(), True
         elif requested_format == "APPLICATION/GML+XML; VERSION=3.2":
             return self.render_xml(described_feature_type), requested_format.lower(), True
+        elif requested_format == "GML3":
+            return (
+                self.render_xml(described_feature_type),
+                "APPLICATION/GML+XML; VERSION=3.2".lower(),
+                True,
+            )
         elif requested_format == "APPLICATION/JSON":
             return self.render_json(described_feature_type), requested_format.lower(), True
         elif requested_format == "TEXT/JSON":

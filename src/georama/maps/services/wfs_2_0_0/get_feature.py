@@ -109,6 +109,7 @@ class WfsGetFeature(WfsOperation):
     def allowed_formats(self) -> List[str]:
         return [
             "APPLICATION/GML+XML; VERSION=3.2",
+            "GML3",
             "TEXT/XML",
             "APPLICATION/JSON",
             "TEXT/JSON",
@@ -515,7 +516,7 @@ class WfsGetFeature(WfsOperation):
     ) -> GeometryMember | GeometryMembers:
         """
         This method directly reads the bytes of WKB representation and shreds them into the desired objects
-        from the GML3 interface. This avoids nested iterations where ever possible as it often comes by 
+        from the GML3 interface. This avoids nested iterations where ever possible as it often comes by
         libraries which are parsing WKB in some GeoJSON like structure before transforming it to the desired
         format (GML3 in our case).Some tests show, that this is as fast as it can be.
 
@@ -533,13 +534,13 @@ class WfsGetFeature(WfsOperation):
             Multi geometry types will return an ``GeometryMembers`` instance.
         """
         # read first byte for byteorder information
-        endian = "<" if wkb[0] == 1 else ">" # < is little endian
+        endian = "<" if wkb[0] == 1 else ">"  # < is little endian
         wkb = wkb[1:]
 
         # read following 4 bytes for geometry type information
         geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
         wkb = wkb[4:]
-        
+
         is_multipoint = geometry_type in self.geometry_types["multipoint"]
         if geometry_type in self.geometry_types["point"] or is_multipoint:
 
@@ -571,26 +572,23 @@ class WfsGetFeature(WfsOperation):
                 # XYZM
                 dimensions = 4
             else:
-                logging.debug(
-                    f"Geometry type '{geometry_type}' is not in supported list"
-                )
+                logging.debug(f"Geometry type '{geometry_type}' is not in supported list")
                 raise NotImplementedError()
-            
+
             if is_multipoint:
                 number_of_wkb_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
                 wkb = wkb[4:]
             else:
-                number_of_wkb_points=1
+                number_of_wkb_points = 1
 
             geometry_part_offset = dimensions * 8
 
-            points = [None]*number_of_wkb_points
+            points = [None] * number_of_wkb_points
 
             for i in range(number_of_wkb_points):
 
                 # Parsing single point
-                # -------------------------------------------            
-
+                # -------------------------------------------
 
                 if is_multipoint:
                     # checking bytes for geometry type information
@@ -598,15 +596,18 @@ class WfsGetFeature(WfsOperation):
                     wkb = wkb[5:]
 
                     if geometry_type - m_geometry_type != 3:
-                        raise ValueError(f"Multipoint of type '{geometry_type}' contains non-confirming geometry of type '{m_geometry_type}'. "
-                                f"Supported point types are {self.geometry_types['point']}."
+                        raise ValueError(
+                            f"Multipoint of type '{geometry_type}' contains non-confirming geometry of type '{m_geometry_type}'. "
+                            f"Supported point types are {self.geometry_types['point']}."
                         )
 
                 geometry_part_offset = dimensions * 8
                 points[i] = Point(
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
-                    pos=Pos(value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")),
+                    pos=Pos(
+                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
+                    ),
                 )
                 wkb = wkb[geometry_part_offset:]
 
@@ -615,19 +616,20 @@ class WfsGetFeature(WfsOperation):
                     multi_point=MultiPoint(
                         srs_name=srs_definition,
                         srs_dimension=dimensions,
-                        point_members=PointMembers(points)
+                        point_members=PointMembers(points),
                     )
                 )
             else:
-                return GeometryMember(
-                    point=points[0]
-                )
-        elif geometry_type in self.geometry_types["linestring"] or geometry_type in self.geometry_types["multilinestring"]:
+                return GeometryMember(point=points[0])
+        elif (
+            geometry_type in self.geometry_types["linestring"]
+            or geometry_type in self.geometry_types["multilinestring"]
+        ):
             # LINESTRING and MULTILINE
             # ==================================================================
 
             is_multiline = geometry_type in self.geometry_types["multilinestring"]
-            
+
             if geometry_type == 2:
                 # XY
                 dimensions = 2
@@ -653,32 +655,31 @@ class WfsGetFeature(WfsOperation):
                 # XYZM
                 dimensions = 4
             else:
-                logging.debug(
-                    f"Geometry type '{geometry_type}' is not in supported list"
-                )
+                logging.debug(f"Geometry type '{geometry_type}' is not in supported list")
                 raise NotImplementedError()
-            
+
             if is_multiline:
                 number_of_wkb_lines = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
                 wkb = wkb[4:]
             else:
-                number_of_wkb_lines=1
+                number_of_wkb_lines = 1
 
-            lines = [None]*number_of_wkb_lines
+            lines = [None] * number_of_wkb_lines
 
             for i in range(number_of_wkb_lines):
-            
+
                 # Parsing single LineString
                 # -------------------------------------------
-                
+
                 if is_multiline:
                     # checking bytes for geometry type information
                     m_geometry_type = np.frombuffer(wkb[1:5], dtype=endian + "I")[0]
                     wkb = wkb[5:]
 
                     if geometry_type - m_geometry_type != 3:
-                        raise ValueError(f"Multiline of type '{geometry_type}' contains non-confirming geometry of type '{m_geometry_type}'. "
-                                f"Supported point types are {self.geometry_types['linestring']}."
+                        raise ValueError(
+                            f"Multiline of type '{geometry_type}' contains non-confirming geometry of type '{m_geometry_type}'. "
+                            f"Supported point types are {self.geometry_types['linestring']}."
                         )
 
                 number_of_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
@@ -691,7 +692,6 @@ class WfsGetFeature(WfsOperation):
                         value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
                     ),
                 )
-                
 
                 # slicing wkb by geometry part offset
                 wkb = wkb[geometry_part_offset:]
@@ -701,14 +701,15 @@ class WfsGetFeature(WfsOperation):
                     multi_curve=MultiCurve(
                         srs_name=srs_definition,
                         srs_dimension=dimensions,
-                        curve_members=CurveMembers(line_string=lines)
+                        curve_members=CurveMembers(line_string=lines),
                     )
                 )
-            else: 
-                return GeometryMember(
-                    line_string=lines[0]
-                )
-        elif geometry_type in self.geometry_types["polygon"] or geometry_type in self.geometry_types["multipolygon"]:
+            else:
+                return GeometryMember(line_string=lines[0])
+        elif (
+            geometry_type in self.geometry_types["polygon"]
+            or geometry_type in self.geometry_types["multipolygon"]
+        ):
             # POLYGON and MULTIPOLYGON
             # ==================================================================
 
@@ -739,23 +740,19 @@ class WfsGetFeature(WfsOperation):
                 # XYZM
                 dimensions = 4
             else:
-                logging.debug(
-                    f"Geometry type '{geometry_type}' is not in supported list"
-                )
+                logging.debug(f"Geometry type '{geometry_type}' is not in supported list")
                 raise NotImplementedError()
 
-            
             if is_multipolygon:
                 number_of_wkb_polygons = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
                 wkb = wkb[4:]
             else:
-                number_of_wkb_polygons=1
+                number_of_wkb_polygons = 1
 
-
-            polygons = [None]*number_of_wkb_polygons
+            polygons = [None] * number_of_wkb_polygons
 
             for i in range(number_of_wkb_polygons):
-            
+
                 # Parsing single Polygon
                 # -------------------------------------------
 
@@ -765,8 +762,9 @@ class WfsGetFeature(WfsOperation):
                     wkb = wkb[5:]
 
                     if geometry_type - m_geometry_type != 3:
-                        raise ValueError(f"Multipolygon of type '{geometry_type}' contains non-confirming geometry of type '{m_geometry_type}'. "
-                                f"Supported point types are {self.geometry_types['polygon']}."
+                        raise ValueError(
+                            f"Multipolygon of type '{geometry_type}' contains non-confirming geometry of type '{m_geometry_type}'. "
+                            f"Supported point types are {self.geometry_types['polygon']}."
                         )
 
                 number_of_rings = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
@@ -803,10 +801,10 @@ class WfsGetFeature(WfsOperation):
                     multi_surface=MultiSurface(
                         srs_name=srs_definition,
                         srs_dimension=dimensions,
-                        surface_members=SurfaceMembers(polygon=polygons)
+                        surface_members=SurfaceMembers(polygon=polygons),
                     )
                 )
-            else: 
+            else:
                 return GeometryMember(polygon=polygons[0])
 
     def get_feature(
@@ -932,6 +930,12 @@ class WfsGetFeature(WfsOperation):
             return (
                 self.render_xml(feature_collection, requested_typenames),
                 f"{requested_format.lower()}; charset=utf-8",
+                True,
+            )
+        elif requested_format == "GML3":
+            return (
+                self.render_xml(feature_collection, requested_typenames),
+                f"{'APPLICATION/GML+XML; VERSION=3.2'.lower()}; charset=utf-8",
                 True,
             )
         elif requested_format == "APPLICATION/JSON":
