@@ -159,7 +159,7 @@ jobs:
         shell: bash
         run: |
           mv .coverage.final_combined.xml .coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
-          ls -ls .
+          ls -lsa .
 
       ## UPLOAD CI ARTIFACTS - Coverage Reports ##
       - name: "Upload Test Coverage as Artifacts"
