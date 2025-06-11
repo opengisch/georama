@@ -158,7 +158,7 @@ jobs:
       - name: Rename Coverage Files
         shell: bash
         run: |
-          mv .coverage.final_combined.xml .coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
+          cp .coverage.final_combined.xml coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
           ls -lsa .
 
       ## UPLOAD CI ARTIFACTS - Coverage Reports ##
@@ -166,7 +166,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: all_coverage_raw
-          path: .coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
+          path: coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
           if-no-files-found: error
 
       - name: Check for compliance with Python Best Practices
