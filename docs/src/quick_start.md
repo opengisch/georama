@@ -53,7 +53,6 @@ Build and launch all containers:
 docker compose build
 docker compose up -d
 ```
-⏳ Note: The first run downloads ~5GB of test data. Be patient.
 
 ### 🗃️ Prepare the Django Database
 Once services are running, apply migrations and create a superuser:

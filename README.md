@@ -34,9 +34,7 @@ docker compose build
 docker compose up -d
 ```
 
-Wait for services to be up and running. That might last a moment since the test
-data has to be
-fetched (about 5GB).
+Wait for services to be up and running.
 
 If everything runs, you can prepare the Django DB.
 
