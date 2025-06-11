@@ -579,7 +579,6 @@ class WfsGetFeature(WfsOperation):
             if is_multipoint:
                 number_of_wkb_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
                 wkb = wkb[4:]
-                # slicing wkb by read 4 bytes
             else:
                 number_of_wkb_points=1
 
@@ -665,9 +664,6 @@ class WfsGetFeature(WfsOperation):
             else:
                 number_of_wkb_lines=1
 
-            # slicing wkb by read 4 bytes
-            #wkb = wkb[4:]
-
             lines = [None]*number_of_wkb_lines
 
             for i in range(number_of_wkb_lines):
@@ -686,7 +682,6 @@ class WfsGetFeature(WfsOperation):
                         )
 
                 number_of_points = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
-                # slicing wkb by read 4 bytes
                 wkb = wkb[4:]
                 geometry_part_offset = number_of_points * dimensions * 8
                 lines[i] = LineString(
@@ -698,7 +693,7 @@ class WfsGetFeature(WfsOperation):
                 )
                 
 
-                # slicing wkb be geometry part offset
+                # slicing wkb by geometry part offset
                 wkb = wkb[geometry_part_offset:]
 
             if is_multiline:
