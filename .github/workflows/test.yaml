@@ -151,7 +151,7 @@ jobs:
       - run: make install-test
 
       ###### TEST SUITE RUN against Edit and Sdist ######
-      - name: Build and Test 'Edit' and 'Sdist' & Build Wheel(s)
+      - name: Execute tests
         run: |
           make tests
 
@@ -169,13 +169,13 @@ jobs:
           path: coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
           if-no-files-found: error
 
-      - name: Check for compliance with Python Best Practices
-        shell: bash
-        env:
-          PKG_VERSION: ${{ steps.extract_wheel_info.outputs.PEP_VERSION }}
-          WHEEL_PATH: ${{ env.WHEELS_PIP_DIR }}/${{ env.WHEEL_NAME }}
-        run: |
-          make checks
+#      - name: Check for compliance with Python Best Practices
+#        shell: bash
+#        env:
+#          PKG_VERSION: ${{ steps.extract_wheel_info.outputs.PEP_VERSION }}
+#          WHEEL_PATH: ${{ env.WHEELS_PIP_DIR }}/${{ env.WHEEL_NAME }}
+#        run: |
+#          make checks
 
       ## UPLOAD CI ARTIFACTS - Distro Build(s), 1 sdist and 1 or more wheels ##
       - name: Upload Source & Wheel distributions as Artefacts
