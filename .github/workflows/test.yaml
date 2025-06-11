@@ -178,12 +178,12 @@ jobs:
 #          make checks
 
       ## UPLOAD CI ARTIFACTS - Distro Build(s), 1 sdist and 1 or more wheels ##
-      - name: Upload Source & Wheel distributions as Artefacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-${{ matrix.platform }}-${{ matrix.python-version }}
-          path: ${{ env.DIST_DIR }}
-          if-no-files-found: error
+#      - name: Upload Source & Wheel distributions as Artefacts
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: dist-${{ matrix.platform }}-${{ matrix.python-version }}
+#          path: ${{ env.DIST_DIR }}
+#          if-no-files-found: error
     outputs:
       PEP_VERSION: ${{ steps.extract_wheel_info.outputs.PEP_VERSION }}
 
