@@ -45,14 +45,6 @@ $(VENV_REQUIREMENTS):
 	$(PYTHON_PATH) -m venv --system-site-packages $(VENV_PATH)
 	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools
 	touch $@
-# *******************
-# Set up environments
-# *******************
-
-$(VENV_REQUIREMENTS):
-	$(PYTHON_PATH) -m venv --system-site-packages $(VENV_PATH)
-	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools
-	touch $@
 
 $(EDITABLE_GEORAMA_PATH):
 	echo $(shell pwd)/src > $@
@@ -91,6 +83,8 @@ install: $(PIP_REQUIREMENTS)
 .PHONY: install-docs
 install-docs: $(PIP_REQUIREMENTS) $(DOC_REQUIREMENTS)
 
+.PHONY: install-test
+install-test: $(PIP_REQUIREMENTS) $(TEST_REQUIREMENTS)
 
 .PHONY: build
 build: $(BUILD_DEPS)
@@ -111,34 +105,40 @@ git-attributes:
 
 .PHONY: test-core
 test-core: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).core --cov-report term-missing:skip-covered tests/core
+	COVERAGE_FILE=.coverage.core $(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).core --cov-report term-missing:skip-covered --cov-report=xml:.coverage.core.xml tests/core
 
 .PHONY: test-data_integration
 test-data_integration: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).data_integration --cov-report term-missing:skip-covered tests/data_integration
+	COVERAGE_FILE=.coverage.data_integration $(VENV_BIN)/py.test -vv --cov-config .coveragerc.data_integration --cov $(PACKAGE).data_integration --cov-report term-missing:skip-covered --cov-report=xml:.coverage.data_integration.xml tests/data_integration
 
 .PHONY: test-features
 test-features: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).features --cov-report term-missing:skip-covered tests/features
+	COVERAGE_FILE=.coverage.features $(VENV_BIN)/py.test -vv --cov-config .coveragerc.features --cov $(PACKAGE).features --cov-report term-missing:skip-covered --cov-report=xml:.coverage.features.xml tests/features
 
 .PHONY: test-maps
 test-maps: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).maps --cov-report term-missing:skip-covered tests/maps
-
-.PHONY: test-shop
-test-shop: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).shop --cov-report term-missing:skip-covered tests/shop
+	COVERAGE_FILE=.coverage.maps $(VENV_BIN)/py.test -vv --cov-config .coveragerc.maps --cov $(PACKAGE).maps --cov-report term-missing:skip-covered --cov-report=xml:.coverage.maps.xml tests/maps
 
 .PHONY: test-webgis
 test-webgis: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	$(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).webgis --cov-report term-missing:skip-covered tests/webgis
+	COVERAGE_FILE=.coverage.webgis $(VENV_BIN)/py.test -vv --cov-config .coveragerc.webgis --cov $(PACKAGE).webgis --cov-report term-missing:skip-covered --cov-report=xml:.coverage.webgis.xml tests/webgis
 
 .PHONY: tests
-tests: test-core test-data_integration test-features test-maps test-shop test-webgis
+tests: test-core test-data_integration test-features test-maps test-webgis
+	$(VENV_BIN)/coverage combine .coverage.core .coverage.data_integration .coverage.features .coverage.maps .coverage.webgis
+	$(VENV_BIN)/coverage report
+	$(VENV_BIN)/coverage xml -o .coverage.final_combined.xml
 
-.PHONY: check
-check: $(CHECK_REQUIREMENTS)
-	mypy --explicit-package-bases --show-error-codes src/$(PACKAGE) tests
+.PHONY: check-types
+check-types: $(CHECK_REQUIREMENTS)
+	$(VENV_BIN)/mypy --explicit-package-bases --show-error-codes src/$(PACKAGE) tests
+
+.PHONY: check-package-metadata
+check-package-metadata: $(CHECK_REQUIREMENTS)
+	$(VENV_BIN)/pyroma --directory ./
+
+.PHONY: checks
+checks: check-types check-package-metadata
 
 .PHONY: doc-html
 doc-html: $(DOC_REQUIREMENTS) docs/mkdocs.yml

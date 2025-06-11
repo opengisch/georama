@@ -81,11 +81,15 @@ optional-dependencies.test = [
     "pytest-explicit==1.0.1",
     "pytest-xdist==3.5.0",
     "pytest-click==1.1.0",
-    "pytest-run-subprocess==0.10.0"
+    "pytest-run-subprocess==0.10.0",
+    "pyroma==4.2",
+    "twine==6.1.0",
 ]
 # Type Checking
 optional-dependencies.check =[
-    "mypy==1.8.0"
+    "mypy==1.8.0",
+    "pyroma==4.2",
+    "twine==6.1.0",
 ]
 # Docs: dev and build dependencies
 optional-dependencies.docs = [

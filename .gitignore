@@ -6,6 +6,7 @@
 *\.bak
 \.fuse*
 .coverage
+.coverage.*
 .DS_Store
 *__pycache__
 reqs.txt
