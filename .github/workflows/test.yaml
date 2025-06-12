@@ -67,7 +67,7 @@ env:
   DOCS_BUILDER_RUNTIME: "3.10"
 
   #### CODE VISUALIZATION Job ####
-  ALWAYS_CODE_VIZ: "false"
+  ALWAYS_CODE_VIZ: "true"
   CODE_VIZ_POLICY: '2'  # {2, 3}
   ##########################
 
@@ -212,7 +212,7 @@ jobs:
   code_visualization:
     needs: set_github_outputs
     name: Code Visualization of Python Imports as Graphs, in .svg
-    uses: boromir674/automated-workflows/.github/workflows/python_imports.yml@v1.3.0
+    uses: boromir674/automated-workflows/.github/workflows/python_imports.yml@v1.13.0
     with:
       run_policy: '${{ needs.set_github_outputs.outputs.PIPE_CODE_VIZ_POLICY }}'
       branches: 'main, master, dev'
