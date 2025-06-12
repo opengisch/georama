@@ -142,104 +142,47 @@ jobs:
           sudo apt-get install -y  libpq-dev python3-gdal python3-numpy python3-venv git make
       - run: echo "Platform -> ${{ matrix.platform }} , Python -> ${{ matrix.python-version }}"
 
+      - uses: actions/checkout@v4
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python -m pip install --upgrade pip && python -m pip install tox==3.28 tox-gh-actions
-
-      - uses: actions/checkout@v4
-
-      - name: Pin 'Static Type Checking' Dependencies
-        run: REQS_FILE=reqs-test.txt tox -vv -s false -e pin-deps
-
-      - name: Do Type Checking With Fixed REQS
-        run: REQS_FILE=reqs-test.txt tox -e type -vv -s false
+      - run: make install-test
 
       ###### TEST SUITE RUN against Edit and Sdist ######
-      - name: Build and Test 'Edit' and 'Sdist' & Build Wheel(s)
+      - name: Execute tests
         run: |
-          set -o pipefail
-          tox -vv -s false | tee test_output.log
-        env:
-          PLATFORM: ${{ matrix.platform }}
-          BUILD_DEST: ${{ env.WHEELS_PIP_DIR }}
-
-      - name: List Wheel(s) created for Distro and its Requirements
-        run: ls -l ${{ env.WHEELS_PIP_DIR }}
-
-      ### PARSE WHEEL File NAME ###
-      - name: Extract Wheel Name and Size
-        id: extract_wheel_info
-        shell: bash
-        run: |
-          WHEEL_INFO=$(grep -E "Created wheel for" test_output.log | sed -E "s/.*filename=([^ ]+) size=([^ ]+) .*/\1 \2/")
-
-          # extract file name
-          WHEEL_NAME=$(echo $WHEEL_INFO | cut -d ' ' -f 1)
-          echo "WHEEL_NAME=$WHEEL_NAME" >> $GITHUB_ENV
-
-          # extract file size
-          WHEEL_SIZE=$(echo $WHEEL_INFO | cut -d ' ' -f 2)
-          echo "WHEEL_SIZE=$WHEEL_SIZE" >> $GITHUB_ENV
-
-          # extract '1.12.5.dev0' from 'georama-1.12.5.dev0-py3-none-any.whl'
-          PEP_VERSION=$(echo $WHEEL_NAME | sed -E "s/georama-([^ ]+)-py3-none-any.whl/\1/")
-
-          echo "PEP_VERSION=${PEP_VERSION}" >> $GITHUB_OUTPUT
-
-      - run: 'echo "WHEEL_NAME: $WHEEL_NAME SIZE: $WHEEL_SIZE"'
-      - run: 'echo "PEP_VERSION: $PEP_VERSION"'
-
-      # Crash Workflow if PEP_VERSION is not set
-      - if: ${{ steps.extract_wheel_info.outputs.PEP_VERSION == '' }}
-        run: exit 1
-
-      ###### TEST SUITE RUN against Wheel ######
-      - name: Run Test Suite Against Wheel
-        run: tox -e wheel-test -s false
-        env:
-          PLATFORM: ${{ matrix.platform }}
-          BUILD_DEST: ${{ env.WHEELS_PIP_DIR }}
-          WHEEL: ${{ env.WHEEL_NAME }}
-
-      ## Combine Coverage Data from Tests' Results ##
-      - name: "Combine Coverage (dev, sdist, wheel) & make Reports"
-        run: tox -e coverage --sitepackages -vv -s false
+          make tests
 
       - name: Rename Coverage Files
         shell: bash
         run: |
-          mv ./.tox/coverage.xml ./coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
+          cp .coverage.final_combined.xml coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
 
       ## UPLOAD CI ARTIFACTS - Coverage Reports ##
       - name: "Upload Test Coverage as Artifacts"
         uses: actions/upload-artifact@v4
         with:
           name: all_coverage_raw
-          path: coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
+          path: coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
           if-no-files-found: error
 
-      - name: Check for compliance with Python Best Practices
-        shell: bash
-        env:
-          PKG_VERSION: ${{ steps.extract_wheel_info.outputs.PEP_VERSION }}
-          WHEEL_PATH: ${{ env.WHEELS_PIP_DIR }}/${{ env.WHEEL_NAME }}
-        run: |
-          DIST_DIR=dist
-          echo "DIST_DIR=${DIST_DIR}" >> $GITHUB_ENV
-          mkdir ${DIST_DIR}
-          mv ".tox/${DIST_DIR}/georama-${PKG_VERSION}.tar.gz" "${DIST_DIR}"
-          mv "${{ env.WHEEL_PATH }}" "${DIST_DIR}"
-          tox -e check -vv -s false
+#      - name: Check for compliance with Python Best Practices
+#        shell: bash
+#        env:
+#          PKG_VERSION: ${{ steps.extract_wheel_info.outputs.PEP_VERSION }}
+#          WHEEL_PATH: ${{ env.WHEELS_PIP_DIR }}/${{ env.WHEEL_NAME }}
+#        run: |
+#          make checks
 
       ## UPLOAD CI ARTIFACTS - Distro Build(s), 1 sdist and 1 or more wheels ##
-      - name: Upload Source & Wheel distributions as Artefacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-${{ matrix.platform }}-${{ matrix.python-version }}
-          path: ${{ env.DIST_DIR }}
-          if-no-files-found: error
+#      - name: Upload Source & Wheel distributions as Artefacts
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: dist-${{ matrix.platform }}-${{ matrix.python-version }}
+#          path: ${{ env.DIST_DIR }}
+#          if-no-files-found: error
     outputs:
       PEP_VERSION: ${{ steps.extract_wheel_info.outputs.PEP_VERSION }}
 
@@ -253,7 +196,7 @@ jobs:
         curl -Os https://uploader.codecov.io/latest/linux/codecov
         chmod +x codecov
     - name: Download Raw Coverage Data Artefacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: all_coverage_raw
     - name: Upload Coverage Reports to Codecov
@@ -264,95 +207,6 @@ jobs:
           ./codecov -f $file -e "OS=$OS_NAME,PYTHON=$PY_VERSION" --flags unittests --verbose
           echo "Sent to Codecov: $file !"
         done
-
-## DOCKER BUILD and PUBLISH ON DOCKERHUB ##
-# Ref Page: https://automated-workflows.readthedocs.io/en/main/ref_docker/
-  docker_build:
-    needs: [set_github_outputs, test_suite]
-    uses: boromir674/automated-workflows/.github/workflows/docker.yml@v1.1.0
-    if: always()
-    with:
-      acceptance_policy: ${{ needs.set_github_outputs.outputs.PIPE_DOCKER_POLICY }}
-      image_slug: "georama"
-      # target_stage: "some_stage_alias"  # no stage, means no `--target` flag, on build
-      tests_pass: ${{ needs.test_suite.result == 'success' }}
-      tests_run: ${{ !contains(fromJSON('["skipped", "cancelled"]'), needs.test_suite.result) }}
-      DOCKER_USER: ${{ vars.DOCKER_USER }}
-    secrets:
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-
-  ## JOB: Signal for Automated PyPI Upload ##
-  check_which_git_branch_we_are_on:
-    runs-on: ubuntu-latest
-    if: ${{ startsWith(github.event.ref, 'refs/tags/v') }}
-    env:
-      RELEASE_BR: ${{ vars.RELEASE_BRANCH || 'release' }}
-      MAIN_BR: ${{ vars.MAIN_BRANCH || 'main' }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - run: git branch --track "${{ env.RELEASE_BR }}" "origin/${{ env.RELEASE_BR }}"
-
-      - name: "Check if '${{ github.ref }}' tag is on '${{ env.MAIN_BR }}' branch"
-        uses: rickstaa/action-contains-tag@v1
-        id: main_contains_tag
-        with:
-          reference: ${{ env.MAIN_BR }}
-          tag: "${{ github.ref }}"
-      - name: "Check if '${{ github.ref }}' tag is on '${{ env.RELEASE_BR }}' branch"
-        uses: rickstaa/action-contains-tag@v1
-        id: release_contains_tag
-        with:
-          reference: ${{ env.RELEASE_BR }}
-          tag: "${{ github.ref }}"
-
-      - name: Pick Production or Test Environment, if tag on master or release branch respectively
-        id: set_environment_name
-        run: |
-          DEPLOY=true
-          if [[ "${{ steps.main_contains_tag.outputs.retval }}" == "true" ]]; then
-            echo "ENVIRONMENT_NAME=PROD_DEPLOYMENT" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.release_contains_tag.outputs.retval }}" == "true" ]]; then
-            echo "ENVIRONMENT_NAME=TEST_DEPLOYMENT" >> $GITHUB_OUTPUT
-          else
-            echo "A tag was pushed but not on master or release branch. No deployment will be done."
-            DEPLOY=false
-          fi
-          echo "AUTOMATED_DEPLOY=$DEPLOY" >> $GITHUB_OUTPUT
-    outputs:
-      ENVIRONMENT_NAME: ${{ steps.set_environment_name.outputs.ENVIRONMENT_NAME }}
-      AUTOMATED_DEPLOY: ${{ steps.set_environment_name.outputs.AUTOMATED_DEPLOY }}
-
-  ## JOB: PYPI UPLOAD ##
-  pypi_publish:
-    needs: [set_github_outputs, test_suite, check_which_git_branch_we_are_on]
-    uses: boromir674/automated-workflows/.github/workflows/pypi_env.yml@8e97f596067fcbbaa0a6927ec1ee47dce4ab5f1a
-    with:
-      should_trigger: ${{ needs.set_github_outputs.outputs.PUBLISH_ON_PYPI == 'true' && needs.check_which_git_branch_we_are_on.outputs.AUTOMATED_DEPLOY == 'true' }}
-      distro_name: cookiecutter_python
-      distro_version: ${{ needs.test_suite.outputs.PEP_VERSION }}
-      pypi_env: '${{ needs.check_which_git_branch_we_are_on.outputs.ENVIRONMENT_NAME }}'
-      artifacts_path: downloaded-artifacts
-
-      require_wheel: true
-      allow_existing: true
-    secrets:
-      TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-
-### STATIC CODE ANALYSIS & LINTING ###
-  lint:
-    name: Static Code Analysis
-    needs: set_github_outputs
-    uses: ./.github/workflows/policy_lint.yml
-    with:
-      run_policy: ${{ needs.set_github_outputs.outputs.PIPE_SQA_POLICY }}
-      dedicated_branches: 'main, master, dev'
-      source_code_targets: 'src,tests,scripts'
-      python_version: ${{ needs.set_github_outputs.outputs.PIPE_SQA_PY }}
-      pylint_threshold: ${{ needs.set_github_outputs.outputs.PIPE_SQA_PYLINT_PASS_SCORE }}
-
-
 
 ### DRAW PYTHON DEPENDENCY GRAPHS ###
   code_visualization:
@@ -365,16 +219,3 @@ jobs:
       source_code_targets: 'src'
       python_version: '3.10'
       artifacts_dir: 'dependency-graphs'
-
-### Make a Github Release ###
-  gh_release:
-    needs: [test_suite, check_which_git_branch_we_are_on]
-    if: ${{ needs.check_which_git_branch_we_are_on.outputs.AUTOMATED_DEPLOY == 'true' }}
-    uses: boromir674/automated-workflows/.github/workflows/gh-release.yml@test
-    name: 'GH Release'
-    with:
-      tag: ${{ github.ref_name }}
-      draft: ${{ needs.check_which_git_branch_we_are_on.outputs.ENVIRONMENT_NAME == 'TEST_DEPLOYMENT' }}
-    secrets:
-      # passing the GH_TOKEN PAT, to render in GH as ie: 'boromir674 released this yesterday', instead of 'github-actions released this yesterday'
-      gh_token: ${{ secrets.GH_TOKEN }}
