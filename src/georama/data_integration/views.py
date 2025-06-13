@@ -1,10 +1,11 @@
 import logging
-from typing import Tuple
+from typing import List, Tuple, Type
 
+from django.db import transaction
 from django.http import HttpRequest
 from django.shortcuts import redirect
 from django.views import View
-from qgis_server_light.interface.qgis import Config, Vector
+from qgis_server_light.interface.qgis import Config, Custom, Raster, Vector
 from xsdata.formats.dataclass.parsers import JsonParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder
@@ -30,24 +31,34 @@ log = logging.getLogger(__name__)
 
 
 class RegisterQgisProject(View):
-    def get_vector_dataset_by_id(self, id: str):
-        vector_dataset_qs = VectorDataSet.objects.filter(qgis_layer_id=id)
-        if vector_dataset_qs.exists():
-            return vector_dataset_qs.get()
+    @staticmethod
+    def get_dataset_by_id(
+        identifier: str,
+        model_class: Type[VectorDataSet] | Type[RasterDataSet] | Type[CustomDataSet],
+    ) -> VectorDataSet | RasterDataSet | CustomDataSet | None:
+        dataset_qs = model_class.objects.filter(qgis_layer_id=identifier)
+        if dataset_qs.exists():
+            return dataset_qs.get()
         else:
             return None
 
     @staticmethod
-    def find_config_vector_dataset_field_by_name(vector_dataset: Vector, name: str):
+    def find_config_vector_dataset_field_by_name(
+        vector_dataset: Vector, name: str
+    ) -> Field | None:
         for field in vector_dataset.fields:
             if field.name == name:
                 return field
+        return None
 
     @staticmethod
-    def find_config_vector_dataset_by_id(vector_datasets: list[Vector], id: str):
-        for vector_dataset in vector_datasets:
-            if vector_dataset.id == id:
-                return vector_dataset
+    def find_config_dataset_by_id(
+        datasets: List[Vector] | List[Raster] | List[Custom], id: str
+    ) -> Vector | Raster | Custom | None:
+        for dataset in datasets:
+            if dataset.id == id:
+                return dataset
+        return None
 
     @staticmethod
     def load_project_config(
@@ -71,10 +82,9 @@ class RegisterQgisProject(View):
         project_config = parser.parse(project.config_path, Config)
         return project, project_config
 
-    def get(self, request: HttpRequest, mandant_name: str, project_name: str, **kwargs):
-        project, project_config = self.load_project_config(mandant_name, project_name)
-        if not project_config or not project:
-            redirect("admin:data_integration_project_changelist")
+    def integrate_project(
+        self, project: QgisProject, project_config: Config, mandant_name: str
+    ):
         mandant_qs = Mandant.objects.filter(name=mandant_name)
         if not mandant_qs.exists():
             mandant_db = Mandant(name=mandant_name)
@@ -82,113 +92,190 @@ class RegisterQgisProject(View):
         else:
             # we can do so, because name is unique in DB
             mandant_db = mandant_qs.get()
-        project_qs = Project.objects.filter(name=project_name, mandant=mandant_db)
+        project_qs = Project.objects.filter(name=project.name, mandant=mandant_db)
         if not project_qs.exists():
-            log.error("Project does not exists, we first create a new DB object.")
+            logging.debug("Project does not exists, we first create a new DB object.")
             project_db = Project(
                 mandant=mandant_db,
-                name=project_name,
+                name=project.name,
                 hash=project.hash,
                 title=project_config.project.name,
             )
-            project_db.save()
+
         else:
-            log.error("Project exists, we proceed with the DB object.")
+            logging.debug("Project exists, we proceed with the DB object.")
             project_db = project_qs.get()
             if project_db.hash == project.hash:
-                log.error("HASH of config and in DB was the same. No further work necessary.")
+                logging.debug(
+                    "HASH of config and in DB was the same. No further work necessary."
+                )
                 return redirect("admin:data_integration_project_changelist")
-        for layer in project_config.datasets.vector:
-            vector_dataset = self.get_vector_dataset_by_id(layer.id)
-            if vector_dataset is None:
-                # there was no dataset with the corresponding qgis layer id, so we creare one
-                vector_dataset = VectorDataSet(
-                    project=project_db,
-                    name=layer.name,
-                    title=layer.title,
-                    bbox=layer.bbox.to_string(),
-                    bbox_wgs84=layer.bbox_wgs84.to_string(),
-                    path=layer.path,
-                    styles=DictEncoder().encode(layer.styles),
-                    driver=layer.driver,
-                    source=DictEncoder().encode(layer.source),
-                    qgis_layer_id=layer.id,
-                    crs=DictEncoder().encode(layer.crs),
-                    minimum_scale=layer.minimum_scale,
-                    maximum_scale=layer.maximum_scale,
-                )
             else:
-                # we found the dataset in the database and we update it
-                vector_dataset.update(
-                    project=project_db,
-                    name=layer.name,
-                    title=layer.title,
-                    bbox=layer.bbox.to_string(),
-                    bbox_wgs84=layer.bbox_wgs84.to_string(),
-                    path=layer.path,
-                    styles=DictEncoder().encode(layer.styles),
-                    driver=layer.driver,
-                    source=DictEncoder().encode(layer.source),
-                    crs=DictEncoder().encode(layer.crs),
-                    minimum_scale=layer.minimum_scale,
-                    maximum_scale=layer.maximum_scale,
+                project_db.mandant = mandant_db
+                project_db.name = project.name
+                project_db.hash = project.hash
+                project_db.title = project_config.project.name
+        project_db.save()
+        logging.debug("Handling of vector datasets")
+        for layer in project_config.datasets.vector:
+            dataset = self.get_dataset_by_id(layer.id, VectorDataSet)
+            if dataset is None:
+                logging.debug(
+                    f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
                 )
-            vector_dataset.save()
+                dataset = VectorDataSet()
+            else:
+                logging.debug(
+                    f" Dataset was found and will be updated {layer.name} (qgis-layer-id: {layer.id})"
+                )
+            dataset.project = project_db
+            dataset.name = layer.name
+            dataset.title = layer.title
+            dataset.bbox = layer.bbox.to_string()
+            dataset.bbox_wgs84 = layer.bbox_wgs84.to_string()
+            dataset.path = layer.path
+            dataset.styles = DictEncoder().encode(layer.styles)
+            dataset.driver = layer.driver
+            dataset.source = DictEncoder().encode(layer.source)
+            dataset.crs = DictEncoder().encode(layer.crs)
+            dataset.minimum_scale = layer.minimum_scale
+            dataset.maximum_scale = layer.maximum_scale
+            dataset.save()
+            logging.debug(
+                f" ✓ Dataset {layer.name} (qgis-layer-id: {layer.id}) was written to DB successfully."
+            )
+            logging.debug(f" Handling of related fields.")
             for field in layer.fields:
-                # loop through all fields in config
+
                 field_qs = Field.objects.filter(
-                    name=field.name, type=field.type, vector_dataset=vector_dataset
+                    name=field.name, type=field.type, vector_dataset=dataset
                 )
                 if not field_qs.exists():
-                    # assure field does not exist in db
-                    Field(
-                        name=field.name, type=field.type, vector_dataset=vector_dataset
-                    ).save()
-            # finally get rid of old objects in the database which are not in the config anymore
-            for field_db in Field.objects.filter(vector_dataset=vector_dataset).all():
+                    logging.debug(
+                        f"   New Field {field.name} (type: {field.type}) will be added."
+                    )
+                    field = Field(name=field.name, type=field.type, vector_dataset=dataset)
+                else:
+                    logging.debug(
+                        f"   Field {field.name} (type: {field.type}) was found and will be updated."
+                    )
+                    field = field_qs.get()
+                    field.name = field.name
+                    field.type = field.type
+                    field.vector_dataset = dataset
+                field.save()
+                logging.debug(
+                    f"   ✓ Field {field.name} (type: {field.type}) was written to DB successfully."
+                )
+            logging.debug(f"   Cleaning out old fields...")
+            for field_db in Field.objects.filter(vector_dataset=dataset).all():
                 field_match = self.find_config_vector_dataset_field_by_name(
                     layer, field_db.name
                 )
                 if field_match is None:
-                    # there is a fild in the db which does not exist in the config anymore
+                    logging.debug(
+                        f'    Deleting field "{field.name}" of vector dataset {dataset.name} since it was '
+                        "not in project config anymore"
+                    )
                     field_db.delete()
-            for vector_dataset_db in VectorDataSet.objects.filter(project=project_db).all():
-                vector_dataset_match = self.find_config_vector_dataset_by_id(
-                    project_config.datasets.vector, vector_dataset_db.qgis_layer_id
+            logging.debug(f"   ✓ Finished - Cleaning out old fields...")
+        logging.debug(f" Cleaning out old vector datasets.")
+        for dataset_db in VectorDataSet.objects.filter(project=project_db).all():
+            dataset_match = self.find_config_dataset_by_id(
+                project_config.datasets.vector, dataset_db.qgis_layer_id
+            )
+            if dataset_match is None:
+                logging.debug(
+                    f"    Deleting dataset {dataset_db.name} since it was not in project config anymore"
                 )
-                if vector_dataset_match is None:
-                    # there is a fild in the db which does not exist in the config anymore
-                    vector_dataset_db.delete()
+                dataset_db.delete()
+        logging.debug(f" ✓ Finished - Cleaning out old vector datasets.")
+        logging.debug("✓ Finished - Handling of raster datasets")
+        logging.debug("Handling of raster datasets")
         for layer in project_config.datasets.raster:
-            RasterDataSet(
-                project=project_db,
-                name=layer.name,
-                title=layer.title,
-                bbox=layer.bbox.to_string(),
-                bbox_wgs84=layer.bbox_wgs84.to_string(),
-                path=layer.path,
-                styles=DictEncoder().encode(layer.styles),
-                driver=layer.driver,
-                source=DictEncoder().encode(layer.source),
-                qgis_layer_id=layer.id,
-                crs=DictEncoder().encode(layer.crs),
-                minimum_scale=layer.minimum_scale,
-                maximum_scale=layer.maximum_scale,
-            ).save()
+            dataset = self.get_dataset_by_id(layer.id, RasterDataSet)
+            if dataset is None:
+                logging.debug(
+                    f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
+                )
+                dataset = RasterDataSet()
+            else:
+                logging.debug(
+                    f" Dataset was found and will be updated {layer.name} (qgis-layer-id: {layer.id})"
+                )
+            dataset.project = project_db
+            dataset.name = layer.name
+            dataset.title = layer.title
+            dataset.bbox = layer.bbox.to_string()
+            dataset.bbox_wgs84 = layer.bbox_wgs84.to_string()
+            dataset.path = layer.path
+            dataset.styles = DictEncoder().encode(layer.styles)
+            dataset.driver = layer.driver
+            dataset.source = DictEncoder().encode(layer.source)
+            dataset.qgis_layer_id = layer.id
+            dataset.crs = DictEncoder().encode(layer.crs)
+            dataset.minimum_scale = layer.minimum_scale
+            dataset.maximum_scale = layer.maximum_scale
+            dataset.save()
+            logging.debug(
+                f" ✓ Dataset {layer.name} (qgis-layer-id: {layer.id}) was written to DB successfully."
+            )
+        logging.debug(f" Cleaning out old rester datasets.")
+        for dataset_db in RasterDataSet.objects.filter(project=project_db).all():
+            dataset_match = self.find_config_dataset_by_id(
+                project_config.datasets.raster, dataset_db.qgis_layer_id
+            )
+            if dataset_match is None:
+                logging.debug(
+                    f"  Deleting dataset {dataset_db.name} since it was not in project config anymore"
+                )
+                dataset_db.delete()
+        logging.debug(f" ✓ Finished - Cleaning out old raster datasets.")
+        logging.debug("✓ Finished - Handling of raster datasets")
+        logging.debug("Handling of custom datasets")
         for layer in project_config.datasets.custom:
-            CustomDataSet(
-                project=project_db,
-                name=layer.name,
-                title=layer.title,
-                bbox=layer.bbox.to_string(),
-                bbox_wgs84=layer.bbox_wgs84.to_string(),
-                path=layer.path,
-                styles=DictEncoder().encode(layer.styles),
-                driver=layer.driver,
-                source=DictEncoder().encode(layer.source),
-                qgis_layer_id=layer.id,
-                crs=DictEncoder().encode(layer.crs),
-                minimum_scale=layer.minimum_scale,
-                maximum_scale=layer.maximum_scale,
-            ).save()
+            dataset = self.get_dataset_by_id(layer.id, CustomDataSet)
+            if dataset is None:
+                logging.debug(
+                    f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
+                )
+                dataset = CustomDataSet()
+            else:
+                logging.debug(
+                    f" Dataset was found and will be updated {layer.name} (qgis-layer-id: {layer.id})"
+                )
+            dataset.project = project_db
+            dataset.name = layer.name
+            dataset.title = layer.title
+            dataset.bbox = layer.bbox.to_string()
+            dataset.bbox_wgs84 = layer.bbox_wgs84.to_string()
+            dataset.path = layer.path
+            dataset.styles = DictEncoder().encode(layer.styles)
+            dataset.driver = layer.driver
+            dataset.source = DictEncoder().encode(layer.source)
+            dataset.qgis_layer_id = layer.id
+            dataset.crs = DictEncoder().encode(layer.crs)
+            dataset.minimum_scale = layer.minimum_scale
+            dataset.maximum_scale = layer.maximum_scale
+            dataset.save()
+        logging.debug(f" Cleaning out old custom datasets.")
+        for dataset_db in CustomDataSet.objects.filter(project=project_db).all():
+            dataset_match = self.find_config_dataset_by_id(
+                project_config.datasets.custom, dataset_db.qgis_layer_id
+            )
+            if dataset_match is None:
+                logging.debug(
+                    f"  Deleting dataset {dataset_db.name} since it was not in project config anymore"
+                )
+                dataset_db.delete()
+        logging.debug(f" ✓ Finished - Cleaning out old custom datasets.")
+
+        logging.debug("✓ Finished - Handling of custom datasets")
+
+    @transaction.atomic
+    def get(self, request: HttpRequest, mandant_name: str, project_name: str, **kwargs):
+        project, project_config = self.load_project_config(mandant_name, project_name)
+        if not project_config or not project:
+            redirect("admin:data_integration_project_changelist")
+        self.integrate_project(project, project_config, mandant_name)
         return redirect("admin:data_integration_project_changelist")

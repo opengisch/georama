@@ -188,7 +188,6 @@ class OgcServer(View):
                     job = await sync_to_async(
                         operation.prepare_job_content, thread_sensitive=True
                     )(service_params)
-                    print(job)
                 except ValueError as e:
                     return HttpResponse(e, status=400, content_type="text/plain")
                 except PermissionError as e:
