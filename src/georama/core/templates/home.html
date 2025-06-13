@@ -9,7 +9,7 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="container">
-      <img src="{% static 'logo/georama_2.png' %}" alt="Georama Logo" class="logo mb-3" width="300px" />
+      <img src="{% static 'logo/georama_snowglobe_logo.png' %}" alt="Georama Logo" class="logo mb-3" width="300px" />
       <h1 class="display-4 fw-bold">Georama</h1>
       <p class="lead">Panorama over your geospatial data. Integrate, explore, and serve maps with ease.</p>
       <a href="#features" class="btn btn-light btn-lg mt-3">Learn More</a>
@@ -52,17 +52,86 @@
   </section>
 
   <!-- Explore Modules Section -->
-  <section class="py-5 text-center bg-light">
-    <div class="container">
-      <h3 class="fw-bold mb-4">Explore the Modules</h3>
-      <div class="d-flex flex-wrap justify-content-center gap-3">
-          <a class="btn btn-outline-primary px-4" href="/login">Login Page</a>
-          <a class="btn btn-outline-primary px-4" href="/admin/">Admin Page</a>
-          <a class="btn btn-outline-primary px-4" href="/maps">WMS endpoint</a>
-          <a class="btn btn-outline-primary px-4" href="/features">OAPIF endpoint</a>
+{#  <section class="py-5 text-center bg-light">#}
+{#    <div class="container">#}
+{#      <h3 class="fw-bold mb-4">Explore the Modules</h3>#}
+{#      <div class="d-flex flex-wrap justify-content-center gap-3">#}
+{#          <a class="btn btn-outline-primary px-4" href="/login">Login Page</a>#}
+{#          <a class="btn btn-outline-primary px-4" href="/admin/">Admin Page</a>#}
+{#          <a class="btn btn-outline-primary px-4" href="/maps">WMS endpoint</a>#}
+{#          <a class="btn btn-outline-primary px-4" href="/features">OAPIF endpoint</a>#}
+{#      </div>#}
+{#    </div>#}
+{#  </section>#}
+
+<section class="py-5 bg-light" id="modules">
+  <div class="container">
+    <h3 class="fw-bold text-center mb-5">Explore the Modules</h3>
+    <div class="row g-4 justify-content-center">
+
+      <!-- Login -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">🔐 Login Page</h5>
+            <p class="card-text">Login for the users</p>
+            <a class="btn btn-outline-primary px-4" href="/login">Login Page</a>
+          </div>
+        </div>
       </div>
+
+      <!-- Admin -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">🛠️ Admin Page</h5>
+            <p class="card-text">Admin interface to manage all the data sources and users.</p>
+            <a class="btn btn-outline-primary px-4" href="/admin/">Admin Page</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- WMS -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">🗺️ WMS endpoint</h5>
+            <p class="card-text">WMS endpoint to integrate in GIS or WebGIS applications. </br> For the best experience, use our favorite open source GIS tool: <a href="https://qgis.org/"><img src="https://qgis.github.io/qgis-uni-navigation/logo.svg" width="100px"> </a> </p>
+            <a class="btn btn-outline-primary px-4" href="/maps?service=WMS&request=GetCapabilities&version=1.3.0">WMS endpoint</a>
+            <button class="btn btn-sm btn-outline-secondary m-2" onclick="copyCodeToClipboard()">
+              📋 Copy
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OAPIF -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">📡 OAPIF endpoint</h5>
+            <p class="card-text">Access your geospatial data through the RESTful OGC API - Features (OAPIF) interface.</p>
+            <a class="btn btn-outline-primary px-4" href="/features">OAPIF endpoint</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- WebGIS -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">🌐 WebGIS</h5>
+            <p class="card-text">Integrated GeoGirafe WebGIS Frontend to view the published data</p>
+            <a class="btn btn-outline-primary px-4" href="/webgis">Explore WebGIS</a>
+          </div>
+        </div>
+      </div>
+
     </div>
-  </section>
+  </div>
+</section>
+
+
 
   <!-- Read the Docs Section -->
   <section class="py-5" id="docs">
@@ -72,6 +141,8 @@
       <a href="https://docs.georama.io" class="btn btn-secondary btn-lg" target="_blank">View Documentation</a>
     </div>
   </section>
+
+
 
 {#  <!-- Call to Action -->#}
 {#  <section class="py-5 text-center">#}
@@ -84,3 +155,16 @@
 
 {% endblock %}
 
+{% block extra_js %}
+<!-- JavaScript to Copy Code -->
+<script>
+  function copyCodeToClipboard() {
+    const code = 'https://{{ georama_host }}/maps?service=WMS&request=GetCapabilities&version=1.3.0';
+    navigator.clipboard.writeText(code).then(() => {
+      alert(`Url: ${code} copied to clipboard!`);
+    }, () => {
+      alert("Failed to copy.");
+    });
+  }
+</script>
+{% endblock %}

@@ -32,6 +32,7 @@ LOGGING = {
     "disable_existing_loggers": False,  # retain the default loggers
 }
 
+GEORAMA_HOST = os.getenv("GEORAMA_HOST", "localhost")
 GEORAMA_ALLOWED_HOSTS = os.environ.get("GEORAMA_ALLOWED_HOSTS", "").split(" ")
 
 ALLOWED_HOSTS = [] + GEORAMA_ALLOWED_HOSTS
@@ -170,3 +171,24 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 APPEND_SLASH = False
+
+JAZZMIN_SETTINGS = {
+    # title of the window (Will default to current_admin_site.site_title if absent or None)
+    "site_title": "Georama Admin",
+
+    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_header": "Georama",
+
+    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_brand": "Georama",
+
+    # Logo to use for your site, must be present in static files, used for brand on top left
+    "site_logo": "logo/georama_snowglobe_logo.png",
+
+
+    # CSS classes that are applied to the logo above
+    "site_logo_classes": "img-circle",
+
+    # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
+    "site_icon": "logo/georama_snowglobe_logo.png",
+}
