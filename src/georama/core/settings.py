@@ -27,10 +27,59 @@ SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("GEORAMA_DEBUG", "false").lower() == "true"
 
+
 LOGGING = {
-    "version": 1,  # the dictConfig format version
-    "disable_existing_loggers": False,  # retain the default loggers
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
+    "loggers": {
+        "core": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "data_integration": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "features": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "maps": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "webgis": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+    },
 }
+
 
 GEORAMA_ALLOWED_HOSTS = os.environ.get("GEORAMA_ALLOWED_HOSTS", "").split(" ")
 

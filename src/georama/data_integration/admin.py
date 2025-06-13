@@ -7,7 +7,7 @@ from pathlib import Path
 from django.contrib import admin
 from django.http import HttpRequest
 from django.template.response import TemplateResponse
-from django.urls import path
+from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 
 from georama.data_integration.data_integration_config import Config
@@ -160,7 +160,30 @@ class ProjectAdmin(admin.ModelAdmin):
             qpfs.create_groups(config.qgis_project_extensions)
             group = qpfs.find_group_by_name(obj.mandant.name)
             project = group.find_project_by_name(obj.name)
-            return mark_safe("&check;") if obj.hash == project.hash else ""
+            if obj.hash == project.hash:
+                return mark_safe(
+                    "".join(
+                        [
+                            '<a class="btn btn-high btn-success" style="pointer-events: none"><i class="fa fa-check-circle" aria-hidden="true"></i></a>',
+                        ]
+                    )
+                )
+            else:
+                return mark_safe(
+                    "".join(
+                        [
+                            '<a href="{}" class="btn btn-high btn-success">integrate</a>'.format(
+                                reverse(
+                                    "georama.data_integration:register_qgis_project",
+                                    kwargs={
+                                        "mandant_name": obj.mandant.name,
+                                        "project_name": obj.name,
+                                    },
+                                )
+                            ),
+                        ]
+                    )
+                )
         except Exception as e:
             logging.error(f"Chould not check project status. Original Error: {e}")
             return ""

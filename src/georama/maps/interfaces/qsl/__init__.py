@@ -109,7 +109,6 @@ class QslLegendJob(QslMapJob):
 
 
 def job_from_json(definition: dict):
-    print(repr(definition))
     job_type = definition["type"]
     assert job_type
     if job_type == "QslRenderJob":
