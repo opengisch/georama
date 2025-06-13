@@ -3,12 +3,14 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.templatetags.static import static
 from django.views import View
+from georama.core import settings
 
 
 class GeoramaLanding(View):
     def get(self, request, *args, **kwargs):
         logo_url = static("/core/assets/images/georama.coming_soon.png")
-        return TemplateResponse(request, context={"logo_url": logo_url}, template="home.html")
+        georama_host = settings.GEORAMA_HOST
+        return TemplateResponse(request, context={"logo_url": logo_url, "georama_host": georama_host}, template="home.html")
 
 
 class Login(View):
