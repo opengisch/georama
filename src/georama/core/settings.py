@@ -150,9 +150,9 @@ class Base(Configuration):
 
     WSGI_APPLICATION = "georama.core.wsgi.application"
 
-    CSRF_TRUSTED_ORIGINS = [] + os.getenv(
-        "GEORAMA_CSRF_TRUSTED_ORIGINS", "http://localhost:4242"
-    ).split(" ")
+    CSRF_TRUSTED_ORIGINS = values.ListValue(
+        ["http://localhost:4242"], separator=' ', environ_prefix="GEORAMA",
+    )
 
     # Database
     # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
