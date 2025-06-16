@@ -137,6 +137,7 @@ class RegisterQgisProject(View):
             dataset.styles = DictEncoder().encode(layer.styles)
             dataset.driver = layer.driver
             dataset.source = DictEncoder().encode(layer.source)
+            dataset.qgis_layer_id = layer.id
             dataset.crs = DictEncoder().encode(layer.crs)
             dataset.minimum_scale = layer.minimum_scale
             dataset.maximum_scale = layer.maximum_scale
