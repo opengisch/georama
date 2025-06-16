@@ -14,6 +14,13 @@ from pathlib import Path
 
 from georama.core.auth import get_authentication_methods_middlewares
 
+from configurations import Configuration
+
+
+class Base(Configuration):
+    pass
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -219,3 +226,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 APPEND_SLASH = False
+
+
+class Dev(Base):
+    DEBUG = True
+
+
+class Prod(Base):
+    DEBUG = False
