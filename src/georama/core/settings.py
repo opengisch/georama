@@ -90,34 +90,58 @@ if bool(os.environ.get("GEORAMA_SECURE_PROXY_SSL_HEADER", False)):
 
 # Application definition
 
-INSTALLED_APPS = [
+SHARED_APPS = (
     "jazzmin",
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
+    'django_tenants',  # mandatory
+    'mandants.apps.MandantsConfig',
+
+    'django.contrib.contenttypes',
+
+    # everything below here is optional
+    'django.contrib.auth',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.admin',
+
+    # added by DDDPT
     "django.contrib.staticfiles",
-    "georama.core.apps.CoreConfig",
-    "georama.features.apps.VectorparrotConfig",
-    "georama.maps.apps.RasteroctopusConfig",
-    "georama.data_integration.apps.QmeleonConfig",
     # apps by webgis
-    "corsheaders",
-    "georama.webgis.apps.ClogsConfig",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "adminsortable2",
     "treebeard",
     "django_extensions",
-]
+)
+
+TENANT_APPS = (
+    # your tenant-specific apps
+    "jazzmin",
+    "georama.core.apps.CoreConfig",
+    "georama.features.apps.VectorparrotConfig",
+    "georama.maps.apps.RasteroctopusConfig",
+    "georama.data_integration.apps.QmeleonConfig",
+    "corsheaders",
+    "georama.webgis.apps.ClogsConfig",
+    "django.contrib.staticfiles",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "adminsortable2",
+    "treebeard",
+
+)
+
+INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
+
 
 GEORAMA_AUTHENTICATION_METHODS = os.environ.get(
     "GEORAMA_AUTHENTICATION_METHODS", "DJANGO_CONTRIB_AUTH"
 ).split(" ")
 
 MIDDLEWARE = [
+    'django_tenants.middleware.main.TenantMainMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -131,7 +155,11 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
 ]
 
+# ROOT_URLCONF: used for tenanting
 ROOT_URLCONF = "georama.core.urls"
+
+# ROOT_URLCONF: used for the public schema
+PUBLIC_SCHEMA_URLCONF = "georama.core.urls_public"
 
 TEMPLATES = [
     {
@@ -160,7 +188,8 @@ CSRF_TRUSTED_ORIGINS = [] + os.getenv(
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        # "ENGINE": "django.db.backends.postgresql",
+        'ENGINE': 'django_tenants.postgresql_backend',
         "HOST": os.environ.get("GEORAMA_DB_HOST", "localhost"),
         "PORT": os.environ.get("GEORAMA_DB_PORT", "54321"),
         "USER": os.environ.get("GEORAMA_DB_USER", "postgres"),
@@ -168,6 +197,10 @@ DATABASES = {
         "NAME": os.environ.get("GEORAMA_DB_NAME", "postgres"),
     }
 }
+
+DATABASE_ROUTERS = (
+    'django_tenants.routers.TenantSyncRouter',
+)
 
 
 # Password validation
@@ -219,3 +252,16 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 APPEND_SLASH = False
+
+
+TENANT_MODEL = "mandants.Client"  # app.Model
+TENANT_DOMAIN_MODEL = "mandants.Domain"  # app.Model
+
+SHOW_PUBLIC_IF_NO_TENANT_FOUND = True
+
+SITE_ID = 1
+
+# test to see if this reactivates jazzmin
+JAZZMIN_SETTINGS = {
+    "site_title": "GeoRama",
+}

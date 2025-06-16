@@ -1,6 +1,5 @@
 services:
   georama:
-    image: georama:dev
     build:
       context: .
       target: dev
