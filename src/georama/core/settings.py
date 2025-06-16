@@ -168,7 +168,6 @@ class Base(Configuration):
         }
     }
 
-
     # Password validation
     # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -187,9 +186,9 @@ class Base(Configuration):
         },
     ]
 
-    CORS_ALLOWED_ORIGINS = [] + os.getenv(
-        "GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:9309"
-    ).split(" ")
+    CORS_ALLOWED_ORIGINS = values.ListValue(
+        ["https://localhost:9309"], separator=' ', environ_prefix="GEORAMA",
+    )
     CORS_ALLOW_CREDENTIALS = (
         os.environ.get("GEORAMA_CORS_ALLOW_CREDENTIALS", "false").lower() == "true"
     )
