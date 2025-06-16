@@ -82,10 +82,7 @@ class Base(Configuration):
         },
     }
 
-
-    GEORAMA_ALLOWED_HOSTS = os.environ.get("GEORAMA_ALLOWED_HOSTS", "").split(" ")
-
-    ALLOWED_HOSTS = [] + GEORAMA_ALLOWED_HOSTS
+    ALLOWED_HOSTS = values.ListValue([], separator=' ', environ_prefix="GEORAMA")
 
     if bool(os.environ.get("GEORAMA_SECURE_PROXY_SSL_HEADER", False)):
         SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
