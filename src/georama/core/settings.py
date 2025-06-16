@@ -28,8 +28,7 @@ class Base(Configuration):
     SECRET_KEY = values.SecretValue()
 
     # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG = os.environ.get("GEORAMA_DEBUG", "false").lower() == "true"
-
+    DEBUG = values.BooleanValue(False, environ_prefix="GEORAMA")
 
     LOGGING = {
         "version": 1,
@@ -227,10 +226,10 @@ class Base(Configuration):
 class Dev(Base):
     SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!"
 
-    DEBUG = True
+    DEBUG = values.BooleanValue(True, environ_prefix="GEORAMA")
 
 
 class Prod(Base):
     SECRET_KEY = values.SecretValue()
 
-    DEBUG = False
+    DEBUG = values.BooleanValue(False, environ_prefix="GEORAMA")
