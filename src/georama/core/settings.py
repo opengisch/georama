@@ -18,214 +18,211 @@ from configurations import Configuration
 
 
 class Base(Configuration):
-    pass
+    # Build paths inside the project like this: BASE_DIR / 'subdir'.
+    BASE_DIR = Path(__file__).resolve().parent
 
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent
+    # Quick-start development settings - unsuitable for production
+    # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+
+    # SECURITY WARNING: keep the secret key used in production secret!
+    SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!"
+
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG = os.environ.get("GEORAMA_DEBUG", "false").lower() == "true"
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("GEORAMA_DEBUG", "false").lower() == "true"
-
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "{levelname} {asctime} {module} {message}",
-            "style": "{",
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "verbose": {
+                "format": "{levelname} {asctime} {module} {message}",
+                "style": "{",
+            },
+            "simple": {
+                "format": "{levelname} {message}",
+                "style": "{",
+            },
         },
-        "simple": {
-            "format": "{levelname} {message}",
-            "style": "{",
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "formatter": "verbose",
+            },
         },
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "DEBUG",
-    },
-    "loggers": {
-        "core": {
+        "root": {
             "handlers": ["console"],
             "level": "DEBUG",
-            "propagate": False,
         },
-        "data_integration": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
+        "loggers": {
+            "core": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": False,
+            },
+            "data_integration": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": False,
+            },
+            "features": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": False,
+            },
+            "maps": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": False,
+            },
+            "webgis": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": False,
+            },
         },
-        "features": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
-        "maps": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
-        "webgis": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
-    },
-}
-
-
-GEORAMA_ALLOWED_HOSTS = os.environ.get("GEORAMA_ALLOWED_HOSTS", "").split(" ")
-
-ALLOWED_HOSTS = [] + GEORAMA_ALLOWED_HOSTS
-
-if bool(os.environ.get("GEORAMA_SECURE_PROXY_SSL_HEADER", False)):
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
-# Application definition
-
-INSTALLED_APPS = [
-    "jazzmin",
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "georama.core.apps.CoreConfig",
-    "georama.features.apps.FeaturesConfig",
-    "georama.maps.apps.MapsConfig",
-    "georama.data_integration.apps.DataintegrationConfig",
-    # apps by webgis
-    "corsheaders",
-    "georama.webgis.apps.WebgisConfig",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "adminsortable2",
-    "treebeard",
-    "django_extensions",
-]
-
-GEORAMA_AUTHENTICATION_METHODS = os.environ.get(
-    "GEORAMA_AUTHENTICATION_METHODS", "DJANGO_CONTRIB_AUTH"
-).split(" ")
-
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    # "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    *get_authentication_methods_middlewares(GEORAMA_AUTHENTICATION_METHODS),
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # webgis
-    "allauth.account.middleware.AccountMiddleware",
-]
-
-ROOT_URLCONF = "georama.core.urls"
-
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ],
-        },
-    },
-]
-
-WSGI_APPLICATION = "georama.core.wsgi.application"
-
-CSRF_TRUSTED_ORIGINS = [] + os.getenv(
-    "GEORAMA_CSRF_TRUSTED_ORIGINS", "http://localhost:4242"
-).split(" ")
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": os.environ.get("GEORAMA_DB_HOST", "localhost"),
-        "PORT": os.environ.get("GEORAMA_DB_PORT", "54321"),
-        "USER": os.environ.get("GEORAMA_DB_USER", "postgres"),
-        "PASSWORD": os.environ.get("GEORAMA_DB_PW", "test"),
-        "NAME": os.environ.get("GEORAMA_DB_NAME", "postgres"),
     }
-}
 
 
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
+    GEORAMA_ALLOWED_HOSTS = os.environ.get("GEORAMA_ALLOWED_HOSTS", "").split(" ")
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
+    ALLOWED_HOSTS = [] + GEORAMA_ALLOWED_HOSTS
 
-CORS_ALLOWED_ORIGINS = [] + os.getenv(
-    "GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:9309"
-).split(" ")
-CORS_ALLOW_CREDENTIALS = (
-    os.environ.get("GEORAMA_CORS_ALLOW_CREDENTIALS", "false").lower() == "true"
-)
+    if bool(os.environ.get("GEORAMA_SECURE_PROXY_SSL_HEADER", False)):
+        SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
+    # Application definition
 
-LANGUAGE_CODE = "en-us"
+    INSTALLED_APPS = [
+        "jazzmin",
+        "django.contrib.admin",
+        "django.contrib.auth",
+        "django.contrib.contenttypes",
+        "django.contrib.sessions",
+        "django.contrib.messages",
+        "django.contrib.staticfiles",
+        "georama.core.apps.CoreConfig",
+        "georama.features.apps.FeaturesConfig",
+        "georama.maps.apps.MapsConfig",
+        "georama.data_integration.apps.DataintegrationConfig",
+        # apps by webgis
+        "corsheaders",
+        "georama.webgis.apps.WebgisConfig",
+        "allauth",
+        "allauth.account",
+        "allauth.socialaccount",
+        "adminsortable2",
+        "treebeard",
+        "django_extensions",
+    ]
 
-TIME_ZONE = "UTC"
+    GEORAMA_AUTHENTICATION_METHODS = os.environ.get(
+        "GEORAMA_AUTHENTICATION_METHODS", "DJANGO_CONTRIB_AUTH"
+    ).split(" ")
 
-USE_I18N = True
+    MIDDLEWARE = [
+        "django.middleware.security.SecurityMiddleware",
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "corsheaders.middleware.CorsMiddleware",
+        "django.middleware.common.CommonMiddleware",
+        # "django.middleware.csrf.CsrfViewMiddleware",
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        *get_authentication_methods_middlewares(GEORAMA_AUTHENTICATION_METHODS),
+        "django.contrib.messages.middleware.MessageMiddleware",
+        "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        # webgis
+        "allauth.account.middleware.AccountMiddleware",
+    ]
 
-USE_TZ = True
+    ROOT_URLCONF = "georama.core.urls"
+
+    TEMPLATES = [
+        {
+            "BACKEND": "django.template.backends.django.DjangoTemplates",
+            "DIRS": [],
+            "APP_DIRS": True,
+            "OPTIONS": {
+                "context_processors": [
+                    "django.template.context_processors.debug",
+                    "django.template.context_processors.request",
+                    "django.contrib.auth.context_processors.auth",
+                    "django.contrib.messages.context_processors.messages",
+                ],
+            },
+        },
+    ]
+
+    WSGI_APPLICATION = "georama.core.wsgi.application"
+
+    CSRF_TRUSTED_ORIGINS = [] + os.getenv(
+        "GEORAMA_CSRF_TRUSTED_ORIGINS", "http://localhost:4242"
+    ).split(" ")
+
+    # Database
+    # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "HOST": os.environ.get("GEORAMA_DB_HOST", "localhost"),
+            "PORT": os.environ.get("GEORAMA_DB_PORT", "54321"),
+            "USER": os.environ.get("GEORAMA_DB_USER", "postgres"),
+            "PASSWORD": os.environ.get("GEORAMA_DB_PW", "test"),
+            "NAME": os.environ.get("GEORAMA_DB_NAME", "postgres"),
+        }
+    }
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
+    # Password validation
+    # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
-STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+    AUTH_PASSWORD_VALIDATORS = [
+        {
+            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        },
+    ]
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+    CORS_ALLOWED_ORIGINS = [] + os.getenv(
+        "GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:9309"
+    ).split(" ")
+    CORS_ALLOW_CREDENTIALS = (
+        os.environ.get("GEORAMA_CORS_ALLOW_CREDENTIALS", "false").lower() == "true"
+    )
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+    # Internationalization
+    # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-APPEND_SLASH = False
+    LANGUAGE_CODE = "en-us"
+
+    TIME_ZONE = "UTC"
+
+    USE_I18N = True
+
+    USE_TZ = True
+
+
+    # Static files (CSS, JavaScript, Images)
+    # https://docs.djangoproject.com/en/5.0/howto/static-files/
+
+    STATIC_URL = "static/"
+    STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+    # Default primary key field type
+    # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+
+    DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+    APPEND_SLASH = False
 
 
 class Dev(Base):
