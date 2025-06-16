@@ -189,8 +189,8 @@ class Base(Configuration):
     CORS_ALLOWED_ORIGINS = values.ListValue(
         ["https://localhost:9309"], separator=' ', environ_prefix="GEORAMA",
     )
-    CORS_ALLOW_CREDENTIALS = (
-        os.environ.get("GEORAMA_CORS_ALLOW_CREDENTIALS", "false").lower() == "true"
+    CORS_ALLOW_CREDENTIALS = values.BooleanValue(
+        False, environ_prefix="GEORAMA",
     )
 
     # Internationalization
