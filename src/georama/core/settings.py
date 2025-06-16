@@ -112,23 +112,25 @@ class Base(Configuration):
         "django_extensions",
     ]
 
-    GEORAMA_AUTHENTICATION_METHODS = os.environ.get(
-        "GEORAMA_AUTHENTICATION_METHODS", "DJANGO_CONTRIB_AUTH"
-    ).split(" ")
+    GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
+        ["DJANGO_CONTRIB_AUTH"], separator=' ', environ_prefix=None,
+    )
 
-    MIDDLEWARE = [
-        "django.middleware.security.SecurityMiddleware",
-        "django.contrib.sessions.middleware.SessionMiddleware",
-        "corsheaders.middleware.CorsMiddleware",
-        "django.middleware.common.CommonMiddleware",
-        # "django.middleware.csrf.CsrfViewMiddleware",
-        "django.contrib.auth.middleware.AuthenticationMiddleware",
-        *get_authentication_methods_middlewares(GEORAMA_AUTHENTICATION_METHODS),
-        "django.contrib.messages.middleware.MessageMiddleware",
-        "django.middleware.clickjacking.XFrameOptionsMiddleware",
-        # webgis
-        "allauth.account.middleware.AccountMiddleware",
-    ]
+    @property
+    def MIDDLEWARE(self):
+        return [
+            "django.middleware.security.SecurityMiddleware",
+            "django.contrib.sessions.middleware.SessionMiddleware",
+            "corsheaders.middleware.CorsMiddleware",
+            "django.middleware.common.CommonMiddleware",
+            # "django.middleware.csrf.CsrfViewMiddleware",
+            "django.contrib.auth.middleware.AuthenticationMiddleware",
+            *get_authentication_methods_middlewares(self.GEORAMA_AUTHENTICATION_METHODS),
+            "django.contrib.messages.middleware.MessageMiddleware",
+            "django.middleware.clickjacking.XFrameOptionsMiddleware",
+            # webgis
+            "allauth.account.middleware.AccountMiddleware",
+        ]
 
     ROOT_URLCONF = "georama.core.urls"
 
