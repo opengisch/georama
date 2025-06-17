@@ -12,12 +12,14 @@ from pygeoapi.openapi import get_oas
 from qgis_server_light.interface.qgis import BBox
 
 from georama.data_integration.models import VectorDataSet
-from georama.features.apps import appname
+from georama.features.apps import FeaturesConfig
 from georama.features.config_server import ServerConfig
 from georama.features.features_config import Config
 from georama.features.models import PublishedAsOgcApiFeatures
 
 api = None
+
+appname = FeaturesConfig.get_simple_appname()
 
 
 def landing_page(request: HttpRequest) -> HttpResponse:
