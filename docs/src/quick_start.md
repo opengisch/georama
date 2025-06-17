@@ -36,7 +36,7 @@ cd georama
 Copy the example environment file and customize it:
 
 ```bash
-cp .env.example .env
+cp .env.dev.example .env
 ```
 
 Set the path to your QGIS projects:
