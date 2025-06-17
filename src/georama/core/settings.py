@@ -86,12 +86,7 @@ class Base(Configuration):
     # Proxy "X-Forwarded-..." headers
     # https://docs.djangoproject.com/en/5.2/ref/settings/#secure-proxy-ssl-header
 
-    GEORAMA_SECURE_PROXY_SSL_HEADER = values.BooleanValue(False, environ_prefix=None)
-
-    @property
-    def SECURE_PROXY_SSL_HEADER(self):
-        if self.GEORAMA_SECURE_PROXY_SSL_HEADER:
-            return ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_PROXY_SSL_HEADER = values.TupleValue(None)
 
     # Application definition
 
@@ -247,3 +242,5 @@ class Prod(Base):
     SECRET_KEY = values.SecretValue()
 
     DEBUG = values.BooleanValue(False, environ_prefix="GEORAMA")
+
+    SECURE_PROXY_SSL_HEADER = values.TupleValue(("HTTP_X_FORWARDED_PROTO", "https"))
