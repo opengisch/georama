@@ -1,7 +1,7 @@
 import pygeoapi.api as inittime_api
 import pygeoapi.plugin
-from django.apps import AppConfig
 
+from georama.core.apps import GeoramaAbstractConfig
 from georama.features.features_config import Config
 
 # add custom providers to pygeoapi
@@ -14,9 +14,8 @@ pygeoapi.plugin.PLUGINS["provider"][
 
 inittime_api.DEFAULT_CRS = Config().default_crs
 
-appname = "features"
 
-
-class VectorparrotConfig(AppConfig):
+class FeaturesConfig(GeoramaAbstractConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = f"georama.{appname}"
+    verbose_name = "Features"
+    name = "georama.features"

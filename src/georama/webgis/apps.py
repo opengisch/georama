@@ -1,8 +1,7 @@
-from django.apps import AppConfig
-
-appname = "webgis"
+from georama.core.apps import GeoramaAbstractConfig
 
 
-class ClogsConfig(AppConfig):
+class WebgisConfig(GeoramaAbstractConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = f"georama.{appname}"
+    verbose_name = "Webgis"
+    name = f"georama.webgis"

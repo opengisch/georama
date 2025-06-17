@@ -25,7 +25,7 @@ from georama.data_integration.models import (
 )
 from georama.data_integration.views import RegisterQgisProject
 from georama.maps.views import OgcServer
-from georama.webgis.apps import appname
+from georama.webgis.apps import WebgisConfig
 from georama.webgis.forms import GEOPORTAL_URLS, HomeForm
 from georama.webgis.interfaces.geomapfish import load_geoportal_config_from_url
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
@@ -42,6 +42,8 @@ from georama.webgis.models import (
     PublishedAsLayerWmts,
     PublishedAsTheme,
 )
+
+appname = WebgisConfig.get_simple_appname()
 
 
 def home(request):
