@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-import os
 from pathlib import Path
 
 from georama.core.auth import get_authentication_methods_middlewares
@@ -166,16 +165,27 @@ class Base(Configuration):
     # Database
     # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "HOST": os.environ.get("GEORAMA_DB_HOST", "localhost"),
-            "PORT": os.environ.get("GEORAMA_DB_PORT", "54321"),
-            "USER": os.environ.get("GEORAMA_DB_USER", "postgres"),
-            "PASSWORD": os.environ.get("GEORAMA_DB_PW", "test"),
-            "NAME": os.environ.get("GEORAMA_DB_NAME", "postgres"),
+    DB_NAME = values.Value("postgres", environ_prefix="GEORAMA")
+    DB_ENGINE = values.Value("django.db.backends.postgresql", environ_prefix="GEORAMA")
+    DB_USER = values.Value("postgres", environ_prefix="GEORAMA")
+    DB_PW = values.Value("test", environ_prefix="GEORAMA")
+    DB_HOST = values.Value("localhost", environ_prefix="GEORAMA")
+    DB_PORT = values.Value("54321", environ_prefix="GEORAMA")
+    DB_OPTIONS = values.DictValue({}, environ_prefix="GEORAMA")
+
+    @property
+    def DATABASES(self):
+        return {
+            "default": {
+                "ENGINE": self.DB_ENGINE,
+                "NAME": self.DB_NAME,
+                "USER": self.DB_USER,
+                "PASSWORD": self.DB_PW,
+                "HOST": self.DB_HOST,
+                "PORT": self.DB_PORT,
+                "OPTIONS": self.DB_OPTIONS,
+            }
         }
-    }
 
     # Password validation
     # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
