@@ -237,6 +237,12 @@ class Dev(Base):
 
     DEBUG = values.BooleanValue(True, environ_prefix="GEORAMA")
 
+    DB_NAME = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_USER = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_PW = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_HOST = values.Value("georama-db", environ_prefix="GEORAMA")
+    DB_PORT = values.Value("5432", environ_prefix="GEORAMA")
+
 
 class Prod(Base):
     SECRET_KEY = values.SecretValue()
@@ -244,3 +250,9 @@ class Prod(Base):
     DEBUG = values.BooleanValue(False, environ_prefix="GEORAMA")
 
     SECURE_PROXY_SSL_HEADER = values.TupleValue(("HTTP_X_FORWARDED_PROTO", "https"))
+
+    DB_NAME = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_USER = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_PW = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_HOST = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_PORT = values.Value(environ_required=True, environ_prefix="GEORAMA")
