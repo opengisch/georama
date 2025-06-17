@@ -237,6 +237,16 @@ class Dev(Base):
 
     DEBUG = values.BooleanValue(True, environ_prefix="GEORAMA")
 
+    ALLOWED_HOSTS = values.ListValue(
+        [
+            "localhost",
+            # convenience hostnames used by developers can be added here
+            "georama.local",
+        ],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
+
     DB_NAME = values.Value(environ_required=True, environ_prefix="GEORAMA")
     DB_USER = values.Value(environ_required=True, environ_prefix="GEORAMA")
     DB_PW = values.Value(environ_required=True, environ_prefix="GEORAMA")
@@ -248,6 +258,8 @@ class Prod(Base):
     SECRET_KEY = values.SecretValue()
 
     DEBUG = values.BooleanValue(False, environ_prefix="GEORAMA")
+
+    ALLOWED_HOSTS = values.ListValue(["localhost"], separator=' ', environ_prefix="GEORAMA")
 
     SECURE_PROXY_SSL_HEADER = values.TupleValue(("HTTP_X_FORWARDED_PROTO", "https"))
 
