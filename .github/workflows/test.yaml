@@ -25,52 +25,6 @@ on:
     tags:
       - v*
 
-env:
-  ### STRESS TEST Job MATRIX ###
-  FULL_MATRIX_STRATEGY: "{\"platform\": [\"ubuntu-latest\", \"macos-latest\", \"windows-latest\"], \"python-version\": [\"3.9\", \"3.10\", \"3.11\"]}"
-  # Python 3.7 has reached End of Life (EOL) on June 27th, 2023
-  # Python 3.12 is in bugfix mode, same as 3.11 -> can start supporting 3.12 it
-  UBUNTU_PY310_STRATEGY: "{\"platform\":[\"ubuntu-latest\"], \"python-version\":[\"3.10\"]}"
-  TEST_STRATEGY: "{\"platform\":[\"ubuntu-latest\", \"macos-latest\", \"windows-latest\"], \"python-version\":[\"3.9\"]}"
-
-  ##### JOB ON/OFF SWITCHES - Top/1st level overrides #####
-  RUN_UNIT_TESTS: "true"
-  RUN_LINT_CHECKS: "true"
-  DOCKER_JOB_ON: "true"
-  PUBLISH_ON_PYPI: "true"
-  DOCS_ON: "true"
-  DRAW_DEPENDENCIES: "true"
-  ###############################
-
-  ### DOCKER Job Policy ####
-  # Override Docker Policy-dependent decision-making and
-  # Accept any ALL (branch/build) to Publish to Dockerhub
-  # if true, it will push image and ignore DOCKER_JOB_POLICY
-  ALWAYS_BUILD_N_PUBLSIH_DOCKER: "false"
-
-  DOCKER_JOB_POLICY: "CDeployment"
-  # - CDeployment : Builds and Publishes only if Tests ran and passed
-  # - CDelivery   : Builds and Publishes if Tests Passed or if Tests were Skipped
-  ############################
-
-  #### STATIC CODE ANALYSIS Job ####
-  ALWAYS_LINT: "false"
-  LINT_JOB_POLICY: '2'  # {2, 3}
-  ## Python Runtime version to set the Job runner with ##
-  STATIC_ANALYSIS_PY: "3.10"
-  ## Pylint Minimum Acceptance Rating/Score ##
-  PYLINT_SCORE_THRESHOLD: "8.2"
-
-  #### DOCS Build/Test ####
-  ALWAYS_DOCS: "false"
-  DOCS_JOB_POLICY: '2'  # {2, 3}
-  DOCS_BUILDER_RUNTIME: "3.10"
-
-  #### CODE VISUALIZATION Job ####
-  ALWAYS_CODE_VIZ: "false"
-  CODE_VIZ_POLICY: '2'  # {2, 3}
-  ##########################
-
 jobs:
   # we use the below to read the workflow env vars and be able to use in "- if:" Job conditionals
   # now we can do -> if: ${{ needs.set_github_outputs.outputs.TESTS_ENABLED == 'true' }}

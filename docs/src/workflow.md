@@ -69,7 +69,7 @@ Since the data is touched the process lasts a bit depending on the amount of lay
 The JSON is written to stdout. To put it in a file the stdout has to be piped into an file.
 
 ### 🚀 Generate JSON
-To generate 
+To generate
 
 ```shell
 # update the container

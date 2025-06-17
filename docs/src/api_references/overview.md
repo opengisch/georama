@@ -23,7 +23,7 @@ graph TD;
 
 
 ## 🧩 Core Module
-In the core module, we define the base settings, models, and utils. We also have some custom permissions handling. 
+In the core module, we define the base settings, models, and utils. We also have some custom permissions handling.
 Functions and templates which are used in the other modules are also defined in the core module.
 
 ```shell
@@ -38,7 +38,7 @@ core/
 
 
 ## 🔄 Data Integration Module
-Integrates geodata from QGIS Projects. Here we have the definitions of the Mandant, Project and the different Datasets, 
+Integrates geodata from QGIS Projects. Here we have the definitions of the Mandant, Project and the different Datasets,
 which are used to read in the QGIS Projects.
 
 ```shell
@@ -84,7 +84,7 @@ maps/
 
 
 ## 🌍 WebGIS Module (Under development)
-Will later serve geo data with [geogirafe](https://gitlab.com/geogirafe/gg-viewer) as frontend. 
+Will later serve geo data with [geogirafe](https://gitlab.com/geogirafe/gg-viewer) as frontend.
 
 ```shell
 webgis/

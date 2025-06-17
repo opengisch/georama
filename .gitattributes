@@ -1,0 +1,3 @@
+tests/maps/resources/wfs/*.xml -whitespace
+src/georama/maps/interfaces/**/*.xsd -whitespace
+docs/scripts/gen_api_refs_pages.py -whitespace
