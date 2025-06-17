@@ -126,7 +126,7 @@ test-webgis: $(TEST_REQUIREMENTS) $(VARS_FILES)
 .PHONY: tests
 tests: test-core test-data_integration test-features test-maps test-webgis
 	$(VENV_BIN)/coverage combine .coverage.core .coverage.data_integration .coverage.features .coverage.maps .coverage.webgis
-	$(VENV_BIN)/coverage report
+	$(VENV_BIN)/coverage report --fail-under=13
 	$(VENV_BIN)/coverage xml -o .coverage.final_combined.xml
 
 .PHONY: check-types
