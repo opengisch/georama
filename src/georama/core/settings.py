@@ -247,6 +247,20 @@ class Dev(Base):
         environ_prefix="GEORAMA",
     )
 
+    CSRF_TRUSTED_ORIGINS = values.ListValue(
+        [
+            "https://localhost:9309",
+            "http://localhost:9308",
+            "http://localhost:4242",
+            "https://app.localhost:8080",
+            "https://localhost:8080",
+            # convenience GG hostnames used by developers can be added here
+            "http://geogirafe.local",
+        ],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
+
     DB_NAME = values.Value(environ_required=True, environ_prefix="GEORAMA")
     DB_USER = values.Value(environ_required=True, environ_prefix="GEORAMA")
     DB_PW = values.Value(environ_required=True, environ_prefix="GEORAMA")
@@ -273,6 +287,8 @@ class Prod(Base):
     ALLOWED_HOSTS = values.ListValue(["localhost"], separator=' ', environ_prefix="GEORAMA")
 
     SECURE_PROXY_SSL_HEADER = values.TupleValue(("HTTP_X_FORWARDED_PROTO", "https"))
+
+    CSRF_TRUSTED_ORIGINS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")
 
     DB_NAME = values.Value(environ_required=True, environ_prefix="GEORAMA")
     DB_USER = values.Value(environ_required=True, environ_prefix="GEORAMA")
