@@ -247,6 +247,10 @@ class Dev(Base):
         environ_prefix="GEORAMA",
     )
 
+    GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
+        ["BASIC_HTTP"], separator=' ', environ_prefix=None,
+    )
+
     CSRF_TRUSTED_ORIGINS = values.ListValue(
         [
             "https://localhost:9309",
@@ -287,6 +291,10 @@ class Prod(Base):
     ALLOWED_HOSTS = values.ListValue(["localhost"], separator=' ', environ_prefix="GEORAMA")
 
     SECURE_PROXY_SSL_HEADER = values.TupleValue(("HTTP_X_FORWARDED_PROTO", "https"))
+
+    GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
+        ["BASIC_HTTP"], separator=' ', environ_prefix=None,
+    )
 
     CSRF_TRUSTED_ORIGINS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")
 
