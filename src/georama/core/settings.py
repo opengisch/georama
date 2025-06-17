@@ -84,8 +84,15 @@ class Base(Configuration):
 
     ALLOWED_HOSTS = values.ListValue([], separator=' ', environ_prefix="GEORAMA")
 
-    if bool(os.environ.get("GEORAMA_SECURE_PROXY_SSL_HEADER", False)):
-        SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # Proxy "X-Forwarded-..." headers
+    # https://docs.djangoproject.com/en/5.2/ref/settings/#secure-proxy-ssl-header
+
+    GEORAMA_SECURE_PROXY_SSL_HEADER = values.BooleanValue(False, environ_prefix=None)
+
+    @property
+    def SECURE_PROXY_SSL_HEADER(self):
+        if self.GEORAMA_SECURE_PROXY_SSL_HEADER:
+            return ("HTTP_X_FORWARDED_PROTO", "https")
 
     # Application definition
 
