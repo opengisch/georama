@@ -253,6 +253,17 @@ class Dev(Base):
     DB_HOST = values.Value("georama-db", environ_prefix="GEORAMA")
     DB_PORT = values.Value("5432", environ_prefix="GEORAMA")
 
+    CORS_ALLOWED_ORIGINS = values.ListValue(
+        [
+            "http://localhost",
+            "https://localhost",
+            # convenience GG hostnames used by developers can be added here
+            "http://geogirafe.local",
+        ],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
+
 
 class Prod(Base):
     SECRET_KEY = values.SecretValue()
@@ -268,3 +279,5 @@ class Prod(Base):
     DB_PW = values.Value(environ_required=True, environ_prefix="GEORAMA")
     DB_HOST = values.Value(environ_required=True, environ_prefix="GEORAMA")
     DB_PORT = values.Value(environ_required=True, environ_prefix="GEORAMA")
+
+    CORS_ALLOWED_ORIGINS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")
