@@ -58,6 +58,7 @@ dependencies = [
     # django stuff
     "django==5.0.6",
     "django-jazzmin==3.0.0",
+    "django-configurations==2.5.1",
     "xsdata[cli,lxml,soap]==24.12",
     "async-timeout==4.0.3",
     "redis==5.0.8",
@@ -123,6 +124,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 minversion = "6.2"
 DJANGO_SETTINGS_MODULE = "georama.core.settings"
+DJANGO_CONFIGURATION = "Test"
 addopts = "--strict-markers"
 markers = [
     "slow: Marks a slow test",

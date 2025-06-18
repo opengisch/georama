@@ -20,7 +20,7 @@ For a detailed description, please consult our [documentation](https://docs.geor
 
 Create your own `.env` file by copying the example.
 ```shell
-cp .env.example .env
+cp .env.dev.example .env
 ```
 
 Set the path to the QGIS projects directory:
