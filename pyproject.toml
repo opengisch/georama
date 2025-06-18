@@ -124,6 +124,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 minversion = "6.2"
 DJANGO_SETTINGS_MODULE = "georama.core.settings"
+DJANGO_CONFIGURATION = "Test"
 addopts = "--strict-markers"
 markers = [
     "slow: Marks a slow test",
