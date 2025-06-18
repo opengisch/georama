@@ -127,12 +127,11 @@ docker:
         - '.dockerignore'
 
 ### POETRY ###
-poetry:
+dependencies:
   - any:
     - changed-files:
       - any-glob-to-any-file:
         - 'pyproject.toml'
-        - 'poetry.lock'
 
 ### TOX ###
 tox:
@@ -147,6 +146,9 @@ config:
       - any-glob-to-any-file:
         - '.bettercodehub.yml'
         - '.coveragerc.core'
+        - '.coveragerc.data_integration'
+        - '.coveragerc.maps'
+        - '.coveragerc.webgis'
         - '.gitignore'
         - '.prospector.yml'
         - '.pylintrc'
