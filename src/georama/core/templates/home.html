@@ -9,7 +9,7 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="container">
-      <img src="{% static 'logo/georama_snowglobe_logo.png' %}" alt="Georama Logo" class="logo mb-3" width="300px" />
+      <img src="{% static 'logo/georama_logo_2.png' %}" alt="Georama Logo" class="logo mb-3" width="300px" />
       <h1 class="display-4 fw-bold">Georama</h1>
       <p class="lead">Panorama over your geospatial data. Integrate, explore, and serve maps with ease.</p>
       <a href="#features" class="btn btn-light btn-lg mt-3">Learn More</a>
@@ -122,7 +122,12 @@
           <div class="card-body">
             <h5 class="card-title">🌐 WebGIS</h5>
             <p class="card-text">Integrated GeoGirafe WebGIS Frontend to view the published data</p>
-            <a class="btn btn-outline-primary px-4" href="/webgis">Explore WebGIS</a>
+{#            <a class="btn btn-outline-primary px-4" href="/webgis">Explore WebGIS</a>#}
+              {% if 'localhost' in geogirafe_host %}
+                <a class="btn btn-outline-primary px-4" href="{{ geogirafe_host }}" target="_blank">Explore WebGIS</a>
+              {% else %}
+                <a class="btn btn-outline-primary px-4" href="https://mapdemo.georama.io/" target="_blank">Explore WebGIS</a>
+              {% endif %}
           </div>
         </div>
       </div>

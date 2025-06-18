@@ -91,13 +91,15 @@ class Base(Configuration):
         "site_brand": "Georama",
 
         # Logo to use for your site, must be present in static files, used for brand on top left
-        "site_logo": "logo/georama_snowglobe_logo.png",
+        "site_logo": "logo/georama_logo_2.png",
+        # "site_logo": "logo/georama_snowglobe_logo.png",
+
 
         # CSS classes that are applied to the logo above
         "site_logo_classes": "img-circle",
 
         # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
-        "site_icon": "logo/georama_snowglobe_logo.png",
+        "site_icon": "logo/favicon.ico",
     }
 
     ALLOWED_HOSTS = values.ListValue([], separator=' ', environ_prefix="GEORAMA")
