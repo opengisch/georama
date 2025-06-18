@@ -176,6 +176,10 @@ manage: $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py $(MANAGE_ACTION)
 
 .PHONY: migrate
+collectstatic: $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/python src/georama/manage.py collectstatic
+
+.PHONY: migrate
 migrate: $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py migrate
 
