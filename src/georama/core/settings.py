@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 from pathlib import Path
 
-from georama.core.auth import get_authentication_methods_middlewares
-
 from configurations import Configuration, values
+
+from georama.core.auth import get_authentication_methods_middlewares
 
 
 class Base(Configuration):
@@ -28,6 +28,8 @@ class Base(Configuration):
 
     # SECURITY WARNING: don't run with debug turned on in production!
     DEBUG = values.BooleanValue(False, environ_prefix="GEORAMA")
+
+    WEBGISURL = values.Value(environ_prefix="GEORAMA")
 
     LOGGING = {
         "version": 1,
@@ -83,26 +85,20 @@ class Base(Configuration):
     JAZZMIN_SETTINGS = {
         # title of the window (Will default to current_admin_site.site_title if absent or None)
         "site_title": "Georama Admin",
-
         # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
         "site_header": "Georama",
-
         # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
         "site_brand": "Georama",
-
         # Logo to use for your site, must be present in static files, used for brand on top left
         "site_logo": "logo/georama_logo_2.png",
         # "site_logo": "logo/georama_snowglobe_logo.png",
-
-
         # CSS classes that are applied to the logo above
         "site_logo_classes": "img-circle",
-
         # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
         "site_icon": "logo/favicon.ico",
     }
 
-    ALLOWED_HOSTS = values.ListValue([], separator=' ', environ_prefix="GEORAMA")
+    ALLOWED_HOSTS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")
 
     # Proxy "X-Forwarded-..." headers
     # https://docs.djangoproject.com/en/5.2/ref/settings/#secure-proxy-ssl-header
@@ -135,7 +131,9 @@ class Base(Configuration):
     ]
 
     GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
-        ["DJANGO_CONTRIB_AUTH"], separator=' ', environ_prefix=None,
+        ["DJANGO_CONTRIB_AUTH"],
+        separator=" ",
+        environ_prefix=None,
     )
 
     @property
@@ -175,7 +173,9 @@ class Base(Configuration):
     WSGI_APPLICATION = "georama.core.wsgi.application"
 
     CSRF_TRUSTED_ORIGINS = values.ListValue(
-        ["http://localhost:4242"], separator=' ', environ_prefix="GEORAMA",
+        ["http://localhost:4242"],
+        separator=" ",
+        environ_prefix="GEORAMA",
     )
 
     # Database
@@ -222,10 +222,13 @@ class Base(Configuration):
     ]
 
     CORS_ALLOWED_ORIGINS = values.ListValue(
-        ["https://localhost:9309"], separator=' ', environ_prefix="GEORAMA",
+        ["https://localhost:9309"],
+        separator=" ",
+        environ_prefix="GEORAMA",
     )
     CORS_ALLOW_CREDENTIALS = values.BooleanValue(
-        False, environ_prefix="GEORAMA",
+        False,
+        environ_prefix="GEORAMA",
     )
 
     # Internationalization
@@ -269,7 +272,9 @@ class Dev(Base):
     )
 
     GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
-        ["BASIC_HTTP"], separator=' ', environ_prefix=None,
+        ["BASIC_HTTP"],
+        separator=" ",
+        environ_prefix=None,
     )
 
     CSRF_TRUSTED_ORIGINS = values.ListValue(
@@ -305,7 +310,7 @@ class Dev(Base):
 
 
 class Test(Base):
-    SECRET_KEY = 'django-testing-secret-key'
+    SECRET_KEY = "django-testing-secret-key"
 
     DB_NAME = values.Value("postgres", environ_prefix="GEORAMA")
     DB_USER = values.Value("postgres", environ_prefix="GEORAMA")
@@ -319,12 +324,14 @@ class Prod(Base):
 
     DEBUG = values.BooleanValue(False, environ_prefix="GEORAMA")
 
-    ALLOWED_HOSTS = values.ListValue(["localhost"], separator=' ', environ_prefix="GEORAMA")
+    ALLOWED_HOSTS = values.ListValue(["localhost"], separator=" ", environ_prefix="GEORAMA")
 
     SECURE_PROXY_SSL_HEADER = values.TupleValue(("HTTP_X_FORWARDED_PROTO", "https"))
 
     GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
-        ["BASIC_HTTP"], separator=' ', environ_prefix=None,
+        ["BASIC_HTTP"],
+        separator=" ",
+        environ_prefix=None,
     )
 
     CSRF_TRUSTED_ORIGINS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")

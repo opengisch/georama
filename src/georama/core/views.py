@@ -1,23 +1,24 @@
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.templatetags.static import static
+from django.urls import reverse
 from django.views import View
-from georama.core import settings
 
 
 class GeoramaLanding(View):
     def get(self, request, *args, **kwargs):
         logo_url = static("/core/assets/images/georama.coming_soon.png")
-        georama_host = settings.GEORAMA_HOST
-        geogirafe_host = settings.GEOGIRAFE_HOST
-        return TemplateResponse(request,
-                                context={
-                                    "logo_url": logo_url,
-                                    "georama_host": georama_host,
-                                    "geogirafe_host":geogirafe_host
-                                },
-                                template="home.html")
+        return TemplateResponse(
+            request,
+            context={
+                "logo_url": logo_url,
+                "geogirafe_url": settings.WEBGISURL,
+                "maps_endpoint": request.build_absolute_uri(reverse("maps_ogc_entry")),
+            },
+            template="home.html",
+        )
 
 
 class Login(View):
