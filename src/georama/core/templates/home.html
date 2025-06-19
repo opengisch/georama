@@ -164,7 +164,7 @@
 <!-- JavaScript to Copy Code -->
 <script>
   function copyCodeToClipboard() {
-    const code = 'https://{{ georama_host }}/maps?service=WMS&request=GetCapabilities&version=1.3.0';
+    const code = "{{ maps_endpoint }}?service=WMS&request=GetCapabilities&version=1.3.0";
     navigator.clipboard.writeText(code).then(() => {
       alert(`Url: ${code} copied to clipboard!`);
     }, () => {
