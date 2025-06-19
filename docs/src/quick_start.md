@@ -36,7 +36,7 @@ cd georama
 Copy the example environment file and customize it:
 
 ```bash
-cp .env.example .env
+cp .env.dev.example .env
 ```
 
 Set the path to your QGIS projects:
@@ -53,7 +53,6 @@ Build and launch all containers:
 docker compose build
 docker compose up -d
 ```
-⏳ Note: The first run downloads ~5GB of test data. Be patient.
 
 ### 🗃️ Prepare the Django Database
 Once services are running, apply migrations and create a superuser:

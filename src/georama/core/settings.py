@@ -9,188 +9,337 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-import os
 from pathlib import Path
+
+from configurations import Configuration, values
 
 from georama.core.auth import get_authentication_methods_middlewares
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent
 
+class Base(Configuration):
+    # Build paths inside the project like this: BASE_DIR / 'subdir'.
+    BASE_DIR = Path(__file__).resolve().parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+    # Quick-start development settings - unsuitable for production
+    # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!"
+    # SECURITY WARNING: keep the secret key used in production secret!
+    SECRET_KEY = values.SecretValue()
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("GEORAMA_DEBUG", "false").lower() == "true"
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG = values.BooleanValue(False, environ_prefix="GEORAMA")
 
-LOGGING = {
-    "version": 1,  # the dictConfig format version
-    "disable_existing_loggers": False,  # retain the default loggers
-}
+    WEBGISURL = values.Value(environ_prefix="GEORAMA")
 
-GEORAMA_HOST = os.getenv("GEORAMA_HOST", "localhost:4242")
-GEOGIRAFE_HOST = os.getenv("GEOGIRAFE_HOST", "localhost:9309")
-GEORAMA_ALLOWED_HOSTS = os.environ.get("GEORAMA_ALLOWED_HOSTS", "").split(" ")
-
-ALLOWED_HOSTS = [] + GEORAMA_ALLOWED_HOSTS
-
-if bool(os.environ.get("GEORAMA_SECURE_PROXY_SSL_HEADER", False)):
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
-# Application definition
-
-INSTALLED_APPS = [
-    "jazzmin",
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "georama.core.apps.CoreConfig",
-    "georama.features.apps.VectorparrotConfig",
-    "georama.maps.apps.RasteroctopusConfig",
-    "georama.data_integration.apps.QmeleonConfig",
-    # apps by webgis
-    "corsheaders",
-    "georama.webgis.apps.ClogsConfig",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "adminsortable2",
-    "treebeard",
-    "django_extensions",
-]
-
-GEORAMA_AUTHENTICATION_METHODS = os.environ.get(
-    "GEORAMA_AUTHENTICATION_METHODS", "DJANGO_CONTRIB_AUTH"
-).split(" ")
-
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    # "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    *get_authentication_methods_middlewares(GEORAMA_AUTHENTICATION_METHODS),
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # webgis
-    "allauth.account.middleware.AccountMiddleware",
-]
-
-ROOT_URLCONF = "georama.core.urls"
-
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ],
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "verbose": {
+                "format": "{levelname} {asctime} {module} {message}",
+                "style": "{",
+            },
+            "simple": {
+                "format": "{levelname} {message}",
+                "style": "{",
+            },
         },
-    },
-]
-
-WSGI_APPLICATION = "georama.core.wsgi.application"
-
-CSRF_TRUSTED_ORIGINS = [] + os.getenv(
-    "GEORAMA_CSRF_TRUSTED_ORIGINS", "http://localhost:4242"
-).split(" ")
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": os.environ.get("GEORAMA_DB_HOST", "localhost"),
-        "PORT": os.environ.get("GEORAMA_DB_PORT", "54321"),
-        "USER": os.environ.get("GEORAMA_DB_USER", "postgres"),
-        "PASSWORD": os.environ.get("GEORAMA_DB_PW", "test"),
-        "NAME": os.environ.get("GEORAMA_DB_NAME", "postgres"),
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "formatter": "verbose",
+            },
+        },
+        "root": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+        "loggers": {
+            "core": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": False,
+            },
+            "data_integration": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": False,
+            },
+            "features": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": False,
+            },
+            "maps": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": False,
+            },
+            "webgis": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": False,
+            },
+        },
     }
-}
+    JAZZMIN_SETTINGS = {
+        # title of the window (Will default to current_admin_site.site_title if absent or None)
+        "site_title": "Georama Admin",
+        # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+        "site_header": "Georama",
+        # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+        "site_brand": "Georama",
+        # Logo to use for your site, must be present in static files, used for brand on top left
+        "site_logo": "logo/georama_logo_2.png",
+        # "site_logo": "logo/georama_snowglobe_logo.png",
+        # CSS classes that are applied to the logo above
+        "site_logo_classes": "img-circle",
+        # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
+        "site_icon": "logo/favicon.ico",
+    }
+
+    ALLOWED_HOSTS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")
+
+    # Proxy "X-Forwarded-..." headers
+    # https://docs.djangoproject.com/en/5.2/ref/settings/#secure-proxy-ssl-header
+
+    SECURE_PROXY_SSL_HEADER = values.TupleValue(None)
+
+    # Application definition
+
+    INSTALLED_APPS = [
+        "jazzmin",
+        "django.contrib.admin",
+        "django.contrib.auth",
+        "django.contrib.contenttypes",
+        "django.contrib.sessions",
+        "django.contrib.messages",
+        "django.contrib.staticfiles",
+        "georama.core.apps.CoreConfig",
+        "georama.features.apps.FeaturesConfig",
+        "georama.maps.apps.MapsConfig",
+        "georama.data_integration.apps.DataintegrationConfig",
+        # apps by webgis
+        "corsheaders",
+        "georama.webgis.apps.WebgisConfig",
+        "allauth",
+        "allauth.account",
+        "allauth.socialaccount",
+        "adminsortable2",
+        "treebeard",
+        "django_extensions",
+    ]
+
+    GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
+        ["DJANGO_CONTRIB_AUTH"],
+        separator=" ",
+        environ_prefix=None,
+    )
+
+    @property
+    def MIDDLEWARE(self):
+        return [
+            "django.middleware.security.SecurityMiddleware",
+            "django.contrib.sessions.middleware.SessionMiddleware",
+            "corsheaders.middleware.CorsMiddleware",
+            "django.middleware.common.CommonMiddleware",
+            # "django.middleware.csrf.CsrfViewMiddleware",
+            "django.contrib.auth.middleware.AuthenticationMiddleware",
+            *get_authentication_methods_middlewares(self.GEORAMA_AUTHENTICATION_METHODS),
+            "django.contrib.messages.middleware.MessageMiddleware",
+            "django.middleware.clickjacking.XFrameOptionsMiddleware",
+            # webgis
+            "allauth.account.middleware.AccountMiddleware",
+        ]
+
+    ROOT_URLCONF = "georama.core.urls"
+
+    TEMPLATES = [
+        {
+            "BACKEND": "django.template.backends.django.DjangoTemplates",
+            "DIRS": [],
+            "APP_DIRS": True,
+            "OPTIONS": {
+                "context_processors": [
+                    "django.template.context_processors.debug",
+                    "django.template.context_processors.request",
+                    "django.contrib.auth.context_processors.auth",
+                    "django.contrib.messages.context_processors.messages",
+                ],
+            },
+        },
+    ]
+
+    WSGI_APPLICATION = "georama.core.wsgi.application"
+
+    CSRF_TRUSTED_ORIGINS = values.ListValue(
+        ["http://localhost:4242"],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
+
+    # Database
+    # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
+    DB_NAME = values.Value("postgres", environ_prefix="GEORAMA")
+    DB_ENGINE = values.Value("django.db.backends.postgresql", environ_prefix="GEORAMA")
+    DB_USER = values.Value("postgres", environ_prefix="GEORAMA")
+    DB_PW = values.Value("test", environ_prefix="GEORAMA")
+    DB_HOST = values.Value("localhost", environ_prefix="GEORAMA")
+    DB_PORT = values.Value("54321", environ_prefix="GEORAMA")
+    DB_OPTIONS = values.DictValue({}, environ_prefix="GEORAMA")
+
+    @property
+    def DATABASES(self):
+        return {
+            "default": {
+                "ENGINE": self.DB_ENGINE,
+                "NAME": self.DB_NAME,
+                "USER": self.DB_USER,
+                "PASSWORD": self.DB_PW,
+                "HOST": self.DB_HOST,
+                "PORT": self.DB_PORT,
+                "OPTIONS": self.DB_OPTIONS,
+            }
+        }
+
+    # Password validation
+    # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
+
+    AUTH_PASSWORD_VALIDATORS = [
+        {
+            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        },
+    ]
+
+    CORS_ALLOWED_ORIGINS = values.ListValue(
+        ["https://localhost:9309"],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
+    CORS_ALLOW_CREDENTIALS = values.BooleanValue(
+        False,
+        environ_prefix="GEORAMA",
+    )
+
+    # Internationalization
+    # https://docs.djangoproject.com/en/5.0/topics/i18n/
+
+    LANGUAGE_CODE = "en-us"
+
+    TIME_ZONE = "UTC"
+
+    USE_I18N = True
+
+    USE_TZ = True
+
+    # Static files (CSS, JavaScript, Images)
+    # https://docs.djangoproject.com/en/5.0/howto/static-files/
+
+    STATIC_URL = "static/"
+    STATIC_ROOT = BASE_DIR / "static"
+
+    # Default primary key field type
+    # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+
+    DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+    APPEND_SLASH = False
 
 
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
+class Dev(Base):
+    SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!"
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
+    DEBUG = values.BooleanValue(True, environ_prefix="GEORAMA")
 
-CORS_ALLOWED_ORIGINS = [] + os.getenv(
-    "GEORAMA_CORS_ALLOWED_ORIGINS", "https://localhost:9309"
-).split(" ")
-CORS_ALLOW_CREDENTIALS = (
-    os.environ.get("GEORAMA_CORS_ALLOW_CREDENTIALS", "false").lower() == "true"
-)
+    ALLOWED_HOSTS = values.ListValue(
+        [
+            "localhost",
+            # convenience hostnames used by developers can be added here
+            "georama.local",
+        ],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
+    GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
+        ["BASIC_HTTP"],
+        separator=" ",
+        environ_prefix=None,
+    )
 
-LANGUAGE_CODE = "en-us"
+    CSRF_TRUSTED_ORIGINS = values.ListValue(
+        [
+            "https://localhost:9309",
+            "http://localhost:9308",
+            "http://localhost:4242",
+            "https://app.localhost:8080",
+            "https://localhost:8080",
+            # convenience GG hostnames used by developers can be added here
+            "http://geogirafe.local",
+        ],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
 
-TIME_ZONE = "UTC"
+    DB_NAME = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_USER = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_PW = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_HOST = values.Value("georama-db", environ_prefix="GEORAMA")
+    DB_PORT = values.Value("5432", environ_prefix="GEORAMA")
 
-USE_I18N = True
-
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-APPEND_SLASH = False
-
-JAZZMIN_SETTINGS = {
-    # title of the window (Will default to current_admin_site.site_title if absent or None)
-    "site_title": "Georama Admin",
-
-    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_header": "Georama",
-
-    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_brand": "Georama",
-
-    # Logo to use for your site, must be present in static files, used for brand on top left
-    "site_logo": "logo/georama_logo_2.png",
-    # "site_logo": "logo/georama_snowglobe_logo.png",
+    CORS_ALLOWED_ORIGINS = values.ListValue(
+        [
+            "http://localhost",
+            "https://localhost",
+            # convenience GG hostnames used by developers can be added here
+            "http://geogirafe.local",
+        ],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
 
 
-    # CSS classes that are applied to the logo above
-    "site_logo_classes": "img-circle",
+class Test(Base):
+    SECRET_KEY = "django-testing-secret-key"
 
-    # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
-    "site_icon": "logo/favicon.ico",
-}
+    DB_NAME = values.Value("postgres", environ_prefix="GEORAMA")
+    DB_USER = values.Value("postgres", environ_prefix="GEORAMA")
+    DB_PW = values.Value("test", environ_prefix="GEORAMA")
+    DB_HOST = values.Value("georama-db", environ_prefix="GEORAMA")
+    DB_PORT = values.Value("5432", environ_prefix="GEORAMA")
+
+
+class Prod(Base):
+    SECRET_KEY = values.SecretValue()
+
+    DEBUG = values.BooleanValue(False, environ_prefix="GEORAMA")
+
+    ALLOWED_HOSTS = values.ListValue(["localhost"], separator=" ", environ_prefix="GEORAMA")
+
+    SECURE_PROXY_SSL_HEADER = values.TupleValue(("HTTP_X_FORWARDED_PROTO", "https"))
+
+    GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
+        ["BASIC_HTTP"],
+        separator=" ",
+        environ_prefix=None,
+    )
+
+    CSRF_TRUSTED_ORIGINS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")
+
+    DB_NAME = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_USER = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_PW = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_HOST = values.Value(environ_required=True, environ_prefix="GEORAMA")
+    DB_PORT = values.Value(environ_required=True, environ_prefix="GEORAMA")
+
+    CORS_ALLOWED_ORIGINS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")

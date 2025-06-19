@@ -38,6 +38,9 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed"
@@ -55,6 +58,7 @@ dependencies = [
     # django stuff
     "django==5.0.6",
     "django-jazzmin==3.0.0",
+    "django-configurations==2.5.1",
     "xsdata[cli,lxml,soap]==24.12",
     "async-timeout==4.0.3",
     "redis==5.0.8",
@@ -76,16 +80,21 @@ optional-dependencies.dev =[
 
 # Test: packages imported in test code and packages required for the "test runner"
 optional-dependencies.test = [
+    "pytest-django",
     "pytest==8.0.0",
     "pytest-cov==5.0.0",
     "pytest-explicit==1.0.1",
     "pytest-xdist==3.5.0",
     "pytest-click==1.1.0",
-    "pytest-run-subprocess==0.10.0"
+    "pytest-run-subprocess==0.10.0",
+    "pyroma==4.2",
+    "twine==6.1.0",
 ]
 # Type Checking
 optional-dependencies.check =[
-    "mypy==1.8.0"
+    "mypy==1.8.0",
+    "pyroma==4.2",
+    "twine==6.1.0",
 ]
 # Docs: dev and build dependencies
 optional-dependencies.docs = [
@@ -114,6 +123,8 @@ where = ["src"]
 # TOOLS
 [tool.pytest.ini_options]
 minversion = "6.2"
+DJANGO_SETTINGS_MODULE = "georama.core.settings"
+DJANGO_CONFIGURATION = "Test"
 addopts = "--strict-markers"
 markers = [
     "slow: Marks a slow test",

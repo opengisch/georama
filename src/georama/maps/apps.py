@@ -1,8 +1,7 @@
-from django.apps import AppConfig
-
-appname = "maps"
+from georama.core.apps import GeoramaAbstractConfig
 
 
-class RasteroctopusConfig(AppConfig):
+class MapsConfig(GeoramaAbstractConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = f"georama.{appname}"
+    verbose_name = "Maps"
+    name = "georama.maps"

@@ -20,7 +20,7 @@ For a detailed description, please consult our [documentation](https://docs.geor
 
 Create your own `.env` file by copying the example.
 ```shell
-cp .env.example .env
+cp .env.dev.example .env
 ```
 
 Set the path to the QGIS projects directory:
@@ -34,9 +34,7 @@ docker compose build
 docker compose up -d
 ```
 
-Wait for services to be up and running. That might last a moment since the test
-data has to be
-fetched (about 5GB).
+Wait for services to be up and running.
 
 If everything runs, you can prepare the Django DB.
 

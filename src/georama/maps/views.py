@@ -13,7 +13,7 @@ from qgis_server_light.interface.job import (
 from qgis_server_light.interface.qgis import Custom, Raster, Vector
 
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
-from georama.maps.apps import appname
+from georama.maps.apps import MapsConfig
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
@@ -22,6 +22,8 @@ from georama.maps.services.wms_1_3_0.get_capabilities import WmsGetCapabilities
 from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
 
 log = logging.getLogger(__name__)
+
+appname = MapsConfig.get_simple_appname()
 
 
 class OgcServer(View):
@@ -188,7 +190,6 @@ class OgcServer(View):
                     job = await sync_to_async(
                         operation.prepare_job_content, thread_sensitive=True
                     )(service_params)
-                    print(job)
                 except ValueError as e:
                     return HttpResponse(e, status=400, content_type="text/plain")
                 except PermissionError as e:
