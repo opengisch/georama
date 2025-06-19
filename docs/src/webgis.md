@@ -57,5 +57,21 @@ The OGC Server of the project is automatically added.
 <img src="../assets/gg_5.png" alt="ogc server" style="max-width: 400px; display: block; margin: auto;">
 
 ## WMS Layers
+!!! info
+    Currently all layers have to be to set to public to be visible in the WebGIS
+
+<img src="../assets/gg_7.png" alt="manage wms layers" style="max-width: 400px; display: block; margin: auto;">
+
+Here you can manage the single wms layers.
+
+
 ## WMTS Layers
+!!! info
+    Currently all layers have to be to set to public to be visible in the WebGIS
+
+Here you can manage the single wmts layers.
+
 ## GeoGirafe
+<img src="../assets/gg_9.png" alt="manage wms layers" style="max-width: 400px; display: block; margin: auto;">
+
+Now you can navigate to your GeoGirafe instance to view your theme, which is in dev mode found under [http://localhost:9309](http://localhost:9309)
