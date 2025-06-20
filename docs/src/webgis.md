@@ -1,4 +1,12 @@
-# Publishing a Project/Theme to a WebGIS (GeoGirafe)
+---
+tags:
+  - WMS
+  - WFS
+  - QGIS
+  - WebGIS
+---
+
+# Publishing a Project as a Theme to a WebGIS (GeoGirafe)
 
 ## Relevant Navigation Menu Entries
 The relevant Navigation Menu entries can be found in Django Admin at the bottom:
@@ -9,11 +17,11 @@ The relevant Navigation Menu entries can be found in Django Admin at the bottom:
 
 ```mermaid
 graph TB;
-  importQGIS["Import QGIS Project (if not already done)"] -. "." .-> prepareTheme
-  prepareTheme["Select a Project/Theme to publish"] -. "." .-> groups
+  importQGIS["Integrate QGIS Project (if not already done)"] -. "." .-> prepareTheme
+  prepareTheme["Select a Project to publish as Theme"] -. "." .-> groups
   
   groups["Organize the Groups/Layertree"] -.".".-> manageLayers
-  manageLayers["manage layers"] -.".".-> wmsLayers
+  manageLayers["Manage layers"] -.".".-> wmsLayers
   manageLayers -.".".-> wmtsLayers
   wmsLayers --> webGis
   wmtsLayers --> webGis
@@ -47,7 +55,7 @@ The OGC Server of the project is automatically added.
 <img src="../assets/gg_5.png" alt="ogc server" style="max-width: 400px; display: block; margin: auto;">
 
 ## Groups (Layertree)
-Here you can reorder the groups/layertree for publishing the `themes.json`
+Here you can reorder the groups/layertree per drag and drop for publishing the `themes.json`
 
 <img src="../assets/gg_6.png" alt="manage layertree" style="max-width: 400px; display: block; margin: auto;">
 
@@ -62,14 +70,14 @@ The OGC Server of the project is automatically added.
 
 <img src="../assets/gg_7.png" alt="manage wms layers" style="max-width: 400px; display: block; margin: auto;">
 
-Here you can manage the single wms layers.
+Here you can manage the single WMS layers.
 
 
 ## WMTS Layers
 !!! info
     Currently all layers have to be to set to public to be visible in the WebGIS
 
-Here you can manage the single wmts layers.
+Here you can manage the single WMTS layers. Which is currently not implemented.
 
 ## GeoGirafe
 <img src="../assets/gg_9.png" alt="manage wms layers" style="max-width: 400px; display: block; margin: auto;">
