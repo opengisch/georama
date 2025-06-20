@@ -14,7 +14,6 @@ from xsdata.models.xsd import (
 )
 
 from georama.data_integration.models import VectorDataSet
-from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 
@@ -31,7 +30,7 @@ class WfsDescribeFeatureType(WfsOperation):
     def obtain_accessible_layers(self, layer_names: List[str] | None = None):
         accessible_layers = []
         # we do want only published vector datasets!
-        query = PublishedAsWms.objects.exclude(vector_dataset__isnull=True)
+        query = self.model.objects.exclude(vector_dataset__isnull=True)
         if layer_names:
             query = query.filter(name__in=layer_names)
         for published_as in query:
@@ -79,7 +78,7 @@ class WfsDescribeFeatureType(WfsOperation):
             found_layers = self.obtain_accessible_layers(self.sanitized_typenames(type_names))
         else:
             found_layers = self.obtain_accessible_layers()
-
+        logging.debug(found_layers)
         dft = Schema(
             imports=[
                 Import(

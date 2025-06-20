@@ -24,7 +24,6 @@ post-->xsdata-->getfeature_class
 
 import datetime
 import logging
-import re
 import time
 from dataclasses import field, make_dataclass
 from typing import Any, List, Optional, Tuple, Union
@@ -39,6 +38,7 @@ from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 from xsdata.models.datatype import XmlDateTime
 
+from georama.maps.interfaces.georama.requests import handle_list_encoding
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.bbox import Bbox
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.filter import Filter
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.value_reference import (
@@ -154,24 +154,6 @@ class WfsGetFeature(WfsOperation):
                 self.render_exception(f"Layer(s) not permitted: {list(permission_difference)}")
             )
         return accessible_layers
-
-    def handle_list_encoding(self, parameter_value: str) -> List[str]:
-        """
-        Try to derive if the parameter_value is encoded as a list as it is defined in WFS 2.0
-            => (param1,param2)(param3,param4)
-        Args:
-            parameter_value: The string which will be checked.
-        Returns:
-            The list of matches. With the example above this would be
-                => ["param1,param2", "param3,param4"]
-        """
-        pattern = r"\((.+?)\)"
-        matches = re.findall(pattern, parameter_value)
-        if len(matches) == 0:
-            # typenames is not list encoded, we handle it as simple comma separated string
-            return [parameter_value]
-        else:
-            return matches
 
     def prepare_filter_element(self, filter_definition: str) -> Filter:
         """
@@ -308,12 +290,12 @@ class WfsGetFeature(WfsOperation):
         queries = []
         if type_names_param_value:
             # we have typenames in the query
-            type_names_lists = self.handle_list_encoding(type_names_param_value)
+            type_names_lists = handle_list_encoding(type_names_param_value)
         else:
             raise AttributeError(self.render_exception("TypeNames is a mandatory parameter!"))
         if aliases_param_value:
             # we have aliases in the query
-            aliases_lists = self.handle_list_encoding(aliases_param_value)
+            aliases_lists = handle_list_encoding(aliases_param_value)
             if aliases_lists:
                 if not len(aliases_lists) == len(type_names_lists):
                     raise AttributeError(
@@ -324,7 +306,7 @@ class WfsGetFeature(WfsOperation):
             aliases_lists = [None] * len(type_names_lists)
         if filter_param_value:
             # we have filters in the query
-            filters_lists = self.handle_list_encoding(filter_param_value)
+            filters_lists = handle_list_encoding(filter_param_value)
             if filters_lists:
                 if not len(filters_lists) == len(type_names_lists):
                     raise AttributeError(
