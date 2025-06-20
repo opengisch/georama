@@ -14,6 +14,7 @@ from qgis_server_light.interface.job import (
 from qgis_server_light.interface.qgis import Custom, Raster, Vector
 from xsdata.exceptions import ParserError
 from xsdata.formats.dataclass.parsers import DictDecoder, XmlParser
+from xsdata.formats.dataclass.serializers import JsonSerializer
 
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import MapsConfig
@@ -280,6 +281,7 @@ class OgcServer(View):
                     job = await sync_to_async(
                         operation.prepare_job_content, thread_sensitive=True
                     )(service_params)
+                    logging.debug(JsonSerializer().render(job))
                 except ValueError as e:
                     return HttpResponse(e, status=400, content_type="text/plain")
                 except PermissionError as e:
