@@ -26,9 +26,9 @@ class WmsGetMap(WmsOperation):
             service_params=WmsGetMapParams(
                 BBOX=service_params.BBOX,
                 CRS=service_params.CRS,
-                WIDTH=service_params.WIDTH,
-                HEIGHT=service_params.HEIGHT,
-                DPI=service_params.DPI,
+                WIDTH=str(service_params.WIDTH),
+                HEIGHT=str(service_params.HEIGHT),
+                DPI=str(service_params.DPI),
                 FORMAT_OPTIONS=service_params.FORMAT_OPTIONS,
                 LAYERS=service_params.LAYERS,
                 FORMAT=service_params.FORMAT,
