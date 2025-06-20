@@ -13,10 +13,11 @@ from qgis_server_light.interface.job import (
 )
 from qgis_server_light.interface.qgis import Custom, Raster, Vector
 from xsdata.exceptions import ParserError
-from xsdata.formats.dataclass.parsers import XmlParser
+from xsdata.formats.dataclass.parsers import DictDecoder, XmlParser
 
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import MapsConfig
+from georama.maps.interfaces.georama.requests import QslGetMapRequest
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
     GetFeature as GetFeature200,
 )
@@ -261,7 +262,7 @@ class OgcServer(View):
                 else:
                     return HttpResponse("Only VERSION 1.3.0 is available", 400)
             elif params["REQUEST"] == "GETMAP":
-                service_params = WmsGetMapParams.from_overloaded_dict(params)
+                service_params = DictDecoder().decode(params, QslGetMapRequest)
                 operation = WmsGetMap(
                     appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
                 )
@@ -275,7 +276,7 @@ class OgcServer(View):
                     return HttpResponse(e, status=403, content_type="text/plain")
 
             elif params["REQUEST"] == "GETFEATUREINFO":
-                # this needs to be improved a bit, currently the layers are not sent to QSL.
+                # TODO: this needs to be improved a bit, currently the layers are not sent to QSL.
                 service_params = WmsGetFeatureInfoParams.from_overloaded_dict(params)
                 job = QslGetFeatureInfoJob(service_params=service_params)
             else:

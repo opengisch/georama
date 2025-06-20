@@ -11,7 +11,7 @@ from qgis_server_light.interface.qgis import BBox
 from georama.core.entities.models import save_group_permissions, save_user_permissions
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.forms import PublishedAsWmsForm
-from georama.maps.interfaces.ogc.wms_1_3_0.requests import (
+from georama.maps.interfaces.georama.requests import (
     QslGetMapRequest,
     RequestType,
     ServiceType,
@@ -88,20 +88,21 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         dataset = layer.bound_dataset
         bbox = BBox.from_string(dataset.bbox)
         params = QslGetMapRequest(
-            ServiceType.wms.value,
-            RequestType.get_map.value,
-            Version.v_1_3_0.value,
-            [layer.name],
-            [bbox.x_min, bbox.y_min, bbox.x_max, bbox.y_max],
-            dataset.crs_to_qsl.auth_id,
-            1500,
-            1500,
-            "image/png",
-            True,
-            "",
-            72,
-            72,
-            "dpi%3A72",
+            SERVICE=ServiceType.wms.value,
+            REQUEST=RequestType.get_map.value,
+            VERSION=Version.v_1_3_0.value,
+            LAYERS=layer.name,
+            BBOX=",".join([bbox.x_min, bbox.y_min, bbox.x_max, bbox.y_max]),
+            CRS=dataset.crs_to_qsl.auth_id,
+            WIDTH=1500,
+            HEIGHT=1500,
+            FORMAT="image/png",
+            TRANSPARENT=True,
+            STYLES="",
+            DPI=72,
+            FILTER=None,
+            MAP_RESOLUTION=72,
+            FORMAT_OPTIONS="dpi%3A72",
         )
         parameter_list = []
         for field in fields(QslGetMapRequest):
