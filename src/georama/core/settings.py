@@ -255,7 +255,6 @@ class Dev(Base):
         [
             "https://localhost:9309",      # GG (from georama stack)
             "http://localhost:9308",       # GG (from georama stack)
-            "http://localhost:4242",
             "https://app.localhost:8080",  # GG (standalone)
             "https://localhost:8080",      # GG (standalone)
             # convenience GG hostnames used by developers can be added here
@@ -277,8 +276,6 @@ class Dev(Base):
             "http://localhost:9308",       # GG (from georama stack)
             "https://app.localhost:8080",  # GG (standalone)
             "https://localhost:8080",      # GG (standalone)
-            "http://localhost",
-            "https://localhost",
             # convenience GG hostnames used by developers can be added here
             "http://geogirafe.local",
         ],
