@@ -281,7 +281,8 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
                     name=self.name,
                     minResolutionHint=self.min_resolution_hint,
                     maxResolutionHint=self.max_resolution_hint,
-                    queryable=bool(self.queryable),
+                    # currently we allow only vectordatasets to be queried
+                    queryable=bool(self.is_queryable),
                 )
             ],
         )
