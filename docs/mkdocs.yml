@@ -22,6 +22,7 @@ nav:
     - Features: api_references/features.md
     - WebGIS: api_references/webgis.md
   - Endpoints: endpoints.md
+  - WebGIS: webgis.md
   - Topics:
     - "Docker": build-process_DAG.md
     - "CI/CD": cicd.md
@@ -34,6 +35,7 @@ theme:
     previous: fontawesome/solid/angle-left
     next: fontawesome/solid/angle-right
     default: material/tag
+    favicon: assets/logo/favicon.ico
 
   features:
     - navigation.path
@@ -89,3 +91,4 @@ markdown_extensions:
 
 extra:
   generator: false
+  favicon: assets/logo/favicon.ico
