@@ -10,6 +10,11 @@ This page outlines how to develop and run **Georama** either inside a Docker con
 
 ---
 
+## Setup the environment variables
+Please read the following instructions:  [setup_env.md](setup_env.md)
+
+---
+
 ## 🐳 Development in a Container
 
 Follow the
