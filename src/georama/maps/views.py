@@ -14,6 +14,7 @@ from qgis_server_light.interface.job import (
 from qgis_server_light.interface.qgis import Custom, Raster, Vector
 from xsdata.exceptions import ParserError
 from xsdata.formats.dataclass.parsers import DictDecoder, XmlParser
+from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer
 
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
@@ -263,7 +264,12 @@ class OgcServer(View):
                 else:
                     return HttpResponse("Only VERSION 1.3.0 is available", 400)
             elif params["REQUEST"] == "GETMAP":
-                service_params = DictDecoder().decode(params, QslGetMapRequest)
+                # This is especially usefull for input from foreign systems which might send whatever query
+                # params we don't have knowledge of
+                parser_config = ParserConfig(
+                    fail_on_unknown_properties=False, fail_on_unknown_attributes=False
+                )
+                service_params = DictDecoder(parser_config).decode(params, QslGetMapRequest)
                 operation = WmsGetMap(
                     appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
                 )
