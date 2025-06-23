@@ -111,7 +111,7 @@ class WmsGetCapabilities(WmsOperation):
                 bbox,
                 bbox_wgs84,
                 [style.name for style in styles],
-                published_as.queryable,
+                published_as.is_queryable,
             )
             capabilities.capability.layer.layer.append(layer)
         # we use a 0/1 instead True/False here since this also conforms to Chapter 7.2.4.7.1 in
