@@ -45,6 +45,8 @@ jobs:
       - run: sudo apt-get install  -y  libpq-dev python3-gdal python3-numpy python3-venv git make
       - name: Set up test environment
         run: make install-test
+      - name: Check for missing migrations
+        run: make check-migrations
       - name: Run tests for Python ${{ matrix.python-version }} on ${{ matrix.platform }}
         run: make tests
       - name: Rename Coverage Files
