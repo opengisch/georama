@@ -5,6 +5,7 @@ import os
 import sys
 
 import click
+from dotenv import load_dotenv
 
 from georama import __version__
 
@@ -27,6 +28,13 @@ def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'georama.core.settings')
     os.environ.setdefault('DJANGO_CONFIGURATION', 'Dev')
+
+    # Load env vars from .env file.
+    # Relevant when developing georama locally, instead of with Docker.
+    # Values in the environment still take precedence over ones defined in
+    # the .env file.
+    load_dotenv(override=False)
+
     try:
         from configurations.management import execute_from_command_line
     except ImportError as exc:
