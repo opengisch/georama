@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
@@ -17,8 +18,21 @@ from georama.webgis import models
 
 
 class LayerWmsAdmin(admin.ModelAdmin):
-    list_display = ["name", "title", "public"]
+    list_display = ["icon_column", "name", "title", "public"]
     list_editable = ["public"]
+
+    def icon_column(self, obj):
+        icon = "fg-poi"
+        if isinstance(obj.raster_dataset, RasterDataSet):
+            icon = "fg-landcover-map"
+        elif isinstance(obj.vector_dataset, VectorDataSet):
+            icon = "fg-contour-map"
+        elif isinstance(obj.custom_dataset, CustomDataSet):
+            icon = "fg-flow-map"
+        return format_html(f"<i class='{icon} fg-2x'></i>")
+
+    icon_column.short_description = 'src'
+    icon_column.allow_tags = True
 
     def get_urls(self):
         urls = super().get_urls()

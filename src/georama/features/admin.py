@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Permission
 from django.forms import BaseInlineFormSet
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from georama.core.entities.models import save_group_permissions, save_user_permissions
@@ -32,7 +33,7 @@ def _get_permissions(obj: PublishedAsOgcApiFeatures, permission_type: str):
 
 @admin.register(PublishedAsOgcApiFeatures)
 class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
-    list_display = ["name", "title", "public", "delete_link", "show_published"]
+    list_display = ["icon_column", "name", "title", "public", "delete_link", "show_published"]
     inlines = [ColumnOgcApiFeaturesInline]
     add_form_template = "admin/features/publishedasvectorfeature/publish.html"
     list_editable = ["public"]
@@ -83,6 +84,15 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    def icon_column(self, obj):
+        icon = "fg-poi"
+        if isinstance(obj.vector_dataset, VectorDataSet):
+            icon = "fg-contour-map"
+        return format_html(f"<i class='{icon} fg-2x'></i>")
+
+    icon_column.short_description = 'src'
+    icon_column.allow_tags = True
 
     def add_view(self, request, form_url="", extra_context=None):
         extra_context = extra_context or {}
