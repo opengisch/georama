@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.point_property import PointProperty
 from georama.maps.interfaces.opengis.filter_1_1_0.pos import Pos
@@ -13,26 +13,26 @@ class TinTypeControlPoint:
     class Meta:
         global_type = False
 
-    pos_list: Optional[PosList] = field(
-        default=None,
-        metadata={
-            "name": "posList",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    pos: list[Pos] = field(
+    pos_list_or_pos_or_point_property: list[Union[PosList, Pos, PointProperty]] = field(
         default_factory=list,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    point_property: list[PointProperty] = field(
-        default_factory=list,
-        metadata={
-            "name": "pointProperty",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "posList",
+                    "type": PosList,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "pos",
+                    "type": Pos,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "pointProperty",
+                    "type": PointProperty,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )

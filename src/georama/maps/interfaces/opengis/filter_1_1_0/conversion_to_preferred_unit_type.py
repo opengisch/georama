@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.formula_type import FormulaType
 from georama.maps.interfaces.opengis.filter_1_1_0.unit_of_measure_type import (
@@ -19,26 +19,23 @@ class ConversionToPreferredUnitType(UnitOfMeasureType):
     shall reference the preferred unit that this conversion applies to.
     The conversion is specified by one of two alternative elements:
     "factor" or "formula".
-
-    :ivar factor: Specification of the scale factor by which a value
-        using this unit of measure can be multiplied to obtain the
-        corresponding value using the preferred unit of measure.
-    :ivar formula: Specification of the formula by which a value using
-        this unit of measure can be converted to obtain the
-        corresponding value using the preferred unit of measure.
     """
 
-    factor: Optional[float] = field(
+    factor_or_formula: Optional[Union[float, FormulaType]] = field(
         default=None,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    formula: Optional[FormulaType] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "factor",
+                    "type": float,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "formula",
+                    "type": FormulaType,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )

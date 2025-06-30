@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.base_style_descriptor_type import (
     BaseStyleDescriptorType,
@@ -15,27 +15,24 @@ class TopologyStyleType(BaseStyleDescriptorType):
     """[complexType of] The style descriptor for topologies of a feature.
 
     Describes individual topology elements styles.
-
-    :ivar symbol:
-    :ivar style: Deprecated in GML version 3.1.0. Use symbol with inline
-        content instead.
-    :ivar label_style:
-    :ivar topology_property:
-    :ivar topology_type:
     """
 
-    symbol: Optional[Symbol] = field(
+    symbol_or_style: Optional[Union[Symbol, str]] = field(
         default=None,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    style: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "symbol",
+                    "type": Symbol,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "style",
+                    "type": str,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     label_style: Optional[LabelStyle2] = field(

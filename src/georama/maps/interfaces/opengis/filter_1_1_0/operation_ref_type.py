@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.filter_1_1_0.crsref_type import Conversion
@@ -17,20 +17,22 @@ class OperationRefType:
     definition of that operation.
     """
 
-    transformation: Optional[Transformation] = field(
+    transformation_or_conversion: Optional[Union[Transformation, Conversion]] = field(
         default=None,
         metadata={
-            "name": "Transformation",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    conversion: Optional[Conversion] = field(
-        default=None,
-        metadata={
-            "name": "Conversion",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "Transformation",
+                    "type": Transformation,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Conversion",
+                    "type": Conversion,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

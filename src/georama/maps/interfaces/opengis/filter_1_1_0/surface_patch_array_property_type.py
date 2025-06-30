@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.cone import Cone
 from georama.maps.interfaces.opengis.filter_1_1_0.cylinder import Cylinder
@@ -16,57 +17,41 @@ class SurfacePatchArrayPropertyType:
     A container for an array of surface patches.
     """
 
-    sphere: list[Sphere] = field(
+    choice: list[Union[Sphere, Cylinder, Cone, Rectangle, Triangle, PolygonPatch]] = field(
         default_factory=list,
         metadata={
-            "name": "Sphere",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-            "sequence": 1,
-        },
-    )
-    cylinder: list[Cylinder] = field(
-        default_factory=list,
-        metadata={
-            "name": "Cylinder",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-            "sequence": 1,
-        },
-    )
-    cone: list[Cone] = field(
-        default_factory=list,
-        metadata={
-            "name": "Cone",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-            "sequence": 1,
-        },
-    )
-    rectangle: list[Rectangle] = field(
-        default_factory=list,
-        metadata={
-            "name": "Rectangle",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-            "sequence": 1,
-        },
-    )
-    triangle: list[Triangle] = field(
-        default_factory=list,
-        metadata={
-            "name": "Triangle",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-            "sequence": 1,
-        },
-    )
-    polygon_patch: list[PolygonPatch] = field(
-        default_factory=list,
-        metadata={
-            "name": "PolygonPatch",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-            "sequence": 1,
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "Sphere",
+                    "type": Sphere,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Cylinder",
+                    "type": Cylinder,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Cone",
+                    "type": Cone,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Rectangle",
+                    "type": Rectangle,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Triangle",
+                    "type": Triangle,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "PolygonPatch",
+                    "type": PolygonPatch,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )

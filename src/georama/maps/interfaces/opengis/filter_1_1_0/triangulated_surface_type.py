@@ -16,20 +16,12 @@ class TriangulatedSurfaceType(SurfaceType):
 
     There is no restriction on how the triangulation is derived.
 
-    :ivar polygon_patches:
-    :ivar patches: This element encapsulates the patches of the surface.
+    :ivar polygon_patches_or_patches:
     :ivar triangle_patches: This property encapsulates the patches of
         the triangulated surface.
     """
 
-    polygon_patches: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    patches: Any = field(
+    polygon_patches_or_patches: Any = field(
         init=False,
         default=None,
         metadata={

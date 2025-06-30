@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.filter_1_1_0.cartesian_cs import CartesianCs
@@ -27,84 +27,75 @@ class CoordinateSystemRefType:
     definition of that coordinate system.
     """
 
-    oblique_cartesian_cs: Optional[ObliqueCartesianCs] = field(
+    choice: Optional[
+        Union[
+            ObliqueCartesianCs,
+            CylindricalCs,
+            PolarCs,
+            SphericalCs,
+            UserDefinedCs,
+            LinearCs,
+            TemporalCs,
+            VerticalCs,
+            CartesianCs,
+            EllipsoidalCs,
+        ]
+    ] = field(
         default=None,
         metadata={
-            "name": "ObliqueCartesianCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    cylindrical_cs: Optional[CylindricalCs] = field(
-        default=None,
-        metadata={
-            "name": "CylindricalCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    polar_cs: Optional[PolarCs] = field(
-        default=None,
-        metadata={
-            "name": "PolarCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    spherical_cs: Optional[SphericalCs] = field(
-        default=None,
-        metadata={
-            "name": "SphericalCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    user_defined_cs: Optional[UserDefinedCs] = field(
-        default=None,
-        metadata={
-            "name": "UserDefinedCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    linear_cs: Optional[LinearCs] = field(
-        default=None,
-        metadata={
-            "name": "LinearCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    temporal_cs: Optional[TemporalCs] = field(
-        default=None,
-        metadata={
-            "name": "TemporalCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    vertical_cs: Optional[VerticalCs] = field(
-        default=None,
-        metadata={
-            "name": "VerticalCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    cartesian_cs: Optional[CartesianCs] = field(
-        default=None,
-        metadata={
-            "name": "CartesianCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    ellipsoidal_cs: Optional[EllipsoidalCs] = field(
-        default=None,
-        metadata={
-            "name": "EllipsoidalCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "ObliqueCartesianCS",
+                    "type": ObliqueCartesianCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CylindricalCS",
+                    "type": CylindricalCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "PolarCS",
+                    "type": PolarCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "SphericalCS",
+                    "type": SphericalCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "UserDefinedCS",
+                    "type": UserDefinedCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "LinearCS",
+                    "type": LinearCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TemporalCS",
+                    "type": TemporalCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "VerticalCS",
+                    "type": VerticalCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CartesianCS",
+                    "type": CartesianCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "EllipsoidalCS",
+                    "type": EllipsoidalCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

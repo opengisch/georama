@@ -20,19 +20,7 @@ class TemporalDatumBaseType(AbstractDatumType):
     :ivar anchor_point:
     :ivar realization_epoch:
     :ivar description:
-    :ivar group_name:
-    :ivar parameter_name:
-    :ivar method_name:
-    :ivar coordinate_operation_name:
-    :ivar ellipsoid_name:
-    :ivar meridian_name:
-    :ivar cs_name:
-    :ivar srs_name:
-    :ivar name: Multiple names may be provided.  These will often be
-        distinguished by being assigned by different authorities, as
-        indicated by the value of the codeSpace attribute.  In an
-        instance document there will usually only be one name per
-        authority.
+    :ivar choice_1:
     """
 
     remarks: Any = field(
@@ -63,63 +51,7 @@ class TemporalDatumBaseType(AbstractDatumType):
             "type": "Ignore",
         },
     )
-    group_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    parameter_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    method_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    coordinate_operation_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    ellipsoid_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    meridian_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    cs_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    srs_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    name: Any = field(
+    choice_1: Any = field(
         init=False,
         default=None,
         metadata={

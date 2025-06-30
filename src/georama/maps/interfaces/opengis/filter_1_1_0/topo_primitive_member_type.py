@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_topo_primitive_type import (
     Edge,
@@ -20,36 +20,32 @@ class TopoPrimitiveMemberType:
     This type supports embedding topological primitives in a TopoComplex.
     """
 
-    topo_solid: Optional[TopoSolid] = field(
+    choice: Optional[Union[TopoSolid, Face, Edge, Node]] = field(
         default=None,
         metadata={
-            "name": "TopoSolid",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    face: Optional[Face] = field(
-        default=None,
-        metadata={
-            "name": "Face",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    edge: Optional[Edge] = field(
-        default=None,
-        metadata={
-            "name": "Edge",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    node: Optional[Node] = field(
-        default=None,
-        metadata={
-            "name": "Node",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "TopoSolid",
+                    "type": TopoSolid,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Face",
+                    "type": Face,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Edge",
+                    "type": Edge,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Node",
+                    "type": Node,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

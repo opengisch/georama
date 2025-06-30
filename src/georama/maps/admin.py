@@ -92,7 +92,9 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             REQUEST=RequestType.get_map.value,
             VERSION=Version.v_1_3_0.value,
             LAYERS=layer.name,
-            BBOX=",".join([bbox.x_min, bbox.y_min, bbox.x_max, bbox.y_max]),
+            BBOX=",".join(
+                [str(bbox.x_min), str(bbox.y_min), str(bbox.x_max), str(bbox.y_max)]
+            ),
             CRS=dataset.crs_to_qsl.auth_id,
             WIDTH=1500,
             HEIGHT=1500,

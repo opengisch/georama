@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.coord import Coord
 from georama.maps.interfaces.opengis.filter_1_1_0.coordinates import Coordinates
-from georama.maps.interfaces.opengis.filter_1_1_0.direct_position_type import (
-    DirectPositionType,
-)
+from georama.maps.interfaces.opengis.filter_1_1_0.lower_corner import LowerCorner
 from georama.maps.interfaces.opengis.filter_1_1_0.pos import Pos
+from georama.maps.interfaces.opengis.filter_1_1_0.upper_corner import UpperCorner
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -22,13 +21,7 @@ class EnvelopeType:
     corner" (a coordinate position consisting of all the maximal
     ordinates for each dimension for all points within the envelope).
 
-    :ivar lower_corner:
-    :ivar upper_corner:
-    :ivar coord: deprecated with GML version 3.0
-    :ivar pos: Deprecated with GML version 3.1. Use the explicit
-        properties "lowerCorner" and "upperCorner" instead.
-    :ivar coordinates: Deprecated with GML version 3.1.0. Use the
-        explicit properties "lowerCorner" and "upperCorner" instead.
+    :ivar choice:
     :ivar srs_name: In general this reference points to a CRS instance
         of gml:CoordinateReferenceSystemType (see
         coordinateReferenceSystems.xsd). For well known references it is
@@ -57,43 +50,40 @@ class EnvelopeType:
         attribute shall also be omitted.
     """
 
-    lower_corner: Optional[DirectPositionType] = field(
-        default=None,
-        metadata={
-            "name": "lowerCorner",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    upper_corner: Optional[DirectPositionType] = field(
-        default=None,
-        metadata={
-            "name": "upperCorner",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    coord: list[Coord] = field(
+    choice: list[Union[LowerCorner, UpperCorner, Coord, Pos, Coordinates]] = field(
         default_factory=list,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "lowerCorner",
+                    "type": LowerCorner,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "upperCorner",
+                    "type": UpperCorner,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "coord",
+                    "type": Coord,
+                    "namespace": "http://www.opengis.net/gml",
+                    "max_occurs": 2,
+                },
+                {
+                    "name": "pos",
+                    "type": Pos,
+                    "namespace": "http://www.opengis.net/gml",
+                    "max_occurs": 2,
+                },
+                {
+                    "name": "coordinates",
+                    "type": Coordinates,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
             "max_occurs": 2,
-        },
-    )
-    pos: list[Pos] = field(
-        default_factory=list,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-            "max_occurs": 2,
-        },
-    )
-    coordinates: Optional[Coordinates] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
         },
     )
     srs_name: Optional[str] = field(

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.envelope import Envelope
 from georama.maps.interfaces.opengis.filter_1_1_0.envelope_with_time_period import (
@@ -16,27 +16,28 @@ class BoundingShapeType:
     Bounding shape.
     """
 
-    envelope_with_time_period: Optional[EnvelopeWithTimePeriod] = field(
+    envelope_with_time_period_or_envelope_or_null: Optional[
+        Union[EnvelopeWithTimePeriod, Envelope, Null]
+    ] = field(
         default=None,
         metadata={
-            "name": "EnvelopeWithTimePeriod",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    envelope: Optional[Envelope] = field(
-        default=None,
-        metadata={
-            "name": "Envelope",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    null: Optional[Null] = field(
-        default=None,
-        metadata={
-            "name": "Null",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "EnvelopeWithTimePeriod",
+                    "type": EnvelopeWithTimePeriod,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Envelope",
+                    "type": Envelope,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Null",
+                    "type": Null,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )

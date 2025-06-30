@@ -5,10 +5,8 @@ from xsdata.formats.dataclass.serializers import XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 
 from georama.data_integration.models import VectorDataSet
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1 import (
-    Exception as Wfs200Exception,
-)
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1 import ExceptionReport
+from georama.maps.interfaces.ogc.wfs_2_0_0 import Exception as Wfs200Exception
+from georama.maps.interfaces.ogc.wfs_2_0_0 import ExceptionReport
 from georama.maps.models import PublishedAsWms
 from georama.maps.services import OgcOperation
 

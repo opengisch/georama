@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import ForwardRef, Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.filter_1_1_0.group_id import GroupId
@@ -24,20 +24,24 @@ class AbstractGeneralOperationParameterRefType:
     containing the definition of that parameter or group.
     """
 
-    operation_parameter_group: Optional["OperationParameterGroup"] = field(
+    operation_parameter_group_or_operation_parameter: Optional[
+        Union["OperationParameterGroup", OperationParameter]
+    ] = field(
         default=None,
         metadata={
-            "name": "OperationParameterGroup",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    operation_parameter: Optional[OperationParameter] = field(
-        default=None,
-        metadata={
-            "name": "OperationParameter",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "OperationParameterGroup",
+                    "type": ForwardRef("OperationParameterGroup"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "OperationParameter",
+                    "type": OperationParameter,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

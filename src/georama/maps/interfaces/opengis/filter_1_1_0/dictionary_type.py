@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import ForwardRef, Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_general_operation_parameter_ref_type import (
     OperationParameterGroup,
@@ -96,47 +96,31 @@ class DictionaryType(DefinitionType):
     elements can be used to reference or contain more information about
     this dictionary. The inherited required gml:id attribute allows the
     dictionary to be referenced using this handle.
-
-    :ivar definition_member:
-    :ivar dictionary_entry: An entry in this dictionary. The content of
-        an entry can itself be a lower level dictionary or definition
-        collection. This element follows the standard GML property
-        model, so the value may be provided directly or by reference.
-        Note that if the value is provided by reference, this definition
-        does not carry a handle (gml:id) in this context, so does not
-        allow external references to this specific entry in this
-        context. When used in this way the referenced definition will
-        usually be in a dictionary in the same XML document.
-    :ivar indirect_entry: An identified reference to a remote entry in
-        this dictionary, to be used when this entry should be identified
-        to allow external references to this specific entry.
     """
 
-    definition_member: list["DefinitionMember"] = field(
+    definition_member_or_dictionary_entry_or_indirect_entry: list[
+        Union["DefinitionMember", "DictionaryEntry", IndirectEntry]
+    ] = field(
         default_factory=list,
         metadata={
-            "name": "definitionMember",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-            "sequence": 1,
-        },
-    )
-    dictionary_entry: list["DictionaryEntry"] = field(
-        default_factory=list,
-        metadata={
-            "name": "dictionaryEntry",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-            "sequence": 1,
-        },
-    )
-    indirect_entry: list[IndirectEntry] = field(
-        default_factory=list,
-        metadata={
-            "name": "indirectEntry",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-            "sequence": 1,
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "definitionMember",
+                    "type": ForwardRef("DefinitionMember"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "dictionaryEntry",
+                    "type": ForwardRef("DictionaryEntry"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "indirectEntry",
+                    "type": IndirectEntry,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
 
@@ -164,439 +148,299 @@ class DictionaryEntryType:
     Specialized descendents of this dictionaryEntry might be restricted
     in an application schema to allow only including specified types of
     definitions as valid entries in a dictionary.
-
-    :ivar time_calendar_era:
-    :ivar time_clock:
-    :ivar time_calendar:
-    :ivar time_ordinal_reference_system:
-    :ivar time_coordinate_system:
-    :ivar operation_parameter_group:
-    :ivar operation_parameter:
-    :ivar operation_method:
-    :ivar transformation:
-    :ivar conversion:
-    :ivar pass_through_operation:
-    :ivar concatenated_operation:
-    :ivar ellipsoid:
-    :ivar prime_meridian:
-    :ivar geodetic_datum:
-    :ivar temporal_datum:
-    :ivar vertical_datum:
-    :ivar image_datum:
-    :ivar engineering_datum:
-    :ivar oblique_cartesian_cs:
-    :ivar cylindrical_cs:
-    :ivar polar_cs:
-    :ivar spherical_cs:
-    :ivar user_defined_cs:
-    :ivar linear_cs:
-    :ivar temporal_cs:
-    :ivar vertical_cs:
-    :ivar cartesian_cs:
-    :ivar ellipsoidal_cs:
-    :ivar coordinate_system_axis:
-    :ivar compound_crs:
-    :ivar temporal_crs:
-    :ivar image_crs:
-    :ivar engineering_crs:
-    :ivar derived_crs:
-    :ivar projected_crs:
-    :ivar geocentric_crs:
-    :ivar vertical_crs:
-    :ivar geographic_crs:
-    :ivar conventional_unit:
-    :ivar derived_unit:
-    :ivar base_unit:
-    :ivar unit_definition:
-    :ivar definition_proxy:
-    :ivar definition_collection:
-    :ivar dictionary:
-    :ivar definition: This element in a dictionary entry contains the
-        actual definition.
-    :ivar type_value:
-    :ivar href:
-    :ivar role:
-    :ivar arcrole:
-    :ivar title:
-    :ivar show:
-    :ivar actuate:
-    :ivar remote_schema:
     """
 
-    time_calendar_era: Optional[TimeCalendarEra] = field(
+    choice: Optional[
+        Union[
+            TimeCalendarEra,
+            TimeClock,
+            TimeCalendar,
+            TimeOrdinalReferenceSystem,
+            TimeCoordinateSystem,
+            OperationParameterGroup,
+            OperationParameter,
+            OperationMethod,
+            Transformation,
+            Conversion,
+            PassThroughOperation,
+            ConcatenatedOperation,
+            Ellipsoid,
+            PrimeMeridian,
+            GeodeticDatum,
+            TemporalDatum,
+            VerticalDatum,
+            ImageDatum,
+            EngineeringDatum,
+            ObliqueCartesianCs,
+            CylindricalCs,
+            PolarCs,
+            SphericalCs,
+            UserDefinedCs,
+            LinearCs,
+            TemporalCs,
+            VerticalCs,
+            CartesianCs,
+            EllipsoidalCs,
+            CoordinateSystemAxis,
+            CompoundCrs,
+            TemporalCrs,
+            ImageCrs,
+            EngineeringCrs,
+            DerivedCrs,
+            ProjectedCrs,
+            GeocentricCrs,
+            VerticalCrs,
+            GeographicCrs,
+            ConventionalUnit,
+            DerivedUnit,
+            BaseUnit,
+            UnitDefinition,
+            DefinitionProxy,
+            DefinitionCollection,
+            Dictionary,
+            Definition,
+        ]
+    ] = field(
         default=None,
         metadata={
-            "name": "TimeCalendarEra",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    time_clock: Optional[TimeClock] = field(
-        default=None,
-        metadata={
-            "name": "TimeClock",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    time_calendar: Optional[TimeCalendar] = field(
-        default=None,
-        metadata={
-            "name": "TimeCalendar",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    time_ordinal_reference_system: Optional[TimeOrdinalReferenceSystem] = field(
-        default=None,
-        metadata={
-            "name": "TimeOrdinalReferenceSystem",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    time_coordinate_system: Optional[TimeCoordinateSystem] = field(
-        default=None,
-        metadata={
-            "name": "TimeCoordinateSystem",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    operation_parameter_group: Optional[OperationParameterGroup] = field(
-        default=None,
-        metadata={
-            "name": "OperationParameterGroup",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    operation_parameter: Optional[OperationParameter] = field(
-        default=None,
-        metadata={
-            "name": "OperationParameter",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    operation_method: Optional[OperationMethod] = field(
-        default=None,
-        metadata={
-            "name": "OperationMethod",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    transformation: Optional[Transformation] = field(
-        default=None,
-        metadata={
-            "name": "Transformation",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    conversion: Optional[Conversion] = field(
-        default=None,
-        metadata={
-            "name": "Conversion",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    pass_through_operation: Optional[PassThroughOperation] = field(
-        default=None,
-        metadata={
-            "name": "PassThroughOperation",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    concatenated_operation: Optional[ConcatenatedOperation] = field(
-        default=None,
-        metadata={
-            "name": "ConcatenatedOperation",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    ellipsoid: Optional[Ellipsoid] = field(
-        default=None,
-        metadata={
-            "name": "Ellipsoid",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    prime_meridian: Optional[PrimeMeridian] = field(
-        default=None,
-        metadata={
-            "name": "PrimeMeridian",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    geodetic_datum: Optional[GeodeticDatum] = field(
-        default=None,
-        metadata={
-            "name": "GeodeticDatum",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    temporal_datum: Optional[TemporalDatum] = field(
-        default=None,
-        metadata={
-            "name": "TemporalDatum",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    vertical_datum: Optional[VerticalDatum] = field(
-        default=None,
-        metadata={
-            "name": "VerticalDatum",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    image_datum: Optional[ImageDatum] = field(
-        default=None,
-        metadata={
-            "name": "ImageDatum",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    engineering_datum: Optional[EngineeringDatum] = field(
-        default=None,
-        metadata={
-            "name": "EngineeringDatum",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    oblique_cartesian_cs: Optional[ObliqueCartesianCs] = field(
-        default=None,
-        metadata={
-            "name": "ObliqueCartesianCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    cylindrical_cs: Optional[CylindricalCs] = field(
-        default=None,
-        metadata={
-            "name": "CylindricalCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    polar_cs: Optional[PolarCs] = field(
-        default=None,
-        metadata={
-            "name": "PolarCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    spherical_cs: Optional[SphericalCs] = field(
-        default=None,
-        metadata={
-            "name": "SphericalCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    user_defined_cs: Optional[UserDefinedCs] = field(
-        default=None,
-        metadata={
-            "name": "UserDefinedCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    linear_cs: Optional[LinearCs] = field(
-        default=None,
-        metadata={
-            "name": "LinearCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    temporal_cs: Optional[TemporalCs] = field(
-        default=None,
-        metadata={
-            "name": "TemporalCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    vertical_cs: Optional[VerticalCs] = field(
-        default=None,
-        metadata={
-            "name": "VerticalCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    cartesian_cs: Optional[CartesianCs] = field(
-        default=None,
-        metadata={
-            "name": "CartesianCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    ellipsoidal_cs: Optional[EllipsoidalCs] = field(
-        default=None,
-        metadata={
-            "name": "EllipsoidalCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    coordinate_system_axis: Optional[CoordinateSystemAxis] = field(
-        default=None,
-        metadata={
-            "name": "CoordinateSystemAxis",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    compound_crs: Optional[CompoundCrs] = field(
-        default=None,
-        metadata={
-            "name": "CompoundCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    temporal_crs: Optional[TemporalCrs] = field(
-        default=None,
-        metadata={
-            "name": "TemporalCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    image_crs: Optional[ImageCrs] = field(
-        default=None,
-        metadata={
-            "name": "ImageCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    engineering_crs: Optional[EngineeringCrs] = field(
-        default=None,
-        metadata={
-            "name": "EngineeringCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    derived_crs: Optional[DerivedCrs] = field(
-        default=None,
-        metadata={
-            "name": "DerivedCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    projected_crs: Optional[ProjectedCrs] = field(
-        default=None,
-        metadata={
-            "name": "ProjectedCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    geocentric_crs: Optional[GeocentricCrs] = field(
-        default=None,
-        metadata={
-            "name": "GeocentricCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    vertical_crs: Optional[VerticalCrs] = field(
-        default=None,
-        metadata={
-            "name": "VerticalCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    geographic_crs: Optional[GeographicCrs] = field(
-        default=None,
-        metadata={
-            "name": "GeographicCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    conventional_unit: Optional[ConventionalUnit] = field(
-        default=None,
-        metadata={
-            "name": "ConventionalUnit",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    derived_unit: Optional[DerivedUnit] = field(
-        default=None,
-        metadata={
-            "name": "DerivedUnit",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    base_unit: Optional[BaseUnit] = field(
-        default=None,
-        metadata={
-            "name": "BaseUnit",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    unit_definition: Optional[UnitDefinition] = field(
-        default=None,
-        metadata={
-            "name": "UnitDefinition",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    definition_proxy: Optional[DefinitionProxy] = field(
-        default=None,
-        metadata={
-            "name": "DefinitionProxy",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    definition_collection: Optional[DefinitionCollection] = field(
-        default=None,
-        metadata={
-            "name": "DefinitionCollection",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    dictionary: Optional[Dictionary] = field(
-        default=None,
-        metadata={
-            "name": "Dictionary",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    definition: Optional[Definition] = field(
-        default=None,
-        metadata={
-            "name": "Definition",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "TimeCalendarEra",
+                    "type": TimeCalendarEra,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TimeClock",
+                    "type": TimeClock,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TimeCalendar",
+                    "type": TimeCalendar,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TimeOrdinalReferenceSystem",
+                    "type": TimeOrdinalReferenceSystem,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TimeCoordinateSystem",
+                    "type": TimeCoordinateSystem,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "OperationParameterGroup",
+                    "type": OperationParameterGroup,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "OperationParameter",
+                    "type": OperationParameter,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "OperationMethod",
+                    "type": OperationMethod,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Transformation",
+                    "type": Transformation,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Conversion",
+                    "type": Conversion,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "PassThroughOperation",
+                    "type": PassThroughOperation,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ConcatenatedOperation",
+                    "type": ConcatenatedOperation,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Ellipsoid",
+                    "type": Ellipsoid,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "PrimeMeridian",
+                    "type": PrimeMeridian,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "GeodeticDatum",
+                    "type": GeodeticDatum,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TemporalDatum",
+                    "type": TemporalDatum,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "VerticalDatum",
+                    "type": VerticalDatum,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ImageDatum",
+                    "type": ImageDatum,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "EngineeringDatum",
+                    "type": EngineeringDatum,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ObliqueCartesianCS",
+                    "type": ObliqueCartesianCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CylindricalCS",
+                    "type": CylindricalCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "PolarCS",
+                    "type": PolarCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "SphericalCS",
+                    "type": SphericalCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "UserDefinedCS",
+                    "type": UserDefinedCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "LinearCS",
+                    "type": LinearCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TemporalCS",
+                    "type": TemporalCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "VerticalCS",
+                    "type": VerticalCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CartesianCS",
+                    "type": CartesianCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "EllipsoidalCS",
+                    "type": EllipsoidalCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CoordinateSystemAxis",
+                    "type": CoordinateSystemAxis,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompoundCRS",
+                    "type": CompoundCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TemporalCRS",
+                    "type": TemporalCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ImageCRS",
+                    "type": ImageCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "EngineeringCRS",
+                    "type": EngineeringCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "DerivedCRS",
+                    "type": DerivedCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ProjectedCRS",
+                    "type": ProjectedCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "GeocentricCRS",
+                    "type": GeocentricCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "VerticalCRS",
+                    "type": VerticalCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "GeographicCRS",
+                    "type": GeographicCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ConventionalUnit",
+                    "type": ConventionalUnit,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "DerivedUnit",
+                    "type": DerivedUnit,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "BaseUnit",
+                    "type": BaseUnit,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "UnitDefinition",
+                    "type": UnitDefinition,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "DefinitionProxy",
+                    "type": DefinitionProxy,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "DefinitionCollection",
+                    "type": DefinitionCollection,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Dictionary",
+                    "type": Dictionary,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Definition",
+                    "type": Definition,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

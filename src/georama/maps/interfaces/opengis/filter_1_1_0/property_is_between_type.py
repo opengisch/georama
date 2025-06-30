@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.binary_operator_type import (
     Add,
@@ -25,60 +25,47 @@ __NAMESPACE__ = "http://www.opengis.net/ogc"
 
 @dataclass
 class PropertyIsBetweenType(ComparisonOpsType):
-    literal: Optional[Literal] = field(
+    choice: Optional[Union[Literal, Function, PropertyName, Div, Mul, Sub, Add]] = field(
         default=None,
         metadata={
-            "name": "Literal",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    function: Optional[Function] = field(
-        default=None,
-        metadata={
-            "name": "Function",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_name: Optional[PropertyName] = field(
-        default=None,
-        metadata={
-            "name": "PropertyName",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    div: Optional[Div] = field(
-        default=None,
-        metadata={
-            "name": "Div",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    mul: Optional[Mul] = field(
-        default=None,
-        metadata={
-            "name": "Mul",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    sub: Optional[Sub] = field(
-        default=None,
-        metadata={
-            "name": "Sub",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    add: Optional[Add] = field(
-        default=None,
-        metadata={
-            "name": "Add",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "Literal",
+                    "type": Literal,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Function",
+                    "type": Function,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyName",
+                    "type": PropertyName,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Div",
+                    "type": Div,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Mul",
+                    "type": Mul,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Sub",
+                    "type": Sub,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Add",
+                    "type": Add,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+            ),
         },
     )
     lower_boundary: Optional[LowerBoundaryType] = field(

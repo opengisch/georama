@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_solid_type import (
     AbstractSolidType,
@@ -55,20 +55,22 @@ class SolidPropertyType:
     neither both nor none.
     """
 
-    solid: Optional[Solid] = field(
+    solid_or_composite_solid: Optional[Union[Solid, CompositeSolid]] = field(
         default=None,
         metadata={
-            "name": "Solid",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    composite_solid: Optional[CompositeSolid] = field(
-        default=None,
-        metadata={
-            "name": "CompositeSolid",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "Solid",
+                    "type": Solid,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompositeSolid",
+                    "type": CompositeSolid,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, ForwardRef, Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.absolute_external_positional_accuracy import (
     AbsoluteExternalPositionalAccuracy,
@@ -55,76 +55,69 @@ class CrsrefType:
     class Meta:
         name = "CRSRefType"
 
-    compound_crs: Optional["CompoundCrs"] = field(
+    choice: Optional[
+        Union[
+            "CompoundCrs",
+            TemporalCrs,
+            ImageCrs,
+            EngineeringCrs,
+            "DerivedCrs",
+            "ProjectedCrs",
+            GeocentricCrs,
+            VerticalCrs,
+            GeographicCrs,
+        ]
+    ] = field(
         default=None,
         metadata={
-            "name": "CompoundCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    temporal_crs: Optional[TemporalCrs] = field(
-        default=None,
-        metadata={
-            "name": "TemporalCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    image_crs: Optional[ImageCrs] = field(
-        default=None,
-        metadata={
-            "name": "ImageCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    engineering_crs: Optional[EngineeringCrs] = field(
-        default=None,
-        metadata={
-            "name": "EngineeringCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    derived_crs: Optional["DerivedCrs"] = field(
-        default=None,
-        metadata={
-            "name": "DerivedCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    projected_crs: Optional["ProjectedCrs"] = field(
-        default=None,
-        metadata={
-            "name": "ProjectedCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    geocentric_crs: Optional[GeocentricCrs] = field(
-        default=None,
-        metadata={
-            "name": "GeocentricCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    vertical_crs: Optional[VerticalCrs] = field(
-        default=None,
-        metadata={
-            "name": "VerticalCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    geographic_crs: Optional[GeographicCrs] = field(
-        default=None,
-        metadata={
-            "name": "GeographicCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "CompoundCRS",
+                    "type": ForwardRef("CompoundCrs"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TemporalCRS",
+                    "type": TemporalCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ImageCRS",
+                    "type": ImageCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "EngineeringCRS",
+                    "type": EngineeringCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "DerivedCRS",
+                    "type": ForwardRef("DerivedCrs"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ProjectedCRS",
+                    "type": ForwardRef("ProjectedCrs"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "GeocentricCRS",
+                    "type": GeocentricCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "VerticalCRS",
+                    "type": VerticalCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "GeographicCRS",
+                    "type": GeographicCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(
@@ -197,68 +190,63 @@ class CoordinateReferenceSystemRefType:
     the definition of that reference system.
     """
 
-    temporal_crs: Optional[TemporalCrs] = field(
+    choice: Optional[
+        Union[
+            TemporalCrs,
+            ImageCrs,
+            EngineeringCrs,
+            "DerivedCrs",
+            "ProjectedCrs",
+            GeocentricCrs,
+            VerticalCrs,
+            GeographicCrs,
+        ]
+    ] = field(
         default=None,
         metadata={
-            "name": "TemporalCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    image_crs: Optional[ImageCrs] = field(
-        default=None,
-        metadata={
-            "name": "ImageCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    engineering_crs: Optional[EngineeringCrs] = field(
-        default=None,
-        metadata={
-            "name": "EngineeringCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    derived_crs: Optional["DerivedCrs"] = field(
-        default=None,
-        metadata={
-            "name": "DerivedCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    projected_crs: Optional["ProjectedCrs"] = field(
-        default=None,
-        metadata={
-            "name": "ProjectedCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    geocentric_crs: Optional[GeocentricCrs] = field(
-        default=None,
-        metadata={
-            "name": "GeocentricCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    vertical_crs: Optional[VerticalCrs] = field(
-        default=None,
-        metadata={
-            "name": "VerticalCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    geographic_crs: Optional[GeographicCrs] = field(
-        default=None,
-        metadata={
-            "name": "GeographicCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "TemporalCRS",
+                    "type": TemporalCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ImageCRS",
+                    "type": ImageCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "EngineeringCRS",
+                    "type": EngineeringCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "DerivedCRS",
+                    "type": ForwardRef("DerivedCrs"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ProjectedCRS",
+                    "type": ForwardRef("ProjectedCrs"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "GeocentricCRS",
+                    "type": GeocentricCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "VerticalCRS",
+                    "type": VerticalCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "GeographicCRS",
+                    "type": GeographicCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(
@@ -398,9 +386,8 @@ class AbstractCoordinateOperationType(AbstractCoordinateOperationBaseType):
     :ivar operation_version:
     :ivar valid_area:
     :ivar scope:
-    :ivar covariance_matrix:
-    :ivar relative_internal_positional_accuracy:
-    :ivar absolute_external_positional_accuracy:
+    :ivar
+        covariance_matrix_or_relative_internal_positional_accuracy_or_absolute_external_positional_accuracy:
     :ivar source_crs:
     :ivar target_crs:
     """
@@ -443,28 +430,33 @@ class AbstractCoordinateOperationType(AbstractCoordinateOperationBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    covariance_matrix: list[CovarianceMatrix] = field(
+    covariance_matrix_or_relative_internal_positional_accuracy_or_absolute_external_positional_accuracy: list[
+        Union[
+            CovarianceMatrix,
+            RelativeInternalPositionalAccuracy,
+            AbsoluteExternalPositionalAccuracy,
+        ]
+    ] = field(
         default_factory=list,
         metadata={
-            "name": "covarianceMatrix",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    relative_internal_positional_accuracy: list[RelativeInternalPositionalAccuracy] = field(
-        default_factory=list,
-        metadata={
-            "name": "relativeInternalPositionalAccuracy",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    absolute_external_positional_accuracy: list[AbsoluteExternalPositionalAccuracy] = field(
-        default_factory=list,
-        metadata={
-            "name": "absoluteExternalPositionalAccuracy",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "covarianceMatrix",
+                    "type": CovarianceMatrix,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "relativeInternalPositionalAccuracy",
+                    "type": RelativeInternalPositionalAccuracy,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "absoluteExternalPositionalAccuracy",
+                    "type": AbsoluteExternalPositionalAccuracy,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     source_crs: Optional[SourceCrs] = field(
@@ -517,24 +509,6 @@ class AbstractGeneralConversionType(AbstractCoordinateOperationType):
 
     The best-known example of a coordinate conversion is a map projection. The parameters describing coordinate conversions are defined rather than empirically derived. Note that some conversions have no parameters.
     This abstract complexType is expected to be extended for well-known operation methods with many Conversion instances, in Application Schemas that define operation-method-specialized element names and contents. This conversion uses an operation method, usually with associated parameter values. However, operation methods and parameter values are directly associated with concrete subtypes, not with this abstract type. All concrete types derived from this type shall extend this type to include a "usesMethod" element that references the "OperationMethod" element. Similarly, all concrete types derived from this type shall extend this type to include zero or more elements each named "uses...Value" that each use the type of an element substitutable for the "_generalParameterValue" element.
-
-    :ivar operation_version:
-    :ivar source_crs:
-    :ivar target_crs:
-    :ivar description:
-    :ivar group_name:
-    :ivar parameter_name:
-    :ivar method_name:
-    :ivar ellipsoid_name:
-    :ivar meridian_name:
-    :ivar datum_name:
-    :ivar cs_name:
-    :ivar srs_name:
-    :ivar name: Multiple names may be provided.  These will often be
-        distinguished by being assigned by different authorities, as
-        indicated by the value of the codeSpace attribute.  In an
-        instance document there will usually only be one name per
-        authority.
     """
 
     operation_version: Any = field(
@@ -565,63 +539,7 @@ class AbstractGeneralConversionType(AbstractCoordinateOperationType):
             "type": "Ignore",
         },
     )
-    group_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    parameter_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    method_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    ellipsoid_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    meridian_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    datum_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    cs_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    srs_name: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    name: Any = field(
+    choice_1: Any = field(
         init=False,
         default=None,
         metadata={

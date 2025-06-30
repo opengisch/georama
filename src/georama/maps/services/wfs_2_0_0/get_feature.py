@@ -39,16 +39,14 @@ from xsdata.formats.dataclass.serializers.config import SerializerConfig
 from xsdata.models.datatype import XmlDateTime
 
 from georama.maps.interfaces.georama.requests import handle_list_encoding
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.bbox import Bbox
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.filter import Filter
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.fes.pkg_2.value_reference import (
-    ValueReference,
-)
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
+from georama.maps.interfaces.ogc.wfs_2_0_0 import (
+    Bbox,
     FeatureCollection,
+    Filter,
     GetFeature,
     Member,
     Query,
+    ValueReference,
 )
 from georama.maps.interfaces.opengis.gml_3_2_1 import (
     CurveMembers,
@@ -181,83 +179,7 @@ class WfsGetFeature(WfsOperation):
         Returns:
             Whether the filter is empty or not.
         """
-        if filter.property_is_between:
-            return False
-        elif filter.property_is_nil:
-            return False
-        elif filter.property_is_null:
-            return False
-        elif filter.property_is_like:
-            return False
-        elif filter.property_is_greater_than_or_equal_to:
-            return False
-        elif filter.property_is_less_than_or_equal_to:
-            return False
-        elif filter.property_is_greater_than:
-            return False
-        elif filter.property_is_less_than:
-            return False
-        elif filter.property_is_not_equal_to:
-            return False
-        elif filter.property_is_equal_to:
-            return False
-        elif filter.bbox:
-            return False
-        elif filter.beyond:
-            return False
-        elif filter.dwithin:
-            return False
-        elif filter.contains:
-            return False
-        elif filter.intersects:
-            return False
-        elif filter.crosses:
-            return False
-        elif filter.overlaps:
-            return False
-        elif filter.within:
-            return False
-        elif filter.touches:
-            return False
-        elif filter.equals:
-            return False
-        elif filter.any_interacts:
-            return False
-        elif filter.overlapped_by:
-            return False
-        elif filter.toverlaps:
-            return False
-        elif filter.met_by:
-            return False
-        elif filter.meets:
-            return False
-        elif filter.tequals:
-            return False
-        elif filter.ends:
-            return False
-        elif filter.ended_by:
-            return False
-        elif filter.during:
-            return False
-        elif filter.tcontains:
-            return False
-        elif filter.begun_by:
-            return False
-        elif filter.begins:
-            return False
-        elif filter.before:
-            return False
-        elif filter.after:
-            return False
-        elif filter.not_value:
-            return False
-        elif filter.or_value:
-            return False
-        elif filter.and_value:
-            return False
-        elif filter.function:
-            return False
-        elif filter.resource_id:
+        if len(filter.choice) > 1:
             return False
         else:
             return True
@@ -385,7 +307,7 @@ class WfsGetFeature(WfsOperation):
         """
         return GetFeature(
             version=query_params["VERSION"],
-            query=self.prepare_queries(query_params),
+            stored_query_or_query=self.prepare_queries(query_params),
             start_index=query_params.get("STARTINDEX"),
             count=query_params.get("COUNT"),
             output_format=query_params.get(
@@ -427,7 +349,7 @@ class WfsGetFeature(WfsOperation):
             flat list of type names
         """
         type_names = []
-        for query in get_feature_params.query:
+        for query in get_feature_params.stored_query_or_query:
             if unique:
                 for type_name in query.type_names:
                     if type_name not in type_names:
@@ -452,7 +374,7 @@ class WfsGetFeature(WfsOperation):
             A constructed instance of QslGetFeatureJob which can be sent to QGIS-Server-Light.
         """
         qsl_feature_queries = []
-        for query in get_feature_parameter.query:
+        for query in get_feature_parameter.stored_query_or_query:
 
             # based on the sanitized list of requested layer names we fetch then the definitions of these
             # layers (this includes permission check and existence check)
@@ -851,8 +773,10 @@ class WfsGetFeature(WfsOperation):
                 feature_dataclass.Meta = GeoramaMeta
                 feature_object = feature_dataclass(**feature_dict)
                 start = time.time()
-                if get_feature_parameter.query[0].srs_name:
-                    srs = get_feature_parameter.query[feature_collection_index].srs_name
+                if get_feature_parameter.stored_query_or_query[0].srs_name:
+                    srs = get_feature_parameter.stored_query_or_query[
+                        feature_collection_index
+                    ].srs_name
                 else:
                     srs = None
                     for dataset in job.queries[feature_collection_index].datasets:

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_time_primitive_type import (
     TimeInstant,
@@ -14,20 +14,22 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class TimeGeometricPrimitivePropertyType:
-    time_period: Optional[TimePeriod] = field(
+    time_period_or_time_instant: Optional[Union[TimePeriod, TimeInstant]] = field(
         default=None,
         metadata={
-            "name": "TimePeriod",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    time_instant: Optional[TimeInstant] = field(
-        default=None,
-        metadata={
-            "name": "TimeInstant",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "TimePeriod",
+                    "type": TimePeriod,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TimeInstant",
+                    "type": TimeInstant,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

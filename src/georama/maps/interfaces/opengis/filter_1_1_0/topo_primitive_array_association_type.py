@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_topo_primitive_type import (
     Edge,
@@ -17,35 +18,31 @@ class TopoPrimitiveArrayAssociationType:
     TopoComplex.
     """
 
-    topo_solid: list[TopoSolid] = field(
+    choice: list[Union[TopoSolid, Face, Edge, Node]] = field(
         default_factory=list,
         metadata={
-            "name": "TopoSolid",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    face: list[Face] = field(
-        default_factory=list,
-        metadata={
-            "name": "Face",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    edge: list[Edge] = field(
-        default_factory=list,
-        metadata={
-            "name": "Edge",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    node: list[Node] = field(
-        default_factory=list,
-        metadata={
-            "name": "Node",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "TopoSolid",
+                    "type": TopoSolid,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Face",
+                    "type": Face,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Edge",
+                    "type": Edge,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Node",
+                    "type": Node,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
