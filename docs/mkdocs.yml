@@ -10,6 +10,7 @@ docs_dir: src
 nav:
   - "Welcome": index.md
   - "Quick Start": quick_start.md
+  - "Setup Environment Variables": setup_env.md
   - "DEV Setup": dev_setup.md
   - "Workflow": workflow.md
   - "General Hints": general_hints.md

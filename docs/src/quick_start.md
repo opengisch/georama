@@ -46,6 +46,8 @@ GEORAMA_LOCAL_DATA=/absolute/path/to/your/qgis/projects
 ```
 Optionally, adjust other variables in the .env file to match your environment.
 
+For a deeper dive into the environment variables see [setup_env.md](setup_env.md)
+
 ### 🚀 Start the Services
 Build and launch all containers:
 
