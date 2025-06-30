@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.filter_1_1_0.crsref_type import (
@@ -26,76 +26,69 @@ class ReferenceSystemRefType:
     definition of that reference system.
     """
 
-    compound_crs: Optional[CompoundCrs] = field(
+    choice: Optional[
+        Union[
+            CompoundCrs,
+            TemporalCrs,
+            ImageCrs,
+            EngineeringCrs,
+            DerivedCrs,
+            ProjectedCrs,
+            GeocentricCrs,
+            VerticalCrs,
+            GeographicCrs,
+        ]
+    ] = field(
         default=None,
         metadata={
-            "name": "CompoundCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    temporal_crs: Optional[TemporalCrs] = field(
-        default=None,
-        metadata={
-            "name": "TemporalCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    image_crs: Optional[ImageCrs] = field(
-        default=None,
-        metadata={
-            "name": "ImageCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    engineering_crs: Optional[EngineeringCrs] = field(
-        default=None,
-        metadata={
-            "name": "EngineeringCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    derived_crs: Optional[DerivedCrs] = field(
-        default=None,
-        metadata={
-            "name": "DerivedCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    projected_crs: Optional[ProjectedCrs] = field(
-        default=None,
-        metadata={
-            "name": "ProjectedCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    geocentric_crs: Optional[GeocentricCrs] = field(
-        default=None,
-        metadata={
-            "name": "GeocentricCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    vertical_crs: Optional[VerticalCrs] = field(
-        default=None,
-        metadata={
-            "name": "VerticalCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    geographic_crs: Optional[GeographicCrs] = field(
-        default=None,
-        metadata={
-            "name": "GeographicCRS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "CompoundCRS",
+                    "type": CompoundCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TemporalCRS",
+                    "type": TemporalCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ImageCRS",
+                    "type": ImageCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "EngineeringCRS",
+                    "type": EngineeringCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "DerivedCRS",
+                    "type": DerivedCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ProjectedCRS",
+                    "type": ProjectedCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "GeocentricCRS",
+                    "type": GeocentricCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "VerticalCRS",
+                    "type": VerticalCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "GeographicCRS",
+                    "type": GeographicCrs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.coordinate_operation_name import (
     CoordinateOperationName,
@@ -29,24 +29,6 @@ class AbstractGmltype:
 
     Elements in this hierarchy may have an ID and are thus
     referenceable.
-
-    :ivar meta_data_property:
-    :ivar description:
-    :ivar group_name:
-    :ivar parameter_name:
-    :ivar method_name:
-    :ivar coordinate_operation_name:
-    :ivar ellipsoid_name:
-    :ivar meridian_name:
-    :ivar datum_name:
-    :ivar cs_name:
-    :ivar srs_name:
-    :ivar name: Multiple names may be provided.  These will often be
-        distinguished by being assigned by different authorities, as
-        indicated by the value of the codeSpace attribute.  In an
-        instance document there will usually only be one name per
-        authority.
-    :ivar id:
     """
 
     class Meta:
@@ -67,83 +49,75 @@ class AbstractGmltype:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    group_name: list[GroupName] = field(
+    choice: list[
+        Union[
+            GroupName,
+            ParameterName,
+            MethodName,
+            CoordinateOperationName,
+            EllipsoidName,
+            MeridianName,
+            DatumName,
+            CsName,
+            SrsName,
+            Name,
+        ]
+    ] = field(
         default_factory=list,
         metadata={
-            "name": "groupName",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    parameter_name: list[ParameterName] = field(
-        default_factory=list,
-        metadata={
-            "name": "parameterName",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    method_name: list[MethodName] = field(
-        default_factory=list,
-        metadata={
-            "name": "methodName",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    coordinate_operation_name: list[CoordinateOperationName] = field(
-        default_factory=list,
-        metadata={
-            "name": "coordinateOperationName",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    ellipsoid_name: list[EllipsoidName] = field(
-        default_factory=list,
-        metadata={
-            "name": "ellipsoidName",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    meridian_name: list[MeridianName] = field(
-        default_factory=list,
-        metadata={
-            "name": "meridianName",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    datum_name: list[DatumName] = field(
-        default_factory=list,
-        metadata={
-            "name": "datumName",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    cs_name: list[CsName] = field(
-        default_factory=list,
-        metadata={
-            "name": "csName",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    srs_name: list[SrsName] = field(
-        default_factory=list,
-        metadata={
-            "name": "srsName",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    name: list[Name] = field(
-        default_factory=list,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "groupName",
+                    "type": GroupName,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "parameterName",
+                    "type": ParameterName,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "methodName",
+                    "type": MethodName,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "coordinateOperationName",
+                    "type": CoordinateOperationName,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ellipsoidName",
+                    "type": EllipsoidName,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "meridianName",
+                    "type": MeridianName,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "datumName",
+                    "type": DatumName,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "csName",
+                    "type": CsName,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "srsName",
+                    "type": SrsName,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "name",
+                    "type": Name,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     id: Optional[str] = field(

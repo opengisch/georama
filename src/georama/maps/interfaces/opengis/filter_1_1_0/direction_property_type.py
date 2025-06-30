@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.filter_1_1_0.code_type import CodeType
@@ -18,36 +18,32 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class DirectionPropertyType:
-    direction_vector: Optional[DirectionVector] = field(
+    choice: Optional[Union[DirectionVector, CompassPoint, CodeType, StringOrRefType]] = field(
         default=None,
         metadata={
-            "name": "DirectionVector",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    compass_point: Optional[CompassPoint] = field(
-        default=None,
-        metadata={
-            "name": "CompassPoint",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    direction_keyword: Optional[CodeType] = field(
-        default=None,
-        metadata={
-            "name": "DirectionKeyword",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    direction_string: Optional[StringOrRefType] = field(
-        default=None,
-        metadata={
-            "name": "DirectionString",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "DirectionVector",
+                    "type": DirectionVector,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompassPoint",
+                    "type": CompassPoint,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "DirectionKeyword",
+                    "type": CodeType,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "DirectionString",
+                    "type": StringOrRefType,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

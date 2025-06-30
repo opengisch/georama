@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import ForwardRef, Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -51,36 +51,32 @@ class CurvePropertyType:
     neither both nor none.
     """
 
-    orientable_curve: Optional["OrientableCurve"] = field(
+    choice: Optional[Union["OrientableCurve", "Curve", "CompositeCurve", LineString]] = field(
         default=None,
         metadata={
-            "name": "OrientableCurve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    curve: Optional["Curve"] = field(
-        default=None,
-        metadata={
-            "name": "Curve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    composite_curve: Optional["CompositeCurve"] = field(
-        default=None,
-        metadata={
-            "name": "CompositeCurve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    line_string: Optional[LineString] = field(
-        default=None,
-        metadata={
-            "name": "LineString",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "OrientableCurve",
+                    "type": ForwardRef("OrientableCurve"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Curve",
+                    "type": ForwardRef("Curve"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompositeCurve",
+                    "type": ForwardRef("CompositeCurve"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "LineString",
+                    "type": LineString,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(
@@ -313,124 +309,105 @@ class CurveSegmentArrayPropertyType:
     A container for an array of curve segments.
     """
 
-    bezier: list[Bezier] = field(
+    choice: list[
+        Union[
+            Bezier,
+            Bspline,
+            CubicSpline,
+            Geodesic,
+            GeodesicString,
+            Clothoid,
+            OffsetCurve,
+            CircleByCenterPoint,
+            ArcByCenterPoint,
+            ArcByBulge,
+            ArcStringByBulge,
+            Circle,
+            Arc,
+            ArcString,
+            LineStringSegment,
+        ]
+    ] = field(
         default_factory=list,
         metadata={
-            "name": "Bezier",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    bspline: list[Bspline] = field(
-        default_factory=list,
-        metadata={
-            "name": "BSpline",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    cubic_spline: list[CubicSpline] = field(
-        default_factory=list,
-        metadata={
-            "name": "CubicSpline",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    geodesic: list[Geodesic] = field(
-        default_factory=list,
-        metadata={
-            "name": "Geodesic",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    geodesic_string: list[GeodesicString] = field(
-        default_factory=list,
-        metadata={
-            "name": "GeodesicString",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    clothoid: list[Clothoid] = field(
-        default_factory=list,
-        metadata={
-            "name": "Clothoid",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    offset_curve: list[OffsetCurve] = field(
-        default_factory=list,
-        metadata={
-            "name": "OffsetCurve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    circle_by_center_point: list[CircleByCenterPoint] = field(
-        default_factory=list,
-        metadata={
-            "name": "CircleByCenterPoint",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    arc_by_center_point: list[ArcByCenterPoint] = field(
-        default_factory=list,
-        metadata={
-            "name": "ArcByCenterPoint",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    arc_by_bulge: list[ArcByBulge] = field(
-        default_factory=list,
-        metadata={
-            "name": "ArcByBulge",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    arc_string_by_bulge: list[ArcStringByBulge] = field(
-        default_factory=list,
-        metadata={
-            "name": "ArcStringByBulge",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    circle: list[Circle] = field(
-        default_factory=list,
-        metadata={
-            "name": "Circle",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    arc: list[Arc] = field(
-        default_factory=list,
-        metadata={
-            "name": "Arc",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    arc_string: list[ArcString] = field(
-        default_factory=list,
-        metadata={
-            "name": "ArcString",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    line_string_segment: list[LineStringSegment] = field(
-        default_factory=list,
-        metadata={
-            "name": "LineStringSegment",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "Bezier",
+                    "type": Bezier,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "BSpline",
+                    "type": Bspline,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CubicSpline",
+                    "type": CubicSpline,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Geodesic",
+                    "type": Geodesic,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "GeodesicString",
+                    "type": GeodesicString,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Clothoid",
+                    "type": Clothoid,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "OffsetCurve",
+                    "type": OffsetCurve,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CircleByCenterPoint",
+                    "type": CircleByCenterPoint,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ArcByCenterPoint",
+                    "type": ArcByCenterPoint,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ArcByBulge",
+                    "type": ArcByBulge,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ArcStringByBulge",
+                    "type": ArcStringByBulge,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Circle",
+                    "type": Circle,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Arc",
+                    "type": Arc,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ArcString",
+                    "type": ArcString,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "LineStringSegment",
+                    "type": LineStringSegment,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
 

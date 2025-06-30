@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -26,14 +26,7 @@ class CubicSplineType(AbstractCurveSegmentType):
     The function describing the curve must be C2, that is, have a continuous 1st and 2nd derivative at all points, and pass through the controlPoints in the order given. Between the control points, the curve segment is defined by a cubic polynomial. At each control point, the polynomial changes in such a manner that the 1st and 2nd derivative vectors are the same from either side. The control parameters record must contain vectorAtStart, and vectorAtEnd which are the unit tangent vectors at controlPoint[1] and controlPoint[n] where n = controlPoint.count.
     Note: only the direction of the vectors is relevant, not their length.
 
-    :ivar pos:
-    :ivar point_property:
-    :ivar point_rep: Deprecated with GML version 3.1.0. Use
-        "pointProperty" instead. Included for backwards compatibility
-        with GML 3.0.0.
-    :ivar pos_list:
-    :ivar coordinates: Deprecated with GML version 3.1.0. Use "posList"
-        instead.
+    :ivar choice:
     :ivar vector_at_start: "vectorAtStart" is the unit tangent vector at
         the start point of the spline.
     :ivar vector_at_end: "vectorAtEnd" is the unit tangent vector at the
@@ -46,42 +39,37 @@ class CubicSplineType(AbstractCurveSegmentType):
     :ivar degree: The degree for a cubic spline is "3".
     """
 
-    pos: list[Pos] = field(
+    choice: list[Union[Pos, PointProperty, PointRep, PosList, Coordinates]] = field(
         default_factory=list,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    point_property: list[PointProperty] = field(
-        default_factory=list,
-        metadata={
-            "name": "pointProperty",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    point_rep: list[PointRep] = field(
-        default_factory=list,
-        metadata={
-            "name": "pointRep",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    pos_list: Optional[PosList] = field(
-        default=None,
-        metadata={
-            "name": "posList",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    coordinates: Optional[Coordinates] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "pos",
+                    "type": Pos,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "pointProperty",
+                    "type": PointProperty,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "pointRep",
+                    "type": PointRep,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "posList",
+                    "type": PosList,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "coordinates",
+                    "type": Coordinates,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     vector_at_start: Optional[VectorType] = field(

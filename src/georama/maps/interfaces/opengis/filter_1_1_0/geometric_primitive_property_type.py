@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.filter_1_1_0.composite_solid_type import (
@@ -43,116 +43,99 @@ class GeometricPrimitivePropertyType:
     neither both nor none.
     """
 
-    solid: Optional[Solid] = field(
+    choice: Optional[
+        Union[
+            Solid,
+            CompositeSolid,
+            OrientableSurface,
+            Tin,
+            TriangulatedSurface,
+            PolyhedralSurface,
+            Surface,
+            CompositeSurface,
+            Polygon,
+            OrientableCurve,
+            Curve,
+            CompositeCurve,
+            LineString,
+            Point,
+        ]
+    ] = field(
         default=None,
         metadata={
-            "name": "Solid",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    composite_solid: Optional[CompositeSolid] = field(
-        default=None,
-        metadata={
-            "name": "CompositeSolid",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    orientable_surface: Optional[OrientableSurface] = field(
-        default=None,
-        metadata={
-            "name": "OrientableSurface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    tin: Optional[Tin] = field(
-        default=None,
-        metadata={
-            "name": "Tin",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    triangulated_surface: Optional[TriangulatedSurface] = field(
-        default=None,
-        metadata={
-            "name": "TriangulatedSurface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    polyhedral_surface: Optional[PolyhedralSurface] = field(
-        default=None,
-        metadata={
-            "name": "PolyhedralSurface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    surface: Optional[Surface] = field(
-        default=None,
-        metadata={
-            "name": "Surface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    composite_surface: Optional[CompositeSurface] = field(
-        default=None,
-        metadata={
-            "name": "CompositeSurface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    polygon: Optional[Polygon] = field(
-        default=None,
-        metadata={
-            "name": "Polygon",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    orientable_curve: Optional[OrientableCurve] = field(
-        default=None,
-        metadata={
-            "name": "OrientableCurve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    curve: Optional[Curve] = field(
-        default=None,
-        metadata={
-            "name": "Curve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    composite_curve: Optional[CompositeCurve] = field(
-        default=None,
-        metadata={
-            "name": "CompositeCurve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    line_string: Optional[LineString] = field(
-        default=None,
-        metadata={
-            "name": "LineString",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    point: Optional[Point] = field(
-        default=None,
-        metadata={
-            "name": "Point",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "Solid",
+                    "type": Solid,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompositeSolid",
+                    "type": CompositeSolid,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "OrientableSurface",
+                    "type": OrientableSurface,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Tin",
+                    "type": Tin,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TriangulatedSurface",
+                    "type": TriangulatedSurface,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "PolyhedralSurface",
+                    "type": PolyhedralSurface,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Surface",
+                    "type": Surface,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompositeSurface",
+                    "type": CompositeSurface,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Polygon",
+                    "type": Polygon,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "OrientableCurve",
+                    "type": OrientableCurve,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Curve",
+                    "type": Curve,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompositeCurve",
+                    "type": CompositeCurve,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "LineString",
+                    "type": LineString,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Point",
+                    "type": Point,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

@@ -4,12 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models import Model
 from xsdata.formats.dataclass.serializers import XmlSerializer
 
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.exception import (
-    Exception,
-)
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.exception_report import (
-    ExceptionReport,
-)
+from georama.maps.interfaces.ogc.wfs_2_0_0 import Exception, ExceptionReport
 
 
 class OgcOperation:

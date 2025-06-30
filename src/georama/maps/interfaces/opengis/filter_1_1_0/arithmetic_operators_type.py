@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.functions_type import FunctionsType
 from georama.maps.interfaces.opengis.filter_1_1_0.simple_arithmetic import (
@@ -10,19 +11,21 @@ __NAMESPACE__ = "http://www.opengis.net/ogc"
 
 @dataclass
 class ArithmeticOperatorsType:
-    simple_arithmetic: list[SimpleArithmetic] = field(
+    simple_arithmetic_or_functions: list[Union[SimpleArithmetic, FunctionsType]] = field(
         default_factory=list,
         metadata={
-            "name": "SimpleArithmetic",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    functions: list[FunctionsType] = field(
-        default_factory=list,
-        metadata={
-            "name": "Functions",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "SimpleArithmetic",
+                    "type": SimpleArithmetic,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Functions",
+                    "type": FunctionsType,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+            ),
         },
     )

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_time_object_type import (
     AbstractTimeObjectType,
@@ -200,49 +200,60 @@ class TimeNodeType(AbstractTimeTopologyPrimitiveType):
 
 @dataclass
 class TimePeriodType(AbstractTimeGeometricPrimitiveType):
-    begin_position: Optional[TimePositionType] = field(
+    begin_position_or_begin: Optional[
+        Union[TimePositionType, TimeInstantPropertyType]
+    ] = field(
         default=None,
         metadata={
-            "name": "beginPosition",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "beginPosition",
+                    "type": TimePositionType,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "begin",
+                    "type": TimeInstantPropertyType,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
-    begin: Optional[TimeInstantPropertyType] = field(
+    end_position_or_end: Optional[Union[TimePositionType, TimeInstantPropertyType]] = field(
         default=None,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "endPosition",
+                    "type": TimePositionType,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "end",
+                    "type": TimeInstantPropertyType,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
-    end_position: Optional[TimePositionType] = field(
+    duration_or_time_interval: Optional[Union[Duration, TimeInterval]] = field(
         default=None,
         metadata={
-            "name": "endPosition",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    end: Optional[TimeInstantPropertyType] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    duration: Optional[Duration] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    time_interval: Optional[TimeInterval] = field(
-        default=None,
-        metadata={
-            "name": "timeInterval",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "duration",
+                    "type": Duration,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "timeInterval",
+                    "type": TimeInterval,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
 
@@ -549,36 +560,32 @@ class TimeEdgePropertyType:
 
 @dataclass
 class TimePrimitivePropertyType:
-    time_edge: Optional[TimeEdge] = field(
+    choice: Optional[Union[TimeEdge, TimeNode, TimePeriod, TimeInstant]] = field(
         default=None,
         metadata={
-            "name": "TimeEdge",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    time_node: Optional[TimeNode] = field(
-        default=None,
-        metadata={
-            "name": "TimeNode",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    time_period: Optional[TimePeriod] = field(
-        default=None,
-        metadata={
-            "name": "TimePeriod",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    time_instant: Optional[TimeInstant] = field(
-        default=None,
-        metadata={
-            "name": "TimeInstant",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "TimeEdge",
+                    "type": TimeEdge,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TimeNode",
+                    "type": TimeNode,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TimePeriod",
+                    "type": TimePeriod,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TimeInstant",
+                    "type": TimeInstant,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

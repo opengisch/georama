@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.filter_1_1_0.composite_solid_type import (
@@ -31,36 +31,34 @@ class GeometricComplexPropertyType:
     NOTE: The allowed geometry elements contained in such a property (or referenced by it) have to be modelled by an XML Schema choice element since the composites inherit both from geometric complex *and* geometric primitive and are already part of the _GeometricPrimitive substitution group.
     """
 
-    geometric_complex: Optional[GeometricComplex] = field(
+    choice: Optional[
+        Union[GeometricComplex, CompositeCurve, CompositeSurface, CompositeSolid]
+    ] = field(
         default=None,
         metadata={
-            "name": "GeometricComplex",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    composite_curve: Optional[CompositeCurve] = field(
-        default=None,
-        metadata={
-            "name": "CompositeCurve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    composite_surface: Optional[CompositeSurface] = field(
-        default=None,
-        metadata={
-            "name": "CompositeSurface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    composite_solid: Optional[CompositeSolid] = field(
-        default=None,
-        metadata={
-            "name": "CompositeSolid",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "GeometricComplex",
+                    "type": GeometricComplex,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompositeCurve",
+                    "type": CompositeCurve,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompositeSurface",
+                    "type": CompositeSurface,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompositeSolid",
+                    "type": CompositeSolid,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

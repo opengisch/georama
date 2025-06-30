@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.decimal_minutes import DecimalMinutes
 from georama.maps.interfaces.opengis.filter_1_1_0.degrees import Degrees
@@ -26,25 +26,29 @@ class DmsangleType:
             "required": True,
         },
     )
-    decimal_minutes: Optional[DecimalMinutes] = field(
-        default=None,
+    decimal_minutes_or_minutes_or_seconds: list[
+        Union[DecimalMinutes, Minutes, Seconds]
+    ] = field(
+        default_factory=list,
         metadata={
-            "name": "decimalMinutes",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    minutes: Optional[Minutes] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    seconds: Optional[Seconds] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "decimalMinutes",
+                    "type": DecimalMinutes,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "minutes",
+                    "type": Minutes,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "seconds",
+                    "type": Seconds,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
+            "max_occurs": 2,
         },
     )

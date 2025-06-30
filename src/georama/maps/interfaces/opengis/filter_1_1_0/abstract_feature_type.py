@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_gmltype import (
     AbstractGmltype,
@@ -20,10 +20,6 @@ class AbstractFeatureType(AbstractGmltype):
     boundedBy.
 
     A concrete feature type must derive from this type and specify additional  properties in an application schema. A feature must possess an identifying attribute ('id' - 'fid' has been deprecated).
-
-    :ivar bounded_by:
-    :ivar priority_location:
-    :ivar location: deprecated in GML version 3.1
     """
 
     bounded_by: Optional[BoundedBy] = field(
@@ -34,18 +30,21 @@ class AbstractFeatureType(AbstractGmltype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    priority_location: Optional[PriorityLocation] = field(
+    priority_location_or_location: Optional[Union[PriorityLocation, Location]] = field(
         default=None,
         metadata={
-            "name": "priorityLocation",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    location: Optional[Location] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "priorityLocation",
+                    "type": PriorityLocation,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "location",
+                    "type": Location,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )

@@ -955,6 +955,9 @@ from georama.maps.interfaces.opengis.filter_1_1_0.history import History
 from georama.maps.interfaces.opengis.filter_1_1_0.history_property_type import (
     HistoryPropertyType,
 )
+from georama.maps.interfaces.opengis.filter_1_1_0.horizontal_angle import (
+    HorizontalAngle,
+)
 from georama.maps.interfaces.opengis.filter_1_1_0.id import Id
 from georama.maps.interfaces.opengis.filter_1_1_0.id_capabilities_type import (
     IdCapabilitiesType,
@@ -1066,6 +1069,7 @@ from georama.maps.interfaces.opengis.filter_1_1_0.logical_operators import (
 from georama.maps.interfaces.opengis.filter_1_1_0.lower_boundary_type import (
     LowerBoundaryType,
 )
+from georama.maps.interfaces.opengis.filter_1_1_0.lower_corner import LowerCorner
 from georama.maps.interfaces.opengis.filter_1_1_0.mapping_rule import MappingRule
 from georama.maps.interfaces.opengis.filter_1_1_0.maximum_occurs import MaximumOccurs
 from georama.maps.interfaces.opengis.filter_1_1_0.measure import Measure
@@ -1844,6 +1848,7 @@ from georama.maps.interfaces.opengis.filter_1_1_0.unit_of_measure_type import (
 from georama.maps.interfaces.opengis.filter_1_1_0.upper_boundary_type import (
     UpperBoundaryType,
 )
+from georama.maps.interfaces.opengis.filter_1_1_0.upper_corner import UpperCorner
 from georama.maps.interfaces.opengis.filter_1_1_0.user_defined_cs import UserDefinedCs
 from georama.maps.interfaces.opengis.filter_1_1_0.user_defined_csref import (
     UserDefinedCsref,
@@ -1907,6 +1912,7 @@ from georama.maps.interfaces.opengis.filter_1_1_0.values_of_group import ValuesO
 from georama.maps.interfaces.opengis.filter_1_1_0.vector import Vector
 from georama.maps.interfaces.opengis.filter_1_1_0.vector_type import VectorType
 from georama.maps.interfaces.opengis.filter_1_1_0.version import Version
+from georama.maps.interfaces.opengis.filter_1_1_0.vertical_angle import VerticalAngle
 from georama.maps.interfaces.opengis.filter_1_1_0.vertical_crs import VerticalCrs
 from georama.maps.interfaces.opengis.filter_1_1_0.vertical_crsref import VerticalCrsref
 from georama.maps.interfaces.opengis.filter_1_1_0.vertical_crsref_type import (
@@ -2467,6 +2473,7 @@ __all__ = [
     "GroupName",
     "History",
     "HistoryPropertyType",
+    "HorizontalAngle",
     "Id",
     "IdCapabilitiesType",
     "IdentifierType",
@@ -2532,6 +2539,7 @@ __all__ = [
     "LogicOpsType",
     "LogicalOperators",
     "LowerBoundaryType",
+    "LowerCorner",
     "MappingRule",
     "MaximumOccurs",
     "Measure",
@@ -2906,6 +2914,7 @@ __all__ = [
     "UnitOfMeasure",
     "UnitOfMeasureType",
     "UpperBoundaryType",
+    "UpperCorner",
     "UserDefinedCs",
     "UserDefinedCsref",
     "UserDefinedCsrefType",
@@ -2941,6 +2950,7 @@ __all__ = [
     "Vector",
     "VectorType",
     "Version",
+    "VerticalAngle",
     "VerticalCrs",
     "VerticalCrsref",
     "VerticalCrsrefType",

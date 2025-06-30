@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import ForwardRef, Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_surface_type import (
     AbstractSurfaceType,
@@ -32,60 +32,57 @@ class SurfacePropertyType:
     neither both nor none.
     """
 
-    orientable_surface: Optional["OrientableSurface"] = field(
+    choice: Optional[
+        Union[
+            "OrientableSurface",
+            Tin,
+            TriangulatedSurface,
+            PolyhedralSurface,
+            Surface,
+            "CompositeSurface",
+            Polygon,
+        ]
+    ] = field(
         default=None,
         metadata={
-            "name": "OrientableSurface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    tin: Optional[Tin] = field(
-        default=None,
-        metadata={
-            "name": "Tin",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    triangulated_surface: Optional[TriangulatedSurface] = field(
-        default=None,
-        metadata={
-            "name": "TriangulatedSurface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    polyhedral_surface: Optional[PolyhedralSurface] = field(
-        default=None,
-        metadata={
-            "name": "PolyhedralSurface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    surface: Optional[Surface] = field(
-        default=None,
-        metadata={
-            "name": "Surface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    composite_surface: Optional["CompositeSurface"] = field(
-        default=None,
-        metadata={
-            "name": "CompositeSurface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    polygon: Optional[Polygon] = field(
-        default=None,
-        metadata={
-            "name": "Polygon",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "OrientableSurface",
+                    "type": ForwardRef("OrientableSurface"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Tin",
+                    "type": Tin,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TriangulatedSurface",
+                    "type": TriangulatedSurface,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "PolyhedralSurface",
+                    "type": PolyhedralSurface,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Surface",
+                    "type": Surface,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompositeSurface",
+                    "type": ForwardRef("CompositeSurface"),
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Polygon",
+                    "type": Polygon,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import ForwardRef, Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.bbox import Bbox
 from georama.maps.interfaces.opengis.filter_1_1_0.beyond import Beyond
@@ -43,197 +43,159 @@ __NAMESPACE__ = "http://www.opengis.net/ogc"
 
 @dataclass
 class BinaryLogicOpType(LogicOpsType):
-    property_is_between: list[PropertyIsBetween] = field(
+    choice: list[
+        Union[
+            PropertyIsBetween,
+            PropertyIsNull,
+            PropertyIsLike,
+            PropertyIsGreaterThanOrEqualTo,
+            PropertyIsLessThanOrEqualTo,
+            PropertyIsGreaterThan,
+            PropertyIsLessThan,
+            PropertyIsNotEqualTo,
+            PropertyIsEqualTo,
+            Bbox,
+            Beyond,
+            Dwithin,
+            Contains,
+            Intersects,
+            Crosses,
+            Overlaps,
+            Within,
+            Touches,
+            Disjoint,
+            Equals,
+            "Not",
+            "Or",
+            "And",
+            Function,
+        ]
+    ] = field(
         default_factory=list,
         metadata={
-            "name": "PropertyIsBetween",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_null: list[PropertyIsNull] = field(
-        default_factory=list,
-        metadata={
-            "name": "PropertyIsNull",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_like: list[PropertyIsLike] = field(
-        default_factory=list,
-        metadata={
-            "name": "PropertyIsLike",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_greater_than_or_equal_to: list[PropertyIsGreaterThanOrEqualTo] = field(
-        default_factory=list,
-        metadata={
-            "name": "PropertyIsGreaterThanOrEqualTo",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_less_than_or_equal_to: list[PropertyIsLessThanOrEqualTo] = field(
-        default_factory=list,
-        metadata={
-            "name": "PropertyIsLessThanOrEqualTo",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_greater_than: list[PropertyIsGreaterThan] = field(
-        default_factory=list,
-        metadata={
-            "name": "PropertyIsGreaterThan",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_less_than: list[PropertyIsLessThan] = field(
-        default_factory=list,
-        metadata={
-            "name": "PropertyIsLessThan",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_not_equal_to: list[PropertyIsNotEqualTo] = field(
-        default_factory=list,
-        metadata={
-            "name": "PropertyIsNotEqualTo",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_equal_to: list[PropertyIsEqualTo] = field(
-        default_factory=list,
-        metadata={
-            "name": "PropertyIsEqualTo",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    bbox: list[Bbox] = field(
-        default_factory=list,
-        metadata={
-            "name": "BBOX",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    beyond: list[Beyond] = field(
-        default_factory=list,
-        metadata={
-            "name": "Beyond",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    dwithin: list[Dwithin] = field(
-        default_factory=list,
-        metadata={
-            "name": "DWithin",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    contains: list[Contains] = field(
-        default_factory=list,
-        metadata={
-            "name": "Contains",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    intersects: list[Intersects] = field(
-        default_factory=list,
-        metadata={
-            "name": "Intersects",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    crosses: list[Crosses] = field(
-        default_factory=list,
-        metadata={
-            "name": "Crosses",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    overlaps: list[Overlaps] = field(
-        default_factory=list,
-        metadata={
-            "name": "Overlaps",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    within: list[Within] = field(
-        default_factory=list,
-        metadata={
-            "name": "Within",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    touches: list[Touches] = field(
-        default_factory=list,
-        metadata={
-            "name": "Touches",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    disjoint: list[Disjoint] = field(
-        default_factory=list,
-        metadata={
-            "name": "Disjoint",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    equals: list[Equals] = field(
-        default_factory=list,
-        metadata={
-            "name": "Equals",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    not_value: list["Not"] = field(
-        default_factory=list,
-        metadata={
-            "name": "Not",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    or_value: list["Or"] = field(
-        default_factory=list,
-        metadata={
-            "name": "Or",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    and_value: list["And"] = field(
-        default_factory=list,
-        metadata={
-            "name": "And",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    function: list[Function] = field(
-        default_factory=list,
-        metadata={
-            "name": "Function",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-            "min_occurs": 2,
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "PropertyIsBetween",
+                    "type": PropertyIsBetween,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsNull",
+                    "type": PropertyIsNull,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsLike",
+                    "type": PropertyIsLike,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsGreaterThanOrEqualTo",
+                    "type": PropertyIsGreaterThanOrEqualTo,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsLessThanOrEqualTo",
+                    "type": PropertyIsLessThanOrEqualTo,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsGreaterThan",
+                    "type": PropertyIsGreaterThan,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsLessThan",
+                    "type": PropertyIsLessThan,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsNotEqualTo",
+                    "type": PropertyIsNotEqualTo,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsEqualTo",
+                    "type": PropertyIsEqualTo,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "BBOX",
+                    "type": Bbox,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Beyond",
+                    "type": Beyond,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "DWithin",
+                    "type": Dwithin,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Contains",
+                    "type": Contains,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Intersects",
+                    "type": Intersects,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Crosses",
+                    "type": Crosses,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Overlaps",
+                    "type": Overlaps,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Within",
+                    "type": Within,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Touches",
+                    "type": Touches,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Disjoint",
+                    "type": Disjoint,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Equals",
+                    "type": Equals,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Not",
+                    "type": ForwardRef("Not"),
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Or",
+                    "type": ForwardRef("Or"),
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "And",
+                    "type": ForwardRef("And"),
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Function",
+                    "type": Function,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+            ),
         },
     )
 
@@ -252,196 +214,159 @@ class Or(BinaryLogicOpType):
 
 @dataclass
 class UnaryLogicOpType(LogicOpsType):
-    property_is_between: Optional[PropertyIsBetween] = field(
+    choice: Optional[
+        Union[
+            PropertyIsBetween,
+            PropertyIsNull,
+            PropertyIsLike,
+            PropertyIsGreaterThanOrEqualTo,
+            PropertyIsLessThanOrEqualTo,
+            PropertyIsGreaterThan,
+            PropertyIsLessThan,
+            PropertyIsNotEqualTo,
+            PropertyIsEqualTo,
+            Bbox,
+            Beyond,
+            Dwithin,
+            Contains,
+            Intersects,
+            Crosses,
+            Overlaps,
+            Within,
+            Touches,
+            Disjoint,
+            Equals,
+            "Not",
+            Or,
+            And,
+            Function,
+        ]
+    ] = field(
         default=None,
         metadata={
-            "name": "PropertyIsBetween",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_null: Optional[PropertyIsNull] = field(
-        default=None,
-        metadata={
-            "name": "PropertyIsNull",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_like: Optional[PropertyIsLike] = field(
-        default=None,
-        metadata={
-            "name": "PropertyIsLike",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_greater_than_or_equal_to: Optional[PropertyIsGreaterThanOrEqualTo] = field(
-        default=None,
-        metadata={
-            "name": "PropertyIsGreaterThanOrEqualTo",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_less_than_or_equal_to: Optional[PropertyIsLessThanOrEqualTo] = field(
-        default=None,
-        metadata={
-            "name": "PropertyIsLessThanOrEqualTo",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_greater_than: Optional[PropertyIsGreaterThan] = field(
-        default=None,
-        metadata={
-            "name": "PropertyIsGreaterThan",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_less_than: Optional[PropertyIsLessThan] = field(
-        default=None,
-        metadata={
-            "name": "PropertyIsLessThan",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_not_equal_to: Optional[PropertyIsNotEqualTo] = field(
-        default=None,
-        metadata={
-            "name": "PropertyIsNotEqualTo",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    property_is_equal_to: Optional[PropertyIsEqualTo] = field(
-        default=None,
-        metadata={
-            "name": "PropertyIsEqualTo",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    bbox: Optional[Bbox] = field(
-        default=None,
-        metadata={
-            "name": "BBOX",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    beyond: Optional[Beyond] = field(
-        default=None,
-        metadata={
-            "name": "Beyond",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    dwithin: Optional[Dwithin] = field(
-        default=None,
-        metadata={
-            "name": "DWithin",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    contains: Optional[Contains] = field(
-        default=None,
-        metadata={
-            "name": "Contains",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    intersects: Optional[Intersects] = field(
-        default=None,
-        metadata={
-            "name": "Intersects",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    crosses: Optional[Crosses] = field(
-        default=None,
-        metadata={
-            "name": "Crosses",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    overlaps: Optional[Overlaps] = field(
-        default=None,
-        metadata={
-            "name": "Overlaps",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    within: Optional[Within] = field(
-        default=None,
-        metadata={
-            "name": "Within",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    touches: Optional[Touches] = field(
-        default=None,
-        metadata={
-            "name": "Touches",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    disjoint: Optional[Disjoint] = field(
-        default=None,
-        metadata={
-            "name": "Disjoint",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    equals: Optional[Equals] = field(
-        default=None,
-        metadata={
-            "name": "Equals",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    not_value: Optional["Not"] = field(
-        default=None,
-        metadata={
-            "name": "Not",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    or_value: Optional[Or] = field(
-        default=None,
-        metadata={
-            "name": "Or",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    and_value: Optional[And] = field(
-        default=None,
-        metadata={
-            "name": "And",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-        },
-    )
-    function: Optional[Function] = field(
-        default=None,
-        metadata={
-            "name": "Function",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "PropertyIsBetween",
+                    "type": PropertyIsBetween,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsNull",
+                    "type": PropertyIsNull,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsLike",
+                    "type": PropertyIsLike,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsGreaterThanOrEqualTo",
+                    "type": PropertyIsGreaterThanOrEqualTo,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsLessThanOrEqualTo",
+                    "type": PropertyIsLessThanOrEqualTo,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsGreaterThan",
+                    "type": PropertyIsGreaterThan,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsLessThan",
+                    "type": PropertyIsLessThan,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsNotEqualTo",
+                    "type": PropertyIsNotEqualTo,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "PropertyIsEqualTo",
+                    "type": PropertyIsEqualTo,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "BBOX",
+                    "type": Bbox,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Beyond",
+                    "type": Beyond,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "DWithin",
+                    "type": Dwithin,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Contains",
+                    "type": Contains,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Intersects",
+                    "type": Intersects,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Crosses",
+                    "type": Crosses,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Overlaps",
+                    "type": Overlaps,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Within",
+                    "type": Within,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Touches",
+                    "type": Touches,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Disjoint",
+                    "type": Disjoint,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Equals",
+                    "type": Equals,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Not",
+                    "type": ForwardRef("Not"),
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Or",
+                    "type": Or,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "And",
+                    "type": And,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+                {
+                    "name": "Function",
+                    "type": Function,
+                    "namespace": "http://www.opengis.net/ogc",
+                },
+            ),
         },
     )
 

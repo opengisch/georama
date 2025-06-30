@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_surface_patch_type import (
     AbstractSurfacePatchType,
@@ -23,10 +23,7 @@ class RectangleType(AbstractSurfacePatchType):
     Note that this is a polygon (subtype) with no inner boundaries. The
     number of points in the linear ring must be five.
 
-    :ivar outer_boundary_is:
-    :ivar exterior: Constraint: The Ring shall be a LinearRing and must
-        form a rectangle; the first and the last position must be co-
-        incident.
+    :ivar outer_boundary_is_or_exterior:
     :ivar interpolation: The attribute "interpolation" specifies the
         interpolation mechanism used for this surface patch. Currently
         only planar surface patches are defined in GML 3, the attribute
@@ -35,19 +32,22 @@ class RectangleType(AbstractSurfacePatchType):
         contained within that plane.
     """
 
-    outer_boundary_is: Optional[OuterBoundaryIs] = field(
+    outer_boundary_is_or_exterior: Optional[Union[OuterBoundaryIs, Exterior]] = field(
         default=None,
         metadata={
-            "name": "outerBoundaryIs",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    exterior: Optional[Exterior] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "outerBoundaryIs",
+                    "type": OuterBoundaryIs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "exterior",
+                    "type": Exterior,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     interpolation: SurfaceInterpolationType = field(

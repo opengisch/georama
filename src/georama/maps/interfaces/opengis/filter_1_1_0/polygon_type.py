@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_surface_type import (
     AbstractSurfaceType,
@@ -26,33 +26,39 @@ class PolygonType(AbstractSurfaceType):
     PolygonPatch.
     """
 
-    outer_boundary_is: Optional[OuterBoundaryIs] = field(
+    outer_boundary_is_or_exterior: Optional[Union[OuterBoundaryIs, Exterior]] = field(
         default=None,
         metadata={
-            "name": "outerBoundaryIs",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "outerBoundaryIs",
+                    "type": OuterBoundaryIs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "exterior",
+                    "type": Exterior,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
-    exterior: Optional[Exterior] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    inner_boundary_is: list[InnerBoundaryIs] = field(
+    inner_boundary_is_or_interior: list[Union[InnerBoundaryIs, Interior]] = field(
         default_factory=list,
         metadata={
-            "name": "innerBoundaryIs",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    interior: list[Interior] = field(
-        default_factory=list,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "innerBoundaryIs",
+                    "type": InnerBoundaryIs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "interior",
+                    "type": Interior,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
