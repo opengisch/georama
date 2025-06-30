@@ -179,7 +179,7 @@ class WfsGetFeature(WfsOperation):
         Returns:
             Whether the filter is empty or not.
         """
-        if len(filter.choice) > 1:
+        if len(filter.choice) > 0:
             return False
         else:
             return True
@@ -272,19 +272,16 @@ class WfsGetFeature(WfsOperation):
                 # and one which states a conflicting situation B.8.5.5
                 # TODO: Check how the conflict can be explained?
                 fes_filter.bbox = Bbox(
-                    value_reference=[
-                        ValueReference(type_name) for type_name in type_names_value_list
-                    ],
-                    other_element=[
+                    choice=[ValueReference(type_name) for type_name in type_names_value_list]
+                    + [
                         Envelope(
                             lower_corner=DirectPositionType(value=bbox_list[0:2]),
                             upper_corner=DirectPositionType(value=bbox_list[2:4]),
                             srs_name=bbox_crs,
                             srs_dimension=2,
                         )
-                    ],
+                    ]
                 )
-
             queries.append(
                 Query(
                     srs_name=srs_name,
