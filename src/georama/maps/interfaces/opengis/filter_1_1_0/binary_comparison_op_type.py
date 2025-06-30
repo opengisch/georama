@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.binary_operator_type import (
     Add,
@@ -18,66 +19,54 @@ __NAMESPACE__ = "http://www.opengis.net/ogc"
 
 @dataclass
 class BinaryComparisonOpType(ComparisonOpsType):
-    literal: list[Literal] = field(
+    choice: list[Union[Literal, Function, PropertyName, Div, Mul, Sub, Add]] = field(
         default_factory=list,
         metadata={
-            "name": "Literal",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-            "max_occurs": 2,
-        },
-    )
-    function: list[Function] = field(
-        default_factory=list,
-        metadata={
-            "name": "Function",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-            "max_occurs": 2,
-        },
-    )
-    property_name: list[PropertyName] = field(
-        default_factory=list,
-        metadata={
-            "name": "PropertyName",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-            "max_occurs": 2,
-        },
-    )
-    div: list[Div] = field(
-        default_factory=list,
-        metadata={
-            "name": "Div",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-            "max_occurs": 2,
-        },
-    )
-    mul: list[Mul] = field(
-        default_factory=list,
-        metadata={
-            "name": "Mul",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-            "max_occurs": 2,
-        },
-    )
-    sub: list[Sub] = field(
-        default_factory=list,
-        metadata={
-            "name": "Sub",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
-            "max_occurs": 2,
-        },
-    )
-    add: list[Add] = field(
-        default_factory=list,
-        metadata={
-            "name": "Add",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/ogc",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "Literal",
+                    "type": Literal,
+                    "namespace": "http://www.opengis.net/ogc",
+                    "max_occurs": 2,
+                },
+                {
+                    "name": "Function",
+                    "type": Function,
+                    "namespace": "http://www.opengis.net/ogc",
+                    "max_occurs": 2,
+                },
+                {
+                    "name": "PropertyName",
+                    "type": PropertyName,
+                    "namespace": "http://www.opengis.net/ogc",
+                    "max_occurs": 2,
+                },
+                {
+                    "name": "Div",
+                    "type": Div,
+                    "namespace": "http://www.opengis.net/ogc",
+                    "max_occurs": 2,
+                },
+                {
+                    "name": "Mul",
+                    "type": Mul,
+                    "namespace": "http://www.opengis.net/ogc",
+                    "max_occurs": 2,
+                },
+                {
+                    "name": "Sub",
+                    "type": Sub,
+                    "namespace": "http://www.opengis.net/ogc",
+                    "max_occurs": 2,
+                },
+                {
+                    "name": "Add",
+                    "type": Add,
+                    "namespace": "http://www.opengis.net/ogc",
+                    "max_occurs": 2,
+                },
+            ),
             "max_occurs": 2,
         },
     )

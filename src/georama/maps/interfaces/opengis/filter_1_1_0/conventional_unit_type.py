@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.conversion_to_preferred_unit import (
     ConversionToPreferredUnit,
@@ -26,20 +26,24 @@ class ConventionalUnitType(UnitDefinitionType):
     primitive units, may also be provided.
     """
 
-    conversion_to_preferred_unit: Optional[ConversionToPreferredUnit] = field(
+    conversion_to_preferred_unit_or_rough_conversion_to_preferred_unit: Optional[
+        Union[ConversionToPreferredUnit, RoughConversionToPreferredUnit]
+    ] = field(
         default=None,
         metadata={
-            "name": "conversionToPreferredUnit",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    rough_conversion_to_preferred_unit: Optional[RoughConversionToPreferredUnit] = field(
-        default=None,
-        metadata={
-            "name": "roughConversionToPreferredUnit",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "conversionToPreferredUnit",
+                    "type": ConversionToPreferredUnit,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "roughConversionToPreferredUnit",
+                    "type": RoughConversionToPreferredUnit,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     derivation_unit_term: list[DerivationUnitTerm] = field(

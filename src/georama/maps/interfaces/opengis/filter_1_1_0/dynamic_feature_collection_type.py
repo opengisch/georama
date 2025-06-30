@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.array_type import (
     FeatureCollectionType,
@@ -26,18 +26,22 @@ class DynamicFeatureCollectionType(FeatureCollectionType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    track: Optional[Track] = field(
+    track_or_history: Optional[Union[Track, History]] = field(
         default=None,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    history: Optional[History] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "track",
+                    "type": Track,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "history",
+                    "type": History,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     data_source: Optional[DataSource] = field(

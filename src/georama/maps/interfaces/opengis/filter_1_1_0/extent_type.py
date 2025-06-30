@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.bounding_box import BoundingBox
 from georama.maps.interfaces.opengis.filter_1_1_0.bounding_polygon import (
@@ -21,10 +21,7 @@ class ExtentType:
 
     :ivar description: Description of spatial and/or temporal extent of
         this object.
-    :ivar bounding_box: Unordered list of bounding boxes (or envelopes)
-        whose union describes the spatial domain of this object.
-    :ivar bounding_polygon: Unordered list of bounding polygons whose
-        union describes the spatial domain of this object.
+    :ivar bounding_box_or_bounding_polygon:
     :ivar vertical_extent: Unordered list of vertical intervals whose
         union describes the spatial domain of this object.
     :ivar temporal_extent: Unordered list of time periods whose union
@@ -38,20 +35,22 @@ class ExtentType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    bounding_box: list[BoundingBox] = field(
+    bounding_box_or_bounding_polygon: list[Union[BoundingBox, BoundingPolygon]] = field(
         default_factory=list,
         metadata={
-            "name": "boundingBox",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    bounding_polygon: list[BoundingPolygon] = field(
-        default_factory=list,
-        metadata={
-            "name": "boundingPolygon",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "boundingBox",
+                    "type": BoundingBox,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "boundingPolygon",
+                    "type": BoundingPolygon,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     vertical_extent: list[VerticalExtent] = field(

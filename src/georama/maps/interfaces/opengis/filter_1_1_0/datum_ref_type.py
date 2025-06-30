@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.filter_1_1_0.engineering_datum import (
@@ -22,44 +22,45 @@ class DatumRefType:
     datum.
     """
 
-    geodetic_datum: Optional[GeodeticDatum] = field(
+    choice: Optional[
+        Union[
+            GeodeticDatum,
+            TemporalDatum,
+            VerticalDatum,
+            ImageDatum,
+            EngineeringDatum,
+        ]
+    ] = field(
         default=None,
         metadata={
-            "name": "GeodeticDatum",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    temporal_datum: Optional[TemporalDatum] = field(
-        default=None,
-        metadata={
-            "name": "TemporalDatum",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    vertical_datum: Optional[VerticalDatum] = field(
-        default=None,
-        metadata={
-            "name": "VerticalDatum",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    image_datum: Optional[ImageDatum] = field(
-        default=None,
-        metadata={
-            "name": "ImageDatum",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    engineering_datum: Optional[EngineeringDatum] = field(
-        default=None,
-        metadata={
-            "name": "EngineeringDatum",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "GeodeticDatum",
+                    "type": GeodeticDatum,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TemporalDatum",
+                    "type": TemporalDatum,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "VerticalDatum",
+                    "type": VerticalDatum,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "ImageDatum",
+                    "type": ImageDatum,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "EngineeringDatum",
+                    "type": EngineeringDatum,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

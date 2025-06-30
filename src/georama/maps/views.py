@@ -20,9 +20,7 @@ from xsdata.formats.dataclass.serializers import JsonSerializer
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import MapsConfig
 from georama.maps.interfaces.georama.requests import QslGetMapRequest
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
-    GetFeature as GetFeature200,
-)
+from georama.maps.interfaces.ogc.wfs_2_0_0 import GetFeature as GetFeature200
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType

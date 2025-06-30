@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_reference_system_type import (
     AbstractReferenceSystemType,
@@ -27,20 +27,24 @@ class ImageCrstype(AbstractReferenceSystemType):
     class Meta:
         name = "ImageCRSType"
 
-    uses_cartesian_cs: Optional[UsesCartesianCs] = field(
+    uses_cartesian_cs_or_uses_oblique_cartesian_cs: Optional[
+        Union[UsesCartesianCs, UsesObliqueCartesianCs]
+    ] = field(
         default=None,
         metadata={
-            "name": "usesCartesianCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    uses_oblique_cartesian_cs: Optional[UsesObliqueCartesianCs] = field(
-        default=None,
-        metadata={
-            "name": "usesObliqueCartesianCS",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "usesCartesianCS",
+                    "type": UsesCartesianCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "usesObliqueCartesianCS",
+                    "type": UsesObliqueCartesianCs,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     uses_image_datum: Optional[UsesImageDatum] = field(

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_general_parameter_value_type import (
     AbstractGeneralParameterValueType,
@@ -34,67 +34,63 @@ class ParameterValueType(AbstractGeneralParameterValueType):
     with many instances.
     """
 
-    value: Optional[Value] = field(
+    choice: Optional[
+        Union[
+            Value,
+            DmsAngleValue,
+            StringValue,
+            IntegerValue,
+            BooleanValue,
+            ValueList,
+            IntegerValueList,
+            ValueFile,
+        ]
+    ] = field(
         default=None,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    dms_angle_value: Optional[DmsAngleValue] = field(
-        default=None,
-        metadata={
-            "name": "dmsAngleValue",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    string_value: Optional[StringValue] = field(
-        default=None,
-        metadata={
-            "name": "stringValue",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    integer_value: Optional[IntegerValue] = field(
-        default=None,
-        metadata={
-            "name": "integerValue",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    boolean_value: Optional[BooleanValue] = field(
-        default=None,
-        metadata={
-            "name": "booleanValue",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    value_list: Optional[ValueList] = field(
-        default=None,
-        metadata={
-            "name": "valueList",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    integer_value_list: Optional[IntegerValueList] = field(
-        default=None,
-        metadata={
-            "name": "integerValueList",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    value_file: Optional[ValueFile] = field(
-        default=None,
-        metadata={
-            "name": "valueFile",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "value",
+                    "type": Value,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "dmsAngleValue",
+                    "type": DmsAngleValue,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "stringValue",
+                    "type": StringValue,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "integerValue",
+                    "type": IntegerValue,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "booleanValue",
+                    "type": BooleanValue,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "valueList",
+                    "type": ValueList,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "integerValueList",
+                    "type": IntegerValueList,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "valueFile",
+                    "type": ValueFile,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     value_of_parameter: Optional[ValueOfParameter] = field(

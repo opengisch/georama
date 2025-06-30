@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_time_primitive_type import (
     TimeEdge,
@@ -22,20 +22,22 @@ class TimeTopologyPrimitivePropertyType:
     given, but not both or none.
     """
 
-    time_edge: Optional[TimeEdge] = field(
+    time_edge_or_time_node: Optional[Union[TimeEdge, TimeNode]] = field(
         default=None,
         metadata={
-            "name": "TimeEdge",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    time_node: Optional[TimeNode] = field(
-        default=None,
-        metadata={
-            "name": "TimeNode",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "TimeEdge",
+                    "type": TimeEdge,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TimeNode",
+                    "type": TimeNode,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

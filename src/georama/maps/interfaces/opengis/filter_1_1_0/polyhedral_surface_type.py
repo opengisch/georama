@@ -15,20 +15,12 @@ class PolyhedralSurfaceType(SurfaceType):
     This differs from the surface type only in the restriction on the
     types of surface patches acceptable.
 
-    :ivar triangle_patches:
-    :ivar patches: This element encapsulates the patches of the surface.
+    :ivar triangle_patches_or_patches:
     :ivar polygon_patches: This property encapsulates the patches of the
         polyhedral surface.
     """
 
-    triangle_patches: Any = field(
-        init=False,
-        default=None,
-        metadata={
-            "type": "Ignore",
-        },
-    )
-    patches: Any = field(
+    triangle_patches_or_patches: Any = field(
         init=False,
         default=None,
         metadata={

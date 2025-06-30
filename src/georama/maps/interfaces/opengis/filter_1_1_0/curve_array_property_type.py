@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.curve_property_type import (
     CompositeCurve,
@@ -18,35 +19,31 @@ class CurveArrayPropertyType:
     geometry elements or arrays of geometry elements is not supported.
     """
 
-    orientable_curve: list[OrientableCurve] = field(
+    choice: list[Union[OrientableCurve, Curve, CompositeCurve, LineString]] = field(
         default_factory=list,
         metadata={
-            "name": "OrientableCurve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    curve: list[Curve] = field(
-        default_factory=list,
-        metadata={
-            "name": "Curve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    composite_curve: list[CompositeCurve] = field(
-        default_factory=list,
-        metadata={
-            "name": "CompositeCurve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    line_string: list[LineString] = field(
-        default_factory=list,
-        metadata={
-            "name": "LineString",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "OrientableCurve",
+                    "type": OrientableCurve,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Curve",
+                    "type": Curve,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "CompositeCurve",
+                    "type": CompositeCurve,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "LineString",
+                    "type": LineString,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )

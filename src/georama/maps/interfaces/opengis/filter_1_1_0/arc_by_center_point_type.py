@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -27,14 +27,7 @@ class ArcByCenterPointType(AbstractCurveSegmentType):
     the bearing at start and end. This represenation can be used only in
     2D.
 
-    :ivar pos:
-    :ivar point_property:
-    :ivar point_rep: Deprecated with GML version 3.1.0. Use
-        "pointProperty" instead. Included for backwards compatibility
-        with GML 3.0.0.
-    :ivar pos_list:
-    :ivar coordinates: Deprecated with GML version 3.1.0. Use "posList"
-        instead.
+    :ivar choice:
     :ivar radius: The radius of the arc.
     :ivar start_angle: The bearing of the arc at the start.
     :ivar end_angle: The bearing of the arc at the end.
@@ -48,42 +41,37 @@ class ArcByCenterPointType(AbstractCurveSegmentType):
         attribute is fixed to "1".
     """
 
-    pos: Optional[Pos] = field(
+    choice: Optional[Union[Pos, PointProperty, PointRep, PosList, Coordinates]] = field(
         default=None,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    point_property: Optional[PointProperty] = field(
-        default=None,
-        metadata={
-            "name": "pointProperty",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    point_rep: Optional[PointRep] = field(
-        default=None,
-        metadata={
-            "name": "pointRep",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    pos_list: Optional[PosList] = field(
-        default=None,
-        metadata={
-            "name": "posList",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    coordinates: Optional[Coordinates] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "pos",
+                    "type": Pos,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "pointProperty",
+                    "type": PointProperty,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "pointRep",
+                    "type": PointRep,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "posList",
+                    "type": PosList,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "coordinates",
+                    "type": Coordinates,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     radius: Optional[LengthType] = field(

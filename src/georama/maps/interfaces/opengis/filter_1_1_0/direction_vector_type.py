@@ -1,8 +1,11 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Union
 
-from georama.maps.interfaces.opengis.filter_1_1_0.angle_type import AngleType
+from georama.maps.interfaces.opengis.filter_1_1_0.horizontal_angle import (
+    HorizontalAngle,
+)
 from georama.maps.interfaces.opengis.filter_1_1_0.vector import Vector
+from georama.maps.interfaces.opengis.filter_1_1_0.vertical_angle import VerticalAngle
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -13,26 +16,29 @@ class DirectionVectorType:
     Direction expressed as a vector, either using components, or using angles.
     """
 
-    vector: Optional[Vector] = field(
-        default=None,
+    vector_or_horizontal_angle_or_vertical_angle: list[
+        Union[Vector, HorizontalAngle, VerticalAngle]
+    ] = field(
+        default_factory=list,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    horizontal_angle: Optional[AngleType] = field(
-        default=None,
-        metadata={
-            "name": "horizontalAngle",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    vertical_angle: Optional[AngleType] = field(
-        default=None,
-        metadata={
-            "name": "verticalAngle",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "vector",
+                    "type": Vector,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "horizontalAngle",
+                    "type": HorizontalAngle,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "verticalAngle",
+                    "type": VerticalAngle,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
+            "max_occurs": 2,
         },
     )

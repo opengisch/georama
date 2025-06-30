@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -25,14 +25,7 @@ class ArcStringByBulgeType(AbstractCurveSegmentType):
     The control point sequence consists of the start and end points of
     each arc plus the bulge.
 
-    :ivar pos:
-    :ivar point_property:
-    :ivar point_rep: Deprecated with GML version 3.1.0. Use
-        "pointProperty" instead. Included for backwards compatibility
-        with GML 3.0.0.
-    :ivar pos_list:
-    :ivar coordinates: Deprecated with GML version 3.1.0. Use "posList"
-        instead.
+    :ivar choice:
     :ivar bulge: The bulge controls the offset of each arc's midpoint.
         The "bulge" is the real number multiplier for the normal that
         determines the offset direction of the midpoint of each arc. The
@@ -67,42 +60,37 @@ class ArcStringByBulgeType(AbstractCurveSegmentType):
         points in the arc string must be numArc + 1.
     """
 
-    pos: list[Pos] = field(
+    choice: list[Union[Pos, PointProperty, PointRep, PosList, Coordinates]] = field(
         default_factory=list,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    point_property: list[PointProperty] = field(
-        default_factory=list,
-        metadata={
-            "name": "pointProperty",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    point_rep: list[PointRep] = field(
-        default_factory=list,
-        metadata={
-            "name": "pointRep",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    pos_list: Optional[PosList] = field(
-        default=None,
-        metadata={
-            "name": "posList",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    coordinates: Optional[Coordinates] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "pos",
+                    "type": Pos,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "pointProperty",
+                    "type": PointProperty,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "pointRep",
+                    "type": PointRep,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "posList",
+                    "type": PosList,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "coordinates",
+                    "type": Coordinates,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     bulge: list[float] = field(

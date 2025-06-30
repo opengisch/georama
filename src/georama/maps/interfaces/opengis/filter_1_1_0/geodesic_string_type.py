@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -23,9 +23,7 @@ class GeodesicStringType(AbstractCurveSegmentType):
     and an interpolation using geodesics defined from the geoid (or
     ellipsoid) of the co-ordinate reference system being used.
 
-    :ivar pos_list:
-    :ivar pos:
-    :ivar point_property:
+    :ivar pos_list_or_pos_or_point_property:
     :ivar interpolation: The attribute "interpolation" specifies the
         curve interpolation mechanism used for this segment. This
         mechanism uses the control points and control parameters to
@@ -33,27 +31,27 @@ class GeodesicStringType(AbstractCurveSegmentType):
         GeodesicString the interpolation is fixed as "geodesic".
     """
 
-    pos_list: Optional[PosList] = field(
-        default=None,
-        metadata={
-            "name": "posList",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    pos: list[Pos] = field(
+    pos_list_or_pos_or_point_property: list[Union[PosList, Pos, PointProperty]] = field(
         default_factory=list,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    point_property: list[PointProperty] = field(
-        default_factory=list,
-        metadata={
-            "name": "pointProperty",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "posList",
+                    "type": PosList,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "pos",
+                    "type": Pos,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "pointProperty",
+                    "type": PointProperty,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     interpolation: CurveInterpolationType = field(

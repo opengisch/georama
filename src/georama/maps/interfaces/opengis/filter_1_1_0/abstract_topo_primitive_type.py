@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_topology_type import (
     AbstractTopologyType,
@@ -284,20 +284,22 @@ class DirectedEdgePropertyType:
 
 @dataclass
 class IsolatedPropertyType:
-    node: Optional[Node] = field(
+    node_or_edge: Optional[Union[Node, Edge]] = field(
         default=None,
         metadata={
-            "name": "Node",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    edge: Optional[Edge] = field(
-        default=None,
-        metadata={
-            "name": "Edge",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "Node",
+                    "type": Node,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "Edge",
+                    "type": Edge,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(
@@ -529,20 +531,22 @@ class TopoSolid(TopoSolidType):
 
 @dataclass
 class ContainerPropertyType:
-    face: Optional[Face] = field(
+    face_or_topo_solid: Optional[Union[Face, TopoSolid]] = field(
         default=None,
         metadata={
-            "name": "Face",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    topo_solid: Optional[TopoSolid] = field(
-        default=None,
-        metadata={
-            "name": "TopoSolid",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "Face",
+                    "type": Face,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "TopoSolid",
+                    "type": TopoSolid,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.angle import Angle
 from georama.maps.interfaces.opengis.filter_1_1_0.dms_angle import DmsAngle
@@ -14,18 +14,21 @@ class AngleChoiceType:
     single value format.
     """
 
-    angle: Optional[Angle] = field(
+    angle_or_dms_angle: Optional[Union[Angle, DmsAngle]] = field(
         default=None,
         metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    dms_angle: Optional[DmsAngle] = field(
-        default=None,
-        metadata={
-            "name": "dmsAngle",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "angle",
+                    "type": Angle,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "dmsAngle",
+                    "type": DmsAngle,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )

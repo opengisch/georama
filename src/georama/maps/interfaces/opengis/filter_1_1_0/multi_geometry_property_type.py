@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.filter_1_1_0.geometry_array_property_type import (
@@ -30,60 +30,57 @@ class MultiGeometryPropertyType:
     neither both nor none.
     """
 
-    multi_line_string: Optional[MultiLineString] = field(
+    choice: Optional[
+        Union[
+            MultiLineString,
+            MultiPolygon,
+            MultiSolid,
+            MultiSurface,
+            MultiCurve,
+            MultiPoint,
+            MultiGeometry,
+        ]
+    ] = field(
         default=None,
         metadata={
-            "name": "MultiLineString",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    multi_polygon: Optional[MultiPolygon] = field(
-        default=None,
-        metadata={
-            "name": "MultiPolygon",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    multi_solid: Optional[MultiSolid] = field(
-        default=None,
-        metadata={
-            "name": "MultiSolid",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    multi_surface: Optional[MultiSurface] = field(
-        default=None,
-        metadata={
-            "name": "MultiSurface",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    multi_curve: Optional[MultiCurve] = field(
-        default=None,
-        metadata={
-            "name": "MultiCurve",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    multi_point: Optional[MultiPoint] = field(
-        default=None,
-        metadata={
-            "name": "MultiPoint",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-        },
-    )
-    multi_geometry: Optional[MultiGeometry] = field(
-        default=None,
-        metadata={
-            "name": "MultiGeometry",
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "MultiLineString",
+                    "type": MultiLineString,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "MultiPolygon",
+                    "type": MultiPolygon,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "MultiSolid",
+                    "type": MultiSolid,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "MultiSurface",
+                    "type": MultiSurface,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "MultiCurve",
+                    "type": MultiCurve,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "MultiPoint",
+                    "type": MultiPoint,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "MultiGeometry",
+                    "type": MultiGeometry,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
         },
     )
     type_value: TypeType = field(
