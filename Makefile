@@ -184,7 +184,7 @@ migrate: $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py migrate
 
 .PHONY: make-migrations
-make-migrations: $(PIP_REQUIREMENTS)
+make-migrations: $(DEV_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py makemigrations
 
 .PHONY: create-superuser
