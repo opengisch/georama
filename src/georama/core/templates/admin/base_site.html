@@ -4,6 +4,13 @@
 {% block extrastyle %}
     {{ block.super }}
     <link href="https://viglino.github.io/font-gis/css/font-gis.css" rel="stylesheet" />
+    <style>
+        /* Vertically center content in all Django admin list view columns */
+        .change-list table td,
+        .change-list table th {
+            vertical-align: middle;
+        }
+    </style>
 {% endblock %}
 
 

@@ -86,10 +86,8 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
     )
 
     def icon_column(self, obj):
-        icon = "fg-poi"
-        if isinstance(obj.vector_dataset, VectorDataSet):
-            icon = "fg-contour-map"
-        return format_html(f"<i class='{icon} fg-2x'></i>")
+        icon = "fg-contour-map"
+        return format_html(f"<i class='{icon} fg-2x' style='color: black; margin: 0; padding: 0;'></i>")
 
     icon_column.short_description = 'src'
     icon_column.allow_tags = True

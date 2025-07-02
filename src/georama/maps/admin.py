@@ -50,7 +50,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             icon = "fg-contour-map"
         elif isinstance(obj.custom_dataset, CustomDataSet):
             icon = "fg-flow-map"
-        return format_html(f"<i class='{icon} fg-2x'></i>")
+        return format_html(f"<i class='{icon} fg-2x' style='color: black; margin: 0; padding: 0;'></i>")
 
     icon_column.short_description = 'src'
     icon_column.allow_tags = True
