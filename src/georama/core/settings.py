@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import os
 from pathlib import Path
 
 from configurations import Configuration, values
@@ -108,6 +109,7 @@ class Base(Configuration):
     # Application definition
 
     INSTALLED_APPS = [
+        "georama.core.apps.CoreConfig",
         "jazzmin",
         "django.contrib.admin",
         "django.contrib.auth",
@@ -115,7 +117,6 @@ class Base(Configuration):
         "django.contrib.sessions",
         "django.contrib.messages",
         "django.contrib.staticfiles",
-        "georama.core.apps.CoreConfig",
         "georama.features.apps.FeaturesConfig",
         "georama.maps.apps.MapsConfig",
         "georama.data_integration.apps.DataintegrationConfig",
@@ -157,7 +158,8 @@ class Base(Configuration):
     TEMPLATES = [
         {
             "BACKEND": "django.template.backends.django.DjangoTemplates",
-            "DIRS": [],
+            # "DIRS": [],
+            'DIRS': [os.path.join(BASE_DIR, 'templates')],
             "APP_DIRS": True,
             "OPTIONS": {
                 "context_processors": [
