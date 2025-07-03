@@ -1,6 +1,9 @@
 import logging
+from typing import Tuple, Dict, Union, Callable
 
 from asgiref.sync import sync_to_async
+from xsdata.formats.dataclass.serializers import XmlSerializer
+
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views import View
@@ -21,6 +24,12 @@ from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 from georama.maps.services.wms_1_3_0.get_capabilities import WmsGetCapabilities
 from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
 
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.exception_report import (
+    ExceptionReport,
+)
+from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.exception import (
+    Exception,
+)
 log = logging.getLogger(__name__)
 
 appname = MapsConfig.get_simple_appname()
@@ -29,11 +38,7 @@ appname = MapsConfig.get_simple_appname()
 class OgcServer(View):
     model = PublishedAsWms
 
-    def wms_130_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
-        requested_format = params.get("FORMAT", "TEXT/XML")
-        operation = WmsGetCapabilities(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
-        )
+    def return_selected_format(self, operation, operation_result, requested_format:str):
         if requested_format not in operation.allowed_formats:
             return HttpResponse(
                 operation.render_operation_parsing_failed(
@@ -42,16 +47,26 @@ class OgcServer(View):
                 status=400,
                 content_type="text/xml",
             )
+
         if requested_format == "TEXT/XML":
             return HttpResponse(
-                operation.render_xml(operation.get_capabilities()),
+                operation.render_xml(operation_result),
                 content_type="text/xml",
             )
         elif requested_format == "APPLICATION/JSON":
             return HttpResponse(
-                operation.render_json(operation.get_capabilities()),
+                operation.render_json(operation_result),
                 content_type="application/json",
             )
+
+    def wms_130_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
+        requested_format = params.get("FORMAT", "TEXT/XML")
+        operation = WmsGetCapabilities(
+            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+        )
+
+        return self.return_selected_format(operation, operation.get_capabilities(),
+                                           requested_format)
 
     def wfs_200_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
         requested_format = params.get("FORMAT", "TEXT/XML")
@@ -59,51 +74,19 @@ class OgcServer(View):
             appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
         )
 
-        if requested_format not in operation.allowed_formats:
-            return HttpResponse(
-                operation.render_operation_parsing_failed(
-                    f"Format {requested_format} is not allowed. Allowed is {operation.allowed_formats}"
-                ),
-                status=400,
-                content_type="text/xml",
-            )
-        if requested_format == "TEXT/XML":
-            return HttpResponse(
-                operation.render_xml(operation.get_capabilities()),
-                content_type="text/xml",
-            )
-        elif requested_format == "APPLICATION/JSON":
-            return HttpResponse(
-                operation.render_json(operation.get_capabilities()),
-                content_type="application/json",
-            )
+        return self.return_selected_format(operation, operation.get_capabilities(),
+                                           requested_format)
 
     def wfs_get_metadata(self, request: HttpRequest, params: dict) -> HttpResponse:
         requested_layer = params.get("LAYER")
         language = "en-US"
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetMetadata(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user
+            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
         )
         if requested_layer:
-            if requested_format not in operation.allowed_formats:
-                return HttpResponse(
-                    operation.render_operation_parsing_failed(
-                        f"Format {requested_format} is not allowed. Allowed is {operation.allowed_formats}"
-                    ),
-                    status=400,
-                    content_type="text/xml",
-                )
-            if requested_format == "TEXT/XML":
-                return HttpResponse(
-                    operation.render_xml(operation.get_metadata(requested_layer, language)),
-                    content_type="text/xml",
-                )
-            elif requested_format == "APPLICATION/JSON":
-                return HttpResponse(
-                    operation.render_json(operation.get_metadata(requested_layer, language)),
-                    content_type="application/json",
-                )
+
+            return self.return_selected_format(operation, operation.get_metadata(requested_layer, language), requested_format)
         else:
             return HttpResponse(
                 operation.render_operation_parsing_failed(
@@ -153,6 +136,21 @@ class OgcServer(View):
                     )
         return accessible_raster, accessible_vector, accessible_custom, vector_extent_buffer
 
+
+    def check_request_and_service(self, request: HttpRequest, params:Dict) -> Union[HttpResponse, None]:
+        if "REQUEST" not in params:
+            return HttpResponse("REQUEST parameter is mandatory", status=400)
+
+        if "SERVICE" not in params and not params["REQUEST"] == "GETMETADATA":
+            return HttpResponse(
+                "Only request allowed without SERVICE param is GETMETADATA", status=400
+            )
+        return None
+
+    async def check_service(self, request: HttpRequest, params:Dict) -> Union[HttpResponse, None]:
+
+        return None
+
     async def get(self, request: HttpRequest, *args, **kwargs):
         # TODO: This is done because otherwise the queue cant be pointed to
         #   see this for further details: https://stackoverflow.com/questions/53724665/using-queues-results-in-asyncio-exception-got-future-future-pending-attached
@@ -160,18 +158,14 @@ class OgcServer(View):
 
         params = self.sanitize_query_parameters(request.GET.dict())
 
-        if "REQUEST" not in params:
-            return HttpResponse("REQUEST parameter is mandatory", 400)
+        error_response = self.check_request_and_service(request, params=params)
+        if error_response:
+            return error_response
 
-        if "SERVICE" not in params:
-            if params["REQUEST"].upper() == "GETMETADATA":
-                return await sync_to_async(self.wfs_get_metadata, thread_sensitive=True)(
-                    request, params
-                )
-            else:
-                return HttpResponse(
-                    "Only request allowed without service param is GetMetadata", 400
-                )
+        if "SERVICE" not in params and params["REQUEST"].upper() == "GETMETADATA":
+            return await sync_to_async(self.wfs_get_metadata, thread_sensitive=True)(
+                request, params
+            )
 
         if params["SERVICE"].upper() == "WMS":
             if params["REQUEST"] == "GETCAPABILITIES":
@@ -180,7 +174,7 @@ class OgcServer(View):
                         self.wms_130_capabilities, thread_sensitive=True
                     )(request, params)
                 else:
-                    return HttpResponse("Only VERSION 1.3.0 is available", 400)
+                    return HttpResponse("Only VERSION 1.3.0 is available", status=400)
             elif params["REQUEST"] == "GETMAP":
                 service_params = WmsGetMapParams.from_overloaded_dict(params)
                 operation = WmsGetMap(
@@ -204,6 +198,7 @@ class OgcServer(View):
             config = Config()
             result = await redis_queue.post(job, config.job_timeout)
             return HttpResponse(result.data, result.content_type)
+
         elif params["SERVICE"].upper() == "WFS":
             if params["REQUEST"] == "GETCAPABILITIES":
                 if params.get("VERSION", "2.0.0") == "2.0.0":
@@ -211,9 +206,9 @@ class OgcServer(View):
                         self.wfs_200_capabilities, thread_sensitive=True
                     )(request, params)
                 else:
-                    return HttpResponse("Only VERSION 2.0.0 is available", 400)
+                    return HttpResponse("Only VERSION 2.0.0 is available", status=400)
         else:
-            return HttpResponse("Only WMS|WFS Service is available", 400)
+            return HttpResponse("Only WMS|WFS Service is available", status=400)
 
 
 def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):

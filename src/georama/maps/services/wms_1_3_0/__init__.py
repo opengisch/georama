@@ -28,3 +28,22 @@ class WmsOperation(OgcOperation):
             if len(permission_difference) > 0:
                 raise PermissionError(f"Layer(s) not permitted: {list(permission_difference)}")
         return accessible_layers
+
+    # @staticmethod
+    # def create_operation_parsing_failed(message: str) -> ExceptionReport:
+    #     """
+    #     Generic method to create a valid error response XML.
+    #     """
+    #     return ExceptionReport(exception=[Exception(exception_text=[message])])
+    #
+    # def render_operation_parsing_failed(self, message: str) -> str:
+    #     serializer = XmlSerializer()
+    #     return serializer.render(
+    #         self.create_operation_parsing_failed(
+    #             f"Format {message} is not allowed. Allowed is {self.allowed_formats}"
+    #         ),
+    #         ns_map={
+    #             None: "http://www.opengis.net/wms",
+    #             "xlink": "http://www.w3.org/1999/xlink",
+    #         },
+    #     )
