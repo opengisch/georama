@@ -82,7 +82,7 @@ class WfsOperation(OgcOperation):
         self, layer_names: List[str] | None = None
     ) -> List[PublishedAsWms]:
         accessible_layers = []
-        for published_as in PublishedAsWms.objects.all():
+        for published_as in self.model.objects.all():
             if (
                 published_as.has_read_permission(self.user, self.appname)
                 and published_as.queryable
