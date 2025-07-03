@@ -5,9 +5,11 @@ from xml.etree.ElementTree import QName
 from qgis_server_light.interface.qgis import BBox
 from qgis_server_light.interface.qgis import Crs as QSL_Crs
 from xsdata.formats.dataclass.parsers import DictDecoder
+from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 
 from georama.maps.interfaces.ogc.wfs_2_0_0 import (
+    DefaultCrs,
     FeatureTypeType,
     MetadataUrltype,
     OutputFormatListType,
@@ -25,7 +27,9 @@ class WfsGetCapabilities(WfsOperation):
 
     def get_capabilities_body(self) -> WfsCapabilities:
         config = Config()
-        decoder = DictDecoder()
+        decoder = DictDecoder(
+            ParserConfig(fail_on_unknown_attributes=False, fail_on_unknown_properties=False)
+        )
         return decoder.decode(config.wfs_2_0_0_capabilities_config(self.url), WfsCapabilities)
 
     @staticmethod
@@ -33,7 +37,7 @@ class WfsGetCapabilities(WfsOperation):
         return FeatureTypeType(
             name=QName(name),
             title=[Title(value=title)],
-            default_crs=crs,
+            default_crs_or_other_crs_or_no_crs=[DefaultCrs(value=crs)],
             output_formats=OutputFormatListType(
                 format=[
                     "application/gml+xml; version=3.2",
