@@ -742,7 +742,11 @@ class WfsGetFeature(WfsOperation):
                         # define all None values to be str, which can be None then -.-
                         type_name = str
                     fields.append((attribute.name, type_name, field(default=None)))
-                    feature_dict[attribute.name] = attribute.value
+                    if attribute.value is None:
+                        # related to: https://github.com/tefra/xsdata/issues/408
+                        feature_dict[attribute.name] = ""
+                    else:
+                        feature_dict[attribute.name] = attribute.value
                 # TODO: This has to be fixed, we need to respect actual PK fields for that! Currently a
                 #       feature can have a column with name id which might not be the actual primary key
                 #       but it gets treated like one...
@@ -756,6 +760,7 @@ class WfsGetFeature(WfsOperation):
                                 metadata={
                                     "type": "Attribute",
                                     "namespace": "http://www.opengis.net/gml/3.2",
+                                    "nillable": True,
                                 },
                             ),
                         )
@@ -766,6 +771,7 @@ class WfsGetFeature(WfsOperation):
                 fields.append(
                     ("geometry", Union[GeometryMember, GeometryMembers], field(default=None))
                 )
+                print(fields)
                 feature_dataclass = make_dataclass(feature_collection.name, fields=fields)
                 feature_dataclass.Meta = GeoramaMeta
                 feature_object = feature_dataclass(**feature_dict)
