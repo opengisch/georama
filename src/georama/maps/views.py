@@ -2,6 +2,7 @@ import logging
 from typing import Tuple, Dict, Union, Callable
 
 from asgiref.sync import sync_to_async
+from georama.maps.services import OgcOperation
 from xsdata.formats.dataclass.serializers import XmlSerializer
 
 from django.http import Http404, HttpRequest, HttpResponse
@@ -57,6 +58,13 @@ class OgcServer(View):
             return HttpResponse(
                 operation.render_json(operation_result),
                 content_type="application/json",
+            )
+        return HttpResponse(
+                operation.render_operation_parsing_failed(
+                    f"General Error, please review your Query"
+                ),
+                status=400,
+                content_type="text/xml",
             )
 
     def wms_130_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
@@ -147,9 +155,57 @@ class OgcServer(View):
             )
         return None
 
-    async def check_service(self, request: HttpRequest, params:Dict) -> Union[HttpResponse, None]:
+    async def wms_operations(self, request: HttpRequest, params: Dict, redis_queue) -> HttpResponse:
+        if params["REQUEST"] == "GETCAPABILITIES":
+            if params.get("VERSION", "1.3.0") == "1.3.0":
+                return await sync_to_async(
+                    self.wms_130_capabilities, thread_sensitive=True
+                )(request, params)
+            else:
+                return HttpResponse("Only VERSION 1.3.0 is available", status=400)
+        elif params["REQUEST"] == "GETMAP":
+            service_params = WmsGetMapParams.from_overloaded_dict(params)
+            operation = WmsGetMap(
+                appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            )
+            try:
+                job = await sync_to_async(
+                    operation.prepare_job_content, thread_sensitive=True
+                )(service_params)
+            except ValueError as e:
+                logging.log(logging.DEBUG, f"ValueError: {e}")
+                return HttpResponse(operation.render_operation_parsing_failed(str(e)), status=400,
+                                    content_type="text/plain")
+            except PermissionError as e:
+                logging.log(logging.DEBUG, f"PermissionError: {e}")
+                return HttpResponse(operation.render_operation_parsing_failed(str(e)), status=403,
+                                    content_type="text/plain")
 
-        return None
+        elif params["REQUEST"] == "GETFEATUREINFO":
+            # this needs to be improved a bit, currently the layers are not sent to QSL.
+            service_params = WmsGetFeatureInfoParams.from_overloaded_dict(params)
+            job = QslGetFeatureInfoJob(service_params=service_params)
+        else:
+            return HttpResponse("Only WMS Services GETCAPABILITIES|GETMAP|GETFEATUREINFO are available", 500)
+        config = Config()
+        result = await redis_queue.post(job, config.job_timeout)
+        return HttpResponse(result.data, result.content_type)
+
+
+    async def wfs_operations(self, request: HttpRequest, params: Dict) -> HttpResponse:
+        operation = OgcOperation(appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model)
+        if params["REQUEST"] == "GETCAPABILITIES":
+            if params.get("VERSION", "2.0.0") == "2.0.0":
+                return await sync_to_async(
+                    self.wfs_200_capabilities, thread_sensitive=True
+                )(request, params)
+            else:
+                return HttpResponse(operation.render_operation_parsing_failed("Only VERSION 2.0.0 is available"),
+                                    status=400)
+        else:
+            return HttpResponse(operation.render_operation_parsing_failed("Only GETCAPABILITIES is available"),
+                                status=400)
+
 
     async def get(self, request: HttpRequest, *args, **kwargs):
         # TODO: This is done because otherwise the queue cant be pointed to
@@ -168,45 +224,10 @@ class OgcServer(View):
             )
 
         if params["SERVICE"].upper() == "WMS":
-            if params["REQUEST"] == "GETCAPABILITIES":
-                if params.get("VERSION", "1.3.0") == "1.3.0":
-                    return await sync_to_async(
-                        self.wms_130_capabilities, thread_sensitive=True
-                    )(request, params)
-                else:
-                    return HttpResponse("Only VERSION 1.3.0 is available", status=400)
-            elif params["REQUEST"] == "GETMAP":
-                service_params = WmsGetMapParams.from_overloaded_dict(params)
-                operation = WmsGetMap(
-                    appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
-                )
-                try:
-                    job = await sync_to_async(
-                        operation.prepare_job_content, thread_sensitive=True
-                    )(service_params)
-                except ValueError as e:
-                    return HttpResponse(e, status=400, content_type="text/plain")
-                except PermissionError as e:
-                    return HttpResponse(e, status=403, content_type="text/plain")
-
-            elif params["REQUEST"] == "GETFEATUREINFO":
-                # this needs to be improved a bit, currently the layers are not sent to QSL.
-                service_params = WmsGetFeatureInfoParams.from_overloaded_dict(params)
-                job = QslGetFeatureInfoJob(service_params=service_params)
-            else:
-                return HttpResponse("Only WMS Service is available", 500)
-            config = Config()
-            result = await redis_queue.post(job, config.job_timeout)
-            return HttpResponse(result.data, result.content_type)
+            return await self.wms_operations(request=request, params=params, redis_queue=redis_queue)
 
         elif params["SERVICE"].upper() == "WFS":
-            if params["REQUEST"] == "GETCAPABILITIES":
-                if params.get("VERSION", "2.0.0") == "2.0.0":
-                    return await sync_to_async(
-                        self.wfs_200_capabilities, thread_sensitive=True
-                    )(request, params)
-                else:
-                    return HttpResponse("Only VERSION 2.0.0 is available", status=400)
+            return await self.wfs_operations(request=request, params=params)
         else:
             return HttpResponse("Only WMS|WFS Service is available", status=400)
 

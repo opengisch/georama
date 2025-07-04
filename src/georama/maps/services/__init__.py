@@ -34,7 +34,7 @@ class OgcOperation:
         serializer = XmlSerializer()
         return serializer.render(
             self.create_operation_parsing_failed(
-                f"Format {message} is not allowed. Allowed is {self.allowed_formats}"
+                f"{message}"
             ),
             ns_map={
                 None: "http://www.opengis.net/wms",
