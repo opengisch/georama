@@ -1,7 +1,31 @@
+from enum import Enum
 from typing import List
+
+from xsdata.formats.dataclass.serializers import XmlSerializer
 
 from georama.maps.models import PublishedAsWms
 from georama.maps.services import OgcOperation
+from maps.interfaces.ogc.wms_1_3_0.exceptions.service_exceptions_1_3_0 import ServiceExceptionReport, ServiceException
+
+
+class WmsExceptionCode(str, Enum):
+    INVALID_FORMAT = ("InvalidFormat", "Request contains a FORMAT not offered by the server.")
+    INVALID_CRS = ("InvalidCRS", "Request contains a CRS not offered by the server for one or more layers.")
+    LAYER_NOT_DEFINED = ("LayerNotDefined", "Requested LAYER not offered by the server.")
+    STYLE_NOT_DEFINED = ("StyleNotDefined", "Requested STYLE not offered by the server.")
+    LAYER_NOT_QUERYABLE = ("LayerNotQueryable", "GetFeatureInfo requested on a layer not marked as queryable.")
+    INVALID_POINT = ("InvalidPoint", "GetFeatureInfo request contains invalid I/J values.")
+    CURRENT_UPDATE_SEQUENCE = ("CurrentUpdateSequence", "UPDATESEQUENCE parameter matches current version; no update required.")
+    INVALID_UPDATE_SEQUENCE = ("InvalidUpdateSequence", "UPDATESEQUENCE parameter higher than current version.")
+    MISSING_DIMENSION_VALUE = ("MissingDimensionValue", "Required dimension value is missing and no default provided.")
+    INVALID_DIMENSION_VALUE = ("InvalidDimensionValue", "Provided dimension value is invalid.")
+    OPERATION_NOT_SUPPORTED = ("OperationNotSupported", "Requested operation not supported by the server.")
+
+    def __new__(cls, code: str, message: str):
+        obj = str.__new__(cls, code)
+        obj._value_ = code
+        obj.message = message
+        return obj
 
 
 class WmsOperation(OgcOperation):
@@ -29,21 +53,24 @@ class WmsOperation(OgcOperation):
                 raise PermissionError(f"Layer(s) not permitted: {list(permission_difference)}")
         return accessible_layers
 
-    # @staticmethod
-    # def create_operation_parsing_failed(message: str) -> ExceptionReport:
-    #     """
-    #     Generic method to create a valid error response XML.
-    #     """
-    #     return ExceptionReport(exception=[Exception(exception_text=[message])])
-    #
-    # def render_operation_parsing_failed(self, message: str) -> str:
-    #     serializer = XmlSerializer()
-    #     return serializer.render(
-    #         self.create_operation_parsing_failed(
-    #             f"Format {message} is not allowed. Allowed is {self.allowed_formats}"
-    #         ),
-    #         ns_map={
-    #             None: "http://www.opengis.net/wms",
-    #             "xlink": "http://www.w3.org/1999/xlink",
-    #         },
-    #     )
+    @staticmethod
+    def create_operation_parsing_failed(exception_message: str, exception_code: str = None) -> ServiceExceptionReport:
+        """
+        Generic method to create a valid error response XML.
+        """
+        return ServiceExceptionReport(service_exception=[ServiceException(value=exception_message, code=exception_code)])
+
+    def render_operation_parsing_failed(self, exception_message: str, exception_code: str=None) -> str:
+
+        serializer = XmlSerializer()
+
+        return serializer.render(
+            self.create_operation_parsing_failed(
+                exception_message=exception_message,
+                exception_code=exception_code,
+            ),
+            ns_map={
+                None: "http://www.opengis.net/ogc",
+                "xlink": "http://www.w3.org/1999/xlink",
+            },
+        )
