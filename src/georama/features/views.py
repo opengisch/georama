@@ -61,17 +61,17 @@ class PygeoapiServer(View):
             ),
             path(
                 "/".join(path_elements + ["collections", "<str:collection_id>", "schema"]),
-                cls.collection_schema,
+                cls.as_view(action="collection_schema"),
                 name="collection-schema",
             ),
             path(
                 "/".join(path_elements + ["collections", "<str:collection_id>", "queryables"]),
-                cls.collection_queryables,
+                cls.as_view(action="collection_queryables"),
                 name="collection-queryables",
             ),
             path(
                 "/".join(path_elements + ["collections", "<str:collection_id>", "items"]),
-                cls.collection_items,
+                cls.as_view(action="collection_items"),
                 name="collection-items",
             ),
             path(
@@ -79,20 +79,19 @@ class PygeoapiServer(View):
                     path_elements
                     + ["collections", "<str:collection_id>", "items", "<str:item_id>"]
                 ),
-                cls.collection_item,
+                cls.as_view(action="collection_item"),
                 name="collection-item",
             ),
         ]
         return patterns, appname
 
     def dispatch(self, request, *args, **kwargs):
-        action = kwargs.pop("action", None)
-        handler = getattr(self, f"{action}", None)
+        handler = getattr(self, f"{self.action}", None)
 
         if callable(handler):
             return handler(request, *args, **kwargs)
 
-        raise Http404(f"Unknown action: {action!r}")
+        raise Http404(f"Unknown action: {self.action!r}")
 
     def execute_from_django(
         self, api_function, request: HttpRequest, *args, skip_valid_check=False
