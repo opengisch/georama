@@ -7,8 +7,11 @@ from django.utils.safestring import mark_safe
 
 from georama.core.entities.models import save_group_permissions, save_user_permissions
 from georama.data_integration.models import VectorDataSet
+from georama.features.apps import FeaturesConfig
 from georama.features.forms import PublishedAsOgcApiFeaturesForm
 from georama.features.models import ColumnOgcApiFeatures, PublishedAsOgcApiFeatures
+
+appname = FeaturesConfig.get_simple_appname()
 
 
 class ColumnOgcApiFeaturesInlineFormset(BaseInlineFormSet):
@@ -87,9 +90,11 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
 
     def icon_column(self, obj):
         icon = "fg-contour-map"
-        return format_html(f"<i class='{icon} fg-2x' style='color: black; margin: 0; padding: 0;'></i>")
+        return format_html(
+            f"<i class='{icon} fg-2x' style='color: black; margin: 0; padding: 0;'></i>"
+        )
 
-    icon_column.short_description = 'src'
+    icon_column.short_description = "src"
     icon_column.allow_tags = True
 
     def add_view(self, request, form_url="", extra_context=None):
@@ -114,7 +119,7 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
     def show_published(self, obj: PublishedAsOgcApiFeatures):
         return mark_safe(
             '<a href="{}" class="btn btn-high btn-success">&#128065;</a>'.format(
-                reverse("collection-detail", args=(str(obj.identifier),))
+                reverse(f"{appname}:collection-detail", args=(str(obj.identifier),))
             )
         )
 
