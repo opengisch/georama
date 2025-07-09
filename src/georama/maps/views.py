@@ -31,6 +31,8 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.exception_repor
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.exception import (
     Exception,
 )
+from georama.maps.services.wms_1_3_0 import WmsError
+
 log = logging.getLogger(__name__)
 
 appname = MapsConfig.get_simple_appname()
@@ -172,6 +174,16 @@ class OgcServer(View):
                 job = await sync_to_async(
                     operation.prepare_job_content, thread_sensitive=True
                 )(service_params)
+            except WmsError as e:
+                logging.log(logging.DEBUG, f"WmsError: {e}")
+                return HttpResponse(
+                    operation.render_operation_parsing_failed(
+                        exception_message=e.message,
+                        exception_code=str(e.code)
+                    ),
+                    status=404,
+                    content_type="text/xml"
+                )
             except ValueError as e:
                 logging.log(logging.DEBUG, f"ValueError: {e}")
                 return HttpResponse(operation.render_operation_parsing_failed(str(e)), status=400,
@@ -180,6 +192,10 @@ class OgcServer(View):
                 logging.log(logging.DEBUG, f"PermissionError: {e}")
                 return HttpResponse(operation.render_operation_parsing_failed(str(e)), status=403,
                                     content_type="text/plain")
+            except Exception as e:
+                logging.log(logging.DEBUG, f"Exception: {e}")
+                return HttpResponse(operation.render_operation_parsing_failed(str(e)), status=403,
+                                    content_type="text/xml")
 
         elif params["REQUEST"] == "GETFEATUREINFO":
             # this needs to be improved a bit, currently the layers are not sent to QSL.

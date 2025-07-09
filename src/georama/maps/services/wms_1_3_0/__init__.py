@@ -28,6 +28,21 @@ class WmsExceptionCode(str, Enum):
         return obj
 
 
+
+class WmsError(Exception):
+    def __init__(self, exception_code: WmsExceptionCode, additional_msg: str = ""):
+        self.code = str(exception_code.value)  # e.g. "LayerNotDefined"
+        self.message = (
+            f"{exception_code.message} {additional_msg}".strip()
+        )  # removes trailing space if no extra msg
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        """Provides a user-friendly string representation."""
+        return f"WMS Error ({self.code}): {self.message}"
+
+
+
 class WmsOperation(OgcOperation):
     def obtain_accessible_layers(
         self, layer_names: List[str] | None = None
@@ -41,7 +56,7 @@ class WmsOperation(OgcOperation):
         if layer_names:
             found_difference = set(layer_names) - {layer.name for layer in found_layers}
             if len(found_difference) > 0:
-                raise PermissionError(f"Layer(s) not found: {list(found_difference)}")
+                raise WmsError(WmsExceptionCode.LAYER_NOT_DEFINED, f"Layer(s) not found: {list(found_difference)}")
         for published_as in found_layers:
             if published_as.has_read_permission(self.user, self.appname):
                 accessible_layers.append(published_as)
@@ -50,7 +65,7 @@ class WmsOperation(OgcOperation):
                 layer.name for layer in accessible_layers
             }
             if len(permission_difference) > 0:
-                raise PermissionError(f"Layer(s) not permitted: {list(permission_difference)}")
+                raise WmsError(WmsExceptionCode.LAYER_NOT_DEFINED, f"Layer(s) not permitted: {list(permission_difference)}")
         return accessible_layers
 
     @staticmethod
