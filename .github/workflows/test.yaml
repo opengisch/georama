@@ -22,6 +22,7 @@ jobs:
   test-py:
     name: Test Python
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     strategy:
       matrix:
         python-version:
@@ -43,6 +44,10 @@ jobs:
       - run: sudo rm /etc/apt/sources.list.d/*.list
       - run: sudo apt update
       - run: sudo apt-get install  -y  libpq-dev python3-gdal python3-numpy python3-venv git make
+      - name: Start services
+        run: |
+          cp .env.ci .env
+          docker compose -f "docker-compose.yml" up georama-db -d
       - name: Set up test environment
         run: make install-test
       - name: Run tests for Python ${{ matrix.python-version }} on ${{ matrix.platform }}
@@ -51,6 +56,9 @@ jobs:
         shell: bash
         run: |
           cp .coverage.final_combined.xml coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
+      - name: Stop services
+        if: always()
+        run: docker compose -f "docker-compose.yml" down
 # TODO: Uncomment this once we have decided if we use codecov?
 #      - name: Upload coverage to Codecov
 #        uses: codecov/codecov-action@v5
