@@ -1,0 +1,108 @@
+{
+  "Project": {
+    "Version": "TestProject",
+    "Name": ""
+  },
+  "MetaData": {
+    "Service": {
+      "WMSContactOrganization": "",
+      "WMSContactMail": "",
+      "WMSContactPerson": "",
+      "WMSContactPhone": "",
+      "WMSContactPosition": "",
+      "WMSFees": "conditions unknown",
+      "WMSKeywordList": "",
+      "WMSOnlineResource": "",
+      "WMSServiceAbstract": "",
+      "WMSServiceTitle": "",
+      "WMSUrl": ""
+    },
+    "Links": [],
+    "Language": "",
+    "Categories": [],
+    "CreationDateTime": "2025-06-25T21:15:29",
+    "Author": "Lukas Graf"
+  },
+  "Tree": {
+    "Memeber": [
+      {
+        "Name": "",
+        "Child": [
+          "TestPointLayer_e7b906c8_9404_4393_b05e_e72af3eb976b"
+        ]
+      }
+    ]
+  },
+  "DataSet": {
+    "VectorDataset": [
+      {
+        "Name": "TestPointLayer_e7b906c8_9404_4393_b05e_e72af3eb976b",
+        "Title": "TestPointLayer",
+        "Id": "TestPointLayer_e7b906c8_9404_4393_b05e_e72af3eb976b",
+        "BBox": {
+          "XMin": 6.62916374206543,
+          "XMax": 9.26066207885742,
+          "YMin": 46.5170364379883,
+          "YMax": 47.5476608276367,
+          "ZMin": 0.0,
+          "ZMax": 0.0
+        },
+        "BBoxWgs84": {
+          "XMin": 6.62916374206543,
+          "XMax": 9.26066207885742,
+          "YMin": 46.5170364379883,
+          "YMax": 47.5476608276367,
+          "ZMin": 0.0,
+          "ZMax": 0.0
+        },
+        "Path": "data/TestPointLayer.gpkg|layername=TestPointLayer",
+        "Source": {
+          "Postgres": null,
+          "Wmts": null,
+          "Wms": null,
+          "Ogr": {
+            "Path": "data/TestPointLayer.gpkg",
+            "LayerName": "TestPointLayer",
+            "LayerId": null
+          },
+          "Gdal": null,
+          "Wfs": null,
+          "VectorTile": null
+        },
+        "Driver": "ogr",
+        "Crs": {
+          "AuthId": "EPSG:4326",
+          "PostgisSrid": 4326,
+          "OgcUri": "http://www.opengis.net/def/crs/EPSG/0/4326"
+        },
+        "Style": [
+          {
+            "Name": "default",
+            "Definition": "eJztW1tv2zgWfvev0Hgf2i6iyNdcukqANElnAyRN2qSzGAwGAi1SNjeUqFKUE3cw_30PL7Kk2HKaOCharDsDR7ycw3Mjz0eJ9H85uTy--f3q1Pkypplz9fnd-dmx82oiZfrW82IRhtshjz3VuI0lfuW8uv79-ub04tVhy9cUGY1TRqPZOQ8RO2h3204mZ4wcI0nGXFCSHbSPGLuu17WdmCbXQECAomP_QSW6t5VQKBifCHRHk_ENN9wFQfgyYTPdh6ERYdlpgkaMYF0zJSKjPDlo97f7g-1ux70S9KsgScnviCkZ5CQ2o8ziEWd8PPtEIgL9QmIlcGGsCcp06R3KCP6NZnREGZWz9wyNl4n4b5rIrNZwMVeo2z5sOX4ElBk8OP4ZJomkEVWSH3Z9r1ZWHT6RmE-L1rKgmq4JEuGkaKuUVCPoOwU7H3Z8r3iEgb1iZF-SOOUCMXATEvI9JQwM13Yiek_wSS6Q1NYDHVAY5nHOgIEukgSf3qeCZMa8bQfbzp8TKg_a4E_dZ86waLYVEcXgLhpTecGxdbASoM6TVDwZ235aKy3eJ5SMtZKOr2kPfc_81VUwOFSoX0Xg1Sh8r1BbFQgjUy2bk0343QUSt0Rc6zg4S65zEaGQXDFuXSlnKYhxlmA6pThH7D1BMhcqhOEnJaE8R7OCXAcouZcizworjihQJhAux-BfwZUVvvIoyojUzSFDcarbb4gQSBuxoK-G9TxMD9rnNCHAJKvEleNjJJGLSQRt2E0FT4mQMM-MZS5TrazR5AKlmqSsnyKWE2V90-HjtRQgUdtJUAxF9dv26hSmpRzmYbvlGHLGwEBQ08BbVVpa3zO0xnkr1PGhGFFGlBmM1W1E6Gc7DtM2MoNAbAt4CISO5C4YM-IihPJEaNPSLEAJjaHVmBqxdIK0J0NG00DyADwCzitsba0dWPGCB9ZutvdzLP64zdeyet3uheUbVfOZinUnRVlWRK96ularHTFxyXh4aw05n8xgSgp__trf6e3u4D3k7ve62B3s48hF-9HAjcJOGKIQh4Odzt_tp1qx06AmYnScBBhlkyBFUhKRNJos-5IjQRr4hCjVGa2RevivXhNpnkkeKxEaifv3bztb8_8e5RPEKA1yWHEDPf8b2V5cPM5KsWlk0CRK1Z6BWcjW020Jw7WVXMbzedpCYg9oklFMgpSz2Zg3B9GITAlr4PNfDkxWBlF3MNza623Bb284bOCiVrUApjcXzZHMmUoxzeSrpehs76wivqNYNodyoztK2ud54SXC7IUia51gUs8BpC6IyifTQiEOMAW4Awg1AJCznjUW2K1tmEWOz7JRnY1Gdy-pqWb4wroans_T9o6g26C-WiUww0UCu5gnc8szWB308h6sn3LMdG2wVB00PIaHVqTyZyGib4BE62GiBf0eQUWehkUWxmZzTOp7S6FqAWDfU9gWNwFY6MA2APb7Atj32uarAGyvN4C9YX_oIrwTuYOd0cDd7wKU3SWYDAgZhPt45-kA9pvm44gLTESwclo-B1OshhPrYZrHsvFPk9G7ncHWcH-r31thSJ7LNfFZweExiNa02yjon4nSauSr7bFKi7r0m0zxpExRzwlFpqi-oVqSK2LdvMkW3zdbXFirr8oXXdLv7HZ6kdvrDvbcAen33P1Ot-NGneFeZ9DvD_tR9IIvPJLxinXjsXccjyw76-eSbgPVhAv6lScSMQjMEEqw06ZJ8-KzXk7CFMU8aVq8lsfiJp39uOns22xbS21rm_jbE6WKNqL2-w25UgkQQI8JX7GhbyKmX5uF_yazKA5rW0MzWR1uDZRTtdaGTdN-gxyehBweYATfm3_kUiVBEtg9EOFOe44oPnRm5YdOk7n0FmM0q2SYjKqcYrhaICFQBgFd-SjF1Hqczb_UmcrsUZzS2QCVHweoDPb3-judPeJiQkJ3MOrsu3uDKHQ74RAPd3v9fqc_-kmASq8Lma2zNViV3H4GoBJSEbImM_yf4JTe3lZ3F_z4Q-CUwQanrMQpTV-ONjhlg1Pmz-YIh-BSQxPPIAbwjHaqp4FLBauockastPZA0AmJUM6kBRtF47Ga_g5NQEeq85pXb9-8PHmBWPi-mGSvOyTd_cHIjYa9jjot0nf3hgBRdiKyi9AuCod9_LNgkuFQL3AbRPKTI5L-cMv8_wMAkg0cWQlHml4rbeDIBo6o5wVkUKlTJXOS4sHZ0-XWapqZyi9WCRKPCMYE_4fiMZGZF_J87rQ6V4th5t5GQp8J_wCl7CkEvylhLEXFaL63RDEf-idYHcxWx8bLgjqxbo47v6t2WKhr2Wx_maKQypk6lV4rQ_uYcJiwYmYEyRyhTrSTkzxlEMuSfAA2BicUHa8ECWlxjForgcA3U3I8IeFtZtQK1fMxTyI6tqfNDYR8MJiWj4xBWmsybDCkOwV3wyKtj4Gfq6sE57qXGtEzr83sqzKsD3nrUf1IHWivDapl0dXWB_qwe1jtoq4MgH4fuHqwUUMwlSYerFg3AB5PobKAjoZDHeF4RWBXGn2vZGXcrYXRplgqrQ8BgzIb0_p5jn8pgO9783auPLhvrFoS-Rm4TV5BDgvnp7JVYeaYP4DSC8cu4fOQ2LfuMIxswSG1iwEoTdnsMvmc4uI-wgLbChdluUyq4_SWaVlWfCGzglfHcmKAadlXv2yHRflLTip9YCFOuExyxuqVCxLUR60MWl5yWCaOvi0BOyBzDaORZ52JX9pH05jYRBKWzlEuCQrlfDRrmKOwukj9Vdy6cZf8FP_-bju3BLx5jGCNyYowWByjHFeqpceEppNxIS_VK2V7nUT1NkGqbwOp07U8PeF36m4Of3ATxJqJ5XFiXyWbgqPRg3lpXZyUAu3b1Yk3obDSJsUkXkFqFSgpim2jV45c0beim3UvzDpggJhGasXW9s6UvHJVKCu0PxeofFiQBcGlR01fNalh-xk7kjMikN1Vmsmu6qt9KCAJ72FFqBZVnsMGVq3aDS0PaNS3hBTJyWGdYF69ZIhD_5c_jk-Obo7--Ifj_tOFCaVuvLx1chm5e6qm1W63Wx9_PbtWu-k4c0KUOBM0JQ5yrmYA4hInyhMTnXKCJOyyoQugAuzcTYiqI5oQ6luQtCDPb7danzMCDdCzJOUOwlhfn0GwsRzTUFXNQEszLBCdJgAqNT8VLg6PDO-CAzVjta1QZ6DfvLHd0q7cbh0lMARSm1hgyxi4-63WLxI81nfotq9mH-X2R7seZw5VF4-k89GUWy2Yjk48C5RMgVLnNaBdEHfL0Slzy7HZ9c1bvdCrVOYcFJXbRWZ7_Ua3QjRJwRl0MEy2AQbh4wll-LUdb8tpX8zUAUSdWN60_vzzcDEUikSv7ZSnOgyLRF-rs97nAmQFPH8I2ZKodyXYlA3neavtPb-atpAii9Zi5hl629_Xl_sukxueVqjLSr2qlMwMfY0G8neekXOUSQ2GlstQ7zNP_d4CrYbSJwZo6kttV3MIpSnuLLRTz2CtKSV35ZJ2qAdTX-seNkBv2Evc0LT6BgR8ZCrn0OpX6_gbWLmUaxYrW76-pXnY-h_-DX74"
+          }
+        ],
+        "MinimumScale": 100000000.0,
+        "MaximumScale": 0.0,
+        "Fields": [
+          {
+            "Name": "fid",
+            "Type": "Integer64",
+            "SimpleType": "long",
+            "Alias": "Fid",
+            "Nullable": false
+          }
+        ],
+        "GeometryTypeSimple": "Point",
+        "GeometryTypeWkb": "Point"
+      }
+    ],
+    "RasterDataset": [],
+    "Custom": [],
+    "GroupDataset": [
+      {
+        "Name": null,
+        "Title": null
+      }
+    ]
+  }
+}
