@@ -36,9 +36,7 @@ class PygeoapiServer(View):
 
         path_elements = [prefix]
         patterns = [
-            path(
-                "/".join(path_elements + [""]), cls.as_view(action="landing"), name="landing"
-            ),
+            path("/".join(path_elements), cls.as_view(action="landing"), name="landing"),
             path(
                 "/".join(path_elements + ["conformance"]),
                 cls.as_view(action="conformance"),
@@ -356,7 +354,7 @@ class PygeoapiServer(View):
             available_crs_list.append(config.default_crs)
         provider_definition = {
             "type": "feature",
-            "name": "OGR",
+            "name": "OG_OGR",
             "data": {
                 "source_type": driver_lookup[source.ogr.path.split(".")[-1].upper()],
                 "source": os.path.join(
@@ -400,7 +398,7 @@ class PygeoapiServer(View):
 
         provider_definition = {
             "type": "feature",
-            "name": "OG_POSTGRES",
+            "name": "PostgreSQL",
             "data": {
                 "host": source.postgres.host,
                 "port": source.postgres.port,

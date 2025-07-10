@@ -8,8 +8,8 @@ from georama.features.features_config import Config
 print("loading provider")
 
 pygeoapi.plugin.PLUGINS["provider"][
-    "OG_POSTGRES"
-] = "georama.features.pygeoapi_providers.postgres.PostgresProvider"
+    "OG_OGR"
+] = "georama.features.pygeoapi_providers.ogr.OGRProvider"
 
 
 inittime_api.DEFAULT_CRS = Config().default_crs
