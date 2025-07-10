@@ -20,6 +20,8 @@ class WmsExceptionCode(str, Enum):
     MISSING_DIMENSION_VALUE = ("MissingDimensionValue", "Required dimension value is missing and no default provided.")
     INVALID_DIMENSION_VALUE = ("InvalidDimensionValue", "Provided dimension value is invalid.")
     OPERATION_NOT_SUPPORTED = ("OperationNotSupported", "Requested operation not supported by the server.")
+    INVALID_VERSION = ("InvalidVersion", "VERSION parameter must be 1.3.0. This server only supports version 1.3.0.")
+    INTERNAL_ERROR = ("InternalError", "An unexpected internal error occurred on the server.")
 
     def __new__(cls, code: str, message: str):
         obj = str.__new__(cls, code)

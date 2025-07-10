@@ -31,7 +31,7 @@ from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.exception_repor
 from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.exception import (
     Exception,
 )
-from georama.maps.services.wms_1_3_0 import WmsError
+from georama.maps.services.wms_1_3_0 import WmsError, WmsOperation, WmsExceptionCode
 
 log = logging.getLogger(__name__)
 
@@ -157,14 +157,29 @@ class OgcServer(View):
             )
         return None
 
+    def raise_wms_error(self, error: WmsError, request: HttpRequest, operation: Union[WmsOperation, None] = None, status_code:int=400) -> HttpResponse:
+        if not operation:
+            operation = WmsOperation(appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model)
+
+        return HttpResponse(
+            operation.render_operation_parsing_failed(
+                exception_message=error.message,
+                exception_code=error.code
+            ),
+            status=status_code,
+            content_type="text/xml"
+        )
+
     async def wms_operations(self, request: HttpRequest, params: Dict, redis_queue) -> HttpResponse:
+        if params.get("VERSION", "1.3.0") != "1.3.0":
+            error = WmsError(WmsExceptionCode.INVALID_VERSION)
+            return self.raise_wms_error(error=error, request=request)
+
         if params["REQUEST"] == "GETCAPABILITIES":
-            if params.get("VERSION", "1.3.0") == "1.3.0":
-                return await sync_to_async(
+            return await sync_to_async(
                     self.wms_130_capabilities, thread_sensitive=True
                 )(request, params)
-            else:
-                return HttpResponse("Only VERSION 1.3.0 is available", status=400)
+
         elif params["REQUEST"] == "GETMAP":
             service_params = WmsGetMapParams.from_overloaded_dict(params)
             operation = WmsGetMap(
@@ -174,35 +189,34 @@ class OgcServer(View):
                 job = await sync_to_async(
                     operation.prepare_job_content, thread_sensitive=True
                 )(service_params)
+
             except WmsError as e:
                 logging.log(logging.DEBUG, f"WmsError: {e}")
-                return HttpResponse(
-                    operation.render_operation_parsing_failed(
-                        exception_message=e.message,
-                        exception_code=str(e.code)
-                    ),
-                    status=404,
-                    content_type="text/xml"
-                )
-            except ValueError as e:
-                logging.log(logging.DEBUG, f"ValueError: {e}")
-                return HttpResponse(operation.render_operation_parsing_failed(str(e)), status=400,
-                                    content_type="text/plain")
-            except PermissionError as e:
-                logging.log(logging.DEBUG, f"PermissionError: {e}")
-                return HttpResponse(operation.render_operation_parsing_failed(str(e)), status=403,
-                                    content_type="text/plain")
+                return self.raise_wms_error(error=e, request=request, operation=operation)
+
             except Exception as e:
                 logging.log(logging.DEBUG, f"Exception: {e}")
-                return HttpResponse(operation.render_operation_parsing_failed(str(e)), status=403,
-                                    content_type="text/xml")
+                wms_error = WmsError(WmsExceptionCode.INTERNAL_ERROR, str(e))
+                return self.raise_wms_error(error=wms_error, request=request, operation=operation, status_code=500)
 
         elif params["REQUEST"] == "GETFEATUREINFO":
-            # this needs to be improved a bit, currently the layers are not sent to QSL.
-            service_params = WmsGetFeatureInfoParams.from_overloaded_dict(params)
-            job = QslGetFeatureInfoJob(service_params=service_params)
+            try:
+                # this needs to be improved a bit, currently the layers are not sent to QSL.
+                service_params = WmsGetFeatureInfoParams.from_overloaded_dict(params)
+                job = QslGetFeatureInfoJob(service_params=service_params)
+
+            except KeyError as e:
+                wms_error = WmsError(WmsExceptionCode.INVALID_POINT, str(e))
+                return self.raise_wms_error(error=wms_error, request=request)
+
+            except Exception as e:
+                logging.log(logging.DEBUG, f"Exception: {e}")
+                wms_error = WmsError(WmsExceptionCode.INTERNAL_ERROR, str(e))
+                return self.raise_wms_error(error=wms_error, request=request, status_code=500)
         else:
-            return HttpResponse("Only WMS Services GETCAPABILITIES|GETMAP|GETFEATUREINFO are available", 500)
+            error = WmsError(WmsExceptionCode.OPERATION_NOT_SUPPORTED, "Only WMS Services GETCAPABILITIES|GETMAP|GETFEATUREINFO are available")
+            return self.raise_wms_error(error=error, request=request, operation=None)
+
         config = Config()
         result = await redis_queue.post(job, config.job_timeout)
         return HttpResponse(result.data, result.content_type)

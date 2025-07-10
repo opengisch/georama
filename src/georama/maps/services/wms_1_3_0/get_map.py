@@ -4,6 +4,7 @@ from qgis_server_light.interface.job import QslGetMapJob, WmsGetMapParams
 from qgis_server_light.interface.qgis import Custom, Raster, Vector
 
 from georama.maps.services.wms_1_3_0 import WmsOperation
+from maps.services.wms_1_3_0 import WmsError, WmsExceptionCode
 
 
 class WmsGetMap(WmsOperation):
@@ -25,9 +26,7 @@ class WmsGetMap(WmsOperation):
                 logging.debug(
                     "Layer and Style in query param are of different length. We stop here."
                 )
-                raise ValueError(
-                    "Each passed layer needs a corresponding style (comma separated lists need to be of same length)."
-                )
+                raise WmsError(WmsExceptionCode.INVALID_FORMAT, "Each passed layer needs a corresponding style (comma separated lists need to be of same length).")
         for index, style in enumerate(styles.copy()):
             if style == "":
                 styles[index] = self.default_style_name
