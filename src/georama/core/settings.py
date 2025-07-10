@@ -321,6 +321,13 @@ class Test(Base):
     DB_HOST = values.Value("localhost", environ_prefix="GEORAMA")
     DB_PORT = values.Value("54321", environ_prefix="GEORAMA")
 
+    CORS_ALLOWED_ORIGINS = values.ListValue(
+        # Required for E2E tests with liveserver
+        ["http://localhost:9308"],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
+
 
 class Prod(Base):
     SECRET_KEY = values.SecretValue()

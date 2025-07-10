@@ -91,6 +91,8 @@ optional-dependencies.test = [
     "pytest-run-subprocess==0.10.0",
     "pyroma==4.2",
     "twine==6.1.0",
+    "playwright==1.52.0",
+    "pytest-playwright==0.7.0",
 ]
 # Type Checking
 optional-dependencies.check =[
