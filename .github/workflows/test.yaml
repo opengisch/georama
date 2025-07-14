@@ -55,7 +55,7 @@ jobs:
       - name: Rename Coverage Files
         shell: bash
         run: |
-          cp .coverage.final_combined.xml coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
+          cp .coverage.xml coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
       - name: Stop services
         if: always()
         run: docker compose -f "docker-compose.yml" down
