@@ -127,6 +127,7 @@ class Base(Configuration):
         "allauth",
         "allauth.account",
         "allauth.socialaccount",
+        "allauth.socialaccount.providers.openid_connect",
         "adminsortable2",
         "treebeard",
         "django_extensions",
