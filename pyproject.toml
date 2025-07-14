@@ -52,7 +52,7 @@ dependencies = [
     # cli tooling
     "click==8.1.7",
     # pygeoapi and its friends
-    "pygeoapi @ git+https://github.com/opengisch/pygeoapi.git@respect-property-setting-in-ogr-provider",
+    "pygeoapi==0.20.0",
     "psycopg2",
     "geoalchemy2",
     # django stuff
@@ -84,7 +84,7 @@ optional-dependencies.test = [
     "gdal==3.8.4",
     "pytest-django",
     "pytest==8.0.0",
-    "pytest-cov==5.0.0",
+    "pytest-cov[toml]==5.0.0",
     "pytest-explicit==1.0.1",
     "pytest-xdist==3.5.0",
     "pytest-click==1.1.0",
@@ -140,6 +140,32 @@ explicit-only = [
     "integration",
     "network_bound",
 ]
+python_files = ["test_*.py"]
+
+
+[tool.coverage.paths]
+source = [
+    "src/georama"
+]
+[tool.coverage.run]
+branch = true
+omit = [
+    "src/georama/**/migrations/*",
+    "src/georama/maps/interfaces/**/*"
+]
+[tool.coverage.report]
+show_missing = true
+precision = 2
+omit = [
+    "src/georama/**/migrations/*",
+    "src/georama/maps/interfaces/**/*"
+]
+exclude_lines = [
+    "raise NotImplementedError",
+    "raise NotImplemented"
+]
+fail_under = 13
+
 
 [tool.black]
 line-length = 95

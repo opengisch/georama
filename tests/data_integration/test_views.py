@@ -4,15 +4,15 @@ import pytest
 from qgis_server_light.interface.qgis import Crs, DataSource, OgrSource
 
 from georama.data_integration.models import Project
-from tests.conftest import ADMIN_PASS, ADMIN_USER
 
 pytestmark = pytest.mark.django_db
 
 
 class TestDataIntegrationViews:
-
-    def test_register_qgis_project_view(self, client, projects_dir):
-        client.login(username=ADMIN_PASS, password=ADMIN_USER)
+    def test_register_qgis_project_view(
+        self, client, projects_dir, admin_user_name, admin_password
+    ):
+        client.login(username=admin_user_name, password=admin_password)
 
         project_path = "TestMandant/TestProject"
         response = client.get(
