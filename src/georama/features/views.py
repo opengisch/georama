@@ -36,9 +36,7 @@ class PygeoapiServer(View):
 
         path_elements = [prefix]
         patterns = [
-            path(
-                "/".join(path_elements + [""]), cls.as_view(action="landing"), name="landing"
-            ),
+            path("/".join(path_elements), cls.as_view(action="landing"), name="landing"),
             path(
                 "/".join(path_elements + ["conformance"]),
                 cls.as_view(action="conformance"),
@@ -351,12 +349,12 @@ class PygeoapiServer(View):
         config = Config()
         # TODO: make this configurable
         driver_lookup = {"SHP": "ESRI Shapefile", "GPKG": "GPKG", "GDB": "OpenFileGDB"}
-        available_crs_list = [crs.ogc_uri, "https://www.opengis.net/def/crs/OGC/0/CRS84"]
+        available_crs_list = [crs.ogc_uri, "http://www.opengis.net/def/crs/OGC/0/CRS84", "https://www.opengis.net/def/crs/OGC/0/CRS84"]
         if config.default_crs not in available_crs_list:
             available_crs_list.append(config.default_crs)
         provider_definition = {
             "type": "feature",
-            "name": "OGR",
+            "name": "OG_OGR",
             "data": {
                 "source_type": driver_lookup[source.ogr.path.split(".")[-1].upper()],
                 "source": os.path.join(
@@ -393,14 +391,14 @@ class PygeoapiServer(View):
         crs = published_as.dataset.crs_to_qsl
         self.handle_crs_setting(crs.ogc_uri)
 
-        available_crs_list = [crs.ogc_uri, "https://www.opengis.net/def/crs/OGC/0/CRS84"]
+        available_crs_list = [crs.ogc_uri, "http://www.opengis.net/def/crs/OGC/0/CRS84", "https://www.opengis.net/def/crs/OGC/0/CRS84"]
 
         if Config().default_crs not in available_crs_list:
             available_crs_list.append(Config().default_crs)
 
         provider_definition = {
             "type": "feature",
-            "name": "OG_POSTGRES",
+            "name": "PostgreSQL",
             "data": {
                 "host": source.postgres.host,
                 "port": source.postgres.port,
