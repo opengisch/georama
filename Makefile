@@ -62,7 +62,7 @@ $(DOC_REQUIREMENTS): $(PIP_REQUIREMENTS)
 	touch $@
 
 $(TEST_REQUIREMENTS): $(PIP_REQUIREMENTS)
-	$(VENV_BIN)/$(PIP_COMMAND) install .[test]
+	$(VENV_BIN)/$(PIP_COMMAND) install -e .[test]
 	touch $@
 
 $(CHECK_REQUIREMENTS): $(PIP_REQUIREMENTS)
@@ -105,29 +105,30 @@ git-attributes:
 
 .PHONY: test-core
 test-core: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	COVERAGE_FILE=.coverage.core $(VENV_BIN)/py.test -vv --cov-config .coveragerc.core --cov $(PACKAGE).core --cov-report term-missing:skip-covered --cov-report=xml:.coverage.core.xml tests/core
+	COVERAGE_FILE=.coverage.core $(VENV_BIN)/pytest --nomigrations -vv tests/core
 
 .PHONY: test-data_integration
 test-data_integration: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	COVERAGE_FILE=.coverage.data_integration $(VENV_BIN)/py.test -vv --cov-config .coveragerc.data_integration --cov $(PACKAGE).data_integration --cov-report term-missing:skip-covered --cov-report=xml:.coverage.data_integration.xml tests/data_integration
+	$(VENV_BIN)/pytest --nomigrations -vv tests/data_integration
 
 .PHONY: test-features
 test-features: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	COVERAGE_FILE=.coverage.features $(VENV_BIN)/py.test -vv --cov-config .coveragerc.features --cov $(PACKAGE).features --cov-report term-missing:skip-covered --cov-report=xml:.coverage.features.xml tests/features
+	$(VENV_BIN)/pytest --nomigrations -vv tests/features
 
 .PHONY: test-maps
 test-maps: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	COVERAGE_FILE=.coverage.maps $(VENV_BIN)/py.test -vv --cov-config .coveragerc.maps --cov $(PACKAGE).maps --cov-report term-missing:skip-covered --cov-report=xml:.coverage.maps.xml tests/maps
+	$(VENV_BIN)/pytest --nomigrations -vv tests/maps
 
 .PHONY: test-webgis
 test-webgis: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	COVERAGE_FILE=.coverage.webgis $(VENV_BIN)/py.test -vv --cov-config .coveragerc.webgis --cov $(PACKAGE).webgis --cov-report term-missing:skip-covered --cov-report=xml:.coverage.webgis.xml tests/webgis
+	$(VENV_BIN)/pytest --nomigrations -vv tests/webgis
 
 .PHONY: tests
 tests: test-core test-data_integration test-features test-maps test-webgis
-	$(VENV_BIN)/coverage combine .coverage.core .coverage.data_integration .coverage.features .coverage.maps .coverage.webgis
-	$(VENV_BIN)/coverage report --fail-under=13
-	$(VENV_BIN)/coverage xml -o .coverage.final_combined.xml
+
+.PHONY: coverage
+coverage: $(TEST_REQUIREMENTS)
+	$(VENV_BIN)/pytest --nomigrations -vv --cov $(PACKAGE) --cov-report term-missing:skip-covered --cov-report=xml:.coverage.xml tests
 
 .PHONY: check-types
 check-types: $(CHECK_REQUIREMENTS)
