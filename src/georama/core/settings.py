@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 
 from configurations import Configuration, values
+from corsheaders.defaults import default_headers
 
 from georama.core.auth import get_authentication_methods_middlewares
 
@@ -229,7 +230,28 @@ class Base(Configuration):
         environ_prefix="GEORAMA",
     )
     CORS_ALLOW_CREDENTIALS = values.BooleanValue(
-        False,
+        True,
+        environ_prefix="GEORAMA",
+    )
+    CORS_ALLOW_METHODS = values.ListValue(
+        [
+            "DELETE",
+            "HEAD",
+            "GET",
+            "OPTIONS",
+            "PATCH",
+            "POST",
+            "PUT",
+        ],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
+    CORS_ALLOW_HEADERS = values.ListValue(
+        [
+            *default_headers,
+            "content-crs",
+        ],
+        separator=" ",
         environ_prefix="GEORAMA",
     )
 
