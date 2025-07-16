@@ -128,7 +128,6 @@ class LayerGroupMp(MP_Node):
         related_query_name="tree_element",
         on_delete=models.CASCADE,
     )
-    # TODO: add metadata ManyToManyField
     metadata = models.JSONField(default=None, null=True)
     mixed = models.BooleanField(default=None, null=True)
     ogc_server = models.CharField(max_length=2048, default=None, null=True)
