@@ -306,6 +306,30 @@ class Dev(Base):
         environ_prefix=None,
     )
 
+    # Django allauth's social account configuration
+    # https://docs.allauth.org/en/dev/socialaccount/configuration.html
+    SOCIALACCOUNT_QUERY_EMAIL = True
+    SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+    SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+    SOCIALACCOUNT_LOGIN_ON_GET = True
+
+    LOGIN_REDIRECT_URL = '/'
+
+    SOCIALACCOUNT_PROVIDERS = {
+        "openid_connect": {
+            "OAUTH_PKCE_ENABLED": True,
+            "APP": {
+                "provider_id": "keycloak",
+                "name": "Keycloak",
+                "client_id": "georama-oidc",
+                "secret": "",
+                "settings": {
+                    "server_url": "http://localhost:7080/realms/ninjas/.well-known/openid-configuration",
+                },
+            },
+        },
+    }
+
     CSRF_TRUSTED_ORIGINS = values.ListValue(
         [
             "https://localhost:9309",      # GG (from georama stack)
