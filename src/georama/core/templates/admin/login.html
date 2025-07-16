@@ -1,0 +1,7 @@
+{% extends "admin/login.html" %}
+
+{% block content %}
+    {{ block.super }}
+    {% include "socialaccount/snippets/login.html" %}
+
+{% endblock %}
