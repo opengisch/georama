@@ -681,8 +681,11 @@
       "alwaysDisplayInConsole": true,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
+        "http://localhost:4242/*",
+        "https://app.localhost:8080/*"
       ],
       "webOrigins": [
+        "https://app.localhost:8080"
       ],
       "notBefore": 0,
       "bearerOnly": false,
