@@ -1272,6 +1272,23 @@
           }
         },
         {
+          "id": "b9a886ef-21df-4487-8ef0-efed3c3e7b01",
+          "name": "username for GeoGirafe",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "username",
+            "id.token.claim": "true",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "username",
+            "jsonType.label": "String"
+          }
+        },
+        {
           "id": "b0b24e0b-7719-46a6-9e7e-cf2ef95cb926",
           "name": "given name",
           "protocol": "openid-connect",
