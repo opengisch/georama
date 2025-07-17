@@ -42,7 +42,7 @@ BUILD_ENV += \
 # *******************
 
 $(VENV_REQUIREMENTS):
-	$(PYTHON_PATH) -m venv --system-site-packages $(VENV_PATH)
+	$(PYTHON_PATH) -m venv $(VENV_PATH)
 	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools
 	touch $@
 
