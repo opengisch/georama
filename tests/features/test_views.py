@@ -42,6 +42,7 @@ class TestFeaturesViews:
         expected_subset = {
             "crs": [
                 "http://www.opengis.net/def/crs/EPSG/0/4326",
+                "http://www.opengis.net/def/crs/OGC/0/CRS84",
                 "https://www.opengis.net/def/crs/OGC/0/CRS84",
                 "https://www.opengis.net/def/crs/EPSG/0/2056",
             ],
