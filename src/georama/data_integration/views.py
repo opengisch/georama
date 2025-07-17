@@ -43,15 +43,6 @@ class RegisterQgisProject(View):
             return None
 
     @staticmethod
-    def find_config_vector_dataset_field_by_name(
-        vector_dataset: Vector, name: str
-    ) -> Field | None:
-        for field in vector_dataset.fields:
-            if field.name == name:
-                return field
-        return None
-
-    @staticmethod
     def find_config_dataset_by_id(
         datasets: List[Vector] | List[Raster] | List[Custom], id: str
     ) -> Vector | Raster | Custom | None:
@@ -153,7 +144,9 @@ class RegisterQgisProject(View):
                 field_qs = Field.objects.filter(
                     name=field.name,
                     type=field.type,
-                    type_simple=field.type_simple,
+                    type_wfs=field.type_wfs,
+                    type_oapif=field.type_oapif,
+                    type_oapif_format=field.type_oapif_format,
                     alias=field.alias,
                     nullable=field.nullable,
                     vector_dataset=dataset,
@@ -165,9 +158,13 @@ class RegisterQgisProject(View):
                     field = Field(
                         name=field.name,
                         type=field.type,
-                        type_simple=field.type_simple,
+                        type_wfs=field.type_wfs,
+                        type_oapif=field.type_oapif,
+                        type_oapif_format=field.type_oapif_format,
                         alias=field.alias,
                         nullable=field.nullable,
+                        length=field.length,
+                        precision=field.precision,
                         vector_dataset=dataset,
                     )
                 else:
@@ -177,9 +174,13 @@ class RegisterQgisProject(View):
                     field = field_qs.get()
                     field.name = field.name
                     field.type = field.type
-                    field.type_simple = field.type_simple
+                    field.type_wfs = field.type_wfs
+                    field.type_json = field.type_json
+                    field.type_json_format = field.type_json_format
                     field.alias = field.alias
                     field.nullable = field.nullable
+                    field.length = field.length
+                    field.precision = field.precision
                     field.vector_dataset = dataset
                 field.save()
                 logging.debug(
@@ -187,9 +188,7 @@ class RegisterQgisProject(View):
                 )
             logging.debug(f"   Cleaning out old fields...")
             for field_db in Field.objects.filter(vector_dataset=dataset).all():
-                field_match = self.find_config_vector_dataset_field_by_name(
-                    layer, field_db.name
-                )
+                field_match = layer.get_field_by_name(field_db.name)
                 if field_match is None:
                     logging.debug(
                         f'    Deleting field "{field.name}" of vector dataset {dataset.name} since it was '

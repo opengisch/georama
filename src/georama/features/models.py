@@ -10,7 +10,7 @@ from georama.core.entities.models import (
     delete_publishedas_db_permissions,
     save_publishedas_db_permissions,
 )
-from georama.data_integration.models import VectorDataSet
+from georama.data_integration.models import Field, VectorDataSet
 
 COLUMN_TYPE_VALUES = {
     "numeric": "Numerical Type",
@@ -170,7 +170,8 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
                 ColumnOgcApiFeatures(
                     published_definition=self,
                     name=field.name,
-                    title=field.name.title(),
+                    title=field.alias,
+                    dataset_column=field,
                     public=True,
                 ).save()
 
@@ -178,6 +179,13 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
 class ColumnOgcApiFeatures(Column):
     published_definition = models.ForeignKey(
         PublishedAsOgcApiFeatures,
+        related_name="columns",
+        related_query_name="column",
+        on_delete=models.CASCADE,
+    )
+    dataset_column = models.ForeignKey(
+        Field,
+        null=True,
         related_name="columns",
         related_query_name="column",
         on_delete=models.CASCADE,

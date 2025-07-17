@@ -62,7 +62,7 @@ dependencies = [
     "xsdata[cli,lxml,soap]==24.12",
     "async-timeout==4.0.3",
     "redis==5.0.8",
-    "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@implement-wfs-get-feature",
+    "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@improve-field-information",
     "numpy==2.2.5",
     # deps for webgis
     "django-allauth==0.63.3",
