@@ -67,6 +67,14 @@ services:
       KC_DB_PASSWORD: password
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/tls.crt
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/tls.key
+      KC_HTTPS_KEY_STORE_FILE: /etc/x509/https/server.keystore
+      KC_HTTPS_KEY_STORE_PASSWORD: changeit
+      KC_HTTPS_KEY_STORE_TYPE: PKCS12
+      KC_HTTPS_TRUST_STORE_FILE: /etc/x509/https/server.truststore
+      KC_HTTPS_TRUST_STORE_PASSWORD: changeit
+      KC_HTTPS_TRUST_STORE_TYPE: JKS
       KC_HTTPS_MANAGEMENT_CLIENT_AUTH: none
       X509_CA_BUNDLE: /etc/x509/https/rootCA.crt
     healthcheck:
@@ -75,9 +83,15 @@ services:
       timeout: 2s
       retries: 15
     restart: unless-stopped
-    command: ["start-dev", "--http-port", "7080"]
+    command: ["start-dev", "--http-port", "7080", "--https-port", "7443"]
     ports:
       - "7080:7080"
+      - "7443:7443"
+    volumes:
+      - ./keycloak/certs/keycloak.crt:/etc/x509/https/tls.crt
+      - ./keycloak/certs/keycloak.key:/etc/x509/https/tls.key
+      - ./keycloak/certs/rootCA.crt:/etc/x509/https/rootCA.crt
+      - ./keycloak/certs/server.truststore:/etc/x509/https/server.truststore
     depends_on:
       - keycloak-db
 
