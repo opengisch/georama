@@ -398,7 +398,7 @@ class PygeoapiServer(View):
 
         provider_definition = {
             "type": "feature",
-            "name": "PostgreSQL",
+            "name": "OG_SQL",
             "data": {
                 "host": source.postgres.host,
                 "port": source.postgres.port,

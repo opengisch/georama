@@ -11,6 +11,9 @@ pygeoapi.plugin.PLUGINS["provider"][
     "OG_OGR"
 ] = "georama.features.pygeoapi_providers.ogr.OGRProvider"
 
+pygeoapi.plugin.PLUGINS["provider"][
+    "OG_SQL"
+] = "georama.features.pygeoapi_providers.sql.GeoramaSqlProvider"
 
 inittime_api.DEFAULT_CRS = Config().default_crs
 
