@@ -12,6 +12,7 @@ RUN apt-get update && \
       python3-psycopg2 \
       python3-gdal \
       gdal-bin \
+      libpq-dev \
       make \
       git \
       curl
