@@ -153,6 +153,7 @@ class Base(Configuration):
             "django.middleware.clickjacking.XFrameOptionsMiddleware",
             # webgis
             "allauth.account.middleware.AccountMiddleware",
+            "georama.core.auth.middleware.GeoGirafeAuthenticationMiddleware",
         ]
 
     ROOT_URLCONF = "georama.core.urls"
