@@ -148,6 +148,7 @@ class RegisterQgisProject(View):
                     type_oapif=field.type_oapif,
                     type_oapif_format=field.type_oapif_format,
                     alias=field.alias,
+                        comment=field.comment,
                     nullable=field.nullable,
                     vector_dataset=dataset,
                 )
@@ -162,6 +163,7 @@ class RegisterQgisProject(View):
                         type_oapif=field.type_oapif,
                         type_oapif_format=field.type_oapif_format,
                         alias=field.alias,
+                            comment=field.comment,
                         nullable=field.nullable,
                         length=field.length,
                         precision=field.precision,
@@ -178,6 +180,7 @@ class RegisterQgisProject(View):
                     field.type_json = field.type_json
                     field.type_json_format = field.type_json_format
                     field.alias = field.alias
+                    field.comment = field.comment
                     field.nullable = field.nullable
                     field.length = field.length
                     field.precision = field.precision

@@ -223,6 +223,7 @@ class Field(models.Model):
     type_oapif = models.CharField(null=False, default="UNSET", max_length=1000)
     type_oapif_format = models.CharField(null=True, default="UNSET", max_length=1000)
     alias = models.CharField(null=False, default="UNSET", max_length=1000)
+    comment = models.CharField(null=False, default="UNSET", max_length=1000)
     nullable = models.BooleanField(null=False, default=True)
     length = models.IntegerField(null=True)
     precision = models.IntegerField(null=True)
@@ -244,6 +245,7 @@ class Field(models.Model):
             type_oapif=self.type_oapif,
             type_oapif_format=self.type_oapif_format,
             alias=self.alias,
+            comment=self.comment,
             nullable=self.nullable,
             length=self.length,
             precision=self.precision,
