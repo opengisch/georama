@@ -51,20 +51,20 @@
   },
   "oauth": {
     "issuer": {
-      "url": "https://localhost:7443/realms/ninjas",
+      "url": "http://localhost:7080/realms/ninjas",
       "clientId": "georama-oidc",
       "audience": ["localhost"],
       "audienceExcludedPaths": ["^/static/", "^/tiles/"],
       "scope": "openid profile email",
       "checkSessionOnLoad": true,
-      "loginRequired": false
+      "loginRequired": false,
+      "allowInsecureRequests": true
     },
     "geomapfish": {
-      "userInfoUrl": "https://localhost:7443/realms/ninjas/protocol/openid-connect/userinfo",
+      "userInfoUrl": "http://localhost:7080/realms/ninjas/protocol/openid-connect/userinfo",
       "authMode": "token"
     }
   },
-
   "contextmenu": {
     "crs": [
       { "code": "EPSG:2056", "translation": "EPSG:2056", "format": "decimal", "precision": 1 },
