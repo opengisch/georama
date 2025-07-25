@@ -250,3 +250,6 @@ class Field(models.Model):
             length=self.length,
             precision=self.precision,
         )
+
+    def __str__(self):
+        return f"{self.alias} ({self.name})"
