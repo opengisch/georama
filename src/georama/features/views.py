@@ -343,10 +343,11 @@ class PygeoapiServer(View):
         editable: bool,
         features_properties: typing.List[ColumnOgcApiFeatures],
     ) -> dict:
-        source, path = published_as.dataset.source_to_qsl
+        source, _ = published_as.dataset.source_to_qsl
+
         crs = published_as.dataset.crs_to_qsl
-        self.handle_crs_setting(crs.ogc_uri),
-        config = Config()
+        available_crs_list = self.getAvailableCrsList(crs)
+
         # TODO: make this configurable
         driver_lookup = {"SHP": "ESRI Shapefile", "GPKG": "GPKG", "GDB": "OpenFileGDB"}
 
@@ -364,7 +365,7 @@ class PygeoapiServer(View):
             "data": {
                 "source_type": driver_lookup[source.ogr.path.split(".")[-1].upper()],
                 "source": os.path.join(
-                    config.path, published_as.dataset.project.mandant.name, source.ogr.path
+                    Config().path, published_as.dataset.project.mandant.name, source.ogr.path
                 ),
                 "source_capabilities": {"paging": True},
             },
@@ -391,9 +392,10 @@ class PygeoapiServer(View):
         editable: bool,
         features_properties: typing.List[ColumnOgcApiFeatures],
     ) -> dict:
-        source, path = published_as.dataset.source_to_qsl
+        source, _ = published_as.dataset.source_to_qsl
+
         crs = published_as.dataset.crs_to_qsl
-        self.handle_crs_setting(crs.ogc_uri)
+        available_crs_list = self.getAvailableCrsList(crs)
 
         geom_field = source.postgres.geometry_column
         geom_type = published_as.dataset.geometry_type_wkb
@@ -482,6 +484,19 @@ class PygeoapiServer(View):
                 "default_items": published_as.default_items,
             },
         }
+
+    def getAvailableCrsList(self, crs):
+        self.handle_crs_setting(crs.ogc_uri)
+        available_crs_list = [
+            crs.ogc_uri,
+            "http://www.opengis.net/def/crs/OGC/0/CRS84",
+            "https://www.opengis.net/def/crs/OGC/0/CRS84",
+        ]
+
+        if Config().default_crs not in available_crs_list:
+            available_crs_list.append(Config().default_crs)
+
+        return available_crs_list
 
 
 def getDatasetFieldConstraints(
