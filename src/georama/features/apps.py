@@ -9,7 +9,7 @@ print("loading provider")
 
 pygeoapi.plugin.PLUGINS["provider"][
     "OG_OGR"
-] = "georama.features.pygeoapi_providers.ogr.OGRProvider"
+] = "georama.features.pygeoapi_providers.ogr.GeoramaOgcProvider"
 
 pygeoapi.plugin.PLUGINS["provider"][
     "OG_SQL"
