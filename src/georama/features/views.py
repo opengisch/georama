@@ -13,11 +13,11 @@ from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
 from qgis_server_light.interface.qgis import BBox
 
-from georama.data_integration.models import VectorDataSet
+from georama.data_integration.models import Field, VectorDataSet
 from georama.features.apps import FeaturesConfig
 from georama.features.config_server import ServerConfig
 from georama.features.features_config import Config
-from georama.features.models import PublishedAsOgcApiFeatures
+from georama.features.models import ColumnOgcApiFeatures, PublishedAsOgcApiFeatures
 
 api = None
 
@@ -341,7 +341,7 @@ class PygeoapiServer(View):
         self,
         published_as: PublishedAsOgcApiFeatures,
         editable: bool,
-        features_properties: typing.List[str],
+        features_properties: typing.List[ColumnOgcApiFeatures],
     ) -> dict:
         source, path = published_as.dataset.source_to_qsl
         crs = published_as.dataset.crs_to_qsl
@@ -349,13 +349,15 @@ class PygeoapiServer(View):
         config = Config()
         # TODO: make this configurable
         driver_lookup = {"SHP": "ESRI Shapefile", "GPKG": "GPKG", "GDB": "OpenFileGDB"}
-        available_crs_list = [
-            crs.ogc_uri,
-            "http://www.opengis.net/def/crs/OGC/0/CRS84",
-            "https://www.opengis.net/def/crs/OGC/0/CRS84",
-        ]
-        if config.default_crs not in available_crs_list:
-            available_crs_list.append(config.default_crs)
+
+        # for OGR `geom` is the standard geometry column
+        geom_field = "geom"
+        geom_type = published_as.dataset.geometry_type_wkb
+
+        field_constraints = getDatasetFieldConstraints(
+            features_properties, geom_field, geom_type
+        )
+
         provider_definition = {
             "type": "feature",
             "name": "OG_OGR",
@@ -370,18 +372,16 @@ class PygeoapiServer(View):
             "crs": available_crs_list,
             "storage_crs": crs.ogc_uri,
             "id_field": "fid",
-            "layer": source.ogr.layer_name
-            if source.ogr.layer_name is not None
-            else os.path.basename(source.ogr.path).split(".")[0],
-            # TODO:
-            # "id_field": "fid",
-            # "title_field": "kantonsname",
+            "layer": (
+                source.ogr.layer_name
+                if source.ogr.layer_name is not None
+                else os.path.basename(source.ogr.path).split(".")[0]
+            ),
+            "geom_field": geom_field,
+            "geom_type": geom_type,
+            "properties": features_properties,
+            "field_constraints": field_constraints,
         }
-        if published_as.column_permission:
-            if len(features_properties) == 0:
-                # for OGR `geom` is the standard geometry column
-                features_properties = ["geom"]
-            provider_definition["properties"] = features_properties
 
         return provider_definition
 
@@ -389,20 +389,18 @@ class PygeoapiServer(View):
         self,
         published_as: PublishedAsOgcApiFeatures,
         editable: bool,
-        features_properties: typing.List[str],
+        features_properties: typing.List[ColumnOgcApiFeatures],
     ) -> dict:
         source, path = published_as.dataset.source_to_qsl
         crs = published_as.dataset.crs_to_qsl
         self.handle_crs_setting(crs.ogc_uri)
 
-        available_crs_list = [
-            crs.ogc_uri,
-            "http://www.opengis.net/def/crs/OGC/0/CRS84",
-            "https://www.opengis.net/def/crs/OGC/0/CRS84",
-        ]
+        geom_field = source.postgres.geometry_column
+        geom_type = published_as.dataset.geometry_type_wkb
 
-        if Config().default_crs not in available_crs_list:
-            available_crs_list.append(Config().default_crs)
+        field_constraints = getDatasetFieldConstraints(
+            features_properties, geom_field, geom_type
+        )
 
         provider_definition = {
             "type": "feature",
@@ -421,15 +419,11 @@ class PygeoapiServer(View):
             "storage_crs": crs.ogc_uri,
             "id_field": source.postgres.key,
             "table": source.postgres.table,
-            "geom_field": source.postgres.geometry_column
-            # TODO:
-            # "id_field": "fid",
-            # "title_field": "kantonsname",
+            "geom_field": geom_field,
+            "geom_type": geom_type,
+            "properties": features_properties,
+            "field_constraints": field_constraints,
         }
-        if published_as.column_permission:
-            if len(features_properties) == 0:
-                features_properties = [source.postgres.geometry_column]
-            provider_definition["properties"] = features_properties
 
         return provider_definition
 
@@ -442,13 +436,12 @@ class PygeoapiServer(View):
             or published_as.has_delete_permission(request.user, appname)
         )
 
-        features_properties = []
-        if published_as.column_permission:
-            features_properties = [
-                c.name
-                for c in published_as.columns.all()
-                if c.has_general_permission(request.user, appname)
-            ]
+        features_properties = [
+            p
+            for p in published_as.columns.all()
+            if not published_as.column_permission
+            or p.has_general_permission(request.user, appname)
+        ]
 
         if published_as.dataset.driver.upper() == "POSTGRES":
             provider = self.create_postgres_provider(
@@ -489,6 +482,63 @@ class PygeoapiServer(View):
                 "default_items": published_as.default_items,
             },
         }
+
+
+def getDatasetFieldConstraints(
+    field_properties: typing.List[ColumnOgcApiFeatures], geom_field: str, geom_type: str
+):
+    field_constraints: dict[str, dict] = {}
+
+    for properties in field_properties:
+        field: Field = properties.dataset_column
+
+        # Handle geom separately
+        if properties.name == geom_field:
+            continue
+
+        schema: dict[str, str | int | float | bool] = {
+            "title": field.alias or properties.name,
+            "type": field.type_oapif,
+        }
+
+        if field.type_oapif_format:
+            schema["format"] = field.type_oapif_format
+
+        if field.comment:
+            schema["description"] = field.comment
+
+        if not field.nullable:
+            schema["required"] = True
+
+        if field.precision and field.precision > 0 and field.type_oapif == "number":
+            # Specify how many decimal places are allowed
+            try:
+                schema["multipleOf"] = 1 / 10**field.precision
+            except ValueError:
+                pass
+
+        if field.length and field.type_oapif == "string":
+            schema["maxLength"] = field.length
+
+        if field.length and (field.type_oapif in ["number", "integer"]):
+            try:
+                # Set max digits, e.g. 9999 for length=4
+                schema["maximum"] = 10**field.length - 1
+                if schema["multipleOf"]:
+                    # Add decimal places, e.g. 9999.99
+                    schema["maximum"] += 1 - schema["multipleOf"]
+            except ValueError:
+                pass
+
+        field_constraints[str(properties.name)] = schema
+
+    # In the schema, the geometry column is always called
+    # `geometry`, independent of the actual column name in the DB
+    field_constraints["geometry"] = {
+        "format": f'geometry-{geom_type if geom_type != "UNSET" else "any"}',
+        "x-ogc-role": "primary-geometry",
+    }
+    return field_constraints
 
 
 def admin_publish_as_oapif(request: HttpRequest, vector_dataset_id: str):
