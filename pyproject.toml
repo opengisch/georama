@@ -55,6 +55,7 @@ dependencies = [
     "pygeoapi==0.20.0",
     "psycopg2",
     "geoalchemy2",
+    "gdal", # this is actually an dependency of the pygeoapi ogr provider
     # django stuff
     "django==5.0.6",
     "django-jazzmin==3.0.0",
@@ -62,7 +63,7 @@ dependencies = [
     "xsdata[cli,lxml,soap]==24.12",
     "async-timeout==4.0.3",
     "redis==5.0.8",
-    "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
+    "qgis_server_light",
     # deps for webgis
     "django-allauth[socialaccount]==65.4.1",
     "django-cors-headers==4.3.1",
@@ -75,7 +76,9 @@ dependencies = [
 # DEV: deps
 optional-dependencies.dev =[
     # to derive dataclasses from xsd schemas
-    "xsdata[cli,lxml,soap]==24.12"
+    "xsdata[cli,lxml,soap]==24.12",
+    "black==25.1.0",
+    "isort==6.0.1"
 ]
 
 # Test: packages imported in test code and packages required for the "test runner"
@@ -170,10 +173,21 @@ fail_under = 13
 line-length = 95
 include = '\.pyi?$'
 extend-exclude = '''
+/(
+tests
+| dist
+| src\/georama\/maps\/interfaces
+)/
 '''
+# TODO: exclude tests & migrations generated interfaces
 
 [tool.isort]
 profile = 'black'
+extend_skip_glob = [
+    "src/georama/maps/interfaces/*",
+    "src/georama/*/migrations/*",
+    "tests/*"
+]
 
 [tool.bandit]
 tests = []

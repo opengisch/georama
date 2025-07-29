@@ -45,3 +45,6 @@ docker compose exec georama make create-example-content
 ```
 
 Admin interface (user: admin password: whatever-you-chose): http://localhost:4242/admin/
+
+
+pip install -e file:///home/kalle/projects/opengis/qgis_server_light/qgis-server-light/#qgis_server_light --config-settings editable_mode=compat

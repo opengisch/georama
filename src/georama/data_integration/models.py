@@ -74,13 +74,7 @@ class DataSet(models.Model):
         datasource = DictDecoder().decode(self.source, DataSource)
         path = self.path
         if datasource.postgres:
-            datasource.postgres.host = "georama-test_data"
-            datasource.postgres.port = "5432"
-            path = path.replace("host=localhost", f"host={datasource.postgres.host}")
-            path = path.replace("port=54322", f"port={datasource.postgres.port}")
-            path = path.replace("host='localhost'", f"host={datasource.postgres.host}")
-            path = path.replace("port='54322'", f"port={datasource.postgres.port}")
-            print(path)
+            path = path
         elif datasource.ogr:
             path = os.path.join(self.project.mandant.name, path)
         elif datasource.gdal:

@@ -31,6 +31,16 @@ class OgcServer(View):
     model = PublishedAsWms
 
     def wms_130_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
+        """
+        Handling the wms 1.3.0 capabilities.
+
+        Args:
+            request: The django request object.
+            params: the parameters which were send.
+
+        Returns:
+            The response object.
+        """
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WmsGetCapabilities(
             appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
