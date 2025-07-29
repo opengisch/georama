@@ -33,6 +33,8 @@ services:
       - "POSTGRES_DB=${GEORAMA_DB_NAME}"
   qsl-redis:
     image: redis:7.4.0
+    ports:
+      - "1234:6379"
   qsl:
     restart: unless-stopped
     image: ghcr.io/opengisch/qgis-server-light:latest
