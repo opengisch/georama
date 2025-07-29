@@ -1,4 +1,4 @@
-import os
+from django.conf import settings
 
 from georama.maps.interfaces.ogc.wms_1_3_0.capabilities import ServiceName
 from georama.maps.interfaces.ogc.wms_1_3_0.capabilities.xlink import TypeType
@@ -7,7 +7,7 @@ from georama.maps.interfaces.ogc.wms_1_3_0.capabilities.xlink import TypeType
 class Config:
     @property
     def redis_url(self):
-        return os.environ.get("QSL_REDIS_URL", "redis://localhost:1234")
+        return settings.QSL_REDIS_URL
 
     @property
     def default_dpi(self) -> int:
@@ -22,7 +22,7 @@ class Config:
         """
         Timeout in milliseconds
         """
-        return float(os.environ.get("JOB_TIMEOUT", 1000))
+        return settings.JOB_TIMEOUT
 
     def wms_1_3_0_service_config(self, url: str) -> dict:
         service_config = {
