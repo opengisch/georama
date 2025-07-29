@@ -332,10 +332,11 @@ class Dev(Base):
 
     CSRF_TRUSTED_ORIGINS = values.ListValue(
         [
-            "https://localhost:9309",      # GG (from georama stack)
-            "http://localhost:9308",       # GG (from georama stack)
+            "http://localhost:4242",
+            "https://localhost:9309",  # GG (from georama stack)
+            "http://localhost:9308",  # GG (from georama stack)
             "https://app.localhost:8080",  # GG (standalone)
-            "https://localhost:8080",      # GG (standalone)
+            "https://localhost:8080",  # GG (standalone)
             # convenience GG hostnames used by developers can be added here
             "http://geogirafe.local",
         ],
@@ -343,18 +344,12 @@ class Dev(Base):
         environ_prefix="GEORAMA",
     )
 
-    DB_NAME = values.Value(environ_required=True, environ_prefix="GEORAMA")
-    DB_USER = values.Value(environ_required=True, environ_prefix="GEORAMA")
-    DB_PW = values.Value(environ_required=True, environ_prefix="GEORAMA")
-    DB_HOST = values.Value("georama-db", environ_prefix="GEORAMA")
-    DB_PORT = values.Value("5432", environ_prefix="GEORAMA")
-
     CORS_ALLOWED_ORIGINS = values.ListValue(
         [
-            "https://localhost:9309",      # GG (from georama stack)
-            "http://localhost:9308",       # GG (from georama stack)
+            "https://localhost:9309",  # GG (from georama stack)
+            "http://localhost:9308",  # GG (from georama stack)
             "https://app.localhost:8080",  # GG (standalone)
-            "https://localhost:8080",      # GG (standalone)
+            "https://localhost:8080",  # GG (standalone)
             # convenience GG hostnames used by developers can be added here
             "http://geogirafe.local",
         ],

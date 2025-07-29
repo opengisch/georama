@@ -1,24 +1,29 @@
 from django import forms
-from georama.maps.models import PublishedAsWms
-from django.contrib.auth.models import Group, User
 from django.contrib.admin import widgets
+from django.contrib.auth.models import Group, User
+
+from georama.maps.models import PublishedAsWms
 
 
 class PublishedAsWmsForm(forms.ModelForm):
     class Meta:
         model = PublishedAsWms
-        fields = '__all__'
+        fields = "__all__"
 
     group_read_permission = forms.ModelMultipleChoiceField(
         required=False,
         queryset=None,
-        widget=widgets.FilteredSelectMultiple(verbose_name="Group read permission", is_stacked=False)
+        widget=widgets.FilteredSelectMultiple(
+            verbose_name="Group read permission", is_stacked=False
+        ),
     )
 
     user_read_permission = forms.ModelMultipleChoiceField(
         required=False,
         queryset=None,
-        widget=widgets.FilteredSelectMultiple(verbose_name="User read permission", is_stacked=False)
+        widget=widgets.FilteredSelectMultiple(
+            verbose_name="User read permission", is_stacked=False
+        ),
     )
 
     @staticmethod
@@ -35,9 +40,14 @@ class PublishedAsWmsForm(forms.ModelForm):
 
         # filling the field with the correct queryset and initialize it with the data from the db
 
-        self.fields['group_read_permission'].queryset = Group.objects.all()
-        self.fields['group_read_permission'].initial = Group.objects.filter(permissions__codename=permission_read)
+        self.fields["group_read_permission"].queryset = Group.objects.all()
+        self.fields["group_read_permission"].initial = Group.objects.filter(
+            permissions__codename=permission_read
+        )
 
-        self.fields['user_read_permission'].queryset = User.objects.all().exclude(is_superuser=True)
-        self.fields['user_read_permission'].initial = User.objects.filter(
-            user_permissions__codename=permission_read).exclude(is_superuser=True)
+        self.fields["user_read_permission"].queryset = User.objects.all().exclude(
+            is_superuser=True
+        )
+        self.fields["user_read_permission"].initial = User.objects.filter(
+            user_permissions__codename=permission_read
+        ).exclude(is_superuser=True)

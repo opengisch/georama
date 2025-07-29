@@ -11,7 +11,11 @@ nav:
   - "Welcome": index.md
   - "Quick Start": quick_start.md
   - "Setup Environment Variables": setup_env.md
-  - "DEV Setup": dev_setup.md
+  - "DEV Setup":
+      - "General": dev/general.md
+      - "Local 💻": dev/local.md
+      - "Docker 🐳": dev/docker.md
+      - "Local with QSL 💻": dev/local_and_qsl.md
   - "Workflow": workflow.md
   - "General Hints": general_hints.md
   - "Process": process.md
@@ -63,6 +67,10 @@ plugins:
         python:
           paths: [ ../src ]
           options:
+            filters:
+              exclude:
+                # this speeds up doc generation substantially
+                - "georama.maps.interfaces"
             show_submodules: true
             show_if_no_docstring: true
   # gain the ability to tap-in to the build process
