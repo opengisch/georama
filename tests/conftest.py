@@ -33,8 +33,8 @@ def admin_user(db, admin_user_name, admin_password, admin_email):
 
 
 @pytest.fixture
-def projects_dir():
-    os.environ["GEORAMA_DATA_INTEGRATION_ROOT"] = "./tests/resources/projects"
+def projects_dir(settings):
+    settings.DATA_INTEGRATION_ROOT = "./tests/resources/projects"
     yield
 
 

@@ -206,6 +206,10 @@ class Base(Configuration):
             }
         }
 
+    QSL_REDIS_URL = values.Value("redis://localhost:1234", environ_prefix="")
+    JOB_TIMEOUT = values.FloatValue(1000, environ_prefix="GEORAMA")
+    DATA_INTEGRATION_ROOT = values.Value("./tests/resources/projects", environ_prefix="GEORAMA")
+
     # Password validation
     # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
