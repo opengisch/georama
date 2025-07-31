@@ -41,6 +41,7 @@ If everything runs, you can prepare the Django DB.
 ```shell
 docker compose exec georama make migrate
 docker compose exec georama make create-superuser
+docker compose exec georama make create-example-content
 ```
 
 Admin interface (user: admin password: whatever-you-chose): http://localhost:4242/admin/

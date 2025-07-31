@@ -1,7 +1,6 @@
-import os
-
 import pytest
 from django.contrib.auth.models import User
+from django.core.management import call_command
 
 from georama.data_integration.models import Project
 from georama.data_integration.views import RegisterQgisProject
@@ -30,6 +29,11 @@ def admin_user(db, admin_user_name, admin_password, admin_email):
     admin.save()
     yield admin
     admin.delete()
+
+
+@pytest.fixture(autouse=True)
+def example_users():
+    call_command("loaddata", "tests/resources/users.json")
 
 
 @pytest.fixture

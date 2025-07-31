@@ -62,6 +62,7 @@ Once services are running, apply migrations and create a superuser:
 ```bash
 docker compose exec georama make migrate
 docker compose exec georama make create-superuser
+docker compose exec georama make create-example-content
 ```
 
 ### 🔐 Access the Admin Interface
