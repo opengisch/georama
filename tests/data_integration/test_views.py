@@ -63,6 +63,7 @@ class TestDataIntegrationViews:
             auth_id="EPSG:4326",
             postgis_srid=4326,
             ogc_uri="http://www.opengis.net/def/crs/EPSG/0/4326",
+            ogc_urn="urn:ogc:def:crs:EPSG::4326",
         )
 
         # TODO: We might want to also compare point_layer.to_qsl to a Vector()
