@@ -93,6 +93,12 @@ Create a superuser which can be used to log into Georama:
 make create-superuser
 ```
 
+6. Create example content (like demo users):
+
+```shell
+make create-example-content
+```
+
 You may now navigate to [http://localhost:4242/admin/](http://localhost:4242/admin/) with your favorite
 browser.
 
