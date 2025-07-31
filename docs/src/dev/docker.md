@@ -52,6 +52,10 @@ docker exec georama make migrate
 docker exec -ti georama make create-superuser
 ```
 
+```shell
+docker exec -ti georama make create-example-content
+```
+
 !!! success
     Admin interface (user: admin password: whatever-you-chose): http://localhost:4242/admin/
 

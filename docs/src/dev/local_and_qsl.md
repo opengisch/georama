@@ -33,7 +33,10 @@ The following steps have to be done inside the Georama project path on your file
 
 1. `docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 54321:5432 postgis/postgis:latest`
 2. `LOCAL_QGIS_SERVER_LIGHT_PATH=<absolute-local-filesystem-path-to-qsl> make install-dev-local-qsl`
-3. run `make serve-dev`
+3. `make serve-dev`
+4. 2nd shell: `make migrate`
+5. 2nd shell: `make create-superuser`
+6. 2nd shell: `make create-example-content`
 
 !!! success
     After this, your setup is ready for development in both, Georama & QGIS-Server-Light.
