@@ -6,13 +6,6 @@ tags:
 
 
 
-6. Create example content::
-Create example content (like demo users):
-
-```shell
-make create-example-content
-```
-
 ## 🔃🛠️ Update QGIS Server light lib
 
 [qgis-server-light](https://github.com/opengisch/qgis-server-light) interface is part of georama.

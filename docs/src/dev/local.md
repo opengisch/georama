@@ -41,7 +41,7 @@ In case you are using an IDE you can point it to that venv to have code completi
 
 ---
 
-### 🌍 Running the test server
+### 🌍 Running the server
 
 Georama needs a postgres database to store its stuff in. Unless you have a running database already somewhere
 you can easily start one via docker.
@@ -49,18 +49,27 @@ you can easily start one via docker.
 #### Spin up a database (for georama admin configuration)
 
 ```shell
-docker run --rm -d --name georama -e POSTGRES_PASSWORD=test -p 54321:5432 postgis/postgis:latest
+docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 54321:5432 postgis/postgis:latest
 ```
 
 The maps ([qgis-server-light](https://github.com/opengisch/qgis-server-light)) part of georama needs a redis
 instance to put jobs in.
 
-#### Start a redis instance (for qsl integration)
+#### Start a redis instance
 
-    ```shell
-    docker run --rm -d -p 1234:6379 --name georama-redis redis
-    ```
+For integration with QGIS-Server-Light we need to have a redis instance available:
 
+```shell
+docker run --rm -d -p 1234:6379 --name qsl-redis redis
+```
+
+#### Start QGIS-Server-Light worker
+
+The QGIS-Server-Light worker can be started with:
+
+```shell
+docker run -d --rm --net host --name qsl -v $(pwd)/tests/resources/projects:/io/data opengisch/qgis-server-light:latest
+```
 
 #### Launch the Auto-Reloading Dev Server
 
@@ -83,6 +92,15 @@ Create a superuser which can be used to log into Georama:
 ```shell
 make create-superuser
 ```
+
+You may now navigate to [http://localhost:4242/admin/](http://localhost:4242/admin/) with your favorite
+browser.
+
+!!! info
+    To force reinstall GitHub dependency qgis_server_light interface without rebuilding everything:
+    ```shell
+    .venv/bin/pip install --force-reinstall --no-deps "git+ssh://git@github.com/opengisch/qgis-server-light.git@master#qgis_server_light"
+    ```
 
 ---
 

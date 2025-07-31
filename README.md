@@ -19,18 +19,14 @@ For a detailed description, please consult our [documentation](https://docs.geor
 ## Quickstart docker compose
 
 Create your own `.env` file by copying the example.
+
+Build Georama:
 ```shell
-cp .env.dev.example .env
+docker compose build georama
 ```
-
-Set the path to the QGIS projects directory:
-`GEORAMA_LOCAL_DATA=<path-to-your-qgis-projects>`
-
-And adapt additional values of `.env` as needed.
 
 Then, start the services.
 ```shell
-docker compose build
 docker compose up -d
 ```
 
@@ -45,6 +41,3 @@ docker compose exec georama make create-example-content
 ```
 
 Admin interface (user: admin password: whatever-you-chose): http://localhost:4242/admin/
-
-
-pip install -e file:///home/kalle/projects/opengis/qgis_server_light/qgis-server-light/#qgis_server_light --config-settings editable_mode=compat

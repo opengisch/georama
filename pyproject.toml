@@ -55,7 +55,7 @@ dependencies = [
     "pygeoapi==0.20.0",
     "psycopg2",
     "geoalchemy2",
-    "gdal", # this is actually an dependency of the pygeoapi ogr provider
+    "gdal",
     # django stuff
     "django==5.0.6",
     "django-jazzmin==3.0.0",
@@ -63,7 +63,7 @@ dependencies = [
     "xsdata[cli,lxml,soap]==24.12",
     "async-timeout==4.0.3",
     "redis==5.0.8",
-    "qgis_server_light",
+    "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
     # deps for webgis
     "django-allauth[socialaccount]==65.4.1",
     "django-cors-headers==4.3.1",
@@ -83,7 +83,6 @@ optional-dependencies.dev =[
 
 # Test: packages imported in test code and packages required for the "test runner"
 optional-dependencies.test = [
-    "gdal==3.8.4",
     "pytest-django",
     "pytest==8.0.0",
     "pytest-cov[toml]==5.0.0",

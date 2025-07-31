@@ -3,16 +3,14 @@ FROM ubuntu:24.04 AS base
 USER 0
 RUN apt-get update && \
     apt-get install -y \
+      python3-venv \
+      python3-dev \
       unixodbc \
       odbc-mdbtools \
-      python3-fiona \
-      python3-pip \
-      python3-setuptools \
-      python3-venv \
-      python3-psycopg2 \
-      python3-gdal \
       gdal-bin \
+      libgdal-dev \
       libpq-dev \
+      build-essential \
       make \
       git \
       curl
@@ -48,4 +46,4 @@ ENV DJANGO_SETTINGS_MODULE=core.settings
 
 ENTRYPOINT ["/tini", "--", "make"]
 
-CMD ["serve-dev"]
+CMD ["serve-dev-outbound"]
