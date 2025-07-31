@@ -58,7 +58,7 @@ jobs:
           cp .coverage.xml coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
       - name: Stop services
         if: always()
-        run: docker compose -f "docker-compose.yml" down
+        run: docker kill georama-db
 # TODO: Uncomment this once we have decided if we use codecov?
 #      - name: Upload coverage to Codecov
 #        uses: codecov/codecov-action@v5
