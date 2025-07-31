@@ -14,8 +14,9 @@ nav:
   - "DEV Setup":
       - "General": dev/general.md
       - "Local 💻": dev/local.md
-      - "Docker 🐳": dev/docker.md
       - "Local with QSL 💻": dev/local_and_qsl.md
+      - "Docker 🐳": dev/docker.md
+      - "Docker Compose 🐳": dev/docker_compose.md
   - "Workflow": workflow.md
   - "General Hints": general_hints.md
   - "Process": process.md

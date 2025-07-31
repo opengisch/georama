@@ -4,59 +4,63 @@ tags:
   - Development
 ---
 
-## Setup the environment variables
-Please read the following instructions:  [setup_env.md](../setup_env.md)
+## Development in a standalone Docker container
 
-## Development in a Container
+### Start the services Georama relies on
 
-Follow the
-<a href="https://github.com/opengisch/georama?tab=readme-ov-file#quickstart" target="_blank">
-Quickstart in README.md</a>. Check if everything is running.
+#### Start a database (for georama admin configuration)
 
-### 🔄 Live Code Reloading
-
-The Docker setup mounts the local project code into the container (specifically the `georama` service). This enables **hot reloading**, meaning code changes are picked up without restarting the container.
-
-### 🧠 IDE Integration (Container Interpreter)
-
-If you use an IDE (e.g. PyCharm), you can point it to the Python interpreter inside the container: `/opt/georama/venv` This gives you full code intelligence and completion based on the container’s environment.
-
----
-
-## 🧑‍💻 Using PyCharm with Docker Interpreter
-
-### 🐳 Adjust the Dockerfile
-Add comment marks to the line 48+49+50 in the `Dockerfile` as shown below:
 ```shell
-#ENTRYPOINT ["/tini", "--", "make"]
-#
-#CMD ["serve-dev"]
+docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 54321:5432 postgis/postgis:latest
 ```
 
-Now run:
+#### Start a redis instance
+
+For integration with QGIS-Server-Light we need to have a redis instance available:
+
 ```shell
-docker compose build
-docker compose up -d
+docker run --rm -d -p 1234:6379 --name qsl-redis redis
 ```
 
-### ⚙️ Configure the Python Interpreter in PyCharm
-<img src="../assets/pycharm_docker_target.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
+#### Start QGIS-Server-Light worker
 
-Specify the interpreter path as: `/opt/georama/venv/bin/python`
+The QGIS-Server-Light worker can be started with:
 
+```shell
+docker run -d --rm --net host --name qsl -v $(pwd)/tests/resources/projects:/io/data opengisch/qgis-server-light:latest
+```
 
-<img src="../assets/pycharm_interpreter_1.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
+### Build Georama container
 
-<img src="../assets/pycharm_interpreter_2.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
+```shell
+docker build -t georama:dev --target dev .
+```
 
-### 🐞 Configure Run/Debug
-Adjust the IP in the run/debug configuration to `0.0.0.0` and the port to `4242`
+### Start Georama container
 
-<img src="../assets/pycharm_debug_configs.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
+```shell
+docker run -d -p 4242 --rm --net host --name georama -v $(pwd)/tests/resources/projects:/io/data georama:dev
+```
 
-### ▶️ Start Debugging
-Finally you can now connect to the pycharm debugger
+### Prepare Django DB and admin user
 
-![PyCharm Starting](assets/pycharm_starting.png)
+```shell
+docker exec georama make migrate
+```
 
-![PyCharm Running](assets/pycharm_running.png)
+```shell
+docker exec -ti georama make create-superuser
+```
+
+!!! success
+    Admin interface (user: admin password: whatever-you-chose): http://localhost:4242/admin/
+
+!!! info
+    You might want to connect to the python interpreter inside the container for debugging reasons. You can
+    find it here: `/opt/georama/venv/bin/python`
+
+!!! info
+    To force reinstall GitHub dep qgis_server_light interface without complete rebuild:
+    ```shell
+    docker exec georama bash -c '/opt/georama/venv/bin/pip install --force-reinstall --no-deps "git+ssh://git@github.com/opengisch/qgis-server-light.git@master#qgis_server_light"'
+    ```

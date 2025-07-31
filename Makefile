@@ -14,6 +14,9 @@ PYTHON_VERSION = $(shell printf '%b' "import sys\nprint(f'{sys.version_info.majo
 EDITABLE_GEORAMA_PATH = $(VENV_PATH)/lib/python$(PYTHON_VERSION)/site-packages/editable_georama.pth
 PINNED_DEPS ?= reqs.txt
 PINNED_DEPS_FOR_CI ?= reqs-test.txt # CI-specific requirements file
+# you can overwrite this by passing env variable in front of the make call e.g.:
+# GDAL_VERSION=4.9.9 make install-dev
+GDAL_VERSION ?= $(shell gdal-config --version)
 
 # Define the exact pygeoapi line you want in the CI requirements (branch reference)
 PYGEOAPI_BRANCH_SPEC = pygeoapi @ git+https://github.com/opengisch/pygeoapi.git@respect-property-setting-in-ogr-provider
@@ -22,8 +25,6 @@ PYGEOAPI_BRANCH_SPEC = pygeoapi @ git+https://github.com/opengisch/pygeoapi.git@
 QGIS_SERVER_LIGHT_BRANCH_SPEC = qgis-server-light @ git+https://github.com/opengisch/qgis-server-light.git@master
 
 QGIS_PY_PATH ?= /usr/share/qgis/python
-
-GEORAMA_DATA_INTEGRATION_ROOT ?= tests/resources/projects
 
 # ********************
 # Variable definitions
@@ -36,6 +37,15 @@ LOCATION ?= ./src
 # Python source files
 SRC_PY = $(shell find $(LOCATION)/$(PACKAGE) -name '*.py')
 
+# **************************
+# Load .env file if existing
+# **************************
+
+ifneq (,$(wildcard .env))
+  include .env
+  export
+endif
+
 # Environment variables used for build
 BUILD_ENV += \
     DEVELOPMENT=${DEVELOPMENT}
@@ -46,7 +56,9 @@ BUILD_ENV += \
 
 $(VENV_REQUIREMENTS):
 	$(PYTHON_PATH) -m venv $(VENV_PATH)
-	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools
+	# we directly install gdal here into the venv since it is relying on the system gdal version
+	# and this information we can only fetch in a simple way in a shell like context
+	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools gdal==$(GDAL_VERSION)
 	touch $@
 
 $(EDITABLE_GEORAMA_PATH):
@@ -74,7 +86,7 @@ $(CHECK_REQUIREMENTS): $(PIP_REQUIREMENTS)
 
 $(LOCAL_QGIS_SERVER_LIGHT_REQUIREMENTS): $(DEV_REQUIREMENTS)
 	$(if $(LOCAL_QGIS_SERVER_LIGHT_PATH),,$(error LOCAL_QGIS_SERVER_LIGHT_PATH has to be defined))
-	pip install -e file://$(LOCAL_QGIS_SERVER_LIGHT_PATH)\#qgis_server_light --config-settings editable_mode=compat
+	$(VENV_BIN)/$(PIP_COMMAND) install -e file://$(LOCAL_QGIS_SERVER_LIGHT_PATH)\#qgis_server_light --config-settings editable_mode=compat
 
 
 # **************
@@ -184,7 +196,13 @@ install-dev-local-qsl: $(LOCAL_QGIS_SERVER_LIGHT_REQUIREMENTS)
 
 .PHONY: serve-dev
 serve-dev: $(DEV_REQUIREMENTS)
-	GEORAMA_DATA_INTEGRATION_ROOT=$(GEORAMA_DATA_INTEGRATION_ROOT) $(VENV_BIN)/python src/georama/manage.py runserver localhost:4242
+	$(VENV_BIN)/python src/georama/manage.py runserver localhost:4242
+
+# This target is for serving DEV georama so that it can  be reached within its network, you never want to do
+# that locally on your host machine unless in docker containers or you have a good reason.
+.PHONY: serve-dev-outbound
+serve-dev-outbound: $(DEV_REQUIREMENTS)
+	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:4242
 
 MANAGE_ACTION="shell_plus"
 .PHONY: manage
@@ -213,7 +231,7 @@ create-example-content: $(PIP_REQUIREMENTS) migrate
 
 .PHONY: pin-deps
 pin-deps: $(CHECK_REQUIREMENTS) $(TEST_REQUIREMENTS)
-	pip freeze --all > $(PINNED_DEPS)
+	$(VENV_BIN)/$(PIP_COMMAND) freeze --all > $(PINNED_DEPS)
 
 # This target depends on the original $(PINNED_DEPS) being created first.
 $(PINNED_DEPS_FOR_CI): $(PINNED_DEPS)
