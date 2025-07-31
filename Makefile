@@ -192,6 +192,10 @@ make-migrations: $(DEV_REQUIREMENTS)
 create-superuser: $(PIP_REQUIREMENTS) migrate
 	$(VENV_BIN)/python src/georama/manage.py createsuperuser --username admin --email admin@xy.ch
 
+.PHONY: create-example-content
+create-example-content: $(PIP_REQUIREMENTS) migrate
+	$(VENV_BIN)/python src/georama/manage.py loaddata tests/resources/users.json
+
 .PHONY: pin-deps
 pin-deps: $(CHECK_REQUIREMENTS) $(TEST_REQUIREMENTS)
 	pip freeze --all > $(PINNED_DEPS)
