@@ -49,6 +49,22 @@
     "tilesetsUrls": ["https://vectortiles100.geo.admin.ch/3d-tiles/ch.swisstopo.swisstlm3d.3d/20201020/tileset.json"],
     "maximumZoomDistance": 25000
   },
+  "oauth": {
+    "issuer": {
+      "url": "http://localhost:7080/realms/ninjas",
+      "clientId": "georama-oidc",
+      "audience": ["localhost"],
+      "audienceExcludedPaths": ["^/static/", "^/tiles/"],
+      "scope": "openid profile email",
+      "checkSessionOnLoad": true,
+      "loginRequired": false,
+      "allowInsecureRequests": true
+    },
+    "geomapfish": {
+      "userInfoUrl": "http://localhost:7080/realms/ninjas/protocol/openid-connect/userinfo",
+      "authMode": "token"
+    }
+  },
   "contextmenu": {
     "crs": [
       { "code": "EPSG:2056", "translation": "EPSG:2056", "format": "decimal", "precision": 1 },
