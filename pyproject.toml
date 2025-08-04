@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 ## Also renders on pypi as 'subtitle'
 [project]
 name = "georama"
-version = "0.0.1"
+dynamic = ["version"]
 description = "The habitat of geoanimals"
 authors = [
     {name="Clemens Rudert", email="clemens@opengis.ch"}
@@ -117,7 +117,7 @@ optional-dependencies.docs = [
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = "georama.version"}  # any module attribute compatible with ast.literal_eval
+version = {attr = "georama.__version__"}  # any module attribute compatible with ast.literal_eval
 readme = {file = ["README.md", "CHANGELOG.md"]}
 
 [tool.setuptools.packages.find]
