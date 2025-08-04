@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 
 jobs:
@@ -12,6 +15,9 @@ jobs:
     env:
       TX_TOKEN: ${{ secrets.TX_TOKEN }}
     steps:
+      - run: sudo rm /etc/apt/sources.list.d/*.list
+      - run: sudo apt update
+      - run: sudo apt-get install -y python3-venv python3-dev unixodbc odbc-mdbtools gdal-bin libgdal-dev libpq-dev build-essential make git curl
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -45,5 +51,6 @@ jobs:
           path: docs/site
           if-no-files-found: error
 
-      - name: Deploy to GitHub Pages
-        run: make doc-gh-deploy
+# We disable that currently, since we deploy docs manually to docs.georama.io
+#      - name: Deploy to GitHub Pages
+#        run: make doc-gh-deploy
