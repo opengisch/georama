@@ -139,6 +139,39 @@ class Base(Configuration):
         environ_prefix=None,
     )
 
+    # Django allauth's social account configuration
+    # https://docs.allauth.org/en/dev/socialaccount/configuration.html
+    SOCIALACCOUNT_QUERY_EMAIL = True
+    SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+    SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+    SOCIALACCOUNT_LOGIN_ON_GET = True
+
+    LOGIN_REDIRECT_URL = '/'
+
+    OIDC_NAME = values.Value("Keycloak", environ_prefix="GEORAMA")
+    OIDC_SERVER_URL = values.Value("", environ_prefix="GEORAMA")
+    OIDC_CLIENT_ID = values.Value("georama-oidc", environ_prefix="GEORAMA")
+    OIDC_OAUTH_PKCE_ENABLED = values.BooleanValue(True, environ_prefix="GEORAMA")
+    OIDC_SECRET = values.Value("", environ_prefix="GEORAMA")
+    OIDC_PROVIDER_ID = values.Value("keycloak", environ_prefix="GEORAMA")
+
+    @property
+    def SOCIALACCOUNT_PROVIDERS(self):
+        return {
+            "openid_connect": {
+                "OAUTH_PKCE_ENABLED": self.OIDC_OAUTH_PKCE_ENABLED,
+                "APP": {
+                    "provider_id": self.OIDC_PROVIDER_ID,
+                    "name": self.OIDC_NAME,
+                    "client_id": self.OIDC_CLIENT_ID,
+                    "secret": self.OIDC_SECRET,
+                    "settings": {
+                        "server_url": self.OIDC_SERVER_URL,
+                    },
+                },
+            },
+        }
+
     @property
     def MIDDLEWARE(self):
         return [
@@ -308,29 +341,10 @@ class Dev(Base):
         environ_prefix=None,
     )
 
-    # Django allauth's social account configuration
-    # https://docs.allauth.org/en/dev/socialaccount/configuration.html
-    SOCIALACCOUNT_QUERY_EMAIL = True
-    SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
-    SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
-    SOCIALACCOUNT_LOGIN_ON_GET = True
-
-    LOGIN_REDIRECT_URL = '/'
-
-    SOCIALACCOUNT_PROVIDERS = {
-        "openid_connect": {
-            "OAUTH_PKCE_ENABLED": True,
-            "APP": {
-                "provider_id": "keycloak",
-                "name": "Keycloak",
-                "client_id": "georama-oidc",
-                "secret": "",
-                "settings": {
-                    "server_url": "http://localhost:7080/realms/ninjas/.well-known/openid-configuration",
-                },
-            },
-        },
-    }
+    OIDC_SERVER_URL = values.Value(
+        "http://localhost:7080/realms/ninjas/.well-known/openid-configuration",
+        environ_prefix="GEORAMA",
+    )
 
     CSRF_TRUSTED_ORIGINS = values.ListValue(
         [
