@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 
 jobs:
@@ -48,5 +51,6 @@ jobs:
           path: docs/site
           if-no-files-found: error
 
-      - name: Deploy to GitHub Pages
-        run: make doc-gh-deploy
+# We disable that currently, since we deploy docs manually to docs.georama.io
+#      - name: Deploy to GitHub Pages
+#        run: make doc-gh-deploy
