@@ -15,6 +15,7 @@ nav:
   - "Workflow": workflow.md
   - "General Hints": general_hints.md
   - "Process": process.md
+  - "Auth": dev_guides/auth.md
   - API References:
     - Overview: api_references/overview.md
     - Core: api_references/core.md
