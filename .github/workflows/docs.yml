@@ -12,6 +12,9 @@ jobs:
     env:
       TX_TOKEN: ${{ secrets.TX_TOKEN }}
     steps:
+      - run: sudo rm /etc/apt/sources.list.d/*.list
+      - run: sudo apt update
+      - run: sudo apt-get install -y python3-venv python3-dev unixodbc odbc-mdbtools gdal-bin libgdal-dev libpq-dev build-essential make git curl
       - name: Checkout
         uses: actions/checkout@v4
 

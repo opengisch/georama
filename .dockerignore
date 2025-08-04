@@ -1,6 +1,6 @@
 .tox
 .github
-.git
+#.git
 .venv
 build
 dist
