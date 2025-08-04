@@ -1,14 +1,14 @@
 services:
   georama:
     image: georama:dev
+    env_file:
+      - .env
     build:
       context: .
       target: dev
-    env_file:
-      - .env
     volumes:
       - ./:/app
-      - "${GEORAMA_LOCAL_DATA}:/io/data"
+      - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data:ro"
     ports:
       - "4242:4242"
   georama-db:
@@ -18,30 +18,30 @@ services:
     ports:
       - "54321:5432"
     environment:
-      - "POSTGRES_USER=${GEORAMA_DB_USER}"
-      - "POSTGRES_PASSWORD=${GEORAMA_DB_PW}"
-      - "POSTGRES_DB=${GEORAMA_DB_NAME}"
+      - "POSTGRES_USER=${GEORAMA_DB_USER:-test}"
+      - "POSTGRES_PASSWORD=${GEORAMA_DB_PW:-postgres}"
+      - "POSTGRES_DB=${GEORAMA_DB_NAME:-postgres}"
   georama-test_data:
     image: postgis/postgis:14-3.4
     volumes:
       - "georama-test_data:/var/lib/postgresql/data"
     ports:
-      - "54322:5432"
+      - "5432:5432"
     environment:
-      - "POSTGRES_USER=${GEORAMA_DB_USER}"
-      - "POSTGRES_PASSWORD=${GEORAMA_DB_PW}"
-      - "POSTGRES_DB=${GEORAMA_DB_NAME}"
+      - "POSTGRES_USER=${GEORAMA_DB_USER:-test}"
+      - "POSTGRES_PASSWORD=${GEORAMA_DB_PW:-postgres}"
+      - "POSTGRES_DB=${GEORAMA_DB_NAME:-postgres}"
   qsl-redis:
     image: redis:7.4.0
     ports:
       - "1234:6379"
   qsl:
     restart: unless-stopped
-    image: ghcr.io/opengisch/qgis-server-light:latest
+    image: opengisch/qgis-server-light:latest
     env_file:
       - .env
     volumes:
-      - "${GEORAMA_LOCAL_DATA}:/io/data"
+      - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data:ro"
     deploy:
       replicas: 1
   geogirafe:

@@ -43,15 +43,14 @@ jobs:
           architecture: x64
       - run: sudo rm /etc/apt/sources.list.d/*.list
       - run: sudo apt update
-      - run: sudo apt-get install  -y  libpq-dev python3-gdal libgdal-dev python3-numpy python3-venv git make
+      - run: sudo apt-get install -y python3-venv python3-dev unixodbc odbc-mdbtools gdal-bin libgdal-dev libpq-dev build-essential make git curl
       - name: Start services
         run: |
-          cp .env.ci .env
-          docker compose -f "docker-compose.yml" up georama-db -d
+          docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 54321:5432 postgis/postgis:latest
       - name: Set up test environment
         run: make install-test
       - name: Run tests for Python ${{ matrix.python-version }} on ${{ matrix.platform }}
-        run: make tests
+        run: DJANGO_CONFIGURATION=Test make tests
       - name: Test Coverage
         shell: bash
         run: |
@@ -59,7 +58,7 @@ jobs:
           cp .coverage.xml coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
       - name: Stop services
         if: always()
-        run: docker compose -f "docker-compose.yml" down
+        run: docker kill georama-db
 # TODO: Uncomment this once we have decided if we use codecov?
 #      - name: Upload coverage to Codecov
 #        uses: codecov/codecov-action@v5

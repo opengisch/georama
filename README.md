@@ -19,18 +19,14 @@ For a detailed description, please consult our [documentation](https://docs.geor
 ## Quickstart docker compose
 
 Create your own `.env` file by copying the example.
+
+Build Georama:
 ```shell
-cp .env.dev.example .env
+docker compose build georama
 ```
-
-Set the path to the QGIS projects directory:
-`GEORAMA_LOCAL_DATA=<path-to-your-qgis-projects>`
-
-And adapt additional values of `.env` as needed.
 
 Then, start the services.
 ```shell
-docker compose build
 docker compose up -d
 ```
 
