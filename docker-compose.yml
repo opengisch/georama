@@ -21,16 +21,6 @@ services:
       - "POSTGRES_USER=${GEORAMA_DB_USER:-postgres}"
       - "POSTGRES_PASSWORD=${GEORAMA_DB_PW:-test}"
       - "POSTGRES_DB=${GEORAMA_DB_NAME:-postgres}"
-  georama-test_data:
-    image: postgis/postgis:14-3.4
-    volumes:
-      - "georama-test_data:/var/lib/postgresql/data"
-    ports:
-      - "5432:5432"
-    environment:
-      - "POSTGRES_USER=${GEORAMA_DB_USER:-postgres}"
-      - "POSTGRES_PASSWORD=${GEORAMA_DB_PW:-test}"
-      - "POSTGRES_DB=${GEORAMA_DB_NAME:-postgres}"
   qsl-redis:
     image: redis:7.4.0
     ports:
@@ -107,5 +97,4 @@ services:
 
 volumes:
   georama-db_data:
-  georama-test_data:
   keycloakdb-data:
