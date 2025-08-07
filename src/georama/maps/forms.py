@@ -1,14 +1,83 @@
 from django import forms
+from django.forms import Widget
+from pyproj import CRS
+
 from django.contrib.admin import widgets
 from django.contrib.auth.models import Group, User
 
 from georama.maps.models import PublishedAsWms
 
 
+class LayerExtentWidget(Widget):
+    class Media:
+        css = {
+            "all": ["https://cdn.jsdelivr.net/npm/ol@v10.6.1/ol.css"],
+        }
+        js = (
+            "https://cdn.jsdelivr.net/npm/ol@v10.6.1/dist/ol.js",
+            "https://cdn.jsdelivr.net/npm/proj4@2.19.10/dist/proj4.min.js",
+        )
+
+    template_name = "admin/maps/preview_map/preview_map.html"
+
+    layer_srid = 4326
+    extent = ""
+
+    @property
+    def extent_as_numbers(self) -> list[float]:
+        return [float(e) for e in self.extent.split(",")]
+
+    @property
+    def extent_rounded(self) -> str:
+        # TODO: Digits should be based on crs
+        return ",".join([str(round(e, 2)) for e in self.extent_as_numbers])
+
+    @property
+    def extent_center(self) -> list[float]:
+        e = self.extent_as_numbers
+        return [
+            e[0] + (e[2] - e[0]) / 2,
+            e[1] + (e[3] - e[1]) / 2,
+        ]
+
+    @property
+    def proj4_def(self):
+        return CRS.from_epsg(self.layer_srid.replace("EPSG:", "")).to_proj4()
+
+    def format_value(self, value):
+        return self.sanitizeExtent(value)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+
+        self.extent = self.sanitizeExtent(value)
+        self.layer_srid = context["widget"]["attrs"]["layer_srid"]
+
+        context["extent"] = self.extent
+        context["extent_rounded"] = self.extent_rounded
+        context["layer_srid"] = self.layer_srid
+        context["proj4_def"] = self.proj4_def
+        context["center"] = self.extent_center
+        return context
+
+    @staticmethod
+    def sanitizeExtent(value: str) -> str:
+        extent = value.split(",")
+        if len(extent) == 4:
+            return value
+        elif len(extent) == 6:
+            return ",".join([extent[0], extent[1], extent[3], extent[4]])
+        else:
+            raise ValueError("Extent must be a comma-seperated list of 4 or 6 coordinates")
+
+
 class PublishedAsWmsForm(forms.ModelForm):
     class Meta:
         model = PublishedAsWms
         fields = "__all__"
+        widgets = {
+            "extent": LayerExtentWidget(),
+        }
 
     group_read_permission = forms.ModelMultipleChoiceField(
         required=False,
@@ -34,6 +103,11 @@ class PublishedAsWmsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Add additional attributes to widget
+        self.fields["extent"].widget.attrs["layer_srid"] = (
+            self.instance.get_vector_dataset.crs["AuthId"]
+        )
+
         # get the read permission, should get only one permission for PublishedAsWms
         permissions = self.instance.permissions
         permission_read = [p.codename for p in permissions][0]
@@ -51,3 +125,15 @@ class PublishedAsWmsForm(forms.ModelForm):
         self.fields["user_read_permission"].initial = User.objects.filter(
             user_permissions__codename=permission_read
         ).exclude(is_superuser=True)
+
+    def clean_extent(self):
+        extent = self.cleaned_data["extent"]
+        if extent is not None:
+            if len(extent.split(",")) != 4:
+                raise forms.ValidationError(
+                    "Extent must be a comma-seperated list of 4 coordinates"
+                )
+            for coord in extent.split(","):
+                # TODO Do CRS based validation
+                pass
+        return extent
