@@ -1,0 +1,39 @@
+
+
+<div>
+    <div>
+        <input type="text" id="extent-manual" placeholder="Bbox from map extent" value="{{ extent_rounded }}">
+    </div>
+    <button id="generate-map-preview" class="btn btn-high btn-primary">Apply current map extent as layer extent</button>
+    <div id="map" class="map" style="width: 300px; height: 300px"></div>
+</div>
+
+
+<script>
+
+    proj4.defs("{{ layer_srid }}", "{{ proj4_def }}");
+    ol.proj.proj4.register(proj4);
+
+    const view = new ol.View({
+        projection: '{{ layer_srid }}',
+        center: {{ center }},
+        zoom: 8
+    });
+    const map = new ol.Map({
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.OSM(),
+            }),
+        ],
+        target: 'map',
+        view: view,
+    });
+
+    map.getView().fitInternal(ol.geom.Polygon.fromExtent([{{ extent }}]));
+    
+    map.on('moveend', function () {
+        const extent = view.calculateExtent();
+        console.log(extent);
+    });
+
+</script>
