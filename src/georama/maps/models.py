@@ -14,9 +14,9 @@ class PublishedAsWmsAbstract(PublishedAs):
     published_as_type = "maps"
     extent_buffer = models.FloatField(default=0.0, null=False)
     queryable = models.BooleanField(default=True, null=True, blank=True)
-    
-    extent = models.CharField(max_length=1000, blank=True)
-    preview = models.BinaryField(blank=True, null=True)
+
+    extent = models.CharField(max_length=1000, null=True, blank=True)
+    preview = models.BinaryField(null=True, blank=True)
 
     @property
     def get_raster_dataset(self) -> RasterDataSet:
