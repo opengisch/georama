@@ -34,9 +34,6 @@ QGIS_PY_PATH ?= /usr/share/qgis/python
 PACKAGE = georama
 LOCATION ?= ./src
 
-# Python source files
-SRC_PY = $(shell find $(LOCATION)/$(PACKAGE) -name '*.py')
-
 # **************************
 # Load .env file if existing
 # **************************
@@ -64,11 +61,11 @@ $(VENV_REQUIREMENTS):
 $(EDITABLE_GEORAMA_PATH):
 	echo $(shell pwd)/src > $@
 
-$(PIP_REQUIREMENTS): $(VENV_REQUIREMENTS) pyproject.toml
+$(PIP_REQUIREMENTS): $(VENV_REQUIREMENTS) pyproject.toml setup.py
 	$(VENV_BIN)/$(PIP_COMMAND) install .
 	touch $@
 
-$(DEV_REQUIREMENTS): setup.py $(VENV_REQUIREMENTS) pyproject.toml
+$(DEV_REQUIREMENTS): $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/pip install -e .[dev]
 	touch $@
 
@@ -101,10 +98,16 @@ BUILD_DEPS += $(PIP_REQUIREMENTS)
 install: $(PIP_REQUIREMENTS)
 
 .PHONY: install-docs
-install-docs: $(PIP_REQUIREMENTS) $(DOC_REQUIREMENTS)
+install-docs: $(DOC_REQUIREMENTS)
 
 .PHONY: install-test
-install-test: $(PIP_REQUIREMENTS) $(TEST_REQUIREMENTS)
+install-test: $(TEST_REQUIREMENTS)
+
+.PHONY: install-dev
+install-dev: $(DEV_REQUIREMENTS)
+
+.PHONY: install-dev-local-qsl
+install-dev-local-qsl: $(LOCAL_QGIS_SERVER_LIGHT_REQUIREMENTS)
 
 .PHONY: build
 build: $(BUILD_DEPS)
@@ -112,6 +115,7 @@ build: $(BUILD_DEPS)
 
 .PHONY: clean
 clean:
+	find ./src -name "*.pyc" -delete
 
 .PHONY: clean-all
 clean-all: clean
@@ -187,12 +191,6 @@ doc-gh-deploy: $(DOC_REQUIREMENTS) docs/mkdocs.yml
 .PHONY: updates
 updates: $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/pip list --outdated
-
-.PHONY: install-dev
-install-dev: $(DEV_REQUIREMENTS)
-
-.PHONY: install-dev-local-qsl
-install-dev-local-qsl: $(LOCAL_QGIS_SERVER_LIGHT_REQUIREMENTS)
 
 .PHONY: serve-dev
 serve-dev: $(DEV_REQUIREMENTS)
