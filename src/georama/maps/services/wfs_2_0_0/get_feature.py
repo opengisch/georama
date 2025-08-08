@@ -711,14 +711,6 @@ class WfsGetFeature(WfsOperation):
     def get_feature(
         self, get_feature_parameter: GetFeature, result: JobResult, job: QslGetFeatureJob
     ):
-        qsl_query_collection = JsonParser().frobytes(result.data, QueryCollection)
-        wfs_feature_collection = FeatureCollection(
-            number_returned=0, number_matched=qsl_query_collection.numbers_matched
-        )
-
-    def get_feature(
-        self, get_feature_parameter: GetFeature, result: JobResult, job: QslGetFeatureJob
-    ):
         qsl_query_collection = JsonParser().from_bytes(result.data, QueryCollection)
         wfs_feature_collection = FeatureCollection(
             number_returned=0, number_matched=qsl_query_collection.numbers_matched
@@ -771,7 +763,6 @@ class WfsGetFeature(WfsOperation):
                 fields.append(
                     ("geometry", Union[GeometryMember, GeometryMembers], field(default=None))
                 )
-                print(fields)
                 feature_dataclass = make_dataclass(feature_collection.name, fields=fields)
                 feature_dataclass.Meta = GeoramaMeta
                 feature_object = feature_dataclass(**feature_dict)
