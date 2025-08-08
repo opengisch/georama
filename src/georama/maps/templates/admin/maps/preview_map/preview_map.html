@@ -46,6 +46,12 @@
             new ol.layer.Tile({
                 source: new ol.source.OSM(),
             }),
+            new ol.layer.Image({
+                source: new ol.source.ImageWMS({
+                    url: '{{ layer_url }}',
+                    params: {'LAYERS': '{{ layer_name }}'},
+                }),
+            }),
         ],
         target: 'map',
         view: view,

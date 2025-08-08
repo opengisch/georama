@@ -1,11 +1,10 @@
 from django import forms
 from django.forms import Widget
+from django.urls import reverse
 from pyproj import CRS
 
 from django.contrib.admin import widgets
 from django.contrib.auth.models import Group, User
-from qgis_server_light.interface.qgis import BBox
-
 from georama.maps.models import PublishedAsWms
 
 
@@ -57,6 +56,8 @@ class LayerExtentWidget(Widget):
 
         context["extent"] = self.extent
         context["layer_srid"] = self.layer_srid
+        context["layer_url"] = context["widget"]["attrs"]["layer_url"]
+        context["layer_name"] = context["widget"]["attrs"]["layer_name"]
         context["proj4_def"] = self.proj4_def
         context["center"] = self.extent_center
         return context
@@ -129,6 +130,8 @@ class PublishedAsWmsForm(forms.ModelForm):
             self.fields["extent"].widget.attrs["layer_srid"] = (
                 self.instance.get_vector_dataset.crs["AuthId"]
             )
+            self.fields["extent"].widget.attrs["layer_url"] = reverse("maps_ogc_entry")
+            self.fields["extent"].widget.attrs["layer_name"] = self.instance.name
 
     def clean_extent(self):
         extent = self.cleaned_data["extent"]
@@ -137,7 +140,4 @@ class PublishedAsWmsForm(forms.ModelForm):
                 raise forms.ValidationError(
                     "Extent must be a comma-seperated list of 4 coordinates"
                 )
-            for coord in extent.split(","):
-                # TODO Do CRS based validation
-                pass
         return extent
