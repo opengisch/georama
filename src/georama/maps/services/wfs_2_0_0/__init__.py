@@ -66,14 +66,27 @@ class WfsOperation(OgcOperation):
         sanitized_typenames = []
         wrong_typenames = []
         for name in type_names:
-            if f"{self.own_namespace}:" not in name:
-                wrong_typenames.append(name)
-            sanitized_typenames.append(name.replace(f"{self.own_namespace}:", ""))
+            name_parts = name.split(":")
+            if len(name_parts) == 1:
+                # no namespace as part of the typename we assume that the requested typename is out
+                # of the default namespace self.own_namespace
+                sanitized_typenames.append(name_parts[0])
+            elif len(name_parts) == 2:
+                if self.own_namespace != name_parts[0]:
+                    # the requested typename belongs not to our namespace, we do not support that
+                    wrong_typenames.append(name)
+                else:
+                    # the requested typename belongs to our namespace
+                    sanitized_typenames.append(name.replace(f"{self.own_namespace}:", ""))
+            else:
+                wrong_typenames.append(
+                    f"typename has unexpected format (expected '<namespace>:<name>') got {name}"
+                )
         if len(wrong_typenames) > 0:
             raise AttributeError(
                 self.render_exception(
-                    f"Unknown feature type (namespace missing? this server offers namespace "
-                    f"'{self.own_namespace}'): wrongTypeName(s) => {wrong_typenames}"
+                    f"Unknown feature type (wrong namespace? this server offers namespace "
+                    f"'{self.own_namespace}'): wrongTypeName(s) => {'\n'.join(wrong_typenames)}"
                 )
             )
         return sanitized_typenames
