@@ -1,4 +1,5 @@
 from dataclasses import fields
+from urllib.parse import quote
 
 from django.contrib import admin
 from django.contrib.auth.models import Permission
@@ -18,6 +19,7 @@ from georama.maps.interfaces.georama.requests import (
     Version,
 )
 from georama.maps.models import PublishedAsWms
+from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 
 def wms_get_capabilities_url() -> str:
@@ -34,13 +36,20 @@ def wfs_get_capabilities_url() -> str:
 
 @admin.register(PublishedAsWms)
 class PublishedAsWmsAdmin(admin.ModelAdmin):
-    list_display = ["icon_column", "name", "title", "public", "queryable", "delete_link", "show_published"]
+    list_display = [
+        "icon_column",
+        "name",
+        "title",
+        "public",
+        "queryable",
+        "delete_link",
+        "show_published",
+    ]
     list_editable = ["public", "queryable"]
     add_form_template = "admin/maps/publishedaswms/publish.html"
     readonly_fields = ["dataset_detail"]
     list_filter = ["name", "title"]
     form = PublishedAsWmsForm
-
 
     def icon_column(self, obj):
         icon = "fg-poi"
@@ -50,9 +59,11 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             icon = "fg-contour-map"
         elif isinstance(obj.custom_dataset, CustomDataSet):
             icon = "fg-flow-map"
-        return format_html(f"<i class='{icon} fg-2x' style='color: black; margin: 0; padding: 0;'></i>")
+        return format_html(
+            f"<i class='{icon} fg-2x' style='color: black; margin: 0; padding: 0;'></i>"
+        )
 
-    icon_column.short_description = 'src'
+    icon_column.short_description = "src"
     icon_column.allow_tags = True
 
     def add_view(self, request, form_url="", extra_context=None):
@@ -84,7 +95,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         )
 
     @staticmethod
-    def create_url_params(layer: PublishedAsWms) -> str:
+    def create_wms_url_params(layer: PublishedAsWms) -> str:
         dataset = layer.bound_dataset
         bbox = BBox.from_string(dataset.bbox)
         params = QslGetMapRequest(
@@ -115,12 +126,28 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
                 parameter_list.append(f"{field.name}={field_value}")
         return "&".join(parameter_list)
 
+    @staticmethod
+    def create_wfs_url_params(layer: PublishedAsWms, output_format: str = "text/xml") -> str:
+        return "&".join(
+            [
+                "SERVICE=WFS",
+                "REQUEST=GetFeature",
+                "VERSION=2.0.0",
+                f'TYPENAMES={quote(f"{WfsOperation.own_namespace}:{layer.name}")}',
+                f"SRSNAME={quote(layer.bound_dataset.crs_to_qsl.ogc_urn)}",
+                f"outputformat={quote(output_format)}",
+            ]
+        )
+
     def show_published(self, obj: PublishedAsWms):
         return mark_safe(
             "".join(
                 [
                     '<a href="{}?{}" target="_blank" class="btn btn-high btn-success" title="WMS GetMap"><i class="fas fa-eye text-xs"/></a>'.format(
-                        reverse("maps_ogc_entry"), self.create_url_params(obj)
+                        reverse("maps_ogc_entry"), self.create_wms_url_params(obj)
+                    ),
+                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success" title="WFS GetFeature"><i class="fas fa-eye text-xs"/></a>'.format(
+                        reverse("maps_ogc_entry"), self.create_wfs_url_params(obj)
                     ),
                 ]
             )

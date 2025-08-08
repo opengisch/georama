@@ -70,8 +70,10 @@ class DataSet(models.Model):
 
     @property
     def source_to_qsl(self) -> tuple[DataSource, str]:
-        # TODO: Implement an ENV Django app to manipulate datasources in a hookable way
-        datasource = DictDecoder().decode(self.source, DataSource)
+        config = ParserConfig(
+            fail_on_unknown_attributes=False, fail_on_unknown_properties=False
+        )
+        datasource = DictDecoder(config).decode(self.source, DataSource)
         path = self.path
         if datasource.postgres:
             path = path
