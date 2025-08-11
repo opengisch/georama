@@ -60,6 +60,8 @@ class LayerExtentWidget(Widget):
         context["layer_name"] = context["widget"]["attrs"]["layer_name"]
         context["proj4_def"] = self.proj4_def
         context["center"] = self.extent_center
+        context["map_width"] = context["widget"]["attrs"]["map_width"]
+        context["map_height"] = context["widget"]["attrs"]["map_height"]
         return context
 
     @staticmethod
@@ -125,13 +127,16 @@ class PublishedAsWmsForm(forms.ModelForm):
             user_permissions__codename=permission_read
         ).exclude(is_superuser=True)
 
-        # Set the layer srid for the custom extent widget
-        if self.instance.get_vector_dataset:
-            self.fields["extent"].widget.attrs["layer_srid"] = (
-                self.instance.get_vector_dataset.crs["AuthId"]
-            )
-            self.fields["extent"].widget.attrs["layer_url"] = reverse("maps_ogc_entry")
-            self.fields["extent"].widget.attrs["layer_name"] = self.instance.name
+        if self.instance.name:
+            # Provide additional context for the map widget for defining the layer extent
+            widget_attrs = {
+                "layer_srid": self.instance.bound_dataset.crs["AuthId"],
+                "layer_url": reverse("maps_ogc_entry"),
+                "layer_name": self.instance.name,
+                "map_width": self.instance.preview_dimensions[0],
+                "map_height": self.instance.preview_dimensions[1],
+            }
+            self.fields["extent"].widget.attrs.update(widget_attrs)
 
     def clean_extent(self):
         extent = self.cleaned_data["extent"]
