@@ -37,6 +37,7 @@ def _get_permissions(obj: PublishedAsOgcApiFeatures, permission_type: str):
 @admin.register(PublishedAsOgcApiFeatures)
 class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
     list_display = ["icon_column", "name", "title", "public", "delete_link", "show_published"]
+    list_display_links = ["icon_column", "name", "title"]
     inlines = [ColumnOgcApiFeaturesInline]
     add_form_template = "admin/features/publishedasvectorfeature/publish.html"
     list_editable = ["public"]
