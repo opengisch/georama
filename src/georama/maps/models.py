@@ -1,10 +1,18 @@
+import logging
 from typing import List
-
+from asgiref.sync import async_to_sync
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from qgis_server_light.interface.dispatcher import RedisQueue
+from qgis_server_light.interface.job import WmsGetMapParams, QslGetMapJob
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
+
+from georama.maps.maps_config import Config
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 class PublishedAsWmsAbstract(PublishedAs):
@@ -17,6 +25,8 @@ class PublishedAsWmsAbstract(PublishedAs):
 
     extent = models.CharField(max_length=1000, null=True, blank=True)
     preview = models.BinaryField(null=True, blank=True)
+
+    preview_dimensions = (250, 250)
 
     @property
     def get_raster_dataset(self) -> RasterDataSet:
@@ -62,12 +72,48 @@ class PublishedAsWmsAbstract(PublishedAs):
             self.title = dataset.title
         if not self.extent:
             self.extent = dataset.bbox
+
+        # Generate layer preview image
+        generate_preview_image_sync = async_to_sync(self.generate_preview_image)
+        self.preview = generate_preview_image_sync()
+
         super().save(
             force_insert=force_insert,
             force_update=force_update,
             using=using,
             update_fields=update_fields,
         )
+
+    async def generate_preview_image(self) -> bytes:
+        dataset = self.bound_dataset
+        service_params = WmsGetMapParams(
+            BBOX=self.extent,
+            CRS=dataset.crs_to_qsl.auth_id,
+            WIDTH=str(self.preview_dimensions[0]),
+            HEIGHT=str(self.preview_dimensions[1]),
+            DPI="72",
+            FORMAT_OPTIONS="dpi%3A72",
+            LAYERS=self.name,
+            STYLES="default",
+            FORMAT="image/png",
+        )
+        get_map_job = QslGetMapJob(
+            extent_buffer=0.0,
+            service_params=service_params,
+            raster_layers=[dataset.to_qsl] if isinstance(dataset, RasterDataSet) else [],
+            vector_layers=[dataset.to_qsl] if isinstance(dataset, VectorDataSet) else [],
+            custom_layers=[dataset.to_qsl] if isinstance(dataset, CustomDataSet) else [],
+        )
+        try:
+            redis_queue = RedisQueue(Config().redis_url)
+            result = await redis_queue.post(get_map_job, Config().job_timeout)
+            return result.data
+        except ValueError as e:
+            LOGGER.error(f"Error while generating preview image: {e}")
+            raise None
+        except PermissionError as e:
+            LOGGER.error(f"Permission error while generating preview image: {e}")
+            raise None
 
 
 class PublishedAsWms(PublishedAsWmsAbstract):
