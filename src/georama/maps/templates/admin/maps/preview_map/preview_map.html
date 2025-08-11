@@ -1,9 +1,12 @@
 
 
 <div>
-    <input type="text" name="extent" id="extent" class="form-control" placeholder="Bbox from map extent">
-    <span><i>Press the control key to edit the extent</i></span>
+    <div style="display:flex; gap: 10px; margin-bottom: 10px;">
+        <input type="text" name="extent" id="extent" class="form-control" placeholder="Limit layer to extent">
+        <button type="button" class="btn btn-primary" onclick="onResetExtent()">Reset</button>
+    </div>
     <div id="map" class="map" style="width: {{ map_width }}px; height: {{ map_height }}px"></div>
+    <span class="small"><i>Hint: Press the control key to edit the extent in the map</i></span>
 </div>
 
 
@@ -78,19 +81,27 @@
         
     });
 
+    // Reset the layer extent to the original bbox of the dataset
+    const onResetExtent = () => {
+        form_field.value = '{{ original_extent }}';
+        form_field.dispatchEvent(new Event('change'));
+    };
+
     // Update the extent layer based on manual changes in the input field
     form_field.addEventListener('change', function () {
         if (!this.value) return;
         let updated_extent;
         try {
-            //  don't do anything or use the valid extent from the interaction
             updated_extent = this.value.split(',').map(Number);
-            if (!updated_extent || updated_extent.length() !== 4) {
-                throw new Error('Needs 4 coordinates');
+            if (!updated_extent || updated_extent.length !== 4 
+                || updated_extent.some(isNaN) 
+                || updated_extent[2] < updated_extent[0] 
+                || updated_extent[3] < updated_extent[1]) {
+                throw new Error('Extent must be a valid array of 4 numbers in the format [min x, min y, max x, max y]');
             }
         } catch (error) {
-            // TODO: user feedback / invalid form field
-            console.error('Invalid extent input:', error);
+            console.error('Invalid extent input: ', error);
+            extent_interaction.setExtent([]);
             return;
         }
         if (updated_extent) {
@@ -98,7 +109,6 @@
             extent_interaction.setExtent(updated_extent);
             // Update the map view to fit the updated extent
             map.getView().fitInternal(polygonFromExtent(bufferExtent(updated_extent)));
-            map.renderSync();
         }
     });
 
