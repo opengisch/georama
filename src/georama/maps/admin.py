@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Permission
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.qgis import BBox
@@ -94,18 +95,24 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         )
 
     @staticmethod
-    def create_url_params(layer: PublishedAsWms) -> str:
+    def create_url_params(
+        layer: PublishedAsWms, img_width: int = 1500, img_height: int = 1500
+    ) -> str:
         dataset = layer.bound_dataset
-        bbox = BBox.from_string(dataset.bbox)
+        if layer.extent:
+            bbox = layer.extent.split(",")
+        else:
+            bbox_obj = BBox.from_string(dataset.bbox)
+            bbox = [bbox_obj.x_min, bbox_obj.y_min, bbox_obj.x_max, bbox_obj.y_max]
         params = QslGetMapRequest(
             ServiceType.wms.value,
             RequestType.get_map.value,
             Version.v_1_3_0.value,
             [layer.name],
-            [bbox.x_min, bbox.y_min, bbox.x_max, bbox.y_max],
+            bbox,
             dataset.crs_to_qsl.auth_id,
-            1500,
-            1500,
+            img_width,
+            img_height,
             "image/png",
             True,
             "",
@@ -113,14 +120,14 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             72,
             "dpi%3A72",
         )
-        parameter_list = []
+        url_params = {}
         for field in fields(QslGetMapRequest):
             field_value = getattr(params, field.name)
             if isinstance(field_value, list):
                 field_value = ",".join([str(value) for value in field_value])
             if field_value is not None:
-                parameter_list.append(f"{field.name}={field_value}")
-        return "&".join(parameter_list)
+                url_params[field.name] = field_value
+        return urlencode(url_params)
 
     def show_published(self, obj: PublishedAsWms):
         return mark_safe(
