@@ -41,9 +41,6 @@ class LayerExtentWidget(Widget):
     def proj4_def(layer_srid):
         return CRS.from_epsg(layer_srid.replace("EPSG:", "")).to_proj4()
 
-    def format_value(self, value):
-        return self.to2dExtent(value)
-
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         widget_attrs = context["widget"]["attrs"]
@@ -138,8 +135,13 @@ class PublishedAsWmsForm(forms.ModelForm):
     def clean_extent(self):
         extent = self.cleaned_data["extent"]
         if extent is not None:
-            if len(extent.split(",")) != 4:
+            extentList = extent.split(",")
+            if len(extentList) != 4:
                 raise forms.ValidationError(
                     "Extent must be a comma-seperated list of 4 coordinates"
+                )
+            elif extentList[0] > extentList[2] or extentList[1] > extentList[3]:
+                raise forms.ValidationError(
+                    "Extent coordinates must be ordered: x_min,y_min,x_max,y_max"
                 )
         return extent
