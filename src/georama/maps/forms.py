@@ -20,48 +20,44 @@ class LayerExtentWidget(Widget):
 
     template_name = "admin/maps/preview_map/preview_map.html"
 
-    layer_srid = 4326
-    extent = ""
-
-    @property
-    def extent_as_numbers(self) -> list[float]:
-        if self.extent:
-            return [float(e) for e in self.extent.split(",")]
+    @staticmethod
+    def extent_as_numbers(extent) -> list[float]:
+        if extent:
+            return [float(e) for e in extent.split(",")]
         return []
 
-    @property
-    def extent_center(self) -> list[float]:
-        e = self.extent_as_numbers
+    @staticmethod
+    def extent_center(extent: list[float]) -> list[float]:
         return (
             [
-                e[0] + (e[2] - e[0]) / 2,
-                e[1] + (e[3] - e[1]) / 2,
+                extent[0] + (extent[2] - extent[0]) / 2,
+                extent[1] + (extent[3] - extent[1]) / 2,
             ]
-            if e
+            if extent
             else []
         )
 
-    @property
-    def proj4_def(self):
-        return CRS.from_epsg(self.layer_srid.replace("EPSG:", "")).to_proj4()
+    @staticmethod
+    def proj4_def(layer_srid):
+        return CRS.from_epsg(layer_srid.replace("EPSG:", "")).to_proj4()
 
     def format_value(self, value):
         return self.to2dExtent(value)
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
+        widget_attrs = context["widget"]["attrs"]
+        extent = self.to2dExtent(value)
 
-        self.extent = self.to2dExtent(value)
-        self.layer_srid = context["widget"]["attrs"]["layer_srid"]
-
-        context["extent"] = self.extent
-        context["layer_srid"] = self.layer_srid
-        context["layer_url"] = context["widget"]["attrs"]["layer_url"]
-        context["layer_name"] = context["widget"]["attrs"]["layer_name"]
-        context["proj4_def"] = self.proj4_def
-        context["center"] = self.extent_center
-        context["map_width"] = context["widget"]["attrs"]["map_width"]
-        context["map_height"] = context["widget"]["attrs"]["map_height"]
+        context["extent"] = extent
+        context["layer_srid"] = widget_attrs["layer_srid"]
+        context["original_extent"] = self.to2dExtent(widget_attrs["original_extent"])
+        context["layer_url"] = widget_attrs["layer_url"]
+        context["layer_name"] = widget_attrs["layer_name"]
+        context["proj4_def"] = self.proj4_def(widget_attrs["layer_srid"])
+        context["center"] = self.extent_center(self.extent_as_numbers(extent))
+        context["map_width"] = widget_attrs["map_width"]
+        context["map_height"] = widget_attrs["map_height"]
         return context
 
     @staticmethod
@@ -131,6 +127,7 @@ class PublishedAsWmsForm(forms.ModelForm):
             # Provide additional context for the map widget for defining the layer extent
             widget_attrs = {
                 "layer_srid": self.instance.bound_dataset.crs["AuthId"],
+                "original_extent": self.instance.bound_dataset.bbox,
                 "layer_url": reverse("maps_ogc_entry"),
                 "layer_name": self.instance.name,
                 "map_width": self.instance.preview_dimensions[0],
