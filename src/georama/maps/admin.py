@@ -103,17 +103,12 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         layer: PublishedAsWms, img_width: int = 1500, img_height: int = 1500
     ) -> str:
         dataset = layer.bound_dataset
-        if layer.extent:
-            bbox = layer.extent.split(",")
-        else:
-            bbox_obj = BBox.from_string(dataset.bbox)
-            bbox = [bbox_obj.x_min, bbox_obj.y_min, bbox_obj.x_max, bbox_obj.y_max]
         params = QslGetMapRequest(
             SERVICE=ServiceType.wms.value,
             REQUEST=RequestType.get_map.value,
             VERSION=Version.v_1_3_0.value,
             LAYERS=[layer.name],
-            BBOX=bbox,
+            BBOX=layer.extent.split(","),
             CRS=dataset.crs_to_qsl.auth_id,
             WIDTH=img_width,
             HEIGHT=img_height,
