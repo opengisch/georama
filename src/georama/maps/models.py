@@ -5,6 +5,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import WmsGetMapParams, QslGetMapJob
+from qgis_server_light.interface.qgis import BBox
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
@@ -71,7 +72,10 @@ class PublishedAsWmsAbstract(PublishedAs):
         if self.title is None:
             self.title = dataset.title
         if not self.extent:
-            self.extent = dataset.bbox
+            bbox = BBox.from_string(dataset.bbox)
+            self.extent = ",".join(
+                [str(b) for b in [bbox.x_min, bbox.y_min, bbox.x_max, bbox.y_max]]
+            )
 
         # Generate layer preview image
         generate_preview_image_sync = async_to_sync(self.generate_preview_image)
