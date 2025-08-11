@@ -47,6 +47,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         "preview_image",
     ]
     list_editable = ["public"]
+    list_display_links = ["icon_column", "name", "title"]
     add_form_template = "admin/maps/publishedaswms/publish.html"
     readonly_fields = ["dataset_detail"]
     list_filter = ["name", "title"]
