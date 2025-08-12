@@ -86,7 +86,7 @@ class WfsOperation(OgcOperation):
             raise AttributeError(
                 self.render_exception(
                     f"Unknown feature type (wrong namespace? this server offers namespace "
-                    f"'{self.own_namespace}'): wrongTypeName(s) => {'\n'.join(wrong_typenames)}"
+                    f"'{self.own_namespace}'): wrongTypeName(s) => {', '.join(wrong_typenames)}"
                 )
             )
         return sanitized_typenames
