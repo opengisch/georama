@@ -4,7 +4,6 @@ from django.conf import settings
 
 import georama.maps.interfaces.ogc.wms_1_3_0.capabilities as wms130_capabilities
 from georama.maps.interfaces.ogc import wfs_2_0_0
-from georama.maps.interfaces.ogc.wms_1_3_0.capabilities.xlink import TypeType
 
 
 class Config:
@@ -29,7 +28,7 @@ class Config:
 
     def wms_1_3_0_service_config(self, url: str) -> wms130_capabilities.Service:
         service_config = wms130_capabilities.Service(
-            name=wms130_capabilities.ServiceName.WMS.value,
+            name=wms130_capabilities.ServiceName.WMS,
             title=wms130_capabilities.Title(value="QGIS Server light WMS"),
             abstract=wms130_capabilities.Abstract(value="This is the new approach."),
             keyword_list=wms130_capabilities.KeywordList(
@@ -61,9 +60,7 @@ class Config:
                     value="sales@opengis.ch"
                 ),
             ),
-            online_resource=wms130_capabilities.OnlineResource(
-                href=url, type_value=TypeType.SIMPLE.value
-            ),
+            online_resource=wms130_capabilities.OnlineResource(href=url),
             fees=wms130_capabilities.Fees(value="its for free"),
             access_constraints=wms130_capabilities.AccessConstraints(value="None"),
         )
@@ -82,7 +79,7 @@ class Config:
                             http=wms130_capabilities.Http(
                                 get=wms130_capabilities.Get(
                                     online_resource=wms130_capabilities.OnlineResource(
-                                        href=url, type_value=TypeType.SIMPLE.value
+                                        href=url
                                     )
                                 )
                             )
@@ -96,7 +93,7 @@ class Config:
                             http=wms130_capabilities.Http(
                                 get=wms130_capabilities.Get(
                                     online_resource=wms130_capabilities.OnlineResource(
-                                        href=url, type_value=TypeType.SIMPLE.value
+                                        href=url
                                     )
                                 )
                             )

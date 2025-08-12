@@ -51,8 +51,8 @@ class TestMapsViews:
         service = xp(root, "./w:Service")
         title = xp(service, "./w:Title/text()")
         abstract = xp(service, "./w:Abstract/text()")
-        assert title == "QGIS Server light"
-        assert abstract == "this is the new approach"
+        assert title == "QGIS Server light WMS"
+        assert abstract == "This is the new approach."
 
         # Capability
         capability = xp(root, "./w:Capability")
@@ -74,7 +74,7 @@ class TestMapsViews:
 
         assert name == "qgis_server_light"
         assert title == "QGIS Server light"
-        assert abstract == "The lightning fast access to your raster data"
+        assert abstract == "The lightning fast and scalable access to your raster data."
 
         layer = xp(layers, "./w:Layer")
         assert xp(layer, "./w:Title/text()") == "TestPointLayer"
