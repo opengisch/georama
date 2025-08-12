@@ -10,12 +10,10 @@ from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from georama.maps.interfaces.ogc.wms_1_3_0.capabilities.capabilities_1_3_0 import (
     Abstract,
     BoundingBox,
-    Capability,
     Crs,
     ExGeographicBoundingBox,
     Layer,
     Name,
-    Service,
     Style,
     Title,
     WmsCapabilities,
@@ -34,9 +32,9 @@ class WmsGetCapabilities(WmsOperation):
         decoder_config = ParserConfig(
             fail_on_unknown_properties=False, fail_on_unknown_attributes=False
         )
-        decoder = DictDecoder(decoder_config)
-        service = decoder.decode(config.wms_1_3_0_service_config(self.url), Service)
-        capapility = decoder.decode(config.wms_1_3_0_capability_config(self.url), Capability)
+        DictDecoder(decoder_config)
+        service = config.wms_1_3_0_service_config(self.url)
+        capapility = config.wms_1_3_0_capability_config(self.url)
         return WmsCapabilities(service=service, capability=capapility)
 
     @staticmethod

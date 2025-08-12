@@ -3,6 +3,7 @@ from typing import List, Tuple
 
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
+from xsdata.models.enums import FormType
 from xsdata.models.xsd import (
     ComplexContent,
     ComplexType,
@@ -82,10 +83,13 @@ class WfsDescribeFeatureType(WfsOperation):
         dft = Schema(
             imports=[
                 Import(
-                    schema_location="http://schemas.opengis.net/gml/2.1.2/feature.xsd",
-                    namespace="http://www.opengis.net/gml",
+                    schema_location="http://schemas.opengis.net/gml/3.2.1/gml.xsd",
+                    namespace="http://www.opengis.net/gml/3.2",
                 )
-            ]
+            ],
+            target_namespace="https://www.opengis.ch/georama",
+            element_form_default=FormType.QUALIFIED,
+            version="0.1",
         )
 
         for layer in found_layers:

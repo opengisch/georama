@@ -5,7 +5,6 @@ from xml.etree.ElementTree import QName
 from qgis_server_light.interface.qgis import BBox
 from qgis_server_light.interface.qgis import Crs as QSL_Crs
 from xsdata.formats.dataclass.parsers import DictDecoder
-from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 
 from georama.maps.interfaces.ogc.wfs_2_0_0 import (
@@ -27,10 +26,7 @@ class WfsGetCapabilities(WfsOperation):
 
     def get_capabilities_body(self) -> WfsCapabilities:
         config = Config()
-        decoder = DictDecoder(
-            ParserConfig(fail_on_unknown_attributes=False, fail_on_unknown_properties=False)
-        )
-        return decoder.decode(config.wfs_2_0_0_capabilities_config(self.url), WfsCapabilities)
+        return config.wfs_2_0_0_capabilities_config(self.url)
 
     @staticmethod
     def create_feature_type(name: str, title: str, crs: str, bbox: BBox, url: str):
@@ -39,12 +35,7 @@ class WfsGetCapabilities(WfsOperation):
             title=[Title(value=title)],
             default_crs_or_other_crs_or_no_crs=[DefaultCrs(value=crs)],
             output_formats=OutputFormatListType(
-                format=[
-                    "application/gml+xml; version=3.2",
-                    "text/xml; subtype=gml/3.2.1",
-                    "text/xml; subtype=gml/3.1.1",
-                    "text/xml; subtype=gml/2.1.2",
-                ]
+                format=["application/gml+xml; version=3.2", "text/xml; subtype=gml/3.2.1"]
             ),
             wgs84_bounding_box=[
                 Wgs84BoundingBox(
@@ -52,7 +43,9 @@ class WfsGetCapabilities(WfsOperation):
                     upper_corner=[bbox.x_max, bbox.y_max],
                 )
             ],
-            metadata_url=[MetadataUrltype(href=f"{url}request=GetMetadata&layer={name}")],
+            metadata_url=[
+                MetadataUrltype(href=f"{url}request=GetMetadata&layer={name.split(':')[1]}")
+            ],
         )
 
     def get_capabilities(self) -> WfsCapabilities:
