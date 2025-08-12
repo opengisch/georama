@@ -164,9 +164,9 @@ class OgcServer(View):
         return accessible_raster, accessible_vector, accessible_custom, vector_extent_buffer
 
     async def get(self, request: HttpRequest, *args, **kwargs):
-        # TODO: This is done because otherwise the queue cant be pointed to
-        #   see this for further details: https://stackoverflow.com/questions/53724665/using-queues-results-in-asyncio-exception-got-future-future-pending-attached
-        redis_queue = RedisQueue(Config().redis_url)
+        # we instantiate vor every call because this is async and need to be in context of the calling event
+        # loop
+        redis_queue = await RedisQueue.create(Config().redis_url)
 
         params = self.sanitize_query_parameters(request.GET.dict())
 
@@ -212,8 +212,15 @@ class OgcServer(View):
             else:
                 return HttpResponse("Only WMS Service is available", 500)
             config = Config()
-            result = await redis_queue.post(job, config.job_timeout)
-            return HttpResponse(result.data, result.content_type)
+            try:
+                result = await redis_queue.post(job, config.job_timeout)
+                return HttpResponse(result.data, result.content_type)
+            except RuntimeError:
+                return HttpResponse(
+                    "Something went wrong while job handling, see QSL logs for details",
+                    status=500,
+                    content_type="text/plain",
+                )
         elif params["SERVICE"].upper() == "WFS":
             if params["REQUEST"] == "GETCAPABILITIES":
                 if params.get("VERSION", "2.0.0") == "2.0.0":
