@@ -1,17 +1,16 @@
 import logging
 from typing import List
-from asgiref.sync import async_to_sync
+
+from asgiref.sync import async_to_sync, sync_to_async
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.dispatcher import RedisQueue
-from qgis_server_light.interface.job import WmsGetMapParams, QslGetMapJob
+from qgis_server_light.interface.job import QslGetMapJob, WmsGetMapParams
 from qgis_server_light.interface.qgis import BBox
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
-
 from georama.maps.maps_config import Config
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -97,7 +96,10 @@ class PublishedAsWmsAbstract(PublishedAs):
         )
 
     async def generate_preview_image(self) -> bytes | None:
-        dataset = self.bound_dataset
+        # we have to call the following @propterties a bit awkward because they contain sync djang orm actions
+        dataset = await sync_to_async(lambda: self.bound_dataset)()
+        qsl_instance = await sync_to_async(lambda: dataset.to_qsl)()
+
         service_params = WmsGetMapParams(
             BBOX=self.extent,
             CRS=dataset.crs_to_qsl.auth_id,
@@ -106,18 +108,17 @@ class PublishedAsWmsAbstract(PublishedAs):
             DPI="72",
             FORMAT_OPTIONS="dpi%3A72",
             LAYERS=self.name,
-            STYLES="default",
             FORMAT="image/png",
         )
         get_map_job = QslGetMapJob(
             extent_buffer=0.0,
             service_params=service_params,
-            raster_layers=[dataset.to_qsl] if isinstance(dataset, RasterDataSet) else [],
-            vector_layers=[dataset.to_qsl] if isinstance(dataset, VectorDataSet) else [],
-            custom_layers=[dataset.to_qsl] if isinstance(dataset, CustomDataSet) else [],
+            raster_layers=[qsl_instance] if isinstance(dataset, RasterDataSet) else [],
+            vector_layers=[qsl_instance] if isinstance(dataset, VectorDataSet) else [],
+            custom_layers=[qsl_instance] if isinstance(dataset, CustomDataSet) else [],
         )
         try:
-            redis_queue = RedisQueue(Config().redis_url)
+            redis_queue = await RedisQueue.create(Config().redis_url)
             result = await redis_queue.post(get_map_job, Config().job_timeout)
             return result.data
         except ValueError as e:
