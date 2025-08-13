@@ -96,7 +96,7 @@ class PublishedAsWmsAbstract(PublishedAs):
             update_fields=update_fields,
         )
 
-    async def generate_preview_image(self) -> bytes:
+    async def generate_preview_image(self) -> bytes | None:
         dataset = self.bound_dataset
         service_params = WmsGetMapParams(
             BBOX=self.extent,
@@ -122,10 +122,9 @@ class PublishedAsWmsAbstract(PublishedAs):
             return result.data
         except ValueError as e:
             LOGGER.error(f"Error while generating preview image: {e}")
-            raise None
         except PermissionError as e:
             LOGGER.error(f"Permission error while generating preview image: {e}")
-            raise None
+        return None
 
 
 class PublishedAsWms(PublishedAsWmsAbstract):
