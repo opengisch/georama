@@ -1,42 +1,24 @@
-from io import BytesIO
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from lxml import etree
-from PIL import Image
-from qgis_server_light.interface.job import JobResult
 
 from georama.maps.models import PublishedAsWms
 
 pytestmark = pytest.mark.django_db
 
 
-def empty_png_bytes(width: int, height: int) -> JobResult:
-    """
-
-    Args:
-        width: in pixels
-        height: in pixels
-
-    Returns:
-        The image buffer
-    """
-    img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    buf = BytesIO()
-    img.save(buf, format="PNG")
-
-    return JobResult(
-        data=buf.getvalue(),
-        content_type="image/png",
-    )
-
-
 class TestMapsViews:
     def test_publish_as_wms_view(
-        self, client, integrated_project, admin_user_name, admin_password
+        self,
+        client,
+        integrated_project,
+        admin_user_name,
+        admin_password,
+        empty_png_bytes_job_result,
     ):
         mock_instance = AsyncMock()
-        mock_instance.post.return_value = empty_png_bytes(32, 32)
+        mock_instance.post.return_value = empty_png_bytes_job_result
 
         with (
             patch(
