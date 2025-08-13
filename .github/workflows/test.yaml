@@ -42,6 +42,8 @@ jobs:
       - run: sudo apt-get install -y python3-venv python3-dev unixodbc odbc-mdbtools gdal-bin libgdal-dev libpq-dev build-essential make git curl
       - name: Start services
         run: |
+          # create an empty env file, we want to use only the standard settings for test setup
+          echo "" > .env
           docker compose up -d georama-db qsl qsl-redis
       - name: Set up test environment
         run: make install-test
