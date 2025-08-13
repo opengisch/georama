@@ -1,6 +1,10 @@
+from io import BytesIO
+
 import pytest
 from django.contrib.auth.models import User
 from django.core.management import call_command
+from PIL import Image
+from qgis_server_light.interface.job import JobResult
 
 from georama.data_integration.models import Project
 from georama.data_integration.views import RegisterQgisProject
@@ -52,3 +56,24 @@ def integrated_project(projects_dir):
     view.integrate_project(qgis_project, project_config, mandant_name)
     project = Project.objects.get(hash=qgis_project.hash)
     return project
+
+
+@pytest.fixture
+def empty_png_bytes_job_result() -> JobResult:
+    """
+
+    Args:
+        width: in pixels
+        height: in pixels
+
+    Returns:
+        The image buffer
+    """
+    img = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+
+    return JobResult(
+        data=buf.getvalue(),
+        content_type="image/png",
+    )
