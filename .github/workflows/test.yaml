@@ -42,7 +42,7 @@ jobs:
       - run: sudo apt-get install -y python3-venv python3-dev unixodbc odbc-mdbtools gdal-bin libgdal-dev libpq-dev build-essential make git curl
       - name: Start services
         run: |
-          docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 54321:5432 postgis/postgis:latest
+          docker compose up -d georama-db qsl qsl-redis
       - name: Set up test environment
         run: make install-test
       - name: Run tests for Python ${{ matrix.python-version }}
@@ -54,7 +54,7 @@ jobs:
           cp .coverage.xml coverage-${{ matrix.python-version }}.xml
       - name: Stop services
         if: always()
-        run: docker kill georama-db
+        run: docker compose down
 # TODO: Uncomment this once we have decided if we use codecov?
 #      - name: Upload coverage to Codecov
 #        uses: codecov/codecov-action@v5
