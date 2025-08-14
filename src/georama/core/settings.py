@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-import os
 from pathlib import Path
 
 from configurations import Configuration, values
@@ -92,7 +91,7 @@ class Base(Configuration):
         # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
         "site_brand": "Georama",
         # Logo to use for your site, must be present in static files, used for brand on top left
-        "site_logo": "logo/georama_logo_2.png",
+        "site_logo": "logo/georama_intermediate_white.png",
         # "site_logo": "logo/georama_snowglobe_logo.png",
         # CSS classes that are applied to the logo above
         "site_logo_classes": "img-circle",
@@ -146,7 +145,7 @@ class Base(Configuration):
     SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
     SOCIALACCOUNT_LOGIN_ON_GET = True
 
-    LOGIN_REDIRECT_URL = '/'
+    LOGIN_REDIRECT_URL = "/"
 
     OIDC_NAME = values.Value("Keycloak", environ_prefix="GEORAMA")
     OIDC_SERVER_URL = values.Value("", environ_prefix="GEORAMA")
