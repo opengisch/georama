@@ -72,28 +72,28 @@ class TestMapsViews:
         assert title == "QGIS Server light WMS"
         assert abstract == "This is the new approach."
 
-            # Capability
-            capability = xp(root, "./w:Capability")
+        # Capability
+        capability = xp(root, "./w:Capability")
 
-            request = xp(capability, "./w:Request")
-            get_capabilities = xp(request, "./w:GetCapabilities")
-            formats = xp(get_capabilities, "./w:Format/text()")
-            assert formats == ["text/xml", "application/json"]
+        request = xp(capability, "./w:Request")
+        get_capabilities = xp(request, "./w:GetCapabilities")
+        formats = xp(get_capabilities, "./w:Format/text()")
+        assert formats == ["text/xml", "application/json"]
 
-            http_get = xp(get_capabilities, "./w:DCPType/w:HTTP/w:Get")
-            href = xp(http_get, "./w:OnlineResource/@x:href")
-            assert href == "http://testserver/maps?"
+        http_get = xp(get_capabilities, "./w:DCPType/w:HTTP/w:Get")
+        href = xp(http_get, "./w:OnlineResource/@x:href")
+        assert href == "http://testserver/maps?"
 
-            # Layers
-            layers = xp(capability, "./w:Layer")
-            name = xp(layers, "./w:Name/text()")
-            title = xp(layers, "./w:Title/text()")
-            abstract = xp(layers, "./w:Abstract/text()")
+        # Layers
+        layers = xp(capability, "./w:Layer")
+        name = xp(layers, "./w:Name/text()")
+        title = xp(layers, "./w:Title/text()")
+        abstract = xp(layers, "./w:Abstract/text()")
 
-            assert name == "qgis_server_light"
-            assert title == "QGIS Server light"
-            assert abstract == "The lightning fast and scalable access to your raster data."
+        assert name == "qgis_server_light"
+        assert title == "QGIS Server light"
+        assert abstract == "The lightning fast and scalable access to your raster data."
 
-            layer = xp(layers, "./w:Layer")
-            assert xp(layer, "./w:Title/text()") == "TestPointLayer"
-            assert xp(layer, "./w:CRS/text()") == ["EPSG:4326", "CRS:84"]
+        layer = xp(layers, "./w:Layer")
+        assert xp(layer, "./w:Title/text()") == "TestPointLayer"
+        assert xp(layer, "./w:CRS/text()") == ["EPSG:4326", "CRS:84"]
