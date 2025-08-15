@@ -53,7 +53,7 @@ class WfsGetCapabilities(WfsOperation):
         for published_as in self.obtain_accessible_layers():
             dataset = published_as.vector_dataset
             source_crs = DictDecoder().decode(dataset.crs, QSL_Crs)
-            bbox = BBox.from_string(dataset.bbox_wgs84)
+            bbox = BBox.from_string(published_as.extent_wgs84)
             wfs_capabilities.feature_type_list.feature_type.append(
                 self.create_feature_type(
                     f"{self.own_namespace}:{published_as.name}",
