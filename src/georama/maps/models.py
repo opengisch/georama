@@ -79,10 +79,7 @@ class PublishedAsWmsAbstract(PublishedAs):
         if self.title is None:
             self.title = dataset.title
         if not self.extent:
-            bbox = BBox.from_string(dataset.bbox)
-            self.extent = ",".join(
-                [str(b) for b in [bbox.x_min, bbox.y_min, bbox.x_max, bbox.y_max]]
-            )
+            self.extent = BBox.from_string(dataset.bbox).to_2d_string()
 
         # Generate layer preview image
         generate_preview_image_sync = async_to_sync(self.generate_preview_image)

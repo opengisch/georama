@@ -5,6 +5,8 @@ from pyproj import CRS
 
 from django.contrib.admin import widgets
 from django.contrib.auth.models import Group, User
+from qgis_server_light.interface.qgis import BBox
+
 from georama.maps.models import PublishedAsWms
 
 
@@ -21,17 +23,11 @@ class LayerExtentWidget(Widget):
     template_name = "admin/maps/preview_map/preview_map.html"
 
     @staticmethod
-    def extent_as_numbers(extent) -> list[float]:
-        if extent:
-            return [float(e) for e in extent.split(",")]
-        return []
-
-    @staticmethod
-    def extent_center(extent: list[float]) -> list[float]:
+    def extent_center(extent: BBox) -> list[float]:
         return (
             [
-                extent[0] + (extent[2] - extent[0]) / 2,
-                extent[1] + (extent[3] - extent[1]) / 2,
+                extent.x_min + (extent.x_max - extent.x_min) / 2,
+                extent.y_min + (extent.y_max - extent.y_min) / 2,
             ]
             if extent
             else []
@@ -44,30 +40,20 @@ class LayerExtentWidget(Widget):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         widget_attrs = context["widget"]["attrs"]
-        extent = self.to2dExtent(value)
+        extent: BBox = BBox.from_string(value)
 
-        context["extent"] = extent
+        context["extent"] = extent.to_2d_string()
         context["layer_srid"] = widget_attrs["layer_srid"]
-        context["original_extent"] = self.to2dExtent(widget_attrs["original_extent"])
+        context["original_extent"] = BBox.from_string(
+            widget_attrs["original_extent"]
+        ).to_2d_string()
         context["layer_url"] = widget_attrs["layer_url"]
         context["layer_name"] = widget_attrs["layer_name"]
         context["proj4_def"] = self.proj4_def(widget_attrs["layer_srid"])
-        context["center"] = self.extent_center(self.extent_as_numbers(extent))
+        context["center"] = self.extent_center(extent)
         context["map_width"] = widget_attrs["map_width"]
         context["map_height"] = widget_attrs["map_height"]
         return context
-
-    @staticmethod
-    def to2dExtent(value: str) -> str:
-        if not value:
-            return ""
-        extent = value.split(",")
-        if len(extent) == 4:
-            return value
-        elif len(extent) == 6:
-            return ",".join([extent[0], extent[1], extent[3], extent[4]])
-        else:
-            raise ValueError("Extent must be a comma-seperated list of 4 or 6 coordinates")
 
 
 class PublishedAsWmsForm(forms.ModelForm):
@@ -134,14 +120,15 @@ class PublishedAsWmsForm(forms.ModelForm):
 
     def clean_extent(self):
         extent = self.cleaned_data["extent"]
-        if extent is not None:
-            extentList = extent.split(",")
-            if len(extentList) != 4:
+        if extent:
+            try:
+                bbox = BBox.from_string(extent)
+            except ValueError:
                 raise forms.ValidationError(
-                    "Extent must be a comma-seperated list of 4 coordinates"
+                    "Invalid extent: Extent must be a comma-seperated list of 4 coordinates"
                 )
-            elif extentList[0] > extentList[2] or extentList[1] > extentList[3]:
+            if bbox.x_min > bbox.x_max or bbox.y_min > bbox.y_max:
                 raise forms.ValidationError(
-                    "Extent coordinates must be ordered: x_min,y_min,x_max,y_max"
+                    "Invalid extent: Extent coordinates must be ordered: x_min,y_min,x_max,y_max"
                 )
         return extent
