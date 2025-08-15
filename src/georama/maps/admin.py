@@ -51,7 +51,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     list_editable = ["public", "queryable"]
     list_display_links = ["icon_column", "name", "title"]
     add_form_template = "admin/maps/publishedaswms/publish.html"
-    readonly_fields = ["dataset_detail"]
+    readonly_fields = ["dataset_detail", "extent_wgs84"]
     list_filter = ["name", "title"]
     form = PublishedAsWmsForm
 
@@ -209,6 +209,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             if isinstance(obj.vector_dataset, VectorDataSet):
                 fields.append("extent_buffer")
                 fields.append("extent")
+                fields.append("extent_wgs84")
         return (
             (
                 None,

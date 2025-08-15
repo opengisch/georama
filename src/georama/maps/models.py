@@ -24,6 +24,7 @@ class PublishedAsWmsAbstract(PublishedAs):
     queryable = models.BooleanField(default=True, null=True, blank=True)
 
     extent = models.CharField(max_length=1000, null=True, blank=True)
+    extent_wgs84 = models.CharField(max_length=1000, null=True, blank=True)
     preview = models.BinaryField(null=True, blank=True)
 
     preview_dimensions = (250, 250)
