@@ -6,17 +6,26 @@ from django.shortcuts import redirect
 from django.views import View
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import (
+    JobResult,
     QslGetFeatureInfoJob,
     WmsGetFeatureInfoParams,
     WmsGetMapParams,
 )
 from qgis_server_light.interface.qgis import Custom, Raster, Vector
+from xsdata.exceptions import ParserError
+from xsdata.formats.dataclass.parsers import DictDecoder, XmlParser
+from xsdata.formats.dataclass.parsers.config import ParserConfig
+from xsdata.formats.dataclass.serializers import JsonSerializer
 
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import MapsConfig
+from georama.maps.interfaces.georama.requests import QslGetMapRequest
+from georama.maps.interfaces.ogc.wfs_2_0_0 import GetFeature as GetFeature200
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
+from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
 from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
+from georama.maps.services.wfs_2_0_0.get_feature import WfsGetFeature
 from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 from georama.maps.services.wms_1_3_0.get_capabilities import WmsGetCapabilities
 from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
@@ -93,7 +102,7 @@ class OgcServer(View):
         language = "en-US"
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetMetadata(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user
+            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
         )
         if requested_layer:
             if requested_format not in operation.allowed_formats:
@@ -123,12 +132,81 @@ class OgcServer(View):
                 content_type="text/xml",
             )
 
+    def wfs_200_describefeaturetype(self, request: HttpRequest, params: dict) -> HttpResponse:
+        # refering spec document `TYPENAME` is a comma separated list of *layers* which should be described
+        # it is an optional query parameter
+        requested_layer = params.get("TYPENAME")
+        if requested_layer:
+            requested_layer = requested_layer.split(",")
+        requested_format = params.get(
+            "OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2"
+        ).upper()
+        operation = WfsDescribeFeatureType(
+            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+        )
+        content, content_type, success = operation.render(
+            requested_format, operation.describe_feature_type(requested_layer)
+        )
+        if not success:
+            return HttpResponse(
+                content,
+                status=400,
+                content_type=content_type,
+            )
+        else:
+            return HttpResponse(
+                content,
+                content_type=content_type,
+            )
+
+    async def wfs_200_getfeature(self, request: HttpRequest, params: dict) -> HttpResponse:
+        operation = WfsGetFeature(
+            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+        )
+        get_feature_parameter = operation.query_parameters_to_get_feature_request(params)
+
+        job = await sync_to_async(
+            operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True
+        )(get_feature_parameter)
+        redis_queue = await self.redis_queue_instance
+        result = await redis_queue.post(job, Config().job_timeout)
+        content, content_type, success = operation.render(
+            get_feature_parameter.output_format,
+            operation.get_feature(
+                # we use only one query here, since this is implemented for URL GET query params
+                # TODO: This has to be improved for XML body via POST
+                get_feature_parameter,
+                result,
+                job,
+            ),
+            operation.unwrap_type_names(get_feature_parameter),
+        )
+        if not success:
+            return HttpResponse(
+                content,
+                status=400,
+                content_type=content_type,
+            )
+        else:
+            return HttpResponse(
+                content,
+                content_type=content_type,
+            )
+
     def sanitize_query_parameters(self, parameters: dict) -> dict:
         params = {}
         for key in parameters:
             if key.upper() == "LAYERS":
                 params[str(key).upper()] = str(parameters[key])
             elif key.upper() == "STYLES":
+                params[str(key).upper()] = str(parameters[key])
+            elif key.upper() == "TYPENAME":
+                params[str(key).upper()] = str(parameters[key])
+            elif key.upper() == "TYPENAMES":
+                params[str(key).upper()] = str(parameters[key])
+            elif key.upper() == "ALIASES":
+                params[str(key).upper()] = str(parameters[key])
+            elif key.upper() == "FILTER":
                 params[str(key).upper()] = str(parameters[key])
             elif key.upper() == "LAYER":
                 params[str(key).upper()] = str(parameters[key])
@@ -163,11 +241,11 @@ class OgcServer(View):
                     )
         return accessible_raster, accessible_vector, accessible_custom, vector_extent_buffer
 
-    async def get(self, request: HttpRequest, *args, **kwargs):
-        # we instantiate vor every call because this is async and need to be in context of the calling event
-        # loop
-        redis_queue = await RedisQueue.create(Config().redis_url)
+    @property
+    async def redis_queue_instance(self) -> RedisQueue:
+        return await RedisQueue.create(Config().redis_url)
 
+    async def get(self, request: HttpRequest, *args, **kwargs):
         params = self.sanitize_query_parameters(request.GET.dict())
 
         if "REQUEST" not in params:
@@ -192,7 +270,12 @@ class OgcServer(View):
                 else:
                     return HttpResponse("Only VERSION 1.3.0 is available", 400)
             elif params["REQUEST"] == "GETMAP":
-                service_params = WmsGetMapParams.from_overloaded_dict(params)
+                # This is especially usefull for input from foreign systems which might send whatever query
+                # params we don't have knowledge of
+                parser_config = ParserConfig(
+                    fail_on_unknown_properties=False, fail_on_unknown_attributes=False
+                )
+                service_params = DictDecoder(parser_config).decode(params, QslGetMapRequest)
                 operation = WmsGetMap(
                     appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
                 )
@@ -200,19 +283,21 @@ class OgcServer(View):
                     job = await sync_to_async(
                         operation.prepare_job_content, thread_sensitive=True
                     )(service_params)
+                    logging.debug(JsonSerializer().render(job))
                 except ValueError as e:
                     return HttpResponse(e, status=400, content_type="text/plain")
                 except PermissionError as e:
                     return HttpResponse(e, status=403, content_type="text/plain")
 
             elif params["REQUEST"] == "GETFEATUREINFO":
-                # this needs to be improved a bit, currently the layers are not sent to QSL.
+                # TODO: this needs to be improved a bit, currently the layers are not sent to QSL.
                 service_params = WmsGetFeatureInfoParams.from_overloaded_dict(params)
                 job = QslGetFeatureInfoJob(service_params=service_params)
             else:
                 return HttpResponse("Only WMS Service is available", 500)
             config = Config()
             try:
+                redis_queue = await self.redis_queue_instance
                 result = await redis_queue.post(job, config.job_timeout)
                 return HttpResponse(result.data, result.content_type)
             except RuntimeError:
@@ -222,15 +307,81 @@ class OgcServer(View):
                     content_type="text/plain",
                 )
         elif params["SERVICE"].upper() == "WFS":
+            if params.get("VERSION", "2.0.0") == "2.0.0":
+                pass
+            else:
+                return HttpResponse("Only VERSION 2.0.0 is available", 400)
             if params["REQUEST"] == "GETCAPABILITIES":
-                if params.get("VERSION", "2.0.0") == "2.0.0":
-                    return await sync_to_async(
-                        self.wfs_200_capabilities, thread_sensitive=True
-                    )(request, params)
-                else:
-                    return HttpResponse("Only VERSION 2.0.0 is available", 400)
+                return await sync_to_async(self.wfs_200_capabilities, thread_sensitive=True)(
+                    request, params
+                )
+            elif params["REQUEST"] == "DESCRIBEFEATURETYPE":
+                return await sync_to_async(
+                    self.wfs_200_describefeaturetype, thread_sensitive=True
+                )(request, params)
+            elif params["REQUEST"] == "GETFEATURE":
+                try:
+                    return await self.wfs_200_getfeature(request, params)
+                except AttributeError as e:
+                    return HttpResponse(e, status=400, content_type="text/xml")
+                except PermissionError as e:
+                    return HttpResponse(e, status=400, content_type="text/xml")
+                # except Exception as e:
+                #     logging.error(e)
+                #     # TODO: Provide the error info also in the response if we are in DEBUG?
+                #     return HttpResponse(
+                #         "An unexpected error happened while processing the request",
+                #         400
+                #     )
+            else:
+                return HttpResponse("Not supported operation", 403)
         else:
             return HttpResponse("Only WMS|WFS Service is available", 400)
+
+    async def post(self, request: HttpRequest, *args, **kwargs):
+        try:
+            operation = WfsGetFeature(
+                appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            )
+            try:
+                get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature200)
+                job = await sync_to_async(
+                    operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True
+                )(get_feature_parameter)
+            except ParserError as e:
+                logging.error(e)
+                return HttpResponse(
+                    WfsGetFeature.render_exception("Could not parse payload"),
+                    status=400,
+                    content_type="text/xml",
+                )
+
+            result: JobResult = await self.redis_queue_instance.post(job, Config().job_timeout)
+            content, content_type, success = operation.render(
+                get_feature_parameter.output_format.upper(),
+                operation.get_feature(
+                    # we use only one query here, since this is implemented for URL GET query params
+                    # TODO: This has to be improved for XML body via POST
+                    get_feature_parameter,
+                    result,
+                    job,
+                ),
+                operation.unwrap_type_names(get_feature_parameter),
+            )
+            if not success:
+                return HttpResponse(
+                    content,
+                    status=400,
+                    content_type=content_type,
+                )
+            else:
+                return HttpResponse(
+                    content,
+                    content_type=content_type,
+                )
+        except AttributeError as e:
+            logging.error(e)
+            return HttpResponse(e, status=400, content_type="text/xml")
 
 
 def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):

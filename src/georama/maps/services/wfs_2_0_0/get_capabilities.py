@@ -7,20 +7,14 @@ from qgis_server_light.interface.qgis import Crs as QSL_Crs
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.ows.pkg_1.wgs84_bounding_box import (
-    Wgs84BoundingBox,
-)
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2 import (
-    MetadataUrltype,
-    WfsCapabilities,
-)
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.feature_type_type import (
+from georama.maps.interfaces.ogc.wfs_2_0_0 import (
+    DefaultCrs,
     FeatureTypeType,
-)
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.output_format_list_type import (
+    MetadataUrltype,
     OutputFormatListType,
 )
-from georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.title import Title
+from georama.maps.interfaces.ogc.wfs_2_0_0 import Title2 as Title
+from georama.maps.interfaces.ogc.wfs_2_0_0 import WfsCapabilities, Wgs84BoundingBox
 from georama.maps.maps_config import Config
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 
@@ -32,22 +26,16 @@ class WfsGetCapabilities(WfsOperation):
 
     def get_capabilities_body(self) -> WfsCapabilities:
         config = Config()
-        decoder = DictDecoder()
-        return decoder.decode(config.wfs_2_0_0_capabilities_config(self.url), WfsCapabilities)
+        return config.wfs_2_0_0_capabilities_config(self.url)
 
     @staticmethod
     def create_feature_type(name: str, title: str, crs: str, bbox: BBox, url: str):
         return FeatureTypeType(
             name=QName(name),
             title=[Title(value=title)],
-            default_crs=crs,
+            default_crs_or_other_crs_or_no_crs=[DefaultCrs(value=crs)],
             output_formats=OutputFormatListType(
-                format=[
-                    "application/gml+xml; version=3.2",
-                    "text/xml; subtype=gml/3.2.1",
-                    "text/xml; subtype=gml/3.1.1",
-                    "text/xml; subtype=gml/2.1.2",
-                ]
+                format=["application/gml+xml; version=3.2", "text/xml; subtype=gml/3.2.1"]
             ),
             wgs84_bounding_box=[
                 Wgs84BoundingBox(
@@ -55,7 +43,9 @@ class WfsGetCapabilities(WfsOperation):
                     upper_corner=[bbox.x_max, bbox.y_max],
                 )
             ],
-            metadata_url=[MetadataUrltype(href=f"{url}request=GetMetadata&layer={name}")],
+            metadata_url=[
+                MetadataUrltype(href=f"{url}request=GetMetadata&layer={name.split(':')[1]}")
+            ],
         )
 
     def get_capabilities(self) -> WfsCapabilities:
@@ -66,7 +56,11 @@ class WfsGetCapabilities(WfsOperation):
             bbox = BBox.from_string(dataset.bbox_wgs84)
             wfs_capabilities.feature_type_list.feature_type.append(
                 self.create_feature_type(
-                    published_as.name, published_as.title, source_crs.ogc_uri, bbox, self.url
+                    f"{self.own_namespace}:{published_as.name}",
+                    published_as.title,
+                    source_crs.ogc_uri,
+                    bbox,
+                    self.url,
                 )
             )
         return wfs_capabilities

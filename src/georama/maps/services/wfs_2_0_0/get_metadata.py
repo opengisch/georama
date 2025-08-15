@@ -57,7 +57,7 @@ class WfsGetMetadata(OgcOperation):
         return accessible_layers
 
     def create_layer_distributioninfo_info(
-        self, layer_name: str, wms_link_png: str, wfs_link_gml2: str, wfs_link_gml3: str
+        self, layer_name: str, wms_link_png: str, wfs_link_gml3: str
     ) -> List[CiOnlineResourcePropertyType]:
         return [
             CiOnlineResourcePropertyType(
@@ -73,24 +73,6 @@ class WfsGetMetadata(OgcOperation):
                     ),
                     description=CharacterStringPropertyType(
                         localised_character_string=LocalisedCharacterString(value="PNG Format")
-                    ),
-                )
-            ),
-            CiOnlineResourcePropertyType(
-                ci_online_resource=CiOnlineResource(
-                    linkage=UrlPropertyType(url=Url(value=wfs_link_gml2)),
-                    protocol=CharacterStringPropertyType(
-                        localised_character_string=LocalisedCharacterString(
-                            value="WWW:DOWNLOAD-1.0-http--download"
-                        )
-                    ),
-                    name=CharacterStringPropertyType(
-                        localised_character_string=LocalisedCharacterString(value=layer_name)
-                    ),
-                    description=CharacterStringPropertyType(
-                        localised_character_string=LocalisedCharacterString(
-                            value="GML2 Format"
-                        )
                     ),
                 )
             ),
@@ -213,10 +195,8 @@ class WfsGetMetadata(OgcOperation):
             layer_geometry_type: `complex`|`composite`|`curve`|`point`|`solid`|`surface`
         """
         found_layer = self.obtain_accessible_layers([layer_name])[0]
-        wms_link_png = f"{self.url}{PublishedAsWmsAdmin.create_url_params(found_layer)}"
-        # TODO: Add links for WFS endpoints too
-        wfs_link_gml2 = "TODO"
-        wfs_link_gml3 = "TODO"
+        wms_link_png = f"{self.url}{PublishedAsWmsAdmin.create_wms_url_params(found_layer)}"
+        wfs_link_gml3 = f"{self.url}{PublishedAsWmsAdmin.create_wfs_url_params(found_layer, output_format='APPLICATION/GML+XML; VERSION=3.2')}"
         BBox.from_string(found_layer.bound_dataset.bbox_wgs84)
         # TODO: Make that catched from configuration as we do for WMS already!
         config = Config().wfs_get_metadata_config(self.url)
@@ -230,7 +210,7 @@ class WfsGetMetadata(OgcOperation):
         metadata.distribution_info.md_distribution.transfer_options[
             0
         ].md_digital_transfer_options.on_line = self.create_layer_distributioninfo_info(
-            found_layer.name, wms_link_png, wfs_link_gml2, wfs_link_gml3
+            found_layer.name, wms_link_png, wfs_link_gml3
         )
         return metadata
 

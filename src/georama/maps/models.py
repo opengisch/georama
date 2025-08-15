@@ -41,6 +41,14 @@ class PublishedAsWmsAbstract(PublishedAs):
             )
 
     @property
+    def is_queryable(self):
+        # Currently we do allow querying on VectorDatasets only
+        if isinstance(self.bound_dataset, VectorDataSet):
+            return self.queryable
+        else:
+            return False
+
+    @property
     def readable_identifier(self) -> str:
         dataset = self.bound_dataset
         return f"{dataset.project.mandant.name}.{dataset.project.name}.{dataset.name}.{self.identifier}"
