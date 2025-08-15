@@ -1,10 +1,18 @@
+import logging
 from typing import List
-
+from osgeo import osr as osgeo_osr
+from asgiref.sync import async_to_sync, sync_to_async
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from qgis_server_light.interface.dispatcher import RedisQueue
+from qgis_server_light.interface.job import QslGetMapJob, WmsGetMapParams
+from qgis_server_light.interface.qgis import BBox
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
+from georama.maps.maps_config import Config
+
+LOGGER = logging.getLogger(__name__)
 
 
 class PublishedAsWmsAbstract(PublishedAs):
@@ -14,6 +22,13 @@ class PublishedAsWmsAbstract(PublishedAs):
     published_as_type = "maps"
     extent_buffer = models.FloatField(default=0.0, null=False)
     queryable = models.BooleanField(default=True, null=True, blank=True)
+
+    extent = models.CharField(max_length=1000, null=True, blank=True)
+    extent_wgs84 = models.CharField(max_length=1000, null=True, blank=True)
+    preview = models.BinaryField(null=True, blank=True)
+
+    preview_dimensions = (250, 250)
+    crs_transform_to_wgs84 = None
 
     @property
     def get_raster_dataset(self) -> RasterDataSet:
@@ -65,12 +80,75 @@ class PublishedAsWmsAbstract(PublishedAs):
             self.name = dataset.name
         if self.title is None:
             self.title = dataset.title
+        if not self.extent:
+            self.extent = BBox.from_string(dataset.bbox).to_2d_string()
+
+        bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
+        self.extent_wgs84 = bbox_wgs84.to_2d_string()
+
+        # Generate layer preview image
+        generate_preview_image_sync = async_to_sync(self.generate_preview_image)
+        self.preview = generate_preview_image_sync()
+
         super().save(
             force_insert=force_insert,
             force_update=force_update,
             using=using,
             update_fields=update_fields,
         )
+
+    async def generate_preview_image(self) -> bytes | None:
+        # We have to call the following @properties a bit awkward because they contain sync django orm actions
+        dataset = await sync_to_async(lambda: self.bound_dataset)()
+        qsl_instance = await sync_to_async(lambda: dataset.to_qsl)()
+
+        service_params = WmsGetMapParams(
+            BBOX=self.extent,
+            CRS=dataset.crs_to_qsl.auth_id,
+            WIDTH=str(self.preview_dimensions[0]),
+            HEIGHT=str(self.preview_dimensions[1]),
+            DPI="72",
+            FORMAT_OPTIONS="dpi%3A72",
+            LAYERS=self.name,
+            FORMAT="image/png",
+        )
+        get_map_job = QslGetMapJob(
+            extent_buffer=0.0,
+            service_params=service_params,
+            raster_layers=[qsl_instance] if isinstance(dataset, RasterDataSet) else [],
+            vector_layers=[qsl_instance] if isinstance(dataset, VectorDataSet) else [],
+            custom_layers=[qsl_instance] if isinstance(dataset, CustomDataSet) else [],
+        )
+        try:
+            redis_queue = await RedisQueue.create(Config().redis_url)
+            result = await redis_queue.post(get_map_job, Config().job_timeout)
+            return result.data
+        except ValueError as e:
+            LOGGER.error(f"Error while generating preview image: {e}")
+        except PermissionError as e:
+            LOGGER.error(f"Permission error while generating preview image: {e}")
+        return None
+
+    def _to_wgs84_extent(self, bbox: BBox) -> BBox:
+        if not self.crs_transform_to_wgs84:
+            source = self._get_spatial_ref(self.bound_dataset.crs_to_qsl.auth_id)
+            target = self._get_spatial_ref(4326)
+            self.crs_transform_to_wgs84 = osgeo_osr.CoordinateTransformation(source, target)
+        llCorner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_min, bbox.y_min)
+        urCorner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_max, bbox.y_max)
+        return BBox.from_list([*llCorner, *urCorner])
+
+    @staticmethod
+    def _get_spatial_ref(epsg_code: int | str):
+        if isinstance(epsg_code, str):
+            epsg_code = int(epsg_code.split(":")[1])
+        axis_order = osgeo_osr.OAMS_AUTHORITY_COMPLIANT
+        if epsg_code == 4326:
+            axis_order = osgeo_osr.OAMS_TRADITIONAL_GIS_ORDER
+        spatial_ref = osgeo_osr.SpatialReference()
+        spatial_ref.SetAxisMappingStrategy(axis_order)
+        spatial_ref.ImportFromEPSG(epsg_code)
+        return spatial_ref
 
 
 class PublishedAsWms(PublishedAsWmsAbstract):

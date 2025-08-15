@@ -1,3 +1,4 @@
+import base64
 from dataclasses import fields
 from urllib.parse import quote
 
@@ -5,6 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Permission
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.qgis import BBox
@@ -44,10 +46,12 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         "queryable",
         "delete_link",
         "show_published",
+        "preview_image",
     ]
     list_editable = ["public", "queryable"]
+    list_display_links = ["icon_column", "name", "title"]
     add_form_template = "admin/maps/publishedaswms/publish.html"
-    readonly_fields = ["dataset_detail"]
+    readonly_fields = ["dataset_detail", "extent_wgs84"]
     list_filter = ["name", "title"]
     form = PublishedAsWmsForm
 
@@ -95,20 +99,20 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         )
 
     @staticmethod
-    def create_wms_url_params(layer: PublishedAsWms) -> str:
+    def create_wms_url_params(
+        layer: PublishedAsWms, img_width: int = 1500, img_height: int = 1500
+    ) -> str:
         dataset = layer.bound_dataset
-        bbox = BBox.from_string(dataset.bbox)
+        bbox = BBox.from_string(layer.extent).to_2d_list()
         params = QslGetMapRequest(
             SERVICE=ServiceType.wms.value,
             REQUEST=RequestType.get_map.value,
             VERSION=Version.v_1_3_0.value,
-            LAYERS=layer.name,
-            BBOX=",".join(
-                [str(bbox.x_min), str(bbox.y_min), str(bbox.x_max), str(bbox.y_max)]
-            ),
+            LAYERS=[layer.name],
+            BBOX=bbox,
             CRS=dataset.crs_to_qsl.auth_id,
-            WIDTH=1500,
-            HEIGHT=1500,
+            WIDTH=img_width,
+            HEIGHT=img_height,
             FORMAT="image/png",
             TRANSPARENT=True,
             STYLES="",
@@ -117,14 +121,14 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             MAP_RESOLUTION=72,
             FORMAT_OPTIONS="dpi%3A72",
         )
-        parameter_list = []
+        url_params = {}
         for field in fields(QslGetMapRequest):
             field_value = getattr(params, field.name)
             if isinstance(field_value, list):
                 field_value = ",".join([str(value) for value in field_value])
             if field_value is not None:
-                parameter_list.append(f"{field.name}={field_value}")
-        return "&".join(parameter_list)
+                url_params[field.name] = field_value
+        return urlencode(url_params)
 
     @staticmethod
     def create_wfs_url_params(layer: PublishedAsWms, output_format: str = "text/xml") -> str:
@@ -154,6 +158,20 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         )
 
     show_published.short_description = "Operations"
+
+    def preview_image(self, obj: PublishedAsWms):
+        base64_img = "data:image/png;base64,{}".format(base64.b64encode(obj.preview).decode())
+        return mark_safe(
+            "".join(
+                [
+                    '<img src="{}" class="border shadow-sm" style="width: {}px; height: {}px"/>'.format(
+                        base64_img, *obj.preview_dimensions
+                    ),
+                ]
+            )
+        )
+
+    preview_image.short_description = "Layer preview"
 
     def dataset_detail(self, obj: PublishedAsWms):
         if isinstance(obj.raster_dataset, RasterDataSet):
@@ -190,6 +208,8 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         if obj:
             if isinstance(obj.vector_dataset, VectorDataSet):
                 fields.append("extent_buffer")
+                fields.append("extent")
+                fields.append("extent_wgs84")
         return (
             (
                 None,

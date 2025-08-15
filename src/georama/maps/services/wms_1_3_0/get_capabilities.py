@@ -99,15 +99,15 @@ class WmsGetCapabilities(WmsOperation):
             dataset = published_as.bound_dataset
             source_crs = decoder.decode(dataset.crs, QslCrs)
             styles = decoder.decode(dataset.styles, List[QslStyle])
-            bbox = BBox.from_string(dataset.bbox)
-            bbox_wgs84 = BBox.from_string(dataset.bbox_wgs84)
+            extent = BBox.from_string(published_as.extent)
+            extent_wgs84 = BBox.from_string(published_as.extent_wgs84)
             layer = self.create_layer(
                 published_as.name,
                 published_as.title,
                 published_as.description,
                 source_crs.auth_id,
-                bbox,
-                bbox_wgs84,
+                extent,
+                extent_wgs84,
                 [style.name for style in styles],
                 published_as.is_queryable,
             )

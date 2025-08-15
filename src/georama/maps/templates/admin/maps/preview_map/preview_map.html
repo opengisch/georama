@@ -1,0 +1,115 @@
+
+
+<div>
+    <div style="display:flex; gap: 10px; margin-bottom: 10px;">
+        <input type="text" name="extent" id="extent" class="form-control" placeholder="Limit layer to extent">
+        <button type="button" class="btn btn-primary" onclick="onResetExtent()">Reset</button>
+    </div>
+    <div id="map" class="map" style="width: {{ map_width }}px; height: {{ map_height }}px"></div>
+    <span class="small"><i>Hint: Press the control key to edit the extent in the map</i></span>
+</div>
+
+
+<script>
+
+    // Add the layer projection definition to proj4 and register it with openlayers
+    proj4.defs("{{ layer_srid }}", "{{ proj4_def }}");
+    ol.proj.proj4.register(proj4);
+
+    const extent = [{{ extent }}];
+    const form_field = document.getElementById('extent');
+
+    const bufferExtent = (ext, buffer = 0.2) => {
+        const longest_edge = Math.max(...[Math.abs(ext[2] - ext[0]), Math.abs(ext[3] - ext[1])]);
+        return ol.extent.buffer(ext, buffer * longest_edge);
+    }
+    
+    const polygonFromExtent = (ext) => {
+        return ol.geom.Polygon.fromExtent(ext);
+    }
+    
+    const updateFormField = (ext) => {
+        const digits = ext[0] <= 180 ? 6 : 2;
+        const rounded_extent = ext.map(e => Math.round(e * 10**digits) / 10**digits);
+        if (rounded_extent !== form_field.value) {
+            form_field.value = rounded_extent;
+        }
+    }
+    
+    updateFormField(extent);
+
+    const view = new ol.View({
+        projection: '{{ layer_srid }}',
+        center: {{ center }},
+        zoom: 8
+    });
+    
+    const map = new ol.Map({
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.OSM(),
+            }),
+            new ol.layer.Image({
+                source: new ol.source.ImageWMS({
+                    url: '{{ layer_url }}',
+                    params: {'LAYERS': '{{ layer_name }}'},
+                }),
+            }),
+        ],
+        target: 'map',
+        view: view,
+    });
+    
+    // Fit the map to the current, buffered extent
+    view.fitInternal(polygonFromExtent(bufferExtent(extent)));
+
+
+    // Create an interaction to change the extent in the map
+    const extent_interaction = new ol.interaction.Extent({
+        extent: extent,
+        condition: ol.events.condition.platformModifierKey,
+        boxStyle: new ol.style.Style({
+            fill: new ol.style.Fill({color: 'rgba(255,255,255,0.4)',}),
+            stroke: new ol.style.Stroke({color: 'rgb(0,136,255)', width: 4}),
+        })
+    });
+    map.addInteraction(extent_interaction);
+
+    extent_interaction.on('extentchanged', function (event) {
+        if (!event.extent) return;
+        updateFormField(event.extent);
+        
+    });
+
+    // Reset the layer extent to the original bbox of the dataset
+    const onResetExtent = () => {
+        form_field.value = '{{ original_extent }}';
+        form_field.dispatchEvent(new Event('change'));
+    };
+
+    // Update the extent layer based on manual changes in the input field
+    form_field.addEventListener('change', function () {
+        if (!this.value) return;
+        let updated_extent;
+        try {
+            updated_extent = this.value.split(',').map(Number);
+            if (!updated_extent || updated_extent.length !== 4 
+                || updated_extent.some(isNaN) 
+                || updated_extent[2] < updated_extent[0] 
+                || updated_extent[3] < updated_extent[1]) {
+                throw new Error('Extent must be a valid array of 4 numbers in the format [min x, min y, max x, max y]');
+            }
+        } catch (error) {
+            console.error('Invalid extent input: ', error);
+            extent_interaction.setExtent([]);
+            return;
+        }
+        if (updated_extent) {
+            // Update the extent in the map
+            extent_interaction.setExtent(updated_extent);
+            // Update the map view to fit the updated extent
+            map.getView().fitInternal(polygonFromExtent(bufferExtent(updated_extent)));
+        }
+    });
+
+</script>
