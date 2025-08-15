@@ -1,6 +1,6 @@
 import logging
 from typing import List
-
+from osgeo import osr as osgeo_osr
 from asgiref.sync import async_to_sync, sync_to_async
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -28,6 +28,7 @@ class PublishedAsWmsAbstract(PublishedAs):
     preview = models.BinaryField(null=True, blank=True)
 
     preview_dimensions = (250, 250)
+    crs_transform_to_wgs84 = None
 
     @property
     def get_raster_dataset(self) -> RasterDataSet:
@@ -82,6 +83,9 @@ class PublishedAsWmsAbstract(PublishedAs):
         if not self.extent:
             self.extent = BBox.from_string(dataset.bbox).to_2d_string()
 
+        bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
+        self.extent_wgs84 = bbox_wgs84.to_2d_string()
+
         # Generate layer preview image
         generate_preview_image_sync = async_to_sync(self.generate_preview_image)
         self.preview = generate_preview_image_sync()
@@ -94,7 +98,7 @@ class PublishedAsWmsAbstract(PublishedAs):
         )
 
     async def generate_preview_image(self) -> bytes | None:
-        # we have to call the following @propterties a bit awkward because they contain sync djang orm actions
+        # We have to call the following @properties a bit awkward because they contain sync django orm actions
         dataset = await sync_to_async(lambda: self.bound_dataset)()
         qsl_instance = await sync_to_async(lambda: dataset.to_qsl)()
 
@@ -124,6 +128,27 @@ class PublishedAsWmsAbstract(PublishedAs):
         except PermissionError as e:
             LOGGER.error(f"Permission error while generating preview image: {e}")
         return None
+
+    def _to_wgs84_extent(self, bbox: BBox) -> BBox:
+        if not self.crs_transform_to_wgs84:
+            source = self._get_spatial_ref(self.bound_dataset.crs_to_qsl.auth_id)
+            target = self._get_spatial_ref(4326)
+            self.crs_transform_to_wgs84 = osgeo_osr.CoordinateTransformation(source, target)
+        llCorner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_min, bbox.y_min)
+        urCorner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_max, bbox.y_max)
+        return BBox.from_list([*llCorner, *urCorner])
+
+    @staticmethod
+    def _get_spatial_ref(epsg_code: int | str):
+        if isinstance(epsg_code, str):
+            epsg_code = int(epsg_code.split(":")[1])
+        axis_order = osgeo_osr.OAMS_AUTHORITY_COMPLIANT
+        if epsg_code == 4326:
+            axis_order = osgeo_osr.OAMS_TRADITIONAL_GIS_ORDER
+        spatial_ref = osgeo_osr.SpatialReference()
+        spatial_ref.SetAxisMappingStrategy(axis_order)
+        spatial_ref.ImportFromEPSG(epsg_code)
+        return spatial_ref
 
 
 class PublishedAsWms(PublishedAsWmsAbstract):
