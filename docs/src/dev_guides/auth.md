@@ -1,6 +1,10 @@
 # Authentication using OIDC with Keycloak
 
 How to test / develop OIDC authentication locally using Keycloak.
+Add the `docker-compose.keycloak.yml` to the `COMPOSE_FILE` variable in your .env file:
+```sh
+COMPOSE_FILE="docker-compose.yml:docker-compose.keycloak.yml"
+```
 
 ## Overview
 
