@@ -60,7 +60,7 @@ dependencies = [
     "django==5.0.6",
     "django-jazzmin==3.0.0",
     "django-configurations==2.5.1",
-    "xsdata[cli,lxml,soap]==24.12",
+    "xsdata[lxml]==24.12",
     "async-timeout==4.0.3",
     "redis==5.0.8",
     "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
@@ -71,7 +71,10 @@ dependencies = [
     "django-treebeard==4.7.1",
     "django-admin-sortable2==2.2.1",
     "django-simple-history==3.7.0",
-    "django-extensions==3.2.3"
+    "django-extensions==3.2.3",
+    # prod-server deps
+    "gunicorn==23.0.0",
+    "uvicorn==0.35.0"
 ]
 
 # DEV: deps
