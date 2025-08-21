@@ -8,6 +8,8 @@ from qgis_server_light.interface.job import JobResult
 
 from georama.data_integration.models import Project
 from georama.data_integration.views import RegisterQgisProject
+from georama.maps.models import PublishedAsWms
+from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 collect_ignore_glob = ["src/georama/maps/interfaces/*"]
 
@@ -76,4 +78,14 @@ def empty_png_bytes_job_result() -> JobResult:
     return JobResult(
         data=buf.getvalue(),
         content_type="image/png",
+    )
+
+
+@pytest.fixture
+def wfs_op() -> WfsOperation:
+    return WfsOperation(
+        appname="maps",
+        url="http://localhost:4242/maps?",
+        user=None,
+        model=PublishedAsWms,
     )
