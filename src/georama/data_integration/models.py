@@ -212,7 +212,7 @@ class Field(models.Model):
 
     name = models.CharField(null=False, max_length=1000)
     type = models.CharField(null=False, max_length=1000)
-    is_primary_key = models.BooleanField(null=False, default=True)
+    is_primary_key = models.BooleanField(null=False, default=False)
     type_wfs = models.CharField(null=False, default="UNSET", max_length=1000)
     type_oapif = models.CharField(null=False, default="UNSET", max_length=1000)
     type_oapif_format = models.CharField(null=True, default="UNSET", max_length=1000)
