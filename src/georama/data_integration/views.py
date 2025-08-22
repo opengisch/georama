@@ -144,12 +144,15 @@ class RegisterQgisProject(View):
                 field_qs = Field.objects.filter(
                     name=field.name,
                     type=field.type,
+                    is_primary_key=field.is_primary_key,
                     type_wfs=field.type_wfs,
                     type_oapif=field.type_oapif,
                     type_oapif_format=field.type_oapif_format,
                     alias=field.alias,
-                        comment=field.comment,
+                    comment=field.comment,
                     nullable=field.nullable,
+                    length=field.length,
+                    precision=field.precision,
                     vector_dataset=dataset,
                 )
                 if not field_qs.exists():
@@ -159,11 +162,12 @@ class RegisterQgisProject(View):
                     field = Field(
                         name=field.name,
                         type=field.type,
+                        is_primary_key=field.is_primary_key,
                         type_wfs=field.type_wfs,
                         type_oapif=field.type_oapif,
                         type_oapif_format=field.type_oapif_format,
                         alias=field.alias,
-                            comment=field.comment,
+                        comment=field.comment,
                         nullable=field.nullable,
                         length=field.length,
                         precision=field.precision,
@@ -173,12 +177,13 @@ class RegisterQgisProject(View):
                     logging.debug(
                         f"   Field {field.name} (type: {field.type}) was found and will be updated."
                     )
-                    field = field_qs.get()
+                    field: Field = field_qs.get()
                     field.name = field.name
                     field.type = field.type
+                    field.is_primary_key = field.is_primary_key
                     field.type_wfs = field.type_wfs
-                    field.type_json = field.type_json
-                    field.type_json_format = field.type_json_format
+                    field.type_oapif = field.type_oapif
+                    field.type_oapif_format = field.type_oapif_format
                     field.alias = field.alias
                     field.comment = field.comment
                     field.nullable = field.nullable
