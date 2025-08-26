@@ -29,7 +29,7 @@ def admin_email():
     yield "admin@example.org"
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def admin_user(db, admin_user_name, admin_password, admin_email):
     admin = User.objects.create_superuser(admin_user_name, admin_email, admin_password)
     admin.save()
@@ -37,7 +37,7 @@ def admin_user(db, admin_user_name, admin_password, admin_email):
     admin.delete()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def example_users():
     call_command("loaddata", "tests/resources/users.json")
 

@@ -8,7 +8,7 @@ pytestmark = pytest.mark.django_db
 
 class TestFeaturesViews:
     def test_add_published_as_ogc_api_features_view(
-        self, client, integrated_project, admin_user_name, admin_password
+        self, client, integrated_project, admin_user_name, admin_password, admin_user
     ):
         client.login(username=admin_user_name, password=admin_password)
         project = integrated_project

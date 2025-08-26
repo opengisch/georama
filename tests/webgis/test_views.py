@@ -1,6 +1,10 @@
 from unittest.mock import AsyncMock, patch
 
+import pytest
+
 from georama.webgis.models import PublishedAsLayerWms
+
+pytestmark = pytest.mark.django_db
 
 
 class TestMapsViews:
@@ -11,6 +15,7 @@ class TestMapsViews:
         admin_user_name,
         admin_password,
         empty_png_bytes_job_result,
+        admin_user,
     ):
         mock_instance = AsyncMock()
         mock_instance.post.return_value = empty_png_bytes_job_result
