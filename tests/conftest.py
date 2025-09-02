@@ -21,6 +21,7 @@ from georama.data_integration.views import RegisterQgisProject
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
+from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
 
 collect_ignore_glob = ["src/georama/maps/interfaces/*"]
 
@@ -105,6 +106,16 @@ def wfs_op() -> WfsOperation:
 @pytest.fixture
 def wfs_desc_ft() -> WfsDescribeFeatureType:
     return WfsDescribeFeatureType(
+        appname="maps",
+        url="http://localhost:4242/maps?",
+        user=None,
+        model=PublishedAsWms,
+    )
+
+
+@pytest.fixture
+def wfs_get_cap() -> WfsGetCapabilities:
+    return WfsGetCapabilities(
         appname="maps",
         url="http://localhost:4242/maps?",
         user=None,
