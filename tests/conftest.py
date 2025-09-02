@@ -1,10 +1,12 @@
 from io import BytesIO
+from unittest.mock import Mock
 
 import pytest
 from django.contrib.auth.models import User
 from django.core.management import call_command
 from PIL import Image
 from qgis_server_light.interface.job import JobResult
+from qgis_server_light.interface.qgis import Crs
 from xsdata.models.enums import FormType
 from xsdata.models.xsd import (
     ComplexContent,
@@ -16,12 +18,13 @@ from xsdata.models.xsd import (
     Sequence,
 )
 
-from georama.data_integration.models import Project
+from georama.data_integration.models import Project, VectorDataSet
 from georama.data_integration.views import RegisterQgisProject
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
 from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
+from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 
 collect_ignore_glob = ["src/georama/maps/interfaces/*"]
 
@@ -124,6 +127,16 @@ def wfs_get_cap() -> WfsGetCapabilities:
 
 
 @pytest.fixture
+def wfs_get_metadata() -> WfsGetMetadata:
+    return WfsGetMetadata(
+        appname="maps",
+        url="http://localhost:4242/maps?",
+        user=None,
+        model=PublishedAsWms,
+    )
+
+
+@pytest.fixture
 def described_feature_type() -> Schema:
     return Schema(
         imports=[
@@ -177,3 +190,43 @@ def described_feature_type() -> Schema:
             )
         ],
     )
+
+
+@pytest.fixture
+def mock_dataset() -> tuple[Mock, str]:
+    extent = ",".join(
+        [
+            "6.2305498123169",
+            "46.0072288513184",
+            "10.2997055053711",
+            "47.7490196228027",
+        ]
+    )
+
+    dataset = Mock(
+        spec=VectorDataSet,
+        crs_to_qsl=Crs(
+            auth_id="EPSG:4326",
+            postgis_srid=4326,
+            ogc_uri="http://www.opengis.net/def/crs/EPSG/0/4326",
+            ogc_urn="urn:ogc:def:crs:EPSG::4326",
+        ),
+        bbox_wgs84=extent,
+    )
+    return dataset, extent
+
+
+@pytest.fixture
+def mock_layer(mock_dataset) -> Mock:
+    layer_name = "TestPointLayer_1234_5678"
+    dataset, extent = mock_dataset
+
+    layer = Mock(
+        spec=PublishedAsWms,
+        title="TestPointLayer",
+        bound_dataset=dataset,
+        description="This is a test layer.",
+        extent=extent,
+    )
+    layer.configure_mock(**{"name": layer_name})
+    return layer
