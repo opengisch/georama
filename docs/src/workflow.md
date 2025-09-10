@@ -105,7 +105,12 @@ the DEV version of the QSL docker image.
 You can use that as follows:
 
 ```shell
-docker run --rm --entrypoint /opt/qgis-server-light/venv/bin/python opengisch/qgis-server-light-dev:latest -m qgis_server_light.exporter.cli --help
+
+QGIS_PROJECT_FOLDER="/absolute/path/to/QGIS/project/folder" # without trailing /
+QGIS_PROJECT_FILENAME="my_project" # QGIS project filename, without extension nor trailing dot
+QGIS_PROJECT_EXTENSION="qgz" # qgs or qgz
+
+docker run --rm -v "${QGIS_PROJECT_FOLDER}":/project  --entrypoint /opt/qgis-server-light/venv/bin/python opengisch/qgis-server-light-dev:latest -m qgis_server_light.exporter.cli --unify_layer_names_by_group True --project "/project/${QGIS_PROJECT_FILENAME}.${QGIS_PROJECT_EXTENSION}" > "${QGIS_PROJECT_FOLDER}/${QGIS_PROJECT_FILENAME}.json"
 ```
 
 The CLI script opens the stated QGIS project and uses pyqgis to extract the elements which are necessary to
