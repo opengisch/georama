@@ -101,13 +101,6 @@ Right click on the group, select the menu point `Set Group WMS Data`, now enter 
 QGIS Server Light (QSL) offers a CLI script to extract the config JSON from QGIS Projects. It is available in
 the DEV version of the QSL docker image.
 
-### 🔧 CLI Help
-You can use that as follows:
-
-```shell
-docker run --rm --entrypoint /opt/qgis-server-light/venv/bin/python opengisch/qgis-server-light-dev:latest -m qgis_server_light.exporter.cli --help
-```
-
 The CLI script opens the stated QGIS project and uses pyqgis to extract the elements which are necessary to
 build the JSON. Therefore, the data which is in the defined QGIS project has to be available (local files,
 databases etc.). In most cases the process will run without complaints, But if the data is not available  for
@@ -121,7 +114,6 @@ Since the data is touched the process lasts a bit depending on the amount of lay
 !!! info
     Remark: Having spaces in the project file name is possible but not a good idea in general.
 
-The JSON is written to stdout. To put it in a file the stdout has to be piped into a file.
 
 ### 🚀 Generate JSON
 
@@ -134,7 +126,13 @@ QGIS_PROJECT_FOLDER="/absolute/path/to/QGIS/project/folder" # without trailing /
 QGIS_PROJECT_FILENAME="forest_fires" # QGIS project filename, without extension nor trailing dot
 QGIS_PROJECT_EXTENSION="qgz" # qgs or qgz
 
-docker run --rm -v "${QGIS_PROJECT_FOLDER}":/project  --entrypoint /opt/qgis-server-light/venv/bin/python opengisch/qgis-server-light-dev:latest -m qgis_server_light.exporter.cli --unify_layer_names_by_group True --project "/project/${QGIS_PROJECT_FILENAME}.${QGIS_PROJECT_EXTENSION}" > "${QGIS_PROJECT_FOLDER}/${QGIS_PROJECT_FILENAME}.json"
+docker run --rm -v "${QGIS_PROJECT_FOLDER}":/io/data  --entrypoint /opt/qgis-server-light/venv/bin/python opengisch/qgis-server-light-dev:latest -m qgis_server_light.exporter.cli --unify_layer_names_by_group True --project "/io/data/${QGIS_PROJECT_FILENAME}.${QGIS_PROJECT_EXTENSION}" > "${QGIS_PROJECT_FOLDER}/${QGIS_PROJECT_FILENAME}.json"
+```
+The JSON is written to stdout. To put it in a file the stdout has to be piped into a file, as done here.
+To get some details on what are the options for generating json, call the CLI help:
+
+```shell
+docker run --rm --entrypoint /opt/qgis-server-light/venv/bin/python opengisch/qgis-server-light-dev:latest -m qgis_server_light.exporter.cli --help
 ```
 
 !!! info
