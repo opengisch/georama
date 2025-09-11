@@ -105,12 +105,7 @@ the DEV version of the QSL docker image.
 You can use that as follows:
 
 ```shell
-
-QGIS_PROJECT_FOLDER="/absolute/path/to/QGIS/project/folder" # without trailing /
-QGIS_PROJECT_FILENAME="my_project" # QGIS project filename, without extension nor trailing dot
-QGIS_PROJECT_EXTENSION="qgz" # qgs or qgz
-
-docker run --rm -v "${QGIS_PROJECT_FOLDER}":/project  --entrypoint /opt/qgis-server-light/venv/bin/python opengisch/qgis-server-light-dev:latest -m qgis_server_light.exporter.cli --unify_layer_names_by_group True --project "/project/${QGIS_PROJECT_FILENAME}.${QGIS_PROJECT_EXTENSION}" > "${QGIS_PROJECT_FOLDER}/${QGIS_PROJECT_FILENAME}.json"
+docker run --rm --entrypoint /opt/qgis-server-light/venv/bin/python opengisch/qgis-server-light-dev:latest -m qgis_server_light.exporter.cli --help
 ```
 
 The CLI script opens the stated QGIS project and uses pyqgis to extract the elements which are necessary to
@@ -135,7 +130,11 @@ in the following instructions are adapted to that. In our example we would have 
 
 ```shell
 # generate the JSON for Forest Fires project
-docker run --rm -v $(pwd):/io/data --entrypoint /opt/qgis-server-light/venv/bin/python3 opengisch/qgis-server-light-dev:latest -m qgis_server_light.exporter.cli --unify_layer_names_by_group True --project /io/data/forest_fires/forest_fires.qgz > forest_fires/forest_fires.json
+QGIS_PROJECT_FOLDER="/absolute/path/to/QGIS/project/folder" # without trailing /
+QGIS_PROJECT_FILENAME="forest_fires" # QGIS project filename, without extension nor trailing dot
+QGIS_PROJECT_EXTENSION="qgz" # qgs or qgz
+
+docker run --rm -v "${QGIS_PROJECT_FOLDER}":/project  --entrypoint /opt/qgis-server-light/venv/bin/python opengisch/qgis-server-light-dev:latest -m qgis_server_light.exporter.cli --unify_layer_names_by_group True --project "/project/${QGIS_PROJECT_FILENAME}.${QGIS_PROJECT_EXTENSION}" > "${QGIS_PROJECT_FOLDER}/${QGIS_PROJECT_FILENAME}.json"
 ```
 
 !!! info
