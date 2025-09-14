@@ -1,4 +1,5 @@
 from io import BytesIO
+from textwrap import dedent
 from unittest.mock import Mock
 
 import pytest
@@ -24,6 +25,7 @@ from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
 from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
+from georama.maps.services.wfs_2_0_0.get_feature import WfsGetFeature
 from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 
 collect_ignore_glob = ["src/georama/maps/interfaces/*"]
@@ -137,6 +139,16 @@ def wfs_get_metadata() -> WfsGetMetadata:
 
 
 @pytest.fixture
+def wfs_get_feature() -> WfsGetFeature:
+    return WfsGetFeature(
+        appname="maps",
+        url="http://localhost:4242/maps?",
+        user=None,
+        model=PublishedAsWms,
+    )
+
+
+@pytest.fixture
 def described_feature_type() -> Schema:
     return Schema(
         imports=[
@@ -230,3 +242,16 @@ def mock_layer(mock_dataset) -> Mock:
     )
     layer.configure_mock(**{"name": layer_name})
     return layer
+
+
+@pytest.fixture
+def simple_filter() -> str:
+    filter_string = """\
+    <fes:Filter xmlns:fes="http://www.opengis.net/fes/2.0">
+        <fes:PropertyIsGreaterThan>
+            <fes:ValueReference>fid</fes:ValueReference>
+            <fes:Literal>1</fes:Literal>
+        </fes:PropertyIsGreaterThan>
+    </fes:Filter>
+    """
+    return dedent(filter_string).replace("\n", "")
