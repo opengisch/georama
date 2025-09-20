@@ -306,8 +306,7 @@ class TestWfsGetFeature:
                     ),
                     pos=[],
                     coordinates=None,
-                    # XXX: This is a bug that needs to be fixed. CRS at the end of BBOX never gets respected.
-                    srs_name=None,
+                    srs_name="URN:OGC:DEF:CRS:EPSG::4326",
                     srs_dimension=2,
                     axis_labels=[],
                     uom_labels=[],

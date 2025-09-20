@@ -260,7 +260,7 @@ class WfsGetFeature(WfsOperation):
             if bbox_definition:
                 bbox_list = bbox_definition.split(",")
                 try:
-                    bbox_crs = bbox_list[5]
+                    bbox_crs = bbox_list[4]
                 except IndexError:
                     logging.info(
                         f"There was no SRS definition in the BBOX parameter, we assume"
