@@ -25,5 +25,10 @@ urlpatterns = [
         "register_qgis_project/<str:mandant_name>/<str:project_name>",
         views.RegisterQgisProject.as_view(),
         name="register_qgis_project",
-    )
+    ),
+    path(
+        "export_qgis_project/<str:mandant_name>/<str:project_name>",
+        views.QgisServerLightExporter.as_view(),
+        name="export_qgis_project",
+    ),
 ]

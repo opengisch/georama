@@ -160,11 +160,26 @@ class ProjectAdmin(admin.ModelAdmin):
             qpfs.create_groups(config.qgis_project_extensions)
             group = qpfs.find_group_by_name(obj.mandant.name)
             project = group.find_project_by_name(obj.name)
+            export_url = reverse(
+                "georama.data_integration:export_qgis_project",
+                kwargs={
+                    "mandant_name": obj.mandant.name,
+                    "project_name": obj.name,
+                },
+            )
+            integrate_url = reverse(
+                "georama.data_integration:register_qgis_project",
+                kwargs={
+                    "mandant_name": obj.mandant.name,
+                    "project_name": obj.name,
+                },
+            )
             if obj.hash == project.hash:
                 return mark_safe(
                     "".join(
                         [
                             '<a class="btn btn-high btn-success" style="pointer-events: none"><i class="fa fa-check-circle" aria-hidden="true"></i></a>',
+                            f'<a href="{export_url}" class="btn btn-high btn-success">export</a>',
                         ]
                     )
                 )
@@ -172,15 +187,8 @@ class ProjectAdmin(admin.ModelAdmin):
                 return mark_safe(
                     "".join(
                         [
-                            '<a href="{}" class="btn btn-high btn-success">integrate</a>'.format(
-                                reverse(
-                                    "georama.data_integration:register_qgis_project",
-                                    kwargs={
-                                        "mandant_name": obj.mandant.name,
-                                        "project_name": obj.name,
-                                    },
-                                )
-                            ),
+                            f'<a href="{integrate_url}" class="btn btn-high btn-success">integrate</a>',
+                            f'<a href="{export_url}" class="btn btn-high btn-success">export</a>',
                         ]
                     )
                 )

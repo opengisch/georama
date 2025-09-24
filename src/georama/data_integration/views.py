@@ -1,14 +1,16 @@
 import logging
 from typing import List, Tuple, Type
 
+import requests
 from django.db import transaction
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views import View
+from qgis_server_light.interface.exporter import ExportParameters, ExportResult
 from qgis_server_light.interface.qgis import Config, Custom, Raster, Vector
-from xsdata.formats.dataclass.parsers import JsonParser
+from xsdata.formats.dataclass.parsers import DictDecoder, JsonParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
-from xsdata.formats.dataclass.serializers import DictEncoder
+from xsdata.formats.dataclass.serializers import DictEncoder, JsonSerializer
 
 from georama.data_integration.admin import (
     QgisProject,
@@ -16,7 +18,7 @@ from georama.data_integration.admin import (
     QgisProjectGroup,
 )
 from georama.data_integration.data_integration_config import (
-    Config as DataintgrationConfig,
+    Config as DataIntegrationConfig,
 )
 from georama.data_integration.models import (
     CustomDataSet,
@@ -55,7 +57,7 @@ class RegisterQgisProject(View):
     def load_project_config(
         mandant_name: str, project_name: str
     ) -> Tuple[QgisProject, Config] | Tuple[None, None] | Tuple[QgisProject, None]:
-        config = DataintgrationConfig()
+        config = DataIntegrationConfig()
         qpfs = QgisProjectFileStructure(config.path)
         qpfs.create_groups(config.qgis_project_extensions)
         group = qpfs.find_group_by_name(mandant_name)
@@ -303,4 +305,33 @@ class RegisterQgisProject(View):
         if not project_config or not project:
             redirect("admin:data_integration_project_changelist")
         self.integrate_project(project, project_config, mandant_name)
+        return redirect("admin:data_integration_project_changelist")
+
+
+class QgisServerLightExporter(View):
+    def execute_export(self, mandant_name: str, project_name: str):
+        config = DataIntegrationConfig()
+        response = requests.post(
+            config.qgis_server_light_exporter_url,
+            # Add the dataclass from QSL interface here
+            data=JsonSerializer().render(
+                ExportParameters(
+                    mandant_name,
+                    project_name,
+                    unify_layer_names_by_group=True,
+                    output_format="json",
+                )
+            ),
+            headers={"Content-Type": "application/json"},
+        )
+        status_report = DictDecoder().decode(response.json(), ExportResult)
+        if not status_report.successful:
+            raise RuntimeError(f"Something went wrong while exporting, {response.json()}")
+
+    def get(self, request: HttpRequest, mandant_name: str, project_name: str, **kwargs):
+        try:
+            self.execute_export(mandant_name, project_name)
+        except RuntimeError as e:
+            logging.error(e)
+            return HttpResponse("Ask the administer", status=500)
         return redirect("admin:data_integration_project_changelist")

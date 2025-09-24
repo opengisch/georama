@@ -23,6 +23,7 @@
                         {% if project.has_config %}
                         <a href="{% url 'georama.data_integration:register_qgis_project' group.name project.name %}" class="btn btn-high btn-success">integrate</a>
                         {% endif %}
+                        <a href="{% url 'georama.data_integration:export_qgis_project' group.name project.name %}" class="btn btn-high btn-success">export</a>
                     </td>
                 </tr>
                 {% endfor %}
