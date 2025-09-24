@@ -10,7 +10,7 @@ pytestmark = pytest.mark.django_db
 
 class TestDataIntegrationViews:
     def test_register_qgis_project_view(
-        self, client, projects_dir, admin_user_name, admin_password
+        self, client, projects_dir, admin_user_name, admin_password, admin_user
     ):
         client.login(username=admin_user_name, password=admin_password)
 
