@@ -1,9 +1,10 @@
 import logging
 from typing import List
-from osgeo import osr as osgeo_osr
+
 from asgiref.sync import async_to_sync, sync_to_async
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from osgeo import osr as osgeo_osr
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import QslGetMapJob, WmsGetMapParams
 from qgis_server_light.interface.qgis import BBox
@@ -101,7 +102,12 @@ class PublishedAsWmsAbstract(PublishedAs):
         # We have to call the following @properties a bit awkward because they contain sync django orm actions
         dataset = await sync_to_async(lambda: self.bound_dataset)()
         qsl_instance = await sync_to_async(lambda: dataset.to_qsl)()
-
+        # this way we always set a style, or it will fail if list has no styles
+        # we could make that configurable in admin gui easily
+        default_style = qsl_instance.get_style_by_name("default")
+        if default_style is None:
+            default_style = qsl_instance.styles[0]
+        qsl_instance.style_name = default_style.name
         service_params = WmsGetMapParams(
             BBOX=self.extent,
             CRS=dataset.crs_to_qsl.auth_id,

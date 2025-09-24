@@ -40,9 +40,24 @@ class WmsGetMap(WmsOperation):
         styles = service_params.style_list
         filters = service_params.filter_list
         for index, published_as in enumerate(accessible_published_as):
+            requested_style_name = styles[index]
             dataset = published_as.bound_dataset
             qsl_instance = dataset.to_qsl
-            qsl_instance.style_name = styles[index]
+            qsl_instance.style_name = requested_style_name
+            matched_style = qsl_instance.get_style_by_name(qsl_instance.style_name)
+            if matched_style is None:
+                if requested_style_name == "default":
+                    logging.debug(
+                        f"Requested style name for layer '{qsl_instance.name}' was {qsl_instance.style_name} "
+                        f"but this is not in the available styles, we choose the first available style "
+                        f"instead which is '{qsl_instance.styles[0].name}'"
+                    )
+                    qsl_instance.style_name = qsl_instance.styles[0].name
+                else:
+                    raise ValueError(
+                        f"Requested style {requested_style_name} is not defined for layer {qsl_instance.name}"
+                    )
+
             logging.debug(f"Set style for layer to: {qsl_instance.style_name}")
             if isinstance(qsl_instance, Raster):
                 job.raster_layers.append(qsl_instance)

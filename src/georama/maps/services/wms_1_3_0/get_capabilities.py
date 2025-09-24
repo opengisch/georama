@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from qgis_server_light.interface.qgis import BBox
@@ -99,6 +100,14 @@ class WmsGetCapabilities(WmsOperation):
             dataset = published_as.bound_dataset
             source_crs = decoder.decode(dataset.crs, QslCrs)
             styles = decoder.decode(dataset.styles, List[QslStyle])
+            style_names = [style.name for style in styles]
+            if "default" not in style_names:
+                logging.debug(
+                    f"No Style named 'default' was existing in the configuration of the\n"
+                    f"  dataset {dataset.name} ({dataset.id}), the first style in the list of defined\n"
+                    f"  styles was added as default style."
+                )
+                style_names.insert(0, "default")
             extent = BBox.from_string(published_as.extent)
             extent_wgs84 = BBox.from_string(published_as.extent_wgs84)
             layer = self.create_layer(
@@ -108,7 +117,7 @@ class WmsGetCapabilities(WmsOperation):
                 source_crs.auth_id,
                 extent,
                 extent_wgs84,
-                [style.name for style in styles],
+                style_names,
                 published_as.is_queryable,
             )
             capabilities.capability.layer.layer.append(layer)
