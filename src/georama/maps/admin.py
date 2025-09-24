@@ -147,10 +147,10 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         return mark_safe(
             "".join(
                 [
-                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success" title="WMS GetMap"><i class="fas fa-eye text-xs"/></a>'.format(
+                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WMS GetMap"><i class="fas fa-eye text-xs"></i></a>'.format(
                         reverse("maps_ogc_entry"), self.create_wms_url_params(obj)
                     ),
-                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success" title="WFS GetFeature"><i class="fas fa-eye text-xs"/></a>'.format(
+                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WFS GetFeature"><i class="fas fa-eye text-xs"></i></a>'.format(
                         reverse("maps_ogc_entry"), self.create_wfs_url_params(obj)
                     ),
                 ]

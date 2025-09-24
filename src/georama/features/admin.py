@@ -22,6 +22,7 @@ class ColumnOgcApiFeaturesInlineFormset(BaseInlineFormSet):
 class ColumnOgcApiFeaturesInline(admin.TabularInline):
     model = ColumnOgcApiFeatures
     formset = ColumnOgcApiFeaturesInlineFormset
+    readonly_fields = ["dataset_column"]
     can_delete = False
     extra = 0
 
