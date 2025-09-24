@@ -57,7 +57,6 @@ class DataSet(models.Model):
     styles = models.JSONField(default=dict)
     # TODO: implement ENUM (wms, ogr, gdal, etc.)
     driver = models.CharField(max_length=50)
-    # TODO: implement ENUM (raster, vector)
     crs = models.JSONField(default=dict)
     minimum_scale = models.FloatField(null=True)
     maximum_scale = models.FloatField(null=True)
