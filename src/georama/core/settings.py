@@ -317,6 +317,7 @@ class Base(Configuration):
     DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
     APPEND_SLASH = False
+    QSL_EXPORTER_URL = values.Value("http://localhost:5000/export", environ_prefix="GEORAMA")
 
 
 class Dev(Base):
