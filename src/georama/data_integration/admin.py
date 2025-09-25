@@ -178,8 +178,10 @@ class ProjectAdmin(admin.ModelAdmin):
                 return mark_safe(
                     "".join(
                         [
-                            '<a class="btn btn-high btn-success" style="pointer-events: none"><i class="fa fa-check-circle" aria-hidden="true"></i></a>',
-                            f'<a href="{export_url}" class="btn btn-high btn-success">export</a>',
+                            '<div class="d-flex flex-nowrap">',
+                            f'<a onclick="showWaitModalOverlay()" href="{export_url}" class="btn btn-high btn-success mr-2"><i class="fa fa-file-alt"></i> extract</a>',
+                            '<a class="btn btn-high btn-success" style="pointer-events: none"><i class="fa fa-check-circle" aria-hidden="true"></i> integrated</a>',
+                            "</div>",
                         ]
                     )
                 )
@@ -187,17 +189,19 @@ class ProjectAdmin(admin.ModelAdmin):
                 return mark_safe(
                     "".join(
                         [
-                            f'<a href="{integrate_url}" class="btn btn-high btn-success">integrate</a>',
-                            f'<a href="{export_url}" class="btn btn-high btn-success">export</a>',
+                            '<div class="d-flex flex-nowrap">',
+                            f'<a onclick="showWaitModalOverlay()" href="{export_url}" class="btn btn-high btn-success mr-2"><i class="fa fa-file-alt"></i> extract</a>',
+                            f'<a href="{integrate_url}" class="btn btn-high btn-success"><i class="fa fa-arrow-alt-circle-up" aria-hidden="true"></i> integrate</a>',
+                            "</div>",
                         ]
                     )
                 )
         except Exception as e:
-            logging.error(f"Chould not check project status. Original Error: {e}")
+            logging.error(f"Could not check project status. Original Error: {e}")
             return ""
 
     project_file_uptodate.admin_order_field = "project_file_uptodate"
-    project_file_uptodate.short_description = "Project File uptodate"
+    project_file_uptodate.short_description = "Project File Status"
 
     def mandant_name(self, obj: Project):
         # TODO: make this a link to the dedicated mandant instance details
