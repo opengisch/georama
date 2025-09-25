@@ -120,6 +120,7 @@ class Base(Configuration):
         "georama.features.apps.FeaturesConfig",
         "georama.maps.apps.MapsConfig",
         "georama.data_integration.apps.DataintegrationConfig",
+        "georama.qfield_link.apps.QfieldLinkConfig",
         # apps by webgis
         "corsheaders",
         "georama.webgis.apps.WebgisConfig",
