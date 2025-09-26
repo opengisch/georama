@@ -13,7 +13,7 @@
     "defaultTheme": "forest_fires"
   },
   "basemaps": {
-    "defaultBasemap": "Landeskarte (farbig)",
+    "defaultBasemap": "Swisstopo Vector-Tiles",
     "OSM": true,
     "SwissTopoVectorTiles": true
   },
