@@ -76,7 +76,9 @@ class DataSet(models.Model):
             path = os.path.join(self.project.mandant.name, path)
         elif datasource.gdal:
             path = os.path.join(self.project.mandant.name, path)
-
+        elif datasource.vector_tile:
+            if not datasource.vector_tile.remote:
+                path = os.path.join(self.project.mandant.name, datasource.vector_tile.url)
         return datasource, path
 
     @property
