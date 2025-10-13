@@ -1,2 +1,4 @@
 *.gpkg-wal
 *.gpkg-shm
+*
+!TestMandant/*

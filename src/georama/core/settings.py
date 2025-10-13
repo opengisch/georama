@@ -120,6 +120,7 @@ class Base(Configuration):
         "georama.features.apps.FeaturesConfig",
         "georama.maps.apps.MapsConfig",
         "georama.data_integration.apps.DataintegrationConfig",
+        "georama.qfield_link.apps.QfieldLinkConfig",
         # apps by webgis
         "corsheaders",
         "georama.webgis.apps.WebgisConfig",
@@ -318,6 +319,10 @@ class Base(Configuration):
 
     APPEND_SLASH = False
     QSL_EXPORTER_URL = values.Value("http://localhost:5000/export", environ_prefix="GEORAMA")
+
+    QFIELD_LINK_URL = values.Value(None, environ_prefix="GEORAMA")
+    QFIELD_LINK_USER = values.Value(None, environ_prefix="GEORAMA")
+    QFIELD_LINK_PASSWORD = values.Value(None, environ_prefix="GEORAMA")
 
 
 class Dev(Base):
