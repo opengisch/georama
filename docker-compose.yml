@@ -34,6 +34,15 @@ services:
       - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data:ro"
     deploy:
       replicas: 1
+  qsl-exporter:
+    image: opengisch/qgis-server-light-dev:latest
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    command:
+      - "run-exporter"
+    volumes:
+      - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data"
   geogirafe:
     image: geogirafe/viewer:latest
     volumes:
