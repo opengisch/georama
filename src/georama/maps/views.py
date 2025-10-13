@@ -355,8 +355,8 @@ class OgcServer(View):
                     status=400,
                     content_type="text/xml",
                 )
-
-            result: JobResult = await self.redis_queue_instance.post(job, Config().job_timeout)
+            redis_queue = await self.redis_queue_instance
+            result: JobResult = await redis_queue.post(job, Config().job_timeout)
             content, content_type, success = operation.render(
                 get_feature_parameter.output_format.upper(),
                 operation.get_feature(
