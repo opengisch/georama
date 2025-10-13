@@ -83,13 +83,14 @@ class PublishedAsWmsAbstract(PublishedAs):
             self.title = dataset.title
         if not self.extent:
             self.extent = BBox.from_string(dataset.bbox).to_2d_string()
+        if dataset.crs_to_qsl.auth_id:
+            # we do not handle layers which have no CRS definition!
+            bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
+            self.extent_wgs84 = bbox_wgs84.to_2d_string()
 
-        bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
-        self.extent_wgs84 = bbox_wgs84.to_2d_string()
-
-        # Generate layer preview image
-        generate_preview_image_sync = async_to_sync(self.generate_preview_image)
-        self.preview = generate_preview_image_sync()
+            # Generate layer preview image
+            generate_preview_image_sync = async_to_sync(self.generate_preview_image)
+            self.preview = generate_preview_image_sync()
 
         super().save(
             force_insert=force_insert,
