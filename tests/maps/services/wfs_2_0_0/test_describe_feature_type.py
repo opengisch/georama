@@ -114,10 +114,10 @@ class TestWfsDescribeFeatureType:
         ]
 
     def test_describe_feature_type(self, wfs_desc_ft):
-        field_required_long = Mock(type_simple="long", nullable=False)
+        field_required_long = Mock(type_wfs="long", nullable=False)
         field_required_long.configure_mock(**{"name": "required_long"})
 
-        field_optional_string = Mock(type_simple="string", nullable=True)
+        field_optional_string = Mock(type_wfs="string", nullable=True)
         field_optional_string.configure_mock(**{"name": "optional_string"})
 
         layer_vector = Mock(
