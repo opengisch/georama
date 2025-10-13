@@ -216,7 +216,7 @@ class ProjectAdmin(admin.ModelAdmin):
             path(
                 "qgis_projects/",
                 self.admin_site.admin_view(self.qgis_projects),
-                name="qgis_projects",
+                name="data_integration_qgis_projects",
             )
         ]
         return my_urls + urls

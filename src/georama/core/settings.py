@@ -320,6 +320,10 @@ class Base(Configuration):
     APPEND_SLASH = False
     QSL_EXPORTER_URL = values.Value("http://localhost:5000/export", environ_prefix="GEORAMA")
 
+    QFIELD_LINK_URL = values.Value(None, environ_prefix="GEORAMA")
+    QFIELD_LINK_USER = values.Value(None, environ_prefix="GEORAMA")
+    QFIELD_LINK_PASSWORD = values.Value(None, environ_prefix="GEORAMA")
+
 
 class Dev(Base):
     SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!"
