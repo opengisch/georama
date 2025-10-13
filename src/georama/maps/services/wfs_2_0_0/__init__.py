@@ -96,9 +96,12 @@ class WfsOperation(OgcOperation):
     ) -> List[PublishedAsWms]:
         accessible_layers = []
         for published_as in self.model.objects.all():
+            # published_as.extent_wgs84 is provided only by layers which contain geometries
+            # but we can have geometry less layers in QGIS Projects. This way we ignore them
             if (
                 published_as.has_read_permission(self.user, self.appname)
                 and published_as.queryable
+                and published_as.extent_wgs84
             ):
                 if isinstance(published_as.vector_dataset, VectorDataSet):
                     accessible_layers.append(published_as)

@@ -121,7 +121,7 @@ class WfsDescribeFeatureType(WfsOperation):
                     name=f"{column.name}",
                     # we do not prefix this with namespace, because http://www.w3.org/2001/XMLSchema
                     # is the default namespace
-                    type=column.type_simple,
+                    type=column.type_wfs,
                     min_occurs=0 if column.nullable else 1,
                     max_occurs=1,
                     nillable=column.nullable

@@ -20,7 +20,6 @@ from georama.webgis import views
 
 urlpatterns = [
     path("", views.home, name="home"),
-    # path("/clone-geoportal", views.RegisterThemesJson.as_view(), name="clone_geoportal"),
     path("/themes.<str:format>", views.Themes.as_view(), name="themes"),
     path("/<str:mandant_name>/", views.GeoGirafe.as_view(), name="geogirafe"),
     path("/<str:mandant_name>/config.json", views.Config.as_view(), name="config"),

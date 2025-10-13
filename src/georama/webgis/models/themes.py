@@ -3,7 +3,7 @@ from typing import List
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from qgis_server_light.interface.qgis import WmtsSource
+from qgis_server_light.interface.qgis import DataSource
 from treebeard.mp_tree import MP_Node
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
@@ -325,7 +325,7 @@ class PublishedAsLayerWmts(Layer):
         config = ParserConfig(
             fail_on_unknown_properties=False, fail_on_unknown_attributes=False
         )
-        source = DictDecoder(config).decode(self.dataset.source, WmtsSource)
+        source = DictDecoder(config).decode(self.dataset.source, DataSource).wmts
         metadata = None
         if self.metadata:
             metadata = DictDecoder(config).decode(self.metadata, MetaData)
@@ -333,7 +333,7 @@ class PublishedAsLayerWmts(Layer):
         if self.dimensions:
             dimensions = DictDecoder(config).decode(self.dimensions, Dimensions)
         return WmtsLayer(
-            id=self.themes_json_id,
+            id=str(self.themes_json_uuid),
             name=self.name,
             url=source.url,
             layer=source.layers,
@@ -349,6 +349,14 @@ class PublishedAsLayerWmts(Layer):
             editable=False,
             path="",
         )
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            current_parent = self.layer_group
+            layer_group_pmp = current_parent.add_child(name=self.name, title=self.title)
+            self.layer_group = layer_group_pmp
+
+        super().save(*args, **kwargs)
 
 
 class OgcServer(models.Model):

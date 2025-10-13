@@ -38,6 +38,7 @@ services:
     image: geogirafe/viewer:latest
     volumes:
       - ./geogirafe/config.json:/var/www/localhost/htdocs/config.json
+      - ./geogirafe/config.mobile.json:/var/www/localhost/htdocs/config.mobile.json
     ports:
       - "9309:443"
       - "9308:80"

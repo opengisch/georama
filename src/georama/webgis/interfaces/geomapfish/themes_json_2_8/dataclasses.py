@@ -209,7 +209,7 @@ class WmsLayer:
 
 @dataclass
 class WmtsLayer:
-    id: int = field(metadata={"type": "Element", "required": True})
+    id: str = field(metadata={"type": "Element", "required": True})
     name: str = field(metadata={"type": "Element", "required": True})
     url: str = field(metadata={"type": "Element", "required": True})
     layer: str = field(metadata={"type": "Element", "required": True})
