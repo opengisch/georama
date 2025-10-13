@@ -1,5 +1,6 @@
 from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin
+from django.db.models import JSONField, Q, Value
 from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
@@ -29,9 +30,11 @@ class LayerWmsAdmin(admin.ModelAdmin):
             icon = "fg-contour-map"
         elif isinstance(obj.custom_dataset, CustomDataSet):
             icon = "fg-flow-map"
-        return format_html(f"<i class='{icon} fg-2x' style='color: black; margin: 0; padding: 0;'></i>")
+        return format_html(
+            f"<i class='{icon} fg-2x' style='color: black; margin: 0; padding: 0;'></i>"
+        )
 
-    icon_column.short_description = 'src'
+    icon_column.short_description = "src"
     icon_column.allow_tags = True
 
     def get_urls(self):
@@ -81,7 +84,12 @@ class LayerWmsAdmin(admin.ModelAdmin):
 
 
 class LayerWmtsAdmin(admin.ModelAdmin):
-    pass
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "dataset":
+            kwargs["queryset"] = RasterDataSet.objects.filter(
+                ~Q(source__Wmts=Value(None, JSONField()))
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class LayerGroupMpAdmin(TreeAdmin):
