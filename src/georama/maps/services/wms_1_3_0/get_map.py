@@ -1,7 +1,6 @@
 import logging
 
-from qgis_server_light.interface.job import QslGetMapJob, WmsGetMapParams
-from qgis_server_light.interface.qgis import Custom, OgcFilter110, Raster, Vector
+from qgis_server_light.interface.job.input import QslJobParameterMap
 
 from georama.maps.interfaces.georama.requests import QslGetMapRequest
 from georama.maps.services.wms_1_3_0 import WmsOperation
@@ -13,32 +12,33 @@ class WmsGetMap(WmsOperation):
     def __init__(self, appname: str, url: str, user, model):
         super().__init__(appname, url, user, model)
 
-    def prepare_job_content(self, service_params: QslGetMapRequest) -> QslGetMapJob | str:
+    def prepare_job_content(
+        self, service_params: QslGetMapRequest
+    ) -> QslJobParameterMap | str:
         # we pass the requested layers to filter DB objects
         # (this includes permission checks and fails for
         # all request when only one layer is not permitted!)
         accessible_published_as = self.obtain_accessible_layers(service_params.layer_list)
 
-        job = QslGetMapJob(
+        if service_params.DPI:
+            dpi = service_params.DPI
+        elif service_params.FORMAT_OPTIONS:
+            dpi = service_params.FORMAT_OPTIONS.split(":")[-1]
+        else:
+            dpi = None
+
+        job = QslJobParameterMap(
             # we set the extent buffer to zero, this is used to
             # control rendering issues like
             # https://github.com/qgis/QGIS/issues/30251
             extent_buffer=0.0,
-            # TODO: we transform into QSL knowledge here
-            #  this can be probably streamlined some day...
-            service_params=WmsGetMapParams(
-                BBOX=service_params.BBOX,
-                CRS=service_params.CRS,
-                WIDTH=str(service_params.WIDTH),
-                HEIGHT=str(service_params.HEIGHT),
-                DPI=str(service_params.DPI),
-                FORMAT_OPTIONS=service_params.FORMAT_OPTIONS,
-                LAYERS=service_params.LAYERS,
-                FORMAT=service_params.FORMAT,
-            ),
-            raster_layers=[],
-            vector_layers=[],
-            custom_layers=[],
+            bbox=service_params.BBOX,
+            crs=service_params.CRS,
+            width=str(service_params.WIDTH),
+            height=str(service_params.HEIGHT),
+            dpi=int(dpi),
+            format=service_params.FORMAT,
+            layers=[],
         )
         styles = service_params.style_list
         filters = service_params.filter_list
