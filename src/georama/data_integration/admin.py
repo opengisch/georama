@@ -55,6 +55,7 @@ class QgisProject:
         if self.has_config:
             with open(self.config_path, mode="rb") as cf:
                 return hashlib.md5(cf.read()).hexdigest()
+        return ""
 
 
 @dataclass
@@ -93,6 +94,7 @@ class QgisProjectGroup:
         for project in self.projects:
             if project.name == name:
                 return project
+        return None
 
 
 @dataclass
@@ -123,6 +125,7 @@ class QgisProjectFileStructure:
         for group in self.groups:
             if group.name == name:
                 return group
+        return None
 
 
 class ProjectAdmin(admin.ModelAdmin):

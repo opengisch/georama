@@ -193,6 +193,7 @@ class PublishedAs(PublishedAsRoleNameSystem):
 def delete_publishedas_db_permissions(sender, instance, **kwargs):
     Permission.objects.filter(codename__in=instance.permission_codenames).delete()
 
+
 def save_publishedas_db_permissions(published_as):
     content_type = ContentType.objects.get_for_model(type(published_as))
     for permission in published_as.permissions:

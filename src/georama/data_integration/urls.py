@@ -14,7 +14,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
 from georama.data_integration import views
 
@@ -22,13 +25,16 @@ app_name = "georama.data_integration"
 
 urlpatterns = [
     path(
-        "register_qgis_project/<str:mandant_name>/<str:project_name>",
+        "/register_qgis_project/<str:mandant_name>/<str:project_name>",
         views.RegisterQgisProject.as_view(),
         name="register_qgis_project",
     ),
     path(
-        "export_qgis_project/<str:mandant_name>/<str:project_name>",
+        "/export_qgis_project/<str:mandant_name>/<str:project_name>",
         views.QgisServerLightExporter.as_view(),
         name="export_qgis_project",
     ),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
