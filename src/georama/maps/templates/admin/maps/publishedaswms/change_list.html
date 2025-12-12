@@ -38,11 +38,23 @@
                         <h4>{{ wms.title }}</h4>
                         <h6>{{ wms.name }}</h6>
                         <div>
-                            <span class="badge badge-pill {% if wms.public == True %}badge-primary{% else %}badge-secondary{% endif %}">public</span>
+                            <span class="badge badge-pill {% if wms.public == True %}badge-primary{% else %}badge-secondary{% endif %}"
+                                  data-toggle="tooltip" data-placement="top" title="WMS layer is publicly available">
+                                public
+                            </span>
 {#                            TODO: add GetLegend and GetFeatureInfo properties to model#}
-                            <span class="badge badge-pill {% if False %}badge-primary{% else %}badge-secondary{% endif %}">GetLegend</span>
-                            <span class="badge badge-pill {% if False %}badge-primary{% else %}badge-secondary{% endif %}">GetFeatureInfo</span>
-                            <span class="badge badge-pill {% if wms.is_queryable == True %}badge-primary{% else %}badge-secondary{% endif %}">WfsQuery</span>
+                            <span class="badge badge-pill {% if False %}badge-primary{% else %}badge-secondary{% endif %}"
+                                  data-toggle="tooltip" data-placement="top" title="WMS layer can return it's legend">
+                                GetLegend
+                            </span>
+                            <span class="badge badge-pill {% if False %}badge-primary{% else %}badge-secondary{% endif %}"
+                                  data-toggle="tooltip" data-placement="top" title="WMS layer can provide feature attributes on click">
+                                GetFeatureInfo
+                            </span>
+                            <span class="badge badge-pill {% if wms.is_queryable == True %}badge-primary{% else %}badge-secondary{% endif %}"
+                                  data-toggle="tooltip" data-placement="top" title="WMS layer has a twin WFS service to query features">
+                                WfsQuery
+                            </span>
                         </div>
                     </div>
                 </td>
@@ -71,7 +83,8 @@
 
                         <div class="btn-group mr-3" role="group" aria-label="Third group">
                             <a href="{% url 'admin:maps_publishedaswms_delete' wms.pk %}"
-                               class="btn btn-danger mr-2" title="delete WMS layer">
+                               class="btn btn-danger mr-2"
+                               data-toggle="tooltip" data-placement="top" title="delete WMS layer">
                                 <i class="fa fa-trash-alt"></i>
                             </a>
                         </div>

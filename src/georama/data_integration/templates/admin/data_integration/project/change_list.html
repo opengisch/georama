@@ -29,11 +29,13 @@
                     <div class="btn-toolbar d-flex justify-content-end" role="toolbar" aria-label="Toolbar with button groups">
                         <div class="btn-group mr-3" role="group" aria-label="First group">
                             <a href="{% url 'admin:data_integration_project_change' project.pk %}"
-                               class="btn btn-primary mr-2" title="project details">
+                               class="btn btn-primary mr-2"
+                               data-toggle="tooltip" data-placement="top" title="open project details">
                                 <i class="fa fa-eye"></i>
                             </a>
                             <a href="{% url 'georama.data_integration:data_set_list' project.pk %}"
-                               class="btn btn-primary mr-2" title="layer list">
+                               class="btn btn-primary mr-2"
+                               data-toggle="tooltip" data-placement="top" title="show list of datasets">
                                 <i class="fa fa-layer-group"></i>
                             </a>
                         </div>
@@ -41,18 +43,21 @@
                         <div class="btn-group mr-3" role="group" aria-label="Second group">
                             <a onclick="showWaitModalOverlay()"
                                href="{% url 'georama.data_integration:export_qgis_project' project.mandant.name project.name %}"
-                               class="btn btn-success mr-2" title="inspect">
+                               class="btn btn-success mr-2"
+                               data-toggle="tooltip" data-placement="top" title="inspect QGIS project on disk">
                                 <i class="fa fa-binoculars"></i>
                             </a>
                             <a href="{% url 'georama.data_integration:register_qgis_project' project.mandant.name project.name %}"
-                               class="btn btn-success mr-2" title="integrate">
+                               class="btn btn-success mr-2"
+                               data-toggle="tooltip" data-placement="top" title="integrate QGIS project into Georama">
                                 <i class="fa fa-cloud-upload-alt"></i>
                             </a>
                         </div>
 
                         <div class="btn-group mr-3" role="group" aria-label="Third group">
                             <a href="{% url 'admin:data_integration_project_delete' project.pk %}"
-                               class="btn btn-danger mr-2" title="delete">
+                               class="btn btn-danger mr-2"
+                               data-toggle="tooltip" data-placement="top" title="delete QGIS project">
                                 <i class="fa fa-trash-alt"></i>
                             </a>
                         </div>
