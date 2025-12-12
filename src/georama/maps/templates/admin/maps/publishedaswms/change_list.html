@@ -2,10 +2,72 @@
 {% load i18n admin_list %}
 
 {% block object-tools-items %}
-    {{ block.super }}
     <div class="btn-group">
         <span style="pointer-events: none" class="btn btn-high btn-primary" aria-hidden="true"><i class="fa fa-eye" aria-hidden="true"></i></span>
         <a href="{{ wms_get_capabilities_url }}" target="_blank" class="btn btn-high btn-primary">WMS Capabilities</a>
         <a href="{{ wfs_get_capabilities_url }}" target="_blank" class="btn btn-high btn-primary">WFS Capabilities</a>
     </div>
+
+    {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+    <table class="table table-striped table-hover">
+        <tbody>
+        {% for wms in cl.result_list %}
+            <tr class="even" role="row">
+                <td style="width: 150px;">
+                    <img src="{{ wms.preview_as_base64 }}" 
+                         alt="{% trans 'WMS preview' %}" class="rounded img-thumbnail"/>
+                </td>
+                <td>
+                    <div class="d-flex flex-column">
+                        <h4>{{ wms.title }}</h4>
+                        <h6>{{ wms.name }}</h6>
+                        <div>
+                            <span class="badge badge-pill {% if wms.public == True %}badge-primary{% else %}badge-secondary{% endif %}">public</span>
+{#                            TODO: add GetLegend and GetFeatureInfo properties to model#}
+                            <span class="badge badge-pill {% if False %}badge-primary{% else %}badge-secondary{% endif %}">GetLegend</span>
+                            <span class="badge badge-pill {% if False %}badge-primary{% else %}badge-secondary{% endif %}">GetFeatureInfo</span>
+                            <span class="badge badge-pill {% if wms.is_queryable == True %}badge-primary{% else %}badge-secondary{% endif %}">WfsQuery</span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="btn-toolbar d-flex justify-content-end" role="toolbar" aria-label="Toolbar with button groups">
+                        <div class="btn-group mr-3" role="group" aria-label="First group">
+                            <a href="{% url 'maps_ogc_entry' %}?{{ wms.create_wms_url_params }}" 
+                               target="_blank" class="btn btn-primary mr-2"
+                               data-toggle="tooltip" data-placement="top" title="open GetMap request in new tab">
+                                <i class="fa fa-map"></i>
+                            </a>
+                            <a href="{% url 'maps_ogc_entry' %}?{{ wms.create_wfs_url_params }}"
+                               target="_blank" class="btn btn-primary mr-2" 
+                               data-toggle="tooltip" data-placement="top" title="open GetFeature request in new tab">
+                                <i class="fa fa-code"></i>
+                            </a>
+                        </div>
+
+                        <div class="btn-group mr-3" role="group" aria-label="Second group">
+                            <a href="{% url 'admin:maps_publishedaswms_change' wms.pk %}"
+                               class="btn btn-success mr-2"
+                               data-toggle="tooltip" data-placement="top" title="edit WMS layer">
+                                <i class="fa fa-pen"></i>
+                            </a>
+                        </div>
+
+                        <div class="btn-group mr-3" role="group" aria-label="Third group">
+                            <a href="{% url 'admin:maps_publishedaswms_delete' wms.pk %}"
+                               class="btn btn-danger mr-2" title="delete WMS layer">
+                                <i class="fa fa-trash-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
 {% endblock %}

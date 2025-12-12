@@ -1,6 +1,9 @@
+import base64
 import logging
-from typing import List
+from typing import List, Tuple
+from urllib.parse import quote
 
+from dataclasses import fields
 from asgiref.sync import async_to_sync, sync_to_async
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -8,10 +11,17 @@ from osgeo import osr as osgeo_osr
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import QslGetMapJob, WmsGetMapParams
 from qgis_server_light.interface.qgis import BBox
+from django.utils.http import urlencode
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.maps_config import Config
+from georama.maps.interfaces.georama.requests import (
+    QslGetMapRequest,
+    RequestType,
+    ServiceType,
+    Version,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -28,7 +38,8 @@ class PublishedAsWmsAbstract(PublishedAs):
     extent_wgs84 = models.CharField(max_length=1000, null=True, blank=True)
     preview = models.BinaryField(null=True, blank=True)
 
-    preview_dimensions = (250, 250)
+    preview_dimensions: Tuple[int, int] = (250, 250)
+    preview_dimensions_new_tab: Tuple[int, int] = (1500, 1500)
     crs_transform_to_wgs84 = None
 
     @property
@@ -57,12 +68,60 @@ class PublishedAsWmsAbstract(PublishedAs):
             )
 
     @property
+    def preview_as_base64(self):
+        return "data:image/png;base64,{}".format(base64.b64encode(self.preview).decode())
+
+    @property
     def is_queryable(self):
         # Currently we do allow querying on VectorDatasets only
         if isinstance(self.bound_dataset, VectorDataSet):
             return self.queryable
         else:
             return False
+
+    @property
+    def create_wms_url_params(self) -> str:
+        dataset = self.bound_dataset
+        bbox = BBox.from_string(self.extent).to_2d_list()
+        params = QslGetMapRequest(
+            SERVICE=ServiceType.wms.value,
+            REQUEST=RequestType.get_map.value,
+            VERSION=Version.v_1_3_0.value,
+            LAYERS=[self.name],
+            BBOX=bbox,
+            CRS=dataset.crs_to_qsl.auth_id,
+            WIDTH=self.preview_dimensions_new_tab[0],
+            HEIGHT=self.preview_dimensions_new_tab[1],
+            FORMAT="image/png",
+            TRANSPARENT=True,
+            STYLES="",
+            DPI=72,
+            FILTER=None,
+            MAP_RESOLUTION=72,
+            FORMAT_OPTIONS="dpi%3A72",
+        )
+        url_params = {}
+        for field in fields(QslGetMapRequest):
+            field_value = getattr(params, field.name)
+            if isinstance(field_value, list):
+                field_value = ",".join([str(value) for value in field_value])
+            if field_value is not None:
+                url_params[field.name] = field_value
+        return urlencode(url_params)
+
+    @property
+    def create_wfs_url_params(self, output_format: str = "text/xml") -> str:
+        url_params = {
+            "SERVICE": "WFS",
+            "REQUEST": "GetFeature",
+            "VERSION": "2.0.0",
+            # TODO Pi: Can't use WfsOperation, circular reference
+            # "TYPENAMES": f"{WfsOperation.own_namespace}:{self.name}",
+            "TYPENAMES": f"georama:{self.name}",
+            "SRSNAME": self.bound_dataset.crs_to_qsl.ogc_urn,
+            "OUTPUTFORMAT": output_format,
+        }
+        return urlencode(url_params)
 
     @property
     def readable_identifier(self) -> str:
@@ -193,6 +252,9 @@ class PublishedAsWms(PublishedAsWmsAbstract):
         related_query_name="published_ogc_wms",
         on_delete=models.CASCADE,
     )
+
+    def __str__(self):
+        return self.title or self.name
 
     @property
     def get_raster_dataset(self) -> RasterDataSet:
