@@ -6,6 +6,7 @@ from typing import List
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.utils.translation import gettext as _
 
 log = logging.getLogger(__name__)
 
@@ -40,8 +41,19 @@ class PublishedAsRoleNameSystem(models.Model):
     identifier = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, null=False
     )
-    name = models.CharField(max_length=1000, null=True, default=None, blank=True)
-    public = models.BooleanField(default=False)
+    name = models.CharField(
+        verbose_name=_("name"),
+        max_length=1000,
+        null=True,
+        default=None,
+        blank=True,
+        help_text=_("TODO Show Tooltip"),
+    )
+    public = models.BooleanField(
+        verbose_name=_("public"),
+        default=False,
+        help_text=_("TODO Show Tooltip"),
+    )
 
     class Meta:
         abstract = True
@@ -157,19 +169,44 @@ class PublishedAsRoleNameSystem(models.Model):
 
 
 class PublishedAs(PublishedAsRoleNameSystem):
-    title = models.CharField(max_length=1000, null=True, default=None, blank=True)
-    description = models.TextField(null=True, default=None, blank=True)
-    license = models.TextField(
-        default="""
-    This dataset is made available under the Open Database
-    License: http://opendatacommons.org/licenses/odbl/1.0/.
-    Any rights in individual contents of the database are licensed
-    under the Database Contents
-    License: http://opendatacommons.org/licenses/dbcl/1.0/
-    """
+    title = models.CharField(
+        verbose_name=_("title"),
+        max_length=1000,
+        null=True,
+        default=None,
+        blank=True,
+        help_text=_("TODO Show Tooltip"),
     )
-    fees = models.TextField(default="No fees apply.")
-    access_constraints = models.TextField(default="No access constraints apply.")
+    description = models.TextField(
+        verbose_name=_("description"),
+        null=True,
+        default=None,
+        blank=True,
+        help_text=_("TODO Show Tooltip"),
+    )
+    license = models.TextField(
+        verbose_name=_("license"),
+        default=_(
+            """
+            This dataset is made available under the Open Database
+            License: http://opendatacommons.org/licenses/odbl/1.0/.
+            Any rights in individual contents of the database are licensed
+            under the Database Contents
+            License: http://opendatacommons.org/licenses/dbcl/1.0/
+            """
+        ),
+        help_text=_("TODO Show Tooltip"),
+    )
+    fees = models.TextField(
+        verbose_name=_("fees"),
+        default=_("No fees apply."),
+        help_text=_("TODO Show Tooltip"),
+    )
+    access_constraints = models.TextField(
+        verbose_name=_("access constraints"),
+        default=_("No access constraints apply."),
+        help_text=_("TODO Show Tooltip"),
+    )
 
     @classmethod
     def __init_subclass__(cls, **kwargs):

@@ -31,11 +31,34 @@ class PublishedAsWmsAbstract(PublishedAs):
         abstract = True
 
     published_as_type = "maps"
-    extent_buffer = models.FloatField(default=0.0, null=False)
-    queryable = models.BooleanField(default=True, null=True, blank=True)
+    extent_buffer = models.FloatField(
+        verbose_name=_("extent buffer"),
+        default=0.0,
+        null=False,
+        help_text=_("TODO Show Tooltip"),
+    )
+    queryable = models.BooleanField(
+        verbose_name=_("queryable"),
+        default=True,
+        null=True,
+        blank=True,
+        help_text=_("TODO Show Tooltip"),
+    )
 
-    extent = models.CharField(max_length=1000, null=True, blank=True)
-    extent_wgs84 = models.CharField(max_length=1000, null=True, blank=True)
+    extent = models.CharField(
+        verbose_name=_("extent"),
+        max_length=1000,
+        null=True,
+        blank=True,
+        help_text=_("TODO Show Tooltip"),
+    )
+    extent_wgs84 = models.CharField(
+        verbose_name=_("extent WGS84"),
+        max_length=1000,
+        null=True,
+        blank=True,
+        help_text=_("TODO Show Tooltip"),
+    )
     preview = models.BinaryField(null=True, blank=True)
 
     preview_dimensions: Tuple[int, int] = (250, 250)

@@ -191,7 +191,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             f'<a href="{reverse(f"admin:data_integration_{type_name.lower()}dataset_change", args=(dataset.pk,))}" class="btn btn-high btn-success">{dataset.title} ({dataset.name})</a><span class="badge badge-secondary">{type_name}</span>'
         )
 
-    dataset_detail.short_description = "Dataset"
+    dataset_detail.short_description = _("Dataset")
 
     def get_fieldsets(self, request, obj=None):
         fields = [
