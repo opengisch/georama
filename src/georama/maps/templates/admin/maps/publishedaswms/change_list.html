@@ -2,10 +2,22 @@
 {% load i18n admin_list %}
 
 {% block object-tools-items %}
-    <div class="btn-group">
-        <span style="pointer-events: none" class="btn btn-high btn-primary" aria-hidden="true"><i class="fa fa-eye" aria-hidden="true"></i></span>
-        <a href="{{ wms_get_capabilities_url }}" target="_blank" class="btn btn-high btn-primary">WMS Capabilities</a>
-        <a href="{{ wfs_get_capabilities_url }}" target="_blank" class="btn btn-high btn-primary">WFS Capabilities</a>
+
+    <div class="mr-2">Get Capabilities</div>
+    <div class="btn-group mr-3" role="group"
+         aria-label="GetCapabilities links">
+        <a href="{{ wms_get_capabilities_url }}"
+           target="_blank" class="btn btn-primary"
+           data-toggle="tooltip" data-placement="bottom"
+           title="open WMS GetCapabilities request in new tab">
+            WMS
+        </a>
+        <a href="{{ wfs_get_capabilities_url }}"
+           target="_blank" class="btn btn-primary"
+           data-toggle="tooltip" data-placement="bottom"
+           title="open WFS GetCapabilities request in new tab">
+            WFS
+        </a>
     </div>
 
     {{ block.super }}
