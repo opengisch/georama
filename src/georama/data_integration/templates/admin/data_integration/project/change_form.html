@@ -1,0 +1,89 @@
+{% extends 'admin/change_form.html' %}
+{% load static %}
+
+{% block field_sets %}
+
+    <div class="col-12 col-lg-9">
+        <div class="card">
+            <div class="card-body">
+
+                <div class="d-flex flex-row align-items-center">
+                    <div class="m-3">
+                        <img src="{% static 'images/qgis.png' %}"
+                             alt="QGIS Logo"
+                             class="rounded img-thumbnail"
+                             style="width: 130px;"/>
+                    </div>
+                    <div class="d-flex flex-column m-3">
+                        {# TODO should be project.title but is always empty #}
+                        <h4>{{ original.name }}</h4>
+                        <h6>{{ original.name }}</h6>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <div class="row form-group">
+                        <label class="col-sm-3">Category / Origin</label>
+                        <div class="col-sm-7">
+                            <span>{{ original.mandant }}</span>
+                            <div class="help-block">TODO Show Tooltip</div>
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <label class="col-sm-3">QGIS Version</label>
+                        <div class="col-sm-7">
+                            <span>{{ original.version }}</span>
+                            <div class="help-block">TODO Show Tooltip</div>
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <label class="col-sm-3">File hash</label>
+                        <div class="col-sm-7">
+                            <span>{{ original.hash }}</span>
+                            <div class="help-block">TODO Show Tooltip</div>
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <label class="col-sm-3">Last modified</label>
+                        <div class="col-sm-7">
+                            <span>{{ original.integration_date }}</span>
+                            <div class="help-block">TODO Show Tooltip</div>
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <label class="col-sm-3">Last inspected</label>
+                        <div class="col-sm-7">
+                            <span>{{ original.integration_date }}</span>
+                            <div class="help-block">TODO Show Tooltip</div>
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <label class="col-sm-3">Last inspected</label>
+                        <div class="col-sm-7">
+                            <textarea row="5" readonly></textarea>
+                            <div class="help-block">TODO Show Tooltip</div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+    <div class="object-tools">
+        <div class="btn-group mr-3" role="group" aria-label="Third group">
+            <a href="{% url 'admin:data_integration_project_delete' original.pk %}"
+               class="btn btn-danger mr-2" title="delete">
+                <i class="fa fa-trash-alt"></i>
+            </a>
+        </div>
+    </div>
+{% endblock %}

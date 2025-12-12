@@ -42,6 +42,9 @@ class Project(models.Model):
             "mandant",
         )
 
+    def __str__(self):
+        return self.title or self.name
+
 
 class DataSet(models.Model):
     class Meta:
