@@ -11,7 +11,12 @@
     </ol>
 {% endblock %}
 
-{% block content_title %} {{ page_title }} {% endblock %}
+{% block content_title %}
+    <a type="button" class="btn btn-primary mr-3" href="{% url 'admin:data_integration_project_changelist' %}"
+       data-toggle="tooltip" data-placement="bottom" title="back to project list">
+        <i class="fa fa-arrow-left"></i></a>
+    {{ page_title }}
+{% endblock %}
 
 
 {% block content %}

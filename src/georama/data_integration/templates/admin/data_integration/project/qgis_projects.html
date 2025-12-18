@@ -10,7 +10,12 @@
     </ol>
 {% endblock %}
 
-{% block content_title %} {{ model_name|capfirst }} {% endblock %}
+{% block content_title %} 
+    <a type="button" class="btn btn-primary mr-3" href="{% url 'admin:data_integration_project_changelist' %}"
+       data-toggle="tooltip" data-placement="bottom" title="back to project list">
+        <i class="fa fa-arrow-left"></i></a>
+    {{ model_name|capfirst }} 
+{% endblock %}
 
 {% block content %}
     <table class="table table-striped">
