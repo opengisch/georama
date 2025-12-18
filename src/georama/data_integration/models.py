@@ -42,6 +42,16 @@ class Project(models.Model):
             "mandant",
         )
 
+    @property
+    def is_outdated(self):
+        # TODO UI: This is a Mock. Should originate from a comparison between JSON and QGIS File on disk
+        return self.pk % 2 == 0
+
+    @property
+    def has_processing_error(self):
+        # TODO UI: This is a Mock. Should originate from analysing log output from extraction and integration
+        return False
+
     def __str__(self):
         return self.title or self.name
 

@@ -21,9 +21,30 @@
 {#                        TODO should be project.title but is always empty #}
                         <h4>{{ project.name }}</h4>
                         <h6>{{ project.name }}</h6>
-                        <small class="text-muted">
-                            Last integrated on <span>{{ project.integration_date|date:'d.m.Y, G:H:s' }}</span>
-                        </small>
+{#                        <small class="text-muted">#}
+{#                            Last integrated on <span>{{ project.integration_date|date:'d.m.Y, G:H:s' }}</span>#}
+{#                        </small>#}
+                        <div>
+                            {% if project.has_processing_error == True %}
+                                <span class="badge badge-pill badge-error"
+                                      data-toggle="tooltip" data-placement="top" title="An error occurred during processing">">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                    error
+                                </span>
+                            {% elif project.is_outdated == True %}
+                                <span class="badge badge-pill badge-warning"
+                                      data-toggle="tooltip" data-placement="top" title="QGIS project on disk is newer than in Georama">
+                                    <i class="fa fa-info-circle"></i>
+                                    outdated
+                                </span>
+                            {% else %}
+                                <span class="badge badge-pill badge-success"
+                                      data-toggle="tooltip" data-placement="top" title="QGIS project in Georama is up to date">
+                                        <i class="fa fa-check-circle"></i>
+                                    up to date
+                                </span>
+                            {% endif %}
+                        </div>
                     </div>
                 </td>
                 <td>
