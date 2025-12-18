@@ -34,8 +34,8 @@
                                data-toggle="tooltip" data-placement="top" title="open project details">
                                 <i class="fa fa-eye"></i>
                             </a>
-                            <a href="{% url 'georama.data_integration:data_set_list' project.pk %}"
-                               class="btn btn-primary mr-2"
+                            <a href="{% url 'admin:data_integration_dataset_list' project.pk %}"
+                               class="btn btn-primary"
                                data-toggle="tooltip" data-placement="top" title="show list of datasets">
                                 <i class="fa fa-layer-group"></i>
                             </a>

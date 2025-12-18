@@ -1,4 +1,16 @@
 {% extends 'admin/base_site.html' %}
+{% load i18n admin_list %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=app_label %}">{{ app_verbose_name|capfirst }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin:data_integration_project_changelist' %}">{{ model_name|capfirst }}</a></li>
+        <li class="breadcrumb-item active">QGIS Projects on disk</li>
+    </ol>
+{% endblock %}
+
+{% block content_title %} {{ model_name|capfirst }} {% endblock %}
 
 {% block content %}
     <table class="table table-striped">

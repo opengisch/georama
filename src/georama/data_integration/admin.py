@@ -3,6 +3,7 @@ import logging
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Type
 
 from django.contrib import admin
 from django.http import HttpRequest
@@ -10,6 +11,7 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 
+from georama.data_integration.apps import DataintegrationConfig
 from georama.data_integration.data_integration_config import Config
 from georama.data_integration.models import (
     CustomDataSet,
@@ -18,6 +20,35 @@ from georama.data_integration.models import (
     RasterDataSet,
     VectorDataSet,
 )
+
+
+class DataSetList:
+    query_classes = [VectorDataSet, RasterDataSet, CustomDataSet]
+
+    def query_dataset(
+        self, query_class: Type[VectorDataSet] | Type[RasterDataSet] | Type[CustomDataSet]
+    ):
+        query = query_class.objects
+        return query
+
+    def get(
+        self, project_pk: int | None = None
+    ) -> list[VectorDataSet | RasterDataSet | CustomDataSet]:
+        datasets = []
+        for query_class in self.query_classes:
+            query = self.query_dataset(query_class)
+            if project_pk is None:
+                query = query.filter(project__isnull=True)
+            else:
+                query = query.filter(
+                    **{
+                        query_class._meta.get_field("project").name: Project.objects.get(
+                            pk=project_pk
+                        )
+                    }
+                )
+            datasets = datasets + list(query.all())
+        return datasets
 
 
 @dataclass
@@ -220,7 +251,12 @@ class ProjectAdmin(admin.ModelAdmin):
                 "qgis_projects/",
                 self.admin_site.admin_view(self.qgis_projects),
                 name="data_integration_qgis_projects",
-            )
+            ),
+            path(
+                "dataset_list/<str:project_pk>",
+                self.admin_site.admin_view(self.dataset_list),
+                name="data_integration_dataset_list",
+            ),
         ]
         return my_urls + urls
 
@@ -229,14 +265,49 @@ class ProjectAdmin(admin.ModelAdmin):
         qgis_project_file_structure = QgisProjectFileStructure(os.path.join(config.path))
         qgis_project_file_structure.create_groups(config.qgis_project_extensions)
 
-        context = dict(
-            # Include common variables for rendering the admin template.
-            self.admin_site.each_context(request),
-            # Anything else you want in the context...
-            qgis_project_file_structure=qgis_project_file_structure,
+        extra_context = extra_context or {}
+        extra_context.update(
+            dict(
+                # Include common variables for rendering the admin template.
+                self.admin_site.each_context(request),
+                # Anything else you want in the context...
+                qgis_project_file_structure=qgis_project_file_structure,
+                model_name=self.model._meta.verbose_name_plural,
+                app_label=DataintegrationConfig.get_simple_appname(),
+                app_verbose_name=DataintegrationConfig.verbose_name,
+            )
         )
         return TemplateResponse(
-            request, "admin/data_integration/project/qgis_projects.html", context
+            request, "admin/data_integration/project/qgis_projects.html", extra_context
+        )
+
+    def dataset_list(
+        self, request: HttpRequest, project_pk: int | None = None, extra_context=None, **kwargs
+    ):
+        ds = DataSetList()
+        page_title = "Manual datasets"
+
+        if project_pk:
+            page_title = f"Datasets in Project «{Project.objects.get(pk=project_pk)}»"
+        datasets = ds.get(project_pk)
+
+        extra_context = extra_context or {}
+        extra_context.update(
+            dict(
+                # Include common variables for rendering the admin template.
+                self.admin_site.each_context(request),
+                datasets=datasets,
+                model_name=Project._meta.verbose_name_plural,
+                app_label=DataintegrationConfig.get_simple_appname(),
+                app_verbose_name=DataintegrationConfig.verbose_name,
+                page_title=page_title,
+            )
+        )
+
+        return TemplateResponse(
+            request,
+            "data_integration/dataset_list.html",
+            context=extra_context,
         )
 
     def get_readonly_fields(self, request, obj=None):
