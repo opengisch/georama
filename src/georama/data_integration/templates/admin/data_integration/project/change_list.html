@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block object-tools-items %}
-    <a href="{% url 'admin:data_integration_qgis_projects' %}" class="btn btn-success">
+    <a href="{% url 'admin:data_integration_qgis_projects' %}" class="btn btn-primary">
         <i class="fa fa-plus-circle"></i>&nbsp; Add QGIS Project</a>
 {% endblock %}
 
@@ -16,7 +16,7 @@
                 <td class="align-middle" style="width: 150px;">
                     <img src="{% static 'images/qgis.png' %}" alt="QGIS Logo" class="rounded img-thumbnail"/>
                 </td>
-                <td>
+                <td class="align-middle">
                     <div class="d-flex flex-column">
 {#                        TODO should be project.title but is always empty #}
                         <h4>{{ project.name }}</h4>
@@ -47,33 +47,33 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="align-middle">
                     <div class="btn-toolbar d-flex justify-content-end" role="toolbar" aria-label="Toolbar with button groups">
                         <div class="btn-group mr-2" role="group" aria-label="First group">
                             <a href="{% url 'admin:data_integration_dataset_list' project.pk %}"
-                               class="btn btn-primary"
+                               class="btn btn-secondary"
                                data-toggle="tooltip" data-placement="top" title="show list of datasets">
                                 <i class="fa fa-layer-group"></i>
                             </a>
                         </div>
 
-                        <div class="btn-group mr-3" role="group" aria-label="Second group">
+                        <div class="btn-group mr-2" role="group" aria-label="Second group">
                             <a onclick="showWaitModalOverlay()"
                                href="{% url 'georama.data_integration:export_qgis_project' project.mandant.name project.name %}"
-                               class="btn btn-success mr-2"
+                               class="btn btn-primary"
                                data-toggle="tooltip" data-placement="top" title="inspect QGIS project on disk">
                                 <i class="fa fa-binoculars"></i>
                             </a>
                             <a href="{% url 'georama.data_integration:register_qgis_project' project.mandant.name project.name %}"
-                               class="btn btn-success mr-2"
+                               class="btn btn-primary"
                                data-toggle="tooltip" data-placement="top" title="integrate QGIS project into Georama">
                                 <i class="fa fa-cloud-upload-alt"></i>
                             </a>
                         </div>
 
-                        <div class="btn-group mr-3" role="group" aria-label="Third group">
+                        <div class="btn-group mr-2" role="group" aria-label="Third group">
                             <a href="{% url 'admin:data_integration_project_delete' project.pk %}"
-                               class="btn btn-danger mr-2"
+                               class="btn btn-danger"
                                data-toggle="tooltip" data-placement="top" title="delete QGIS project">
                                 <i class="fa fa-trash-alt"></i>
                             </a>

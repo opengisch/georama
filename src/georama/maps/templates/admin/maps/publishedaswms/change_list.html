@@ -4,16 +4,16 @@
 {% block object-tools-items %}
 
     <div class="mr-2">Get Capabilities</div>
-    <div class="btn-group mr-3" role="group"
+    <div class="btn-group mr-2" role="group"
          aria-label="GetCapabilities links">
         <a href="{{ wms_get_capabilities_url }}"
-           target="_blank" class="btn btn-primary"
+           target="_blank" class="btn btn-secondary"
            data-toggle="tooltip" data-placement="bottom"
            title="open WMS GetCapabilities request in new tab">
             WMS
         </a>
         <a href="{{ wfs_get_capabilities_url }}"
-           target="_blank" class="btn btn-primary"
+           target="_blank" class="btn btn-secondary"
            data-toggle="tooltip" data-placement="bottom"
            title="open WFS GetCapabilities request in new tab">
             WFS
@@ -33,7 +33,7 @@
                     <img src="{{ wms.preview_as_base64 }}" 
                          alt="{% trans 'WMS preview' %}" class="rounded img-thumbnail"/>
                 </td>
-                <td>
+                <td class="align-middle">
                     <div class="d-flex flex-column">
                         <h4>{{ wms.title }}</h4>
                         <h6>{{ wms.name }}</h6>
@@ -58,16 +58,16 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="align-middle">
                     <div class="btn-toolbar d-flex justify-content-end" role="toolbar" aria-label="Toolbar with button groups">
-                        <div class="btn-group mr-3" role="group" aria-label="First group">
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
                             <a href="{% url 'maps_ogc_entry' %}?{{ wms.create_wms_url_params }}" 
-                               target="_blank" class="btn btn-primary mr-2"
+                               target="_blank" class="btn btn-secondary"
                                data-toggle="tooltip" data-placement="top" title="open GetMap request in new tab">
                                 <i class="fa fa-map"></i>
                             </a>
                             <a href="{% url 'maps_ogc_entry' %}?{{ wms.create_wfs_url_params }}"
-                               target="_blank" class="btn btn-primary mr-2" 
+                               target="_blank" class="btn btn-secondary" 
                                data-toggle="tooltip" data-placement="top" title="open GetFeature request in new tab">
                                 <i class="fa fa-code"></i>
                             </a>
@@ -75,7 +75,7 @@
 
                         <div class="btn-group mr-2" role="group" aria-label="Third group">
                             <a href="{% url 'admin:maps_publishedaswms_delete' wms.pk %}"
-                               class="btn btn-danger mr-2"
+                               class="btn btn-danger"
                                data-toggle="tooltip" data-placement="top" title="delete WMS layer">
                                 <i class="fa fa-trash-alt"></i>
                             </a>

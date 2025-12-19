@@ -14,7 +14,7 @@
             <tr class="even" role="row">
                 <td>{{ item.name }}</td>
                 <td>{{ item.id }}</td>
-                <td><a onclick="showWaitModalOverlay()" href="{% url 'georama.qfield_link:download_qfield_cloud_project' item.id %}" class="btn btn-high btn-success mr-2"><i class="fa fa-download"></i>Download</a></td>
+                <td><a onclick="showWaitModalOverlay()" href="{% url 'georama.qfield_link:download_qfield_cloud_project' item.id %}" class="btn btn-high btn-primary mr-2"><i class="fa fa-download"></i>Download</a></td>
             </tr>
             {% endfor %}
         </tbody>

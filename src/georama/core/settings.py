@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+
 from pathlib import Path
 
 from configurations import Configuration, values
@@ -98,6 +99,39 @@ class Base(Configuration):
         "site_logo_classes": "img-circle",
         # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
         "site_icon": "logo/favicon.ico",
+        "custom_css": "admin/custom.css",
+    }
+    JAZZMIN_UI_TWEAKS = {
+        "theme": "litera",  # or "darkly", "cyborg", etc.
+        # "dark_mode_theme": "solar",
+        "custom_css": "admin/custom.css",
+        "navbar_small_text": False,
+        "footer_small_text": False,
+        "body_small_text": False,
+        "brand_small_text": False,
+        "brand_colour": "navbar-dark",
+        "accent": "accent-olive",
+        "navbar": "navbar-white navbar-light",
+        "no_navbar_border": False,
+        "navbar_fixed": False,
+        "layout_boxed": False,
+        "footer_fixed": False,
+        "sidebar_fixed": False,
+        "sidebar": "sidebar-dark-olive",
+        "sidebar_nav_small_text": False,
+        "sidebar_disable_expand": False,
+        "sidebar_nav_child_indent": False,
+        "sidebar_nav_compact_style": True,
+        "sidebar_nav_legacy_style": False,
+        "sidebar_nav_flat_style": True,
+        "button_classes": {
+            "primary": "btn-primary",
+            "secondary": "btn-secondary",
+            "info": "btn-info",
+            "warning": "btn-warning",
+            "danger": "btn-danger",
+            "success": "btn-success",
+        },
     }
 
     ALLOWED_HOSTS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")

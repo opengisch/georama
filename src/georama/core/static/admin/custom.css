@@ -1,0 +1,41 @@
+:root {
+    --georama-green: #7c993d;
+    --georama-yellow: #d2a444;
+    --georama-gray: #333333;
+}
+
+/* Increase font sizes and buttons */
+.btn {
+    font-size: 1rem;
+}
+
+.badge {
+    font-size: 100%;
+}
+
+.breadcrumb,.nav,.pagination {
+    font-size: 1rem;
+}
+
+/* Fix wrong font in navbar */
+p {
+    font-family: inherit;
+}
+
+/* Overwrite bootstrap colors for buttons and links */
+.btn-primary,
+.badge-primary,
+.btn-success,
+.badge-success {
+    background-color: var(--georama-green);
+    border-color: var(--georama-green);
+}
+.btn-info,
+.btn-secondary {
+    background-color: var(--georama-yellow);
+    border-color: var(--georama-yellow);
+}
+
+.accent-primary {
+    color: var(--georama-green);
+}
