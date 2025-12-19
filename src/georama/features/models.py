@@ -2,6 +2,7 @@ from typing import List
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from georama.core.entities.models import (
     PermissionInterface,
@@ -104,6 +105,10 @@ class Column(PublishedAsRoleNameSystem):
 
 
 class PublishedAsWfs(PublishedAsVectorFeature):
+    class Meta:
+        verbose_name = f'WFS {_("Layer")}'
+        verbose_name_plural = f'WFS {_("Layers")}'
+
     dataset = models.ForeignKey(
         VectorDataSet,
         # TODO: this seems wrong => only because error:
@@ -132,6 +137,10 @@ class ColumnWfs(Column):
 
 
 class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
+    class Meta:
+        verbose_name = f'OAPIF {_("Layer")}'
+        verbose_name_plural = f'OAPIF {_("Layers")}'
+
     dataset = models.ForeignKey(
         VectorDataSet,
         # TODO: this seems wrong => only because error:

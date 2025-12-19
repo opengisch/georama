@@ -99,6 +99,84 @@ class Base(Configuration):
         "site_logo_classes": "img-circle",
         # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
         "site_icon": "logo/favicon.ico",
+        #############
+        # Side Menu #
+        #############
+        # Whether to display the side menu
+        "show_sidebar": True,
+        # Whether to aut expand the menu
+        "navigation_expanded": True,
+        # Hide these apps when generating side menu e.g (auth)
+        "hide_apps": ["socialaccount"],
+        # Hide these models when generating side menu (e.g auth.user)
+        "hide_models": [
+            "data_integration.Mandant",
+            "data_integration.RasterDataSet",
+            "data_integration.VectorDataSet",
+            "data_integration.CustomDataSet",
+        ],
+        # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
+        "order_with_respect_to": [
+            "account",
+            "auth",
+            "data_integration",
+            "qfield_link",
+            "maps",
+            "features",
+            "webgis",
+            "webgis.publishedastheme",
+            "webgis.layergroupmp",
+            "webgis.ogcserver",
+            "webgis.publishedaslayerwms",
+            "webgis.publishedaslayerwmts",
+        ],
+        # Custom links to append to app groups, keyed on app name
+        "custom_links": {
+            "data_integration": [
+                {
+                    "name": "Manual Datasets",
+                    "url": "data_integration/project/dataset_list/",
+                    "icon": "fas fa-asterisk",
+                    "permissions": ["data_integration.Project"],
+                }
+            ],
+            "maps": [
+                {
+                    "name": "Permissions",
+                    "url": "maps/publishaswms/permissions",
+                    "icon": "fas fa-unlock",
+                    "permissions": ["maps.PublishedAsWms"],
+                }
+            ],
+            "features": [
+                {
+                    "name": "Permissions",
+                    "url": "features/publishasogcapifeatures/permissions",
+                    "icon": "fas fa-unlock",
+                    "permissions": ["maps.PublishedAsOgcApiFeatures"],
+                }
+            ],
+        },
+        # Custom icons for side menu apps/models
+        "icons": {
+            "account.emailaddress": "fas fa-at",
+            "auth": "fas fa-users-cog",
+            "auth.user": "fas fa-user",
+            "auth.Group": "fas fa-users",
+            "data_integration.Project": "fas fa-upload",
+            "data_integration.QfieldCloudProject": "fas fa-cloud",
+            "maps.PublishedAsWms": "fas fa-map",
+            "features.PublishedAsOgcApiFeatures": "fas fa-code",
+            "webgis.publishedastheme": "fas fa-th-large",
+            "webgis.layergroupmp": "fas fa-stream",
+            "webgis.ogcserver": "fas fa-database",
+            "webgis.publishedaslayerwms": "fas fa-map",
+            "webgis.publishedaslayerwmts": "far fa-map",
+        },
+        # Icons that are used when one is not manually specified
+        "default_icon_parents": "fas fa-chevron-circle-right",
+        "default_icon_children": "fas fa-circle",
+        "show_ui_builder": True,
         "custom_css": "admin/custom.css",
     }
     JAZZMIN_UI_TWEAKS = {

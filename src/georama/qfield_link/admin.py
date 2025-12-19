@@ -12,10 +12,11 @@ from qfieldcloud_sdk import sdk
 class QfieldCloudProject(models.Model):
     class Meta:
         managed = False
-        verbose_name = "Project"
-        verbose_name_plural = "Projects"
+        verbose_name = "QField Cloud Project"
+        verbose_name_plural = "QField Cloud Projects"
 
 
+@admin.register(QfieldCloudProject)
 class QfieldCloudProjectAdmin(admin.ModelAdmin):
     change_list_template = "admin/qfield_link/projects.html"
 
