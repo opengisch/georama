@@ -6,13 +6,13 @@
         <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
         <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=app_label %}">{{ app_verbose_name|capfirst }}</a></li>
         <li class="breadcrumb-item"><a href="{% url 'admin:data_integration_project_changelist' %}">{{ model_name|capfirst }}</a></li>
-        <li class="breadcrumb-item active">Add QGIS Project</li>
+        <li class="breadcrumb-item active">{% trans 'Add QGIS Project' %}</li>
     </ol>
 {% endblock %}
 
 {% block content_title %} 
     <a type="button" class="btn btn-primary mr-3" href="{% url 'admin:data_integration_project_changelist' %}"
-       data-toggle="tooltip" data-placement="bottom" title="back to project list">
+       data-toggle="tooltip" data-placement="bottom" title="{% trans 'back to project list' %}">
         <i class="fa fa-arrow-left"></i></a>
     {{ model_name|capfirst }} 
 {% endblock %}
@@ -21,11 +21,11 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Project Group</th>
-                <th>Project</th>
-                <th>Hash</th>
-                <th>Has Config</th>
-                <th>Project File Status</th>
+                <th>{% trans 'Origin' %}</th>
+                <th>{% trans 'Project' %}</th>
+                <th>{% trans 'Hash' %}</th>
+                <th>{% trans 'Has Config' %} </th>
+                <th>{% trans 'Project File Status' %}</th>
             </tr>
         </thead>
         <tbody>
@@ -38,9 +38,14 @@
                     <td>{{ project.has_config }}</td>
                     <td>
                         <div class="d-flex flex-nowrap">
-                            <a onclick="showWaitModalOverlay()" href="{% url 'georama.data_integration:export_qgis_project' group.name project.name %}" class="btn btn-primary mr-2"><i class="fa fa-file-alt"></i> extract</a>
+                            <a onclick="showWaitModalOverlay()" 
+                               href="{% url 'georama.data_integration:export_qgis_project' group.name project.name %}" 
+                               class="btn btn-primary mr-2">
+                                <i class="fa fa-file-alt"></i>&nbsp;{% trans 'inspect' %}</a>
                             {% if project.has_config %}
-                                <a href="{% url 'georama.data_integration:register_qgis_project' group.name project.name %}" class="btn btn-high btn-primary"><i class="fa fa-arrow-alt-circle-up"></i> integrate</a>
+                                <a href="{% url 'georama.data_integration:register_qgis_project' group.name project.name %}"
+                                   class="btn btn-high btn-primary">
+                                    <i class="fa fa-arrow-alt-circle-up"></i>&nbsp;{% trans 'integrate' %}</a>
                             {% endif %}
                         </div>
                     </td>

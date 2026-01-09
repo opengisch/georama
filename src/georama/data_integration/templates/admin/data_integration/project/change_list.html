@@ -1,10 +1,11 @@
 {% extends 'admin/change_list.html' %}
 {% load i18n admin_list %}
+{% load i18n %}
 {% load static %}
 
 {% block object-tools-items %}
     <a href="{% url 'admin:data_integration_qgis_projects' %}" class="btn btn-primary">
-        <i class="fa fa-plus-circle"></i>&nbsp; Add QGIS Project</a>
+        <i class="fa fa-plus-circle"></i>&nbsp; {% trans 'Add QGIS Project' %}</a>
 {% endblock %}
 
 
@@ -14,12 +15,12 @@
         {% for project in cl.result_list %}
             <tr class="even" role="button" onclick="window.location='{% url 'admin:data_integration_project_change' project.pk %}'">
                 <td class="align-middle" style="width: 150px;">
-                    <img src="{% static 'images/qgis.png' %}" alt="QGIS Logo" class="rounded img-thumbnail"/>
+                    <img src="{% static 'images/qgis.png' %}" alt="{% trans 'QGIS Logo' %}"
+                         class="rounded img-thumbnail"/>
                 </td>
                 <td class="align-middle">
                     <div class="d-flex flex-column">
-{#                        TODO should be project.title but is always empty #}
-                        <h4>{{ project.name }}</h4>
+                        <h4>{{ project }}</h4>
                         <h6>{{ project.name }}</h6>
 {#                        <small class="text-muted">#}
 {#                            Last integrated on <span>{{ project.integration_date|date:'d.m.Y, G:H:s' }}</span>#}
@@ -27,21 +28,24 @@
                         <div>
                             {% if project.has_processing_error == True %}
                                 <span class="badge badge-pill badge-error"
-                                      data-toggle="tooltip" data-placement="top" title="An error occurred during processing">">
+                                      data-toggle="tooltip" data-placement="top"
+                                      title="{% trans 'An error occurred during processing' %}">
                                     <i class="fa fa-exclamation-triangle"></i>
-                                    error
+                                    {% trans 'error' %}
                                 </span>
                             {% elif project.is_outdated == True %}
                                 <span class="badge badge-pill badge-warning"
-                                      data-toggle="tooltip" data-placement="top" title="QGIS project on disk is newer than in Georama">
+                                      data-toggle="tooltip" data-placement="top"
+                                      title="{% trans 'QGIS project on disk is newer than in Georama' %}">
                                     <i class="fa fa-info-circle"></i>
-                                    outdated
+                                    {% trans 'outdated' %}
                                 </span>
                             {% else %}
                                 <span class="badge badge-pill badge-success"
-                                      data-toggle="tooltip" data-placement="top" title="QGIS project in Georama is up to date">
+                                      data-toggle="tooltip" data-placement="top"
+                                      title="{% trans 'QGIS project in Georama is up to date' %}">
                                         <i class="fa fa-check-circle"></i>
-                                    up to date
+                                    {% trans 'up to date' %}
                                 </span>
                             {% endif %}
                         </div>
@@ -52,7 +56,8 @@
                         <div class="btn-group mr-2" role="group" aria-label="First group">
                             <a href="{% url 'admin:data_integration_dataset_list' project.pk %}"
                                class="btn btn-secondary"
-                               data-toggle="tooltip" data-placement="top" title="show list of datasets">
+                               data-toggle="tooltip" data-placement="top"
+                               title="{% trans 'Show list of datasets' %}">
                                 <i class="fa fa-layer-group"></i>
                             </a>
                         </div>
@@ -61,12 +66,14 @@
                             <a onclick="showWaitModalOverlay()"
                                href="{% url 'georama.data_integration:export_qgis_project' project.mandant.name project.name %}"
                                class="btn btn-primary"
-                               data-toggle="tooltip" data-placement="top" title="inspect QGIS project on disk">
+                               data-toggle="tooltip" data-placement="top"
+                               title="{% trans 'Inspect QGIS project on disk' %}">
                                 <i class="fa fa-binoculars"></i>
                             </a>
                             <a href="{% url 'georama.data_integration:register_qgis_project' project.mandant.name project.name %}"
                                class="btn btn-primary"
-                               data-toggle="tooltip" data-placement="top" title="integrate QGIS project into Georama">
+                               data-toggle="tooltip" data-placement="top"
+                               title="{% trans 'Integrate QGIS project into Georama' %}">
                                 <i class="fa fa-cloud-upload-alt"></i>
                             </a>
                         </div>
@@ -74,7 +81,8 @@
                         <div class="btn-group mr-2" role="group" aria-label="Third group">
                             <a href="{% url 'admin:data_integration_project_delete' project.pk %}"
                                class="btn btn-danger"
-                               data-toggle="tooltip" data-placement="top" title="delete QGIS project">
+                               data-toggle="tooltip" data-placement="top"
+                               title="{% trans 'Delete QGIS project' %}">
                                 <i class="fa fa-trash-alt"></i>
                             </a>
                         </div>

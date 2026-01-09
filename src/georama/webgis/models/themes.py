@@ -32,7 +32,6 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
 
 
 class Interface(models.Model):
-
     """
     Model that matches a configuration with a interface configuration (desktop, mobile, api, ...)
     """
@@ -229,8 +228,8 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     max_resolution_hint = models.FloatField(default=999999999.0)
 
     class Meta:
-        verbose_name = f'WMS {_("Layer")}'
-        verbose_name_plural = f'WMS {_("Layers")}'
+        verbose_name = _("WMS Layer")
+        verbose_name_plural = _("WMS Layers")
 
     def __str__(self):
         return f"{self.name}"
@@ -315,8 +314,8 @@ class PublishedAsLayerWmts(Layer):
     )
 
     class Meta:
-        verbose_name = f'WMTS {_("Layer")}'
-        verbose_name_plural = f'WMTS {_("Layers")}'
+        verbose_name = _("WMTS Layer")
+        verbose_name_plural = _("WMTS Layers")
 
     def __str__(self):
         return f"{self.name}"

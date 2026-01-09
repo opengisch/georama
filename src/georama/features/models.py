@@ -106,8 +106,8 @@ class Column(PublishedAsRoleNameSystem):
 
 class PublishedAsWfs(PublishedAsVectorFeature):
     class Meta:
-        verbose_name = f'WFS {_("Layer")}'
-        verbose_name_plural = f'WFS {_("Layers")}'
+        verbose_name = _("WFS Layer")
+        verbose_name_plural = _("WFS Layers")
 
     dataset = models.ForeignKey(
         VectorDataSet,
@@ -138,8 +138,8 @@ class ColumnWfs(Column):
 
 class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
     class Meta:
-        verbose_name = f'OAPIF {_("Layer")}'
-        verbose_name_plural = f'OAPIF {_("Layers")}'
+        verbose_name = _("OAPIF Layer")
+        verbose_name_plural = _("OAPIF Layers")
 
     dataset = models.ForeignKey(
         VectorDataSet,

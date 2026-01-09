@@ -4,6 +4,7 @@ import os.path
 from typing import List
 
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.qgis import BBox, Crs, Custom, DataSource
 from qgis_server_light.interface.qgis import Field as QslField
 from qgis_server_light.interface.qgis import Raster, Style, Vector
@@ -22,20 +23,51 @@ class Mandant(models.Model):
 
 
 class Project(models.Model):
-    name = models.CharField(null=False, max_length=1000)
-    title = models.CharField(max_length=1000)
-    version = models.CharField(max_length=1000)
-    hash = models.CharField(max_length=20000, null=True, blank=True)
-    integration_date = models.DateTimeField(default=datetime.datetime.now)
+    name = models.CharField(
+        null=False,
+        max_length=1000,
+        verbose_name=_("name"),
+        help_text=_("Name of the project file"),
+    )
+    title = models.CharField(
+        max_length=1000, verbose_name=_("title"), help_text=_("Title of the QGIS project")
+    )
+    version = models.CharField(
+        max_length=1000,
+        verbose_name=_("version"),
+        help_text=_("QGIS version of the project file"),
+    )
+    hash = models.CharField(
+        max_length=20000,
+        null=True,
+        blank=True,
+        verbose_name=_("file hash"),
+        help_text=_("Unique file hash of the project file"),
+    )
+    modification_date = models.DateTimeField(
+        default=datetime.datetime.now,
+        verbose_name=_("modification date"),
+        help_text=_("Last time the QGIS project file was modified"),
+    )
+    integration_date = models.DateTimeField(
+        default=datetime.datetime.now,
+        verbose_name=_("integration date"),
+        help_text=_("Last integration of the QGIS project"),
+    )
+
     mandant = models.ForeignKey(
         Mandant,
         related_name="mandants",
         related_query_name="mandant",
         on_delete=models.CASCADE,
         null=True,
+        verbose_name=_("origin"),
+        help_text=_("Location of the project on disk"),
     )
 
     class Meta:
+        verbose_name = _("project")
+        verbose_name_plural = _("projects")
         unique_together = (
             "name",
             "version",
@@ -44,12 +76,12 @@ class Project(models.Model):
 
     @property
     def is_outdated(self):
-        # TODO UI: This is a Mock. Should originate from a comparison between JSON and QGIS File on disk
+        # TODO PI: This is a Mock. Should originate from a comparison between JSON and QGIS File on disk
         return self.pk % 2 == 0
 
     @property
     def has_processing_error(self):
-        # TODO UI: This is a Mock. Should originate from analysing log output from extraction and integration
+        # TODO PI: This is a Mock. Should originate from analysing log output from extraction and integration
         return False
 
     def __str__(self):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-09 11:01+0100\n"
+"POT-Creation-Date: 2026-01-09 12:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: webgis/admin.py:107
 msgid "Groupe de couche"
 msgstr ""
@@ -25,34 +26,54 @@ msgstr ""
 msgid "Groupes de couches"
 msgstr ""
 
-#: webgis/models/themes.py:44
+#: webgis/apps.py:7
+msgid "WebGIS"
+msgstr ""
+
+#: webgis/models/themes.py:43
 msgid "Interface"
 msgstr ""
 
-#: webgis/models/themes.py:45
+#: webgis/models/themes.py:44
 msgid "Interfaces"
 msgstr ""
 
-#: webgis/models/themes.py:77
+#: webgis/models/themes.py:76
 msgid "Theme"
 msgstr ""
 
-#: webgis/models/themes.py:78
+#: webgis/models/themes.py:77
 msgid "Themes"
 msgstr ""
 
-#: webgis/models/themes.py:138
+#: webgis/models/themes.py:137
 msgid "Group"
 msgstr ""
 
-#: webgis/models/themes.py:139
+#: webgis/models/themes.py:138
 msgid "Groups"
 msgstr ""
 
-#: webgis/models/themes.py:380
+#: webgis/models/themes.py:231
+msgid "WMS Layer"
+msgstr ""
+
+#: webgis/models/themes.py:232
+msgid "WMS Layers"
+msgstr ""
+
+#: webgis/models/themes.py:317
+msgid "WMTS Layer"
+msgstr ""
+
+#: webgis/models/themes.py:318
+msgid "WMTS Layers"
+msgstr ""
+
+#: webgis/models/themes.py:379
 msgid "OGC Server"
 msgstr ""
 
-#: webgis/models/themes.py:381
+#: webgis/models/themes.py:380
 msgid "OGC Servers"
 msgstr ""

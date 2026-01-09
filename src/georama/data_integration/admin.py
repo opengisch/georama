@@ -10,6 +10,7 @@ from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 from georama.data_integration.apps import DataintegrationConfig
 from georama.data_integration.data_integration_config import Config
@@ -285,10 +286,14 @@ class ProjectAdmin(admin.ModelAdmin):
         self, request: HttpRequest, project_pk: int | None = None, extra_context=None, **kwargs
     ):
         ds = DataSetList()
-        page_title = "Manual datasets"
+        page_title = _("Manual datasets")
 
         if project_pk:
-            page_title = f"Datasets in Project «{Project.objects.get(pk=project_pk)}»"
+            page_title = _(
+                "Datasets in project «{project}»".format(
+                    project=Project.objects.get(pk=project_pk)
+                )
+            )
         datasets = ds.get(project_pk)
 
         extra_context = extra_context or {}

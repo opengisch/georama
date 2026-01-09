@@ -1,6 +1,6 @@
 {% extends "admin/base.html" %}
 {% load static %}
-
+{% load i18n %}
 
 {% block extrastyle %}
     {{ block.super }}
@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block extrahead %}
-    {#  Dependency for bootstrap 4.6.1 to be able to display tooltips, must be added before bootstrap  #}
+    {#  Dependency for bootstrap 4.6.1 (Jazzmin) to be able to display tooltips, must be added before bootstrap  #}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js" integrity="sha512-ubuT8Z88WxezgSqf3RLuNi5lmjstiJcyezx34yIU2gAHonIi27Na7atqzUZCOoY4CExaoFumzOsFQ2Ch+I/HCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %}
 

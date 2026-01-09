@@ -1,12 +1,16 @@
-
+{% load i18n %}
 
 <div>
     <div style="display:flex; gap: 10px; margin-bottom: 10px;">
-        <input type="text" name="extent" id="extent" class="form-control" placeholder="Limit layer to extent">
-        <button type="button" class="btn btn-primary" onclick="onResetExtent()">Reset</button>
+        <input type="text" name="extent" title="{% trans 'extent' %}"
+               id="extent" class="form-control"
+               placeholder="{% trans 'Limit layer to extent' %}">
+        <button type="button" class="btn btn-primary"
+                title="{% trans 'Reset extent to default value' %}"
+                onclick="onResetExtent()">{% trans 'Reset' %}</button>
     </div>
     <div id="map" class="map" style="width: {{ map_width }}px; height: {{ map_height }}px"></div>
-    <span class="small"><i>Hint: Press the control key to edit the extent in the map</i></span>
+    <span class="small"><i>{% trans 'Hint: Press the control key to edit the extent in the map' %}</i></span>
 </div>
 
 

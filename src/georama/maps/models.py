@@ -1,7 +1,6 @@
 import base64
 import logging
 from typing import List, Tuple
-from urllib.parse import quote
 
 from dataclasses import fields
 from asgiref.sync import async_to_sync, sync_to_async
@@ -50,7 +49,7 @@ class PublishedAsWmsAbstract(PublishedAs):
         max_length=1000,
         null=True,
         blank=True,
-        help_text=_("TODO Show Tooltip"),
+        help_text=_("Limit layer to extent"),
     )
     extent_wgs84 = models.CharField(
         verbose_name=_("extent WGS84"),
@@ -59,7 +58,12 @@ class PublishedAsWmsAbstract(PublishedAs):
         blank=True,
         help_text=_("TODO Show Tooltip"),
     )
-    preview = models.BinaryField(null=True, blank=True)
+    preview = models.BinaryField(
+        verbose_name=_("preview"),
+        null=True,
+        blank=True,
+        help_text=_("TODO Show Tooltip"),
+    )
 
     preview_dimensions: Tuple[int, int] = (250, 250)
     preview_dimensions_new_tab: Tuple[int, int] = (1500, 1500)
@@ -138,7 +142,7 @@ class PublishedAsWmsAbstract(PublishedAs):
             "SERVICE": "WFS",
             "REQUEST": "GetFeature",
             "VERSION": "2.0.0",
-            # TODO Pi: Can't use WfsOperation, circular reference
+            # TODO PI: Can't use WfsOperation, circular reference
             # "TYPENAMES": f"{WfsOperation.own_namespace}:{self.name}",
             "TYPENAMES": f"georama:{self.name}",
             "SRSNAME": self.bound_dataset.crs_to_qsl.ogc_urn,
@@ -242,8 +246,8 @@ class PublishedAsWmsAbstract(PublishedAs):
 
 class PublishedAsWms(PublishedAsWmsAbstract):
     class Meta:
-        verbose_name = f'WMS {_("Layer")}'
-        verbose_name_plural = f'WMS {_("Layers")}'
+        verbose_name = _("WMS Layer")
+        verbose_name_plural = _("WMS Layers")
 
     raster_dataset = models.ForeignKey(
         RasterDataSet,

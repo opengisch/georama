@@ -1,5 +1,6 @@
 import pygeoapi.api as inittime_api
 import pygeoapi.plugin
+from django.utils.translation import gettext_lazy as _
 
 from georama.core.apps import GeoramaAbstractConfig
 from georama.features.features_config import Config
@@ -20,5 +21,5 @@ inittime_api.DEFAULT_CRS = Config().default_crs
 
 class FeaturesConfig(GeoramaAbstractConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    verbose_name = "Features"
     name = "georama.features"
+    verbose_name = _("Features")

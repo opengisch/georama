@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-09 11:01+0100\n"
+"POT-Creation-Date: 2026-01-09 18:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,17 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: maps/admin.py:194
 msgid "Dataset"
 msgstr ""
 
 #: maps/admin.py:241
 msgid "WMS Capabilities"
+msgstr ""
+
+#: maps/apps.py:8
+msgid "Maps"
 msgstr ""
 
 #: maps/models.py:34
@@ -53,6 +58,14 @@ msgstr ""
 msgid "preview"
 msgstr ""
 
+#: maps/models.py:249
+msgid "WMS Layer"
+msgstr ""
+
+#: maps/models.py:250
+msgid "WMS Layers"
+msgstr ""
+
 #: maps/templates/admin/maps/preview_map/preview_map.html:9
 msgid "Reset extent to default value"
 msgstr ""
@@ -63,6 +76,10 @@ msgstr ""
 
 #: maps/templates/admin/maps/preview_map/preview_map.html:13
 msgid "Hint: Press the control key to edit the extent in the map"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:7
+msgid "Get Capabilities"
 msgstr ""
 
 #: maps/templates/admin/maps/publishedaswms/change_list.html:13
@@ -94,13 +111,13 @@ msgid "WMS layer has a twin WFS service to query features"
 msgstr ""
 
 #: maps/templates/admin/maps/publishedaswms/change_list.html:67
-msgid "open GetMap request in new tab"
+msgid "Open GetMap request in new tab"
 msgstr ""
 
 #: maps/templates/admin/maps/publishedaswms/change_list.html:72
-msgid "open GetFeature request in new tab"
+msgid "Open GetFeature request in new tab"
 msgstr ""
 
 #: maps/templates/admin/maps/publishedaswms/change_list.html:80
-msgid "delete WMS layer"
+msgid "Delete WMS layer"
 msgstr ""

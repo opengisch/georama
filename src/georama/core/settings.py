@@ -137,7 +137,7 @@ class Base(Configuration):
         "custom_links": {
             "data_integration": [
                 {
-                    "name": "Manual Datasets",
+                    "name": _("Manual Datasets"),
                     "url": "data_integration/project/dataset_list/",
                     "icon": "fas fa-asterisk",
                     "permissions": ["data_integration.Project"],
@@ -145,7 +145,7 @@ class Base(Configuration):
             ],
             "maps": [
                 {
-                    "name": "Permissions",
+                    "name": _("Permissions"),
                     "url": "maps/publishaswms/permissions",
                     "icon": "fas fa-unlock",
                     "permissions": ["maps.PublishedAsWms"],
@@ -153,7 +153,7 @@ class Base(Configuration):
             ],
             "features": [
                 {
-                    "name": "Permissions",
+                    "name": _("Permissions"),
                     "url": "features/publishasogcapifeatures/permissions",
                     "icon": "fas fa-unlock",
                     "permissions": ["maps.PublishedAsOgcApiFeatures"],

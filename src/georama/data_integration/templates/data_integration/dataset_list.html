@@ -1,7 +1,6 @@
 {% extends 'admin/base_site.html' %}
 {% load i18n admin_list %}
 
-
 {% block breadcrumbs %}
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
@@ -13,7 +12,7 @@
 
 {% block content_title %}
     <a type="button" class="btn btn-primary mr-3" href="{% url 'admin:data_integration_project_changelist' %}"
-       data-toggle="tooltip" data-placement="bottom" title="back to project list">
+       data-toggle="tooltip" data-placement="bottom" title="{% trans 'back to project list' %}">
         <i class="fa fa-arrow-left"></i></a>
     {{ page_title }}
 {% endblock %}
@@ -23,7 +22,7 @@
     <table class="table table-striped table-hover">
         <tbody>
         {% for ds in datasets %}
-{#            TODO: Link should be different depending on dataset type (vector, raster, other)#}
+{#            TODO PI: Link should be different depending on dataset type (vector, raster, other)#}
             <tr class="even" role="button" onclick="window.location='{% url 'admin:data_integration_vectordataset_change' ds.pk %}'">
                 <td class="align-middle" style="width: 150px; height: 150px">
                     <a class="rounded img-thumbnail">
@@ -42,7 +41,7 @@
                         <div class="btn-group mr-3" role="group" aria-label="Third group">
                             <a href=""
                                class="btn btn-danger"
-                               data-toggle="tooltip" data-placement="top" title="delete QGIS project">
+                               data-toggle="tooltip" data-placement="top" title="{% trans 'delete QGIS project' %}">
                                 <i class="fa fa-trash-alt"></i>
                             </a>
                         </div>
