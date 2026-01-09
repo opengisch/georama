@@ -5,10 +5,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Type
 
+from django import forms
 from django.contrib import admin
+from django.contrib.admin import action
+
 from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -161,32 +165,30 @@ class QgisProjectFileStructure:
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = [
+    fields = [
+        "mandant",
+        "version",
+        "hash",
+        "modification_date",
+        "integration_date",
+    ]
+    readonly_fields = [
         "name",
-        "mandant_name",
-        "vector_dataset_count",
-        "raster_dataset_count",
-        "custom_dataset_count",
-        "project_file_uptodate",
+        "title",
+        "mandant",
+        "version",
+        "hash",
+        "modification_date",
+        "integration_date",
     ]
 
-    def vector_dataset_count(self, obj):
-        return obj.vector_datasets.count()
+    extra_actions = ["dataset_list"]
 
-    vector_dataset_count.admin_order_field = "vector_dataset_count"
-    vector_dataset_count.short_description = "Vector Datasets"
+    def has_add_permission(self, request, obj=None):
+        return False
 
-    def raster_dataset_count(self, obj):
-        return obj.raster_datasets.count()
-
-    raster_dataset_count.admin_order_field = "raster_dataset_count"
-    raster_dataset_count.short_description = "Raster Datasets"
-
-    def custom_dataset_count(self, obj):
-        return obj.custom_datasets.count()
-
-    custom_dataset_count.admin_order_field = "custom_dataset_count"
-    custom_dataset_count.short_description = "Custom Datasets"
+    def has_change_permission(self, request, obj=None):
+        return False
 
     def project_file_uptodate(self, obj: Project):
         try:
@@ -237,13 +239,6 @@ class ProjectAdmin(admin.ModelAdmin):
 
     project_file_uptodate.admin_order_field = "project_file_uptodate"
     project_file_uptodate.short_description = "Project File Status"
-
-    def mandant_name(self, obj: Project):
-        # TODO: make this a link to the dedicated mandant instance details
-        return obj.mandant.name
-
-    mandant_name.admin_order_field = "project_mandant_name"
-    mandant_name.short_description = "Project Mandant Name"
 
     def get_urls(self):
         urls = super().get_urls()
@@ -315,8 +310,7 @@ class ProjectAdmin(admin.ModelAdmin):
             context=extra_context,
         )
 
-    def get_readonly_fields(self, request, obj=None):
-        return ["integration_date", "hash"]
+    dataset_list.short_description = _("Show list of datasets")
 
 
 class DataSetAdmin(admin.ModelAdmin):
