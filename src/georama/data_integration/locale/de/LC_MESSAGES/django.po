@@ -1,0 +1,137 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-09 11:01+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: data_integration/models.py:27
+msgid "name"
+msgstr ""
+
+#: data_integration/models.py:27 data_integration/models.py:30
+#: data_integration/models.py:33 data_integration/models.py:40
+#: data_integration/models.py:45 data_integration/models.py:54
+msgid "Name of the project"
+msgstr ""
+
+#: data_integration/models.py:30
+msgid "title"
+msgstr ""
+
+#: data_integration/models.py:33
+msgid "version"
+msgstr ""
+
+#: data_integration/models.py:39
+msgid "file hash"
+msgstr ""
+
+#: data_integration/models.py:44
+msgid "integration date"
+msgstr ""
+
+#: data_integration/models.py:53
+msgid "origin"
+msgstr ""
+
+#: data_integration/models.py:58
+msgid "project"
+msgstr ""
+
+#: data_integration/models.py:59
+msgid "projects"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_form.html:7
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:16
+#: data_integration/templates/data_integration/dataset_list.html:16
+msgid "back to project list"
+msgstr "zurück zur Projektliste"
+
+#: data_integration/templates/admin/data_integration/project/change_form.html:22
+#: data_integration/templates/admin/data_integration/project/change_list.html:18
+msgid "QGIS Logo"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_form.html:109
+msgid "delete"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:32
+msgid "An error occurred during processing\">"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:39
+msgid "QGIS project on disk is newer than in Georama"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:46
+msgid "QGIS project in Georama is up to date"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:60
+msgid "show list of datasets"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:70
+msgid "inspect QGIS project on disk"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:76
+msgid "integrate QGIS project into Georama"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:85
+#: data_integration/templates/data_integration/dataset_list.html:45
+msgid "delete QGIS project"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:7
+#: data_integration/templates/data_integration/dataset_list.html:7
+msgid "Home"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:10
+msgid "Add QGIS Project"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:25
+msgid "Origin"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:26
+msgid "Project"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:27
+msgid "Hash"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:28
+msgid "Has Config"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:29
+msgid "Project File Status"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:45
+msgid "inspect"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:49
+msgid "integrate"
+msgstr ""

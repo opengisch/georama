@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -22,6 +23,7 @@ from django.urls import include, path
 from georama.core import views
 
 urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
     path("", views.GeoramaLanding.as_view(), name="landing"),
     path("login", views.Login.as_view(), name="login"),
     path("logout", views.Logout.as_view(), name="logout"),

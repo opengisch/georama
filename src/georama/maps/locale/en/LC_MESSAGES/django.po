@@ -1,0 +1,106 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-09 11:01+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: maps/admin.py:194
+msgid "Dataset"
+msgstr ""
+
+#: maps/admin.py:241
+msgid "WMS Capabilities"
+msgstr ""
+
+#: maps/models.py:34
+msgid "extent buffer"
+msgstr ""
+
+#: maps/models.py:37 maps/models.py:44 maps/models.py:59 maps/models.py:65
+msgid "TODO Show Tooltip"
+msgstr ""
+
+#: maps/models.py:40
+msgid "queryable"
+msgstr ""
+
+#: maps/models.py:48 maps/templates/admin/maps/preview_map/preview_map.html:5
+msgid "extent"
+msgstr ""
+
+#: maps/models.py:52 maps/templates/admin/maps/preview_map/preview_map.html:7
+msgid "Limit layer to extent"
+msgstr ""
+
+#: maps/models.py:55
+msgid "extent WGS84"
+msgstr ""
+
+#: maps/models.py:62
+msgid "preview"
+msgstr ""
+
+#: maps/templates/admin/maps/preview_map/preview_map.html:9
+msgid "Reset extent to default value"
+msgstr ""
+
+#: maps/templates/admin/maps/preview_map/preview_map.html:10
+msgid "Reset"
+msgstr ""
+
+#: maps/templates/admin/maps/preview_map/preview_map.html:13
+msgid "Hint: Press the control key to edit the extent in the map"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:13
+msgid "open WMS GetCapabilities request in new tab"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:19
+msgid "open WFS GetCapabilities request in new tab"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:35
+msgid "WMS preview"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:43
+msgid "WMS layer is publicly available"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:48
+msgid "WMS layer can return its legend"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:52
+msgid "WMS layer can provide feature attributes on click"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:56
+msgid "WMS layer has a twin WFS service to query features"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:67
+msgid "open GetMap request in new tab"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:72
+msgid "open GetFeature request in new tab"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:80
+msgid "delete WMS layer"
+msgstr ""

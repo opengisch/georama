@@ -15,6 +15,8 @@ from pathlib import Path
 from configurations import Configuration, values
 from corsheaders.defaults import default_headers
 
+from django.utils.translation import gettext_lazy as _
+
 from georama.core.auth import get_authentication_methods_middlewares
 
 
@@ -99,6 +101,7 @@ class Base(Configuration):
         "site_logo_classes": "img-circle",
         # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
         "site_icon": "logo/favicon.ico",
+        "language_chooser": True,
         #############
         # Side Menu #
         #############
@@ -292,6 +295,7 @@ class Base(Configuration):
             "django.contrib.sessions.middleware.SessionMiddleware",
             "corsheaders.middleware.CorsMiddleware",
             "django.middleware.common.CommonMiddleware",
+            "django.middleware.locale.LocaleMiddleware",
             # "django.middleware.csrf.CsrfViewMiddleware",
             "django.contrib.auth.middleware.AuthenticationMiddleware",
             *get_authentication_methods_middlewares(self.GEORAMA_AUTHENTICATION_METHODS),
@@ -411,13 +415,18 @@ class Base(Configuration):
     # Internationalization
     # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-    LANGUAGE_CODE = "en-us"
+    LANGUAGE_CODE = "en"
 
     TIME_ZONE = "UTC"
 
     USE_I18N = True
 
     USE_TZ = True
+
+    LANGUAGES = [
+        ("en", _("English")),
+        ("de", _("German")),
+    ]
 
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/5.0/howto/static-files/

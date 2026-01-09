@@ -1,0 +1,109 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-09 11:25+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: core/auth/http_basic_auth.py:35
+msgid "Invalid basic header. No credentials provided."
+msgstr ""
+
+#: core/auth/http_basic_auth.py:39
+msgid "Invalid basic header. Credentials string should not contain spaces."
+msgstr ""
+
+#: core/auth/http_basic_auth.py:51
+msgid "Invalid basic header. Credentials not correctly base64 encoded."
+msgstr ""
+
+#: core/auth/http_basic_auth.py:68
+msgid "Invalid username/password."
+msgstr ""
+
+#: core/auth/http_basic_auth.py:73
+msgid "User inactive or deleted."
+msgstr ""
+
+#: core/auth/http_basic_auth.py:94
+msgid "User was authenticated."
+msgstr ""
+
+#: core/auth/http_basic_auth.py:99
+msgid "User was not authenticated."
+msgstr ""
+
+#: core/entities/models.py:45
+msgid "name"
+msgstr ""
+
+#: core/entities/models.py:50 core/entities/models.py:55
+#: core/entities/models.py:178 core/entities/models.py:185
+#: core/entities/models.py:198 core/entities/models.py:203
+#: core/entities/models.py:208
+msgid "TODO Show Tooltip"
+msgstr ""
+
+#: core/entities/models.py:53
+msgid "public"
+msgstr ""
+
+#: core/entities/models.py:173
+msgid "title"
+msgstr ""
+
+#: core/entities/models.py:181
+msgid "description"
+msgstr ""
+
+#: core/entities/models.py:188
+msgid "license"
+msgstr ""
+
+#: core/entities/models.py:190
+msgid ""
+"\n"
+"            This dataset is made available under the Open Database\n"
+"            License: http://opendatacommons.org/licenses/odbl/1.0/.\n"
+"            Any rights in individual contents of the database are licensed\n"
+"            under the Database Contents\n"
+"            License: http://opendatacommons.org/licenses/dbcl/1.0/\n"
+"            "
+msgstr ""
+
+#: core/entities/models.py:201
+msgid "fees"
+msgstr ""
+
+#: core/entities/models.py:202
+msgid "No fees apply."
+msgstr ""
+
+#: core/entities/models.py:206
+msgid "access constraints"
+msgstr ""
+
+#: core/entities/models.py:207
+msgid "No access constraints apply."
+msgstr ""
+
+#: core/settings.py:425
+msgid "English"
+msgstr ""
+
+#: core/settings.py:426
+msgid "German"
+msgstr ""
