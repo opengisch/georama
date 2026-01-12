@@ -16,7 +16,7 @@ class TestDataIntegrationViews:
 
         project_path = "TestMandant/TestProject"
         response = client.get(
-            f"/data_integrationregister_qgis_project/{project_path}",
+            f"/data_integration/register_qgis_project/{project_path}",
             follow=True,
         )
         assert response.status_code == 200
