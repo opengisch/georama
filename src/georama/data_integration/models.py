@@ -42,7 +42,7 @@ class Project(models.Model):
         null=True,
         blank=True,
         verbose_name=_("file hash"),
-        help_text=_("Unique file hash of the project file"),
+        help_text=_("Unique file hash of the QGIS project file"),
     )
     modification_date = models.DateTimeField(
         default=datetime.datetime.now,

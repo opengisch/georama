@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-09 18:09+0100\n"
+"POT-Creation-Date: 2026-01-12 18:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,17 +18,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: data_integration/admin.py:318
+#: data_integration/admin.py:284
 msgid "Manual datasets"
 msgstr ""
 
-#: data_integration/admin.py:322
+#: data_integration/admin.py:288
 #, python-brace-format
 msgid "Datasets in project «{project}»"
 msgstr ""
 
-#: data_integration/admin.py:347
-#: data_integration/templates/admin/data_integration/project/change_form.html:45
+#: data_integration/admin.py:313
+#: data_integration/templates/admin/data_integration/project/change_form.html:48
 #: data_integration/templates/admin/data_integration/project/change_list.html:60
 msgid "Show list of datasets"
 msgstr ""
@@ -66,7 +66,7 @@ msgid "file hash"
 msgstr ""
 
 #: data_integration/models.py:45
-msgid "Unique file hash of the project file"
+msgid "Unique file hash of the QGIS project file"
 msgstr ""
 
 #: data_integration/models.py:49
@@ -103,21 +103,21 @@ msgstr ""
 
 #: data_integration/templates/admin/data_integration/project/change_form.html:8
 #: data_integration/templates/admin/data_integration/project/qgis_projects.html:16
-#: data_integration/templates/data_integration/dataset_list.html:16
+#: data_integration/templates/data_integration/dataset_list.html:17
 msgid "back to project list"
 msgstr ""
 
-#: data_integration/templates/admin/data_integration/project/change_form.html:21
+#: data_integration/templates/admin/data_integration/project/change_form.html:22
 #: data_integration/templates/admin/data_integration/project/change_list.html:18
 msgid "QGIS Logo"
 msgstr ""
 
-#: data_integration/templates/admin/data_integration/project/change_form.html:47
+#: data_integration/templates/admin/data_integration/project/change_form.html:50
 msgid "Dataset list"
 msgstr ""
 
-#: data_integration/templates/admin/data_integration/project/change_list.html:8
-#: data_integration/templates/admin/data_integration/project/qgis_projects.html:10
+#: data_integration/templates/admin/data_integration/project/change_list.html:7
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:9
 msgid "Add QGIS Project"
 msgstr ""
 
@@ -154,11 +154,11 @@ msgid "Integrate QGIS project into Georama"
 msgstr ""
 
 #: data_integration/templates/admin/data_integration/project/change_list.html:85
-msgid "Delete QGIS project"
+msgid "Delete project"
 msgstr ""
 
-#: data_integration/templates/admin/data_integration/project/qgis_projects.html:7
-#: data_integration/templates/data_integration/dataset_list.html:7
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:6
+#: data_integration/templates/data_integration/dataset_list.html:6
 msgid "Home"
 msgstr ""
 
@@ -190,6 +190,6 @@ msgstr ""
 msgid "integrate"
 msgstr ""
 
-#: data_integration/templates/data_integration/dataset_list.html:45
-msgid "delete QGIS project"
+#: data_integration/templates/data_integration/dataset_list.html:49
+msgid "Delete dataset"
 msgstr ""

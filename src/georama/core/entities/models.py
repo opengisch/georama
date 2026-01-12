@@ -47,12 +47,12 @@ class PublishedAsRoleNameSystem(models.Model):
         null=True,
         default=None,
         blank=True,
-        help_text=_("TODO Show Tooltip"),
+        help_text=_("Name of the published resource"),
     )
     public = models.BooleanField(
         verbose_name=_("public"),
         default=False,
-        help_text=_("TODO Show Tooltip"),
+        help_text=_("Is this resource publicly available?"),
     )
 
     class Meta:
@@ -175,14 +175,14 @@ class PublishedAs(PublishedAsRoleNameSystem):
         null=True,
         default=None,
         blank=True,
-        help_text=_("TODO Show Tooltip"),
+        help_text=_("Title of the published resource"),
     )
     description = models.TextField(
         verbose_name=_("description"),
         null=True,
         default=None,
         blank=True,
-        help_text=_("TODO Show Tooltip"),
+        help_text=_("Describe the resource in more detail"),
     )
     license = models.TextField(
         verbose_name=_("license"),
@@ -195,17 +195,17 @@ class PublishedAs(PublishedAsRoleNameSystem):
             License: http://opendatacommons.org/licenses/dbcl/1.0/
             """
         ),
-        help_text=_("TODO Show Tooltip"),
+        help_text=_("Define under which licenses this data can be used"),
     )
     fees = models.TextField(
         verbose_name=_("fees"),
         default=_("No fees apply."),
-        help_text=_("TODO Show Tooltip"),
+        help_text=_("Inform if any fees apply for this resource"),
     )
     access_constraints = models.TextField(
         verbose_name=_("access constraints"),
         default=_("No access constraints apply."),
-        help_text=_("TODO Show Tooltip"),
+        help_text=_("Inform if there are any access restrictions"),
     )
 
     @classmethod

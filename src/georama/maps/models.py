@@ -34,14 +34,16 @@ class PublishedAsWmsAbstract(PublishedAs):
         verbose_name=_("extent buffer"),
         default=0.0,
         null=False,
-        help_text=_("TODO Show Tooltip"),
+        help_text=_(
+            "The extent buffer defines a border around the layer"
+        ),  # TODO PI: Tooltip missing
     )
     queryable = models.BooleanField(
         verbose_name=_("queryable"),
         default=True,
         null=True,
         blank=True,
-        help_text=_("TODO Show Tooltip"),
+        help_text=_("Set the layer to be queried via a GetFeatureInfo request"),
     )
 
     extent = models.CharField(
@@ -49,20 +51,20 @@ class PublishedAsWmsAbstract(PublishedAs):
         max_length=1000,
         null=True,
         blank=True,
-        help_text=_("Limit layer to extent"),
+        help_text=_("Limit the layer to an extent"),
     )
     extent_wgs84 = models.CharField(
         verbose_name=_("extent WGS84"),
         max_length=1000,
         null=True,
         blank=True,
-        help_text=_("TODO Show Tooltip"),
+        help_text=_("Transforms the defined extent into WGS84 projection"),
     )
     preview = models.BinaryField(
         verbose_name=_("preview"),
         null=True,
         blank=True,
-        help_text=_("TODO Show Tooltip"),
+        help_text=_("Small image preview to display display in the administration"),
     )
 
     preview_dimensions: Tuple[int, int] = (250, 250)

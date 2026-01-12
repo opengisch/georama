@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-09 18:09+0100\n"
+"POT-Creation-Date: 2026-01-12 18:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,12 +20,8 @@ msgstr ""
 "DEProject-Id-Version: PACKAGE VERSION\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: maps/admin.py:194
+#: maps/admin.py:138
 msgid "Dataset"
-msgstr ""
-
-#: maps/admin.py:241
-msgid "WMS Capabilities"
 msgstr ""
 
 #: maps/apps.py:8
@@ -36,38 +32,52 @@ msgstr ""
 msgid "extent buffer"
 msgstr ""
 
-#: maps/models.py:37 maps/models.py:44 maps/models.py:59 maps/models.py:65
-msgid "TODO Show Tooltip"
+#: maps/models.py:38
+msgid "The extent buffer defines a border around the layer"
 msgstr ""
 
-#: maps/models.py:40
+#: maps/models.py:42
 msgid "queryable"
 msgstr ""
 
-#: maps/models.py:48 maps/templates/admin/maps/preview_map/preview_map.html:5
+#: maps/models.py:46
+msgid "Set the layer to be queried via a GetFeatureInfo request"
+msgstr ""
+
+#: maps/models.py:50 maps/templates/admin/maps/preview_map/preview_map.html:5
 msgid "extent"
 msgstr ""
 
-#: maps/models.py:52 maps/templates/admin/maps/preview_map/preview_map.html:7
-msgid "Limit layer to extent"
+#: maps/models.py:54
+msgid "Limit the layer to an extent"
 msgstr ""
 
-#: maps/models.py:55
+#: maps/models.py:57
 msgid "extent WGS84"
 msgstr ""
 
-#: maps/models.py:62
+#: maps/models.py:61
+msgid "Transforms the defined extent into WGS84 projection"
+msgstr ""
+
+#: maps/models.py:64
 msgid "preview"
 msgstr ""
 
-#: maps/models.py:249
-#, fuzzy
+#: maps/models.py:67
+msgid "Small image preview to display display in the administration"
+msgstr ""
+
+#: maps/models.py:251
 msgid "WMS Layer"
 msgstr ""
 
-#: maps/models.py:250
-#, fuzzy
+#: maps/models.py:252
 msgid "WMS Layers"
+msgstr ""
+
+#: maps/templates/admin/maps/preview_map/preview_map.html:7
+msgid "Limit layer to extent"
 msgstr ""
 
 #: maps/templates/admin/maps/preview_map/preview_map.html:9
@@ -82,54 +92,67 @@ msgstr ""
 msgid "Hint: Press the control key to edit the extent in the map"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/change_list.html:7
-#, fuzzy
-#| msgid "WMS Capabilities"
-msgid "Get Capabilities"
+#: maps/templates/admin/maps/publishedaswms/change_form.html:9
+msgid "back to layer list"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/change_list.html:13
-msgid "open WMS GetCapabilities request in new tab"
-msgstr ""
-
-#: maps/templates/admin/maps/publishedaswms/change_list.html:19
-msgid "open WFS GetCapabilities request in new tab"
-msgstr ""
-
+#: maps/templates/admin/maps/publishedaswms/change_form.html:24
 #: maps/templates/admin/maps/publishedaswms/change_list.html:35
 msgid "WMS preview"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/change_list.html:43
+#: maps/templates/admin/maps/publishedaswms/change_list.html:6
+msgid "Get Capabilities"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:12
+msgid "Open WMS GetCapabilities request in new tab"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:18
+msgid "Open WFS GetCapabilities request in new tab"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/change_list.html:46
 msgid "WMS layer is publicly available"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/change_list.html:48
-msgid "WMS layer can return its legend"
+#: maps/templates/admin/maps/publishedaswms/change_list.html:51
+msgid "WMS layer provides a legend"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/change_list.html:52
-msgid "WMS layer can provide feature attributes on click"
+#: maps/templates/admin/maps/publishedaswms/change_list.html:55
+msgid "WMS layer provides feature infos at coordinates"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/change_list.html:56
-msgid "WMS layer has a twin WFS service to query features"
+#: maps/templates/admin/maps/publishedaswms/change_list.html:59
+msgid "WMS layer provides a twin WFS layer to query features"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/change_list.html:67
-#, fuzzy
-#| msgid "open GetMap request in new tab"
+#: maps/templates/admin/maps/publishedaswms/change_list.html:71
 msgid "Open GetMap request in new tab"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/change_list.html:72
-#, fuzzy
-#| msgid "open GetFeature request in new tab"
+#: maps/templates/admin/maps/publishedaswms/change_list.html:76
 msgid "Open GetFeature request in new tab"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/change_list.html:80
-#, fuzzy
-#| msgid "delete WMS layer"
+#: maps/templates/admin/maps/publishedaswms/change_list.html:84
 msgid "Delete WMS layer"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/publish.html:11
+msgid "Available Datasets"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/publish.html:28
+msgid "Vector Datasets"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/publish.html:36
+msgid "Raster Datasets"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/publish.html:44
+msgid "Custom Datasets"
 msgstr ""

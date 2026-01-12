@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-09 17:21+0100\n"
+"POT-Creation-Date: 2026-01-12 18:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,23 +52,32 @@ msgstr ""
 msgid "name"
 msgstr ""
 
-#: core/entities/models.py:50 core/entities/models.py:55
-#: core/entities/models.py:178 core/entities/models.py:185
-#: core/entities/models.py:198 core/entities/models.py:203
-#: core/entities/models.py:208
-msgid "TODO Show Tooltip"
+#: core/entities/models.py:50
+msgid "Name of the published resource"
 msgstr ""
 
 #: core/entities/models.py:53
 msgid "public"
 msgstr ""
 
+#: core/entities/models.py:55
+msgid "Is this resource publicly available?"
+msgstr ""
+
 #: core/entities/models.py:173
 msgid "title"
 msgstr ""
 
+#: core/entities/models.py:178
+msgid "Title of the published resource"
+msgstr ""
+
 #: core/entities/models.py:181
 msgid "description"
+msgstr ""
+
+#: core/entities/models.py:185
+msgid "Describe the resource in more detail"
 msgstr ""
 
 #: core/entities/models.py:188
@@ -86,6 +95,10 @@ msgid ""
 "            "
 msgstr ""
 
+#: core/entities/models.py:198
+msgid "Define under which licenses this data can be used"
+msgstr ""
+
 #: core/entities/models.py:201
 msgid "fees"
 msgstr ""
@@ -94,12 +107,20 @@ msgstr ""
 msgid "No fees apply."
 msgstr ""
 
+#: core/entities/models.py:203
+msgid "Inform if any fees apply for this resource"
+msgstr ""
+
 #: core/entities/models.py:206
 msgid "access constraints"
 msgstr ""
 
 #: core/entities/models.py:207
 msgid "No access constraints apply."
+msgstr ""
+
+#: core/entities/models.py:208
+msgid "Inform if there are any access restrictions"
 msgstr ""
 
 #: core/settings.py:139
