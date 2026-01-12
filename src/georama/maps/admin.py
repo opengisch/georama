@@ -5,7 +5,6 @@ from urllib.parse import quote
 from django.contrib import admin
 from django.contrib.auth.models import Permission
 from django.urls import reverse
-from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -38,37 +37,9 @@ def wfs_get_capabilities_url() -> str:
 
 @admin.register(PublishedAsWms)
 class PublishedAsWmsAdmin(admin.ModelAdmin):
-    list_display = [
-        "icon_column",
-        "name",
-        "title",
-        "public",
-        "queryable",
-        "delete_link",
-        "show_published",
-        "preview_image",
-    ]
-    list_editable = ["public", "queryable"]
-    list_display_links = ["icon_column", "name", "title"]
     add_form_template = "admin/maps/publishedaswms/publish.html"
     readonly_fields = ["dataset_detail", "extent_wgs84"]
-    list_filter = ["name", "title"]
     form = PublishedAsWmsForm
-
-    def icon_column(self, obj):
-        icon = "fg-poi"
-        if isinstance(obj.raster_dataset, RasterDataSet):
-            icon = "fg-landcover-map"
-        elif isinstance(obj.vector_dataset, VectorDataSet):
-            icon = "fg-contour-map"
-        elif isinstance(obj.custom_dataset, CustomDataSet):
-            icon = "fg-flow-map"
-        return format_html(
-            f"<i class='{icon} fg-2x' style='color: black; margin: 0; padding: 0;'></i>"
-        )
-
-    icon_column.short_description = "src"
-    icon_column.allow_tags = True
 
     def add_view(self, request, form_url="", extra_context=None):
         extra_context = extra_context or {}
@@ -82,6 +53,16 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             extra_context=extra_context,
         )
 
+    def change_view(self, request, object_id=None, form_url="", extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["show_save_and_add_another"] = False
+        return super().change_view(
+            request,
+            object_id,
+            form_url,
+            extra_context=extra_context,
+        )
+
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
         extra_context["wms_get_capabilities_url"] = wms_get_capabilities_url()
@@ -89,13 +70,6 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         return super().changelist_view(
             request,
             extra_context=extra_context,
-        )
-
-    def delete_link(self, obj: PublishedAsWms):
-        return mark_safe(
-            '<a href="{}" class="btn btn-high btn-danger"><i class="fas fa-trash text-xs"/></a>'.format(
-                reverse("admin:maps_publishedaswms_delete", args=(obj.pk,))
-            )
         )
 
     @staticmethod
@@ -142,36 +116,6 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
                 f"outputformat={quote(output_format)}",
             ]
         )
-
-    def show_published(self, obj: PublishedAsWms):
-        return mark_safe(
-            "".join(
-                [
-                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WMS GetMap"><i class="fas fa-eye text-xs"></i></a>'.format(
-                        reverse("maps_ogc_entry"), self.create_wms_url_params(obj)
-                    ),
-                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WFS GetFeature"><i class="fas fa-eye text-xs"></i></a>'.format(
-                        reverse("maps_ogc_entry"), self.create_wfs_url_params(obj)
-                    ),
-                ]
-            )
-        )
-
-    show_published.short_description = "Operations"
-
-    def preview_image(self, obj: PublishedAsWms):
-        base64_img = "data:image/png;base64,{}".format(base64.b64encode(obj.preview).decode())
-        return mark_safe(
-            "".join(
-                [
-                    '<img src="{}" class="border shadow-sm" style="width: {}px; height: {}px"/>'.format(
-                        base64_img, *obj.preview_dimensions
-                    ),
-                ]
-            )
-        )
-
-    preview_image.short_description = "Layer preview"
 
     def dataset_detail(self, obj: PublishedAsWms):
         if isinstance(obj.raster_dataset, RasterDataSet):
@@ -232,15 +176,3 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         save_user_permissions(users_read, read_permission)
 
         super().save_model(request, obj, form, change)
-
-
-def custom_links():
-    return {
-        "maps": [
-            {
-                "name": _("WMS Capabilities"),
-                "url": wms_get_capabilities_url(),
-                "icon": "fa fa-eye",
-            }
-        ]
-    }

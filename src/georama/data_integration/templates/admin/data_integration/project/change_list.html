@@ -1,6 +1,5 @@
 {% extends 'admin/change_list.html' %}
 {% load i18n admin_list %}
-{% load i18n %}
 {% load static %}
 
 {% block object-tools-items %}
@@ -22,9 +21,6 @@
                     <div class="d-flex flex-column">
                         <h4>{{ project }}</h4>
                         <h6>{{ project.name }}</h6>
-{#                        <small class="text-muted">#}
-{#                            Last integrated on <span>{{ project.integration_date|date:'d.m.Y, G:H:s' }}</span>#}
-{#                        </small>#}
                         <div>
                             {% if project.has_processing_error == True %}
                                 <span class="badge badge-pill badge-error"
