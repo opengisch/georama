@@ -1,5 +1,5 @@
 {% extends 'admin/base_site.html' %}
-
+{% load i18n admin_list %}
 
 {% block content %}
 
@@ -8,7 +8,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
-                        <h1 class="h4 m-0 pr-3 mr-3"> Available Datasets </h1>
+                        <h1 class="h4 m-0 pr-3 mr-3"> {% trans 'Available Datasets' %} </h1>
                     </div>
                 </div>
             </div>
@@ -19,33 +19,34 @@
 
 
         <!-- Tab Navigation -->
-        <ul class="nav nav-tabs" id="datasetTabs" role="tablist">
-            {% if vector_datasets.count > 0 %}
-                <li class="nav-item">
-                    <a class="nav-link active" id="vector-tab" data-toggle="tab" href="#vector" role="tab"
-                       aria-controls="vector" aria-selected="true">
-                        Vector Datasets
-                    </a>
-                </li>
-            {% endif %}
-            {% if raster_datasets.count > 0 %}
-                <li class="nav-item">
-                    <a class="nav-link" id="raster-tab" data-toggle="tab" href="#raster" role="tab"
-                       aria-controls="raster" aria-selected="false">
-                        Raster Datasets
-                    </a>
-                </li>
-            {% endif %}
-            {% if custom_datasets.count > 0 %}
-                <li class="nav-item">
-                    <a class="nav-link " id="custom-tab" data-toggle="tab" href="#custom" role="tab"
-                       aria-controls="custom" aria-selected="false">
-                        Custom Datasets
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
-
+        <nav>
+            <ul class="nav nav-tabs nav-fill" id="datasetTabs">
+                {% if vector_datasets.count > 0 %}
+                    <li class="nav-item">
+                        <a class="nav-link active" id="vector-tab" data-toggle="tab" href="#vector" role="tab"
+                           aria-controls="vector" aria-selected="true">
+                            {% trans 'Vector Datasets' %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if raster_datasets.count > 0 %}
+                    <li class="nav-item">
+                        <a class="nav-link" id="raster-tab" data-toggle="tab" href="#raster" role="tab"
+                           aria-controls="raster" aria-selected="false">
+                            {% trans 'Raster Datasets' %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if custom_datasets.count > 0 %}
+                    <li class="nav-item">
+                        <a class="nav-link " id="custom-tab" data-toggle="tab" href="#custom" role="tab"
+                           aria-controls="custom" aria-selected="false">
+                            {% trans 'Custom Datasets' %}
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>  
         <!-- Tab Content -->
         <div class="tab-content" id="datasetTabsContent">
             {% if vector_datasets.count > 0 %}
@@ -65,7 +66,6 @@
             {% endif %}
         </div>
     </div>
-
 
 
 {% endblock %}

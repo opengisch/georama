@@ -12,14 +12,18 @@
     <table class="table table-striped table-hover">
         <tbody>
         {% for project in cl.result_list %}
-            <tr class="even" role="button" onclick="window.location='{% url 'admin:data_integration_project_change' project.pk %}'">
+            <tr class="even">
                 <td class="align-middle" style="width: 150px;">
-                    <img src="{% static 'images/qgis.png' %}" alt="{% trans 'QGIS Logo' %}"
-                         class="rounded img-thumbnail"/>
+                    <a href="{% url 'admin:data_integration_project_change' project.pk %}">
+                        <img src="{% static 'images/qgis.png' %}" alt="{% trans 'QGIS Logo' %}"
+                             class="rounded img-thumbnail"/>
+                    </a>
                 </td>
                 <td class="align-middle">
                     <div class="d-flex flex-column">
-                        <h4>{{ project }}</h4>
+                        <a href="{% url 'admin:data_integration_project_change' project.pk %}">
+                            <h4>{{ project }}</h4>
+                        </a>
                         <h6>{{ project.name }}</h6>
                         <div>
                             {% if project.has_processing_error == True %}
@@ -78,7 +82,7 @@
                             <a href="{% url 'admin:data_integration_project_delete' project.pk %}"
                                class="btn btn-danger"
                                data-toggle="tooltip" data-placement="top"
-                               title="{% trans 'Delete QGIS project' %}">
+                               title="{% trans 'Delete project' %}">
                                 <i class="fa fa-trash-alt"></i>
                             </a>
                         </div>

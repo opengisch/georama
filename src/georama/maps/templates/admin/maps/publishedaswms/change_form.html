@@ -2,12 +2,14 @@
 {% load i18n admin_urls static admin_modify jazzmin %}
 
 {% block content_title %}
+
     <!-- Back button -->
-    <a type="button" class="btn btn-primary mr-3" href="{% url 'admin:data_integration_project_changelist' %}"
-       data-toggle="tooltip" data-placement="bottom" 
-       title="{% trans 'back to project list' %}">
+    <a type="button" class="btn btn-primary mr-3" href="{% url 'admin:maps_publishedaswms_changelist' %}"
+       data-toggle="tooltip" data-placement="bottom"
+       title="{% trans 'back to layer list' %}">
         <i class="fa fa-arrow-left"></i></a>
     {{ opts.verbose_name|capfirst }}
+
 {% endblock %}
 
 {% block field_sets %}
@@ -18,9 +20,8 @@
                 <!-- Form header -->
                 <div class="d-flex flex-row align-items-center mb-4">
                     <div class="mb-3 mr-3">
-                        <img src="{% static 'images/qgis.png' %}"
-                             alt="{% trans 'QGIS Logo' %}"
-                             class="rounded img-thumbnail"
+                        <img src="{{ original.preview_as_base64 }}"
+                             alt="{% trans 'WMS preview' %}" class="rounded img-thumbnail"
                              style="width: 130px;"/>
                     </div>
                     <div class="d-flex flex-column m-3">
@@ -34,23 +35,4 @@
             </div>
         </div>
     </div>
-{% endblock %}
-
-
-{% block submit_buttons_bottom %}
-
-    <!-- Button to show dataset list -->
-    <div>
-        <div class="form-group">
-            <a href="{% url 'admin:data_integration_dataset_list' original.pk %}"
-               class="btn btn-secondary form-control"
-               data-toggle="tooltip" data-placement="top"
-               title="{% trans 'Show list of datasets' %}">
-                <i class="fa fa-layer-group"></i>
-                {% trans 'Dataset list' %}
-            </a>
-        </div>
-    </div>
-    
-    {{  block.super }}
 {% endblock %}

@@ -2,7 +2,12 @@
     --georama-green: #7c993d;
     --georama-yellow: #d2a444;
     --georama-gray: #333333;
+
+    /* Slightly brighter colors */
+    --georama-green-sat: hsl(from var(--georama-green) h calc(s*1.5) l);
+    --georama-yellow-sat: hsl(from var(--georama-yellow) h calc(s*1.5) l);
 }
+
 
 /* Increase font sizes and buttons */
 .btn {
@@ -22,13 +27,39 @@ p {
     font-family: inherit;
 }
 
-/* Overwrite bootstrap colors for buttons and links */
+
+
+
+
+/* 
+Overwrite bootstrap colors for buttons and links
+*/
+
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+    color: var(--georama-gray);
+}
+
 .btn-primary,
+.btn-primary:not(:disabled):not(.disabled).active,
 .badge-primary,
 .btn-success,
 .badge-success {
     background-color: var(--georama-green);
     border-color: var(--georama-green);
+}
+.btn-primary:hover,
+.btn-primary:not(:disabled):not(.disabled):hover,
+.badge-primary:hover,
+.btn-success:hover,
+.badge-success:hover {
+    background-color: var(--georama-green-sat);
+    border-color: var(--georama-green-sat);
+}
+
+.btn-info:hover,
+.btn-secondary:hover {
+    background-color: var(--georama-yellow-sat);
+    border-color: var(--georama-yellow-sat);
 }
 .btn-info,
 .btn-secondary {
@@ -38,4 +69,33 @@ p {
 
 .accent-primary {
     color: var(--georama-green);
+}
+
+/* Don't like the no-border-style of button groups */
+.btn-group>.btn-group:not(:first-child), 
+.btn-group>.btn:not(:first-child) {
+    border-left-color: #dee2e6;
+    margin-left: 0;
+}
+
+
+
+
+
+/*
+App-specific styling
+ */
+
+/*
+Data integration
+ */
+.dataset-icon {
+    width: 130px;
+    height: 130px;
+    font-size: 5em;
+    display: flex;
+    align-items: center;
+}
+.dataset-icon > i {
+    padding: 1rem;
 }

@@ -11,10 +11,12 @@
 {% endblock %}
 
 {% block content_title %}
+    <!-- Back button -->
     <a type="button" class="btn btn-primary mr-3" href="{% url 'admin:data_integration_project_changelist' %}"
-       data-toggle="tooltip" data-placement="bottom" title="{% trans 'back to project list' %}">
+       data-toggle="tooltip" data-placement="bottom"
+       title="{% trans 'back to project list' %}">
         <i class="fa fa-arrow-left"></i></a>
-    {{ page_title }}
+    {{ opts.verbose_name|capfirst }}
 {% endblock %}
 
 
@@ -22,16 +24,18 @@
     <table class="table table-striped table-hover">
         <tbody>
         {% for ds in datasets %}
-{#            TODO PI: Link should be different depending on dataset type (vector, raster, other)#}
-            <tr class="even" role="button" onclick="window.location='{% url 'admin:data_integration_vectordataset_change' ds.pk %}'">
-                <td class="align-middle" style="width: 150px; height: 150px">
-                    <a class="rounded img-thumbnail">
-                        <i class="fa fa-bezier-curve" style="font-size: 7em"></i>
+            <tr class="even">
+                <td class="align-middle" style="width: 130px;">
+{#                    TODO PI: how to make this URL dynamic?#}
+                    <a href="{% url 'admin:data_integration_vectordataset_change' ds.pk %}" class="dataset-icon img-thumbnail">
+                        <i class="{{ ds.icon }}"></i>
                     </a>
                 </td>
                 <td class="align-middle">
                     <div class="d-flex flex-column">
-                        <h4>{{ ds.title }}</h4>
+                        <a href="{% url 'admin:data_integration_vectordataset_change' ds.pk %}">
+                            <h4>{{ ds }}</h4>
+                        </a>
                         <h6>{{ ds.name }}</h6>
                     </div>
                 </td>
@@ -39,11 +43,13 @@
                     <div class="btn-toolbar d-flex justify-content-end" role="toolbar" aria-label="Toolbar with button groups">
 
                         <div class="btn-group mr-3" role="group" aria-label="Third group">
-                            <a href=""
-                               class="btn btn-danger"
-                               data-toggle="tooltip" data-placement="top" title="{% trans 'delete QGIS project' %}">
-                                <i class="fa fa-trash-alt"></i>
-                            </a>
+                            {% if ds.project == null %}
+                                <a href="{% url 'admin:data_integration_vectordataset_delete' ds.pk %}"
+                                   class="btn btn-danger"
+                                   data-toggle="tooltip" data-placement="top" title="{% trans 'Delete dataset' %}">
+                                    <i class="fa fa-trash-alt"></i>
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </td>

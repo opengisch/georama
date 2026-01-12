@@ -134,6 +134,14 @@ class DataSet(models.Model):
     def styles_to_qsl(self) -> List[Style]:
         return DictDecoder(config=self.get_parser_config).decode(self.styles, List[Style])
 
+    @property
+    def data_type(self) -> str:
+        return self.__class__.__name__.lower()
+
+    @property
+    def icon(self):
+        return "fa fa-question"
+
     def __str__(self):
         return f"{self.title} ({self.name})"
 
@@ -182,6 +190,10 @@ class VectorDataSet(DataSet):
             fields=self.fields_to_qsl,
         )
 
+    @property
+    def icon(self):
+        return "fa fa-bezier-curve"
+
 
 class RasterDataSet(DataSet):
     class Meta:
@@ -215,6 +227,10 @@ class RasterDataSet(DataSet):
             maximum_scale=self.maximum_scale,
         )
 
+    @property
+    def icon(self):
+        return "fa fa-grid"
+
 
 class CustomDataSet(DataSet):
     class Meta:
@@ -247,6 +263,10 @@ class CustomDataSet(DataSet):
             minimum_scale=self.minimum_scale,
             maximum_scale=self.maximum_scale,
         )
+
+    @property
+    def icon(self):
+        return "fa fa-flask"
 
 
 class Field(models.Model):
