@@ -1,37 +1,40 @@
+{% load i18n %}
 
-                        <div class="row">
-                            <div class="card">
-                                <div class="card-body">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Title</th>
-                                                <th>Project</th>
-                                                <th>Mandant</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for dataset in datasets %}
-                                                <tr class="even" role="row">
-                                                    <td>{{ dataset.name }}</td>
-                                                    <td>{{ dataset.title }}</td>
-                                                    <td>{{ dataset.project.name }}</td>
-                                                    <td>{{ dataset.project.mandant.name }}</td>
-                                                    <td>
-                                                    {% if model == "vector" %}
-                                                        <a href="{% url publish_view_name model dataset.pk %}" class="btn btn-high btn-success">publish</a>
-                                                    {% elif model == "raster"%}
-                                                        <a href="{% url publish_view_name model dataset.pk %}" class="btn btn-high btn-success">publish</a>
-                                                    {% else %}
-                                                        <a href="{% url publish_view_name model dataset.pk %}" class="btn btn-high btn-success">publish</a>
-                                                    {% endif %}
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+{{ dataset.meta }}
+<div class="row">
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{ field_labels.name|capfirst }}</th>
+                        <th>{{ field_labels.title|capfirst }}</th>
+                        <th>{{ field_labels.project|capfirst }}</th>
+                        <th>{{ field_labels.mandant|capfirst }}</th>
+                        <th>{% trans 'Action' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dataset in datasets %}
+                        <tr class="even" role="row">
+                            <td>{{ dataset.name }}</td>
+                            <td>{{ dataset.title }}</td>
+                            <td>{{ dataset.project.name }}</td>
+                            <td>{{ dataset.project.mandant.name }}</td>
+                            <td>
+                                {% trans 'publish' as publish %}
+                                {% if model == "vector" %}
+                                    <a href="{% url publish_view_name model dataset.pk %}" class="btn btn-high btn-success">{{ publish }}</a>
+                                {% elif model == "raster"%}
+                                    <a href="{% url publish_view_name model dataset.pk %}" class="btn btn-high btn-success">{{ publish }}</a>
+                                {% else %}
+                                    <a href="{% url publish_view_name model dataset.pk %}" class="btn btn-high btn-success">{{ publish }}</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

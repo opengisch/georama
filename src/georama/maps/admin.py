@@ -1,4 +1,3 @@
-import base64
 from dataclasses import fields
 from urllib.parse import quote
 
@@ -11,7 +10,13 @@ from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.qgis import BBox
 
 from georama.core.entities.models import save_group_permissions, save_user_permissions
-from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
+from georama.data_integration.models import (
+    Project,
+    DataSet,
+    CustomDataSet,
+    RasterDataSet,
+    VectorDataSet,
+)
 from georama.maps.forms import PublishedAsWmsForm
 from georama.maps.interfaces.georama.requests import (
     QslGetMapRequest,
@@ -21,6 +26,7 @@ from georama.maps.interfaces.georama.requests import (
 )
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0 import WfsOperation
+from maps.apps import MapsConfig
 
 
 def wms_get_capabilities_url() -> str:
@@ -42,11 +48,35 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     form = PublishedAsWmsForm
 
     def add_view(self, request, form_url="", extra_context=None):
+        field_labels = {
+            "name": DataSet._meta.get_field("name").verbose_name,
+            "title": DataSet._meta.get_field("title").verbose_name,
+            "project": Project._meta.verbose_name,
+            "mandant": Project._meta.get_field("mandant").verbose_name,
+        }
+        nav_labels = {
+            "vector": VectorDataSet._meta.verbose_name_plural,
+            "raster": RasterDataSet._meta.verbose_name_plural,
+            "custom": CustomDataSet._meta.verbose_name_plural,
+        }
+
         extra_context = extra_context or {}
-        extra_context["raster_datasets"] = RasterDataSet.objects.all()
-        extra_context["vector_datasets"] = VectorDataSet.objects.all()
-        extra_context["custom_datasets"] = CustomDataSet.objects.all()
-        extra_context["publish_dataset_as_wms_view_name"] = "maps_publish_dataset_as_wms"
+        extra_context.update(
+            dict(
+                # Include common variables for rendering the admin template.
+                self.admin_site.each_context(request),
+                vector_datasets=VectorDataSet.objects.all(),
+                raster_datasets=RasterDataSet.objects.all(),
+                custom_datasets=CustomDataSet.objects.all(),
+                publish_dataset_as_wms_view_name="maps_publish_dataset_as_wms",
+                field_labels=field_labels,
+                nav_labels=nav_labels,
+                model_name=PublishedAsWms._meta.verbose_name_plural,
+                app_label=MapsConfig.get_simple_appname(),
+                app_verbose_name=MapsConfig.verbose_name,
+            )
+        )
+
         return super().add_view(
             request,
             form_url,

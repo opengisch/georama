@@ -66,8 +66,8 @@ class Project(models.Model):
     )
 
     class Meta:
-        verbose_name = _("project")
-        verbose_name_plural = _("projects")
+        verbose_name = _("Project")
+        verbose_name_plural = _("Projects")
         unique_together = (
             "name",
             "version",
@@ -91,20 +91,60 @@ class Project(models.Model):
 class DataSet(models.Model):
     class Meta:
         abstract = True
+        verbose_name = _("dataset")
+        verbose_name_plural = _("datasets")
 
-    name = models.CharField(null=False, max_length=1000)
-    qgis_layer_id = models.CharField(null=False, max_length=1000, unique=True)
-    title = models.CharField(max_length=1000)
-    bbox = models.CharField(max_length=1000)
-    bbox_wgs84 = models.CharField(max_length=1000)
-    path = models.CharField(max_length=10000)
-    source = models.JSONField(default=dict)
-    styles = models.JSONField(default=dict)
+    name = models.CharField(
+        null=False, max_length=1000, verbose_name=_("name"), help_text=_("Name of the dataset")
+    )
+    qgis_layer_id = models.CharField(
+        null=False,
+        max_length=1000,
+        unique=True,
+        verbose_name=_("qgis layer id"),
+        help_text=_("Layer ID of the dataset in the QGIS project"),
+    )
+    title = models.CharField(
+        max_length=1000, verbose_name=_("title"), help_text=_("Title of the dataset")
+    )
+    bbox = models.CharField(
+        max_length=1000, verbose_name=_("bounding box"), help_text=_("Extent of the dataset")
+    )
+    bbox_wgs84 = models.CharField(
+        max_length=1000,
+        verbose_name=_("bounding box WGS84"),
+        help_text=_("Extent of the dataset in WGS84"),
+    )
+    path = models.CharField(
+        max_length=10000,
+        verbose_name=_("file path"),
+        help_text=_("File path or connection string"),
+    )
+    source = models.JSONField(
+        default=dict, verbose_name=_("source"), help_text=_("Source definition")
+    )
+    styles = models.JSONField(default=dict, verbose_name=_("styles"), help_text=_("Symbology"))
     # TODO: implement ENUM (wms, ogr, gdal, etc.)
-    driver = models.CharField(max_length=50)
-    crs = models.JSONField(default=dict)
-    minimum_scale = models.FloatField(null=True)
-    maximum_scale = models.FloatField(null=True)
+    driver = models.CharField(
+        max_length=50,
+        verbose_name=_("driver"),
+        help_text=_("Software-Driver to read the dataset"),
+    )
+    crs = models.JSONField(
+        default=dict,
+        verbose_name=_("crs"),
+        help_text=_("Coordinate Reference System, as EPSG-Code"),
+    )
+    minimum_scale = models.FloatField(
+        null=True,
+        verbose_name=_("minimum scale"),
+        help_text=_("Minimum scale at which dataset is visible"),
+    )
+    maximum_scale = models.FloatField(
+        null=True,
+        verbose_name=_("maximum scale"),
+        help_text=_("Maximum scale at which dataset is visible"),
+    )
 
     @property
     def get_parser_config(self):
@@ -135,10 +175,6 @@ class DataSet(models.Model):
         return DictDecoder(config=self.get_parser_config).decode(self.styles, List[Style])
 
     @property
-    def data_type(self) -> str:
-        return self.__class__.__name__.lower()
-
-    @property
     def icon(self):
         return "fa fa-question"
 
@@ -148,6 +184,8 @@ class DataSet(models.Model):
 
 class VectorDataSet(DataSet):
     class Meta:
+        verbose_name = _("Vector Dataset")
+        verbose_name_plural = _("Vector Datasets")
         unique_together = (
             "name",
             "project",
@@ -158,6 +196,7 @@ class VectorDataSet(DataSet):
         related_name="vector_datasets",
         related_query_name="vector_dataset",
         on_delete=models.CASCADE,
+        verbose_name=_("project"),
     )
     geometry_type_simple = models.CharField(max_length=1000, null=False, default="UNSET")
     geometry_type_wkb = models.CharField(max_length=1000, null=False, default="UNSET")
@@ -197,6 +236,8 @@ class VectorDataSet(DataSet):
 
 class RasterDataSet(DataSet):
     class Meta:
+        verbose_name = _("Raster Dataset")
+        verbose_name_plural = _("Raster Datasets")
         unique_together = (
             "name",
             "project",
@@ -207,6 +248,7 @@ class RasterDataSet(DataSet):
         related_name="raster_datasets",
         related_query_name="raster_dataset",
         on_delete=models.CASCADE,
+        verbose_name=_("project"),
     )
 
     @property
@@ -234,6 +276,8 @@ class RasterDataSet(DataSet):
 
 class CustomDataSet(DataSet):
     class Meta:
+        verbose_name = _("Custom Dataset")
+        verbose_name_plural = _("Custom Datasets")
         unique_together = (
             "name",
             "project",
@@ -244,6 +288,7 @@ class CustomDataSet(DataSet):
         related_name="custom_datasets",
         related_query_name="custom_dataset",
         on_delete=models.CASCADE,
+        verbose_name=_("project"),
     )
 
     @property

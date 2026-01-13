@@ -1,19 +1,28 @@
 {% extends 'admin/base_site.html' %}
 {% load i18n admin_list %}
 
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=app_label %}">{{ app_verbose_name|capfirst }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin:maps_publishedaswms_changelist' %}">{{ model_name|capfirst }}</a></li>
+        <li class="breadcrumb-item active">{% trans 'Add WMS layer' %}</li>
+    </ol>
+{% endblock %}
+
+
+{% block content_title %}
+    <!-- Back button -->
+    <a type="button" class="btn btn-primary mr-3" href="{% url 'admin:maps_publishedaswms_changelist' %}"
+       data-toggle="tooltip" data-placement="bottom" title="{% trans 'back to layer list' %}">
+        <i class="fa fa-arrow-left"></i></a>
+    {% trans 'Available Datasets' %}
+{% endblock %}
+
+
 {% block content %}
 
     <div class="content-wrapper">
-        <div class="content border-bottom mb-2">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
-                        <h1 class="h4 m-0 pr-3 mr-3"> {% trans 'Available Datasets' %} </h1>
-                    </div>
-                </div>
-            </div>
-        </div>
-
 
         {% include "core/publish_searchbar.html" %}
 
@@ -25,7 +34,7 @@
                     <li class="nav-item">
                         <a class="nav-link active" id="vector-tab" data-toggle="tab" href="#vector" role="tab"
                            aria-controls="vector" aria-selected="true">
-                            {% trans 'Vector Datasets' %}
+                            {{ nav_labels.vector }}
                         </a>
                     </li>
                 {% endif %}
@@ -33,7 +42,7 @@
                     <li class="nav-item">
                         <a class="nav-link" id="raster-tab" data-toggle="tab" href="#raster" role="tab"
                            aria-controls="raster" aria-selected="false">
-                            {% trans 'Raster Datasets' %}
+                            {{ nav_labels.raster }}
                         </a>
                     </li>
                 {% endif %}
@@ -41,7 +50,7 @@
                     <li class="nav-item">
                         <a class="nav-link " id="custom-tab" data-toggle="tab" href="#custom" role="tab"
                            aria-controls="custom" aria-selected="false">
-                            {% trans 'Custom Datasets' %}
+                            {{ nav_labels.custom }}
                         </a>
                     </li>
                 {% endif %}
@@ -51,7 +60,7 @@
         <div class="tab-content" id="datasetTabsContent">
             {% if vector_datasets.count > 0 %}
                 <div class="tab-pane fade active show" id="vector" role="tabpanel" aria-labelledby="vector-tab">
-                    {% include 'admin/maps/publishedaswms/publish_datatable.html' with datasets=vector_datasets model="vector" publish_view_name=publish_dataset_as_wms_view_name%}
+                    {% include 'admin/maps/publishedaswms/publish_datatable.html' with datasets=vector_datasets model="vector" publish_view_name=publish_dataset_as_wms_view_name %}
                 </div>
             {% endif %}
             {% if raster_datasets.count > 0 %}
