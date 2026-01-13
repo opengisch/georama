@@ -1,18 +1,14 @@
 import hashlib
-import logging
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Type
 
-from django import forms
 from django.contrib import admin
-from django.contrib.admin import action
 
 from django.http import HttpRequest
 from django.template.response import TemplateResponse
-from django.urls import path, reverse
-from django.utils.html import format_html
+from django.urls import path
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -164,17 +160,13 @@ class QgisProjectFileStructure:
         return None
 
 
+@admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    fields = [
-        "mandant",
-        "version",
-        "hash",
-        "modification_date",
-        "integration_date",
-    ]
+    add_form_template = "admin/data_integration/project/qgis_projects.html"
+
+    exclude = ["name", "title"]
+
     readonly_fields = [
-        "name",
-        "title",
         "mandant",
         "version",
         "hash",
@@ -184,79 +176,11 @@ class ProjectAdmin(admin.ModelAdmin):
 
     extra_actions = ["dataset_list"]
 
-    def has_add_permission(self, request, obj=None):
-        return False
-
     def has_change_permission(self, request, obj=None):
+        # Deactivate change action, projects can only be changed by integrating a QGIS project
         return False
 
-    def project_file_uptodate(self, obj: Project):
-        try:
-            config = Config()
-            qpfs = QgisProjectFileStructure(config.path)
-            qpfs.create_groups(config.qgis_project_extensions)
-            group = qpfs.find_group_by_name(obj.mandant.name)
-            project = group.find_project_by_name(obj.name)
-            export_url = reverse(
-                "georama.data_integration:export_qgis_project",
-                kwargs={
-                    "mandant_name": obj.mandant.name,
-                    "project_name": obj.name,
-                },
-            )
-            integrate_url = reverse(
-                "georama.data_integration:register_qgis_project",
-                kwargs={
-                    "mandant_name": obj.mandant.name,
-                    "project_name": obj.name,
-                },
-            )
-            if obj.hash == project.hash:
-                return mark_safe(
-                    "".join(
-                        [
-                            '<div class="d-flex flex-nowrap">',
-                            f'<a onclick="showWaitModalOverlay()" href="{export_url}" class="btn btn-high btn-success mr-2"><i class="fa fa-file-alt"></i> extract</a>',
-                            '<a class="btn btn-high btn-success" style="pointer-events: none"><i class="fa fa-check-circle" aria-hidden="true"></i> integrated</a>',
-                            "</div>",
-                        ]
-                    )
-                )
-            else:
-                return mark_safe(
-                    "".join(
-                        [
-                            '<div class="d-flex flex-nowrap">',
-                            f'<a onclick="showWaitModalOverlay()" href="{export_url}" class="btn btn-high btn-success mr-2"><i class="fa fa-file-alt"></i> extract</a>',
-                            f'<a href="{integrate_url}" class="btn btn-high btn-success"><i class="fa fa-arrow-alt-circle-up" aria-hidden="true"></i> integrate</a>',
-                            "</div>",
-                        ]
-                    )
-                )
-        except Exception as e:
-            logging.error(f"Could not check project status. Original Error: {e}")
-            return ""
-
-    project_file_uptodate.admin_order_field = "project_file_uptodate"
-    project_file_uptodate.short_description = "Project File Status"
-
-    def get_urls(self):
-        urls = super().get_urls()
-        my_urls = [
-            path(
-                "qgis_projects/",
-                self.admin_site.admin_view(self.qgis_projects),
-                name="data_integration_qgis_projects",
-            ),
-            path(
-                "dataset_list/<str:project_pk>",
-                self.admin_site.admin_view(self.dataset_list),
-                name="data_integration_dataset_list",
-            ),
-        ]
-        return my_urls + urls
-
-    def qgis_projects(self, request: HttpRequest, extra_context=None):
+    def add_view(self, request, form_url="", extra_context=None):
         config = Config()
         qgis_project_file_structure = QgisProjectFileStructure(os.path.join(config.path))
         qgis_project_file_structure.create_groups(config.qgis_project_extensions)
@@ -273,9 +197,22 @@ class ProjectAdmin(admin.ModelAdmin):
                 app_verbose_name=DataintegrationConfig.verbose_name,
             )
         )
-        return TemplateResponse(
-            request, "admin/data_integration/project/qgis_projects.html", extra_context
+        return super().add_view(
+            request,
+            form_url,
+            extra_context=extra_context,
         )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path(
+                "dataset_list/<str:project_pk>",
+                self.admin_site.admin_view(self.dataset_list),
+                name="data_integration_dataset_list",
+            ),
+        ]
+        return my_urls + urls
 
     def dataset_list(
         self, request: HttpRequest, project_pk: int | None = None, extra_context=None, **kwargs
@@ -285,7 +222,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
         if project_pk:
             page_title = _(
-                "Datasets in project «{project}»".format(
+                "Datasets in Project «{project}»".format(
                     project=Project.objects.get(pk=project_pk)
                 )
             )
@@ -294,7 +231,7 @@ class ProjectAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         extra_context.update(
             dict(
-                # Include common variables for rendering the admin template.
+                # Include common variables for rendering the admin template
                 self.admin_site.each_context(request),
                 datasets=datasets,
                 model_name=Project._meta.verbose_name_plural,
@@ -360,15 +297,17 @@ class DataSetAdmin(admin.ModelAdmin):
     crs_detail.short_description = "Crs"
 
 
+@admin.register(RasterDataSet)
 class RasterDataSetAdmin(DataSetAdmin):
-
     pass
 
 
+@admin.register(CustomDataSet)
 class CustomDataSetAdmin(DataSetAdmin):
     pass
 
 
+@admin.register(VectorDataSet)
 class VectorDataSetAdmin(DataSetAdmin):
     list_display = ["name", "mandant_name", "project_name", "field_count"]
     fields = DataSetAdmin.fields + ["fields_detail"]
@@ -400,13 +339,6 @@ class VectorDataSetAdmin(DataSetAdmin):
     field_count.short_description = "Fields"
 
 
+@admin.register(Mandant)
 class MandantAdmin(admin.ModelAdmin):
     pass
-
-
-# Register your models here.
-admin.site.register(Project, ProjectAdmin)
-admin.site.register(Mandant, MandantAdmin)
-admin.site.register(VectorDataSet, VectorDataSetAdmin)
-admin.site.register(RasterDataSet, RasterDataSetAdmin)
-admin.site.register(CustomDataSet, CustomDataSetAdmin)
