@@ -20,6 +20,7 @@ from georama.data_integration.models import (
     Project,
     RasterDataSet,
     VectorDataSet,
+    DataSet,
 )
 
 
@@ -251,7 +252,6 @@ class ProjectAdmin(admin.ModelAdmin):
 
 
 class DataSetAdmin(admin.ModelAdmin):
-    list_display = ["name"]
     fields = [
         "name",
         "title",
@@ -260,41 +260,65 @@ class DataSetAdmin(admin.ModelAdmin):
         "maximum_scale",
         "source_detail",
         "crs_detail",
-        "path",
+        "path_detail",
         "driver",
     ]
 
-    readonly_fields = [
-        "name",
-        "title",
-        "bbox",
-        "source_detail",
-        "crs_detail",
-        "path",
-        "driver",
-    ]
+    def get_readonly_fields(self, request, obj=None):
+        # TODO PI: What should not be editable when it's a manual dataset?
+        readonly_fields = [
+            "name",
+            "qgis_layer_id",
+            "bbox",
+            "source_detail",
+            "crs_detail",
+            "path_detail",
+            "driver",
+        ]
+        if self.belongs_to_a_project(obj):
+            return readonly_fields + ["title"]
+        else:
+            return readonly_fields
 
+    @staticmethod
+    def belongs_to_a_project(obj):
+        return obj and obj.project is not None
+
+    @admin.display(description=DataSet._meta.get_field("source").verbose_name)
     def source_detail(self, obj):
-        snippet_parts = ["<ul>"]
         for key in obj.source:
-            snippet_parts.append(
-                f'<li><label>{key}</label> → <span class="badge badge-secondary">{obj.source[key]}</span></li>'
-            )
-        snippet_parts.append("</ul>")
-        return mark_safe("".join(snippet_parts))
+            if obj.source[key] is not None:
+                return mark_safe(f"{key}<pre><code>{obj.source[key]}</code></pre>")
+        return "-"
 
-    source_detail.short_description = "Source"
-
+    @admin.display(description=DataSet._meta.get_field("crs").verbose_name)
     def crs_detail(self, obj):
-        snippet_parts = ["<ul>"]
-        for key in obj.crs:
-            snippet_parts.append(
-                f'<li><label>{key}</label> → <span class="badge badge-secondary">{obj.crs[key]}</span></li>'
-            )
-        snippet_parts.append("</ul>")
-        return mark_safe("".join(snippet_parts))
+        return obj.crs["AuthId"]
 
-    crs_detail.short_description = "Crs"
+    @admin.display(description=DataSet._meta.get_field("path").verbose_name)
+    def path_detail(self, obj):
+        return mark_safe(f"<pre><code>{obj.path}</code></pre>")
+
+    def get_form(self, request, obj=None, **kwargs):
+        # Overwrite form to add help_text from the model
+        help_texts = {
+            "source_detail": DataSet._meta.get_field("source").help_text,
+            "crs_detail": DataSet._meta.get_field("crs").help_text,
+            "path_detail": DataSet._meta.get_field("path").help_text,
+        }
+        kwargs.update({"help_texts": help_texts})
+        return super().get_form(request, obj, **kwargs)
+
+    def change_view(self, request, object_id=None, form_url="", extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["show_save_and_add_another"] = False
+        extra_context["parent_page_title"] = "TODO"
+        return super().change_view(
+            request,
+            object_id,
+            form_url,
+            extra_context=extra_context,
+        )
 
 
 @admin.register(RasterDataSet)
@@ -309,9 +333,11 @@ class CustomDataSetAdmin(DataSetAdmin):
 
 @admin.register(VectorDataSet)
 class VectorDataSetAdmin(DataSetAdmin):
-    list_display = ["name", "mandant_name", "project_name", "field_count"]
+
     fields = DataSetAdmin.fields + ["fields_detail"]
-    readonly_fields = DataSetAdmin.fields + ["fields_detail"]
+
+    def get_readonly_fields(self, request, obj=None):
+        return DataSetAdmin.get_readonly_fields(self, request, obj) + ["fields_detail"]
 
     def mandant_name(self, obj: VectorDataSet):
         return obj.project.mandant.name
@@ -319,24 +345,19 @@ class VectorDataSetAdmin(DataSetAdmin):
     def project_name(self, obj: VectorDataSet):
         return obj.project.name
 
+    @admin.display(description=_("Fields"))
     def fields_detail(self, obj: VectorDataSet):
-        snippet_parts = ["<ul>"]
-        for field in obj.fields.all():
+        if obj and obj.fields.count() == 0:
+            return _("No fields defined")
+
+        total = _("Dataset contains {count} fields".format(count=obj.fields.count()))
+        snippet_parts = [f"<span>{total}:</span>" '<ul class="list-group list-group-flush">']
+        for f in obj.fields.all():
             snippet_parts.append(
-                f'<li><label>{field.name}</label> → <span class="badge badge-secondary">{field.type}</span></li>'
+                f'<li class="list-group-item"><code>{f.name} [{f.type}]</code></li>'
             )
         snippet_parts.append("</ul>")
         return mark_safe("".join(snippet_parts))
-
-    fields_detail.short_description = "Fields"
-
-    def field_count(self, obj):
-        return mark_safe(
-            '<span class="badge badge-secondary">{}</span>'.format(obj.fields.count())
-        )
-
-    field_count.admin_order_field = "field_count"
-    field_count.short_description = "Fields"
 
 
 @admin.register(Mandant)

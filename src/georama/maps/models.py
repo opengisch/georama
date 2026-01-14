@@ -58,7 +58,7 @@ class PublishedAsWmsAbstract(PublishedAs):
         max_length=1000,
         null=True,
         blank=True,
-        help_text=_("Transforms the defined extent into WGS84 projection"),
+        help_text=_("The specified extent in WGS84 coordinates"),
     )
     preview = models.BinaryField(
         verbose_name=_("preview"),

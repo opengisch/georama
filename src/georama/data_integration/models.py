@@ -179,7 +179,7 @@ class DataSet(models.Model):
         return "fa fa-question"
 
     def __str__(self):
-        return f"{self.title} ({self.name})"
+        return self.title or self.name
 
 
 class VectorDataSet(DataSet):

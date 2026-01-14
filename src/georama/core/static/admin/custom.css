@@ -26,9 +26,18 @@
 p {
     font-family: inherit;
 }
-
-
-
+/* Make code blocks wrap and grey */
+pre code {
+    font-size: 13px;
+    text-wrap: auto;
+}
+code {
+    color: var(--georama-gray)
+}
+pre {
+    padding-left: 0;
+    margin-bottom: 0;
+}
 
 
 /* 
@@ -95,7 +104,6 @@ Data integration
     font-size: 5em;
     display: flex;
     align-items: center;
-}
-.dataset-icon > i {
-    padding: 1rem;
+    justify-content: center;
+    color: var(--georama-green) !important;
 }
