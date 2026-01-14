@@ -7,7 +7,8 @@
   <nav class="navbar navbar-expand-lg bg-body border-bottom sticky-top">
     <div class="container">
       <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
-        <img src="{% static 'images/main.svg' %}" alt="Georama" width="150" height="136" class="d-inline-block align-text-top">
+        <img src="{% static 'images/main_live.png' %}" alt="Georama" class="d-inline-block align-text-top">
+        <span class="navbar-brand-text navbar-brand-domain text-nowrap ms-2">{{ site_domain }}</span>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -25,6 +26,9 @@
           <li class="nav-item">
             <a class="nav-link" href="https://docs.georama.io">Docs</a>
           </li>
+          <li class="nav-item d-flex align-items-center">
+            <a class="btn btn-outline-secondary btn-sm px-4" href="/login">Login</a>
+          </li>
         </ul>
       </div>
     </div>
@@ -33,18 +37,7 @@
 
 <div id="content">
   <main class="landing-page">
-    <section class="section-hero position-relative overflow-hidden py-5">
-      <div class="container position-relative">
-        <div class="row align-items-center gy-5">
-          <div class="col-lg-6">
-            <h1 class="hero-title mb-3">Georama</h1>
-            <p class="lead text-secondary mb-4">Panorama over your geospatial data. Integrate, explore, and serve maps with ease.</p>
-            <a href="#features" class="btn btn-cta btn-lg">Learn More</a>
-          </div>
-          <div class="col-lg-6"><div class="hero-visual card border-0 shadow-sm ms-lg-auto"><div class="ratio ratio-4x3"><img class="img-fluid" src="https://georama.io/images/hero-visual.svg" alt="Deployment overview"></div></div></div>
-        </div>
-      </div>
-    </section>
+    
 
     <section class="section-block py-5" id="modules">
       <div class="container">
