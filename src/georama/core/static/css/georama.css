@@ -11066,6 +11066,110 @@ b,strong {
 .navbar-nav .nav-link:hover,.navbar-nav .nav-link:focus {
   color:var(--brand-green-dark)
 }
+.mindmap {
+  --mindmap-radius: min(280px, 32vw);
+  position:relative;
+  width:min(720px, 90vw);
+  aspect-ratio:1/1;
+  margin:2.5rem auto 0;
+}
+.mindmap-center {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:190px;
+  height:190px;
+  border-radius:50%;
+  border:2px solid var(--brand-green);
+  background:var(--bs-body-bg);
+  box-shadow:0 15px 35px rgba(0,0,0,0.1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0.75rem;
+}
+.mindmap-center img {
+  width:85%;
+  max-width:150px;
+  height:auto;
+  display:block;
+}
+.mindmap-node {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform-origin:center;
+  transform:translate(-50%,-50%) rotate(var(--angle)) translateY(calc(-1 * var(--mindmap-radius))) rotate(calc(-1 * var(--angle)));
+  transition:transform 0.35s ease;
+}
+.mindmap-card {
+  width:170px;
+  min-height:190px;
+  padding:1rem;
+  background:var(--bs-body-bg);
+  border:1px solid var(--brand-line);
+  border-radius:18px;
+  box-shadow:-8px 8px 20px rgba(210,164,68,0.24);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  text-align:center;
+  transition:box-shadow 200ms ease, transform 200ms ease;
+}
+.mindmap-card:hover {
+  box-shadow:-10px 10px 26px rgba(210,164,68,0.4);
+  transform:translate(1px, -1px);
+}
+.mindmap-card h5 {
+  font-size:1rem;
+  font-weight:600;
+}
+.mindmap-card p {
+  color:var(--bs-secondary-color);
+  font-size:0.85rem;
+  margin-bottom:0.35rem;
+}
+.mindmap-card .icon-circle {
+  margin-left:auto;
+  margin-right:auto;
+  margin-bottom:0.5rem;
+}
+.mindmap-card .btn {
+  align-self:center;
+}
+.mindmap-card .d-flex {
+  justify-content:center;
+}
+
+@media (max-width: 992px) {
+  .mindmap {
+    --mindmap-radius: min(220px, 40vw);
+  }
+}
+
+@media (max-width: 768px) {
+  .mindmap {
+    aspect-ratio:auto;
+    height:auto;
+    display:flex;
+    flex-direction:column;
+    gap:1rem;
+  }
+  .mindmap-center {
+    position:relative;
+    margin:0 auto;
+  }
+  .mindmap-node {
+    position:static;
+    transform:none;
+  }
+  .mindmap-card {
+    width:100%;
+    max-width:360px;
+  }
+}
+
 .menu-main .nav-item .btn {
   font-size:var(--bs-body-font-size);
   line-height:var(--bs-body-line-height);
@@ -11142,10 +11246,10 @@ b,strong {
 }
 .cta-panel {
   border-color:var(--brand-line);
-  background:#fff
+  background:linear-gradient(135deg, rgba(130,180,64,0.18) 0%, rgba(130,180,64,0.05) 55%, #ffffff 100%)
 }
 [data-bs-theme="dark"] .cta-panel {
-  background:#2f2f2f
+  background:linear-gradient(135deg, rgba(130,180,64,0.22) 0%, rgba(130,180,64,0.08) 55%, #2f2f2f 100%)
 }
 .cta-panel--dashed {
   background:#ffffff;
