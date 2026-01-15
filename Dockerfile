@@ -13,11 +13,8 @@ RUN apt-get update && \
       build-essential \
       make \
       git \
-      curl
-
-ARG TINI_VERSION=v0.19.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
+      curl \
+      tini
 
 #########################
 #  DEV
@@ -44,6 +41,6 @@ RUN VENV_PATH=${VENV_PATH} make install-dev
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=core.settings
 
-ENTRYPOINT ["/tini", "--", "make"]
+ENTRYPOINT ["/usr/bin/tini", "--", "make"]
 
 CMD ["serve-dev-outbound"]
