@@ -113,7 +113,6 @@ class Base(Configuration):
         "hide_apps": ["socialaccount"],
         # Hide these models when generating side menu (e.g auth.user)
         "hide_models": [
-            "data_integration.Mandant",
             "data_integration.RasterDataSet",
             "data_integration.VectorDataSet",
             "data_integration.CustomDataSet",
@@ -123,6 +122,8 @@ class Base(Configuration):
             "account",
             "auth",
             "data_integration",
+            "data_integration.project",
+            "data_integration.manualdataset",
             "qfield_link",
             "maps",
             "features",
@@ -135,18 +136,10 @@ class Base(Configuration):
         ],
         # Custom links to append to app groups, keyed on app name
         "custom_links": {
-            "data_integration": [
-                {
-                    "name": _("Manual Datasets"),
-                    "url": "data_integration/project/dataset_list/",
-                    "icon": "fas fa-asterisk",
-                    "permissions": ["data_integration.Project"],
-                }
-            ],
             "maps": [
                 {
                     "name": _("Permissions"),
-                    "url": "maps/publishaswms/permissions",
+                    "url": "/maps/publishaswms/permissions",
                     "icon": "fas fa-unlock",
                     "permissions": ["maps.PublishedAsWms"],
                 }
@@ -154,7 +147,7 @@ class Base(Configuration):
             "features": [
                 {
                     "name": _("Permissions"),
-                    "url": "features/publishasogcapifeatures/permissions",
+                    "url": "/features/publishasogcapifeatures/permissions",
                     "icon": "fas fa-unlock",
                     "permissions": ["maps.PublishedAsOgcApiFeatures"],
                 }
@@ -167,6 +160,7 @@ class Base(Configuration):
             "auth.user": "fas fa-user",
             "auth.Group": "fas fa-users",
             "data_integration.Project": "fas fa-upload",
+            "data_integration.ManualDataSet": "fas fa-hand-paper",
             "data_integration.QfieldCloudProject": "fas fa-cloud",
             "maps.PublishedAsWms": "fas fa-map",
             "features.PublishedAsOgcApiFeatures": "fas fa-code",

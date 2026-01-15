@@ -271,7 +271,7 @@ class RasterDataSet(DataSet):
 
     @property
     def icon(self):
-        return "fa fa-grid"
+        return "fa fa-th"
 
 
 class CustomDataSet(DataSet):
@@ -311,7 +311,7 @@ class CustomDataSet(DataSet):
 
     @property
     def icon(self):
-        return "fa fa-flask"
+        return "fa fa-asterisk"
 
 
 class Field(models.Model):
@@ -358,3 +358,14 @@ class Field(models.Model):
 
     def __str__(self):
         return f"{self.alias} ({self.name})"
+
+
+class ManualDataSet(models.Model):
+    """This is a placeholder model for the abstract class DataSet and allows
+    us to create an admin page for manual datasets.
+    """
+
+    class Meta:
+        verbose_name = _("manual dataset")
+        verbose_name_plural = _("manual datasets")
+        managed = False

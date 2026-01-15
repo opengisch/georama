@@ -27,7 +27,8 @@
             <tr class="even">
                 <td class="align-middle" style="width: 130px;">
 {#                    TODO PI: how to make this URL dynamic?#}
-                    <a href="{% url 'admin:data_integration_vectordataset_change' ds.pk %}" class="dataset-icon img-thumbnail">
+                    <a href="{% url 'admin:data_integration_vectordataset_change' ds.pk %}" 
+                       class="dataset-icon img-thumbnail">
                         <i class="{{ ds.icon }}"></i>
                     </a>
                 </td>

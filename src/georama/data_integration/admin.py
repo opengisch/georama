@@ -1,7 +1,4 @@
-import hashlib
 import os
-from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Type
 
 from django.contrib import admin
@@ -12,15 +9,16 @@ from django.urls import path
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from data_integration.views import QgisProjectFileStructure
 from georama.data_integration.apps import DataintegrationConfig
 from georama.data_integration.data_integration_config import Config
 from georama.data_integration.models import (
     CustomDataSet,
-    Mandant,
     Project,
     RasterDataSet,
     VectorDataSet,
     DataSet,
+    ManualDataSet,
 )
 
 
@@ -111,16 +109,10 @@ class ProjectAdmin(admin.ModelAdmin):
         self, request: HttpRequest, project_pk: int | None = None, extra_context=None, **kwargs
     ):
         ds = DataSetList()
-        page_title = _("Manual datasets")
-
-        if project_pk:
-            page_title = _(
-                "Datasets in Project «{project}»".format(
-                    project=Project.objects.get(pk=project_pk)
-                )
-            )
         datasets = ds.get(project_pk)
-
+        page_title = _("Datasets in Project «{project}»").format(
+            project=Project.objects.get(pk=project_pk)
+        )
         extra_context = extra_context or {}
         extra_context.update(
             dict(
@@ -143,7 +135,34 @@ class ProjectAdmin(admin.ModelAdmin):
     dataset_list.short_description = _("Show list of datasets")
 
 
+@admin.register(ManualDataSet)
+class ManualDataSetAdmin(admin.ModelAdmin):
+    change_list_template = "admin/data_integration/dataset/dataset_chooser.html"
+
+    def changelist_view(self, request, object_id=None, form_url="", extra_context=None):
+        extra_context = extra_context or {}
+        extra_context.update(
+            dict(
+                # Include common variables for rendering the admin template.
+                self.admin_site.each_context(request),
+                # Anything else you want in the context...
+                model_name=self.model._meta.verbose_name_plural,
+                app_label=DataintegrationConfig.get_simple_appname(),
+                app_verbose_name=DataintegrationConfig.verbose_name,
+                nav_labels={
+                    "vector": VectorDataSet._meta.verbose_name_plural,
+                    "raster": RasterDataSet._meta.verbose_name_plural,
+                    "custom": CustomDataSet._meta.verbose_name_plural,
+                },
+            )
+        )
+
+        return TemplateResponse(request, self.change_list_template, extra_context)
+
+
 class DataSetAdmin(admin.ModelAdmin):
+    change_list_template = "admin/data_integration/dataset/change_list.html"
+    change_form_template = "admin/data_integration/dataset/change_form.html"
     fields = [
         "name",
         "title",
@@ -171,6 +190,15 @@ class DataSetAdmin(admin.ModelAdmin):
             return readonly_fields + ["title"]
         else:
             return readonly_fields
+
+    def has_add_permission(self, request, obj=None):
+        return not self.belongs_to_a_project(obj)
+
+    def has_change_permission(self, request, obj=None):
+        return not self.belongs_to_a_project(obj)
+
+    def has_delete_permission(self, request, obj=None):
+        return not self.belongs_to_a_project(obj)
 
     @staticmethod
     def belongs_to_a_project(obj):
@@ -201,17 +229,6 @@ class DataSetAdmin(admin.ModelAdmin):
         kwargs.update({"help_texts": help_texts})
         return super().get_form(request, obj, **kwargs)
 
-    def change_view(self, request, object_id=None, form_url="", extra_context=None):
-        extra_context = extra_context or {}
-        extra_context["show_save_and_add_another"] = False
-        extra_context["parent_page_title"] = "TODO"
-        return super().change_view(
-            request,
-            object_id,
-            form_url,
-            extra_context=extra_context,
-        )
-
 
 @admin.register(RasterDataSet)
 class RasterDataSetAdmin(DataSetAdmin):
@@ -225,7 +242,6 @@ class CustomDataSetAdmin(DataSetAdmin):
 
 @admin.register(VectorDataSet)
 class VectorDataSetAdmin(DataSetAdmin):
-
     fields = DataSetAdmin.fields + ["fields_detail"]
 
     def get_readonly_fields(self, request, obj=None):
@@ -250,8 +266,3 @@ class VectorDataSetAdmin(DataSetAdmin):
             )
         snippet_parts.append("</ul>")
         return mark_safe("".join(snippet_parts))
-
-
-@admin.register(Mandant)
-class MandantAdmin(admin.ModelAdmin):
-    pass
