@@ -3,6 +3,7 @@ VENV_PATH ?= .venv
 VENV_REQUIREMENTS = $(VENV_PATH)/.timestamp
 PIP_REQUIREMENTS = $(VENV_PATH)/.requirements-timestamp
 DEV_REQUIREMENTS = $(VENV_PATH)/.dev-requirements-timestamp
+DEV_XSD_REQUIREMENTS = $(VENV_PATH)/.dev-xsd-requirements-timestamp
 DOC_REQUIREMENTS = $(VENV_PATH)/.doc-requirements-timestamp
 TEST_REQUIREMENTS = $(VENV_PATH)/.test-requirements-timestamp
 CHECK_REQUIREMENTS = $(VENV_PATH)/.check-requirements-timestamp
@@ -69,6 +70,10 @@ $(DEV_REQUIREMENTS): $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/pip install -e .[dev]
 	touch $@
 
+$(DEV_XSD_REQUIREMENTS): $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/pip install -e .[dev_xsd]
+	touch $@
+
 $(DOC_REQUIREMENTS): $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/$(PIP_COMMAND) install .[docs]
 	touch $@
@@ -105,6 +110,9 @@ install-test: $(TEST_REQUIREMENTS)
 
 .PHONY: install-dev
 install-dev: $(DEV_REQUIREMENTS)
+
+.PHONY: install-dev-xsd
+install-dev: $(DEV_XSD_REQUIREMENTS)
 
 .PHONY: install-dev-local-qsl
 install-dev-local-qsl: $(LOCAL_QGIS_SERVER_LIGHT_REQUIREMENTS)
