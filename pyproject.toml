@@ -81,14 +81,17 @@ dependencies = [
 
 # DEV: deps
 optional-dependencies.dev =[
-    # to derive dataclasses from xsd schemas
-    "xsdata[cli,lxml,soap]==24.12",
     "black==25.1.0",
     "isort==6.0.1",
     "debugpy",
     "python-lsp-server[all]",
     "pylsp-mypy",
     "pylsp-rope"
+]
+
+optional-dependencies.dev_xsd =[
+    # to derive dataclasses from xsd schemas
+    "xsdata[cli,soap]==24.12",
 ]
 
 # Test: packages imported in test code and packages required for the "test runner"
