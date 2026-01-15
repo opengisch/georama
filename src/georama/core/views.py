@@ -10,11 +10,15 @@ from django.views import View
 class GeoramaLanding(View):
     def get(self, request, *args, **kwargs):
         logo_url = static("/core/assets/images/georama.coming_soon.png")
+        site_title = getattr(settings, "SITE_TITLE", None)
+        if not site_title:
+            site_title = request.get_host()
         return TemplateResponse(
             request,
             context={
                 "logo_url": logo_url,
                 "geogirafe_url": settings.WEBGISURL,
+                "site_title": site_title,
                 "maps_endpoint": request.build_absolute_uri(reverse("maps_ogc_entry")),
             },
             template="home.html",

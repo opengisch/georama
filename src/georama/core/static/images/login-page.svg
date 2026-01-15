@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 24 24"
+   width="24"
+   height="24"
+   fill="none"
+   stroke="currentColor"
+   stroke-width="2"
+   stroke-linecap="round"
+   stroke-linejoin="round"
+   version="1.1"
+   id="svg2106"
+   sodipodi:docname="login-page.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2110" />
+  <sodipodi:namedview
+     id="namedview2108"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     showgrid="false"
+     inkscape:zoom="42.791667"
+     inkscape:cx="9.9435248"
+     inkscape:cy="11.988315"
+     inkscape:window-width="3840"
+     inkscape:window-height="2089"
+     inkscape:window-x="1440"
+     inkscape:window-y="1472"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2106" />
+  <!-- User -->
+  <circle
+     cx="9"
+     cy="8"
+     r="3"
+     id="circle2098"
+     style="stroke:#7c993d;stroke-opacity:1" />
+  <path
+     d="M3 20c0-3.3 3-6 6-6"
+     id="path2100"
+     style="stroke:#7c993d;stroke-opacity:1" />
+  <!-- Login arrow -->
+  <path
+     d="M14 12h7"
+     id="path2102"
+     style="stroke:#7c993d;stroke-opacity:1" />
+  <path
+     d="M18 9l3 3-3 3"
+     id="path2104"
+     style="stroke:#7c993d;stroke-opacity:1" />
+</svg>
