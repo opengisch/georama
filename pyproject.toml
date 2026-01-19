@@ -57,7 +57,7 @@ dependencies = [
     "geoalchemy2",
     "gdal",
     # django stuff
-    "django==5.0.6",
+    "django==5.2.10",
     "django-jazzmin==3.0.0",
     "django-configurations==2.5.1",
     "xsdata[lxml]==24.12",
@@ -66,7 +66,7 @@ dependencies = [
     "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
     "numpy==2.2.5",
     # deps for webgis
-    "django-allauth[socialaccount]==65.4.1",
+    "django-allauth[socialaccount]==65.14.0",
     "django-cors-headers==4.3.1",
     "django-treebeard==4.7.1",
     "django-admin-sortable2==2.2.1",
