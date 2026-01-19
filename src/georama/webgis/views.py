@@ -1,6 +1,5 @@
 import json
 import logging
-from typing import List
 
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
@@ -58,14 +57,16 @@ class Themes(View):
                 self.assemble_themes_tree_from_treebeard(child, group, config, user)
             else:
                 if hasattr(child, "wms_datasets"):
-                    # we filter for permission on the one-to-one field connected published_as element
+                    # we filter for permission on the one-to-one field connected
+                    # published_as element
                     if child.wms_datasets.has_read_permission(user, appname):
                         layer_group.children.append(child.wms_datasets.as_dataclass(config))
                 elif hasattr(child, "wmts_datasets"):
                     layer_group.children.append(child.wmts_datasets.as_dataclass())
                 else:
                     logging.debug(
-                        f"We are not aware of the passed type of {child} in group {node}, skipping ..."
+                        f"We are not aware of the passed type of {child}"
+                        f"in group {node}, skipping ..."
                     )
 
     def get(self, request: HttpRequest, format: str):
@@ -98,14 +99,16 @@ class Themes(View):
 
 
 class GeoGirafe(View):
-    # TODO: This is prepared for later approach where we serve GeoGirafe directly through Django
+    # TODO: This is prepared for later approach where we serve GeoGirafe
+    #  directly through Django
 
     def get(self, request: HttpRequest, mandant_name: str):
         return render(request, "geogirafe/index.html")
 
 
 class Config(View):
-    # TODO: This is prepared for later approach where we serve GeoGirafe directly through Django
+    # TODO: This is prepared for later approach where we serve GeoGirafe
+    #  directly through Django
 
     def get(self, request: HttpRequest, mandant_name: str):
         config_dict = {
@@ -139,7 +142,7 @@ class Config(View):
                 "attributeNames": ["legend", "title", "comments"],
                 "printLegend": {"showGroupsTitle": True},
             },
-            "share": {  # TODO: This is prepared for later approach where we serve GeoGirafe directly through Django
+            "share": {  # TODO: This is prepared for later approach where we serve GeoGirafe directly through Django  # noqa: E501
                 "service": "lstu",
                 "createUrl": "https://lstu.fr/a",
             },
@@ -181,7 +184,7 @@ class PublishProject(View):
     @staticmethod
     def find_dataset_by_name(
         dataset_name: str,
-        datasets: List[QslGroup] | List[QslRaster] | List[QslVector] | List[QslCustom],
+        datasets: list[QslGroup] | list[QslRaster] | list[QslVector] | list[QslCustom],
     ) -> QslGroup | QslVector | QslRaster | QslCustom | None:
         # TODO: This should be move directly to the QSL interface!
         for element in datasets:
@@ -191,7 +194,7 @@ class PublishProject(View):
 
     def assemble_tree_to_treebeard(
         self,
-        children: List[str],
+        children: list[str],
         current_parent: LayerGroupMp,
         theme: PublishedAsTheme,
         project: Project,
@@ -313,14 +316,15 @@ class OgcServerWebgis(OgcServer):
 
 def insert_internal_ogc_server(request: HttpRequest) -> WebGisOgcServer:
     """
-    Checks if internal OGC server was already added. If it was added, it returns the DB entity
-    if it was not added, it adds it and returns the added one.
+    Checks if internal OGC server was already added. If it was added, it returns
+    the DB entity if it was not added, it adds it and returns the added one.
 
     Args:
         request: Django request as it comes from framework request.
 
     Returns:
-        The ogc server db entity or None if a more then one match was found (that would be an error).
+        The ogc server db entity or None if a more then one match was found
+        (that would be an error).
     Raises:
         AttributeError: If more than one OGC-Server was found with the name.
     """
@@ -353,7 +357,8 @@ def insert_internal_ogc_server(request: HttpRequest) -> WebGisOgcServer:
 
 def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):
     """
-    helper function to hide actual connection in the database but make publishing straight forward.
+    helper function to hide actual connection in the database but make publishing straight
+    forward.
     """
     allowed_dataset_types = ["raster", "vector", "custom"]
     ogc_server = insert_internal_ogc_server(request)

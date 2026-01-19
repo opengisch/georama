@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('data_integration', '0028_alter_field_type_oapif_format'),
+        ("data_integration", "0028_alter_field_type_oapif_format"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='field',
-            name='comment',
-            field=models.CharField(default='UNSET', max_length=1000),
+            model_name="field",
+            name="comment",
+            field=models.CharField(default="UNSET", max_length=1000),
         ),
     ]

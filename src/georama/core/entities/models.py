@@ -1,7 +1,6 @@
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import List
 
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
@@ -29,7 +28,8 @@ class PermissionInterface:
 
 
 class PublishedAsRoleNameSystem(models.Model):
-    """PublishedAsRoleNameSystem: a published resource with CRUD operations ruled by permissions
+    """PublishedAsRoleNameSystem: a published resource with CRUD operations ruled
+    by permissions
 
     This class does not have any database operation (save, update delete, ...),
     so that interactions with permissions are fast, without any database query.
@@ -51,7 +51,7 @@ class PublishedAsRoleNameSystem(models.Model):
         return f"{self.identifier}"
 
     @property
-    def read_permissions(self) -> List[PermissionInterface]:
+    def read_permissions(self) -> list[PermissionInterface]:
         return [
             PermissionInterface(
                 published_as_type=self.published_as_type,
@@ -62,7 +62,7 @@ class PublishedAsRoleNameSystem(models.Model):
         ]
 
     @property
-    def create_permissions(self) -> List[PermissionInterface]:
+    def create_permissions(self) -> list[PermissionInterface]:
         return [
             PermissionInterface(
                 published_as_type=self.published_as_type,
@@ -73,7 +73,7 @@ class PublishedAsRoleNameSystem(models.Model):
         ]
 
     @property
-    def update_permissions(self) -> List[PermissionInterface]:
+    def update_permissions(self) -> list[PermissionInterface]:
         return [
             PermissionInterface(
                 published_as_type=self.published_as_type,
@@ -84,7 +84,7 @@ class PublishedAsRoleNameSystem(models.Model):
         ]
 
     @property
-    def delete_permissions(self) -> List[PermissionInterface]:
+    def delete_permissions(self) -> list[PermissionInterface]:
         return [
             PermissionInterface(
                 published_as_type=self.published_as_type,
@@ -95,7 +95,7 @@ class PublishedAsRoleNameSystem(models.Model):
         ]
 
     @property
-    def permissions(self) -> List[PermissionInterface]:
+    def permissions(self) -> list[PermissionInterface]:
         return (
             self.read_permissions
             + self.create_permissions
@@ -104,11 +104,11 @@ class PublishedAsRoleNameSystem(models.Model):
         )
 
     @staticmethod
-    def to_string(permissions: List[PermissionInterface]) -> List[str]:
+    def to_string(permissions: list[PermissionInterface]) -> list[str]:
         return [permission.codename for permission in permissions]
 
     @property
-    def permission_codenames(self) -> List[str]:
+    def permission_codenames(self) -> list[str]:
         return self.to_string(self.permissions)
 
     def has_general_permission(self, user: User, app_name: str) -> bool:
@@ -118,19 +118,19 @@ class PublishedAsRoleNameSystem(models.Model):
         return self._has_grained_permission(user, self.permission_codenames, app_name)
 
     @staticmethod
-    def _has_grained_permission(user: User, permissions: List[str], app_name: str) -> bool:
+    def _has_grained_permission(user: User, permissions: list[str], app_name: str) -> bool:
         permissions = [f"{app_name}.{permission}" for permission in permissions]
         if user.is_superuser:
-            log.debug(f"Superuser => has access")
+            log.debug("Superuser => has access")
             # superusers always have access
             return True
         else:
             matching_permissions = list(set(permissions) & user.get_all_permissions())
             if len(matching_permissions) > 0:
-                log.debug(f"Access granted")
+                log.debug("Access granted")
                 return True
             else:
-                log.debug(f"Access denied")
+                log.debug("Access denied")
                 return False
 
     def has_read_permission(self, user: User, app_name: str) -> bool:
@@ -193,6 +193,7 @@ class PublishedAs(PublishedAsRoleNameSystem):
 def delete_publishedas_db_permissions(sender, instance, **kwargs):
     Permission.objects.filter(codename__in=instance.permission_codenames).delete()
 
+
 def save_publishedas_db_permissions(published_as):
     content_type = ContentType.objects.get_for_model(type(published_as))
     for permission in published_as.permissions:
@@ -204,7 +205,7 @@ def save_publishedas_db_permissions(published_as):
             ).save()
 
 
-def save_group_permissions(groups_selected: List[Group], permission: Permission):
+def save_group_permissions(groups_selected: list[Group], permission: Permission):
     groups_all = Group.objects.all()
     for group in groups_all:
         if group in groups_selected:
@@ -213,7 +214,7 @@ def save_group_permissions(groups_selected: List[Group], permission: Permission)
             group.permissions.remove(permission)
 
 
-def save_user_permissions(user_selected: List[User], permission: Permission):
+def save_user_permissions(user_selected: list[User], permission: Permission):
     user_all = User.objects.all()
     for user in user_all:
         if user in user_selected:

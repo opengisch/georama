@@ -1,7 +1,6 @@
 import datetime
 import logging
 import os.path
-from typing import List
 
 from django.db import models
 from qgis_server_light.interface.qgis import BBox, Crs, Custom, DataSource
@@ -72,13 +71,10 @@ class DataSet(models.Model):
         path = self.path
         if datasource.postgres:
             path = path
-        elif datasource.ogr:
+        elif datasource.ogr or datasource.gdal:
             path = os.path.join(self.project.mandant.name, path)
-        elif datasource.gdal:
-            path = os.path.join(self.project.mandant.name, path)
-        elif datasource.vector_tile:
-            if not datasource.vector_tile.remote:
-                path = os.path.join(self.project.mandant.name, datasource.vector_tile.url)
+        elif datasource.vector_tile and not datasource.vector_tile.remote:
+            path = os.path.join(self.project.mandant.name, datasource.vector_tile.url)
         return datasource, path
 
     @property
@@ -86,8 +82,8 @@ class DataSet(models.Model):
         return DictDecoder(config=self.get_parser_config).decode(self.crs, Crs)
 
     @property
-    def styles_to_qsl(self) -> List[Style]:
-        return DictDecoder(config=self.get_parser_config).decode(self.styles, List[Style])
+    def styles_to_qsl(self) -> list[Style]:
+        return DictDecoder(config=self.get_parser_config).decode(self.styles, list[Style])
 
     def __str__(self):
         return f"{self.title} ({self.name})"
@@ -110,7 +106,7 @@ class VectorDataSet(DataSet):
     geometry_type_wkb = models.CharField(max_length=1000, null=False, default="UNSET")
 
     @property
-    def fields_to_qsl(self) -> List[QslField]:
+    def fields_to_qsl(self) -> list[QslField]:
         fields = []
         for field in self.fields.all():
             fields.append(field.to_qsl)
@@ -163,7 +159,7 @@ class RasterDataSet(DataSet):
             path=path,
             driver=self.driver,
             source=datasource,
-            styles=DictDecoder().decode(self.styles, List[Style]),
+            styles=DictDecoder().decode(self.styles, list[Style]),
             id=self.qgis_layer_id,
             crs=self.crs_to_qsl,
             minimum_scale=self.minimum_scale,
@@ -196,7 +192,7 @@ class CustomDataSet(DataSet):
             path=path,
             driver=self.driver,
             source=datasource,
-            styles=DictDecoder().decode(self.styles, List[Style]),
+            styles=DictDecoder().decode(self.styles, list[Style]),
             id=self.qgis_layer_id,
             crs=self.crs_to_qsl,
             minimum_scale=self.minimum_scale,

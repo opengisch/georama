@@ -200,25 +200,25 @@ class TimeNodeType(AbstractTimeTopologyPrimitiveType):
 
 @dataclass
 class TimePeriodType(AbstractTimeGeometricPrimitiveType):
-    begin_position_or_begin: Optional[
-        Union[TimePositionType, TimeInstantPropertyType]
-    ] = field(
-        default=None,
-        metadata={
-            "type": "Elements",
-            "choices": (
-                {
-                    "name": "beginPosition",
-                    "type": TimePositionType,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "begin",
-                    "type": TimeInstantPropertyType,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-            ),
-        },
+    begin_position_or_begin: Optional[Union[TimePositionType, TimeInstantPropertyType]] = (
+        field(
+            default=None,
+            metadata={
+                "type": "Elements",
+                "choices": (
+                    {
+                        "name": "beginPosition",
+                        "type": TimePositionType,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "begin",
+                        "type": TimeInstantPropertyType,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                ),
+            },
+        )
     )
     end_position_or_end: Optional[Union[TimePositionType, TimeInstantPropertyType]] = field(
         default=None,

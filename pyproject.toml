@@ -212,6 +212,7 @@ skips = [
 version_variable = "src/georama/__init__.py:__version__"
 
 [tool.ruff]
+line-length = 95
 target-version = "py313"
 exclude = [
     "src/georama/maps/interfaces/**",

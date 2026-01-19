@@ -1,13 +1,11 @@
-from typing import List
-
 from georama.maps.models import PublishedAsWms
 from georama.maps.services import OgcOperation
 
 
 class WmsOperation(OgcOperation):
     def obtain_accessible_layers(
-        self, layer_names: List[str] | None = None
-    ) -> List[PublishedAsWms]:
+        self, layer_names: list[str] | None = None
+    ) -> list[PublishedAsWms]:
         accessible_layers = []
         if layer_names:
             query = self.model.objects.filter(name__in=layer_names)

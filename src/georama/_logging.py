@@ -29,16 +29,16 @@ Usage:
 import logging
 
 # for 'biskotaki' app/code
-FILE_TARGET_LOGS = 'biskotaki.log'
+FILE_TARGET_LOGS = "biskotaki.log"
 
 #### FILE LOGGING
 # set up logging to file for DEBUG Level and above
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-    datefmt='%m-%d %H:%M',
+    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+    datefmt="%m-%d %H:%M",
     filename=FILE_TARGET_LOGS,
-    filemode='w',
+    filemode="w",
 )
 
 #### CONSOLE LOGGING
@@ -49,11 +49,11 @@ console.setLevel(logging.DEBUG)
 # console.setLevel(logging.INFO)
 
 # set a format which is simpler for console use
-formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+formatter = logging.Formatter("%(name)-12s: %(levelname)-8s %(message)s")
 # tell the handler to use this format
 console.setFormatter(formatter)
 # add the handler to the root logger
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 
 # Now, we can log to the root logger, or any other logger. First the root...

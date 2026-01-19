@@ -26,29 +26,29 @@ class DmsangleType:
             "required": True,
         },
     )
-    decimal_minutes_or_minutes_or_seconds: list[
-        Union[DecimalMinutes, Minutes, Seconds]
-    ] = field(
-        default_factory=list,
-        metadata={
-            "type": "Elements",
-            "choices": (
-                {
-                    "name": "decimalMinutes",
-                    "type": DecimalMinutes,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "minutes",
-                    "type": Minutes,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "seconds",
-                    "type": Seconds,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-            ),
-            "max_occurs": 2,
-        },
+    decimal_minutes_or_minutes_or_seconds: list[Union[DecimalMinutes, Minutes, Seconds]] = (
+        field(
+            default_factory=list,
+            metadata={
+                "type": "Elements",
+                "choices": (
+                    {
+                        "name": "decimalMinutes",
+                        "type": DecimalMinutes,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "minutes",
+                        "type": Minutes,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "seconds",
+                        "type": Seconds,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                ),
+                "max_occurs": 2,
+            },
+        )
     )

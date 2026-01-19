@@ -81,7 +81,7 @@ class GeoGirafeAuthenticationMiddleware:
         complete_social_login(request, social_login)
 
         if settings.DEBUG:
-            logger.info("Authenticated user: %s" % request.user)
+            logger.info(f"Authenticated user: {request.user}")
 
         return self.get_response(request)
 

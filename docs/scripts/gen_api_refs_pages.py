@@ -11,7 +11,7 @@ nav = mkdocs_gen_files.Nav()
 # Search inside 'src' dir for python 'packages' (dirs with __init__.py)
 src = Path(__file__).parent.parent / "src"
 
-cli_module_path: t.Optional[Path] = None
+cli_module_path: Path | None = None
 
 
 # Loop, recursively, over all Python *.py Files, inside 'src' dir and subdirs
@@ -38,7 +38,7 @@ for path in sorted(src.rglob("*.py")):
         doc_path = doc_path.with_name("index.md")
         # full_doc_path = full_doc_path.with_name("index.md")
 
-    if parts[-1] == 'cli':
+    if parts[-1] == "cli":
         cli_module_path = _module_path
 
     ## Progressively build the navigation object, creating a mapping:

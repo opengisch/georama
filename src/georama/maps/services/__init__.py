@@ -1,5 +1,3 @@
-from typing import List
-
 from django.contrib.auth.models import User
 from django.db.models import Model
 from xsdata.formats.dataclass.serializers import XmlSerializer
@@ -15,7 +13,7 @@ class OgcOperation:
         self.model = model
 
     @property
-    def allowed_formats(self) -> List[str]:
+    def allowed_formats(self) -> list[str]:
         return []
 
     @staticmethod

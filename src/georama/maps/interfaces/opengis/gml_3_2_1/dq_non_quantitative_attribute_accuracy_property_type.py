@@ -19,15 +19,15 @@ class DqNonQuantitativeAttributeAccuracyPropertyType:
     class Meta:
         name = "DQ_NonQuantitativeAttributeAccuracy_PropertyType"
 
-    dq_non_quantitative_attribute_accuracy: Optional[
-        DqNonQuantitativeAttributeAccuracy
-    ] = field(
-        default=None,
-        metadata={
-            "name": "DQ_NonQuantitativeAttributeAccuracy",
-            "type": "Element",
-            "namespace": "http://www.isotc211.org/2005/gmd",
-        },
+    dq_non_quantitative_attribute_accuracy: Optional[DqNonQuantitativeAttributeAccuracy] = (
+        field(
+            default=None,
+            metadata={
+                "name": "DQ_NonQuantitativeAttributeAccuracy",
+                "type": "Element",
+                "namespace": "http://www.isotc211.org/2005/gmd",
+            },
+        )
     )
     type_value: TypeType = field(
         init=False,

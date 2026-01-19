@@ -129,7 +129,7 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
         permissions_dct = {"read": "", "create": "", "update": "", "delete": ""}
 
         # query the correct permission object
-        for permission_type in permissions_dct.keys():
+        for permission_type in permissions_dct:
             permissions_dct[permission_type] = Permission.objects.get(
                 codename=_get_permissions(obj, permission_type)
             )

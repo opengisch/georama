@@ -7,14 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('data_integration', '0029_field_comment'),
-        ('features', '0003_columnogcapifeatures_dataset_column'),
+        ("data_integration", "0029_field_comment"),
+        ("features", "0003_columnogcapifeatures_dataset_column"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='columnogcapifeatures',
-            name='dataset_column',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='columns', related_query_name='column', to='data_integration.field'),
+            model_name="columnogcapifeatures",
+            name="dataset_column",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="columns",
+                related_query_name="column",
+                to="data_integration.field",
+            ),
         ),
     ]

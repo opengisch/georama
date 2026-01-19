@@ -1,5 +1,4 @@
 import logging
-from typing import List, Tuple
 
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
@@ -20,7 +19,7 @@ from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 class WfsDescribeFeatureType(WfsOperation):
     @property
-    def allowed_formats(self) -> List[str]:
+    def allowed_formats(self) -> list[str]:
         return [
             "APPLICATION/GML+XML; VERSION=3.2",
             "GML3" "TEXT/XML",
@@ -28,7 +27,7 @@ class WfsDescribeFeatureType(WfsOperation):
             "TEXT/JSON",
         ]
 
-    def obtain_accessible_layers(self, layer_names: List[str] | None = None):
+    def obtain_accessible_layers(self, layer_names: list[str] | None = None):
         accessible_layers = []
         # we do want only published vector datasets!
         query = self.model.objects.exclude(vector_dataset__isnull=True)
@@ -61,11 +60,12 @@ class WfsDescribeFeatureType(WfsOperation):
             column_type = "gml:MultiSurfacePropertyType"
         else:
             logging.debug(
-                f"We casted to generic type since no match was available for type: '{dataset.geometry_type_wkb}'"
+                f"We casted to generic type since no match was"
+                f" available for type: '{dataset.geometry_type_wkb}'"
             )
             column_type = "gml:GeometryPropertyType"
         return Element(
-            name=f"geometry",
+            name="geometry",
             type=column_type,
             min_occurs=0,
             max_occurs=1,
@@ -73,7 +73,7 @@ class WfsDescribeFeatureType(WfsOperation):
             # alias="Geometry"
         )
 
-    def describe_feature_type(self, type_names: List[str] | None) -> Schema | None:
+    def describe_feature_type(self, type_names: list[str] | None) -> Schema | None:
         # typename is a comma separated list
         if type_names:
             found_layers = self.obtain_accessible_layers(self.sanitized_typenames(type_names))
@@ -107,7 +107,8 @@ class WfsDescribeFeatureType(WfsOperation):
                         base="gml:AbstractFeatureType",
                         sequence=Sequence(
                             elements=[
-                                # we can directly go for the vector dataset here since we checked it already
+                                # we can directly go for the vector dataset here
+                                # since we checked it already
                                 self.prepare_geometry_column(layer.vector_dataset)
                             ]
                         ),
@@ -124,7 +125,7 @@ class WfsDescribeFeatureType(WfsOperation):
                     type=column.type_wfs,
                     min_occurs=0 if column.nullable else 1,
                     max_occurs=1,
-                    nillable=column.nullable
+                    nillable=column.nullable,
                     # TODO: Find out how to set this!
                     # alias=column.alias
                 )
@@ -161,10 +162,11 @@ class WfsDescribeFeatureType(WfsOperation):
 
     def render(
         self, requested_format: str, described_feature_type: Schema
-    ) -> Tuple[str, str, bool]:
-        if requested_format == "TEXT/XML":
-            return self.render_xml(described_feature_type), requested_format.lower(), True
-        elif requested_format == "APPLICATION/GML+XML; VERSION=3.2":
+    ) -> tuple[str, str, bool]:
+        if (
+            requested_format == "TEXT/XML"
+            or requested_format == "APPLICATION/GML+XML; VERSION=3.2"
+        ):
             return self.render_xml(described_feature_type), requested_format.lower(), True
         elif requested_format == "GML3":
             return (
@@ -172,15 +174,14 @@ class WfsDescribeFeatureType(WfsOperation):
                 "APPLICATION/GML+XML; VERSION=3.2".lower(),
                 True,
             )
-        elif requested_format == "APPLICATION/JSON":
-            return self.render_json(described_feature_type), requested_format.lower(), True
-        elif requested_format == "TEXT/JSON":
+        elif requested_format == "APPLICATION/JSON" or requested_format == "TEXT/JSON":
             return self.render_json(described_feature_type), requested_format.lower(), True
         else:
             logging.debug("No matching Format was found.")
             return (
                 self.render_operation_parsing_failed(
-                    f"Format {requested_format} is not allowed. Allowed is {self.allowed_formats}"
+                    f"Format {requested_format} is not allowed."
+                    f"Allowed is {self.allowed_formats}"
                 ),
                 "text/xml",
                 False,

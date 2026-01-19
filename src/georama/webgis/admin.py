@@ -67,15 +67,15 @@ class LayerWmsAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
-        extra_context[
-            "wms_get_capabilities_url"
-        ] = "{}?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0".format(
-            reverse("webgis_ogc_entry")
+        extra_context["wms_get_capabilities_url"] = (
+            "{}?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0".format(
+                reverse("webgis_ogc_entry")
+            )
         )
-        extra_context[
-            "wfs_get_capabilities_url"
-        ] = "{}?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0".format(
-            reverse("webgis_ogc_entry")
+        extra_context["wfs_get_capabilities_url"] = (
+            "{}?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0".format(
+                reverse("webgis_ogc_entry")
+            )
         )
         return super().changelist_view(
             request,
@@ -109,8 +109,8 @@ class LayergroupmpInlines(admin.TabularInline):
 
 
 class ThemeAdmin(SortableAdminMixin, admin.ModelAdmin):
-    # overwrite this directly to circumnavigate problem of template which otherwise is located in different
-    # path
+    # overwrite this directly to circumnavigate problem of template which
+    # otherwise is located in different path
     change_list_template = "admin/webgis/publishedastheme/change_list.html"
     list_display = ("name",)
     # inlines = [

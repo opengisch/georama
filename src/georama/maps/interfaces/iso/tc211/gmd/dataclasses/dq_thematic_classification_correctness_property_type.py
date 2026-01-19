@@ -18,15 +18,15 @@ class DqThematicClassificationCorrectnessPropertyType:
     class Meta:
         name = "DQ_ThematicClassificationCorrectness_PropertyType"
 
-    dq_thematic_classification_correctness: Optional[
-        DqThematicClassificationCorrectness
-    ] = field(
-        default=None,
-        metadata={
-            "name": "DQ_ThematicClassificationCorrectness",
-            "type": "Element",
-            "namespace": "http://www.isotc211.org/2005/gmd",
-        },
+    dq_thematic_classification_correctness: Optional[DqThematicClassificationCorrectness] = (
+        field(
+            default=None,
+            metadata={
+                "name": "DQ_ThematicClassificationCorrectness",
+                "type": "Element",
+                "namespace": "http://www.isotc211.org/2005/gmd",
+            },
+        )
     )
     type_value: str = field(
         init=False,

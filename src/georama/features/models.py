@@ -1,5 +1,3 @@
-from typing import List
-
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -37,18 +35,18 @@ class PublishedAsVectorFeature(PublishedAs):
     class Meta:
         abstract = True
 
-    def get_columns(self) -> List["Column"]:
+    def get_columns(self) -> list["Column"]:
         raise NotImplementedError
 
     @property
-    def columns_permissions(self) -> List[PermissionInterface]:
+    def columns_permissions(self) -> list[PermissionInterface]:
         """Returns all the possible permissions for columns of this VectorFeature
 
         Doesn't check if column permissions are enabled on this VectorFeature publication"""
         return [p for col in self.get_columns() for p in col.permissions]
 
     @property
-    def all_permissions(self) -> List[PermissionInterface]:
+    def all_permissions(self) -> list[PermissionInterface]:
         permissions = self.permissions
         if self.column_permission:
             permissions = permissions + self.columns_permissions
@@ -76,13 +74,19 @@ class Column(PublishedAsRoleNameSystem):
         models.signals.pre_delete.connect(delete_publishedas_db_permissions, sender=cls)
 
     @property
-    def create_permissions(self) -> List[PermissionInterface]:
-        """delete permission not relevant for specific property: create/delete property happens at the layer level"""
+    def create_permissions(self) -> list[PermissionInterface]:
+        """
+        delete permission not relevant for specific property:
+            create/delete property happens at the layer level
+        """
         return []
 
     @property
-    def delete_permissions(self) -> List[PermissionInterface]:
-        """delete permission not relevant for specific property: create/delete property happens at the layer level"""
+    def delete_permissions(self) -> list[PermissionInterface]:
+        """
+        delete permission not relevant for specific property:
+            create/delete property happens at the layer level
+        """
         return []
 
     def get_published_definition(self) -> PublishedAsVectorFeature:
@@ -96,7 +100,8 @@ class Column(PublishedAsRoleNameSystem):
 
     @property
     def readable_identifier(self) -> str:
-        """Using the publicatoin identifier at the end to make column visibly linked to their publication"""
+        """Using the publicatoin identifier at the end to make column visibly
+        linked to their publication"""
         return f"{self.get_published_definition().readable_identifier}.{self.name}"
 
     class Meta:
@@ -108,14 +113,15 @@ class PublishedAsWfs(PublishedAsVectorFeature):
         VectorDataSet,
         # TODO: this seems wrong => only because error:
         #  It is impossible to add a non-nullable field 'dataset' to ... without
-        #  specifying a default. This is because the database needs something to populate existing rows.
+        #  specifying a default. This is because the database needs something to
+        #  populate existing rows.
         null=True,
         related_name="published_ogc_wfs",
         related_query_name="published_ogc_wfs",
         on_delete=models.CASCADE,
     )
 
-    def get_columns(self) -> List["ColumnWfs"]:
+    def get_columns(self) -> list["ColumnWfs"]:
         return self.columns.all()
 
 
@@ -136,7 +142,8 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
         VectorDataSet,
         # TODO: this seems wrong => only because error:
         #  It is impossible to add a non-nullable field 'dataset' to ... without
-        #  specifying a default. This is because the database needs something to populate existing rows.
+        #  specifying a default. This is because the database needs something to populate
+        #  existing rows.
         null=True,
         related_name="published_ogc_api_features",
         related_query_name="published_ogc_api_feature",
@@ -146,15 +153,15 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
     @property
     def readable_identifier(self) -> str:
         dataset = self.dataset
-        return f"{dataset.project.mandant.name}.{dataset.project.name}.{dataset.name}.{self.identifier}"
+        return f"{dataset.project.mandant.name}.{dataset.project.name}.{dataset.name}.{self.identifier}"  # noqa: E501
 
-    def get_columns(self) -> List["ColumnOgcApiFeatures"]:
+    def get_columns(self) -> list["ColumnOgcApiFeatures"]:
         return self.columns.all()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.name is None and isinstance(self.dataset, VectorDataSet):
             # TODO: maybe we want this to be configurable?
-            self.name = f"{self.dataset.project.mandant.name}.{self.dataset.project.name}.{self.dataset.name}"
+            self.name = f"{self.dataset.project.mandant.name}.{self.dataset.project.name}.{self.dataset.name}"  # noqa: E501
         if self.title is None and isinstance(self.dataset, VectorDataSet):
             self.title = self.dataset.title
         super().save(

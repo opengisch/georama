@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from qgis_server_light.interface.qgis import BBox
 from qgis_server_light.interface.qgis import Crs as QslCrs
@@ -25,7 +24,7 @@ from georama.maps.services.wms_1_3_0 import WmsOperation
 
 class WmsGetCapabilities(WmsOperation):
     @property
-    def allowed_formats(self) -> List[str]:
+    def allowed_formats(self) -> list[str]:
         return ["TEXT/XML", "APPLICATION/JSON"]
 
     def get_capabilities_body(self) -> WmsCapabilities:
@@ -46,7 +45,7 @@ class WmsGetCapabilities(WmsOperation):
         crs: str,
         bbox: BBox,
         bbox_wgs84: BBox,
-        styles: List[str],
+        styles: list[str],
         queryable: bool,
     ) -> Layer:
         bbox_object_storage = BoundingBox(
@@ -70,8 +69,9 @@ class WmsGetCapabilities(WmsOperation):
             maxy=bbox_wgs84.y_max,
         )
         return Layer(
-            # we use a 0/1 instead True/False here since this also conforms to Chapter 7.2.4.7.1 in
-            # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens
+            # we use a 0/1 instead True/False here since this also conforms
+            # to Chapter 7.2.4.7.1 in
+            # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens  # noqa: E501
             # compatibility with older versions of WMS spec
             queryable=1 if queryable else 0,
             opaque=0,
@@ -99,12 +99,13 @@ class WmsGetCapabilities(WmsOperation):
         for published_as in self.obtain_accessible_layers():
             dataset = published_as.bound_dataset
             source_crs = decoder.decode(dataset.crs, QslCrs)
-            styles = decoder.decode(dataset.styles, List[QslStyle])
+            styles = decoder.decode(dataset.styles, list[QslStyle])
             style_names = [style.name for style in styles]
             if "default" not in style_names:
                 logging.debug(
                     f"No Style named 'default' was existing in the configuration of the\n"
-                    f"  dataset {dataset.name} ({dataset.id}), the first style in the list of defined\n"
+                    f"  dataset {dataset.name} ({dataset.id}), the first style"
+                    f" in the list of defined\n"
                     f"  styles was added as default style."
                 )
                 style_names.insert(0, "default")
@@ -122,7 +123,7 @@ class WmsGetCapabilities(WmsOperation):
             )
             capabilities.capability.layer.layer.append(layer)
         # we use a 0/1 instead True/False here since this also conforms to Chapter 7.2.4.7.1 in
-        # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens
+        # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens  # noqa: E501
         # compatibility with older versions of WMS spec
         capabilities.capability.layer.queryable = 0
         capabilities.capability.layer.opaque = 0

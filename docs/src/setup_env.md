@@ -6,9 +6,9 @@ tags:
 
 # Setting up the environment variables for different environments
 
-Via the `DJANGO_CONFIGURATION` variable you select a configuration profile (one of the classes in settings.py). 
-These profiles provide base configurations (groups of settings) that are an appropriate starting point for the 
-respective environment. 
+Via the `DJANGO_CONFIGURATION` variable you select a configuration profile (one of the classes in settings.py).
+These profiles provide base configurations (groups of settings) that are an appropriate starting point for the
+respective environment.
 By overriding settings via environment variables in the .env file, you can tune those configurations for your particular needs.
 The `DJANGO_CONFIGURATION` variable can be set to either `Prod`, `Dev` or `Test`
 

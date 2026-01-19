@@ -22,7 +22,7 @@ class LinkProjects(View):
         #     os.makedirs(path, exist_ok = True)
         #     client.download_project(project['id'], str(path))
         #     project_files = client.list_remote_files(project['id'])
-        #     client.download_files(project_files, project['id'], FileTransferType.PROJECT, str(path))
+        #     client.download_files(project_files, project['id'], FileTransferType.PROJECT, str(path))  # noqa: E501
 
 
 # Create your views here.

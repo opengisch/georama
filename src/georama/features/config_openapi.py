@@ -3,7 +3,7 @@ def config_openapi() -> dict:
         "components": {
             "parameters": {
                 "bbox": {
-                    "description": "Only features that have a geometry that intersects the bounding box are selected.The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth).",
+                    "description": "Only features that have a geometry that intersects the bounding box are selected.The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth).",  # noqa: E501
                     "explode": False,
                     "in": "query",
                     "name": "bbox",
@@ -17,7 +17,7 @@ def config_openapi() -> dict:
                     "style": "form",
                 },
                 "bbox-crs": {
-                    "description": "Indicates the coordinate reference system for the given bbox coordinates.",
+                    "description": "Indicates the coordinate reference system for the given bbox coordinates.",  # noqa: E501
                     "explode": False,
                     "in": "query",
                     "name": "bbox-crs",
@@ -35,7 +35,7 @@ def config_openapi() -> dict:
                     "style": "form",
                 },
                 "crs": {
-                    "description": "Indicates the coordinate reference system for the results.",
+                    "description": "Indicates the coordinate reference system for the results.",  # noqa: E501
                     "explode": False,
                     "in": "query",
                     "name": "crs",
@@ -44,7 +44,7 @@ def config_openapi() -> dict:
                     "style": "form",
                 },
                 "f": {
-                    "description": "The optional f parameter indicates the output format which the server shall provide as part of the response document.  The default format is GeoJSON.",
+                    "description": "The optional f parameter indicates the output format which the server shall provide as part of the response document.  The default format is GeoJSON.",  # noqa: E501
                     "explode": False,
                     "in": "query",
                     "name": "f",
@@ -57,7 +57,7 @@ def config_openapi() -> dict:
                     "style": "form",
                 },
                 "lang": {
-                    "description": 'The optional lang parameter instructs the server return a response in a certain language, if supported.  If the language is not among the available values, the Accept-Language header language will be used if it is supported. If the header is missing, the default server language is used. Note that providers may only support a single language (or often no language at all), that can be different from the server language.  Language strings can be written in a complex (e.g. "fr-CA,fr;q=0.9,en-US;q=0.8,en;q=0.7"), simple (e.g. "de") or locale-like (e.g. "de-CH" or "fr_BE") fashion.',
+                    "description": 'The optional lang parameter instructs the server return a response in a certain language, if supported.  If the language is not among the available values, the Accept-Language header language will be used if it is supported. If the header is missing, the default server language is used. Note that providers may only support a single language (or often no language at all), that can be different from the server language.  Language strings can be written in a complex (e.g. "fr-CA,fr;q=0.9,en-US;q=0.8,en;q=0.7"), simple (e.g. "de") or locale-like (e.g. "de-CH" or "fr_BE") fashion.',  # noqa: E501
                     "in": "query",
                     "name": "lang",
                     "required": False,
@@ -68,7 +68,7 @@ def config_openapi() -> dict:
                     },
                 },
                 "offset": {
-                    "description": "The optional offset parameter indicates the index within the result set from which the server shall begin presenting results in the response document.  The first element has an index of 0 (default).",
+                    "description": "The optional offset parameter indicates the index within the result set from which the server shall begin presenting results in the response document.  The first element has an index of 0 (default).",  # noqa: E501
                     "explode": False,
                     "in": "query",
                     "name": "offset",
@@ -84,7 +84,7 @@ def config_openapi() -> dict:
                     "schema": {"type": "string"},
                 },
                 "skipGeometry": {
-                    "description": "This option can be used to skip response geometries for each feature.",
+                    "description": "This option can be used to skip response geometries for each feature.",  # noqa: E501
                     "explode": False,
                     "in": "query",
                     "name": "skipGeometry",
@@ -93,7 +93,7 @@ def config_openapi() -> dict:
                     "style": "form",
                 },
                 "vendorSpecificParameters": {
-                    "description": 'Additional "free-form" parameters that are not explicitly defined',
+                    "description": 'Additional "free-form" parameters that are not explicitly defined',  # noqa: E501
                     "in": "query",
                     "name": "vendorSpecificParameters",
                     "schema": {"additionalProperties": True, "type": "object"},
@@ -132,7 +132,7 @@ def config_openapi() -> dict:
                 "queryable": {
                     "properties": {
                         "description": {
-                            "description": "a human-readable narrative describing the queryable",
+                            "description": "a human-readable narrative describing the queryable",  # noqa: E501
                             "type": "string",
                         },
                         "language": {

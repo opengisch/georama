@@ -8,14 +8,14 @@ import typing as t
 # TODO Improve: try using the semantic_version_checker package for semver regex
 
 ExceptionFactory = t.Callable[[str, str, str], Exception]
-ClientCallback = t.Callable[[str, str], t.Tuple]
+ClientCallback = t.Callable[[str, str], tuple]
 
-MatchConverter = t.Callable[[t.Match], t.Tuple]
-MatchData = t.Union[
-    t.Tuple[t.Callable[[t.Match], t.Tuple], str, t.List[t.Any]],
-    t.Tuple[t.Callable[[t.Match], t.Tuple], str],
-    t.Tuple[t.Callable[[t.Match], t.Tuple]],
-]
+MatchConverter = t.Callable[[t.Match], tuple]
+MatchData = (
+    tuple[t.Callable[[t.Match], tuple], str, list[t.Any]]
+    | tuple[t.Callable[[t.Match], tuple], str]
+    | tuple[t.Callable[[t.Match], tuple]]
+)  # noqa: E501
 # 1st item (Callable): takes a Match object and return a tuple of strings
 # 2nd item (str): 'method'/'callable attribute' of the 're' python module)
 # 3rd item (list): zero or more additional runtime arguments
@@ -24,17 +24,17 @@ MatchData = t.Union[
 DEMO_SECTION: str = (
     "[tool.software-release]\nversion_variable = " "src/package_name/__init__.py:__version__"
 )
-TOML = 'pyproject.toml'
+TOML = "pyproject.toml"
 
 
 def build_client_callback(data: MatchData, factory: ExceptionFactory) -> ClientCallback:
     if len(data) == 1:
-        data = (data[0], 'search', [re.MULTILINE])
+        data = (data[0], "search", [re.MULTILINE])
     elif len(data) == 2:
         data = (data[0], data[1], [re.MULTILINE])
 
-    def client_callback(file_path: str, regex: str) -> t.Tuple:
-        with open(file_path, 'r') as _file:
+    def client_callback(file_path: str, regex: str) -> tuple:
+        with open(file_path) as _file:
             contents = _file.read()
         match = getattr(re, data[1])(regex, contents, *data[2])
         if match:
@@ -62,8 +62,7 @@ software_release_parser = build_client_callback(
 version_file_parser = build_client_callback(
     (lambda match: (match.group(1),),),
     lambda file_path, reg, string: AttributeError(
-        "Could not find a match for regex {regex} when applied to:".format(regex=reg)
-        + "\n{content}".format(content=string)
+        f"Could not find a match for regex {reg} when applied to:" + f"\n{string}"
     ),
 )
 
@@ -77,8 +76,8 @@ def parse_version(software_release_cfg: str) -> str:
     Reads the [tool.software-release] section found in pyproject.toml and then
     determines where is the actual version string.
     """
-    header = r'\[tool\.software-release\]'
-    sep = r'[\w\s=/\.:\d]+'  # in some cases accounts for miss-typed characters!
+    header = r"\[tool\.software-release\]"
+    sep = r"[\w\s=/\.:\d]+"  # in some cases accounts for miss-typed characters!
     version_specification = (
         r"version_variable[\ \t]*=[\ \t]*['\"]?([\w\.]+(?:/[\w\.]+)*):(\w+)['\"]?"
     )
@@ -101,12 +100,12 @@ def parse_version(software_release_cfg: str) -> str:
             f"For example:\n{DEMO_SECTION}\n"
         )
 
-    reg = f'^{version_variable_name}' + r'\s*=\s*[\'\"]([^\'\"]*)[\'\"]'
+    reg = f"^{version_variable_name}" + r"\s*=\s*[\'\"]([^\'\"]*)[\'\"]"
     (version,) = version_file_parser(file_with_version_string, reg)
     return version
 
 
-def get_arguments(sys_args: t.List[str]):
+def get_arguments(sys_args: list[str]):
     if len(sys_args) == 1:  # no input path was given by user, as console arg
         project_dir = os.getcwd()
     if len(sys_args) > 1:
@@ -124,5 +123,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

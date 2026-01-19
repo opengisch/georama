@@ -179,8 +179,8 @@ class ProjectAdmin(admin.ModelAdmin):
                     "".join(
                         [
                             '<div class="d-flex flex-nowrap">',
-                            f'<a onclick="showWaitModalOverlay()" href="{export_url}" class="btn btn-high btn-success mr-2"><i class="fa fa-file-alt"></i> extract</a>',
-                            '<a class="btn btn-high btn-success" style="pointer-events: none"><i class="fa fa-check-circle" aria-hidden="true"></i> integrated</a>',
+                            f'<a onclick="showWaitModalOverlay()" href="{export_url}" class="btn btn-high btn-success mr-2"><i class="fa fa-file-alt"></i> extract</a>',  # noqa: E501
+                            '<a class="btn btn-high btn-success" style="pointer-events: none"><i class="fa fa-check-circle" aria-hidden="true"></i> integrated</a>',  # noqa: E501
                             "</div>",
                         ]
                     )
@@ -190,8 +190,8 @@ class ProjectAdmin(admin.ModelAdmin):
                     "".join(
                         [
                             '<div class="d-flex flex-nowrap">',
-                            f'<a onclick="showWaitModalOverlay()" href="{export_url}" class="btn btn-high btn-success mr-2"><i class="fa fa-file-alt"></i> extract</a>',
-                            f'<a href="{integrate_url}" class="btn btn-high btn-success"><i class="fa fa-arrow-alt-circle-up" aria-hidden="true"></i> integrate</a>',
+                            f'<a onclick="showWaitModalOverlay()" href="{export_url}" class="btn btn-high btn-success mr-2"><i class="fa fa-file-alt"></i> extract</a>',  # noqa: E501
+                            f'<a href="{integrate_url}" class="btn btn-high btn-success"><i class="fa fa-arrow-alt-circle-up" aria-hidden="true"></i> integrate</a>',  # noqa: E501
                             "</div>",
                         ]
                     )
@@ -268,7 +268,7 @@ class DataSetAdmin(admin.ModelAdmin):
         snippet_parts = ["<ul>"]
         for key in obj.source:
             snippet_parts.append(
-                f'<li><label>{key}</label> → <span class="badge badge-secondary">{obj.source[key]}</span></li>'
+                f'<li><label>{key}</label> → <span class="badge badge-secondary">{obj.source[key]}</span></li>'  # noqa: E501
             )
         snippet_parts.append("</ul>")
         return mark_safe("".join(snippet_parts))
@@ -279,7 +279,7 @@ class DataSetAdmin(admin.ModelAdmin):
         snippet_parts = ["<ul>"]
         for key in obj.crs:
             snippet_parts.append(
-                f'<li><label>{key}</label> → <span class="badge badge-secondary">{obj.crs[key]}</span></li>'
+                f'<li><label>{key}</label> → <span class="badge badge-secondary">{obj.crs[key]}</span></li>'  # noqa: E501
             )
         snippet_parts.append("</ul>")
         return mark_safe("".join(snippet_parts))
@@ -309,9 +309,9 @@ class VectorDataSetAdmin(DataSetAdmin):
 
     def fields_detail(self, obj: VectorDataSet):
         snippet_parts = ["<ul>"]
-        for field in obj.fields.all():
+        for obj_field in obj.fields.all():
             snippet_parts.append(
-                f'<li><label>{field.name}</label> → <span class="badge badge-secondary">{field.type}</span></li>'
+                f'<li><label>{obj_field.name}</label> → <span class="badge badge-secondary">{obj_field.type}</span></li>'  # noqa: E501
             )
         snippet_parts.append("</ul>")
         return mark_safe("".join(snippet_parts))
@@ -319,9 +319,7 @@ class VectorDataSetAdmin(DataSetAdmin):
     fields_detail.short_description = "Fields"
 
     def field_count(self, obj):
-        return mark_safe(
-            '<span class="badge badge-secondary">{}</span>'.format(obj.fields.count())
-        )
+        return mark_safe(f'<span class="badge badge-secondary">{obj.fields.count()}</span>')
 
     field_count.admin_order_field = "field_count"
     field_count.short_description = "Fields"

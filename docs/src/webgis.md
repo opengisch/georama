@@ -19,7 +19,7 @@ The relevant Navigation Menu entries can be found in Django Admin at the bottom:
 graph TB;
   importQGIS["Integrate QGIS Project (if not already done)"] -. "." .-> prepareTheme
   prepareTheme["Select a Project to publish as Theme"] -. "." .-> groups
-  
+
   groups["Organize the Groups/Layertree"] -.".".-> manageLayers
   manageLayers["Manage layers"] -.".".-> wmsLayers
   manageLayers -.".".-> wmtsLayers

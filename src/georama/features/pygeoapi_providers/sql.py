@@ -1,4 +1,5 @@
 import logging
+
 from pygeoapi.provider.postgresql import PostgreSQLProvider
 
 LOGGER = logging.getLogger(__name__)

@@ -1,5 +1,3 @@
-from typing import List
-
 from django import forms
 from django.contrib.admin import widgets
 from django.contrib.auth.models import Group, User
@@ -70,7 +68,7 @@ class PublishedAsOgcApiFeaturesForm(forms.ModelForm):
     )
 
     @staticmethod
-    def get_first_match_partial_key(dictionary, partial_key) -> List[str]:
+    def get_first_match_partial_key(dictionary, partial_key) -> list[str]:
         matches = [k for k, v in dictionary.items() if partial_key in k]
         return matches if matches else None
 
@@ -86,7 +84,7 @@ class PublishedAsOgcApiFeaturesForm(forms.ModelForm):
             permission_codenames = [p.codename for p in permissions]
 
             # mapping the permission to the field by part of the dict key
-            # f.e. field "group_read_permission" to 'wms_read_bdb158db-3501-4563-be37-b2369ccf64e6'
+            # f.e. field "group_read_permission" to 'wms_read_bdb158db-3501-4563-be37-b2369ccf64e6'  # noqa: E501
             for perm in permission_codenames:
                 permission_keys = PublishedAsOgcApiFeaturesForm.get_first_match_partial_key(
                     perm_fields, perm.split("_")[1]
@@ -95,7 +93,8 @@ class PublishedAsOgcApiFeaturesForm(forms.ModelForm):
                     for p_key in permission_keys:
                         perm_fields[p_key] = perm
 
-            # filling the field with the correct queryset and initialize it with the data from the db
+            # filling the field with the correct queryset and initialize it
+            # with the data from the db
             for field, perm in perm_fields.items():
                 if field == "column_permission":
                     pass

@@ -41,4 +41,3 @@ docker compose exec georama make create-example-content
 ```
 
 Admin interface (user: admin password: whatever-you-chose): http://localhost:4242/admin/
-

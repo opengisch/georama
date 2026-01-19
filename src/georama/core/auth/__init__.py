@@ -1,5 +1,3 @@
-from typing import List
-
 from django.http import HttpRequest
 
 # Header encoding (see RFC5987)
@@ -10,7 +8,7 @@ ALL_AUTHENTICATION_METHODS = [
 ]
 
 
-def get_authentication_methods_middlewares(selected_auth_methods: List[str]) -> List[str]:
+def get_authentication_methods_middlewares(selected_auth_methods: list[str]) -> list[str]:
     return [
         m
         for auth_method, m in ALL_AUTHENTICATION_METHODS
