@@ -13,7 +13,7 @@ description = "The habitat of geoanimals"
 authors = [
     {name="Clemens Rudert", email="clemens@opengis.ch"}
 ]
-requires-python = ">=3.10.4"
+requires-python = ">=3.11"
 maintainers = [
     {name="Clemens Rudert", email="clemens@opengis.ch"}
 ]
@@ -210,6 +210,24 @@ skips = [
 
 [tool.software-release]
 version_variable = "src/georama/__init__.py:__version__"
+
+[tool.ruff]
+target-version = "py313"
+exclude = [
+    "src/georama/maps/interfaces/**",
+    "src/georama/*/migrations/**",
+    "tests/**",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "UP",   # pyupgrade replacement
+    "B",    # bugbear
+    "SIM",  # simplify
+]
+fixable = ["ALL"]
 
 [virtualenvs]
 create = true
