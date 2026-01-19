@@ -1,26 +1,50 @@
 @import url("https://fonts.googleapis.com/css2?family=Georama:wght@300;400;500;600;700;800&display=swap");
 
 :root {
-    --brand-green-dark: #5f7f2f;
+    --georama-green: #7c993d;
+    --georama-green-rgb: 124, 153, 61;
+    --georama-green-dark: #4a6317;
+    --georama-green-light: #95b354;
+    --georama-green-desat: #859568;
+
+    --georama-yellow: #d2a444;
+    --georama-yellow-rgb: 210, 164, 68;
+    --georama-yellow-dark: #956d19;
+    --georama-yellow-desat: #a19272;
+    
+    --georama-gray: #333333;
+
+
     --brand-ink: #1f2a1c;
-    --brand-muted: #6b7564;
     --brand-cream: #f7f9f2;
     --brand-line: #e6ecd9;
+
+    --georama-border-color: #c1daa0;
+}
+
+[data-bs-theme=dark] {
+    --brand-ink: #fff;
+    --brand-cream: #333333;
+    --brand-line: rgba(255, 255, 255, 0.12);
 }
 
 :root,
 [data-bs-theme=light] {
-    --bs-primary: #82b440;
-    --bs-primary-rgb: 130, 180, 64;
-    --bs-primary-text-emphasis: #34481a;
+    --bs-primary: var(--georama-green);
+    --bs-primary-rgb: var(--georama-green-rgb);
+    /*--bs-secondary: var(--georama-yellow);*/
+    /*--bs-secondary-rgb: var(--georama-yellow-rgb);*/
+    --bs-primary-text-emphasis: var(--georama-green-dark);
+    --bs-secondary-text-emphasis: var(--georama-yellow-dark);
     --bs-primary-bg-subtle: #e6f0d9;
     --bs-primary-border-subtle: #cde1b3;
     --bs-font-sans-serif: "Georama", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    --bs-link-color: #82b440;
-    --bs-link-color-rgb: 130, 180, 64;
-    --bs-link-hover-color: #689033;
-    --bs-link-hover-color-rgb: 104, 144, 51;
-    --bs-focus-ring-color: rgba(130, 180, 64, 0.25);
+    --bs-link-color: var(--georama-green);
+    --bs-link-color-rgb: var(--georama-green-rgb);
+    --bs-link-hover-color: #6D8831;
+    --bs-link-hover-color-rgb: 109, 136, 49;
+    --bs-code-color: var(--georama-gray);
+    --bs-focus-ring-color: rgba(var(--georama-green-rgb), 0.25);
 }
 
 [data-bs-theme=dark] {
@@ -28,19 +52,18 @@
     --bs-body-bg-rgb: 38, 38, 38;
     --bs-body-color: #f1f1f1;
     --bs-body-color-rgb: 241, 241, 241;
-    --bs-primary-text-emphasis: #b4d28c;
+    --bs-primary-text-emphasis: var(--georama-green-light);
     --bs-primary-bg-subtle: #1a240d;
-    --bs-primary-border-subtle: #4e6c26;
+    --bs-primary-border-subtle: var(--georama-green-dark);
     --bs-link-color: #b4d28c;
     --bs-link-color-rgb: 180, 210, 140;
     --bs-link-hover-color: #c3dba3;
     --bs-link-hover-color-rgb: 195, 219, 163;
-    --bs-form-invalid-border-color: #ea868f;
 }
 
 .table-primary {
     --bs-table-color: #000;
-    --bs-table-bg: #e6f0d9;
+    --bs-table-bg: var(--bs-primary-bg-subtle);
     --bs-table-border-color: #b8c0ae;
     --bs-table-striped-bg: #dbe4ce;
     --bs-table-active-bg: #cfd8c3;
@@ -49,35 +72,35 @@
 }
 
 .form-select:focus {
-    border-color: #c1daa0;
-    box-shadow: 0 0 0 .25rem rgba(130, 180, 64, 0.25)
+    border-color: var(--georama-border-color);
+    box-shadow: 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25)
 }
 
 .form-check-input:focus {
-    border-color: #c1daa0;
-    box-shadow: 0 0 0 .25rem rgba(130, 180, 64, 0.25)
+    border-color: var(--georama-border-color);
+    box-shadow: 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25)
 }
 
 .form-check-input:checked {
-    background-color: #82b440;
-    border-color: #82b440
+    background-color: var(--georama-green);
+    border-color: var(--georama-green)
 }
 
 .form-check-input[type="checkbox"]:indeterminate {
-    background-color: #82b440;
-    border-color: #82b440;
+    background-color: var(--georama-green);
+    border-color: var(--georama-green);
 }
 
 .form-range:focus::-webkit-slider-thumb {
-    box-shadow: 0 0 0 1px #fff, 0 0 0 .25rem rgba(130, 180, 64, 0.25)
+    box-shadow: 0 0 0 1px #fff, 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25)
 }
 
 .form-range:focus::-moz-range-thumb {
-    box-shadow: 0 0 0 1px #fff, 0 0 0 .25rem rgba(130, 180, 64, 0.25)
+    box-shadow: 0 0 0 1px #fff, 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25)
 }
 
 .form-range::-webkit-slider-thumb {
-    background-color: #82b440;
+    background-color: var(--georama-green);
 }
 
 .form-range::-webkit-slider-thumb:active {
@@ -85,7 +108,7 @@
 }
 
 .form-range::-moz-range-thumb {
-    background-color: #82b440;
+    background-color: var(--georama-green);
 }
 
 .form-range::-moz-range-thumb:active {
@@ -100,71 +123,69 @@
 
 .btn-primary {
     --bs-btn-color: #000;
-    --bs-btn-bg: #82b440;
-    --bs-btn-border-color: #82b440;
+    --bs-btn-bg: var(--georama-green);
+    --bs-btn-border-color: var(--georama-green);
     --bs-btn-hover-color: #000;
-    --bs-btn-hover-bg: #95bf5d;
-    --bs-btn-hover-border-color: #8fbc53;
-    --bs-btn-focus-shadow-rgb: 111, 153, 54;
+    --bs-btn-hover-bg: var(--bs-link-hover-color);
+    --bs-btn-hover-border-color: #6b872f;
+    --bs-btn-focus-shadow-rgb: 146, 188, 88;
     --bs-btn-active-color: #000;
-    --bs-btn-active-bg: #9bc366;
-    --bs-btn-active-border-color: #8fbc53;
+    --bs-btn-active-bg: #6D8831;
+    --bs-btn-active-border-color: #69832e;
     --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
     --bs-btn-disabled-color: #000;
-    --bs-btn-disabled-bg: #82b440;
-    --bs-btn-disabled-border-color: #82b440
+    --bs-btn-disabled-bg: var(--georama-green-desat);
+    --bs-btn-disabled-border-color: #79885d;
 }
 
-/* TODO: Overwrite Btn-secondary
-     THESE HAVE NOT BEEN OVERWRITTEN YET*/
-.btn-secondary {
-    --bs-btn-color: #fff;
-    --bs-btn-bg: #6c757d;
-    --bs-btn-border-color: #6c757d;
-    --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: #5c636a;
-    --bs-btn-hover-border-color: #565e64;
+.btn-gold {
+    --bs-btn-color: #000;
+    --bs-btn-bg: var(--georama-yellow);
+    --bs-btn-border-color: var(--georama-yellow);
+    --bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: #c6993a;
+    --bs-btn-hover-border-color: #c19437;
     --bs-btn-focus-shadow-rgb: 130, 138, 145;
-    --bs-btn-active-color: #fff;
-    --bs-btn-active-bg: #565e64;
-    --bs-btn-active-border-color: #51585e;
+    --bs-btn-active-color: #000;
+    --bs-btn-active-bg: #bd9031;
+    --bs-btn-active-border-color: #b3882c;
     --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-    --bs-btn-disabled-color: #fff;
-    --bs-btn-disabled-bg: #6c757d;
-    --bs-btn-disabled-border-color: #6c757d
+    --bs-btn-disabled-color: #000;
+    --bs-btn-disabled-bg: var(--georama-yellow-desat);
+    --bs-btn-disabled-border-color: #938465;
 }
 
 .btn-outline-primary {
-    --bs-btn-color: #82b440;
-    --bs-btn-border-color: #82b440;
+    --bs-btn-color: var(--georama-green);
+    --bs-btn-border-color: var(--georama-green);
     --bs-btn-hover-color: #000;
-    --bs-btn-hover-bg: #82b440;
-    --bs-btn-hover-border-color: #82b440;
-    --bs-btn-focus-shadow-rgb: 130, 180, 64;
+    --bs-btn-hover-bg: var(--georama-green);
+    --bs-btn-hover-border-color: var(--georama-green);
+    --bs-btn-focus-shadow-rgb: var(--georama-green-rgb);
     --bs-btn-active-color: #000;
-    --bs-btn-active-bg: #82b440;
-    --bs-btn-active-border-color: #82b440;
+    --bs-btn-active-bg: var(--georama-green);
+    --bs-btn-active-border-color: var(--georama-green);
     --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-    --bs-btn-disabled-color: #82b440;
+    --bs-btn-disabled-color: var(--georama-green);
     --bs-btn-disabled-bg: transparent;
-    --bs-btn-disabled-border-color: #82b440;
+    --bs-btn-disabled-border-color: var(--georama-green);
     --bs-gradient: none
 }
 
-.btn-outline-secondary {
-    --bs-btn-color: #6c757d;
-    --bs-btn-border-color: #6c757d;
-    --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: #6c757d;
-    --bs-btn-hover-border-color: #6c757d;
-    --bs-btn-focus-shadow-rgb: 108, 117, 125;
-    --bs-btn-active-color: #fff;
-    --bs-btn-active-bg: #6c757d;
-    --bs-btn-active-border-color: #6c757d;
+.btn-outline-gold {
+    --bs-btn-color: var(--georama-yellow);
+    --bs-btn-border-color: var(--georama-yellow);
+    ---bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: var(--georama-yellow);
+    --bs-btn-hover-border-color: var(--georama-yellow);
+    --bs-btn-focus-shadow-rgb: var(--georama-yellow-rgb);
+    --bs-btn-hover-color: #000;
+    --bs-btn-active-bg: var(--georama-yellow);
+    --bs-btn-active-border-color: var(--georama-yellow);
     --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-    --bs-btn-disabled-color: #6c757d;
+    --bs-btn-disabled-color: var(--georama-yellow);
     --bs-btn-disabled-bg: transparent;
-    --bs-btn-disabled-border-color: #6c757d;
+    --bs-btn-disabled-border-color: var(--georama-yellow);
     --bs-gradient: none
 }
 
@@ -173,11 +194,11 @@
 }
 
 .dropdown-menu {
-    --bs-dropdown-link-active-bg: #82b440;
+    --bs-dropdown-link-active-bg: var(--georama-green);
 }
 
 .dropdown-menu-dark {
-    --bs-dropdown-link-active-bg: #82b440;
+    --bs-dropdown-link-active-bg: var(--georama-green);
 }
 
 .btn-group > :not(.btn-check:first-child) + .btn, .btn-group > .btn-group:not(:first-child) {
@@ -190,52 +211,42 @@
     margin-top: calc(2px * -1)
 }
 
-/* TODO: What is acctually necessary here? These are all new settings, not overwrites */
 .navbar {
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    background-color: var(--bs-body-bg);
-    border-bottom: 1px solid var(--brand-line);
-    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.02);
-}
-
-.navbar-nav .nav-link {
-    color: var(--bs-body-color)
-}
-
-.navbar-nav .nav-link:hover,
-.navbar-nav .nav-link:focus {
-    color: var(--brand-green-dark)
+    --bs-navbar-hover-color: var(--bs-link-hover-color);
+    --bs-navbar-active-color: var(--georama-green);
+    --bs-navbar-brand-color: rgba(var(--georama-green-rgb), 1);
+    --bs-navbar-brand-hover-color: rgba(var(--georama-green-rgb), 1);
+    --bs-navbar-toggler-border-color: rgba(var(--georama-green-rgb), 0.15);
 }
 
 .nav-link:focus-visible {
-    box-shadow: 0 0 0 .25rem rgba(130, 180, 64, 0.25)
+    box-shadow: 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25)
 }
 
 .nav-pills {
-    --bs-nav-pills-link-active-bg: #82b440
+    --bs-nav-pills-link-active-bg: var(--georama-green)
 }
 
 .accordion {
-    --bs-accordion-btn-focus-border-color: #c1daa0;
-    --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba(130, 180, 64, 0.25);
+    --bs-accordion-btn-focus-border-color: var(--georama-border-color);
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba(var(--georama-green-rgb), 0.25);
 }
 
 .pagination {
-    --bs-pagination-focus-box-shadow: 0 0 0 .25rem rgba(130, 180, 64, 0.25);
-    --bs-pagination-active-bg: #82b440;
-    --bs-pagination-active-border-color: #82b440;
+    --bs-pagination-focus-box-shadow: 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25);
+    --bs-pagination-active-bg: var(--georama-green);
+    --bs-pagination-active-border-color: var(--georama-green);
 }
 
 .progress,
 .progress-stacked {
-    --bs-progress-bar-bg: #82b440;
+    --bs-progress-bar-bg: var(--georama-green);
 }
 
 
 .list-group {
-    --bs-list-group-active-bg: #82b440;
-    --bs-list-group-active-border-color: #82b440;
+    --bs-list-group-active-bg: var(--georama-green);
+    --bs-list-group-active-border-color: var(--georama-green);
 }
 
 .text-bg-primary {
@@ -243,15 +254,14 @@
 }
 
 .link-primary:hover, .link-primary:focus {
-    color: RGBA(155, 195, 102, var(--bs-link-opacity, 1)) !important;
-    -webkit-text-decoration-color: RGBA(155, 195, 102, var(--bs-link-underline-opacity, 1)) !important;
-    text-decoration-color: RGBA(155, 195, 102, var(--bs-link-underline-opacity, 1)) !important;
+    color: RGBA(var(--bs-link-hover-color-rgb), var(--bs-link-opacity, 1)) !important;
+    -webkit-text-decoration-color: RGBA(var(--bs-link-hover-color-rgb), var(--bs-link-underline-opacity, 1)) !important;
+    text-decoration-color: RGBA(var(--bs-link-hover-color-rgb), var(--bs-link-underline-opacity, 1)) !important;
 }
 
-/* TODO: overwrite */
 .link-secondary:hover, .link-secondary:focus {
-    color: RGBA(86, 94, 100, var(--bs-link-opacity, 1)) !important;
-    -webkit-text-decoration-color: RGBA(86, 94, 100, var(--bs-link-underline-opacity, 1)) !important;
-    text-decoration-color: RGBA(86, 94, 100, var(--bs-link-underline-opacity, 1)) !important;
+    color: RGBA(198, 153, 58, var(--bs-link-opacity, 1)) !important;
+    -webkit-text-decoration-color: RGBA(198, 153, 58, var(--bs-link-underline-opacity, 1)) !important;
+    text-decoration-color: RGBA(198, 153, 58, var(--bs-link-underline-opacity, 1)) !important;
 }
 
