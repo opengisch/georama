@@ -1,0 +1,14 @@
+{% extends 'core/change_list.html' %}
+
+{% block change_list_item %}
+    <a href="{% url 'georama.data_integration:project_show' item.pk %}" class="list-group-item list-group-item-action" aria-current="true">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">{% if item.title %}{{ item.title }}{% else %}
+                {{ item.name }}{% endif %}</h5>
+            <small>
+            </small>
+        </div>
+        <p class="mb-1">{{ item.name }}</p>
+        <small>And some small print.</small>
+    </a>
+{% endblock %}

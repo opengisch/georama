@@ -97,7 +97,7 @@ class Base(Configuration):
         "site_brand": "Georama",
         # Logo to use for your site, must be present in static files, used for
         # brand on top left
-        "site_logo": "logo/georama_intermediate_white.png",
+        "site_logo": "images/main_plain.svg",
         # "site_logo": "logo/georama_snowglobe_logo.png",
         # CSS classes that are applied to the logo above
         "site_logo_classes": "img-circle",
@@ -138,6 +138,8 @@ class Base(Configuration):
         "adminsortable2",
         "treebeard",
         "django_extensions",
+        "crispy_forms",
+        "crispy_bootstrap5",
     ]
 
     GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
@@ -209,6 +211,7 @@ class Base(Configuration):
                     "django.template.context_processors.request",
                     "django.contrib.auth.context_processors.auth",
                     "django.contrib.messages.context_processors.messages",
+                    "georama.core.context_processors.menu_items",
                 ],
             },
         },
@@ -330,6 +333,22 @@ class Base(Configuration):
     QFIELD_LINK_URL = values.Value(None, environ_prefix="GEORAMA")
     QFIELD_LINK_USER = values.Value(None, environ_prefix="GEORAMA")
     QFIELD_LINK_PASSWORD = values.Value(None, environ_prefix="GEORAMA")
+
+    LIST_PAGE_SIZES = values.ListValue(
+        [
+            25,
+            50,
+            100,
+            200,
+            500,
+            1000,
+        ],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
+
+    CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+    CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 class Dev(Base):

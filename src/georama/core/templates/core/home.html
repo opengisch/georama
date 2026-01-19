@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
 
 {% load static %}
-
-{% block content %}
+{% block header %}
 <header class="main-header">
   <nav class="navbar navbar-expand-lg bg-body border-bottom sticky-top">
     <div class="container">
-      <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+      <a class="navbar-brand fw-bold d-flex align-items-center" href="/georama/core/static">
         <img src="{% static 'images/main_live.png' %}" alt="Georama" class="d-inline-block align-text-top">
         <span class="navbar-brand-text navbar-brand-domain text-nowrap ms-2">{{ site_title }}</span>
       </a>
@@ -20,9 +19,16 @@
       </div>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="menu-main navbar-nav ms-auto me-lg-4 mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" href="#modules">Modules</a>
+            <li class="nav-item">
+            <a class="nav-link" href="{% url "landing" %}">Home</a>
           </li>
+            {% for item in menu_items %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url item.url_name %}">
+                  {{ item.label }}
+                </a>
+              </li>
+            {% endfor %}
           <li class="nav-item">
             <a class="nav-link" href="https://docs.georama.io">Docs</a>
           </li>
@@ -34,10 +40,15 @@
     </div>
   </nav>
 </header>
+{% endblock %}
+
+
 
 <div id="content">
+
   <main class="landing-page">
 
+      {% block content %}
 
     <section class="section-block py-5" id="modules">
       <div class="container text-center">
@@ -60,7 +71,7 @@
               <div class="icon-circle mb-2"><img src={% static "/images/admin-page.svg" %} alt="" aria-hidden="true" loading="lazy"></div>
               <h5 class="mb-1">Admin Panel</h5>
               <p class="mb-2">Manage data sources, users, and permissions.</p>
-              <a class="btn btn-outline-secondary btn-sm" href="/admin/">Go Admin</a>
+              <a class="btn btn-outline-secondary btn-sm" href="/admin">Go Admin</a>
             </div>
           </div>
           <div class="mindmap-node" style="--angle:144deg;">
@@ -96,6 +107,7 @@
           </div>
         </div>
       </div>
+
     </section>
 
     <section class="section-block py-5" id="docs">
@@ -107,6 +119,8 @@
         </div>
       </div>
     </section>
+
+{% endblock %}
   </main>
 </div>
 
@@ -116,7 +130,6 @@
     <small class="text-muted">&copy; 2025 Georama. Made for geospatial developers.</small>
   </div>
 </footer>
-{% endblock %}
 
 {% block extra_js %}
 <script>

@@ -3,7 +3,7 @@ import logging
 import requests
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.views import View
 from qgis_server_light.interface.exporter import ExportParameters, ExportResult
 from qgis_server_light.interface.qgis import Config, Custom, Raster, Vector
@@ -11,14 +11,17 @@ from xsdata.formats.dataclass.parsers import DictDecoder, JsonParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder, JsonSerializer
 
+from georama.core.views import ChangeListView
 from georama.data_integration.admin import (
     QgisProject,
     QgisProjectFileStructure,
     QgisProjectGroup,
 )
+from georama.data_integration.apps import DataintegrationConfig
 from georama.data_integration.data_integration_config import (
     Config as DataIntegrationConfig,
 )
+from georama.data_integration.forms import ProjectForm
 from georama.data_integration.models import (
     CustomDataSet,
     Field,
@@ -27,6 +30,7 @@ from georama.data_integration.models import (
     RasterDataSet,
     VectorDataSet,
 )
+from georama.data_integration.services import ManualDatasetService, ProjectService
 
 log = logging.getLogger(__name__)
 
@@ -345,3 +349,38 @@ class QgisServerLightExporter(View):
             logging.error(e)
             return HttpResponse("Ask the administer", status=500)
         return redirect("admin:data_integration_project_changelist")
+
+
+class Index(View):
+    def get(self, request: HttpRequest):
+        context = {
+            "app_menu": DataintegrationConfig.app_menu(),
+            "project_count": ProjectService().count(),
+            "manual_dataset_count": ManualDatasetService().count(),
+        }
+        return render(request, "data_integration/index.html", context)
+
+
+class ChangeListProject(ChangeListView):
+    service = ProjectService
+    title = "Projects"
+    app_menu = DataintegrationConfig.app_menu()
+    template = "data_integration/project/change_list.html"
+
+
+class ShowProject(View):
+
+    def get(self, request: HttpRequest, pk):
+        instance = ProjectService().get(pk)[0]
+        form = ProjectForm(instance=instance)
+        return render(
+            request,
+            "data_integration/project/form.html",
+            {
+                "app_menu": DataintegrationConfig.app_menu(),
+                "form": form,
+                "change_list_page_title": "Project",
+                "change_list_view_name": "georama.data_integration:project_changelist",
+                "instance_title": instance.title or instance.name,
+            },
+        )

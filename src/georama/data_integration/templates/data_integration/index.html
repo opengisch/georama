@@ -1,0 +1,42 @@
+{% extends 'core/home.html' %}
+
+
+{% block content %}
+    <div id="content">
+
+        <main class="landing-page">
+            <section class="section-block py-5">
+                <div class="container">
+                    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'landing' %}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ app_menu.label }}</li>
+                  </ol>
+                </nav>
+                    <div class="rounded-4 p-4 p-lg-5 shadow-sm text-center">
+                        <div class="row">
+                            <div class="col-sm-2 mb-3 mb-sm-0">
+                                <div class="card border-success mb-3" style="max-width: 18rem;">
+                                    <div class="card-body text-success">
+                                        <h5 class="card-title">{{ project_count }}</h5>
+                                        <p class="card-text"><a class="nav-link" href="{% url 'georama.data_integration:project_changelist' %}">Projects</a></p>
+                                    </div>
+                                    <a class="btn btn-primary" href="#" role="button">New</a>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="card border-success mb-3" style="max-width: 18rem;">
+                                    <div class="card-body text-success">
+                                        <h5 class="card-title">{{ manual_dataset_count }}</h5>
+                                        <p class="card-text"><a class="nav-link" href="#">DataSets</a></p>
+                                    </div>
+                                    <a class="btn btn-primary" href="#" role="button">New</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+{% endblock %}

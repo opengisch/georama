@@ -1,10 +1,14 @@
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import redirect
+from django.http import HttpRequest
+from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
 from django.templatetags.static import static
 from django.urls import reverse
 from django.views import View
+
+from georama.core.menu import MenuItem
+from georama.core.services import Service
 
 
 class GeoramaLanding(View):
@@ -21,7 +25,7 @@ class GeoramaLanding(View):
                 "site_title": site_title,
                 "maps_endpoint": request.build_absolute_uri(reverse("maps_ogc_entry")),
             },
-            template="home.html",
+            template="core/home.html",
         )
 
 
@@ -44,3 +48,38 @@ class Logout(View):
     def get(self, request, *args, **kwargs):
         logout(request)
         return redirect("login")
+
+
+class ChangeListView(View):
+    service: type[Service]
+    title: str
+    template: str = "core/change_list.html"
+    app_menu: MenuItem
+
+    def get(self, request: HttpRequest):
+        service = self.service()
+        context = {
+            "app_menu": self.app_menu,
+            "page_title": self.title,
+            "items": service.get_list_page(
+                int(request.GET.get("offset", 0)),
+                int(request.GET.get("count", settings.LIST_PAGE_SIZES[0])),
+            ),
+            "current_offset": int(request.GET.get("offset", 0)),
+            "default_count": settings.LIST_PAGE_SIZES[0],
+            "current_count": int(request.GET.get("count", settings.LIST_PAGE_SIZES[0])),
+            "available_counts": settings.LIST_PAGE_SIZES,
+            "pages": service.pages_list(
+                int(request.GET.get("count", settings.LIST_PAGE_SIZES[0]))
+            ),
+            "current_page": int(request.GET.get("page", 1)),
+            "next_page": int(request.GET.get("page", 1)) + 1,
+            "next_page_offset": (int(request.GET.get("page", 1)) + 1)
+            * int(request.GET.get("count", settings.LIST_PAGE_SIZES[0]))
+            - 1,
+            "prev_page": int(request.GET.get("page", 1)) - 1,
+            "prev_page_offset": (int(request.GET.get("page", 1)) - 1)
+            * int(request.GET.get("count", settings.LIST_PAGE_SIZES[0]))
+            - 1,
+        }
+        return render(request, self.template, context)

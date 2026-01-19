@@ -1,0 +1,71 @@
+{% extends 'core/home.html' %}
+
+{% block content %}
+
+    <div id="content">
+
+        <main class="landing-page">
+            <section class="section-block py-5">
+                <div class="container">
+                <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'landing' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url app_menu.url_name %}">{{ app_menu.label }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ page_title }}</li>
+                  </ol>
+                </nav>
+                    <div class="list-group">
+                        {% for item in items %}
+                            {% block change_list_item %}
+                            <a href="#" class="list-group-item list-group-item-action" aria-current="true">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{% if item.title %}{{ item.title }}{% else %}
+                                        {{ item.name }}{% endif %}</h5>
+                                    <small>
+                                    </small>
+                                </div>
+                                <p class="mb-1">{{ item.name }}</p>
+                                <small>And some small print.</small>
+                            </a>
+                            {% endblock %}
+                        {% endfor %}
+                    </div>
+                    <nav aria-label="...">
+                        <ul class="pagination">
+                            <li class="page-item">
+                                <div class="dropdown">
+                                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button"
+                                       data-bs-toggle="dropdown"
+                                       aria-expanded="false">
+                                        {{ current_count }}
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        {% for count in available_counts %}
+                                            {% if count != current_count %}
+                                                <li><a class="dropdown-item" href="{% url 'georama.data_integration:project_changelist' %}?page=1&offset=0&count={{ count }}">{{ count }}</a></li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                                <a class="page-link" href="{% url 'georama.data_integration:project_changelist' %}?page={{ prev_page }}&offset={{ prev_page_offset }}&count={{ current_count }}">Previous</a>
+                            </li>
+                            {% for page_number, offset in pages %}
+                            <li class="page-item {% if page_number == current_page %}active{% endif %}">
+                                <a class="page-link" href="{% if current_page == page_number %}#{% else %}{% url 'georama.data_integration:project_changelist' %}?page={{ page_number }}&offset={{ offset }}&count={{ current_count }}{% endif %}" aria-current="page">{{ page_number }}</a>
+                            </li>
+                            {% endfor %}
+                            <li class="page-item">
+                                <a class="page-link {% if pages|length == current_page %}disabled{% endif %}" href="{% url 'georama.data_integration:project_changelist' %}?page={{ next_page }}&offset={{ next_page_offset }}&count={{ current_count }}">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+
+            </section>
+        </main>
+    </div>
+{% endblock %}
