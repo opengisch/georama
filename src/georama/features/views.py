@@ -1,5 +1,4 @@
 import os.path
-import typing
 
 import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
@@ -97,12 +96,12 @@ class PygeoapiServer(View):
         # TODO: This has to be stored somewhere, maybe a session store might be good
         server_config, openapi_config = self.handle_runtime_config(request)
         api = API(server_config, openapi_config)
-        # TODO: this only needs to be done once the config actually changes aka published features are added or
-        #       deleted!
+        # TODO: this only needs to be done once the config actually changes aka
+        #  published features are added or deleted!
         l10n._cfg_cache = {}
 
         api_request = APIRequest.from_django(request, api.locales)
-        content: typing.Union[str, bytes]
+        content: str | bytes
         if not skip_valid_check and not api_request.is_valid():
             headers, status, content = api.get_format_exception(api_request)
         else:
@@ -148,7 +147,7 @@ class PygeoapiServer(View):
         return self.execute_from_django(core_api.conformance, request)
 
     def collections(
-        self, request: HttpRequest, collection_id: typing.Optional[str] = None
+        self, request: HttpRequest, collection_id: str | None = None
     ) -> HttpResponse:
         """
         OGC API collections endpoint
@@ -161,7 +160,7 @@ class PygeoapiServer(View):
         return self.execute_from_django(core_api.describe_collections, request, collection_id)
 
     def collection_schema(
-        self, request: HttpRequest, collection_id: typing.Optional[str] = None
+        self, request: HttpRequest, collection_id: str | None = None
     ) -> HttpResponse:
         """
         OGC API collections schema endpoint
@@ -181,7 +180,7 @@ class PygeoapiServer(View):
             raise PermissionDenied()
 
     def collection_queryables(
-        self, request: HttpRequest, collection_id: typing.Optional[str] = None
+        self, request: HttpRequest, collection_id: str | None = None
     ) -> HttpResponse:
         """
         OGC API collections queryables endpoint
@@ -325,9 +324,9 @@ class PygeoapiServer(View):
         server_config["server"]["url"] = f"{request.scheme}://{request.get_host()}/features"
         for published_as in self.model.objects.all():
             if published_as.has_general_permission(request.user, appname):
-                server_config["resources"][
-                    str(published_as.identifier)
-                ] = self.create_resource(published_as, request)
+                server_config["resources"][str(published_as.identifier)] = (
+                    self.create_resource(published_as, request)
+                )
         return server_config, get_oas(server_config)
 
     @staticmethod
@@ -341,7 +340,7 @@ class PygeoapiServer(View):
         self,
         published_as: PublishedAsOgcApiFeatures,
         editable: bool,
-        features_properties: typing.List[ColumnOgcApiFeatures],
+        features_properties: list[ColumnOgcApiFeatures],
     ) -> dict:
         source, _ = published_as.dataset.source_to_qsl
 
@@ -390,7 +389,7 @@ class PygeoapiServer(View):
         self,
         published_as: PublishedAsOgcApiFeatures,
         editable: bool,
-        features_properties: typing.List[ColumnOgcApiFeatures],
+        features_properties: list[ColumnOgcApiFeatures],
     ) -> dict:
         source, _ = published_as.dataset.source_to_qsl
 
@@ -500,7 +499,7 @@ class PygeoapiServer(View):
 
 
 def getDatasetFieldConstraints(
-    field_properties: typing.List[ColumnOgcApiFeatures], geom_field: str, geom_type: str
+    field_properties: list[ColumnOgcApiFeatures], geom_field: str, geom_type: str
 ):
     field_constraints: dict[str, dict] = {}
 
@@ -527,7 +526,7 @@ def getDatasetFieldConstraints(
 
         if field.precision and field.precision > 0 and field.type_oapif == "number":
             # Specify how many decimal places are allowed
-            try:
+            try:  # noqa: SIM105
                 schema["multipleOf"] = 1 / 10**field.precision
             except ValueError:
                 pass
@@ -558,7 +557,8 @@ def getDatasetFieldConstraints(
 
 def admin_publish_as_oapif(request: HttpRequest, vector_dataset_id: str):
     """
-    helper function to hide actual connection in the database but make publishing straight forward.
+    helper function to hide actual connection in the database but make publishing
+    straight forward.
     """
     vd = VectorDataSet.objects.filter(id=vector_dataset_id)[0]
     published_as_oapi = PublishedAsOgcApiFeatures(dataset=vd)

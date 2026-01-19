@@ -19,7 +19,7 @@ class ServerConfig:
                 },
                 "map": {
                     "url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    "attribution": '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+                    "attribution": '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',  # noqa: E501
                 },
             },
             "logging": {"level": "INFO"},

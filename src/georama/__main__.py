@@ -9,8 +9,6 @@ This is an alternative to directly invoking the cli that uses python as the
 "entrypoint".
 """
 
-from __future__ import absolute_import
-
 from georama.cli import main
 
 if __name__ == "__main__":  # pragma: no cover

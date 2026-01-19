@@ -23,11 +23,11 @@
         const longest_edge = Math.max(...[Math.abs(ext[2] - ext[0]), Math.abs(ext[3] - ext[1])]);
         return ol.extent.buffer(ext, buffer * longest_edge);
     }
-    
+
     const polygonFromExtent = (ext) => {
         return ol.geom.Polygon.fromExtent(ext);
     }
-    
+
     const updateFormField = (ext) => {
         const digits = ext[0] <= 180 ? 6 : 2;
         const rounded_extent = ext.map(e => Math.round(e * 10**digits) / 10**digits);
@@ -35,7 +35,7 @@
             form_field.value = rounded_extent;
         }
     }
-    
+
     updateFormField(extent);
 
     const view = new ol.View({
@@ -43,7 +43,7 @@
         center: {{ center }},
         zoom: 8
     });
-    
+
     const map = new ol.Map({
         layers: [
             new ol.layer.Tile({
@@ -59,7 +59,7 @@
         target: 'map',
         view: view,
     });
-    
+
     // Fit the map to the current, buffered extent
     view.fitInternal(polygonFromExtent(bufferExtent(extent)));
 
@@ -78,7 +78,7 @@
     extent_interaction.on('extentchanged', function (event) {
         if (!event.extent) return;
         updateFormField(event.extent);
-        
+
     });
 
     // Reset the layer extent to the original bbox of the dataset
@@ -93,9 +93,9 @@
         let updated_extent;
         try {
             updated_extent = this.value.split(',').map(Number);
-            if (!updated_extent || updated_extent.length !== 4 
-                || updated_extent.some(isNaN) 
-                || updated_extent[2] < updated_extent[0] 
+            if (!updated_extent || updated_extent.length !== 4
+                || updated_extent.some(isNaN)
+                || updated_extent[2] < updated_extent[0]
                 || updated_extent[3] < updated_extent[1]) {
                 throw new Error('Extent must be a valid array of 4 numbers in the format [min x, min y, max x, max y]');
             }

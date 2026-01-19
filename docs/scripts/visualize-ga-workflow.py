@@ -10,7 +10,7 @@ import yaml
 # TYPES of Data as Read from Yaml Config
 
 ## job names are yaml keys
-JobName = t.NewType('JobName', str)
+JobName = t.NewType("JobName", str)
 
 ## each job 'needs' key can be:
 #   - missing -> python None
@@ -22,18 +22,18 @@ JobName = t.NewType('JobName', str)
 # JobNeedsType = t.Union[JobName, t.List[JobName], None]
 # JobNeeds = t.NewType('JobNeeds', JobNeedsType)
 # # OPT 1
-JobNeeds = t.Union[JobName, t.List[JobName], None]
+JobNeeds = JobName | list[JobName] | None
 
 
-ParsedYaml = t.Dict[str, t.Any]
+ParsedYaml = dict[str, t.Any]
 
 # TYPES of Data Model
-JobsNeedsValue = t.List[JobName]
+JobsNeedsValue = list[JobName]
 
 
 # Parse the GitHub Actions YAML file
-def parse_actions_config(filename: t.Union[str, Path]) -> t.Union[ParsedYaml, None]:
-    with open(filename, 'r') as stream:
+def parse_actions_config(filename: str | Path) -> ParsedYaml | None:
+    with open(filename) as stream:
         try:
             return yaml.safe_load(stream)
         except yaml.YAMLError as exc:
@@ -42,19 +42,19 @@ def parse_actions_config(filename: t.Union[str, Path]) -> t.Union[ParsedYaml, No
 
 
 # Extract job names and their 'needs' sections
-def extract_job_dependencies(config: ParsedYaml) -> t.Dict[str, JobsNeedsValue]:
+def extract_job_dependencies(config: ParsedYaml) -> dict[str, JobsNeedsValue]:
     """Understand DAG of all Jobs"""
     # DAG representation
 
     # mapping of job names to their dependencies (previous steps in the dependency DAG)
-    job_dependencies: t.Dict[str, JobsNeedsValue] = {}
+    job_dependencies: dict[str, JobsNeedsValue] = {}
 
-    if 'jobs' not in config:
+    if "jobs" not in config:
         print("[WARNGING] No 'jobs' section found in config file")
 
     else:
-        for job_name, job_config in config['jobs'].items():
-            needs: JobNeeds = job_config.get('needs')
+        for job_name, job_config in config["jobs"].items():
+            needs: JobNeeds = job_config.get("needs")
 
             current_job_needs_value: JobsNeedsValue = []
             if isinstance(needs, str):  # single dependency
@@ -70,35 +70,35 @@ def extract_job_dependencies(config: ParsedYaml) -> t.Dict[str, JobsNeedsValue]:
 
 
 # Generate Mermaid markdown from job dependencies
-def generate_mermaid(job_dependencies: t.Dict[str, t.List[str]]) -> str:
-    mermaid_code = 'graph LR;\n'
+def generate_mermaid(job_dependencies: dict[str, list[str]]) -> str:
+    mermaid_code = "graph LR;\n"
     for job_name, needs in job_dependencies.items():
         for need in needs:
-            mermaid_code += f'  {need} --> {job_name}\n'
+            mermaid_code += f"  {need} --> {job_name}\n"
     return mermaid_code
 
 
-def mermaid_from_yaml(filename: t.Union[str, Path], format: str = 'md') -> str:
+def mermaid_from_yaml(filename: str | Path, format: str = "md") -> str:
     config: ParsedYaml = parse_actions_config(filename)
     if config is None:
         print(f"[ERROR] Could not parse YAML file: {filename}")
         sys.exit(1)
-    job_dependencies: t.Dict[str, JobsNeedsValue] = extract_job_dependencies(config)
+    job_dependencies: dict[str, JobsNeedsValue] = extract_job_dependencies(config)
     mermaid_code: str = generate_mermaid(job_dependencies)
 
-    TAB = 3 * ' '
+    TAB = 3 * " "
 
     ## Embed Mermaid to MARKDOWN ##
-    if format == 'md':
+    if format == "md":
         embeded_mermaid: str = (
             # "## CI/CD Pipeline\n\n"
             # f"**CI Config File: {filename}**\n\n"
             f"```mermaid\n{mermaid_code}```\n"
         )
     ## Embed Mermaid to RST ##
-    elif format == 'rst':
-        embeded_mermaid: str = ".. mermaid::\n\n" + '\n'.join(
-            [TAB + x for x in mermaid_code.split('\n')]
+    elif format == "rst":
+        embeded_mermaid: str = ".. mermaid::\n\n" + "\n".join(
+            [TAB + x for x in mermaid_code.split("\n")]
         )
     return embeded_mermaid
 
@@ -114,7 +114,7 @@ def main():
     else:
         ci_config = Path(args.input)
 
-    md: str = mermaid_from_yaml(ci_config, format='rst' if args.rst else 'md')
+    md: str = mermaid_from_yaml(ci_config, format="rst" if args.rst else "md")
 
     if args.output:
         # Handle the case of writing to an output file
@@ -138,9 +138,9 @@ def arg_parse():
         help="Input file path (default: 'default-path')",
     )
     parser.add_argument(
-        '--rst',
-        help='Whether to generate RST content. Default MD',
-        action='store_true',
+        "--rst",
+        help="Whether to generate RST content. Default MD",
+        action="store_true",
         default=False,
     )
     parser.add_argument("-o", "--output", help="Output file path")
@@ -149,5 +149,5 @@ def arg_parse():
     return args
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

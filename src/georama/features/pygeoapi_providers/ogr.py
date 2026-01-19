@@ -1,5 +1,6 @@
-from pygeoapi.provider.ogr import OGRProvider
 from copy import deepcopy
+
+from pygeoapi.provider.ogr import OGRProvider
 
 
 class GeoramaOgcProvider(OGRProvider):

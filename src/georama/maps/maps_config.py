@@ -763,7 +763,7 @@ class Config:
                                                         "deliveryPoint": [
                                                             {
                                                                 "LocalisedCharacterString": {
-                                                                    "value": "Dufourstrasse 40/50, Postfach",
+                                                                    "value": "Dufourstrasse 40/50, Postfach",  # noqa: E501
                                                                 }
                                                             }
                                                         ],

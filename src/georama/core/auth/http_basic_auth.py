@@ -1,7 +1,6 @@
 import base64
 import binascii
 import logging
-from typing import Tuple
 
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.models import User
@@ -21,7 +20,7 @@ class BasicAuthentication(BaseAuthentication):
 
     www_authenticate_realm = "api"
 
-    def authenticate(self, request) -> Tuple[User, None] | None:
+    def authenticate(self, request) -> tuple[User, None] | None:
         """
         Returns a `User` if a correct username and password have been supplied
         using HTTP Basic authentication.  Otherwise returns `None`.
@@ -47,16 +46,16 @@ class BasicAuthentication(BaseAuthentication):
                 auth_decoded = base64.b64decode(auth[1]).decode("latin-1")
 
             userid, password = auth_decoded.split(":", 1)
-        except (TypeError, ValueError, UnicodeDecodeError, binascii.Error):
+        except (TypeError, ValueError, UnicodeDecodeError, binascii.Error) as esc:
             msg = _("Invalid basic header. Credentials not correctly base64 encoded.")
             log.debug(msg)
-            raise PermissionDenied(msg)
+            raise PermissionDenied(msg) from esc
 
         return self.authenticate_credentials(userid, password, request)
 
     def authenticate_credentials(
         self, userid, password, request=None
-    ) -> Tuple[User, None] | None:
+    ) -> tuple[User, None] | None:
         """
         Authenticate the userid and password against username and password
         with optional request for context.
@@ -77,7 +76,7 @@ class BasicAuthentication(BaseAuthentication):
         return user, None
 
     def authenticate_header(self, request):
-        return 'Basic realm="%s"' % self.www_authenticate_realm
+        return f'Basic realm="{self.www_authenticate_realm}"'
 
 
 def basic_http_authentication_middleware(get_response):

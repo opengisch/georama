@@ -24,25 +24,25 @@ class DqThematicAccuracyPropertyType:
     class Meta:
         name = "DQ_ThematicAccuracy_PropertyType"
 
-    dq_thematic_classification_correctness: Optional[
-        DqThematicClassificationCorrectness
-    ] = field(
-        default=None,
-        metadata={
-            "name": "DQ_ThematicClassificationCorrectness",
-            "type": "Element",
-            "namespace": "http://www.isotc211.org/2005/gmd",
-        },
+    dq_thematic_classification_correctness: Optional[DqThematicClassificationCorrectness] = (
+        field(
+            default=None,
+            metadata={
+                "name": "DQ_ThematicClassificationCorrectness",
+                "type": "Element",
+                "namespace": "http://www.isotc211.org/2005/gmd",
+            },
+        )
     )
-    dq_non_quantitative_attribute_accuracy: Optional[
-        DqNonQuantitativeAttributeAccuracy
-    ] = field(
-        default=None,
-        metadata={
-            "name": "DQ_NonQuantitativeAttributeAccuracy",
-            "type": "Element",
-            "namespace": "http://www.isotc211.org/2005/gmd",
-        },
+    dq_non_quantitative_attribute_accuracy: Optional[DqNonQuantitativeAttributeAccuracy] = (
+        field(
+            default=None,
+            metadata={
+                "name": "DQ_NonQuantitativeAttributeAccuracy",
+                "type": "Element",
+                "namespace": "http://www.isotc211.org/2005/gmd",
+            },
+        )
     )
     dq_quantitative_attribute_accuracy: Optional[DqQuantitativeAttributeAccuracy] = field(
         default=None,

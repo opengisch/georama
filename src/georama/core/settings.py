@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+
 from pathlib import Path
 
 from configurations import Configuration, values
@@ -85,18 +86,23 @@ class Base(Configuration):
         },
     }
     JAZZMIN_SETTINGS = {
-        # title of the window (Will default to current_admin_site.site_title if absent or None)
+        # title of the window (Will default to current_admin_site.site_titl
+        # if absent or None)
         "site_title": "Georama Admin",
-        # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+        # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header
+        # if absent or None)
         "site_header": "Georama",
-        # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+        # Title on the brand (19 chars max) (defaults to current_admin_site.site_header
+        # if absent or None)
         "site_brand": "Georama",
-        # Logo to use for your site, must be present in static files, used for brand on top left
+        # Logo to use for your site, must be present in static files, used for
+        # brand on top left
         "site_logo": "logo/georama_intermediate_white.png",
         # "site_logo": "logo/georama_snowglobe_logo.png",
         # CSS classes that are applied to the logo above
         "site_logo_classes": "img-circle",
-        # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
+        # Relative path to a favicon for your site, will default to
+        # site_logo if absent (ideally 32x32 px)
         "site_icon": "logo/favicon.ico",
     }
 

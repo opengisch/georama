@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('data_integration', '0021_customdataset_maximum_scale_and_more'),
+        ("data_integration", "0021_customdataset_maximum_scale_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customdataset',
-            name='qgis_layer_id',
+            model_name="customdataset",
+            name="qgis_layer_id",
             field=models.CharField(max_length=1000, unique=True),
         ),
         migrations.AlterField(
-            model_name='rasterdataset',
-            name='qgis_layer_id',
+            model_name="rasterdataset",
+            name="qgis_layer_id",
             field=models.CharField(max_length=1000, unique=True),
         ),
         migrations.AlterField(
-            model_name='vectordataset',
-            name='qgis_layer_id',
+            model_name="vectordataset",
+            name="qgis_layer_id",
             field=models.CharField(max_length=1000, unique=True),
         ),
     ]

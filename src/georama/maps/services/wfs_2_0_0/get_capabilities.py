@@ -1,5 +1,4 @@
 import logging
-from typing import List
 from xml.etree.ElementTree import QName
 
 from qgis_server_light.interface.qgis import BBox
@@ -21,7 +20,7 @@ from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 class WfsGetCapabilities(WfsOperation):
     @property
-    def allowed_formats(self) -> List[str]:
+    def allowed_formats(self) -> list[str]:
         return ["TEXT/XML", "APPLICATION/JSON"]
 
     def get_capabilities_body(self) -> WfsCapabilities:

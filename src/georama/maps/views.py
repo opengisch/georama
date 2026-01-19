@@ -56,7 +56,8 @@ class OgcServer(View):
         if requested_format not in operation.allowed_formats:
             return HttpResponse(
                 operation.render_operation_parsing_failed(
-                    f"Format {requested_format} is not allowed. Allowed is {operation.allowed_formats}"
+                    f"Format {requested_format} is not allowed."
+                    f"Allowed is {operation.allowed_formats}"
                 ),
                 status=400,
                 content_type="text/xml",
@@ -81,7 +82,8 @@ class OgcServer(View):
         if requested_format not in operation.allowed_formats:
             return HttpResponse(
                 operation.render_operation_parsing_failed(
-                    f"Format {requested_format} is not allowed. Allowed is {operation.allowed_formats}"
+                    f"Format {requested_format} is not allowed."
+                    f"Allowed is {operation.allowed_formats}"
                 ),
                 status=400,
                 content_type="text/xml",
@@ -108,7 +110,8 @@ class OgcServer(View):
             if requested_format not in operation.allowed_formats:
                 return HttpResponse(
                     operation.render_operation_parsing_failed(
-                        f"Format {requested_format} is not allowed. Allowed is {operation.allowed_formats}"
+                        f"Format {requested_format} is not allowed."
+                        f"Allowed is {operation.allowed_formats}"
                     ),
                     status=400,
                     content_type="text/xml",
@@ -126,14 +129,15 @@ class OgcServer(View):
         else:
             return HttpResponse(
                 operation.render_operation_parsing_failed(
-                    f"Query paramater 'layer' has to be set!"
+                    "Query paramater 'layer' has to be set!"
                 ),
                 status=400,
                 content_type="text/xml",
             )
 
     def wfs_200_describefeaturetype(self, request: HttpRequest, params: dict) -> HttpResponse:
-        # refering spec document `TYPENAME` is a comma separated list of *layers* which should be described
+        # refering spec document `TYPENAME` is a comma separated
+        # list of *layers* which should be described
         # it is an optional query parameter
         requested_layer = params.get("TYPENAME")
         if requested_layer:
@@ -173,7 +177,8 @@ class OgcServer(View):
         content, content_type, success = operation.render(
             get_feature_parameter.output_format,
             operation.get_feature(
-                # we use only one query here, since this is implemented for URL GET query params
+                # we use only one query here, since this is implemented
+                # for URL GET query params
                 # TODO: This has to be improved for XML body via POST
                 get_feature_parameter,
                 result,
@@ -196,19 +201,15 @@ class OgcServer(View):
     def sanitize_query_parameters(self, parameters: dict) -> dict:
         params = {}
         for key in parameters:
-            if key.upper() == "LAYERS":
-                params[str(key).upper()] = str(parameters[key])
-            elif key.upper() == "STYLES":
-                params[str(key).upper()] = str(parameters[key])
-            elif key.upper() == "TYPENAME":
-                params[str(key).upper()] = str(parameters[key])
-            elif key.upper() == "TYPENAMES":
-                params[str(key).upper()] = str(parameters[key])
-            elif key.upper() == "ALIASES":
-                params[str(key).upper()] = str(parameters[key])
-            elif key.upper() == "FILTER":
-                params[str(key).upper()] = str(parameters[key])
-            elif key.upper() == "LAYER":
+            if (
+                key.upper() == "LAYERS"
+                or key.upper() == "STYLES"
+                or key.upper() == "TYPENAME"
+                or key.upper() == "TYPENAMES"
+                or key.upper() == "ALIASES"
+                or key.upper() == "FILTER"
+                or key.upper() == "LAYER"
+            ):
                 params[str(key).upper()] = str(parameters[key])
             else:
                 params[str(key).upper()] = str(parameters[key]).upper()
@@ -228,7 +229,8 @@ class OgcServer(View):
                 if isinstance(published_as.raster_dataset, RasterDataSet):
                     accessible_raster.append(published_as.raster_dataset.to_qsl)
                 elif isinstance(published_as.vector_dataset, VectorDataSet):
-                    # since we will use this in the on a plain list of layers, the largest extent buffer
+                    # since we will use this in the on a plain
+                    # list of layers, the largest extent buffer
                     # should be applied
                     if published_as.extent_buffer > vector_extent_buffer:
                         vector_extent_buffer = published_as.extent_buffer
@@ -270,7 +272,8 @@ class OgcServer(View):
                 else:
                     return HttpResponse("Only VERSION 1.3.0 is available", 400)
             elif params["REQUEST"] == "GETMAP":
-                # This is especially usefull for input from foreign systems which might send whatever query
+                # This is especially usefull for input from foreign
+                # systems which might send whatever query
                 # params we don't have knowledge of
                 parser_config = ParserConfig(
                     fail_on_unknown_properties=False, fail_on_unknown_attributes=False
@@ -290,7 +293,8 @@ class OgcServer(View):
                     return HttpResponse(e, status=403, content_type="text/plain")
 
             elif params["REQUEST"] == "GETFEATUREINFO":
-                # TODO: this needs to be improved a bit, currently the layers are not sent to QSL.
+                # TODO: this needs to be improved a bit, currently
+                #  the layers are not sent to QSL.
                 service_params = WmsGetFeatureInfoParams.from_overloaded_dict(params)
                 job = QslGetFeatureInfoJob(service_params=service_params)
             else:
@@ -360,7 +364,8 @@ class OgcServer(View):
             content, content_type, success = operation.render(
                 get_feature_parameter.output_format.upper(),
                 operation.get_feature(
-                    # we use only one query here, since this is implemented for URL GET query params
+                    # we use only one query here, since this is
+                    # implemented for URL GET query params
                     # TODO: This has to be improved for XML body via POST
                     get_feature_parameter,
                     result,
@@ -386,7 +391,8 @@ class OgcServer(View):
 
 def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):
     """
-    helper function to hide actual connection in the database but make publishing straight forward.
+    helper function to hide actual connection in the database but make
+    publishing straight forward.
     """
     allowed_dataset_types = ["raster", "vector", "custom"]
     if dataset_type not in allowed_dataset_types:

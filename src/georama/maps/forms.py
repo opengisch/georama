@@ -1,10 +1,9 @@
 from django import forms
+from django.contrib.admin import widgets
+from django.contrib.auth.models import Group, User
 from django.forms import Widget
 from django.urls import reverse
 from pyproj import CRS
-
-from django.contrib.admin import widgets
-from django.contrib.auth.models import Group, User
 from qgis_server_light.interface.qgis import BBox
 
 from georama.maps.models import PublishedAsWms
@@ -92,7 +91,8 @@ class PublishedAsWmsForm(forms.ModelForm):
         permissions = self.instance.permissions
         permission_read = [p.codename for p in permissions][0]
 
-        # filling the field with the correct queryset and initialize it with the data from the db
+        # filling the field with the correct queryset and initialize it
+        # with the data from the db
 
         self.fields["group_read_permission"].queryset = Group.objects.all()
         self.fields["group_read_permission"].initial = Group.objects.filter(
@@ -123,12 +123,13 @@ class PublishedAsWmsForm(forms.ModelForm):
         if extent:
             try:
                 bbox = BBox.from_string(extent)
-            except ValueError:
+            except ValueError as exc:
                 raise forms.ValidationError(
                     "Invalid extent: Extent must be a comma-seperated list of 4 coordinates"
-                )
+                ) from exc
             if bbox.x_min > bbox.x_max or bbox.y_min > bbox.y_max:
                 raise forms.ValidationError(
-                    "Invalid extent: Extent coordinates must be ordered: x_min,y_min,x_max,y_max"
+                    "Invalid extent: Extent coordinates must be ordered:"
+                    " x_min,y_min,x_max,y_max"
                 )
         return extent

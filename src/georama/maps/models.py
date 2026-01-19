@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.db import models
@@ -67,10 +66,10 @@ class PublishedAsWmsAbstract(PublishedAs):
     @property
     def readable_identifier(self) -> str:
         dataset = self.bound_dataset
-        return f"{dataset.project.mandant.name}.{dataset.project.name}.{dataset.name}.{self.identifier}"
+        return f"{dataset.project.mandant.name}.{dataset.project.name}.{dataset.name}.{self.identifier}"  # noqa: E501
 
     @property
-    def permissions(self) -> List[PermissionInterface]:
+    def permissions(self) -> list[PermissionInterface]:
         # No need for Update or delete with WMS...
         return self.read_permissions
 
@@ -100,7 +99,8 @@ class PublishedAsWmsAbstract(PublishedAs):
         )
 
     async def generate_preview_image(self) -> bytes | None:
-        # We have to call the following @properties a bit awkward because they contain sync django orm actions
+        # We have to call the following @properties a bit awkward because
+        # they contain sync django orm actions
         dataset = await sync_to_async(lambda: self.bound_dataset)()
         qsl_instance = await sync_to_async(lambda: dataset.to_qsl)()
         # this way we always set a style, or it will fail if list has no styles
@@ -167,7 +167,8 @@ class PublishedAsWms(PublishedAsWmsAbstract):
         RasterDataSet,
         # TODO: this seems wrong => only because error:
         #  It is impossible to add a non-nullable field 'dataset' to ... without
-        #  specifying a default. This is because the database needs something to populate existing rows.
+        #  specifying a default. This is because the database needs something
+        #  to populate existing rows.
         null=True,
         related_name="published_ogc_wms",
         related_query_name="published_ogc_wms",
@@ -177,7 +178,8 @@ class PublishedAsWms(PublishedAsWmsAbstract):
         VectorDataSet,
         # TODO: this seems wrong => only because error:
         #  It is impossible to add a non-nullable field 'dataset' to ... without
-        #  specifying a default. This is because the database needs something to populate existing rows.
+        #  specifying a default. This is because the database needs something
+        #  to populate existing rows.
         null=True,
         related_name="published_ogc_wms",
         related_query_name="published_ogc_wms",
@@ -187,7 +189,8 @@ class PublishedAsWms(PublishedAsWmsAbstract):
         CustomDataSet,
         # TODO: this seems wrong => only because error:
         #  It is impossible to add a non-nullable field 'dataset' to ... without
-        #  specifying a default. This is because the database needs something to populate existing rows.
+        #  specifying a default. This is because the database needs something
+        #  to populate existing rows.
         null=True,
         related_name="published_ogc_wms",
         related_query_name="published_ogc_wms",

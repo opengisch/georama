@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from xsdata.formats.dataclass.serializers import XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
@@ -51,10 +50,10 @@ class WfsOperation(OgcOperation):
             },
         )
 
-    def sanitized_typenames(self, type_names: List[str]) -> List[str]:
+    def sanitized_typenames(self, type_names: list[str]) -> list[str]:
         """
-        Method to bridge layer names which are configured in Georama and the version which is exposed by WFS
-        containing the namespace.
+        Method to bridge layer names which are configured in Georama and the
+        version which is exposed by WFS containing the namespace.
         Args:
             type_names: The names which should be sanitized.
 
@@ -68,32 +67,36 @@ class WfsOperation(OgcOperation):
         for name in type_names:
             name_parts = name.split(":")
             if len(name_parts) == 1:
-                # no namespace as part of the typename we assume that the requested typename is out
+                # no namespace as part of the typename we assume that the
+                # requested typename is out
                 # of the default namespace self.own_namespace
                 sanitized_typenames.append(name_parts[0])
             elif len(name_parts) == 2:
                 if self.own_namespace != name_parts[0]:
-                    # the requested typename belongs not to our namespace, we do not support that
+                    # the requested typename belongs not to our namespace, we do
+                    # not support that
                     wrong_typenames.append(name)
                 else:
                     # the requested typename belongs to our namespace
                     sanitized_typenames.append(name.replace(f"{self.own_namespace}:", ""))
             else:
                 wrong_typenames.append(
-                    f"typename has unexpected format (expected '<namespace>:<name>') got {name}"
+                    f"typename has unexpected format (expected '<namespace>:<name>')"
+                    f" got {name}"
                 )
         if len(wrong_typenames) > 0:
             raise AttributeError(
                 self.render_exception(
                     f"Unknown feature type (wrong namespace? this server offers namespace "
-                    f"'{self.own_namespace}'): wrongTypeName(s) => {', '.join(wrong_typenames)}"
+                    f"'{self.own_namespace}'):"
+                    f" wrongTypeName(s) => {', '.join(wrong_typenames)}"
                 )
             )
         return sanitized_typenames
 
     def obtain_accessible_layers(
-        self, layer_names: List[str] | None = None
-    ) -> List[PublishedAsWms]:
+        self, layer_names: list[str] | None = None
+    ) -> list[PublishedAsWms]:
         accessible_layers = []
         for published_as in self.model.objects.all():
             # published_as.extent_wgs84 is provided only by layers which contain geometries
@@ -107,6 +110,7 @@ class WfsOperation(OgcOperation):
                     accessible_layers.append(published_as)
                 else:
                     logging.debug(
-                        "linked dataset has to be VectorDataSet for WFS 2.0.0, all others are ignored!"
+                        "linked dataset has to be VectorDataSet"
+                        " for WFS 2.0.0, all others are ignored!"
                     )
         return accessible_layers

@@ -1,6 +1,6 @@
+from collections.abc import Iterable
 from contextlib import suppress
 from dataclasses import replace
-from typing import Dict, Iterable, Type
 
 from xsdata.exceptions import ParserError
 from xsdata.formats.dataclass.parsers import DictDecoder
@@ -14,7 +14,7 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
 
 
 class CustomDictDecoder(DictDecoder):
-    def bind_best_dataclass(self, data: Dict, classes: Iterable[Type[T]]) -> T:
+    def bind_best_dataclass(self, data: dict, classes: Iterable[type[T]]) -> T:
         """Bind the input data to all the given classes and return best match.
 
         Args:
@@ -29,10 +29,12 @@ class CustomDictDecoder(DictDecoder):
         max_score = -1.0
         config = replace(self.config, fail_on_converter_warnings=True)
         decoder = CustomDictDecoder(config=config, context=self.context)
-        if "dimensions" in keys:
-            if isinstance(data["dimensions"], dict):
-                if len(data["dimensions"].keys()) == 0:
-                    data["dimensions"] = None
+        if (
+            "dimensions" in keys
+            and isinstance(data["dimensions"], dict)
+            and len(data["dimensions"].keys()) == 0
+        ):
+            data["dimensions"] = None
         if "mixed" in keys and "children" in keys:
             return decoder.bind_dataclass(data, LayerGroup)
         if "type" in keys:

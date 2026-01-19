@@ -93,7 +93,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
 
     def delete_link(self, obj: PublishedAsWms):
         return mark_safe(
-            '<a href="{}" class="btn btn-high btn-danger"><i class="fas fa-trash text-xs"/></a>'.format(
+            '<a href="{}" class="btn btn-high btn-danger"><i class="fas fa-trash text-xs"/></a>'.format(  # noqa: E501
                 reverse("admin:maps_publishedaswms_delete", args=(obj.pk,))
             )
         )
@@ -147,10 +147,10 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         return mark_safe(
             "".join(
                 [
-                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WMS GetMap"><i class="fas fa-eye text-xs"></i></a>'.format(
+                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WMS GetMap"><i class="fas fa-eye text-xs"></i></a>'.format(  # noqa: E501
                         reverse("maps_ogc_entry"), self.create_wms_url_params(obj)
                     ),
-                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WFS GetFeature"><i class="fas fa-eye text-xs"></i></a>'.format(
+                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WFS GetFeature"><i class="fas fa-eye text-xs"></i></a>'.format(  # noqa: E501
                         reverse("maps_ogc_entry"), self.create_wfs_url_params(obj)
                     ),
                 ]
@@ -160,11 +160,11 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     show_published.short_description = "Operations"
 
     def preview_image(self, obj: PublishedAsWms):
-        base64_img = "data:image/png;base64,{}".format(base64.b64encode(obj.preview).decode())
+        base64_img = f"data:image/png;base64,{base64.b64encode(obj.preview).decode()}"
         return mark_safe(
             "".join(
                 [
-                    '<img src="{}" class="border shadow-sm" style="width: {}px; height: {}px"/>'.format(
+                    '<img src="{}" class="border shadow-sm" style="width: {}px; height: {}px"/>'.format(  # noqa: E501
                         base64_img, *obj.preview_dimensions
                     ),
                 ]
@@ -188,7 +188,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
                 "linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!"
             )
         return mark_safe(
-            f'<a href="{reverse(f"admin:data_integration_{type_name.lower()}dataset_change", args=(dataset.pk,))}" class="btn btn-high btn-success">{dataset.title} ({dataset.name})</a><span class="badge badge-secondary">{type_name}</span>'
+            f'<a href="{reverse(f"admin:data_integration_{type_name.lower()}dataset_change", args=(dataset.pk,))}" class="btn btn-high btn-success">{dataset.title} ({dataset.name})</a><span class="badge badge-secondary">{type_name}</span>'  # noqa: E501
         )
 
     dataset_detail.short_description = "Dataset"
@@ -205,11 +205,10 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             "dataset_detail",
             "queryable",
         ]
-        if obj:
-            if isinstance(obj.vector_dataset, VectorDataSet):
-                fields.append("extent_buffer")
-                fields.append("extent")
-                fields.append("extent_wgs84")
+        if obj and isinstance(obj.vector_dataset, VectorDataSet):
+            fields.append("extent_buffer")
+            fields.append("extent")
+            fields.append("extent_wgs84")
         return (
             (
                 None,

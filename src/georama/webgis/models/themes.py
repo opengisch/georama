@@ -1,5 +1,4 @@
 import uuid
-from typing import List
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -32,9 +31,9 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
 
 
 class Interface(models.Model):
-
     """
-    Model that matches a configuration with a interface configuration (desktop, mobile, api, ...)
+    Model that matches a configuration with a interface configuration
+    (desktop, mobile, api, ...)
     """
 
     name = models.CharField()
@@ -90,7 +89,7 @@ class PublishedAsTheme(PublishedAs):
         )
 
     @property
-    def permissions(self) -> List[PermissionInterface]:
+    def permissions(self) -> list[PermissionInterface]:
         if self.public:
             return []
         else:
@@ -122,7 +121,8 @@ class LayerGroupMp(MP_Node):
         PublishedAsTheme,
         # TODO: this seems wrong => only because error:
         #  It is impossible to add a non-nullable field 'dataset' to ... without
-        #  specifying a default. This is because the database needs something to populate existing rows.
+        #  specifying a default. This is because the database needs something
+        #  to populate existing rows.
         null=True,
         related_name="tree_elements",
         related_query_name="tree_element",
@@ -181,8 +181,8 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     """
 
     published_as_type = "geogirafe_wms_layer"
-    # TODO: This means we currently can add a layer only once into the tree. It is not allowed
-    #       in two different groups. Is that what we want?
+    # TODO: This means we currently can add a layer only once into the
+    #  tree. It is not allowed in two different groups. Is that what we want?
     layer_group = models.OneToOneField(
         LayerGroupMp,
         related_name="wms_datasets",
@@ -195,7 +195,8 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
         RasterDataSet,
         # TODO: this seems wrong => only because error:
         #  It is impossible to add a non-nullable field 'dataset' to ... without
-        #  specifying a default. This is because the database needs something to populate existing rows.
+        #  specifying a default. This is because the database needs something
+        #  to populate existing rows.
         null=True,
         related_name="published_ogc_wms_webgis",
         related_query_name="published_ogc_wms_webgis",
@@ -206,7 +207,8 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
         VectorDataSet,
         # TODO: this seems wrong => only because error:
         #  It is impossible to add a non-nullable field 'dataset' to ... without
-        #  specifying a default. This is because the database needs something to populate existing rows.
+        #  specifying a default. This is because the database needs something
+        #  to populate existing rows.
         null=True,
         related_name="published_ogc_wms_webgis",
         related_query_name="published_ogc_wms_webgis",
@@ -217,7 +219,8 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
         CustomDataSet,
         # TODO: this seems wrong => only because error:
         #  It is impossible to add a non-nullable field 'dataset' to ... without
-        #  specifying a default. This is because the database needs something to populate existing rows.
+        #  specifying a default. This is because the database needs something
+        #  to populate existing rows.
         null=True,
         related_name="published_ogc_wms_webgis",
         related_query_name="published_ogc_wms_webgis",

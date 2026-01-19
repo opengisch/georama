@@ -1,6 +1,5 @@
 import logging
 from decimal import Decimal
-from typing import List
 
 from qgis_server_light.interface.qgis import BBox
 from xsdata.formats.dataclass.parsers import DictDecoder
@@ -39,12 +38,12 @@ from georama.maps.services import OgcOperation
 
 class WfsGetMetadata(OgcOperation):
     @property
-    def allowed_formats(self) -> List[str]:
+    def allowed_formats(self) -> list[str]:
         return ["TEXT/XML", "APPLICATION/JSON"]
 
     def obtain_accessible_layers(
-        self, layer_names: List[str] | None = None
-    ) -> List[PublishedAsWms]:
+        self, layer_names: list[str] | None = None
+    ) -> list[PublishedAsWms]:
         accessible_layers = []
         published_as = PublishedAsWms.objects.get(name=layer_names[0])
         if published_as.has_read_permission(self.user, self.appname):
@@ -52,13 +51,14 @@ class WfsGetMetadata(OgcOperation):
                 accessible_layers.append(published_as)
             else:
                 logging.debug(
-                    "linked dataset has to be VectorDataSet for WFS 2.0.0, all others are ignored!"
+                    "linked dataset has to be VectorDataSet for"
+                    " WFS 2.0.0, all others are ignored!"
                 )
         return accessible_layers
 
     def create_layer_distributioninfo_info(
         self, layer_name: str, wms_link_png: str, wfs_link_gml3: str
-    ) -> List[CiOnlineResourcePropertyType]:
+    ) -> list[CiOnlineResourcePropertyType]:
         return [
             CiOnlineResourcePropertyType(
                 ci_online_resource=CiOnlineResource(
@@ -196,7 +196,10 @@ class WfsGetMetadata(OgcOperation):
         """
         found_layer = self.obtain_accessible_layers([layer_name])[0]
         wms_link_png = f"{self.url}{PublishedAsWmsAdmin.create_wms_url_params(found_layer)}"
-        wfs_link_gml3 = f"{self.url}{PublishedAsWmsAdmin.create_wfs_url_params(found_layer, output_format='APPLICATION/GML+XML; VERSION=3.2')}"
+        wfs_link_gml3 = (
+            f"{self.url}"
+            f"{PublishedAsWmsAdmin.create_wfs_url_params(found_layer, output_format='APPLICATION/GML+XML; VERSION=3.2')}"  # noqa: E501
+        )
         BBox.from_string(found_layer.bound_dataset.bbox_wgs84)
         # TODO: Make that catched from configuration as we do for WMS already!
         config = Config().wfs_get_metadata_config(self.url)

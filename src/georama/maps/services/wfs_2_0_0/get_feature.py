@@ -1,12 +1,15 @@
 """
-This module implements necessary WFS 2.0 handling. It mainly deals with the interfaces of OGC and ISO.
+This module implements necessary WFS 2.0 handling. It mainly deals with the interfaces
+of OGC and ISO.
 
 In general, we have to handle 2 incoming request types:
-  1. So called "ad-hoc" query which is a GET request where query parameters define the data extraction by
-     key value pairs (KVP).
-  2. Request originating to POST request where query content is passed as payload in the body.
+  1. So called "ad-hoc" query which is a GET request where query parameters define the
+    data extraction by key value pairs (KVP).
+  2. Request originating to POST request where query content is passed as payload in
+    the body.
 
-In both cases we need to parse these inputs into the interface for WFS 2.0 GetFeature requests: `GetFeature`
+In both cases we need to parse these inputs into the interface for WFS 2.0 GetFeature
+requests: `GetFeature`
 
 ```m̀ermaid
 flowchart
@@ -26,7 +29,7 @@ import datetime
 import logging
 import time
 from dataclasses import field, make_dataclass
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 from django.db.models import Model
@@ -76,7 +79,7 @@ class NumpyArrayConverter(Converter):
     def deserialize(self, value: Any, **kwargs: Any) -> np.ndarray:
         return np.fromstring(value, dtype=float, sep=" ")
 
-    def serialize(self, value: Any, **kwargs: Any) -> Optional[str]:
+    def serialize(self, value: Any, **kwargs: Any) -> str | None:
         if isinstance(value, np.ndarray):
             return " ".join(value.astype(str))
 
@@ -104,7 +107,7 @@ class WfsGetFeature(WfsOperation):
         }
 
     @property
-    def allowed_formats(self) -> List[str]:
+    def allowed_formats(self) -> list[str]:
         return [
             "APPLICATION/GML+XML; VERSION=3.2",
             "GML3",
@@ -114,17 +117,17 @@ class WfsGetFeature(WfsOperation):
         ]
 
     def obtain_accessible_layers(
-        self, layer_names: List[str] | None = None
-    ) -> List[PublishedAsWms]:
+        self, layer_names: list[str] | None = None
+    ) -> list[PublishedAsWms]:
         """
-        This method derives the layers which are available for WFS operation. This Method solves multiple
-        purposes:
+        This method derives the layers which are available for WFS operation.
+        This Method solves multiple purposes:
             1. Find configured VECTOR layers from Georama database
             2. Check if layers queried in request but not configured in Georama database
             3. Check permissions of layers
         Args:
-            layer_names: Optional list of layer names which are checked against the Georama database
-                (default: None)
+            layer_names: Optional list of layer names which are checked against the
+                Georama database (default: None)
 
         Returns:
             List of accessible layers.
@@ -170,7 +173,8 @@ class WfsGetFeature(WfsOperation):
 
     def check_filter_empty(self, filter: Filter) -> bool:
         """
-        Little helper method to check if a filter does not contain any set attributes. This is important,
+        Little helper method to check if a filter does not contain any set
+        attributes. This is important,
         since empty filters can cause trouble.
 
         Args:
@@ -179,21 +183,23 @@ class WfsGetFeature(WfsOperation):
         Returns:
             Whether the filter is empty or not.
         """
-        if len(filter.choice) > 0:
+        if len(filter.choice) > 0:  # noqa: SIM103
             return False
         else:
             return True
 
-    def prepare_queries(self, query_params: dict) -> List[Query]:
-
+    def prepare_queries(self, query_params: dict) -> list[Query]:
         """
-        This implements the part of the spec to construct a query object out of simple KVP (key value pair)
+        This implements the part of the spec to construct a query object out of simple
+        KVP (key value pair)
         encoded parameters from GET URL request.
 
         It mainly is about chapter 6.2.5.3 of the spec PDF.
 
         This list encoded query:
-        TYPENAMES=(ns1:F1,ns2:F2)(ns1:F1,ns1:F1)&ALIASES=(A,B)(C,D)&FILTER=(<Filter> … for A,B … </Filter>)(<Filter>…for C,D…</Filter>)
+        TYPENAMES=(ns1:F1,ns2:F2)(ns1:F1,ns1:F1)&
+        ALIASES=(A,B)(C,D)&
+        FILTER=(<Filter> … for A,B … </Filter>)(<Filter>…for C,D…</Filter>)
         should be handled the same as this 2 separate would do:
         TYPENAMES=ns1:F1,ns2:F2&ALIASES=A,B&FILTER=<Filter>…for A,B…</Filter>
         TYPENAMES=ns1:F1,ns1:F1&ALIASES=C,D&FILTER=<Filter>…for C,D…</Filter>
@@ -218,27 +224,25 @@ class WfsGetFeature(WfsOperation):
         if aliases_param_value:
             # we have aliases in the query
             aliases_lists = handle_list_encoding(aliases_param_value)
-            if aliases_lists:
-                if not len(aliases_lists) == len(type_names_lists):
-                    raise AttributeError(
-                        self.render_exception("List encoded params have to be same lenght!")
-                    )
+            if aliases_lists and not len(aliases_lists) == len(type_names_lists):
+                raise AttributeError(
+                    self.render_exception("List encoded params have to be same lenght!")
+                )
         else:
             # no aliases were passed, we create an empty list of same length as type_names
             aliases_lists = [None] * len(type_names_lists)
         if filter_param_value:
             # we have filters in the query
             filters_lists = handle_list_encoding(filter_param_value)
-            if filters_lists:
-                if not len(filters_lists) == len(type_names_lists):
-                    raise AttributeError(
-                        self.render_exception("List encoded params have to be same lenght!")
-                    )
+            if filters_lists and not len(filters_lists) == len(type_names_lists):
+                raise AttributeError(
+                    self.render_exception("List encoded params have to be same lenght!")
+                )
         else:
             # no filters were passed, we create an empty list of same length as type_names
             filters_lists = [None] * len(type_names_lists)
 
-        combined_lists = zip(type_names_lists, aliases_lists, filters_lists)
+        combined_lists = zip(type_names_lists, aliases_lists, filters_lists, strict=False)
         for type_names, aliases, filter_definition in combined_lists:
             type_names_value_list = type_names.split(",")
             if aliases:
@@ -246,9 +250,12 @@ class WfsGetFeature(WfsOperation):
                 if len(type_names_value_list) != len(aliases_value_list):
                     raise AttributeError(
                         self.render_exception(
-                            "List of aliases and typenames has to be of same length. Situation is:"
-                            f" typenames: {type_names_value_list}, length: {len(type_names_value_list)}"
-                            f" aliases: {aliases_value_list}, length: {len(aliases_value_list)}"
+                            "List of aliases and typenames has to be of same length."
+                            " Situation is:"
+                            f" typenames: {type_names_value_list},"
+                            f" length: {len(type_names_value_list)}"
+                            f" aliases: {aliases_value_list},"
+                            f" length: {len(aliases_value_list)}"
                         )
                     )
             else:
@@ -267,8 +274,9 @@ class WfsGetFeature(WfsOperation):
                         f" it has the SRS of the request: {srs_name}"
                     )
                     bbox_crs = srs_name
-                # we expect one optional BBOX which is assigned to all passed typenames! This aligns with
-                # spec as it 7.9.2.3 of the spec doc. However, there is one example wich supports that B.8.5.4
+                # we expect one optional BBOX which is assigned to all passed typenames!
+                # This aligns with spec as it 7.9.2.3 of the spec doc. However, there is
+                # one example wich supports that B.8.5.4
                 # and one which states a conflicting situation B.8.5.5
                 # TODO: Check how the conflict can be explained?
                 fes_filter.bbox = Bbox(
@@ -297,7 +305,8 @@ class WfsGetFeature(WfsOperation):
         Transforms a dictionary of query parameters to a GetFeature object.
 
         Args:
-            query_params: The dictionary of query parameters as they are coming from the request.
+            query_params: The dictionary of query parameters as they are coming from the
+            request.
 
         Returns:
             The instance of GetFeature.
@@ -336,7 +345,7 @@ class WfsGetFeature(WfsOperation):
 
     def unwrap_type_names(
         self, get_feature_params: GetFeature, unique: bool = True
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Get a list of all typenames
         Args:
@@ -362,8 +371,8 @@ class WfsGetFeature(WfsOperation):
         This method transforms a
         georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.get_feature.GetFeature
         constructed from the original request towards Georama into a
-        qgis_server_light.interface.job.QslGetFeatureJob. This is done to minimize the interface and keep
-        control about what we send over to the worker.
+        qgis_server_light.interface.job.QslGetFeatureJob. This is done to minimize the
+        interface and keep control about what we send over to the worker.
         Args:
             get_feature_parameter: The query parameters coming in from Django request.
 
@@ -373,7 +382,8 @@ class WfsGetFeature(WfsOperation):
         qsl_feature_queries = []
         for query in get_feature_parameter.stored_query_or_query:
 
-            # based on the sanitized list of requested layer names we fetch then the definitions of these
+            # based on the sanitized list of requested layer names we fetch then
+            # the definitions of these
             # layers (this includes permission check and existence check)
             accessible_datasets = []
             for layer in self.obtain_accessible_layers(
@@ -382,12 +392,15 @@ class WfsGetFeature(WfsOperation):
                 accessible_datasets.append(layer.vector_dataset.to_qsl)
             if query.filter:
                 if len(accessible_datasets) > 1:
-                    # we dont allow that, since its not possible to create filter from expression on multiple
+                    # we dont allow that, since its not possible to create filter
+                    # from expression on multiple
                     # layers in QGIS currently.
                     raise AttributeError(
                         self.render_exception(
-                            "Currently QGIS-Server-Light does not support querying multiple layers in one"
-                            " query and passing a filter on that. This is a limitation of QGIS."
+                            "Currently QGIS-Server-Light does not support querying multiple"
+                            " layers in one"
+                            " query and passing a filter on that. This is a"
+                            " limitation of QGIS."
                         )
                     )
                 filter = XmlSerializer().render(
@@ -416,22 +429,24 @@ class WfsGetFeature(WfsOperation):
         self, wkb: bytes, srs_definition: str
     ) -> GeometryMember | GeometryMembers:
         """
-        This method directly reads the bytes of WKB representation and shreds them into the desired objects
-        from the GML3 interface. This avoids nested iterations where ever possible as it often comes by
-        libraries which are parsing WKB in some GeoJSON like structure before transforming it to the desired
-        format (GML3 in our case).Some tests show, that this is as fast as it can be.
+        This method directly reads the bytes of WKB representation and shreds them into the
+        desired objects from the GML3 interface. This avoids nested iterations where ever
+        possible as it often comes by libraries which are parsing WKB in some GeoJSON like
+        structure before transforming it to the desired format (GML3 in our case).Some tests
+        show, that this is as fast as it can be.
 
         Args:
-            wkb: The WKB representation of the geometry to parse. We directly use that to have a common and
-                described interface to transport things between QSL and Georama. Parsing WKB on Georama side
-                also enables us to do postprocessing (permission stuff etc.).
-            srs_definition: The definition string of the SRS of the WKB geometry. This is usually something
-                like URN e.g. ``urn:ogc:def:crs:EPSG::2056`` or URL e.g.
+            wkb: The WKB representation of the geometry to parse. We directly use that to
+                have a common and described interface to transport things between QSL and
+                Georama. Parsing WKB on Georama side also enables us to do postprocessing
+                (permission stuff etc.).
+            srs_definition: The definition string of the SRS of the WKB geometry. This is
+                usually something like URN e.g. ``urn:ogc:def:crs:EPSG::2056`` or URL e.g.
                 ``http://www.opengis.net/def/crs/EPSG/0/2056``
 
         Returns:
-            A GML3 object representing the parsed geometry. The exact type depends on the geometry type.
-            Single geomtry types will return an ``GeometryMember`` instance.
+            A GML3 object representing the parsed geometry. The exact type depends on the
+            geometry type. Single geomtry types will return an ``GeometryMember`` instance.
             Multi geometry types will return an ``GeometryMembers`` instance.
         """
         # read first byte for byteorder information
@@ -498,7 +513,8 @@ class WfsGetFeature(WfsOperation):
 
                     if geometry_type - m_geometry_type != 3:
                         raise ValueError(
-                            f"Multipoint of type '{geometry_type}' contains non-confirming geometry of type '{m_geometry_type}'. "
+                            f"Multipoint of type '{geometry_type}' contains non-confirming"
+                            f"geometry of type '{m_geometry_type}'. "
                             f"Supported point types are {self.geometry_types['point']}."
                         )
 
@@ -579,7 +595,8 @@ class WfsGetFeature(WfsOperation):
 
                     if geometry_type - m_geometry_type != 3:
                         raise ValueError(
-                            f"Multiline of type '{geometry_type}' contains non-confirming geometry of type '{m_geometry_type}'. "
+                            f"Multiline of type '{geometry_type}' contains non-confirming"
+                            f"geometry of type '{m_geometry_type}'. "
                             f"Supported point types are {self.geometry_types['linestring']}."
                         )
 
@@ -664,7 +681,8 @@ class WfsGetFeature(WfsOperation):
 
                     if geometry_type - m_geometry_type != 3:
                         raise ValueError(
-                            f"Multipolygon of type '{geometry_type}' contains non-confirming geometry of type '{m_geometry_type}'. "
+                            f"Multipolygon of type '{geometry_type}' contains non-confirming"
+                            f"geometry of type '{m_geometry_type}'. "
                             f"Supported point types are {self.geometry_types['polygon']}."
                         )
 
@@ -727,10 +745,11 @@ class WfsGetFeature(WfsOperation):
                 fields = []
                 feature_dict = {}
                 for attribute in feature.attributes:
-                    if attribute.value is not None:
+                    if attribute.value is not None:  # noqa: SIM108
                         type_name = type(attribute.value)
                     else:
-                        # we take a save exit here, since we do not want to validate data in this step we
+                        # we take a save exit here, since we do not want to validate
+                        # data in this step we
                         # define all None values to be str, which can be None then -.-
                         type_name = str
                     fields.append((attribute.name, type_name, field(default=None)))
@@ -739,9 +758,11 @@ class WfsGetFeature(WfsOperation):
                         feature_dict[attribute.name] = ""
                     else:
                         feature_dict[attribute.name] = attribute.value
-                # TODO: This has to be fixed, we need to respect actual PK fields for that! Currently a
-                #       feature can have a column with name id which might not be the actual primary key
-                #       but it gets treated like one...
+                # TODO: This has to be fixed, we need to respect actual PK fields for
+                #  that! Currently a
+                #  feature can have a column with name id which might not
+                #  be the actual primary key
+                #  but it gets treated like one...
                 if "id" not in feature_dict:
                     fields.append(
                         (
@@ -757,11 +778,11 @@ class WfsGetFeature(WfsOperation):
                             ),
                         )
                     )
-                    feature_dict[
-                        "id"
-                    ] = f"{self.own_namespace}:{feature_collection.name}.{feature_sequence}"
+                    feature_dict["id"] = (
+                        f"{self.own_namespace}:{feature_collection.name}.{feature_sequence}"
+                    )
                 fields.append(
-                    ("geometry", Union[GeometryMember, GeometryMembers], field(default=None))
+                    ("geometry", GeometryMember | GeometryMembers, field(default=None))
                 )
                 feature_dataclass = make_dataclass(feature_collection.name, fields=fields)
                 feature_dataclass.Meta = GeoramaMeta
@@ -786,7 +807,7 @@ class WfsGetFeature(WfsOperation):
         return wfs_feature_collection
 
     def render_xml(
-        self, feature_collection: FeatureCollection, requested_typenames: List[str]
+        self, feature_collection: FeatureCollection, requested_typenames: list[str]
     ) -> str:
         serializer = XmlSerializer(
             config=SerializerConfig(
@@ -818,15 +839,12 @@ class WfsGetFeature(WfsOperation):
         self,
         requested_format: str,
         feature_collection: FeatureCollection,
-        requested_typenames: List[str],
-    ) -> Tuple[str, str, bool]:
-        if requested_format == "TEXT/XML":
-            return (
-                self.render_xml(feature_collection, requested_typenames),
-                f"{requested_format.lower()}; charset=utf-8",
-                True,
-            )
-        elif requested_format == "APPLICATION/GML+XML; VERSION=3.2":
+        requested_typenames: list[str],
+    ) -> tuple[str, str, bool]:
+        if (
+            requested_format == "TEXT/XML"
+            or requested_format == "APPLICATION/GML+XML; VERSION=3.2"
+        ):
             return (
                 self.render_xml(feature_collection, requested_typenames),
                 f"{requested_format.lower()}; charset=utf-8",
@@ -838,13 +856,7 @@ class WfsGetFeature(WfsOperation):
                 f"{'APPLICATION/GML+XML; VERSION=3.2'.lower()}; charset=utf-8",
                 True,
             )
-        elif requested_format == "APPLICATION/JSON":
-            return (
-                self.render_json(feature_collection),
-                f"{requested_format.lower()}; charset=utf-8",
-                True,
-            )
-        elif requested_format == "TEXT/JSON":
+        elif requested_format == "APPLICATION/JSON" or requested_format == "TEXT/JSON":
             return (
                 self.render_json(feature_collection),
                 f"{requested_format.lower()}; charset=utf-8",
@@ -854,7 +866,8 @@ class WfsGetFeature(WfsOperation):
             logging.debug("No matching Format was found.")
             return (
                 self.render_operation_parsing_failed(
-                    f"Format {requested_format} is not allowed. Allowed is {self.allowed_formats}"
+                    f"Format {requested_format} is not allowed."
+                    f"Allowed is {self.allowed_formats}"
                 ),
                 "text/xml; charset=utf-8",
                 False,

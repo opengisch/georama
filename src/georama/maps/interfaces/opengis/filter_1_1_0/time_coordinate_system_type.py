@@ -24,25 +24,25 @@ class TimeCoordinateSystemType(AbstractTimeReferenceSystemType):
     terms of a single time interval.
     """
 
-    origin_position_or_origin: Optional[
-        Union[TimePositionType, TimeInstantPropertyType]
-    ] = field(
-        default=None,
-        metadata={
-            "type": "Elements",
-            "choices": (
-                {
-                    "name": "originPosition",
-                    "type": TimePositionType,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "origin",
-                    "type": TimeInstantPropertyType,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-            ),
-        },
+    origin_position_or_origin: Optional[Union[TimePositionType, TimeInstantPropertyType]] = (
+        field(
+            default=None,
+            metadata={
+                "type": "Elements",
+                "choices": (
+                    {
+                        "name": "originPosition",
+                        "type": TimePositionType,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "origin",
+                        "type": TimeInstantPropertyType,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                ),
+            },
+        )
     )
     interval: Optional[TimeIntervalLengthType] = field(
         default=None,

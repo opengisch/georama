@@ -174,4 +174,4 @@ class Command(BaseCommand):
         create_layer_groups()
         create_themes()
 
-        print(f"👥 added demo themes, layer groups and layers for demo!")
+        print("👥 added demo themes, layer groups and layers for demo!")
