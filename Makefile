@@ -112,7 +112,7 @@ install-test: $(TEST_REQUIREMENTS)
 install-dev: $(DEV_REQUIREMENTS)
 
 .PHONY: install-dev-xsd
-install-dev: $(DEV_XSD_REQUIREMENTS)
+install-dev-xsd: $(DEV_XSD_REQUIREMENTS)
 
 .PHONY: install-dev-local-qsl
 install-dev-local-qsl: $(LOCAL_QGIS_SERVER_LIGHT_REQUIREMENTS)
