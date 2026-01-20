@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-12 18:23+0100\n"
+"POT-Creation-Date: 2026-01-15 17:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,26 +18,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: data_integration/admin.py:284
-msgid "Manual datasets"
-msgstr ""
-
-#: data_integration/admin.py:288
+#: data_integration/admin.py:113
 #, python-brace-format
-msgid "Datasets in project «{project}»"
+msgid "Datasets in Project «{project}»"
 msgstr ""
 
-#: data_integration/admin.py:313
+#: data_integration/admin.py:135
 #: data_integration/templates/admin/data_integration/project/change_form.html:48
-#: data_integration/templates/admin/data_integration/project/change_list.html:60
+#: data_integration/templates/admin/data_integration/project/change_list.html:54
 msgid "Show list of datasets"
+msgstr ""
+
+#: data_integration/admin.py:256
+msgid "Fields"
+msgstr ""
+
+#: data_integration/admin.py:259
+msgid "No fields defined"
+msgstr ""
+
+#: data_integration/admin.py:261
+#, python-brace-format
+msgid "Dataset contains {count} fields"
 msgstr ""
 
 #: data_integration/apps.py:8
 msgid "Data Integration"
 msgstr ""
 
-#: data_integration/models.py:29
+#: data_integration/models.py:29 data_integration/models.py:98
 msgid "name"
 msgstr ""
 
@@ -45,7 +54,7 @@ msgstr ""
 msgid "Name of the project file"
 msgstr ""
 
-#: data_integration/models.py:33
+#: data_integration/models.py:33 data_integration/models.py:108
 msgid "title"
 msgstr ""
 
@@ -94,21 +103,168 @@ msgid "Location of the project on disk"
 msgstr ""
 
 #: data_integration/models.py:69
-msgid "project"
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:26
+msgid "Project"
 msgstr ""
 
 #: data_integration/models.py:70
-msgid "projects"
+msgid "Projects"
 msgstr ""
 
+#: data_integration/models.py:94
+msgid "dataset"
+msgstr ""
+
+#: data_integration/models.py:95
+msgid "datasets"
+msgstr ""
+
+#: data_integration/models.py:98
+msgid "Name of the dataset"
+msgstr ""
+
+#: data_integration/models.py:104
+msgid "qgis layer id"
+msgstr ""
+
+#: data_integration/models.py:105
+msgid "Layer ID of the dataset in the QGIS project"
+msgstr ""
+
+#: data_integration/models.py:108
+msgid "Title of the dataset"
+msgstr ""
+
+#: data_integration/models.py:111
+msgid "bounding box"
+msgstr ""
+
+#: data_integration/models.py:111
+msgid "Extent of the dataset"
+msgstr ""
+
+#: data_integration/models.py:115
+msgid "bounding box WGS84"
+msgstr ""
+
+#: data_integration/models.py:116
+msgid "Extent of the dataset in WGS84"
+msgstr ""
+
+#: data_integration/models.py:120
+msgid "file path"
+msgstr ""
+
+#: data_integration/models.py:121
+msgid "File path or connection string"
+msgstr ""
+
+#: data_integration/models.py:124
+msgid "source"
+msgstr ""
+
+#: data_integration/models.py:124
+msgid "Source definition"
+msgstr ""
+
+#: data_integration/models.py:126
+msgid "styles"
+msgstr ""
+
+#: data_integration/models.py:126
+msgid "Symbology"
+msgstr ""
+
+#: data_integration/models.py:130
+msgid "driver"
+msgstr ""
+
+#: data_integration/models.py:131
+msgid "Software-Driver to read the dataset"
+msgstr ""
+
+#: data_integration/models.py:135
+msgid "crs"
+msgstr ""
+
+#: data_integration/models.py:136
+msgid "Coordinate Reference System, as EPSG-Code"
+msgstr ""
+
+#: data_integration/models.py:140
+msgid "minimum scale"
+msgstr ""
+
+#: data_integration/models.py:141
+msgid "Minimum scale at which dataset is visible"
+msgstr ""
+
+#: data_integration/models.py:145
+msgid "maximum scale"
+msgstr ""
+
+#: data_integration/models.py:146
+msgid "Maximum scale at which dataset is visible"
+msgstr ""
+
+#: data_integration/models.py:187
+msgid "Vector Dataset"
+msgstr ""
+
+#: data_integration/models.py:188
+msgid "Vector Datasets"
+msgstr ""
+
+#: data_integration/models.py:199 data_integration/models.py:251
+#: data_integration/models.py:291
+msgid "project"
+msgstr ""
+
+#: data_integration/models.py:239
+msgid "Raster Dataset"
+msgstr ""
+
+#: data_integration/models.py:240
+msgid "Raster Datasets"
+msgstr ""
+
+#: data_integration/models.py:279
+msgid "Custom Dataset"
+msgstr ""
+
+#: data_integration/models.py:280
+msgid "Custom Datasets"
+msgstr ""
+
+#: data_integration/models.py:369
+msgid "manual dataset"
+msgstr ""
+
+#: data_integration/models.py:370
+msgid "manual datasets"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/dataset/change_form.html:7
+#: data_integration/templates/admin/data_integration/dataset/dataset_chooser.html:6
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:6
+#: data_integration/templates/data_integration/dataset_list.html:6
+msgid "Home"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/dataset/change_form.html:18
 #: data_integration/templates/admin/data_integration/project/change_form.html:8
 #: data_integration/templates/admin/data_integration/project/qgis_projects.html:16
 #: data_integration/templates/data_integration/dataset_list.html:17
 msgid "back to project list"
 msgstr ""
 
+#: data_integration/templates/admin/data_integration/dataset/change_list.html:30
+#: data_integration/templates/admin/data_integration/project/change_list.html:79
+msgid "Delete project"
+msgstr ""
+
 #: data_integration/templates/admin/data_integration/project/change_form.html:22
-#: data_integration/templates/admin/data_integration/project/change_list.html:18
+#: data_integration/templates/admin/data_integration/project/change_list.html:12
 msgid "QGIS Logo"
 msgstr ""
 
@@ -116,62 +272,52 @@ msgstr ""
 msgid "Dataset list"
 msgstr ""
 
-#: data_integration/templates/admin/data_integration/project/change_list.html:7
+#: data_integration/templates/admin/data_integration/project/change_list.html:26
+msgid "An error occurred during processing"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:28
+msgid "error"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:33
+msgid "QGIS project on disk is newer than in Georama"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:35
+msgid "outdated"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:40
+msgid "QGIS project in Georama is up to date"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:42
+msgid "up to date"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:64
+msgid "Inspect QGIS project on disk"
+msgstr ""
+
+#: data_integration/templates/admin/data_integration/project/change_list.html:70
+msgid "Integrate QGIS project into Georama"
+msgstr ""
+
 #: data_integration/templates/admin/data_integration/project/qgis_projects.html:9
 msgid "Add QGIS Project"
 msgstr ""
 
-#: data_integration/templates/admin/data_integration/project/change_list.html:32
-msgid "An error occurred during processing"
-msgstr ""
-
-#: data_integration/templates/admin/data_integration/project/change_list.html:34
-msgid "error"
-msgstr ""
-
-#: data_integration/templates/admin/data_integration/project/change_list.html:39
-msgid "QGIS project on disk is newer than in Georama"
-msgstr ""
-
-#: data_integration/templates/admin/data_integration/project/change_list.html:41
-msgid "outdated"
-msgstr ""
-
-#: data_integration/templates/admin/data_integration/project/change_list.html:46
-msgid "QGIS project in Georama is up to date"
-msgstr ""
-
-#: data_integration/templates/admin/data_integration/project/change_list.html:48
-msgid "up to date"
-msgstr ""
-
-#: data_integration/templates/admin/data_integration/project/change_list.html:70
-msgid "Inspect QGIS project on disk"
-msgstr ""
-
-#: data_integration/templates/admin/data_integration/project/change_list.html:76
-msgid "Integrate QGIS project into Georama"
-msgstr ""
-
-#: data_integration/templates/admin/data_integration/project/change_list.html:85
-msgid "Delete project"
-msgstr ""
-
-#: data_integration/templates/admin/data_integration/project/qgis_projects.html:6
-#: data_integration/templates/data_integration/dataset_list.html:6
-msgid "Home"
+#: data_integration/templates/admin/data_integration/project/qgis_projects.html:18
+msgid "Available QGIS Projects"
 msgstr ""
 
 #: data_integration/templates/admin/data_integration/project/qgis_projects.html:25
 msgid "Origin"
 msgstr ""
 
-#: data_integration/templates/admin/data_integration/project/qgis_projects.html:26
-msgid "Project"
-msgstr ""
-
 #: data_integration/templates/admin/data_integration/project/qgis_projects.html:27
-msgid "Hash"
+msgid "File hash"
 msgstr ""
 
 #: data_integration/templates/admin/data_integration/project/qgis_projects.html:28
@@ -179,7 +325,7 @@ msgid "Has Config"
 msgstr ""
 
 #: data_integration/templates/admin/data_integration/project/qgis_projects.html:29
-msgid "Project File Status"
+msgid "Actions"
 msgstr ""
 
 #: data_integration/templates/admin/data_integration/project/qgis_projects.html:45
@@ -190,6 +336,6 @@ msgstr ""
 msgid "integrate"
 msgstr ""
 
-#: data_integration/templates/data_integration/dataset_list.html:49
+#: data_integration/templates/data_integration/dataset_list.html:50
 msgid "Delete dataset"
 msgstr ""

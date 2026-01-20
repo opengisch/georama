@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-12 18:23+0100\n"
+"POT-Creation-Date: 2026-01-15 17:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: maps/admin.py:138
+#: maps/admin.py:168
 msgid "Dataset"
 msgstr ""
 
@@ -55,7 +55,7 @@ msgid "extent WGS84"
 msgstr ""
 
 #: maps/models.py:61
-msgid "Transforms the defined extent into WGS84 projection"
+msgid "The specified extent in WGS84 coordinates"
 msgstr ""
 
 #: maps/models.py:64
@@ -91,6 +91,7 @@ msgid "Hint: Press the control key to edit the extent in the map"
 msgstr ""
 
 #: maps/templates/admin/maps/publishedaswms/change_form.html:9
+#: maps/templates/admin/maps/publishedaswms/publish.html:17
 msgid "back to layer list"
 msgstr ""
 
@@ -139,18 +140,22 @@ msgstr ""
 msgid "Delete WMS layer"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/publish.html:11
+#: maps/templates/admin/maps/publishedaswms/publish.html:6
+msgid "Home"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/publish.html:9
+msgid "Add WMS layer"
+msgstr ""
+
+#: maps/templates/admin/maps/publishedaswms/publish.html:19
 msgid "Available Datasets"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/publish.html:28
-msgid "Vector Datasets"
+#: maps/templates/admin/maps/publishedaswms/publish_datatable.html:14
+msgid "Action"
 msgstr ""
 
-#: maps/templates/admin/maps/publishedaswms/publish.html:36
-msgid "Raster Datasets"
-msgstr ""
-
-#: maps/templates/admin/maps/publishedaswms/publish.html:44
-msgid "Custom Datasets"
+#: maps/templates/admin/maps/publishedaswms/publish_datatable.html:25
+msgid "publish"
 msgstr ""

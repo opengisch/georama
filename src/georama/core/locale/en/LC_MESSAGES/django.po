@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-12 18:00+0100\n"
+"POT-Creation-Date: 2026-01-15 17:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -121,18 +121,14 @@ msgstr ""
 msgid "Inform if there are any access restrictions"
 msgstr ""
 
-#: core/settings.py:139
-msgid "Manual Datasets"
-msgstr ""
-
-#: core/settings.py:147 core/settings.py:155
+#: core/settings.py:141 core/settings.py:149
 msgid "Permissions"
 msgstr ""
 
-#: core/settings.py:426
+#: core/settings.py:421
 msgid "English"
 msgstr ""
 
-#: core/settings.py:427
+#: core/settings.py:422
 msgid "German"
 msgstr ""

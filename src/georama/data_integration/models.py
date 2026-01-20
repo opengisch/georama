@@ -178,6 +178,10 @@ class DataSet(models.Model):
     def icon(self):
         return "fa fa-question"
 
+    @property
+    def dataset_type(self):
+        return ""
+
     def __str__(self):
         return self.title or self.name
 
@@ -232,6 +236,10 @@ class VectorDataSet(DataSet):
     @property
     def icon(self):
         return "fa fa-bezier-curve"
+
+    @property
+    def dataset_type(self):
+        return "vectordataset"
 
 
 class RasterDataSet(DataSet):
@@ -366,6 +374,6 @@ class ManualDataSet(models.Model):
     """
 
     class Meta:
-        verbose_name = _("manual dataset")
-        verbose_name_plural = _("manual datasets")
+        verbose_name = _("Manual Dataset")
+        verbose_name_plural = _("Manual Datasets")
         managed = False

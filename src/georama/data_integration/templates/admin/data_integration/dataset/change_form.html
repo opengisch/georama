@@ -6,7 +6,11 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
         <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=app_label %}">{{ app_verbose_name|capfirst }}</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'admin:data_integration_dataset_list' original.project.pk %}">{{ parent_change_list_name|capfirst }}</a></li>
+        {% if original.project.pk %}
+            <li class="breadcrumb-item"><a href="{% url 'admin:data_integration_dataset_list' original.project.pk %}">{{ parent_change_list_name|capfirst }}</a></li>
+        {% else %}
+            <li class="breadcrumb-item"><a href="{% url 'admin:data_integration_manualdataset_changelist' %}">{{ parent_change_list_name|capfirst }}</a></li>
+        {% endif %}
         <li class="breadcrumb-item active">{{ opts.verbose_name|capfirst }}</li>
     </ol>
 {% endblock %}

@@ -123,6 +123,8 @@ class ProjectAdmin(admin.ModelAdmin):
                 app_label=DataintegrationConfig.get_simple_appname(),
                 app_verbose_name=DataintegrationConfig.verbose_name,
                 page_title=page_title,
+                parent_name=Project._meta.verbose_name_plural,
+                parent_link="admin:data_integration_project_changelist",
             )
         )
 
@@ -137,23 +139,24 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(ManualDataSet)
 class ManualDataSetAdmin(admin.ModelAdmin):
-    change_list_template = "admin/data_integration/dataset/dataset_chooser.html"
+    change_list_template = "data_integration/dataset_list.html"
 
     def changelist_view(self, request, object_id=None, form_url="", extra_context=None):
+        # Shows a simple page to choose the type of dataset before listing them
+        ds = DataSetList()
+        datasets = ds.get(None)
         extra_context = extra_context or {}
         extra_context.update(
             dict(
                 # Include common variables for rendering the admin template.
                 self.admin_site.each_context(request),
-                # Anything else you want in the context...
+                datasets=datasets,
                 model_name=self.model._meta.verbose_name_plural,
                 app_label=DataintegrationConfig.get_simple_appname(),
                 app_verbose_name=DataintegrationConfig.verbose_name,
-                nav_labels={
-                    "vector": VectorDataSet._meta.verbose_name_plural,
-                    "raster": RasterDataSet._meta.verbose_name_plural,
-                    "custom": CustomDataSet._meta.verbose_name_plural,
-                },
+                page_title=self.model._meta.verbose_name_plural,
+                parent_name=None,
+                parent_link=None,
             )
         )
 
@@ -161,7 +164,6 @@ class ManualDataSetAdmin(admin.ModelAdmin):
 
 
 class DataSetAdmin(admin.ModelAdmin):
-    change_list_template = "admin/data_integration/dataset/change_list.html"
     change_form_template = "admin/data_integration/dataset/change_form.html"
     fields = [
         "name",
