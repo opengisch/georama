@@ -205,6 +205,66 @@ CTA Click to action elements on frontpage
     text-align: center
 }
 
+/* Panel */
+
+.cta-panel {
+    border-color: var(--brand-line);
+    background: linear-gradient(135deg, rgba(var(--georama-green-rgb), 0.18) 0%, rgba(var(--georama-green-rgb), 0.05) 55%, #ffffff 100%)
+}
+
+[data-bs-theme="dark"] .cta-panel {
+    background: linear-gradient(135deg, rgba(var(--georama-green-rgb), 0.18) 0%, rgba(var(--georama-green-rgb), 0.05) 55%, #2f2f2f 100%)
+}
+
+.cta-panel--dashed {
+    background: #ffffff;
+    border: 2px dashed #7c993d
+}
+
+[data-bs-theme="dark"] .cta-panel--dashed {
+    background: #2f2f2f
+}
+
+.cta-panel h3,
+.cta-panel .h3 {
+    color: #2f3b27
+}
+
+[data-bs-theme="dark"] .cta-panel h3,
+[data-bs-theme="dark"] .cta-panel .h3 {
+    color: var(--bs-body-color)
+}
+
+.cta-panel .btn-outline-secondary {
+    border-color: var(--brand-line);
+    color: #2e3a27;
+    background-color: #fff
+}
+
+.cta-panel .btn-outline-secondary:hover,
+.cta-panel .btn-outline-secondary:focus {
+    border-color: var(--georama-green-dark);
+    background-color: var(--georama-green-dark);
+    color: #fff
+}
+
+.cta-panel .btn-link {
+    color: var(--georama-green-dark)
+}
+
+.cta-panel .btn-link:hover, 
+.cta-panel .btn-link:focus {
+    color: var(--brand-ink);
+    text-decoration: underline
+}
+
+@media (max-width: 767.98px) {
+    .cta-panel {
+        text-align: center
+    }
+}
+
+
 /*
 Hero cards
  */
