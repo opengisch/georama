@@ -1,24 +1,37 @@
 {% extends 'core/home.html' %}
 
 {% block content %}
-
-    <div id="content">
-
-        <main class="landing-page">
-            <section class="section-block py-5">
-                <div class="container">
-                    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-                      <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'landing' %}">Home</a></li>
-                        <li class="breadcrumb-item"><a href="{% url app_menu.url_name %}">{{ app_menu.label }}</a></li>
-                        <li class="breadcrumb-item"><a href="{% url change_list_view_name %}">{{ change_list_page_title }}</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ instance_title }}</li>
-                      </ol>
-                    </nav>
+    {% block form %}
+        {% load crispy_forms_tags %}
+        {% if forms|length > 1 %}
+            {% for form in forms %}
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="georama-form-tab-{{ form.model }}" data-bs-toggle="tab" data-bs-target="#georama-form-tab-content-{{ form.model }}"
+                            type="button" role="tab" aria-controls="georama-form-tab-{{ form.model }}-pane" aria-selected="true">{{ form.model }}
+                    </button>
+                </li>
+            </ul>
+            {% endfor %}
+            {% for form in forms %}
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="georama-form-tab-content-{{ form.model }}" role="tabpanel" aria-labelledby="georama-form-tab-{{ form.model }}"
+                     tabindex="0">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                    </form>
                 </div>
-                {% block form %}
-                {% endblock %}
-            </section>
-        </main>
-    </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            {% for form in forms %}
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+            </form>
+            {% endfor %}
+        {% endif %}
+
+    {% endblock %}
 {% endblock %}

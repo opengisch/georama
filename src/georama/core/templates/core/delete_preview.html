@@ -1,0 +1,26 @@
+{%  extends "core/home.html" %}
+{% block content %}
+    <h5>Unregistering this project has impact on the following content in Georama:</h5>
+
+    <ul class="list-group">
+        {% include "core/includes/nested_delete.html" with objects=related_objects %}
+    </ul>
+
+    {% if protected %}
+    <div class="alert alert-danger mt-3">
+        <strong>The project can't be deleted!</strong><br>
+        The following elements are protected:
+        <ul>
+            {% for obj in protected %}
+                <li>{{ obj }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <form action="{% url 'data_integration:project_delete' object.pk %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit">Unregister</button>
+    </form>
+    {% endif %}
+
+{% endblock %}

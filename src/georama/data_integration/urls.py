@@ -18,21 +18,41 @@ Including another URLconf
 from django.urls import path
 
 from georama.data_integration import views
+from georama.data_integration.apps import central_app_label
 
-app_name = "georama.data_integration"
+app_name = central_app_label
 
 urlpatterns = [
     path(
-        "register_qgis_project/<str:mandant_name>/<str:project_name>",
+        "/register_qgis_project/<str:mandant_name>/<str:project_name>",
         views.RegisterQgisProject.as_view(),
         name="register_qgis_project",
     ),
     path(
-        "export_qgis_project/<str:mandant_name>/<str:project_name>",
+        "/export_qgis_project/<str:mandant_name>/<str:project_name>",
         views.QgisServerLightExporter.as_view(),
         name="export_qgis_project",
     ),
     path("/", views.Index.as_view(), name="index"),
-    path("/project/changelist", views.ChangeListProject.as_view(), name="project_changelist"),
-    path("/project/show/<str:pk>", views.ShowProject.as_view(), name="project_show"),
+    path(
+        "/project/changelist",
+        views.ChangeListProject.as_view(),
+        name=views.ChangeListProject.name,
+    ),
+    path("/project/delete/<str:pk>", views.DeleteProject.as_view(), name="project_delete"),
+    path(
+        "/project/detail/<str:group_name>/<str:project_name>",
+        views.ProjectDetail.as_view(),
+        name="project_detail",
+    ),
+    path(
+        "/manual_dataset/changelist",
+        views.ChangeListManualDataset.as_view(),
+        name=views.ChangeListManualDataset.name,
+    ),
+    path(
+        "/manual_dataset/form",
+        views.ManualDatasetForm.as_view(),
+        name=views.ManualDatasetForm.name,
+    ),
 ]

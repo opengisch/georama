@@ -25,6 +25,8 @@ class QgisProject:
     parent: "QgisProjectGroup"
     name: str
     suffix: str
+    database_representation: Project | None = None
+    config: Config | None = None
 
     @property
     def qualified_config_name(self) -> str:
@@ -93,6 +95,7 @@ class QgisProjectGroup:
         for project in self.projects:
             if project.name == name:
                 return project
+        return None
 
 
 @dataclass
@@ -123,6 +126,7 @@ class QgisProjectFileStructure:
         for group in self.groups:
             if group.name == name:
                 return group
+        return None
 
 
 class ProjectAdmin(admin.ModelAdmin):

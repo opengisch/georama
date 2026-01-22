@@ -22,3 +22,8 @@ class FeaturesConfig(GeoramaAbstractConfig):
     default_auto_field = "django.db.models.BigAutoField"
     verbose_name = "Features"
     name = "georama.features"
+    label = "features"
+
+    def ready(self):
+        # TODO: remove this, once ready. We dont want to register a menu for Core on the Page
+        pass

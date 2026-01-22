@@ -1,9 +1,11 @@
 import logging
 
 import requests
-from django.db import transaction
+from django.apps import apps
+from django.contrib.admin.utils import NestedObjects
+from django.db import router, transaction
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from qgis_server_light.interface.exporter import ExportParameters, ExportResult
 from qgis_server_light.interface.qgis import Config, Custom, Raster, Vector
@@ -11,17 +13,21 @@ from xsdata.formats.dataclass.parsers import DictDecoder, JsonParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder, JsonSerializer
 
-from georama.core.views import ChangeListView
+from georama.core.menu import BreadCrumb
+from georama.core.views import ChangeListView, FormView
 from georama.data_integration.admin import (
     QgisProject,
     QgisProjectFileStructure,
     QgisProjectGroup,
 )
-from georama.data_integration.apps import DataintegrationConfig
 from georama.data_integration.data_integration_config import (
     Config as DataIntegrationConfig,
 )
-from georama.data_integration.forms import ProjectForm
+from georama.data_integration.forms import (
+    CustomDataSetForm,
+    RasterDataSetForm,
+    VectorDataSetForm,
+)
 from georama.data_integration.models import (
     CustomDataSet,
     Field,
@@ -317,9 +323,9 @@ class RegisterQgisProject(View):
     def get(self, request: HttpRequest, mandant_name: str, project_name: str, **kwargs):
         project, project_config = self.load_project_config(mandant_name, project_name)
         if not project_config or not project:
-            redirect("admin:data_integration_project_changelist")
+            redirect("data_integration:change_list_project")
         self.integrate_project(project, project_config, mandant_name)
-        return redirect("admin:data_integration_project_changelist")
+        return redirect("data_integration:change_list_project")
 
 
 class QgisServerLightExporter(View):
@@ -348,15 +354,17 @@ class QgisServerLightExporter(View):
         except RuntimeError as e:
             logging.error(e)
             return HttpResponse("Ask the administer", status=500)
-        return redirect("admin:data_integration_project_changelist")
+        return redirect("data_integration:register_qgis_project", mandant_name, project_name)
 
 
 class Index(View):
     def get(self, request: HttpRequest):
+        app_menu = apps.get_app_config("data_integration").app_menu()
         context = {
-            "app_menu": DataintegrationConfig.app_menu(),
+            "app_menu": app_menu,
             "project_count": ProjectService().count(),
             "manual_dataset_count": ManualDatasetService().count(),
+            "breadcrumbs": [BreadCrumb(app_menu.title, f"{app_menu.app_label}:index")],
         }
         return render(request, "data_integration/index.html", context)
 
@@ -364,23 +372,106 @@ class Index(View):
 class ChangeListProject(ChangeListView):
     service = ProjectService
     title = "Projects"
-    app_menu = DataintegrationConfig.app_menu()
+    name = f"{ChangeListView.view_type_name}_{service.name}"
+    app_menu = apps.get_app_config("data_integration").app_menu()
     template = "data_integration/project/change_list.html"
+    breadcrumbs = [
+        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
+    ]
 
 
-class ShowProject(View):
+class DeleteProject(View):
+    service = ProjectService
 
-    def get(self, request: HttpRequest, pk):
-        instance = ProjectService().get(pk)[0]
-        form = ProjectForm(instance=instance)
+    def get(self, request, pk):
+        service = self.service()
+        obj = get_object_or_404(Project, pk=pk)
+        qgis_project = service.get(obj.mandant.name, obj.name)[0]
+        app_menu = apps.get_app_config("data_integration").app_menu()
+        using = router.db_for_write(obj.__class__)
+        collector = NestedObjects(using=using)
+
+        collector.collect([obj])
+
+        context = {
+            "object": obj,
+            "related_objects": collector.nested(),
+            "protected": collector.protected,
+            "breadcrumbs": [
+                BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+                BreadCrumb(
+                    ChangeListProject.title, f"{app_menu.app_label}:{ChangeListProject.name}"
+                ),
+                BreadCrumb(
+                    f"{qgis_project.parent.name}/{qgis_project.name}.{qgis_project.suffix}", ""
+                ),
+            ],
+        }
+
+        return render(request, "core/delete_preview.html", context)
+
+    def post(self, request, pk):
+        Project.objects.filter(pk=pk).delete()
+        return redirect("data_integration:change_list_project")
+
+
+class ChangeListManualDataset(ChangeListView):
+    service = ManualDatasetService
+    title = "Manual Datasets"
+    name = f"{ChangeListView.view_type_name}_{service.name}"
+    app_menu = apps.get_app_config("data_integration").app_menu()
+    template = "data_integration/manual_dataset/change_list.html"
+    breadcrumbs = [
+        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
+    ]
+    list_actions = [("New Vector Dataset", "data_integration:form_manual_dataset")]
+
+
+class ManualDatasetForm(FormView):
+    service = ManualDatasetService
+    name = f"form_{service.name}"
+    title = "Show"
+    app_menu = apps.get_app_config("data_integration").app_menu()
+    forms = [VectorDataSetForm, RasterDataSetForm, CustomDataSetForm]
+    breadcrumbs = [
+        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+        BreadCrumb(
+            ChangeListManualDataset.title,
+            f"{app_menu.app_label}:{ChangeListManualDataset.name}",
+        ),
+        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
+    ]
+
+
+class ProjectDetail(View):
+
+    def get(self, request: HttpRequest, group_name, project_name):
+        service = ProjectService()
+        qgis_project = service.get(group_name=group_name, project_name=project_name)[0]
+        qgis_project_config = service.load_project_config(qgis_project)
+        app_menu = apps.get_app_config("data_integration").app_menu()
         return render(
             request,
-            "data_integration/project/form.html",
+            "data_integration/project/detail.html",
             {
-                "app_menu": DataintegrationConfig.app_menu(),
-                "form": form,
+                "app_menu": app_menu,
                 "change_list_page_title": "Project",
-                "change_list_view_name": "georama.data_integration:project_changelist",
-                "instance_title": instance.title or instance.name,
+                "change_list_view_name": f"{app_menu.app_label}:{ChangeListProject.name}",
+                "instance_title": qgis_project.name,
+                "qgis_project": qgis_project,
+                "qgis_project_config": qgis_project_config,
+                "breadcrumbs": [
+                    BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+                    BreadCrumb(
+                        ChangeListProject.title,
+                        f"{app_menu.app_label}:{ChangeListProject.name}",
+                    ),
+                    BreadCrumb(
+                        f"{qgis_project.parent.name}/{qgis_project.name}.{qgis_project.suffix}",
+                        f"{app_menu.app_label}:project_show",
+                    ),
+                ],
             },
         )
