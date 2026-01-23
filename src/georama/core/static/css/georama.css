@@ -1,9 +1,3 @@
-:root {
-    --navbar-height: 140px;
-    --navbar-height-scrolled: 80px;
-    --navbar-offset: var(--navbar-height)
-}
-
 body {
     scroll-padding-top: var(--navbar-offset)
 }
@@ -43,7 +37,7 @@ footer hr {
 }
 
 /*
-navbar
+Navbar
  */
 
 .main-header .navbar {
