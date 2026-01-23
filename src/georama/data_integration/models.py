@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os.path
+from dataclasses import fields
 
 from django.db import models
 from qgis_server_light.interface.qgis import BBox, Crs, Custom, DataSource
@@ -21,7 +22,9 @@ class Mandant(models.Model):
 
 
 class Project(models.Model):
-    name = models.CharField(null=False, max_length=1000)
+    name = models.CharField(
+        null=False, max_length=1000, verbose_name="Project", help_text="This is a help text"
+    )
     title = models.CharField(max_length=1000)
     version = models.CharField(max_length=1000)
     hash = models.CharField(max_length=20000, null=True, blank=True)
@@ -78,6 +81,15 @@ class DataSet(models.Model):
         return datasource, path
 
     @property
+    def driver_name(self):
+        datasource, path = self.source_to_qsl
+        for field in fields(datasource):
+            value = getattr(datasource, field.name)
+            if value is not None:
+                return field.name
+        return None
+
+    @property
     def crs_to_qsl(self) -> Crs:
         return DictDecoder(config=self.get_parser_config).decode(self.crs, Crs)
 
@@ -101,8 +113,6 @@ class VectorDataSet(DataSet):
         related_name="vector_datasets",
         related_query_name="vector_dataset",
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
     )
     geometry_type_simple = models.CharField(max_length=1000, null=False, default="UNSET")
     geometry_type_wkb = models.CharField(max_length=1000, null=False, default="UNSET")

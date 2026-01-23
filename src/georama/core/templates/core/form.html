@@ -5,6 +5,15 @@
 {% endblock %}
 
 {% block content %}
+
+    <div class="content-sticky-header border-bottom mb-2">
+        {% block content_header %}
+
+        {% endblock %}
+    </div>
+    
+    <div class="content-scrollable">
+    
     {% block form %}
         {% load crispy_forms_tags %}
         {% if forms|length > 1 %}
@@ -38,4 +47,7 @@
         {% endif %}
 
     {% endblock %}
+    
+    </div>
+    
 {% endblock %}

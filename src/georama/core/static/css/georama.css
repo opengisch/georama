@@ -152,6 +152,21 @@ Projects
     width: 130px;
 }
 
+.content-sticky-header {
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    padding: 1.5rem 0;
+}
+.content-scrollable {
+    overflow-y: scroll;
+    height: calc(100vw - var(--navbar-height) - 300px);
+}
+
+
+
 /*
 CTA Click to action elements on frontpage
  */

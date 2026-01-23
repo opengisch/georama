@@ -511,6 +511,14 @@ class ProjectDetail(View):
         qgis_project = service.get(group_name=group_name, project_name=project_name)[0]
         qgis_project_config = service.load_project_config(qgis_project)
         app_menu = apps.get_app_config("data_integration").app_menu()
+        if qgis_project.database_representation is not None:
+            datasets = (
+                list(qgis_project.database_representation.vector_datasets.all())
+                + list(qgis_project.database_representation.raster_datasets.all())
+                + list(qgis_project.database_representation.custom_datasets.all())
+            )
+        else:
+            datasets = []
         return render(
             request,
             "data_integration/project/detail.html",
@@ -521,6 +529,8 @@ class ProjectDetail(View):
                 "instance_title": qgis_project.name,
                 "qgis_project": qgis_project,
                 "qgis_project_config": qgis_project_config,
+                "qgis_project_layers": datasets,
+                "meta": qgis_project.database_representation._meta,
                 "breadcrumbs": [
                     BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
                     BreadCrumb(

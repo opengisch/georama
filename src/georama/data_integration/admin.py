@@ -26,6 +26,7 @@ class QgisProject:
     name: str
     suffix: str
     database_representation: Project | None = None
+    # TODO RU: Check which Config we actually need here!
     config: Config | None = None
 
     @property
