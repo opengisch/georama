@@ -1,0 +1,245 @@
+:root,
+[data-bs-theme=light] {
+    --bs-primary: var(--georama-green);
+    --bs-primary-rgb: var(--georama-green-rgb);
+    --bs-secondary: var(--georama-yellow);
+    --bs-secondary-rgb: var(--georama-yellow-rgb);
+    --bs-success: var(--georama-green);
+    --bs-success-rgb: var(--georama-green-rgb);
+    --bs-primary-text-emphasis: var(--georama-green-dark);
+    --bs-secondary-text-emphasis: var(--georama-yellow-dark);
+    --bs-success-text-emphasis: var(--georama-green-dark);
+    
+    --bs-primary-bg-subtle: #e6f0d9;
+    --bs-primary-border-subtle: #cde1b3;
+    /* TODO PI: Define more subtle colors */
+    
+    --bs-link-color: var(--georama-green);
+    --bs-link-color-rgb: var(--georama-green-rgb);
+    --bs-link-hover-color: var(--georama-green);
+    --bs-link-hover-color-rgb: var(--georama-green-rgb);
+    
+    --bs-code-color: var(--georama-gray);
+    --bs-focus-ring-color: rgba(var(--georama-green-rgb), 0.25);
+    
+    --bs-font-sans-serif: "Georama", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+[data-bs-theme=dark] {
+    --bs-body-bg: #262626;
+    --bs-body-bg-rgb: 38, 38, 38;
+    --bs-body-color: #f1f1f1;
+    --bs-body-color-rgb: 241, 241, 241;
+    --bs-primary-text-emphasis: var(--georama-green-light);
+    --bs-primary-bg-subtle: #1a240d;
+    --bs-primary-border-subtle: var(--georama-green-dark);
+    --bs-link-color: #b4d28c;
+    --bs-link-color-rgb: 180, 210, 140;
+    --bs-link-hover-color: #c3dba3;
+    --bs-link-hover-color-rgb: 195, 219, 163;
+}
+
+.table-primary {
+    --bs-table-color: #000;
+    --bs-table-bg: var(--bs-primary-bg-subtle);
+    --bs-table-border-color: #b8c0ae;
+    --bs-table-striped-bg: #dbe4ce;
+    --bs-table-active-bg: #cfd8c3;
+    --bs-table-hover-bg: #d5dec9;
+    color: var(--bs-table-color);
+}
+
+.form-select:focus {
+    border-color: var(--georama-border-color);
+    box-shadow: 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25)
+}
+
+.form-check-input:focus {
+    border-color: var(--georama-border-color);
+    box-shadow: 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25)
+}
+
+.form-check-input:checked {
+    background-color: var(--georama-green);
+    border-color: var(--georama-green)
+}
+
+.form-check-input[type="checkbox"]:indeterminate {
+    background-color: var(--georama-green);
+    border-color: var(--georama-green);
+}
+
+.form-range:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 1px #fff, 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25)
+}
+
+.form-range:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 1px #fff, 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25)
+}
+
+.form-range::-webkit-slider-thumb {
+    background-color: var(--georama-green);
+}
+
+.form-range::-webkit-slider-thumb:active {
+    background-color: #dae9c6
+}
+
+.form-range::-moz-range-thumb {
+    background-color: var(--georama-green);
+}
+
+.form-range::-moz-range-thumb:active {
+    background-color: #dae9c6
+}
+
+.btn {
+    --bs-btn-font-weight: 500;
+    /*--bs-btn-border-width: var(--bs-border-width);*/
+    --bs-btn-border-width: 2px;
+}
+
+.btn-primary {
+    --bs-btn-color: #000;
+    --bs-btn-bg: var(--georama-green);
+    --bs-btn-border-color: var(--georama-green);
+    --bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: var(--bs-link-hover-color);
+    --bs-btn-hover-border-color: #6b872f;
+    --bs-btn-focus-shadow-rgb: 146, 188, 88;
+    --bs-btn-active-color: #000;
+    --bs-btn-active-bg: #6D8831;
+    --bs-btn-active-border-color: #69832e;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #000;
+    --bs-btn-disabled-bg: var(--georama-green-desat);
+    --bs-btn-disabled-border-color: #79885d;
+}
+
+.btn-secondary {
+    --bs-btn-color: #000;
+    --bs-btn-bg: var(--georama-yellow);
+    --bs-btn-border-color: var(--georama-yellow);
+    --bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: #c6993a;
+    --bs-btn-hover-border-color: #c19437;
+    --bs-btn-focus-shadow-rgb: 130, 138, 145;
+    --bs-btn-active-color: #000;
+    --bs-btn-active-bg: #bd9031;
+    --bs-btn-active-border-color: #b3882c;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #000;
+    --bs-btn-disabled-bg: var(--georama-yellow-desat);
+    --bs-btn-disabled-border-color: #938465;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--georama-green);
+    --bs-btn-border-color: var(--georama-green);
+    --bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: var(--georama-green);
+    --bs-btn-hover-border-color: var(--georama-green);
+    --bs-btn-focus-shadow-rgb: var(--georama-green-rgb);
+    --bs-btn-active-color: #000;
+    --bs-btn-active-bg: var(--georama-green);
+    --bs-btn-active-border-color: var(--georama-green);
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: var(--georama-green);
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: var(--georama-green);
+    --bs-gradient: none
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: var(--georama-yellow);
+    --bs-btn-border-color: var(--georama-yellow);
+    ---bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: var(--georama-yellow);
+    --bs-btn-hover-border-color: var(--georama-yellow);
+    --bs-btn-focus-shadow-rgb: var(--georama-yellow-rgb);
+    --bs-btn-hover-color: #000;
+    --bs-btn-active-bg: var(--georama-yellow);
+    --bs-btn-active-border-color: var(--georama-yellow);
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: var(--georama-yellow);
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: var(--georama-yellow);
+    --bs-gradient: none
+}
+
+.btn-link {
+    --bs-btn-focus-shadow-rgb: 111, 153, 54;
+}
+
+.dropdown-menu {
+    --bs-dropdown-link-active-bg: var(--georama-green);
+}
+
+.dropdown-menu-dark {
+    --bs-dropdown-link-active-bg: var(--georama-green);
+}
+
+.btn-group > :not(.btn-check:first-child) + .btn, .btn-group > .btn-group:not(:first-child) {
+    /*margin-left: calc(var(--bs-border-width) * -1);*/
+    margin-left: calc(2px * -1)
+}
+
+.btn-group-vertical > .btn:not(:first-child),
+.btn-group-vertical > .btn-group:not(:first-child) {
+    margin-top: calc(2px * -1)
+}
+
+.navbar {
+    --bs-navbar-hover-color: var(--bs-link-hover-color);
+    --bs-navbar-active-color: var(--georama-green);
+    --bs-navbar-brand-color: rgba(var(--georama-green-rgb), 1);
+    --bs-navbar-brand-hover-color: rgba(var(--georama-green-rgb), 1);
+    --bs-navbar-toggler-border-color: rgba(var(--georama-green-rgb), 0.15);
+}
+
+.nav-link:focus-visible {
+    box-shadow: 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25)
+}
+
+.nav-pills {
+    --bs-nav-pills-link-active-bg: var(--georama-green)
+}
+
+.accordion {
+    --bs-accordion-btn-focus-border-color: var(--georama-border-color);
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba(var(--georama-green-rgb), 0.25);
+}
+
+.pagination {
+    --bs-pagination-focus-box-shadow: 0 0 0 .25rem rgba(var(--georama-green-rgb), 0.25);
+    --bs-pagination-active-bg: var(--georama-green);
+    --bs-pagination-active-border-color: var(--georama-green);
+}
+
+.progress,
+.progress-stacked {
+    --bs-progress-bar-bg: var(--georama-green);
+}
+
+
+.list-group {
+    --bs-list-group-active-bg: var(--georama-green);
+    --bs-list-group-active-border-color: var(--georama-green);
+}
+
+.text-bg-primary {
+    color: #000 !important;
+}
+
+.link-primary:hover, .link-primary:focus {
+    color: RGBA(var(--bs-link-hover-color-rgb), var(--bs-link-opacity, 1)) !important;
+    -webkit-text-decoration-color: RGBA(var(--bs-link-hover-color-rgb), var(--bs-link-underline-opacity, 1)) !important;
+    text-decoration-color: RGBA(var(--bs-link-hover-color-rgb), var(--bs-link-underline-opacity, 1)) !important;
+}
+
+.link-secondary:hover, .link-secondary:focus {
+    color: RGBA(198, 153, 58, var(--bs-link-opacity, 1)) !important;
+    -webkit-text-decoration-color: RGBA(198, 153, 58, var(--bs-link-underline-opacity, 1)) !important;
+    text-decoration-color: RGBA(198, 153, 58, var(--bs-link-underline-opacity, 1)) !important;
+}
+
