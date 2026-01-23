@@ -17,7 +17,9 @@ class ProjectForm(ModelForm):
 class VectorDataSetForm(ModelForm):
     class Meta:
         model = VectorDataSet
-        fields = "__all__"
+        exclude = [
+            "project",
+        ]
 
 
 class RasterDataSetForm(ModelForm):

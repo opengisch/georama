@@ -1,5 +1,9 @@
 {% extends 'core/home.html' %}
 
+{% block extra_head %}
+    {{ block.super }}
+{% endblock %}
+
 {% block content %}
     {% block form %}
         {% load crispy_forms_tags %}

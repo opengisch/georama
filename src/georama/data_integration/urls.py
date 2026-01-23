@@ -51,8 +51,23 @@ urlpatterns = [
         name=views.ChangeListManualDataset.name,
     ),
     path(
-        "/manual_dataset/form",
-        views.ManualDatasetForm.as_view(),
-        name=views.ManualDatasetForm.name,
+        "/vector_dataset/form",
+        views.VectorDatasetFormView.as_view(),
+        name=views.VectorDatasetFormView.name,
+    ),
+    path(
+        "/raster_dataset/form",
+        views.RasterDatasetFormView.as_view(),
+        name=views.RasterDatasetFormView.name,
+    ),
+    path(
+        "/custom_dataset/form",
+        views.CustomDatasetFormView.as_view(),
+        name=views.CustomDatasetFormView.name,
+    ),
+    path(
+        "/new_wms/form",
+        views.NewWmsFormView.as_view(),
+        name=views.NewWmsFormView.name,
     ),
 ]

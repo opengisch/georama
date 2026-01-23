@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 
+
+{% block extra_head %}
+    {{ block.super }}
+{% endblock %}
+
 {% load static %}
 {% block header %}
     <header class="main-header">

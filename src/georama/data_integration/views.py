@@ -36,7 +36,13 @@ from georama.data_integration.models import (
     RasterDataSet,
     VectorDataSet,
 )
-from georama.data_integration.services import ManualDatasetService, ProjectService
+from georama.data_integration.services import (
+    CustomDatasetService,
+    ManualDatasetService,
+    ProjectService,
+    RasterDatasetService,
+    VectorDatasetService,
+)
 
 log = logging.getLogger(__name__)
 
@@ -426,15 +432,68 @@ class ChangeListManualDataset(ChangeListView):
         BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
         BreadCrumb(title, f"{app_menu.app_label}:{name}"),
     ]
-    list_actions = [("New Vector Dataset", "data_integration:form_manual_dataset")]
+    list_actions = [
+        ("New Vector Dataset", "data_integration:form_vector_dataset"),
+        ("New Raster Dataset", "data_integration:form_raster_dataset"),
+        ("New Custom Dataset", "data_integration:form_custom_dataset"),
+    ]
 
 
-class ManualDatasetForm(FormView):
-    service = ManualDatasetService
+class VectorDatasetFormView(FormView):
+    service = VectorDatasetService
     name = f"form_{service.name}"
     title = "Show"
     app_menu = apps.get_app_config("data_integration").app_menu()
-    forms = [VectorDataSetForm, RasterDataSetForm, CustomDataSetForm]
+    forms = [VectorDataSetForm]
+    breadcrumbs = [
+        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+        BreadCrumb(
+            ChangeListManualDataset.title,
+            f"{app_menu.app_label}:{ChangeListManualDataset.name}",
+        ),
+        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
+    ]
+
+
+class RasterDatasetFormView(FormView):
+    service = RasterDatasetService
+    name = f"form_{service.name}"
+    title = "Show"
+    app_menu = apps.get_app_config("data_integration").app_menu()
+    forms = [RasterDataSetForm]
+    breadcrumbs = [
+        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+        BreadCrumb(
+            ChangeListManualDataset.title,
+            f"{app_menu.app_label}:{ChangeListManualDataset.name}",
+        ),
+        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
+    ]
+
+
+class CustomDatasetFormView(FormView):
+    service = CustomDatasetService
+    name = f"form_{service.name}"
+    title = "Show"
+    app_menu = apps.get_app_config("data_integration").app_menu()
+    forms = [CustomDataSetForm]
+    breadcrumbs = [
+        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+        BreadCrumb(
+            ChangeListManualDataset.title,
+            f"{app_menu.app_label}:{ChangeListManualDataset.name}",
+        ),
+        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
+    ]
+
+
+class NewWmsFormView(FormView):
+    service = RasterDatasetService
+    name = f"form_{service.name}"
+    title = "New WMS"
+    app_menu = apps.get_app_config("data_integration").app_menu()
+    forms = []
+    template = "data_integration/manual_dataset/new_wms_form.html"
     breadcrumbs = [
         BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
         BreadCrumb(

@@ -4,7 +4,7 @@
     {% if list_actions|length > 0 %}
         <div class="btn-group" role="group" aria-label="Basic example">
             {% for title, view_name in list_actions %}
-                <a href="{% url view_name %}" class="btn btn-primary">{{ title }}</a>
+                <a href="{% url view_name %}" class="btn btn-outline-primary">{{ title }}</a>
             {% endfor %}
         </div>
     {% endif %}

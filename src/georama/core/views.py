@@ -151,4 +151,4 @@ class FormView(View):
             "breadcrumb_action_title": self.breadcrumb_action_title,
         }
 
-        return render(request, "core/form.html", context)
+        return render(request, self.template, context)

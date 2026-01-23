@@ -101,6 +101,8 @@ class VectorDataSet(DataSet):
         related_name="vector_datasets",
         related_query_name="vector_dataset",
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     geometry_type_simple = models.CharField(max_length=1000, null=False, default="UNSET")
     geometry_type_wkb = models.CharField(max_length=1000, null=False, default="UNSET")

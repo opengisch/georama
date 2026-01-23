@@ -93,3 +93,27 @@ class ManualDatasetService(Service):
 
     def filter(self, query, **kwargs):
         return query.filter(project__isnull=True)
+
+
+class VectorDatasetService(Service):
+    models = [VectorDataSet]
+    name = "vector_dataset"
+
+    def filter(self, query, **kwargs):
+        return query.filter(project__isnull=True)
+
+
+class RasterDatasetService(Service):
+    models = [RasterDataSet]
+    name = "raster_dataset"
+
+    def filter(self, query, **kwargs):
+        return query.filter(project__isnull=True)
+
+
+class CustomDatasetService(Service):
+    models = [CustomDataSet]
+    name = "custom_dataset"
+
+    def filter(self, query, **kwargs):
+        return query.filter(project__isnull=True)
