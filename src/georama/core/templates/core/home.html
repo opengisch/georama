@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
-
+{% load static %}
 
 {% block extra_head %}
     {{ block.super }}
 {% endblock %}
 
-{% load static %}
+
 {% block header %}
     <header class="main-header">
         <nav class="navbar navbar-expand-lg bg-body border-bottom sticky-top">
             <div class="container">
-                <a class="navbar-brand fw-bold d-flex align-items-center" href="/georama/core/static">
+                <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url "landing" %}">
                     <img src="{% static 'images/main_live.png' %}" alt="Georama" class="d-inline-block align-text-top">
                     <span class="navbar-brand-text navbar-brand-domain text-nowrap ms-2">{{ site_title }}</span>
                 </a>
@@ -37,7 +37,7 @@
                             </li>
                         {% endfor %}
                         <li class="nav-item">
-                            <a class="nav-link" href="https://docs.georama.io">Docs</a>
+                            <a class="nav-link" href="https://docs.georama.io" target="_blank">Docs</a>
                         </li>
                         <li class="nav-item d-flex align-items-center">
                             <a class="btn btn-outline-secondary btn-sm px-4" href="/login">Login</a>

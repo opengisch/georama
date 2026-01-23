@@ -3,37 +3,56 @@
 
 {% block change_list_item %}
     {% for project_item in item.projects %}
-    <div class="list-group-item list-group-item-action" aria-current="true">
-        <a href="{% url 'data_integration:project_detail' item.name project_item.name %}" class="list-group-item-action">
-            <div class="d-flex w-100 justify-content-between">
+    <div class="list-group-item list-group-item-action p-4" aria-current="true">
 
-                <h5 class="mb-1">{{ project_item.name }}</h5>
-                <small class="text-body-secondary">
-                    {% if project_item.database_representation %}
-                        <span class="badge rounded-pill text-bg-primary">registered</span>
-                        {% if project_item.hash == project_item.database_representation.hash %}
-                        <span class="badge rounded-pill text-bg-primary">up to date</span>
+        <div class="d-flex flex-row">
+                <div class="me-3">
+                    <a href="{% url 'data_integration:project_detail' item.name project_item.name %}">
+                    <img src="{% static 'images/qgis.png' %}"
+{#                         alt="{% trans 'QGIS Logo' %}"#}
+                         class="rounded img-thumbnail preview-image"/>
+                    </a>
+                </div>
+
+                <div class="d-flex flex-column flex-grow-1 justify-content-around">
+                
+                    <div>
+                        <a href="{% url 'data_integration:project_detail' item.name project_item.name %}">
+                            <h4 class="mb-1">{{ project_item.name }}</h4>
+                        </a>
+                        <h6 class="mb-1">{{ item.name }}/{{ project_item.name }}.{{ project_item.suffix }}</h6>
+                    </div>
+                    
+
+                    <div class="align-content-bottom">
+                        {% if project_item.database_representation %}
+                            <span class="badge rounded-pill text-bg-primary">registered</span>
+                            {% if project_item.hash == project_item.database_representation.hash %}
+                            <span class="badge rounded-pill text-bg-primary">up to date</span>
+                            {% else %}
+                            <span class="badge rounded-pill badge-warning">outdated</span>
+                            {% endif %}
                         {% else %}
-                        <span class="badge rounded-pill text-bg-warning">outdated</span>
+                            <span class="badge rounded-pill text-bg-info">not registered</span>
                         {% endif %}
-                    {% else %}
-                        <span class="badge rounded-pill text-bg-info">not registered</span>
-                    {% endif %}
-                </small>
-            </div>
-            <p class="mb-1">{{ item.name }}/{{ project_item.name }}.{{ project_item.suffix }}</p>
+                    </div>
+                </div>
 
-        </a>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <div class="btn-group" role="group" aria-label="Basic example">
-                <a onclick="showWaitModalOverlay()" href="{% url 'data_integration:export_qgis_project' item.name project_item.name %}" class="btn btn-outline-primary" tabindex="-1" role="button" aria-disabled="true">register</a>
-                {% if project_item.database_representation %}
-                <a href="{% url 'data_integration:project_delete' project_item.database_representation.pk %}" class="btn btn-outline-warning" tabindex="-1" role="button" aria-disabled="true">unregister</a>
-                {% else %}
-                <a href="#" class="btn btn-outline-warning disabled" tabindex="-1" role="button" aria-disabled="true">unregister</a>
-                {% endif %}
-            </div>
+                <div class="align-content-center">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <a onclick="showWaitModalOverlay()" href="{% url 'data_integration:export_qgis_project' item.name project_item.name %}" 
+                           class="btn btn-outline-primary" tabindex="-1" role="button" aria-disabled="true">register</a>
+                        {% if project_item.database_representation %}
+                            <a href="{% url 'data_integration:project_delete' project_item.database_representation.pk %}" 
+                               class="btn btn-outline-secondary" tabindex="-1" role="button" aria-disabled="true">unregister</a>
+                        {% else %}
+                            <a href="#" class="btn btn-outline-secondary" disabled tabindex="-1" role="button" aria-disabled="true">unregister</a>
+                        {% endif %}
+                    </div>
+                </div>
+
         </div>
+
     </div>
 
     {% endfor %}
