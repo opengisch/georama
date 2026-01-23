@@ -45,23 +45,37 @@
                
                <div class="col">
 
-                   <div>
-                       <label>{% verbose_name qgis_project.database_representation "name" %}</label>
-                       {% help_text qgis_project.database_representation "name" %}
+                   <div class="mb-4" data-toggle="tooltip" data-placement="top"
+                        title="QGIS version used to save the project">
+                       <label class="form-text">Version</label>
+                       <h6>{{ qgis_project_config.project.version|default_if_none:"unknown" }}</h6>
                    </div>
+
+                   <div class="mb-4" data-toggle="tooltip" data-placement="top"
+                        title="Last time the QGIS project was changed on disk">
+                       <label class="form-text">Modification date</label>
+                       <h6>{{ qgis_project_config.meta_data.creationDateTime }}</h6>
+                   </div>
+                   
+                   <div class="mb-4" data-toggle="tooltip" data-placement="top"
+                        title="{% help_text qgis_project.database_representation "integration_date" %}">
+                       <label class="form-text">{% verbose_name qgis_project.database_representation "integration_date" %}</label>
+                       <h6>
+                       {{ qgis_project.database_representation.integration_date|date:"r" }}</h6>
+                   </div>
+
                </div>
-               
+           
                <div class="col">
-                   <h3>Datasets</h3>
-               <div class="d-flex flex-column">
-                   {%  for ds in qgis_project_layers %}
-                       <div class="d-flex flex-row">
-                           <div>{{ ds.name }}</div>
-                           <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-                       </div>
-                   {%  endfor %}
-               </div>
-{#                   {{ qgis_project_config }}#}
+                   <h3>Included Datasets</h3>
+                   <ul class="list-group list-group-flush">
+                       {%  for ds in qgis_project_layers %}
+                           <li class="list-group-item d-flex gap-2">
+                               <div>{{ ds.title }}</div>
+                               <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
+                           </li>
+                       {%  endfor %}
+                   </ul>
                </div>
            </div>
        </div>

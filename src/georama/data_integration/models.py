@@ -23,7 +23,7 @@ class Mandant(models.Model):
 
 class Project(models.Model):
     name = models.CharField(
-        null=False, max_length=1000, verbose_name="Project", help_text="This is a help text"
+        null=False, max_length=1000, verbose_name="name", help_text="This is a help text"
     )
     title = models.CharField(max_length=1000)
     version = models.CharField(max_length=1000)
