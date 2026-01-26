@@ -35,8 +35,8 @@ class Service(ABC):
     def get_list_page(self, start=0, offset=100) -> list[ModelType]:
         items = []
         for model in self.models:
-            items += self.filter(model.objects).all()[start : (start + offset)]
-        return items
+            items += self.filter(model.objects).all()
+        return items[start : (start + offset)]
 
     def amount_of_pages(self, offset=100) -> int:
         return math.ceil(self.count() / offset)

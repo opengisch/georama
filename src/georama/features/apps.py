@@ -17,13 +17,12 @@ pygeoapi.plugin.PLUGINS["provider"][
 
 inittime_api.DEFAULT_CRS = Config().default_crs
 
+central_app_label = "features"
+
 
 class FeaturesConfig(GeoramaAbstractConfig):
     default_auto_field = "django.db.models.BigAutoField"
     verbose_name = "Features"
-    name = "georama.features"
-    label = "features"
-
-    def ready(self):
-        # TODO: remove this, once ready. We dont want to register a menu for Core on the Page
-        pass
+    name = f"georama.{central_app_label}"
+    label = central_app_label
+    menu_order: int = 20

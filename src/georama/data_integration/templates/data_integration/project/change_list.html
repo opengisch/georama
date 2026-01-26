@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block change_list_item %}
+    {{ item.name }}
     {% for project_item in item.projects %}
     <div class="list-group-item list-group-item-action p-4" aria-current="true">
 

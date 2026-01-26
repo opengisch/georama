@@ -2,25 +2,30 @@ import os.path
 
 import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
+from django.apps import apps
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
-from django.urls import path
 from django.views import View
 from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
 from qgis_server_light.interface.qgis import BBox
 
+from georama.core.menu import BreadCrumb
+from georama.core.views import ChangeListView, FormView
 from georama.data_integration.models import Field, VectorDataSet
-from georama.features.apps import FeaturesConfig
+from georama.features.apps import central_app_label
 from georama.features.config_server import ServerConfig
 from georama.features.features_config import Config
+from georama.features.forms import PublishedAsOgcApiFeaturesForm
 from georama.features.models import ColumnOgcApiFeatures, PublishedAsOgcApiFeatures
+from georama.features.services import (
+    PublishedAsOgcApiFeaturesService,
+    VectorDatasetService,
+)
 
 api = None
-
-appname = FeaturesConfig.get_simple_appname()
 
 
 class PygeoapiServer(View):
@@ -28,59 +33,13 @@ class PygeoapiServer(View):
     model = PublishedAsOgcApiFeatures
 
     @classmethod
-    def urls(cls, prefix=""):
+    def urls(cls):
         """
         Prepares a tuple of 2 elements which can be used directly with django.urls.include.
         """
 
-        path_elements = [prefix]
-        patterns = [
-            path("/".join(path_elements), cls.as_view(action="landing"), name="landing"),
-            path(
-                "/".join(path_elements + ["conformance"]),
-                cls.as_view(action="conformance"),
-                name="conformance",
-            ),
-            path(
-                "/".join(path_elements + ["openapi"]),
-                cls.as_view(action="openapi"),
-                name="openapi",
-            ),
-            path(
-                "/".join(path_elements + ["collections"]),
-                cls.as_view(action="collections"),
-                name="collections",
-            ),
-            path(
-                "/".join(path_elements + ["collections", "<str:collection_id>"]),
-                cls.as_view(action="collections"),
-                name="collection-detail",
-            ),
-            path(
-                "/".join(path_elements + ["collections", "<str:collection_id>", "schema"]),
-                cls.as_view(action="collection_schema"),
-                name="collection-schema",
-            ),
-            path(
-                "/".join(path_elements + ["collections", "<str:collection_id>", "queryables"]),
-                cls.as_view(action="collection_queryables"),
-                name="collection-queryables",
-            ),
-            path(
-                "/".join(path_elements + ["collections", "<str:collection_id>", "items"]),
-                cls.as_view(action="collection_items"),
-                name="collection-items",
-            ),
-            path(
-                "/".join(
-                    path_elements
-                    + ["collections", "<str:collection_id>", "items", "<str:item_id>"]
-                ),
-                cls.as_view(action="collection_item"),
-                name="collection-item",
-            ),
-        ]
-        return patterns, appname
+        patterns = []
+        return (patterns, central_app_label)
 
     def dispatch(self, request, *args, **kwargs):
         handler = getattr(self, f"{self.action}", None)
@@ -171,7 +130,7 @@ class PygeoapiServer(View):
         :returns: Django HTTP Response
         """
         if self.model.objects.get(identifier=collection_id).has_read_permission(
-            request.user, appname
+            request.user, central_app_label
         ):
             return self.execute_from_django(
                 core_api.get_collection_schema, request, collection_id
@@ -191,7 +150,7 @@ class PygeoapiServer(View):
         :returns: Django HTTP Response
         """
         if self.model.objects.get(identifier=collection_id).has_read_permission(
-            request.user, appname
+            request.user, central_app_label
         ):
             return self.execute_from_django(
                 itemtypes_api.get_collection_queryables, request, collection_id
@@ -212,7 +171,7 @@ class PygeoapiServer(View):
         published_as = self.model.objects.get(identifier=collection_id)
 
         if request.method == "GET":
-            if published_as.has_read_permission(request.user, appname):
+            if published_as.has_read_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.get_collection_items,
                     request,
@@ -222,7 +181,7 @@ class PygeoapiServer(View):
             else:
                 raise PermissionDenied()
         elif request.method == "POST":
-            if published_as.has_create_permission(request.user, appname):
+            if published_as.has_create_permission(request.user, central_app_label):
                 if request.content_type is not None:
                     if request.content_type == "application/geo+json":
                         response_ = self.execute_from_django(
@@ -242,7 +201,7 @@ class PygeoapiServer(View):
             else:
                 raise PermissionDenied()
         elif request.method == "OPTIONS":
-            if published_as.has_read_permission(request.user, appname):
+            if published_as.has_read_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.manage_collection_item,
                     request,
@@ -272,14 +231,14 @@ class PygeoapiServer(View):
         published_as = self.model.objects.get(identifier=collection_id)
 
         if request.method == "GET":
-            if published_as.has_read_permission(request.user, appname):
+            if published_as.has_read_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.get_collection_item, request, collection_id, item_id
                 )
             else:
                 raise PermissionDenied()
         elif request.method == "PUT":
-            if published_as.has_update_permission(request.user, appname):
+            if published_as.has_update_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.manage_collection_item,
                     request,
@@ -291,7 +250,7 @@ class PygeoapiServer(View):
             else:
                 raise PermissionDenied()
         elif request.method == "DELETE":
-            if published_as.has_delete_permission(request.user, appname):
+            if published_as.has_delete_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.manage_collection_item,
                     request,
@@ -303,7 +262,7 @@ class PygeoapiServer(View):
             else:
                 raise PermissionDenied()
         elif request.method == "OPTIONS":
-            if published_as.has_read_permission(request.user, appname):
+            if published_as.has_read_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.manage_collection_item,
                     request,
@@ -321,9 +280,11 @@ class PygeoapiServer(View):
 
     def handle_runtime_config(self, request: HttpRequest) -> tuple[dict, dict]:
         server_config = ServerConfig().get()
-        server_config["server"]["url"] = f"{request.scheme}://{request.get_host()}/features"
+        server_config["server"][
+            "url"
+        ] = f"{request.scheme}://{request.get_host()}/features/pygeoapi"
         for published_as in self.model.objects.all():
-            if published_as.has_general_permission(request.user, appname):
+            if published_as.has_general_permission(request.user, central_app_label):
                 server_config["resources"][str(published_as.identifier)] = (
                     self.create_resource(published_as, request)
                 )
@@ -432,16 +393,16 @@ class PygeoapiServer(View):
         self, published_as: PublishedAsOgcApiFeatures, request: HttpRequest
     ) -> dict:
         editable = (
-            published_as.has_update_permission(request.user, appname)
-            or published_as.has_create_permission(request.user, appname)
-            or published_as.has_delete_permission(request.user, appname)
+            published_as.has_update_permission(request.user, central_app_label)
+            or published_as.has_create_permission(request.user, central_app_label)
+            or published_as.has_delete_permission(request.user, central_app_label)
         )
 
         features_properties = [
             p
             for p in published_as.columns.all()
             if not published_as.column_permission
-            or p.has_general_permission(request.user, appname)
+            or p.has_general_permission(request.user, central_app_label)
         ]
 
         if published_as.dataset.driver.upper() == "POSTGRES":
@@ -563,4 +524,42 @@ def admin_publish_as_oapif(request: HttpRequest, vector_dataset_id: str):
     vd = VectorDataSet.objects.filter(id=vector_dataset_id)[0]
     published_as_oapi = PublishedAsOgcApiFeatures(dataset=vd)
     published_as_oapi.save()
-    return redirect("admin:features_publishedasogcapifeatures_changelist")
+    return redirect("features:index")
+
+
+class Index(ChangeListView):
+    service = PublishedAsOgcApiFeaturesService
+    title = "OGCAPI-F"
+    name = "index"
+    app_menu = apps.get_app_config("features").app_menu()
+    template = "features/index.html"
+    breadcrumbs = [BreadCrumb(app_menu.title, f"{app_menu.app_label}:index")]
+    list_actions = [("New", "features:change_list_vector_dataset")]
+
+
+class Publish(ChangeListView):
+    service = VectorDatasetService
+    title = "Publish"
+    name = f"{ChangeListView.view_type_name}_{service.name}"
+    app_menu = apps.get_app_config("features").app_menu()
+    template = "features/publish.html"
+    breadcrumbs = [
+        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
+    ]
+
+
+class PublishedAsOgcApiFeaturesServiceFormView(FormView):
+    service = PublishedAsOgcApiFeaturesService
+    name = f"form_{service.name}"
+    title = "Show"
+    app_menu = apps.get_app_config("features").app_menu()
+    forms = [PublishedAsOgcApiFeaturesForm]
+    breadcrumbs = [
+        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+        BreadCrumb(
+            Index.title,
+            f"{app_menu.app_label}:{Index.name}",
+        ),
+        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
+    ]

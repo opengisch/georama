@@ -10,3 +10,4 @@ class DataintegrationConfig(GeoramaAbstractConfig):
     label = central_app_label
     name = f"georama.{central_app_label}"
     verbose_name = _("Data Integration")
+    menu_order: int = 10

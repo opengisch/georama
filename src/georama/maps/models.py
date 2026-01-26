@@ -1,3 +1,4 @@
+import base64
 import logging
 
 from asgiref.sync import async_to_sync, sync_to_async
@@ -27,7 +28,7 @@ class PublishedAsWmsAbstract(PublishedAs):
     extent_wgs84 = models.CharField(max_length=1000, null=True, blank=True)
     preview = models.BinaryField(null=True, blank=True)
 
-    preview_dimensions = (250, 250)
+    preview_dimensions = [250, 250]
     crs_transform_to_wgs84 = None
 
     @property
@@ -54,6 +55,17 @@ class PublishedAsWmsAbstract(PublishedAs):
             raise NotImplementedError(
                 "linked dataset has to be RasterDataSet|VectorDataSet|CustomDataSet!"
             )
+
+    @property
+    def bound_dataset_type(self) -> str | None:
+        bound_dataset = self.bound_dataset
+        if isinstance(bound_dataset, RasterDataSet):
+            return "raster"
+        elif isinstance(bound_dataset, VectorDataSet):
+            return "vector"
+        elif isinstance(bound_dataset, CustomDataSet):
+            return "custom"
+        return None
 
     @property
     def is_queryable(self):
@@ -156,6 +168,18 @@ class PublishedAsWmsAbstract(PublishedAs):
         spatial_ref.SetAxisMappingStrategy(axis_order)
         spatial_ref.ImportFromEPSG(epsg_code)
         return spatial_ref
+
+    @property
+    def preview_as_base64(self):
+        return base64.b64encode(self.preview).decode()
+
+    @property
+    def preview_width(self):
+        return self.preview_dimensions[0]
+
+    @property
+    def preview_height(self):
+        return self.preview_dimensions[1]
 
 
 class PublishedAsWms(PublishedAsWmsAbstract):
