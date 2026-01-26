@@ -15,10 +15,10 @@ from xsdata.formats.dataclass.serializers import DictEncoder, JsonSerializer
 
 from georama.core.menu import BreadCrumb
 from georama.core.views import ChangeListView, FormView
-from georama.data_integration.admin import (
+from georama.data_integration.lib.qgis_project_file_structure import (
     QgisProject,
-    QgisProjectFileStructure,
     QgisProjectGroup,
+    QgisProjectFileStructure,
 )
 from georama.data_integration.data_integration_config import (
     Config as DataIntegrationConfig,

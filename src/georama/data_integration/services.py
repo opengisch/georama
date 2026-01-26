@@ -6,10 +6,10 @@ from xsdata.formats.dataclass.parsers import JsonParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 
 from georama.core.services import Service
-from georama.data_integration.admin import (
+from georama.data_integration.lib.qgis_project_file_structure import (
     QgisProject,
-    QgisProjectFileStructure,
     QgisProjectGroup,
+    QgisProjectFileStructure,
 )
 from georama.data_integration.data_integration_config import Config
 from georama.data_integration.models import (
