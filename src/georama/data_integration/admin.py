@@ -63,6 +63,10 @@ class QgisProject:
             with open(self.config_path, mode="rb") as cf:
                 return hashlib.md5(cf.read()).hexdigest()
 
+    @property
+    def icon(self) -> str:
+        return "images/qgis.png" if self.database_representation else "images/qgis_grey.png"
+
 
 @dataclass
 class QgisProjectGroup:
