@@ -22,9 +22,7 @@ class Mandant(models.Model):
 
 
 class Project(models.Model):
-    name = models.CharField(
-        null=False, max_length=1000, verbose_name="name", help_text="This is a help text"
-    )
+    name = models.CharField(null=False, max_length=1000, verbose_name="name")
     title = models.CharField(max_length=1000)
     version = models.CharField(max_length=1000)
     hash = models.CharField(max_length=20000, null=True, blank=True)
@@ -62,6 +60,10 @@ class DataSet(models.Model):
     crs = models.JSONField(default=dict)
     minimum_scale = models.FloatField(null=True)
     maximum_scale = models.FloatField(null=True)
+
+    @property
+    def dataset_type(self):
+        raise NotImplementedError("This is a abstract base class")
 
     @property
     def get_parser_config(self):
@@ -118,6 +120,10 @@ class VectorDataSet(DataSet):
     geometry_type_wkb = models.CharField(max_length=1000, null=False, default="UNSET")
 
     @property
+    def dataset_type(self):
+        return "vector"
+
+    @property
     def fields_to_qsl(self) -> list[QslField]:
         fields = []
         for field in self.fields.all():
@@ -161,6 +167,10 @@ class RasterDataSet(DataSet):
     )
 
     @property
+    def dataset_type(self):
+        return "raster"
+
+    @property
     def to_qsl(self) -> Raster:
         datasource, path = self.source_to_qsl
         return Raster(
@@ -192,6 +202,10 @@ class CustomDataSet(DataSet):
         related_query_name="custom_dataset",
         on_delete=models.CASCADE,
     )
+
+    @property
+    def dataset_type(self):
+        return "custom"
 
     @property
     def to_qsl(self) -> Custom:

@@ -1,6 +1,7 @@
 import logging
 
 from asgiref.sync import sync_to_async
+from django.apps import apps
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views import View
@@ -17,12 +18,15 @@ from xsdata.formats.dataclass.parsers import DictDecoder, XmlParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer
 
+from georama.core.menu import BreadCrumb
+from georama.core.views import ChangeListView
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import MapsConfig
 from georama.maps.interfaces.georama.requests import QslGetMapRequest
 from georama.maps.interfaces.ogc.wfs_2_0_0 import GetFeature as GetFeature200
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
+from georama.maps.services.services import ProjectDatasetsService, PublishedAsWmsService
 from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
 from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
 from georama.maps.services.wfs_2_0_0.get_feature import WfsGetFeature
@@ -389,7 +393,7 @@ class OgcServer(View):
             return HttpResponse(e, status=400, content_type="text/xml")
 
 
-def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):
+def publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):
     """
     helper function to hide actual connection in the database but make
     publishing straight forward.
@@ -412,4 +416,26 @@ def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, datase
     else:
         raise Http404
     published_as_wms.save()
-    return redirect("admin:maps_publishedaswms_changelist")
+    return redirect("maps:index")
+
+
+class Index(ChangeListView):
+    service = PublishedAsWmsService
+    title = "OGCAPI-F"
+    name = "index"
+    app_menu = apps.get_app_config("maps").app_menu()
+    template = "maps/index.html"
+    breadcrumbs = [BreadCrumb(app_menu.title, f"{app_menu.app_label}:index")]
+    list_actions = [("New", "maps:change_list_dataset")]
+
+
+class Publish(ChangeListView):
+    service = ProjectDatasetsService
+    title = "Publish"
+    name = f"{ChangeListView.view_type_name}_{service.name}"
+    app_menu = apps.get_app_config("maps").app_menu()
+    template = "maps/publish.html"
+    breadcrumbs = [
+        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
+    ]
