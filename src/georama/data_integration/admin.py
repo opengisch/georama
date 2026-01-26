@@ -50,6 +50,10 @@ class QgisProject:
         )
 
     @property
+    def project_path_as_string(self) -> str:
+        return f"{self.parent.name}/{self.name}{self.suffix}"
+
+    @property
     def has_config(self) -> bool:
         return os.path.isfile(self.config_path)
 

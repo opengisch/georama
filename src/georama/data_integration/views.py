@@ -538,7 +538,7 @@ class ProjectDetail(View):
                         f"{app_menu.app_label}:{ChangeListProject.name}",
                     ),
                     BreadCrumb(
-                        f"{qgis_project.parent.name}/{qgis_project.name}.{qgis_project.suffix}",
+                        f"{qgis_project.project_path_as_string}",
                         f"{app_menu.app_label}:project_show",
                     ),
                 ],

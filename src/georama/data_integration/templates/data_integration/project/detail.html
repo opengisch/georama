@@ -14,24 +14,36 @@
         <div class="d-flex flex-column flex-grow-1 justify-content-around">
             <div>
                 <h4 class="mb-1">{{ qgis_project.name }}</h4>
-                <h6 class="mb-1">{{ qgis_project.name }}/{{ qgis_project.name }}.{{ qgis_project.suffix }}</h6>
+                <h6 class="mb-1">{{ qgis_project.project_path_as_string }}</h6>
             </div>
             
         </div>
 
+
         <div class="align-content-center">
-            <div class="btn-group" role="group" aria-label="Basic example">
-                <a onclick="showWaitModalOverlay()" 
-                   href="{% url 'data_integration:export_qgis_project' qgis_project.name qgis_project.parent.name %}"
-                   class="btn btn-primary" tabindex="-1" role="button" aria-disabled="true">
-                    <i class="fa fa-database"></i>
-                </a>
-                <a href=""
-                   class="btn btn-danger"
+            <div class="btn-group" role="group" aria-label="Project actions">
+                <a onclick="showWaitModalOverlay()" href="{% url 'data_integration:export_qgis_project' qgis_project.name qgis_project.parent.name %}"
+                   class="btn btn-outline-primary" tabindex="-1" role="button"
+                        {#  title="{% trans 'Integrate QGIS project' %}"#}
                    data-toggle="tooltip" data-placement="top">
-{#                   title="{% trans 'Delete project' %}">#}
-                    <i class="fa fa-trash-alt"></i>
+                    <i class="fa fa-upload"></i><span>register</span>
                 </a>
+                {% if project_item.database_representation %}
+                    <a href="{% url 'data_integration:project_delete' project_item.database_representation.pk %}"
+                       class="btn btn-outline-secondary"
+                       tabindex="-1" role="button"
+                            {#  title="{% trans 'Unregister QGIS project' %}"#}
+                       data-toggle="tooltip" data-placement="top">
+                        <i class="fa fa-unlink"></i><span>unregister</span>
+                    </a>
+                {% else %}
+                    <a href="#" class="btn btn-outline-secondary disabled"
+                       disabled tabindex="-1" role="button" aria-disabled="true"
+                            {#                               title="{% trans 'Unregister QGIS project' %}"#}
+                       data-toggle="tooltip" data-placement="top">
+                        <i class="fa fa-unlink"></i><span>unregister</span>
+                    </a>
+                {% endif %}
             </div>
         </div>
 
@@ -48,26 +60,25 @@
                    <div class="mb-4" data-toggle="tooltip" data-placement="top"
                         title="QGIS version used to save the project">
                        <label class="form-text">Version</label>
-                       <h6>{{ qgis_project_config.project.version|default_if_none:"unknown" }}</h6>
+                       <div>{{ qgis_project_config.project.version|default_if_none:"unknown" }}</div>
                    </div>
 
                    <div class="mb-4" data-toggle="tooltip" data-placement="top"
                         title="Last time the QGIS project was changed on disk">
                        <label class="form-text">Modification date</label>
-                       <h6>{{ qgis_project_config.meta_data.creationDateTime }}</h6>
+                       <div>{{ qgis_project_config.meta_data.creationDateTime }}</div>
                    </div>
                    
                    <div class="mb-4" data-toggle="tooltip" data-placement="top"
                         title="{% help_text qgis_project.database_representation "integration_date" %}">
                        <label class="form-text">{% verbose_name qgis_project.database_representation "integration_date" %}</label>
-                       <h6>
-                       {{ qgis_project.database_representation.integration_date|date:"r" }}</h6>
+                       <div>{{ qgis_project.database_representation.integration_date|date:"r" }}</div>
                    </div>
 
                </div>
            
                <div class="col">
-                   <h3>Included Datasets</h3>
+                   <h4>Included Datasets</h4>
                    <ul class="list-group list-group-flush">
                        {%  for ds in qgis_project_layers %}
                            <li class="list-group-item d-flex gap-2">
