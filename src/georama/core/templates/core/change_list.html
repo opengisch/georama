@@ -1,13 +1,15 @@
 {% extends 'core/home.html' %}
 
 {% block content %}
-    {% if list_actions|length > 0 %}
-        <div class="btn-group" role="group" aria-label="Basic example">
-            {% for title, view_name in list_actions %}
-                <a href="{% url view_name %}" class="btn btn-outline-primary">{{ title }}</a>
-            {% endfor %}
-        </div>
-    {% endif %}
+    {% block list_actions %}
+        {% if list_actions|length > 0 %}
+            <div class="btn-group" role="group" aria-label="Basic example">
+                {% for title, view_name in list_actions %}
+                    <a href="{% url view_name %}" class="btn btn-outline-primary">{{ title }}</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endblock %}
     {% if absolute_count == 0 %}
         <div class="container d-flex justify-content-center align-items-center">
             <div class="fs-1 fw-bold text-center">

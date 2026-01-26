@@ -1,0 +1,32 @@
+{% extends 'core/change_list.html' %}
+{% block change_list_item %}
+    <div class="list-group-item list-group-item-action p-4" aria-current="true">
+
+        <div class="d-flex flex-row">
+                <div class="me-3">
+                    <a href="#"></a>
+                </div>
+
+                <div class="d-flex flex-column flex-grow-1 justify-content-around">
+                    <div>
+                        <a href="#">
+                            <h4 class="mb-1">{{ item.title }}</h4>
+                        </a>
+                        <h6 class="mb-1">{{ item.name }} ({{ item.project.name }})</h6>
+                    </div>
+
+
+                    <div class="align-content-bottom">
+                        <span class="badge rounded-pill text-bg-primary">{{ item.driver_name }}</span>
+                    </div>
+                </div>
+            <div class="align-content-center">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <a href="{% url 'features:publish_as_oapif' item.pk %}"
+                           class="btn btn-outline-primary" tabindex="-1" role="button" aria-disabled="true">Publish</a>
+                    </div>
+                </div>
+        </div>
+
+    </div>
+{% endblock %}

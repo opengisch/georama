@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block change_list_item %}
+    {{ item.name }}
     {% for project_item in item.projects %}
     <div class="list-group-item list-group-item-action p-4" aria-current="true">
 
@@ -15,14 +16,14 @@
                 </div>
 
                 <div class="d-flex flex-column flex-grow-1 justify-content-around">
-                
+
                     <div>
                         <a href="{% url 'data_integration:project_detail' item.name project_item.name %}">
                             <h4 class="mb-1">{{ project_item.name }}</h4>
                         </a>
                         <h6 class="mb-1">{{ item.name }}/{{ project_item.name }}.{{ project_item.suffix }}</h6>
                     </div>
-                    
+
 
                     <div class="align-content-bottom">
                         {% if project_item.database_representation %}
@@ -40,10 +41,10 @@
 
                 <div class="align-content-center">
                     <div class="btn-group" role="group" aria-label="Basic example">
-                        <a onclick="showWaitModalOverlay()" href="{% url 'data_integration:export_qgis_project' item.name project_item.name %}" 
+                        <a onclick="showWaitModalOverlay()" href="{% url 'data_integration:export_qgis_project' item.name project_item.name %}"
                            class="btn btn-outline-primary" tabindex="-1" role="button" aria-disabled="true">register</a>
                         {% if project_item.database_representation %}
-                            <a href="{% url 'data_integration:project_delete' project_item.database_representation.pk %}" 
+                            <a href="{% url 'data_integration:project_delete' project_item.database_representation.pk %}"
                                class="btn btn-outline-secondary" tabindex="-1" role="button" aria-disabled="true">unregister</a>
                         {% else %}
                             <a href="#" class="btn btn-outline-secondary" disabled tabindex="-1" role="button" aria-disabled="true">unregister</a>

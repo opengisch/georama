@@ -21,6 +21,7 @@ class ServerConfig:
                     "url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                     "attribution": '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',  # noqa: E501
                 },
+                "url_prefix": "pygeoapi",
             },
             "logging": {"level": "INFO"},
             "metadata": {
