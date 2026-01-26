@@ -27,7 +27,8 @@ class GeoramaLanding(View):
                 "logo_url": logo_url,
                 "geogirafe_url": settings.WEBGISURL,
                 "site_title": site_title,
-                "maps_endpoint": request.build_absolute_uri(reverse("maps_ogc_entry")),
+                # TODO RU: URL reverse not working
+                # "maps_endpoint": request.build_absolute_uri(reverse("maps_ogc_entry")),
                 "breadcrumbs": [],
             },
             template="core/home.html",
