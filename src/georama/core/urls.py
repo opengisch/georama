@@ -23,6 +23,7 @@ from django.urls import include, path
 from georama.core import views
 
 urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
     path("", views.GeoramaLanding.as_view(), name="landing"),
     path("login", views.Login.as_view(), name="login"),
     path("logout", views.Logout.as_view(), name="logout"),

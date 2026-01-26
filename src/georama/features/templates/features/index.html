@@ -1,5 +1,5 @@
 {% extends 'core/change_list.html' %}
-{% load static %}
+{% load static i18n %}
 
 {% block list_actions %}
     <div class="btn-group" role="group" aria-label="List actions">
@@ -15,7 +15,7 @@
                 <div class="me-3">
                     <a href="#">
                     <img src="{% static 'images/qgis.png' %}"
-{#                         alt="{% trans 'QGIS Logo' %}"#}
+                         alt="{% trans 'QGIS Logo' %}"
                          class="rounded img-thumbnail preview-image"/>
                     </a>
                 </div>
