@@ -21,6 +21,9 @@ from django.contrib import admin
 from django.urls import include, path
 
 from georama.core import views
+from georama.core.apps import central_app_label
+
+app_name = central_app_label
 
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
@@ -34,6 +37,16 @@ urlpatterns = [
     path("qfield_link", include("georama.qfield_link.urls")),
     path("accounts/", include("allauth.urls")),
     path("admin/", admin.site.urls, {"extra_context": {"DEBUG": settings.DEBUG}}),
+    path(
+        "core/assign_permission_to_user_or_group",
+        views.AssignPermissionToUserOrGroup.as_view(),
+        name="assign_permission_to_user_or_group",
+    ),
+    path(
+        "core/remove_permission_from_user_or_group",
+        views.RemovePermissionToUserOrGroup.as_view(),
+        name="remove_permission_from_user_or_group",
+    ),
 ]
 
 if settings.DEBUG:

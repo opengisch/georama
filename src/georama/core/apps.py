@@ -30,11 +30,14 @@ class GeoramaAbstractConfig(AppConfig, ABC):
         register_menu_item(self.app_menu())
 
 
+central_app_label = "core"
+
+
 class CoreConfig(GeoramaAbstractConfig):
     default_auto_field = "django.db.models.BigAutoField"
     verbose_name = "Core"
-    label = "core"
-    name = "georama.core"
+    label = central_app_label
+    name = f"georama.{central_app_label}"
 
     def ready(self):
         # We dont want to register a menu for Core on the Page

@@ -1,5 +1,6 @@
+import copy
+
 from django.contrib.auth.models import Group, Permission, User
-from django.db.models import Q
 
 from georama.core.entities.models import PermissionInterface
 from georama.core.services import Service
@@ -36,11 +37,11 @@ class PermissionService(Service):
         return items
 
     def get_users_by_permission(self, permission: Permission):
-        users = User.objects.filter(Q(user_permissions=permission)).distinct()
+        users = User.objects.filter(user_permissions=permission).distinct()
         return users
 
     def get_groups_by_permission(self, permission: Permission):
-        groups = Group.objects.filter(Q(permissions=permission)).distinct()
+        groups = Group.objects.filter(permissions=permission).distinct()
         return groups
 
     def get_permission_lookup(self, instance):
@@ -57,7 +58,6 @@ class PermissionService(Service):
                     "allowed": False,
                     "id": permission.pk,
                 }
-                permission_dict[f"{permission_interface.action}_id"] = permission.pk
             if permission_interface.action not in permission_actions:
                 permission_actions.append(permission_interface.action)
         for permission in permissions:
@@ -68,7 +68,7 @@ class PermissionService(Service):
             groups = self.get_groups_by_permission(permission)
             for group in groups:
                 if group.pk not in permission_lookup["groups"]:
-                    permission_lookup["groups"][group.pk] = permission_dict.copy()
+                    permission_lookup["groups"][group.pk] = copy.deepcopy(permission_dict)
                 permission_lookup["groups"][group.pk][permission_interface.action][
                     "allowed"
                 ] = True
@@ -76,7 +76,7 @@ class PermissionService(Service):
             users = self.get_users_by_permission(permission)
             for user in users:
                 if user.pk not in permission_lookup["users"]:
-                    permission_lookup["users"][user.pk] = permission_dict.copy()
+                    permission_lookup["users"][user.pk] = copy.deepcopy(permission_dict)
                 permission_lookup["users"][user.pk][permission_interface.action][
                     "allowed"
                 ] = True

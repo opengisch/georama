@@ -2,9 +2,10 @@ from abc import ABC
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import Group, Permission, User
 from django.db import models
 from django.forms import ModelForm
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
 from django.templatetags.static import static
@@ -157,3 +158,39 @@ class FormView(View):
         }
         context.update(self.extra_context(context, service))
         return render(request, self.template, context)
+
+
+class AssignPermissionToUserOrGroup(View):
+
+    def post(self, request: HttpRequest):
+        principal_id = request.GET["principal_id"]
+        permission_id = request.GET["permission_id"]
+        principal_type = request.GET["principal_type"]
+        permission = Permission.objects.filter(pk=permission_id).get()
+        if principal_type == "user":
+            user = User.objects.filter(pk=principal_id).get()
+            user.user_permissions.add(permission)
+            return HttpResponse("OK")
+        elif principal_type == "group":
+            group = Group.objects.filter(pk=principal_id).get()
+            group.permissions.add(permission)
+            return HttpResponse("OK")
+        return HttpResponseBadRequest()
+
+
+class RemovePermissionToUserOrGroup(View):
+
+    def post(self, request: HttpRequest):
+        principal_id = request.GET["principal_id"]
+        permission_id = request.GET["permission_id"]
+        principal_type = request.GET["principal_type"]
+        permission = Permission.objects.filter(pk=permission_id).get()
+        if principal_type == "user":
+            user = User.objects.filter(pk=principal_id).get()
+            user.user_permissions.remove(permission)
+            return HttpResponse("OK")
+        elif principal_type == "group":
+            group = Group.objects.filter(pk=principal_id).get()
+            group.permissions.remove(permission)
+            return HttpResponse("OK")
+        return HttpResponseBadRequest()
