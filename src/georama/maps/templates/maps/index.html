@@ -3,47 +3,101 @@
 
 {% block list_actions %}
     <div class="btn-group" role="group" aria-label="List Actions">
-        <a href="{% url 'maps:maps_ogc_entry' %}?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0" target="_blank" class="btn btn-outline-primary">WMS Capabilities</a>
-        <a href="{% url 'maps:maps_ogc_entry' %}?SERVICE=WFS&REQUEST=GetCapabilities&VERSION=2.0.0" target="_blank" class="btn btn-outline-primary">WFS Capabilities</a>
+        <a href="{% url 'maps:maps_ogc_entry' %}?{{ wms_get_capabilities_params }}" 
+           target="_blank" class="btn btn-outline-primary"
+        role="button">WMS Capabilities</a>
+        <a href="{% url 'maps:maps_ogc_entry' %}?{{ wfs_get_capabilities_params }}" 
+           target="_blank" class="btn btn-outline-primary"
+           role="button">WFS Capabilities</a>
+{#        TODO PI: Remove?#}
         <a href="{% url 'maps:change_list_dataset' %}" class="btn btn-outline-primary">Publish New</a>
     </div>
 {% endblock %}
 
 {% block change_list_item %}
-    <div class="list-group-item list-group-item-action p-4" aria-current="true">
+    <div class="list-group-item list-group-item-action p-4">
 
         <div class="d-flex flex-row">
                 <div class="me-3">
                     <a href="#">
-                    <img src="data:image/png;base64,{{ item.preview_as_base64 }}" class="border shadow-sm" style="width: {{ item.preview_width }}px; height: {{ item.preview_height }}px"
-{#                         alt="{% trans 'QGIS Logo' %}"#}
-                         class="rounded img-thumbnail preview-image"/>
+                    <img src="{{ item.preview_as_base64 }}"
+{#                         TODO PI: What strategy do we want with preview images?#}
+{#                         style="width: 150px; height: 150px"#}
+                         class="rounded img-thumbnail preview-image"
+                         alt="{% trans 'WMS preview' %}"
+                    />
                     </a>
                 </div>
 
                 <div class="d-flex flex-column flex-grow-1 justify-content-around">
 
                     <div>
-                        <a href="#">
-                            <h4 class="mb-1">{{ item.title }}</h4>
+                        <a href="#" class="link-offset-3 link-underline link-underline-opacity-75">
+                            <h4 class="mb-2">{{ item.title }}</h4>
                         </a>
-                        <h6 class="mb-1">{{ item.name }}</h6>
+                        <div class="mb-1">{{ item.name }}</div>
                     </div>
 
 
                     <div class="align-content-bottom">
-                        {% if item.public %}
-                            <span class="badge rounded-pill text-bg-primary">public</span>
-                        {% endif %}
+                        <span class="badge rounded-pill {% if wms.public == True %}text-bg-primary{% else %}text-bg-light text-decoration-line-through{% endif %}"
+                              data-toggle="tooltip" data-placement="top"
+                              title="{% trans 'WMS layer is publicly available' %}"
+                              aria-label="{% trans 'WMS layer is publicly available' %}">
+                            public
+                        </span>
+                        {#   TODO PI: These functionalities do not exist yet #}
+                        <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light text-decoration-line-through{% endif %}"
+                              data-toggle="tooltip" data-placement="top"
+                              aria-label="{% trans 'WMS layer provides a legend' %}"
+                              title="{% trans 'WMS layer provides a legend' %}">
+                            GetLegend
+                            </span>
+                        <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light text-decoration-line-through{% endif %}"
+                              data-toggle="tooltip" data-placement="top"
+                              aria-label="{% trans 'WMS layer provides feature infos at coordinates' %}"
+                              title="{% trans 'WMS layer provides feature infos at coordinates' %}">
+                            GetFeatureInfo
+                            </span>
+                        <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light text-decoration-line-through{% endif %}"
+                              data-toggle="tooltip" data-placement="top"
+                              aria-label="{% trans 'WMS layer provides a twin WFS layer to query features' %}"
+                              title="{% trans 'WMS layer provides a twin WFS layer to query features' %}">
+                            WfsQuery
+                            </span>
                     </div>
                 </div>
 
                 <div class="align-content-center">
-                    <div class="btn-group" role="group" aria-label="Basic example">
-                        <a href="#" target="_blank"
-                           class="btn btn-outline-primary" tabindex="-1" role="button" aria-disabled="true">Show</a>
+
+                    <div class="btn-group mr-2" role="group" aria-label="Preview actions">
+                        <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wms_url_params }}"
+                           target="_blank" class="btn btn-secondary"
+                           role="button"
+                           data-toggle="tooltip" data-placement="top"
+                           title="{% trans 'Open GetMap request in new tab' %}"
+                           aria-label="{% trans 'Open WMS layer in new tab' %}">
+                            <i class="fa fa-map"></i>
+                        </a>
+                        <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wfs_url_params }}"
+                           target="_blank" class="btn btn-secondary"
+                           role="button"
+                           data-toggle="tooltip" data-placement="top"
+                           title="{% trans 'Open GetFeature request in new tab' %}"
+                           aria-label="{% trans 'Open GetFeature request in new tab' %}">
+                            <i class="fa fa-code"></i>
+                        </a>
+                    </div>
+
+                    <div class="btn-group mr-2" role="group" aria-label="Edit actions">
+                        
                         <a href="#"
-                           class="btn btn-outline-primary" tabindex="-1" role="button" aria-disabled="true">Details</a>
+                           class="btn btn-danger" role="button"
+                           data-toggle="tooltip" data-placement="top"
+                           title="{% trans 'Delete WMS layer' %}"
+                           aria-label="{% trans 'Delete WMS layer' %}">
+                            <i class="fa fa-trash-alt"></i>
+                        </a>
                     </div>
                 </div>
 

@@ -2,34 +2,32 @@
 
 
 {% block content %}
-<section class="section-block py-5">
     <div class="container">
-        <div class="rounded-4 p-4 p-lg-5 shadow-sm text-center">
-            <div class="row">
-                <div class="col-sm-2 mb-3 mb-sm-0">
-                    <div class="card border-success mb-3" style="max-width: 18rem;">
-                        <div class="card-body text-success">
-                            <h5 class="card-title">{{ project_count }}</h5>
-                            <p class="card-text"><a class="nav-link"
-                                                    href="{% url 'data_integration:change_list_project' %}">Projects</a>
-                            </p>
-                        </div>
-                        <a class="btn btn-primary" href="#" role="button">New</a>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card border-success mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ project_count }}</h5>
+                        <p class="card-text">
+                        
+                            <a class="nav-link"
+                               href="{% url 'data_integration:change_list_project' %}">Projects</a>
+                        </p>
                     </div>
                 </div>
-                <div class="col-sm-2">
-                    <div class="card border-success mb-3" style="max-width: 18rem;">
-                        <div class="card-body text-success">
-                            <h5 class="card-title">{{ manual_dataset_count }}</h5>
-                            <p class="card-text"><a class="nav-link"
-                                                    href="{% url 'data_integration:change_list_manual_dataset' %}">DataSets</a>
-                            </p>
-                        </div>
-                        <a class="btn btn-primary" href="#" role="button">New</a>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-success mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ manual_dataset_count }}</h5>
+                        <p class="card-text">
+                            <a class="nav-link"
+                               href="{% url 'data_integration:change_list_manual_dataset' %}">DataSets</a>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
+
 {% endblock %}

@@ -432,9 +432,12 @@ class Index(ChangeListView):
     breadcrumb_action_title = "publish"
 
     def extra_context(self, context: dict, service: PublishedAsWmsService):
-        # TODO PI: Should these functions go into the PublishedAsWmsService service?
-        context["wms_get_capabilities_url"] = wms_get_capabilities_url()
-        context["wfs_get_capabilities_url"] = wfs_get_capabilities_url()
+        context["wms_get_capabilities_params"] = (
+            PublishedAsWms.create_wms_capabilities_url_params()
+        )
+        context["wfs_get_capabilities_params"] = (
+            PublishedAsWms.create_wfs_capabilities_url_params()
+        )
         return context
 
 
@@ -448,15 +451,3 @@ class Publish(ChangeListView):
         BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
         BreadCrumb(title, f"{app_menu.app_label}:{name}"),
     ]
-
-
-def wms_get_capabilities_url() -> str:
-    return "{}?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0".format(
-        reverse("maps:maps_ogc_entry")
-    )
-
-
-def wfs_get_capabilities_url() -> str:
-    return "{}?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0".format(
-        reverse("maps:maps_ogc_entry")
-    )
