@@ -4,8 +4,8 @@ from asgiref.sync import sync_to_async
 from django.apps import apps
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
-from django.views import View
 from django.urls import reverse
+from django.views import View
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import (
     JobResult,
@@ -452,11 +452,11 @@ class Publish(ChangeListView):
 
 def wms_get_capabilities_url() -> str:
     return "{}?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0".format(
-        reverse("maps_ogc_entry")
+        reverse("maps:maps_ogc_entry")
     )
 
 
 def wfs_get_capabilities_url() -> str:
     return "{}?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0".format(
-        reverse("maps_ogc_entry")
+        reverse("maps:maps_ogc_entry")
     )
