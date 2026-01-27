@@ -9,7 +9,7 @@
     --georama-green-light: #95b354;
     --georama-green-desat: #859568;
 
-    --georama-border-color: #c1daa0;
+    --georama-border-color: #e6ecd9;
 
     --georama-yellow: #d2a444;
     --georama-yellow-rgb: 210, 164, 68;
@@ -20,15 +20,20 @@
     
     --brand-ink: #1f2a1c;
     --brand-cream: #f7f9f2;
-    --brand-line: #e6ecd9;
 
     --navbar-height: 140px;
+    --navbar-offset: var(--navbar-height);
     --navbar-height-scrolled: 80px;
-    --navbar-offset: var(--navbar-height)
+    --breadcrumb-height: 60px;
+    --footer-height: 50px;
+    --content-header-height: 100px;
+    
+    /* Height of form content area */
+    --form-content-height: calc(100vh - var(--navbar-height) - var(--breadcrumb-height)  - var(--content-header-height) - var(--footer-height) - 10px);
 }
 
 [data-bs-theme=dark] {
+    --georama-border-color: rgb(89, 90, 87);
     --brand-ink: #fff;
     --brand-cream: #333333;
-    --brand-line: rgba(255, 255, 255, 0.12);
 }

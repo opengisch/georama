@@ -30,31 +30,43 @@
             {% endfor %}
         </div>
     {% endif %}
+    
+    
     {% block pagination %}
+        
         <div class="d-flex mt-4">
-        <div class="dropdown me-2">
-            <a class="btn btn-primary dropdown-toggle" href="#" role="button"
-               data-bs-toggle="dropdown"
-               aria-expanded="false">
-                {{ current_count }}
-            </a>
-            <ul class="dropdown-menu">
-                {% for count in available_counts %}
-                    {% if count != current_count %}
-                        <li><a class="dropdown-item"
-                               href="{% url view_name %}?page=1&offset=0&count={{ count }}">{{ count }}</a>
-                        </li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
+        
+            <!-- Items per page -->
+        
+            <div class="dropdown me-2">
+                <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false">
+                    {{ current_count }}
+                </a>
+                <ul class="dropdown-menu">
+                    {% for count in available_counts %}
+                        {% if count != current_count %}
+                            <li><a class="dropdown-item"
+                                   href="{% url view_name %}?page=1&offset=0&count={{ count }}">{{ count }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
         
             <nav aria-label="page navigation">
                 <ul class="pagination">
+                
+                    <!-- Page back -->
+                
                     <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
                         <a class="page-link" role="button"
                            href="{% url view_name %}?page={{ prev_page }}&offset={{ prev_page_offset }}&count={{ current_count }}">&laquo;</a>
                     </li>
+
+                    <!-- Page number -->
+                
                     {% for page_number, offset in pages %}
                         <li class="page-item {% if page_number == current_page %}active{% endif %}">
                             <a class="page-link" role="button"
@@ -64,6 +76,9 @@
                                aria-current="page">{{ page_number }}</a>
                         </li>
                     {% endfor %}
+
+                    <!-- Page forward -->
+                
                     <li class="page-item">
                         <a role="button"
                            class="page-link btn {% if pages|length == current_page or absolute_count == 0 %}disabled{% endif %}"

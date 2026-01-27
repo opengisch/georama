@@ -26,11 +26,14 @@ footer {
     position: fixed;
     bottom: 0;
     width: 100%;
+    height: var(--footer-height);
 }
 
 footer > .container {
     margin: 0;
     padding: 0 0 0.5rem 0;
+    width: 100%;
+    max-width: 100%;
 }
 
 footer hr {
@@ -143,17 +146,32 @@ Navbar
         width: 150px;
         height: 136px
     }
-}
+}   
 
 
 /*
-Data integration page
+Change List and detail forms
  */
+
+.preview-image-sm {
+    width: 70px;
+}
+
 .preview-image {
+    width: 90px;
+}
+.preview-image-lg {
     width: 150px;
 }
 
-.content-sticky-header {
+
+#breadcrumb-container {
+    height: var(--breadcrumb-height);
+    padding-bottom: 1.5rem;
+}
+
+#form-header-sticky {
+    max-height: 100px;
     position: relative;
     top: 0;
     left: 0;
@@ -161,9 +179,9 @@ Data integration page
     padding: 1.5rem 0;
 }
 
-.content-scrollable {
-    overflow-y: auto;
-    height: calc(100vh - var(--navbar-height) - 400px);
+/* Add this to the div that should scroll */
+.form-content-scrollable {
+    height: var(--form-content-height);
 }
 
 .btn > span {
@@ -173,10 +191,15 @@ Data integration page
 /*
 Permission table
  */
-.permission-icon > span {
-    padding-left: 0.5em;
-    
+
+.permission-icon > i {
+    width: 1.5em;
 }
+.permission-icon > span {
+    padding-left: 0.25em;
+}
+
+
 
 /*
 CTA Click to action elements on frontpage
@@ -235,7 +258,7 @@ CTA Click to action elements on frontpage
 /* Panel */
 
 .cta-panel {
-    border-color: var(--brand-line);
+    border-color: var(--georama-border-color);
     background: linear-gradient(135deg, rgba(var(--georama-green-rgb), 0.18) 0%, rgba(var(--georama-green-rgb), 0.05) 55%, #ffffff 100%)
 }
 
@@ -263,7 +286,7 @@ CTA Click to action elements on frontpage
 }
 
 .cta-panel .btn-outline-secondary {
-    border-color: var(--brand-line);
+    border-color: var(--georama-border-color);
     color: #2e3a27;
     background-color: #fff
 }
@@ -426,7 +449,7 @@ Mindmap
     min-height: 190px;
     padding: 1rem;
     background: var(--bs-body-bg);
-    border: 1px solid var(--brand-line);
+    border: 1px solid var(--georama-border-color);
     border-radius: 18px;
     box-shadow: -8px 8px 20px rgba(210, 164, 68, 0.24);
     display: flex;

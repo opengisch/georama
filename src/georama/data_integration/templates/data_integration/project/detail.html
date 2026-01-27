@@ -4,10 +4,13 @@
 {% block content_header %}
 
     <div class="d-flex flex-row">
+    
+        <!-- Item title card -->
+    
         <div class="me-3">
             <img src="{% static qgis_project.icon %}"
                  alt="{% trans 'QGIS Logo' %}"
-                 class="rounded img-thumbnail preview-image"/>
+                 class="rounded img-thumbnail preview-image-sm"/>
         </div>
 
         <div class="d-flex flex-column flex-grow-1 justify-content-around">
@@ -15,32 +18,46 @@
                 <h4 class="mb-1">{{ qgis_project.name }}</h4>
                 <h6 class="mb-1">{{ qgis_project.project_path_as_string }}</h6>
             </div>
-            
         </div>
 
 
+        <!-- Project actions -->
+    
         <div class="align-content-center">
             <div class="btn-group" role="group" aria-label="Project actions">
+
+                {% if qgis_project.database_representation %}
+                    {% blocktranslate asvar title%}Refresh QGIS project in Georama by loading it from disk{% endblocktranslate %}
+                {% else %}
+                    {% blocktranslate asvar title%}Link QGIS project on disk in Georama{% endblocktranslate %}
+                {% endif %}
+
                 <a onclick="showWaitModalOverlay()" 
                    href="{% url 'data_integration:export_qgis_project' qgis_project.name qgis_project.parent.name %}"
-                   class="btn btn-outline-secondary" role="button"
-                   title="{% trans 'Integrate QGIS project' %}"
+                   class="btn btn-outline-primary" role="button"
+                   title="{{ title }}"
+                   aria-label="{{ title }}"
                    data-toggle="tooltip" data-placement="top">
-                    <i class="fa fa-upload"></i><span>integrate</span>
+                    <i class="{% if qgis_project.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
                 </a>
-                {% if project_item.database_representation %}
-                    <a href="{% url 'data_integration:project_delete' project_item.database_representation.pk %}"
+            
+                {% blocktranslate asvar title%}Remove QGIS project from Georama by unlinking it{% endblocktranslate %}
+
+                {% if qgis_project.database_representation %}
+                    <a href="{% url 'data_integration:project_delete' qgis_project.database_representation.pk %}"
                        class="btn btn-outline-danger" role="button"
-                       title="{% trans 'Unregister QGIS project' %}"
+                       title="{{ title }}"
+                       aria-label="{{ title }}"
                        data-toggle="tooltip" data-placement="top">
-                        <i class="fa fa-unlink"></i><span>delete</span>
+                        <i class="fa fa-unlink"></i>
                     </a>
                 {% else %}
                     <a href="#" class="btn btn-outline-danger disabled"
                        disabled tabindex="-1" role="button" aria-disabled="true"
-                       title="{% trans 'Unregister QGIS project' %}"
+                       title="{{ title }}"
+                       aria-label="{{ title }}"
                        data-toggle="tooltip" data-placement="top">
-                        <i class="fa fa-unlink"></i><span>delete</span>
+                        <i class="fa fa-unlink"></i>
                     </a>
                 {% endif %}
             </div>
@@ -50,44 +67,85 @@
     
 {% endblock %}
 
-{% block form %}
-       <div class="container">
-           <div class="row align-items-start">
-               
-               <div class="col">
 
-                   <div class="mb-4" data-toggle="tooltip" data-placement="top"
-                        title="QGIS version used to save the project">
-                       <label class="form-text">Version</label>
-                       <div>{{ qgis_project_config.project.version|default_if_none:"unknown" }}</div>
-                   </div>
+{% block form_left %}
 
-                   <div class="mb-4" data-toggle="tooltip" data-placement="top"
-                        title="Last time the QGIS project was changed on disk">
-                       <label class="form-text">Modification date</label>
-                       <div>{{ qgis_project_config.meta_data.creationDateTime }}</div>
-                   </div>
-                   
-                   <div class="mb-4" data-toggle="tooltip" data-placement="top"
-                        title="{% help_text qgis_project.database_representation "integration_date" %}">
-                       <label class="form-text">{% verbose_name qgis_project.database_representation "integration_date" %}</label>
-                       <div>{{ qgis_project.database_representation.integration_date|date:"r" }}</div>
-                   </div>
+    <div class="mb-4" data-toggle="tooltip" data-placement="top"
+         title="QGIS version used to save the project">
+        <label class="form-text">Version</label>
+        <div>
+            {{ qgis_project_config.project.version|default_if_none:"unknown" }}</div>
+    </div>
 
-               </div>
-           
-               <div class="col">
-                   <h4>Included Datasets</h4>
-                   <ul class="list-group list-group-flush">
-                       {%  for ds in qgis_project_layers %}
-                           <li class="list-group-item d-flex gap-2">
-                               <div>{{ ds.title }}</div>
-                               <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-                           </li>
-                       {%  endfor %}
-                   
-                   </ul>
-               </div>
-           </div>
-       </div>
+    <div class="mb-4" data-toggle="tooltip" data-placement="top"
+         title="Last time the QGIS project was changed on disk">
+        <label class="form-text">Modification date</label>
+        <div>{{ qgis_project_config.meta_data.creationDateTime }}</div>
+    </div>
+
+    <div class="mb-4" data-toggle="tooltip" data-placement="top"
+         title="{% help_text qgis_project.database_representation "integration_date" %}">
+        <label class="form-text">{% verbose_name qgis_project.database_representation "integration_date" %}</label>
+        <div>
+            {{ qgis_project.database_representation.integration_date|date:"r" }}</div>
+    </div>
+{% endblock %}
+
+
+{% block form_right %}
+    
+    <h4>Included Datasets</h4>
+    <ul class="list-group list-group-flush">
+        {% for ds in qgis_project_layers %}
+            <li class="list-group-item d-flex gap-2">
+                <i class="{{ ds.icon }} align-self-center text-primary"></i>
+                <div>{{ ds.title }}</div>
+                <div class="badge rounded-pill text-bg-primary align-self-center">{{ ds.driver_name }}</div>
+            </li>
+        {% endfor %}
+
+        {% for ds in qgis_project_layers %}
+            <li class="list-group-item d-flex gap-2">
+                <i class="{{ ds.icon }} align-self-center text-primary"></i>
+                <div>{{ ds.title }}</div>
+                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
+            </li>
+        {% endfor %}
+        {% for ds in qgis_project_layers %}
+            <li class="list-group-item d-flex gap-2">
+                <i class="{{ ds.icon }} align-self-center text-primary"></i>
+                <div>{{ ds.title }}</div>
+                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
+            </li>
+        {% endfor %}
+        {% for ds in qgis_project_layers %}
+            <li class="list-group-item d-flex gap-2">
+                <i class="{{ ds.icon }} align-self-center text-primary"></i>
+                <div>{{ ds.title }}</div>
+                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
+            </li>
+        {% endfor %}
+        {% for ds in qgis_project_layers %}
+            <li class="list-group-item d-flex gap-2">
+                <i class="{{ ds.icon }} align-self-center text-primary"></i>
+                <div>{{ ds.title }}</div>
+                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
+            </li>
+        {% endfor %}
+        {% for ds in qgis_project_layers %}
+            <li class="list-group-item d-flex gap-2">
+                <i class="{{ ds.icon }} align-self-center text-primary"></i>
+                <div>{{ ds.title }}</div>
+                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
+            </li>
+        {% endfor %}
+        {% for ds in qgis_project_layers %}
+            <li class="list-group-item d-flex gap-2">
+                <i class="{{ ds.icon }} align-self-center text-primary"></i>
+                <div>{{ ds.title }}</div>
+                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
+            </li>
+        {% endfor %}
+
+    </ul>
 {% endblock %}

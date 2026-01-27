@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block change_list_item %}
-    <div class="list-group-item list-group-item-action p-4" aria-current="true">
+    <div class="list-group-item list-group-item-action p-4">
 
         <div class="d-flex flex-row">
                 <div class="me-3">
@@ -38,11 +38,13 @@
                 </div>
 
                 <div class="align-content-center">
-                    <div class="btn-group" role="group" aria-label="Basic example">
+                    <div class="btn-group" role="group" aria-label="Feature actions">
                         <a href="{% url 'features:collection-detail' item.pk %}" target="_blank"
-                           class="btn btn-outline-primary" tabindex="-1" role="button" aria-disabled="true">Show</a>
+                           class="btn btn-outline-primary" 
+                           role="button">Show</a>
                         <a href="{% url 'features:form_ogcapi-f' item.pk %}"
-                           class="btn btn-outline-primary" tabindex="-1" role="button" aria-disabled="true">Details</a>
+                           class="btn btn-outline-primary"
+                           role="button">Details</a>
                     </div>
                 </div>
 
