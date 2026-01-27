@@ -1,6 +1,5 @@
 {% extends 'core/form.html' %}
+{% load model_extras %}
 {% block content_header %}
-<p>table headers: {{ permissions.actions }}</p>
-<p>users: {{ permissions.lookup.users }}</p>
-<p>groups: {{ permissions.lookup.groups }}</p>
+    {% include "core/permission_table.html" %}
 {% endblock %}

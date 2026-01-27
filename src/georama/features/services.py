@@ -30,7 +30,9 @@ class PermissionService(Service):
     def get_by_object_pk(self, object_pk):
         items = []
         for model in self.models:
-            items += self.filter(model.objects).filter(codename__icontains=object_pk).all()
+            items += (
+                self.filter(model.objects).filter(codename__icontains=str(object_pk)).all()
+            )
         return items
 
     def get_users_by_permission(self, permission: Permission):
@@ -51,7 +53,10 @@ class PermissionService(Service):
                 permission.codename, instance.name
             )
             if permission_interface.action not in permission_dict:
-                permission_dict[permission_interface.action] = False
+                permission_dict[permission_interface.action] = {
+                    "allowed": False,
+                    "id": permission.pk,
+                }
                 permission_dict[f"{permission_interface.action}_id"] = permission.pk
             if permission_interface.action not in permission_actions:
                 permission_actions.append(permission_interface.action)
@@ -64,12 +69,25 @@ class PermissionService(Service):
             for group in groups:
                 if group.pk not in permission_lookup["groups"]:
                     permission_lookup["groups"][group.pk] = permission_dict.copy()
-                permission_lookup["groups"][group.pk][permission_interface.action] = True
+                permission_lookup["groups"][group.pk][permission_interface.action][
+                    "allowed"
+                ] = True
                 permission_lookup["groups"][group.pk]["name"] = group.name
             users = self.get_users_by_permission(permission)
             for user in users:
                 if user.pk not in permission_lookup["users"]:
                     permission_lookup["users"][user.pk] = permission_dict.copy()
-                permission_lookup["users"][user.pk][permission_interface.action] = True
-
-        return {"lookup": permission_lookup, "actions": permission_actions}
+                permission_lookup["users"][user.pk][permission_interface.action][
+                    "allowed"
+                ] = True
+                permission_lookup["users"][user.pk]["name"] = user.username
+        lookup = {"users": [], "groups": []}
+        for key in permission_lookup["users"]:
+            item = permission_lookup["users"][key]
+            item["id"] = key
+            lookup["users"].append(item)
+        for key in permission_lookup["groups"]:
+            item = permission_lookup["groups"][key]
+            item["id"] = key
+            lookup["groups"].append(item)
+        return {"lookup": lookup, "actions": permission_actions}

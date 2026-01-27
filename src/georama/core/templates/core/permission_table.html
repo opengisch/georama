@@ -1,0 +1,32 @@
+{% load model_extras %}
+<div class="container sm">
+    <div class="row">
+        <div class="col">Name</div>
+        {% for action in permissions.actions %}
+            <div class="col">{{ action }}</div>
+        {% endfor %}
+    </div>
+    <div class="row">
+        {% for group in permissions.lookup.groups %}
+            <div class="col permission-icon"><i class="fa fa-users"></i><span>{{ group.name }}</span></div>
+            {% for action in permissions.actions %}
+                {% get_dict_value_by_key group action as group_permission %}
+                <div class="col">
+                    <i class="fa fa-eye {% if group_permission.allowed %} text-primary {% else %} text-dark {% endif %}"></i>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="row">
+            {% for user in permissions.lookup.users %}
+                <div class="col permission-icon"><i class="fa fa-user"></i><span>{{ user.name }}</span></div>
+                {% for action in permissions.actions %}
+                    {% get_dict_value_by_key user action as user_permission %}
+                    <div class="col">
+                        <i class="fa fa-eye {% if user_permission.allowed %} text-primary {% endif %}"></i>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</div>

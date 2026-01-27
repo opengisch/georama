@@ -171,6 +171,14 @@ Data integration page
 }
 
 /*
+Permission table
+ */
+.permission-icon > span {
+    padding-left: 0.5em;
+    
+}
+
+/*
 CTA Click to action elements on frontpage
  */
 
