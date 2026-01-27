@@ -1,13 +1,12 @@
 {% extends 'core/form.html' %}
-{% load static %}
-{% load model_extras %}
+{% load static i18n model_extras %}
 
 {% block content_header %}
 
     <div class="d-flex flex-row">
         <div class="me-3">
             <img src="{% static qgis_project.icon %}"
-                {#                         alt="{% trans 'QGIS Logo' %}"#}
+                 alt="{% trans 'QGIS Logo' %}"
                  class="rounded img-thumbnail preview-image"/>
         </div>
 
@@ -22,24 +21,24 @@
 
         <div class="align-content-center">
             <div class="btn-group" role="group" aria-label="Project actions">
-                <a onclick="showWaitModalOverlay()" href="{% url 'data_integration:export_qgis_project' qgis_project.name qgis_project.parent.name %}"
-                   class="btn btn-outline-secondary" tabindex="-1" role="button"
-                        {#  title="{% trans 'Integrate QGIS project' %}"#}
+                <a onclick="showWaitModalOverlay()" 
+                   href="{% url 'data_integration:export_qgis_project' qgis_project.name qgis_project.parent.name %}"
+                   class="btn btn-outline-secondary" role="button"
+                   title="{% trans 'Integrate QGIS project' %}"
                    data-toggle="tooltip" data-placement="top">
                     <i class="fa fa-upload"></i><span>integrate</span>
                 </a>
                 {% if project_item.database_representation %}
                     <a href="{% url 'data_integration:project_delete' project_item.database_representation.pk %}"
-                       class="btn btn-outline-danger"
-                       tabindex="-1" role="button"
-                            {#  title="{% trans 'Unregister QGIS project' %}"#}
+                       class="btn btn-outline-danger" role="button"
+                       title="{% trans 'Unregister QGIS project' %}"
                        data-toggle="tooltip" data-placement="top">
                         <i class="fa fa-unlink"></i><span>delete</span>
                     </a>
                 {% else %}
                     <a href="#" class="btn btn-outline-danger disabled"
                        disabled tabindex="-1" role="button" aria-disabled="true"
-                            {#  title="{% trans 'Unregister QGIS project' %}"#}
+                       title="{% trans 'Unregister QGIS project' %}"
                        data-toggle="tooltip" data-placement="top">
                         <i class="fa fa-unlink"></i><span>delete</span>
                     </a>
@@ -80,48 +79,6 @@
                <div class="col">
                    <h4>Included Datasets</h4>
                    <ul class="list-group list-group-flush">
-                       {%  for ds in qgis_project_layers %}
-                           <li class="list-group-item d-flex gap-2">
-                               <div>{{ ds.title }}</div>
-                               <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-                           </li>
-                       {%  endfor %}
-                       {%  for ds in qgis_project_layers %}
-                           <li class="list-group-item d-flex gap-2">
-                               <div>{{ ds.title }}</div>
-                               <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-                           </li>
-                       {%  endfor %}
-                       {%  for ds in qgis_project_layers %}
-                           <li class="list-group-item d-flex gap-2">
-                               <div>{{ ds.title }}</div>
-                               <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-                           </li>
-                       {%  endfor %}
-                       {%  for ds in qgis_project_layers %}
-                           <li class="list-group-item d-flex gap-2">
-                               <div>{{ ds.title }}</div>
-                               <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-                           </li>
-                       {%  endfor %}
-                       {%  for ds in qgis_project_layers %}
-                           <li class="list-group-item d-flex gap-2">
-                               <div>{{ ds.title }}</div>
-                               <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-                           </li>
-                       {%  endfor %}
-                       {%  for ds in qgis_project_layers %}
-                           <li class="list-group-item d-flex gap-2">
-                               <div>{{ ds.title }}</div>
-                               <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-                           </li>
-                       {%  endfor %}
-                       {%  for ds in qgis_project_layers %}
-                           <li class="list-group-item d-flex gap-2">
-                               <div>{{ ds.title }}</div>
-                               <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-                           </li>
-                       {%  endfor %}
                        {%  for ds in qgis_project_layers %}
                            <li class="list-group-item d-flex gap-2">
                                <div>{{ ds.title }}</div>

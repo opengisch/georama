@@ -31,7 +31,7 @@
         <section class="section-block py-3">
             <div class="container">
                 <div class="d-flex flex-row justify-content-between align-items-center mb-4">
-                    <nav style="--bs-breadcrumb-divider: '>';" aria-label="Breadcrumb">
+                    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                         {% block breadcrumbs %}
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="{% url 'landing' %}">Home</a></li>
@@ -46,7 +46,7 @@
 
                             {% if breadcrumb_action_url %}
                                 <li class="breadcrumb-item breadcrumb-action">
-                                    <a href="{% url breadcrumb_action_url %}" class="btn btn-outline-primary">
+                                    <a href="{% url breadcrumb_action_url %}" class="btn btn-outline-primary" role="button">
                                         {% if breadcrumb_action_icon %}
                                             <i class="{{ breadcrumb_action_icon }}"></i>
                                             <span>{{ breadcrumb_action_title }}</span>
