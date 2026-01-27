@@ -92,6 +92,10 @@ class DataSet(models.Model):
         return None
 
     @property
+    def icon(self):
+        return "fa fa-question"
+
+    @property
     def crs_to_qsl(self) -> Crs:
         return DictDecoder(config=self.get_parser_config).decode(self.crs, Crs)
 
@@ -122,6 +126,10 @@ class VectorDataSet(DataSet):
     @property
     def dataset_type(self):
         return "vector"
+
+    @property
+    def icon(self):
+        return "fa fa-bezier-curve"
 
     @property
     def fields_to_qsl(self) -> list[QslField]:
@@ -171,6 +179,10 @@ class RasterDataSet(DataSet):
         return "raster"
 
     @property
+    def icon(self):
+        return "fa fa-th"
+
+    @property
     def to_qsl(self) -> Raster:
         datasource, path = self.source_to_qsl
         return Raster(
@@ -206,6 +218,10 @@ class CustomDataSet(DataSet):
     @property
     def dataset_type(self):
         return "custom"
+
+    @property
+    def icon(self):
+        return "fa fa-asterisk"
 
     @property
     def to_qsl(self) -> Custom:
