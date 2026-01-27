@@ -42,7 +42,7 @@ class PermissionService(Service):
         return groups
 
     def get_permission_lookup(self, instance):
-        permission_lookup = {}
+        permission_lookup = {"users": {}, "groups": {}}
         permissions = self.get_by_object_pk(instance.pk)
         permission_dict = {}
         permission_actions = []
@@ -52,6 +52,7 @@ class PermissionService(Service):
             )
             if permission_interface.action not in permission_dict:
                 permission_dict[permission_interface.action] = False
+                permission_dict[f"{permission_interface.action}_id"] = permission.pk
             if permission_interface.action not in permission_actions:
                 permission_actions.append(permission_interface.action)
         for permission in permissions:
@@ -61,13 +62,14 @@ class PermissionService(Service):
 
             groups = self.get_groups_by_permission(permission)
             for group in groups:
-                if group.name not in permission_lookup:
-                    permission_lookup[group.name] = permission_dict.copy()
-                permission_lookup[group.name][permission_interface.action] = True
+                if group.pk not in permission_lookup["groups"]:
+                    permission_lookup["groups"][group.pk] = permission_dict.copy()
+                permission_lookup["groups"][group.pk][permission_interface.action] = True
+                permission_lookup["groups"][group.pk]["name"] = group.name
             users = self.get_users_by_permission(permission)
             for user in users:
-                if user.username not in permission_lookup:
-                    permission_lookup[user.username] = permission_dict.copy()
-                permission_lookup[user.username][permission_interface.action] = True
+                if user.pk not in permission_lookup["users"]:
+                    permission_lookup["users"][user.pk] = permission_dict.copy()
+                permission_lookup["users"][user.pk][permission_interface.action] = True
 
         return {"lookup": permission_lookup, "actions": permission_actions}

@@ -1,5 +1,6 @@
 {% extends 'core/form.html' %}
 {% block content_header %}
-
-{{ permissions }}
+<p>table headers: {{ permissions.actions }}</p>
+<p>users: {{ permissions.lookup.users }}</p>
+<p>groups: {{ permissions.lookup.groups }}</p>
 {% endblock %}
