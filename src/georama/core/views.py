@@ -125,6 +125,9 @@ class FormView(View):
     breadcrumb_action_url: str = None
     breadcrumb_action_title: str = None
 
+    def extra_context(self, context: dict, service: Service):
+        return context
+
     def get_form_by_db_object(self, instance):
         for form in self.forms:
             if form._meta.model == instance._meta.model:
@@ -141,14 +144,16 @@ class FormView(View):
         service = self.service()
         if pk is None:
             forms = self.get_empty_forms()
+            instance = None
         else:
             instance = service.get(pk=pk)[0]
             forms = [self.get_form_by_db_object(instance)]
         context = {
+            "instance": instance,
             "forms": forms,
             "breadcrumbs": self.breadcrumbs,
             "breadcrumb_action_url": self.breadcrumb_action_url,
             "breadcrumb_action_title": self.breadcrumb_action_title,
         }
-
+        context.update(self.extra_context(context, service))
         return render(request, self.template, context)

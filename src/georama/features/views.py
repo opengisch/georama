@@ -13,6 +13,7 @@ from pygeoapi.openapi import get_oas
 from qgis_server_light.interface.qgis import BBox
 
 from georama.core.menu import BreadCrumb
+from georama.core.services import Service
 from georama.core.views import ChangeListView, FormView
 from georama.data_integration.models import Field, VectorDataSet
 from georama.features.apps import central_app_label
@@ -556,6 +557,7 @@ class PublishedAsOgcApiFeaturesServiceFormView(FormView):
     title = "Show"
     app_menu = apps.get_app_config("features").app_menu()
     forms = [PublishedAsOgcApiFeaturesForm]
+    template = "features/form.html"
     breadcrumbs = [
         BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
         BreadCrumb(
@@ -564,6 +566,13 @@ class PublishedAsOgcApiFeaturesServiceFormView(FormView):
         ),
         BreadCrumb(title, f"{app_menu.app_label}:{name}"),
     ]
+
+    def extra_context(self, context: dict, service: Service):
+        permissions = []
+        if context["instance"] is not None:
+            permission_service = PermissionService()
+            permissions = permission_service.get_permission_lookup(context["instance"])
+        return {"permissions": permissions}
 
 
 class PermissionView(ChangeListView):
