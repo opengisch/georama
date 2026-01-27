@@ -21,6 +21,7 @@ from georama.features.features_config import Config
 from georama.features.forms import PublishedAsOgcApiFeaturesForm
 from georama.features.models import ColumnOgcApiFeatures, PublishedAsOgcApiFeatures
 from georama.features.services import (
+    PermissionService,
     PublishedAsOgcApiFeaturesService,
     VectorDatasetService,
 )
@@ -561,5 +562,17 @@ class PublishedAsOgcApiFeaturesServiceFormView(FormView):
             Index.title,
             f"{app_menu.app_label}:{Index.name}",
         ),
+        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
+    ]
+
+
+class PermissionView(ChangeListView):
+    service = PermissionService
+    title = "Permission"
+    name = f"{ChangeListView.view_type_name}_{service.name}"
+    app_menu = apps.get_app_config("features").app_menu()
+    template = "features/permission.html"
+    breadcrumbs = [
+        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
         BreadCrumb(title, f"{app_menu.app_label}:{name}"),
     ]

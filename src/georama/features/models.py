@@ -9,6 +9,7 @@ from georama.core.entities.models import (
     save_publishedas_db_permissions,
 )
 from georama.data_integration.models import Field, VectorDataSet
+from georama.features.apps import central_app_label
 
 COLUMN_TYPE_VALUES = {
     "numeric": "Numerical Type",
@@ -24,7 +25,7 @@ class PublishedAsVectorFeature(PublishedAs):
         ("ERROR", "error"),
         ("THROTTLE", "throttle"),
     )
-    published_as_type = "feature"
+    published_as_type = central_app_label
     column_permission = models.BooleanField(default=False)
     default_items = models.IntegerField(default=10, null=True)
     max_items = models.IntegerField(default=500, null=True)

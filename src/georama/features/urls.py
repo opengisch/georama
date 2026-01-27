@@ -73,4 +73,9 @@ urlpatterns = [
         views.PublishedAsOgcApiFeaturesServiceFormView.as_view(),
         name=views.PublishedAsOgcApiFeaturesServiceFormView.name,
     ),
+    path(
+        "/permission",
+        views.PermissionView.as_view(),
+        name=views.PermissionView.name,
+    ),
 ]

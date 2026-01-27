@@ -14,9 +14,7 @@ from pathlib import Path
 
 from configurations import Configuration, values
 from corsheaders.defaults import default_headers
-
 from django.utils.translation import gettext_lazy as _
-
 
 from georama.core.auth import get_authentication_methods_middlewares
 
@@ -143,6 +141,9 @@ class Base(Configuration):
         "django_extensions",
         "crispy_forms",
         "crispy_bootstrap5",
+    ]
+    AUTHENTICATION_BACKENDS = [
+        "django.contrib.auth.backends.ModelBackend",
     ]
 
     GEORAMA_AUTHENTICATION_METHODS = values.ListValue(

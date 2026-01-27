@@ -3,6 +3,7 @@ import logging
 import requests
 from django.apps import apps
 from django.contrib.admin.utils import NestedObjects
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import router, transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,11 +16,6 @@ from xsdata.formats.dataclass.serializers import DictEncoder, JsonSerializer
 
 from georama.core.menu import BreadCrumb
 from georama.core.views import ChangeListView, FormView
-from georama.data_integration.lib.qgis_project_file_structure import (
-    QgisProject,
-    QgisProjectGroup,
-    QgisProjectFileStructure,
-)
 from georama.data_integration.data_integration_config import (
     Config as DataIntegrationConfig,
 )
@@ -27,6 +23,11 @@ from georama.data_integration.forms import (
     CustomDataSetForm,
     RasterDataSetForm,
     VectorDataSetForm,
+)
+from georama.data_integration.lib.qgis_project_file_structure import (
+    QgisProject,
+    QgisProjectFileStructure,
+    QgisProjectGroup,
 )
 from georama.data_integration.models import (
     CustomDataSet,
@@ -363,7 +364,8 @@ class QgisServerLightExporter(View):
         return redirect("data_integration:register_qgis_project", mandant_name, project_name)
 
 
-class Index(View):
+class Index(LoginRequiredMixin, View):
+
     def get(self, request: HttpRequest):
         app_menu = apps.get_app_config("data_integration").app_menu()
         context = {

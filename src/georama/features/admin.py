@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 from georama.core.entities.models import save_group_permissions, save_user_permissions
 from georama.data_integration.models import VectorDataSet
 from georama.features.apps import FeaturesConfig
-from georama.features.forms import PublishedAsOgcApiFeaturesForm
+from georama.features.forms import PublishedAsOgcApiFeaturesAdminForm
 from georama.features.models import ColumnOgcApiFeatures, PublishedAsOgcApiFeatures
 
 appname = FeaturesConfig.get_simple_appname()
@@ -44,7 +44,7 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
     list_editable = ["public"]
     readonly_fields = ["dataset"]
 
-    form = PublishedAsOgcApiFeaturesForm
+    form = PublishedAsOgcApiFeaturesAdminForm
 
     fieldsets = (
         (
@@ -110,6 +110,10 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
             form_url,
             extra_context=extra_context,
         )
+
+    def obj_perms_manage_view(self, request, object_pk, extra_context=None):
+        # Call the original but ignore extra_context if needed
+        return super().obj_perms_manage_view(request, object_pk)
 
     def delete_link(self, obj: PublishedAsOgcApiFeatures):
         return mark_safe(

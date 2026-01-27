@@ -11,6 +11,7 @@ from qgis_server_light.interface.qgis import BBox
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
+from georama.maps.apps import central_app_label
 from georama.maps.maps_config import Config
 
 LOGGER = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ class PublishedAsWmsAbstract(PublishedAs):
     class Meta:
         abstract = True
 
-    published_as_type = "maps"
+    published_as_type = central_app_label
     extent_buffer = models.FloatField(default=0.0, null=False)
     queryable = models.BooleanField(default=True, null=True, blank=True)
 

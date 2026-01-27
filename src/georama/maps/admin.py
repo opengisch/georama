@@ -26,13 +26,13 @@ from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 def wms_get_capabilities_url() -> str:
     return "{}?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0".format(
-        reverse("maps_ogc_entry")
+        reverse("maps:maps_ogc_entry")
     )
 
 
 def wfs_get_capabilities_url() -> str:
     return "{}?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0".format(
-        reverse("maps_ogc_entry")
+        reverse("maps:maps_ogc_entry")
     )
 
 
@@ -148,10 +148,10 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             "".join(
                 [
                     '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WMS GetMap"><i class="fas fa-eye text-xs"></i></a>'.format(  # noqa: E501
-                        reverse("maps_ogc_entry"), self.create_wms_url_params(obj)
+                        reverse("maps:maps_ogc_entry"), self.create_wms_url_params(obj)
                     ),
                     '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WFS GetFeature"><i class="fas fa-eye text-xs"></i></a>'.format(  # noqa: E501
-                        reverse("maps_ogc_entry"), self.create_wfs_url_params(obj)
+                        reverse("maps:maps_ogc_entry"), self.create_wfs_url_params(obj)
                     ),
                 ]
             )

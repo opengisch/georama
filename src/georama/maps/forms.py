@@ -111,7 +111,7 @@ class PublishedAsWmsForm(forms.ModelForm):
             widget_attrs = {
                 "layer_srid": self.instance.bound_dataset.crs["AuthId"],
                 "original_extent": self.instance.bound_dataset.bbox,
-                "layer_url": reverse("maps_ogc_entry"),
+                "layer_url": reverse("maps:maps_ogc_entry"),
                 "layer_name": self.instance.name,
                 "map_width": self.instance.preview_dimensions[0],
                 "map_height": self.instance.preview_dimensions[1],
