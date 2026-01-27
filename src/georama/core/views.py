@@ -66,6 +66,7 @@ class ChangeListView(View, ABC):
     app_menu: MenuItem
     breadcrumbs: list[BreadCrumb] = []
     breadcrumb_action_url: str = None
+    breadcrumb_action_icon: str = None
     breadcrumb_action_title: str = None
     list_actions: list[tuple[str, str]] = []
 
@@ -108,6 +109,7 @@ class ChangeListView(View, ABC):
             * int(request.GET.get("count", settings.LIST_PAGE_SIZES[0]))
             - 1,
             "breadcrumb_action_url": self.breadcrumb_action_url,
+            "breadcrumb_action_icon": self.breadcrumb_action_icon,
             "breadcrumb_action_title": self.breadcrumb_action_title,
         }
         context.update(self.extra_context(context, service))
@@ -124,6 +126,7 @@ class FormView(View):
     app_menu: MenuItem
     breadcrumbs: list[BreadCrumb] = []
     breadcrumb_action_url: str = None
+    breadcrumb_action_icon: str = None
     breadcrumb_action_title: str = None
 
     def get_form_by_db_object(self, instance):
@@ -149,6 +152,7 @@ class FormView(View):
             "forms": forms,
             "breadcrumbs": self.breadcrumbs,
             "breadcrumb_action_url": self.breadcrumb_action_url,
+            "breadcrumb_action_icon": self.breadcrumb_action_icon,
             "breadcrumb_action_title": self.breadcrumb_action_title,
         }
 

@@ -1,15 +1,16 @@
 {% extends 'core/home.html' %}
 
+{% block list_actions %}
+    {% if list_actions|length > 0 %}
+        <div class="btn-group" role="group" aria-label="List Actions">
+            {% for title, view_name in list_actions %}
+                <a href="{% url view_name %}" class="btn btn-outline-primary">{{ title }}</a>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
-    {% block list_actions %}
-        {% if list_actions|length > 0 %}
-            <div class="btn-group" role="group" aria-label="List Actions">
-                {% for title, view_name in list_actions %}
-                    <a href="{% url view_name %}" class="btn btn-outline-primary">{{ title }}</a>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endblock %}
     {% if absolute_count == 0 %}
         <div class="container d-flex justify-content-center align-items-center">
             <div class="fs-1 fw-bold text-center">
@@ -20,7 +21,7 @@
         <div class="list-group">
             {% for item in items %}
                 {% block change_list_item %}
-                    <a href="#" class="list-group-item list-group-item-action" aria-current="true">
+                    <a href="#" class="list-group-item list-group-item-action">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">{{ item }}</h5>
                         </div>
@@ -30,30 +31,29 @@
         </div>
     {% endif %}
     {% block pagination %}
-        <nav aria-label="...">
+        <div class="d-flex mt-4">
+        <div class="dropdown me-2">
+            <a class="btn btn-primary dropdown-toggle" href="#" role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+                {{ current_count }}
+            </a>
+            <ul class="dropdown-menu">
+                {% for count in available_counts %}
+                    {% if count != current_count %}
+                        <li><a class="dropdown-item"
+                               href="{% url view_name %}?page=1&offset=0&count={{ count }}">{{ count }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <nav aria-label="Page navigation">
             <ul class="pagination">
-                <li class="page-item">
-                    <div class="dropdown">
-                        <a class="btn btn-secondary dropdown-toggle" href="#" role="button"
-                           data-bs-toggle="dropdown"
-                           aria-expanded="false">
-                            {{ current_count }}
-                        </a>
-                        <ul class="dropdown-menu">
-                            {% for count in available_counts %}
-                                {% if count != current_count %}
-                                    <li><a class="dropdown-item"
-                                           href="{% url view_name %}?page=1&offset=0&count={{ count }}">{{ count }}</a>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </li>
-
                 <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
                     <a class="page-link"
-                       href="{% url view_name %}?page={{ prev_page }}&offset={{ prev_page_offset }}&count={{ current_count }}">Previous</a>
+                       href="{% url view_name %}?page={{ prev_page }}&offset={{ prev_page_offset }}&count={{ current_count }}">&laquo;</a>
                 </li>
                 {% for page_number, offset in pages %}
                     <li class="page-item {% if page_number == current_page %}active{% endif %}">
@@ -65,10 +65,11 @@
                     </li>
                 {% endfor %}
                 <li class="page-item">
-                    <a class="page-link {% if pages|length == current_page or absolute_count == 0 %}disabled{% endif %}"
-                       href="{% url view_name %}?page={{ next_page }}&offset={{ next_page_offset }}&count={{ current_count }}">Next</a>
+                    <a class="page-link btn {% if pages|length == current_page or absolute_count == 0 %}disabled{% endif %}"
+                       href="{% url view_name %}?page={{ next_page }}&offset={{ next_page_offset }}&count={{ current_count }}">&raquo;</a>
                 </li>
             </ul>
         </nav>
+        </div>
     {% endblock %}
 {% endblock %}

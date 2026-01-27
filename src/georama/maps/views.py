@@ -5,6 +5,7 @@ from django.apps import apps
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views import View
+from django.urls import reverse
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import (
     JobResult,
@@ -426,7 +427,15 @@ class Index(ChangeListView):
     app_menu = apps.get_app_config("maps").app_menu()
     template = "maps/index.html"
     breadcrumbs = [BreadCrumb(app_menu.title, f"{app_menu.app_label}:index")]
-    list_actions = [("New", "maps:change_list_dataset")]
+    breadcrumb_action_url = "maps:change_list_dataset"
+    breadcrumb_action_icon = "fa fa-plus-circle"
+    breadcrumb_action_title = "publish"
+
+    def extra_context(self, context: dict, service: PublishedAsWmsService):
+        # TODO PI: Should these functions go into the PublishedAsWmsService service?
+        context["wms_get_capabilities_url"] = wms_get_capabilities_url()
+        context["wfs_get_capabilities_url"] = wfs_get_capabilities_url()
+        return context
 
 
 class Publish(ChangeListView):
@@ -439,3 +448,15 @@ class Publish(ChangeListView):
         BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
         BreadCrumb(title, f"{app_menu.app_label}:{name}"),
     ]
+
+
+def wms_get_capabilities_url() -> str:
+    return "{}?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0".format(
+        reverse("maps_ogc_entry")
+    )
+
+
+def wfs_get_capabilities_url() -> str:
+    return "{}?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0".format(
+        reverse("maps_ogc_entry")
+    )

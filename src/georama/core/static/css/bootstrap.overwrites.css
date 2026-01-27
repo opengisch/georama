@@ -198,6 +198,16 @@
     --bs-btn-focus-shadow-rgb: var(--georama-green-rgb);
 }
 
+.breadcrumb {
+    --bs-breadcrumb-margin-bottom: 0;
+    align-items: center;
+}
+
+.breadcrumb-item+.breadcrumb-item::before {
+    float: none;
+}
+
+
 .dropdown-menu {
     --bs-dropdown-link-active-bg: var(--georama-green);
 }
