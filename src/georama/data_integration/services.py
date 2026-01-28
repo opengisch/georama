@@ -63,10 +63,10 @@ class ProjectService(Service):
             )
         found_group = self.qgis_project_file_structure.find_group_by_name(group_name)
         found_project = found_group.find_project_by_name(project_name)
-        found_project.database_representation = Project.objects.get(
-            mandant__name=group_name, name=project_name
-        )
-        found_project.config = self.load_project_config(found_project)
+        query = Project.objects.filter(mandant__name=group_name, name=project_name)
+        if query.exists():
+            found_project.database_representation = query.get()
+            found_project.config = self.load_project_config(found_project)
         return [found_project]
 
     def get_list(self) -> list[QgisProjectGroup]:

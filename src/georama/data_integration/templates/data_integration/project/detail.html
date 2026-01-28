@@ -1,5 +1,5 @@
 {% extends 'core/form.html' %}
-{% load static i18n model_extras %}
+{% load static i18n model_extras dataset_extras %}
 
 {% block list_actions %}
 
@@ -12,7 +12,7 @@
         {% endif %}
 
         <a onclick="showWaitModalOverlay()"
-           href="{% url 'data_integration:export_qgis_project' qgis_project.name qgis_project.parent.name %}"
+           href="{% url 'data_integration:export_qgis_project' qgis_project.parent.name qgis_project.name %}"
            class="btn btn-outline-primary" role="button"
            title="{{ title }}"
            aria-label="{{ title }}"
@@ -40,7 +40,7 @@
             </a>
         {% endif %}
     </div>
-    
+
 {% endblock %}
 
 
@@ -58,70 +58,28 @@
         <label class="form-text">Modification date</label>
         <div>{{ qgis_project_config.meta_data.creationDateTime }}</div>
     </div>
-
+    {% if qgis_project.database_representation is not None %}
     <div class="mb-4" data-toggle="tooltip" data-placement="top"
          title="{% help_text qgis_project.database_representation "integration_date" %}">
         <label class="form-text">{% verbose_name qgis_project.database_representation "integration_date" %}</label>
         <div>
             {{ qgis_project.database_representation.integration_date|date:"r" }}</div>
     </div>
+    {% endif %}
 {% endblock %}
 
 
 {% block form_right %}
-    
-    <h4>Included Datasets</h4>
+
+    <h4>Datasets</h4>
     <ul class="list-group list-group-flush">
-        {% for ds in qgis_project_layers %}
-            <li class="list-group-item d-flex gap-2">
-                <i class="{{ ds.icon }} align-self-center text-primary"></i>
-                <div>{{ ds.title }}</div>
-                <div class="badge rounded-pill text-bg-primary align-self-center">{{ ds.driver_name }}</div>
+        {% sort_dataset_list_by_title qgis_project_layers as sorted_qgis_project_layers %}
+        {% for ds in sorted_qgis_project_layers %}
+            <li class="list-group-item d-flex align-items-center gap-2">
+                <i class="{%  icon_by_dataset ds %} text-primary"></i>
+                <div class="me-auto">{{ ds.title }}</div>
+                <div class="badge rounded-pill text-bg-primary">{{ ds.driver }}</div>
             </li>
         {% endfor %}
-
-        {% for ds in qgis_project_layers %}
-            <li class="list-group-item d-flex gap-2">
-                <i class="{{ ds.icon }} align-self-center text-primary"></i>
-                <div>{{ ds.title }}</div>
-                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-            </li>
-        {% endfor %}
-        {% for ds in qgis_project_layers %}
-            <li class="list-group-item d-flex gap-2">
-                <i class="{{ ds.icon }} align-self-center text-primary"></i>
-                <div>{{ ds.title }}</div>
-                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-            </li>
-        {% endfor %}
-        {% for ds in qgis_project_layers %}
-            <li class="list-group-item d-flex gap-2">
-                <i class="{{ ds.icon }} align-self-center text-primary"></i>
-                <div>{{ ds.title }}</div>
-                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-            </li>
-        {% endfor %}
-        {% for ds in qgis_project_layers %}
-            <li class="list-group-item d-flex gap-2">
-                <i class="{{ ds.icon }} align-self-center text-primary"></i>
-                <div>{{ ds.title }}</div>
-                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-            </li>
-        {% endfor %}
-        {% for ds in qgis_project_layers %}
-            <li class="list-group-item d-flex gap-2">
-                <i class="{{ ds.icon }} align-self-center text-primary"></i>
-                <div>{{ ds.title }}</div>
-                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-            </li>
-        {% endfor %}
-        {% for ds in qgis_project_layers %}
-            <li class="list-group-item d-flex gap-2">
-                <i class="{{ ds.icon }} align-self-center text-primary"></i>
-                <div>{{ ds.title }}</div>
-                <div class="badge rounded-pill text-bg-primary">{{ ds.driver_name }}</div>
-            </li>
-        {% endfor %}
-
     </ul>
 {% endblock %}

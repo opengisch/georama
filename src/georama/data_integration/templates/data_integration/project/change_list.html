@@ -3,46 +3,51 @@
 
 {% block change_list_item %}
     <h4 class="mt-3">{{ item.name }}</h4>
-    
+
     {% for project_item in item.projects %}
     <div class="list-group-item list-group-item-action p-4">
 
         <div class="d-flex flex-row">
 
             <!-- Thumbnail -->
-        
+
             <div class="me-3">
-                <a href="{% url 'data_integration:project_detail' item.name project_item.name %}">
+
+                {% if project_item.config is None %}
                     <img src="{% static project_item.icon %}"
-                         alt="{% trans 'QGIS Logo' %}"
-                         class="rounded img-thumbnail preview-image"/>
-                </a>
+                             alt="{% trans 'QGIS Logo' %}"
+                             class="rounded img-thumbnail preview-image"/>
+                {% else %}
+                    <a href="{% url 'data_integration:project_detail' item.name project_item.name %}">
+                        <img src="{% static project_item.icon %}"
+                             alt="{% trans 'QGIS Logo' %}"
+                             class="rounded img-thumbnail preview-image"/>
+                    </a>
+                {% endif %}
             </div>
 
             <!-- Title and description -->
-        
+
             <div class="d-flex flex-column flex-grow-1 justify-content-around">
 
                 <div>
-                    <a href="{% url 'data_integration:project_detail' item.name project_item.name %}" 
-                       class="link-offset-3 link-underline link-underline-opacity-75">
+                    {% if project_item.config is None %}
                         <h4 class="mb-2">{{ project_item.name }}</h4>
-                    </a>
+                    {% else %}
+                        <a href="{% url 'data_integration:project_detail' item.name project_item.name %}"
+                           class="link-offset-3 link-underline link-underline-opacity-75">
+                            <h4 class="mb-2">{{ project_item.name }}</h4>
+                        </a>
+                    {% endif %}
                     <div class="mb-1">{{ project_item.project_path_as_string }}</div>
                 </div>
 
                 <!-- Pills with project states -->
-            
+
                 <div class="align-content-bottom">
                     {% if project_item.database_representation %}
-
-                        {% blocktranslate asvar title%}The QGIS project is analysed and integrated into Georama{% endblocktranslate %}
-                        <span class="badge rounded-pill text-bg-primary"
-                              data-toggle="tooltip" data-placement="top"
-                              title="{{ title }}"
-                              aria-label="{{ title }}">linked</span>
                         {% if project_item.hash == project_item.database_representation.hash %}
-                            
+
                             {% blocktranslate asvar title%}The QGIS project in Georama has the same state as on disk{% endblocktranslate %}
                             <span class="badge rounded-pill text-bg-primary"
                                   data-toggle="tooltip"
@@ -50,32 +55,25 @@
                                   title="{{ title }}"
                                   aria-label="{{ title }}">up to date</span>
                         {% else %}
-                            
+
                             {% blocktranslate asvar title%}The QGIS project on disk has been changed, re-link to update the project{% endblocktranslate %}
                             <span class="badge rounded-pill text-bg-warning"
                                   data-placement="top"
                                   title="{{ title }}"
                                   aria-label="{{ title }}">outdated</span>
                         {% endif %}
-                    {% else %}
-                        
-                        {% blocktranslate asvar title%}The QGIS project on disk has not been integrated into Georama yet{% endblocktranslate %}
-                        <span class="badge rounded-pill text-bg-light"
-                              data-placement="top"
-                              title="{{ title }}"
-                              aria-label="{{ title }}">linked</span>
                     {% endif %}
                 </div>
             </div>
 
             <!-- Buttons group with layer actions -->
-        
+
             <div class="align-content-center">
                 <div class="btn-group" role="group" aria-label="Project actions">
 
                     {% blocktranslate asvar title%}Show QGIS project details and dataset list{% endblocktranslate %}
-                    <a href="{% url 'data_integration:project_detail' item.name project_item.name %}"
-                       class="btn btn-outline-primary" role="button"
+                    <a href="{% if project_item.config %}{% url 'data_integration:project_detail' item.name project_item.name %}{% else %}#{% endif %}"
+                       class="btn btn-outline-primary{% if project_item.config is None %} disabled{% endif %}" role="button"
                        title="{{ title }}"
                        aria-label="{{ title }}"
                        data-toggle="tooltip" data-placement="top">
@@ -87,9 +85,9 @@
                     {% else %}
                         {% blocktranslate asvar title%}Link QGIS project on disk in Georama{% endblocktranslate %}
                     {% endif %}
-                
-                        <a onclick="showWaitModalOverlay()" 
-                           href="{% url 'data_integration:export_qgis_project' item.name project_item.name %}" 
+
+                        <a onclick="showWaitModalOverlay()"
+                           href="{% url 'data_integration:export_qgis_project' item.name project_item.name %}"
                            class="btn btn-outline-primary" role="button"
                            title="{{ title }}"
                            aria-label="{{ title }}"
@@ -98,9 +96,9 @@
                         </a>
 
                     {% blocktranslate asvar title%}Remove QGIS project from Georama by unlinking it{% endblocktranslate %}
-                
+
                     {% if project_item.database_representation %}
-                        <a href="{% url 'data_integration:project_delete' project_item.database_representation.pk %}" 
+                        <a href="{% url 'data_integration:project_delete' project_item.database_representation.pk %}"
                            class="btn btn-outline-danger" role="button"
                            title="{{ title }}"
                            aria-label="{{ title }}"
