@@ -4,15 +4,15 @@
 {% block list_actions %}
     <div class="ms-auto me-2 text-primary">{% trans 'Get Capabilities' %}</div>
     <div class="btn-group" role="group" aria-label="List Actions">
-    
-        <a href="{% url 'maps:maps_ogc_entry' %}?{{ wms_get_capabilities_params }}" 
+
+        <a href="{% url 'maps:maps_ogc_entry' %}?{{ wms_get_capabilities_params }}"
            target="_blank" class="btn btn-outline-primary"
            data-toggle="tooltip" data-placement="top"
            title="{% trans 'Request the WMS capability document of this server' %}"
            aria-label="{% trans 'Request the WMS capability document of this server' %}"
            role="button">WMS</a>
-        
-        <a href="{% url 'maps:maps_ogc_entry' %}?{{ wfs_get_capabilities_params }}" 
+
+        <a href="{% url 'maps:maps_ogc_entry' %}?{{ wfs_get_capabilities_params }}"
            target="_blank" class="btn btn-outline-primary"
            data-toggle="tooltip" data-placement="top"
            title="{% trans 'Request the WFS capability document of this server' %}"
@@ -27,9 +27,9 @@
         <div class="d-flex flex-row">
 
             <!-- Thumbnail -->
-        
+
             <div class="me-3">
-                <a href="#">
+                <a href="{% url 'maps:form_maps' item.pk %}">
                     <img src="{{ item.preview_as_base64 }}"
 {#                         TODO PI: What strategy do we want with preview images?#}
 {#                         style="width: 150px; height: 150px"#}
@@ -40,10 +40,10 @@
             </div>
 
             <!-- Title and description -->
-        
+
             <div class="d-flex flex-column flex-grow-1 justify-content-around">
                 <div>
-                    <a href="#" 
+                    <a href="{% url 'maps:form_maps' item.pk %}"
                        class="link-offset-3 link-underline link-underline-opacity-75">
                         <h4 class="mb-2">{{ item.title }}</h4>
                     </a>
@@ -52,7 +52,7 @@
 
 
                 <!-- Pills with layer functionalities -->
-            
+
                 <div class="align-content-bottom">
 
                     {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer is publicly available: {{ val }}{% endblocktranslate %}
@@ -61,7 +61,7 @@
                           title="{{ title }}"
                           aria-label="{{ title }}">
                         public</span>
-                
+
                     {#   TODO PI: These functionalities do not exist yet #}
                     {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides a legend: {{ val }}{% endblocktranslate %}
                     <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
@@ -69,14 +69,14 @@
                           title="{{ title }}"
                           aria-label="{{ title }}">
                         GetLegend</span>
-                
+
                     {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides feature infos at coordinates: {{ val }}{% endblocktranslate %}
                     <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
                           data-toggle="tooltip" data-placement="top"
                           title="{{ title }}"
                           aria-label="{{ title }}">
                         GetFeatureInfo</span>
-                
+
                     {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides a twin WFS layer to query features: {{ val }}{% endblocktranslate %}
                     <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
                           data-toggle="tooltip" data-placement="top"
@@ -87,13 +87,13 @@
             </div>
 
             <!-- Buttons group with layer actions -->
-        
+
             <div class="align-content-center">
 
                 <div class="btn-group mr-2" role="group" aria-label="Layer actions">
 
                     {% blocktranslate asvar title%}Show layer details and permissions{% endblocktranslate %}
-                    <a href="#"
+                    <a href="{% url 'maps:form_maps' item.pk %}"
                        class="btn btn-outline-primary" role="button"
                        title="{{ title }}"
                        aria-label="{{ title }}"
@@ -110,7 +110,7 @@
                        aria-label="{{ title }}">
                         <i class="fa fa-map"></i>
                     </a>
-                
+
                     {% blocktranslate asvar title%}Open GetFeature request in new tab{% endblocktranslate %}
                     <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wfs_url_params }}"
                        target="_blank" class="btn btn-outline-primary"

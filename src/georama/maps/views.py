@@ -1,10 +1,10 @@
+import copy
 import logging
 
 from asgiref.sync import sync_to_async
 from django.apps import apps
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
-from django.urls import reverse
 from django.views import View
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import (
@@ -20,9 +20,12 @@ from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer
 
 from georama.core.menu import BreadCrumb
-from georama.core.views import ChangeListView
+from georama.core.services import Service
+from georama.core.views import ChangeListView, FormView
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
+from georama.features.services import PermissionService
 from georama.maps.apps import MapsConfig
+from georama.maps.forms import PublishedAsWmsForm
 from georama.maps.interfaces.georama.requests import QslGetMapRequest
 from georama.maps.interfaces.ogc.wfs_2_0_0 import GetFeature as GetFeature200
 from georama.maps.maps_config import Config
@@ -422,7 +425,7 @@ def publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: 
 
 class Index(ChangeListView):
     service = PublishedAsWmsService
-    title = "OGCAPI-F"
+    title = "Layers"
     name = "index"
     app_menu = apps.get_app_config("maps").app_menu()
     template = "maps/index.html"
@@ -439,6 +442,37 @@ class Index(ChangeListView):
             PublishedAsWms.create_wfs_capabilities_url_params()
         )
         return context
+
+
+class PublishedAsWmsFormView(FormView):
+    service = PublishedAsWmsService
+    name = f"form_{service.name}"
+    title = "Show"
+    app_menu = apps.get_app_config("maps").app_menu()
+    forms = [PublishedAsWmsForm]
+    template = "maps/form.html"
+    breadcrumbs = [
+        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
+        BreadCrumb(
+            Index.title,
+            f"{app_menu.app_label}:{Index.name}",
+        ),
+    ]
+
+    def extra_context(self, context: dict, service: Service):
+        permissions = []
+        breadcrumbs = copy.deepcopy(context["breadcrumbs"])
+        if context["instance"] is not None:
+            permission_service = PermissionService()
+            permissions = permission_service.get_permission_lookup(context["instance"])
+            breadcrumbs.append(
+                BreadCrumb(context["instance"].title, f"{self.app_menu.app_label}:{self.name}")
+            )
+        return {
+            "permissions": permissions,
+            "form": context["forms"][0],
+            "breadcrumbs": breadcrumbs,
+        }
 
 
 class Publish(ChangeListView):

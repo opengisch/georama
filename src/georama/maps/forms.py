@@ -55,7 +55,7 @@ class LayerExtentWidget(Widget):
         return context
 
 
-class PublishedAsWmsForm(forms.ModelForm):
+class PublishedAsWmsAdminForm(forms.ModelForm):
     class Meta:
         model = PublishedAsWms
         fields = "__all__"
@@ -133,3 +133,28 @@ class PublishedAsWmsForm(forms.ModelForm):
                     " x_min,y_min,x_max,y_max"
                 )
         return extent
+
+
+class PublishedAsWmsForm(forms.ModelForm):
+    read_only_fields = []
+
+    class Meta:
+        model = PublishedAsWms
+        fields = [
+            "name",
+            "title",
+            "description",
+            "license",
+            "fees",
+            "access_constraints",
+            "extent_buffer",
+            "queryable",
+            "extent",
+            "extent_wgs84",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Alle Felder read-only machen
+        for read_only_field in self.read_only_fields:
+            self.fields[read_only_field].disabled = True

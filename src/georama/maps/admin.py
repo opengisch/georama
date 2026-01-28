@@ -13,7 +13,7 @@ from qgis_server_light.interface.qgis import BBox
 
 from georama.core.entities.models import save_group_permissions, save_user_permissions
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
-from georama.maps.forms import PublishedAsWmsForm
+from georama.maps.forms import PublishedAsWmsAdminForm
 from georama.maps.interfaces.georama.requests import (
     QslGetMapRequest,
     RequestType,
@@ -53,7 +53,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     add_form_template = "admin/maps/publishedaswms/publish.html"
     readonly_fields = ["dataset_detail", "extent_wgs84"]
     list_filter = ["name", "title"]
-    form = PublishedAsWmsForm
+    form = PublishedAsWmsAdminForm
 
     def icon_column(self, obj):
         icon = "fg-poi"
