@@ -24,12 +24,11 @@
     --navbar-height: 140px;
     --navbar-offset: var(--navbar-height);
     --navbar-height-scrolled: 80px;
-    --breadcrumb-height: 60px;
+    --breadcrumb-height: 65px;
     --footer-height: 50px;
-    --content-header-height: 100px;
     
-    /* Height of form content area */
-    --form-content-height: calc(100vh - var(--navbar-height) - var(--breadcrumb-height)  - var(--content-header-height) - var(--footer-height) - 10px);
+    /* Height of scrollable form content area */
+    --form-content-height: calc(100vh - var(--navbar-height) - var(--breadcrumb-height) - var(--footer-height) - 10px);
 }
 
 [data-bs-theme=dark] {

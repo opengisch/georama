@@ -1,68 +1,44 @@
 {% extends 'core/form.html' %}
 {% load static i18n model_extras %}
 
-{% block content_header %}
+{% block list_actions %}
 
-    <div class="d-flex flex-row">
-    
-        <!-- Item title card -->
-    
-        <div class="me-3">
-            <img src="{% static qgis_project.icon %}"
-                 alt="{% trans 'QGIS Logo' %}"
-                 class="rounded img-thumbnail preview-image-sm"/>
-        </div>
+    <div class="btn-group" role="group" aria-label="Project actions">
 
-        <div class="d-flex flex-column flex-grow-1 justify-content-around">
-            <div>
-                <h4 class="mb-1">{{ qgis_project.name }}</h4>
-                <h6 class="mb-1">{{ qgis_project.project_path_as_string }}</h6>
-            </div>
-        </div>
+        {% if qgis_project.database_representation %}
+            {% blocktranslate asvar title%}Refresh QGIS project in Georama by loading it from disk{% endblocktranslate %}
+        {% else %}
+            {% blocktranslate asvar title%}Link QGIS project on disk in Georama{% endblocktranslate %}
+        {% endif %}
 
+        <a onclick="showWaitModalOverlay()"
+           href="{% url 'data_integration:export_qgis_project' qgis_project.name qgis_project.parent.name %}"
+           class="btn btn-outline-primary" role="button"
+           title="{{ title }}"
+           aria-label="{{ title }}"
+           data-toggle="tooltip" data-placement="top">
+            <i class="{% if qgis_project.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
+        </a>
 
-        <!-- Project actions -->
-    
-        <div class="align-content-center">
-            <div class="btn-group" role="group" aria-label="Project actions">
+        {% blocktranslate asvar title%}Remove QGIS project from Georama by unlinking it{% endblocktranslate %}
 
-                {% if qgis_project.database_representation %}
-                    {% blocktranslate asvar title%}Refresh QGIS project in Georama by loading it from disk{% endblocktranslate %}
-                {% else %}
-                    {% blocktranslate asvar title%}Link QGIS project on disk in Georama{% endblocktranslate %}
-                {% endif %}
-
-                <a onclick="showWaitModalOverlay()" 
-                   href="{% url 'data_integration:export_qgis_project' qgis_project.name qgis_project.parent.name %}"
-                   class="btn btn-outline-primary" role="button"
-                   title="{{ title }}"
-                   aria-label="{{ title }}"
-                   data-toggle="tooltip" data-placement="top">
-                    <i class="{% if qgis_project.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
-                </a>
-            
-                {% blocktranslate asvar title%}Remove QGIS project from Georama by unlinking it{% endblocktranslate %}
-
-                {% if qgis_project.database_representation %}
-                    <a href="{% url 'data_integration:project_delete' qgis_project.database_representation.pk %}"
-                       class="btn btn-outline-danger" role="button"
-                       title="{{ title }}"
-                       aria-label="{{ title }}"
-                       data-toggle="tooltip" data-placement="top">
-                        <i class="fa fa-unlink"></i>
-                    </a>
-                {% else %}
-                    <a href="#" class="btn btn-outline-danger disabled"
-                       disabled tabindex="-1" role="button" aria-disabled="true"
-                       title="{{ title }}"
-                       aria-label="{{ title }}"
-                       data-toggle="tooltip" data-placement="top">
-                        <i class="fa fa-unlink"></i>
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-
+        {% if qgis_project.database_representation %}
+            <a href="{% url 'data_integration:project_delete' qgis_project.database_representation.pk %}"
+               class="btn btn-outline-danger" role="button"
+               title="{{ title }}"
+               aria-label="{{ title }}"
+               data-toggle="tooltip" data-placement="top">
+                <i class="fa fa-unlink"></i>
+            </a>
+        {% else %}
+            <a href="#" class="btn btn-outline-danger disabled"
+               disabled tabindex="-1" role="button" aria-disabled="true"
+               title="{{ title }}"
+               aria-label="{{ title }}"
+               data-toggle="tooltip" data-placement="top">
+                <i class="fa fa-unlink"></i>
+            </a>
+        {% endif %}
     </div>
     
 {% endblock %}

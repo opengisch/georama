@@ -428,8 +428,8 @@ class Index(ChangeListView):
     template = "maps/index.html"
     breadcrumbs = [BreadCrumb(app_menu.title, f"{app_menu.app_label}:index")]
     breadcrumb_action_url = "maps:change_list_dataset"
-    breadcrumb_action_icon = "fa fa-plus-circle"
-    breadcrumb_action_title = "publish"
+    breadcrumb_action_icon = "fa fa-circle-plus"
+    breadcrumb_action_title = "publish layer"
 
     def extra_context(self, context: dict, service: PublishedAsWmsService):
         context["wms_get_capabilities_params"] = (

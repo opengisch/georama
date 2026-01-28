@@ -155,15 +155,16 @@ Change List and detail forms
 
 .preview-image-sm {
     width: 70px;
+    height: 70px;
 }
-
 .preview-image {
     width: 90px;
+    height: 90px;
 }
 .preview-image-lg {
     width: 150px;
+    height: 150px;
 }
-
 
 #breadcrumb-container {
     height: var(--breadcrumb-height);

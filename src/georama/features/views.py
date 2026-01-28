@@ -536,7 +536,10 @@ class Index(ChangeListView):
     app_menu = apps.get_app_config("features").app_menu()
     template = "features/index.html"
     breadcrumbs = [BreadCrumb(app_menu.title, f"{app_menu.app_label}:index")]
-    list_actions = [("New", "features:change_list_vector_dataset")]
+    breadcrumb_action_url = "features:change_list_vector_dataset"
+    breadcrumb_action_icon = "fa fa-circle-plus"
+    breadcrumb_action_title = "publish layer"
+    list_actions = []
 
 
 class Publish(ChangeListView):

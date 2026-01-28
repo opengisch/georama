@@ -1,36 +1,29 @@
 {% extends 'core/form.html' %}
 {% load model_extras i18n %}
 
-{% block content_header %}
+{% block list_actions %}
 
-    <div class="d-flex flex-row">
+    <!-- Layer actions -->
 
-        <div class="flex-grow-1 ">
-            <h4 class="mb-1">{{ instance.title }}</h4>
-        </div>
+    <div class="align-content-center">
+        <div class="btn-group" role="group" aria-label="Layer actions">
+            {% blocktranslate asvar title %}Save changes{% endblocktranslate %}
+            <a href="#"
+               class="btn btn-outline-primary" role="button"
+               data-toggle="tooltip" data-placement="top"
+               title="{{ title }}"
+               aria-label="{{ title }}">
+                <i class="fa fa-save"></i>
+            </a>
 
-        <!-- Layer actions -->
-
-        <div class="align-content-center">
-            <div class="btn-group" role="group" aria-label="Layer actions">
-                {% blocktranslate asvar title %}Save changes{% endblocktranslate %}
-                <a href="#"
-                   class="btn btn-outline-primary" role="button"
-                   data-toggle="tooltip" data-placement="top"
-                   title="{{ title }}"
-                   aria-label="{{ title }}">
-                    <i class="fa fa-save"></i>
-                </a>
-
-                {% blocktranslate asvar title %}Delete layer{% endblocktranslate %}
-                <a href="#"
-                   class="btn btn-outline-danger" role="button"
-                   data-toggle="tooltip" data-placement="top"
-                   title="{{ title }}"
-                   aria-label="{{ title }}">
-                    <i class="fa fa-trash-alt"></i>
-                </a>
-            </div>
+            {% blocktranslate asvar title %}Delete layer{% endblocktranslate %}
+            <a href="#"
+               class="btn btn-outline-danger" role="button"
+               data-toggle="tooltip" data-placement="top"
+               title="{{ title }}"
+               aria-label="{{ title }}">
+                <i class="fa fa-trash-alt"></i>
+            </a>
         </div>
     </div>
 
