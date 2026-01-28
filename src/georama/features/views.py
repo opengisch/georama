@@ -572,10 +572,10 @@ class PublishedAsOgcApiFeaturesServiceFormView(FormView):
 
     def extra_context(self, context: dict, service: Service):
         permissions = []
+        breadcrumbs = copy.deepcopy(context["breadcrumbs"])
         if context["instance"] is not None:
             permission_service = PermissionService()
             permissions = permission_service.get_permission_lookup(context["instance"])
-            breadcrumbs = copy.deepcopy(context["breadcrumbs"])
             breadcrumbs.append(
                 BreadCrumb(context["instance"].title, f"{self.app_menu.app_label}:{self.name}")
             )
