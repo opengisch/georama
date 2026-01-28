@@ -7,18 +7,18 @@
 {% block content %}
 
     <!-- Scrollable form header -->
-    
+
     <div class="pt-4 form-content-scrollable">
 
         <div class="container">
             <div class="row">
 
                 <!-- Left column-->
-            
+
                 <div class="col form-content-scrollable overflow-auto">
 
                     <!-- Form content -->
-                
+
                     {% block form_left %}
                     {% load crispy_forms_tags %}
                     {% if forms|length > 1 %}
@@ -44,7 +44,7 @@
                                      role="tabpanel"
                                      aria-labelledby="georama-form-tab-{{ form.model }}"
                                      tabindex="0">
-                                    <form method="post">
+                                    <form id="{{ instance.pk }}" method="post">
                                         {% csrf_token %}
                                         {{ form|crispy }}
                                     </form>
@@ -53,7 +53,7 @@
                         {% endfor %}
                     {% else %}
                         {% for form in forms %}
-                            <form method="post">
+                            <form id="{{ instance.pk }}" method="post">
                                 {% csrf_token %}
                                 {{ form|crispy }}
                             </form>
@@ -65,7 +65,7 @@
                 </div>
 
                 <!-- Right column-->
-            
+
                 <div class="col form-content-scrollable overflow-auto">
 
                     {% block form_right %}
@@ -74,7 +74,7 @@
                 </div>
             </div>
         </div>
-    
+
     </div>
-    
+
 {% endblock %}

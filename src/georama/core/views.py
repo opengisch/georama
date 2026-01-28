@@ -141,10 +141,13 @@ class FormView(View):
     def extra_context(self, context: dict, service: Service):
         return context
 
-    def get_form_by_db_object(self, instance):
+    def get_form_by_db_object(self, instance, request: HttpRequest | None = None):
         for form in self.forms:
             if form._meta.model == instance._meta.model:
-                return form(instance=instance)
+                if request is not None:
+                    return form(request.POST, instance=instance)
+                else:
+                    return form(instance=instance)
         return None
 
     def get_empty_forms(self):
@@ -170,6 +173,23 @@ class FormView(View):
         }
         context.update(self.extra_context(context, service))
         return render(request, self.template, context)
+
+    def post(self, request, pk):
+        service = self.service()
+        instance = service.get(pk=pk)[0]
+        form = self.get_form_by_db_object(instance, request=request)
+        if form.is_valid():
+            form.save()  # ✅ ORM-Update passiert hier automatisch
+            return redirect(f"{self.app_menu.app_label}:{self.name}", pk=pk)
+        context = {
+            "instance": instance,
+            "forms": [form],
+            "breadcrumbs": self.breadcrumbs,
+            "breadcrumb_action_url": self.breadcrumb_action_url,
+            "breadcrumb_action_title": self.breadcrumb_action_title,
+        }
+        context.update(self.extra_context(context, service))
+        return render(request, self.template, {"form": form})
 
 
 class AssignPermissionToUserOrGroup(View):
