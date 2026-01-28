@@ -8,13 +8,13 @@
     <div class="align-content-center">
         <div class="btn-group" role="group" aria-label="Layer actions">
             {% blocktranslate asvar title %}Save changes{% endblocktranslate %}
-            <a href="#"
+            <button type="submit" form="{{ instance.pk }}"
                class="btn btn-outline-primary" role="button"
                data-toggle="tooltip" data-placement="top"
                title="{{ title }}"
                aria-label="{{ title }}">
                 <i class="fa fa-save"></i>
-            </a>
+            </button>
 
             {% blocktranslate asvar title %}Delete layer{% endblocktranslate %}
             <a href="#"
