@@ -16,3 +16,11 @@ def help_text(obj, field_name):
 @register.simple_tag
 def get_dict_value_by_key(dictionary, key):
     return dictionary.get(key)
+
+
+@register.simple_tag
+def field_name_and_value(obj):
+    result = []
+    for field in obj._meta.fields:
+        result.append([field.verbose_name, getattr(obj, field.name)])
+    return result
