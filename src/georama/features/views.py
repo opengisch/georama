@@ -1,3 +1,4 @@
+import copy
 import os.path
 
 import pygeoapi.api as core_api
@@ -567,7 +568,6 @@ class PublishedAsOgcApiFeaturesServiceFormView(FormView):
             Index.title,
             f"{app_menu.app_label}:{Index.name}",
         ),
-        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
     ]
 
     def extra_context(self, context: dict, service: Service):
@@ -575,7 +575,15 @@ class PublishedAsOgcApiFeaturesServiceFormView(FormView):
         if context["instance"] is not None:
             permission_service = PermissionService()
             permissions = permission_service.get_permission_lookup(context["instance"])
-        return {"permissions": permissions, "form": context["forms"][0]}
+            breadcrumbs = copy.deepcopy(context["breadcrumbs"])
+            breadcrumbs.append(
+                BreadCrumb(context["instance"].title, f"{self.app_menu.app_label}:{self.name}")
+            )
+        return {
+            "permissions": permissions,
+            "form": context["forms"][0],
+            "breadcrumbs": breadcrumbs,
+        }
 
 
 class PermissionView(ChangeListView):
