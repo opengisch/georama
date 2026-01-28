@@ -6,12 +6,12 @@ from xsdata.formats.dataclass.parsers import JsonParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 
 from georama.core.services import Service
+from georama.data_integration.data_integration_config import Config
 from georama.data_integration.lib.qgis_project_file_structure import (
     QgisProject,
-    QgisProjectGroup,
     QgisProjectFileStructure,
+    QgisProjectGroup,
 )
-from georama.data_integration.data_integration_config import Config
 from georama.data_integration.models import (
     CustomDataSet,
     Project,
@@ -35,6 +35,23 @@ class ProjectService(Service):
         count = 0
         for group in self.qgis_project_file_structure.groups:
             count += len(group.projects)
+        return count
+
+    def count_db_projects(self) -> int:
+        count = 0
+        for model in self.models:
+            count += model.objects.count()
+        return count
+
+    def count_out_dated(self):
+        count = 0
+        for group in self.get_list():
+            for project in group.projects:
+                if (
+                    project.database_representation is not None
+                    and project.hash != project.database_representation.hash
+                ):
+                    count += 1
         return count
 
     def get(self, group_name=None, project_name=None, **kwargs) -> list[QgisProject]:

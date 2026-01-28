@@ -114,6 +114,16 @@ class ChangeListView(View, ABC):
         return render(request, self.template, context)
 
 
+class Settings(View):
+
+    def get(self, request, *args, **kwargs):
+        return TemplateResponse(
+            request,
+            context={},
+            template="core/settings.html",
+        )
+
+
 class FormView(View):
     service: type[Service] = Service
     forms: list[ModelForm] = []

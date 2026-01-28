@@ -12,6 +12,15 @@
                         <a class="nav-link"
                            href="{% url 'data_integration:change_list_project' %}">Projects</a>
                         </p>
+                        <p>
+                            {% if outdated_count %}
+                            {% blocktranslate asvar title%}QGIS projects on disk have been changed, re-link to update the projects{% endblocktranslate %}
+                            <span class="badge rounded-pill text-bg-warning"
+                                  data-placement="top"
+                                  title="{{ title }}"
+                                  aria-label="{{ title }}">{{ outdated_count }} outdated</span>
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
             </div>

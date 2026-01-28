@@ -118,14 +118,13 @@ class PublishedAsOgcApiFeaturesAdminForm(forms.ModelForm):
 
 
 class PublishedAsOgcApiFeaturesForm(forms.ModelForm):
-    read_only_fields = ["dataset"]
+    read_only_fields = []
 
     class Meta:
         model = PublishedAsOgcApiFeatures
         fields = [
             "name",
             "title",
-            "dataset",
             "description",
             "license",
             "fees",

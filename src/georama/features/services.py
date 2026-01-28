@@ -22,6 +22,19 @@ class VectorDatasetService(Service):
 class PermissionService(Service):
     models = [Permission]
     name = "permission"
+    action_icons = {
+        "create": "fa-circle-plus",
+        "read": "fa-eye",
+        "update": "fa-pencil",
+        "delete": "fa-trash-can",
+    }
+    default_icon = "fa-check"
+
+    def icon_lookup(self, action):
+        selected_icon = self.action_icons.get(action)
+        if selected_icon is None:
+            selected_icon = self.default_icon
+        return selected_icon
 
     def filter(self, query, **kwargs):
         return query.filter(
@@ -57,6 +70,7 @@ class PermissionService(Service):
                 permission_dict[permission_interface.action] = {
                     "allowed": False,
                     "id": permission.pk,
+                    "icon": self.icon_lookup(permission_interface.action),
                 }
             if permission_interface.action not in permission_actions:
                 permission_actions.append(permission_interface.action)

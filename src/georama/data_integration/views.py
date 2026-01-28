@@ -367,10 +367,13 @@ class QgisServerLightExporter(View):
 class Index(LoginRequiredMixin, View):
 
     def get(self, request: HttpRequest):
+        project_service = ProjectService()
         app_menu = apps.get_app_config("data_integration").app_menu()
         context = {
             "app_menu": app_menu,
-            "project_count": ProjectService().count(),
+            "project_count": project_service.count(),
+            "project_db_count": project_service.count_db_projects(),
+            "outdated_count": project_service.count_out_dated(),
             "manual_dataset_count": ManualDatasetService().count(),
             "breadcrumbs": [BreadCrumb(app_menu.title, f"{app_menu.app_label}:index")],
         }

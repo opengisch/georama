@@ -7,34 +7,38 @@
             <div class="col">{{ action|capfirst }}</div>
         {% endfor %}
     </div>
+    {% if permissions.lookup.groups|length > 0 %}
     <div class="row p-2 border-bottom">
         {% for group in permissions.lookup.groups %}
-            <div class="col-5 permission-icon"><i class="fa fa-users text-dark"></i><span>{{ group.name }}</span></div>
+            <div class="col-5 permission-icon" title="Group {{ group.name }}"><i class="fa fa-users text-dark"></i><span>{{ group.name }}</span></div>
             {% for action in permissions.actions %}
                 {% get_dict_value_by_key group action as group_permission %}
-                <div class="col" 
+                <div class="col"
                      onclick="{% if group_permission.allowed %}remove_permission('{{ group.id }}', '{{ group_permission.id }}', 'group'){% else %}assign_permission('{{ group.id }}', '{{ group_permission.id }}', 'group'){% endif %}">
-                    <i class="fa fa-eye align-self-center {% if group_permission.allowed %} text-primary {% else %} text-light {% endif %}"></i>
+                    <i class="fa {{ group_permission.icon }} align-self-center {% if group_permission.allowed %} text-primary {% else %} text-muted {% endif %}"></i>
                 </div>
             {% endfor %}
         {% endfor %}
     </div>
+    {% endif %}
+    {% if permissions.lookup.groups|length > 0 %}
     <div class="row p-2 border-bottom">
         {% for user in permissions.lookup.users %}
-            <div class="col-5 permission-icon"><i class="fa fa-user text-dark"></i><span>{{ user.name }}</span></div>
+            <div class="col-5 permission-icon" title="User {{ group.name }}"><i class="fa fa-user text-dark"></i><span>{{ user.name }}</span></div>
             {% for action in permissions.actions %}
                 {% get_dict_value_by_key user action as user_permission %}
-                <div class="col" 
+                <div class="col"
                      onclick="{% if user_permission.allowed %}remove_permission('{{ user.id }}', '{{ user_permission.id }}', 'user'){% else %}assign_permission('{{ user.id }}', '{{ user_permission.id }}', 'user'){% endif %}">
-                    <i class="fa fa-eye {% if user_permission.allowed %} text-primary {% else %} text-light {% endif %}"></i>
+                    <i class="fa {{ user_permission.icon }} {% if user_permission.allowed %} text-primary {% else %} text-muted {% endif %}"></i>
                 </div>
             {% endfor %}
         {% endfor %}
     </div>
+    {% endif %}
 </div>
 
 <script>
-    function assign_permission(principal_id, permission_id, principal_type){
+    function assign_permission(principal_id, permission_id, principal_type) {
         fetch(`{% url "assign_permission_to_user_or_group" %}?principal_id=${principal_id}&permission_id=${permission_id}&principal_type=${principal_type}`, {
             method: "POST",
             headers: {
@@ -43,15 +47,16 @@
             },
             body: JSON.stringify({})
         })
-        .then(response => {
-            if (response.ok) {
-                window.location.reload();
-            }else{
-                console.log(response);
-            }
-        });
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    console.log(response);
+                }
+            });
     }
-    function remove_permission(principal_id, permission_id, principal_type){
+
+    function remove_permission(principal_id, permission_id, principal_type) {
         fetch(`{% url "remove_permission_from_user_or_group" %}?principal_id=${principal_id}&permission_id=${permission_id}&principal_type=${principal_type}`, {
             method: "POST",
             headers: {
@@ -60,12 +65,12 @@
             },
             body: JSON.stringify({})
         })
-        .then(response => {
-            if (response.ok) {
-                window.location.reload();
-            }else{
-                console.log(response);
-            }
-        });
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    console.log(response);
+                }
+            });
     }
 </script>

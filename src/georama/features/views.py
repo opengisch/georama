@@ -572,7 +572,7 @@ class PublishedAsOgcApiFeaturesServiceFormView(FormView):
         if context["instance"] is not None:
             permission_service = PermissionService()
             permissions = permission_service.get_permission_lookup(context["instance"])
-        return {"permissions": permissions}
+        return {"permissions": permissions, "form": context["forms"][0]}
 
 
 class PermissionView(ChangeListView):

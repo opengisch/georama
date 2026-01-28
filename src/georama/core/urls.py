@@ -30,13 +30,6 @@ urlpatterns = [
     path("", views.GeoramaLanding.as_view(), name="landing"),
     path("login", views.Login.as_view(), name="login"),
     path("logout", views.Logout.as_view(), name="logout"),
-    path("features", include("georama.features.urls")),
-    path("data_integration", include("georama.data_integration.urls")),
-    path("maps", include("georama.maps.urls")),
-    path("webgis", include("georama.webgis.urls")),
-    path("qfield_link", include("georama.qfield_link.urls")),
-    path("accounts/", include("allauth.urls")),
-    path("admin/", admin.site.urls, {"extra_context": {"DEBUG": settings.DEBUG}}),
     path(
         "core/assign_permission_to_user_or_group",
         views.AssignPermissionToUserOrGroup.as_view(),
@@ -47,6 +40,14 @@ urlpatterns = [
         views.RemovePermissionToUserOrGroup.as_view(),
         name="remove_permission_from_user_or_group",
     ),
+    path("settings", views.Settings.as_view(), name="settings"),
+    path("features", include("georama.features.urls")),
+    path("data_integration", include("georama.data_integration.urls")),
+    path("maps", include("georama.maps.urls")),
+    path("webgis", include("georama.webgis.urls")),
+    path("qfield_link", include("georama.qfield_link.urls")),
+    path("accounts/", include("allauth.urls")),
+    path("admin/", admin.site.urls, {"extra_context": {"DEBUG": settings.DEBUG}}),
 ]
 
 if settings.DEBUG:
