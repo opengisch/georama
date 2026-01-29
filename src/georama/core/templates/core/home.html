@@ -14,12 +14,12 @@
                     <img src="{% static 'images/main_plain.svg' %}" alt="Georama" class="d-inline-block align-text-top">
                     <span class="navbar-brand-text navbar-brand-domain text-nowrap ms-2">{{ site_title }}</span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                <button class="navbar-toggler ms-auto me-3" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="d-flex order-lg-2 ms-auto align-items-center gap-3">
+                <div class="d-flex order-lg-2 align-items-center gap-3">
                     <button id="themeToggle" class="btn btn-outline-secondary" type="button" aria-label="Toggle theme">
                         <i id="themeIcon" class="bi"></i>
                     </button>
@@ -36,9 +36,6 @@
                                 </a>
                             </li>
                         {% endfor %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="https://docs.georama.io" target="_blank">Docs</a>
-                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'settings' %}">Settings</a>
                         </li>
