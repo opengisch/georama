@@ -15,10 +15,11 @@
             <!-- Thumbnail -->
         
             <div class="me-3">
+
                 <a href="{% url 'features:form_ogcapi-f' item.pk %}">
-                    <div class="rounded img-thumbnail preview-image">
-                        <div class="fa fa-diagram-project"></div>
-                    </div>
+                    <img src="{% static 'images/OGC_Logo.svg' %}"
+                         alt="{% trans 'OGC Logo' %}"
+                         class="rounded img-thumbnail preview-image"/>
                 </a>
             </div>
         
