@@ -86,6 +86,10 @@ class Base(Configuration):
             },
         },
     }
+    # This is a reduced list of settings. Activate the "show_ui_builder" option
+    # to play around with settings in the admin and generate a complete list
+    # of settings
+    # https://django-jazzmin.readthedocs.io/ui_customisation/#ui-customizer
     JAZZMIN_SETTINGS = {
         # title of the window (Will default to current_admin_site.site_titl
         # if absent or None)
@@ -105,6 +109,64 @@ class Base(Configuration):
         # Relative path to a favicon for your site, will default to
         # site_logo if absent (ideally 32x32 px)
         "site_icon": "logo/favicon.ico",
+        "language_chooser": True,
+        # Side Menu #
+        #############
+        # Hide these apps when generating side menu e.g (auth)
+        "hide_apps": [],
+        # Hide these models when generating side menu (e.g auth.user)
+        "hide_models": [],
+        # List of apps (and/or models) to base side menu ordering off of
+        # (does not need to contain all apps/models)
+        "order_with_respect_to": [
+            "account",
+            "auth",
+            "data_integration",
+            "data_integration.mandant",
+            "data_integration.project",
+            "qfield_link",
+            "maps",
+            "features",
+            "webgis",
+            "webgis.publishedastheme",
+            "webgis.layergroupmp",
+            "webgis.ogcserver",
+            "webgis.publishedaslayerwms",
+            "webgis.publishedaslayerwmts",
+        ],
+        # Custom icons for side menu apps/models
+        "icons": {
+            "account.emailaddress": "fas fa-at",
+            "auth": "fas fa-users-cog",
+            "auth.user": "fas fa-user",
+            "auth.Group": "fas fa-users",
+            "data_integration.Mandant": "fas fa-folder",
+            "data_integration.Project": "fas fa-upload",
+            "data_integration.VectorDataSet": "fas fa-file",
+            "data_integration.RasterDataSet": "fas fa-file",
+            "data_integration.CustomDataSet": "fas fa-file",
+            "data_integration.ManualDataSet": "fas fa-hand-paper",
+            "data_integration.QfieldCloudProject": "fas fa-cloud",
+            "maps.PublishedAsWms": "fas fa-map",
+            "features.PublishedAsOgcApiFeatures": "fas fa-code",
+            "webgis.publishedastheme": "fas fa-th-large",
+            "webgis.layergroupmp": "fas fa-stream",
+            "webgis.ogcserver": "fas fa-database",
+            "webgis.publishedaslayerwms": "fas fa-map",
+            "webgis.publishedaslayerwmts": "far fa-map",
+        },
+        "show_ui_builder": False,
+        "custom_css": "css/jazzmin.admin.overwrites.css",
+    }
+    JAZZMIN_UI_TWEAKS = {
+        "theme": "litera",
+        "custom_css": "css/jazzmin.admin.overwrites.css",
+        "brand_colour": "navbar-dark",
+        "accent": "accent-olive",
+        "navbar": "navbar-white navbar-light",
+        "sidebar": "sidebar-dark-olive",
+        "sidebar_nav_compact_style": True,
+        "sidebar_nav_flat_style": True,
     }
 
     ALLOWED_HOSTS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")
