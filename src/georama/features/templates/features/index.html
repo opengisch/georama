@@ -42,7 +42,7 @@
 
                 {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}OAPIF layer is publicly available: {{ val }}{% endblocktranslate %}
                 <span class="badge rounded-pill {% if item.public == True %}text-bg-primary{% else %}text-bg-light{% endif %}"
-                      data-toggle="tooltip" data-placement="top"
+                      data-bs-toggle="tooltip"
                       title="{{ title }}"
                       aria-label="{{ title }}">
                         public</span>
@@ -61,7 +61,7 @@
                        class="btn btn-outline-primary" role="button"
                        title="{{ title }}"
                        aria-label="{{ title }}"
-                       data-toggle="tooltip" data-placement="top">
+                       data-bs-toggle="tooltip">
                         <i class="fa fa-eye"></i>
                     </a>
 
@@ -69,7 +69,7 @@
                     <a href="{% url 'features:collection-detail' item.pk %}"
                        target="_blank" 
                        class="btn btn-outline-primary" role="button"
-                       data-toggle="tooltip" data-placement="top"
+                       data-bs-toggle="tooltip"
                        title="{{ title }}"
                        aria-label="{{ title }}">
                         <i class="fa fa-network-wired"></i>
@@ -78,7 +78,7 @@
                     {% blocktranslate asvar title%}Delete OGC API Features layer{% endblocktranslate %}
                     <a href="#"
                        class="btn btn-outline-danger" role="button"
-                       data-toggle="tooltip" data-placement="top"
+                       data-bs-toggle="tooltip"
                        title="{{ title }}"
                        aria-label="{{ title }}">
                         <i class="fa fa-trash-alt"></i>

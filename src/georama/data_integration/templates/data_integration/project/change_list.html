@@ -50,15 +50,13 @@
 
                             {% blocktranslate asvar title%}The QGIS project in Georama has the same state as on disk{% endblocktranslate %}
                             <span class="badge rounded-pill text-bg-primary"
-                                  data-toggle="tooltip"
-                                  data-placement="top"
+                                  data-bs-toggle="tooltip"
                                   title="{{ title }}"
                                   aria-label="{{ title }}">up to date</span>
                         {% else %}
 
                             {% blocktranslate asvar title%}The QGIS project on disk has been changed, re-link to update the project{% endblocktranslate %}
                             <span class="badge rounded-pill text-bg-warning"
-                                  data-placement="top"
                                   title="{{ title }}"
                                   aria-label="{{ title }}">outdated</span>
                         {% endif %}
@@ -76,7 +74,7 @@
                        class="btn btn-outline-primary{% if project_item.config is None %} disabled{% endif %}" role="button"
                        title="{{ title }}"
                        aria-label="{{ title }}"
-                       data-toggle="tooltip" data-placement="top">
+                       data-bs-toggle="tooltip">
                         <i class="fa fa-eye"></i>
                     </a>
 
@@ -91,7 +89,7 @@
                            class="btn btn-outline-primary" role="button"
                            title="{{ title }}"
                            aria-label="{{ title }}"
-                           data-toggle="tooltip" data-placement="top">
+                           data-bs-toggle="tooltip">
                             <i class="{% if project_item.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
                         </a>
 
@@ -102,7 +100,7 @@
                            class="btn btn-outline-danger" role="button"
                            title="{{ title }}"
                            aria-label="{{ title }}"
-                           data-toggle="tooltip" data-placement="top">
+                           data-bs-toggle="tooltip">
                             <i class="fa fa-unlink"></i>
                         </a>
                     {% else %}
@@ -110,7 +108,7 @@
                            disabled tabindex="-1" role="button" aria-disabled="true"
                            title="{{ title }}"
                            aria-label="{{ title }}"
-                           data-toggle="tooltip" data-placement="top">
+                           data-bs-toggle="tooltip">
                             <i class="fa fa-unlink"></i>
                         </a>
                     {% endif %}

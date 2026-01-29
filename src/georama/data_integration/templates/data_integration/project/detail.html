@@ -16,7 +16,7 @@
            class="btn btn-outline-primary" role="button"
            title="{{ title }}"
            aria-label="{{ title }}"
-           data-toggle="tooltip" data-placement="top">
+           data-bs-toggle="tooltip">
             <i class="{% if qgis_project.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
         </a>
 
@@ -27,7 +27,7 @@
                class="btn btn-outline-danger" role="button"
                title="{{ title }}"
                aria-label="{{ title }}"
-               data-toggle="tooltip" data-placement="top">
+               data-bs-toggle="tooltip">
                 <i class="fa fa-unlink"></i>
             </a>
         {% else %}
@@ -35,7 +35,7 @@
                disabled tabindex="-1" role="button" aria-disabled="true"
                title="{{ title }}"
                aria-label="{{ title }}"
-               data-toggle="tooltip" data-placement="top">
+               data-bs-toggle="tooltip">
                 <i class="fa fa-unlink"></i>
             </a>
         {% endif %}
@@ -46,20 +46,20 @@
 
 {% block form_left %}
 
-    <div class="mb-4" data-toggle="tooltip" data-placement="top"
+    <div class="mb-4" data-bs-toggle="tooltip"
          title="QGIS version used to save the project">
         <label class="form-text">Version</label>
         <div>
             {{ qgis_project_config.project.version|default_if_none:"unknown" }}</div>
     </div>
 
-    <div class="mb-4" data-toggle="tooltip" data-placement="top"
+    <div class="mb-4" data-bs-toggle="tooltip"
          title="Last time the QGIS project was changed on disk">
         <label class="form-text">Modification date</label>
         <div>{{ qgis_project_config.meta_data.creationDateTime }}</div>
     </div>
     {% if qgis_project.database_representation is not None %}
-    <div class="mb-4" data-toggle="tooltip" data-placement="top"
+    <div class="mb-4" data-bs-toggle="tooltip"
          title="{% help_text qgis_project.database_representation "integration_date" %}">
         <label class="form-text">{% verbose_name qgis_project.database_representation "integration_date" %}</label>
         <div>

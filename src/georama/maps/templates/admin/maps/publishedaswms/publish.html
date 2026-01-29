@@ -29,7 +29,7 @@
         <ul class="nav nav-tabs" id="datasetTabs" role="tablist">
             {% if vector_datasets.count > 0 %}
                 <li class="nav-item">
-                    <a class="nav-link active" id="vector-tab" data-toggle="tab" href="#vector" role="tab"
+                    <a class="nav-link active" id="vector-tab" data-bs-toggle="tab" href="#vector" role="tab"
                        aria-controls="vector" aria-selected="true">
                         Vector Datasets
                     </a>
@@ -37,16 +37,16 @@
             {% endif %}
             {% if raster_datasets.count > 0 %}
                 <li class="nav-item">
-                    <a class="nav-link" id="raster-tab" data-toggle="tab" href="#raster" role="tab"
-                       aria-controls="raster" aria-selected="false">
+                    <a class="nav-link" id="raster-tab" data-bs-toggle="tab" href="#raster" role="tab"
+                       aria-controls="raster">
                         Raster Datasets
                     </a>
                 </li>
             {% endif %}
             {% if custom_datasets.count > 0 %}
                 <li class="nav-item">
-                    <a class="nav-link " id="custom-tab" data-toggle="tab" href="#custom" role="tab"
-                       aria-controls="custom" aria-selected="false">
+                    <a class="nav-link " id="custom-tab" data-bs-toggle="tab" href="#custom" role="tab"
+                       aria-controls="custom">
                         Custom Datasets
                     </a>
                 </li>
