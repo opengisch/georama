@@ -10,37 +10,45 @@
     <header class="main-header">
         <nav class="navbar navbar-expand-lg bg-body border-bottom sticky-top">
             <div class="container">
-                <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url "landing" %}">
+                <a class="navbar-brand d-flex align-items-center" href="{% url "landing" %}">
                     <img src="{% static 'images/main_plain.svg' %}" alt="Georama" class="d-inline-block align-text-top">
-                    <span class="navbar-brand-text navbar-brand-domain text-nowrap ms-2">{{ site_title }}</span>
+                    <span class="navbar-brand-domain text-nowrap ms-2">{{ site_title }}</span>
                 </a>
                 <button class="navbar-toggler ms-auto me-3" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="d-flex order-lg-2 align-items-center gap-3">
-                    <button id="themeToggle" class="btn btn-outline-secondary" type="button" aria-label="Toggle theme">
-                        <i id="themeIcon" class="bi"></i>
-                    </button>
-                </div>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="menu-main navbar-nav ms-auto me-lg-4 mb-2 mb-lg-0">
-                        <li class="nav-item">
+                    <ul class="menu-main navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item align-content-center">
                             <a class="nav-link" href="{% url "landing" %}">Home</a>
                         </li>
                         {% for item in menu_items %}
-                            <li class="nav-item">
+                            <li class="nav-item align-content-center">
                                 <a class="nav-link" href="{% url item.app_index %}">
                                     {{ item.title }}
                                 </a>
                             </li>
                         {% endfor %}
-                        <li class="nav-item">
+                        <li class="nav-item align-content-center">
                             <a class="nav-link" href="{% url 'settings' %}">Settings</a>
                         </li>
-                        <li class="nav-item d-flex align-items-center">
-                            <a class="btn btn-outline-secondary btn-sm px-4" href="/login">Login</a>
+                        <li class="nav-item align-items-center">
+                            <div class="nav-link">
+                                <a class="btn btn-outline-secondary" 
+                                   href="/login">Login</a>
+                            </div>
+                        </li>
+                        <li class="nav-item align-items-center">
+                            <div class="nav-link">
+                                <a id="themeToggle"
+                                   class="btn btn-outline-secondary"
+                                   role="button"
+                                   aria-label="Toggle theme">
+                                    <i id="themeIcon" class="bi"></i>
+                                </a>
+                            </div>
                         </li>
                     </ul>
                 </div>
@@ -50,10 +58,10 @@
 {% endblock %}
 
 {% block content %}
-<section class="section-block py-5" id="modules">
+<section class="section-block" id="modules">
     <div class="container text-center">
         <h3 class="fw-bold text-center mb-4">Explore the Modules</h3>
-        <p class="text-muted mb-5">&nbsp;</p>
+        <p class="text-muted mb-2">&nbsp;</p>
         <div class="mindmap">
             <div class="mindmap-center">
                 <img src="{% static 'images/main.svg' %}" alt="Georama" loading="lazy">
@@ -125,7 +133,8 @@
             <h3 class="fw-bold mb-3">📘 Read the Docs</h3>
             <p class="text-muted mb-4">Dive into the full documentation to get started with setup, API, and module
                 structure.</p>
-            <a href="https://docs.georama.io" class="btn btn-cta btn-lg" target="_blank" rel="noopener noreferrer">View
+            <a href="https://docs.georama.io" class="btn btn-outline-secondary btn-cta btn-lg" 
+               target="_blank" rel="noopener noreferrer">View
                 Documentation</a>
         </div>
     </div>
