@@ -3,7 +3,8 @@ body {
 }
 
 #content {
-    padding-top: var(--navbar-offset)
+    padding-top: var(--navbar-offset);
+    height: 100vh;
 }
 
 .top-wave {
@@ -27,6 +28,7 @@ footer {
     bottom: 0;
     width: 100%;
     height: var(--footer-height);
+    z-index: 4;
 }
 
 footer > .container {
@@ -175,10 +177,6 @@ Change List and detail forms
     height: var(--form-content-height);
 }
 
-.btn > span {
-    padding-left: 0.5em;
-}
-
 /*
 Permission table
  */
@@ -193,14 +191,9 @@ Permission table
 CTA Click to action elements on frontpage
  */
 
-/* Button */
-
 .btn-cta {
     box-shadow: 3px 3px 0 var(--georama-yellow);
 }
-
-
-/* Panel */
 
 .cta-panel {
     border-color: var(--georama-border-color);
