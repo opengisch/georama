@@ -1,5 +1,5 @@
 {% extends 'core/change_list.html' %}
-{% load static %}
+{% load static i18n %}
 
 {% block list_actions %}
     <div class="btn-group" role="group" aria-label="List actions">
@@ -8,42 +8,62 @@
 {% endblock %}
 
 {% block change_list_item %}
-    <div class="list-group-item list-group-item-action p-4" aria-current="true">
+    <div class="list-group-item list-group-item-action p-4">
 
         <div class="d-flex flex-row">
-                <div class="me-3">
-                    <a href="#">
-                    <img src="{% static 'images/qgis.png' %}"
-{#                         alt="{% trans 'QGIS Logo' %}"#}
-                         class="rounded img-thumbnail preview-image"/>
+
+            <!-- Thumbnail -->
+        
+{#            <div class="me-3">#}
+{##}
+{#                <a href="#">#}
+{#                    <img src="{% static 'images/OGC_Logo.svg' %}"#}
+{#                         alt="{% trans 'OGC Logo' %}"#}
+{#                         class="rounded img-thumbnail preview-image"/>#}
+{#                </a>#}
+{#            </div>#}
+        
+            <!-- Title and description -->
+        
+            <div class="d-flex flex-column flex-grow-1 justify-content-around">
+            
+                <div>
+                    <a href="#"
+                       class="link-offset-3 link-underline link-underline-opacity-75">
+                        <h4 class="mb-2">{{ item.codename }}</h4>
                     </a>
+                    <div class="mb-1">{{ item.name }}</div>
                 </div>
 
-                <div class="d-flex flex-column flex-grow-1 justify-content-around">
+            
+                <!-- Pills with layer functionalities -->
 
-                    <div>
-                        <a href="#">
-                            <h4 class="mb-1">{{ item.codename }}</h4>
-                        </a>
-                        <h6 class="mb-1">{{ item.name }}</h6>
-                    </div>
-
-
-                    <div class="align-content-bottom">
-                        {% if item.public %}
-                            <span class="badge rounded-pill text-bg-primary">public</span>
-                        {% endif %}
-                    </div>
+                <div class="align-content-bottom">
+                    
+                    {% if item.public %}
+                        {% blocktranslate asvar title %}OAPIF layer is publicly available{% endblocktranslate %}
+                        <span class="badge rounded-pill text-bg-primary"
+                              data-bs-toggle="tooltip"
+                              title="{{ title }}"
+                              aria-label="{{ title }}">public</span>
+                    {% endif %}
+                
                 </div>
+            </div>
 
-                <div class="align-content-center">
-                    <div class="btn-group" role="group" aria-label="Basic example">
-                        <a href="{% url 'features:collection-detail' item.pk %}" target="_blank"
-                           class="btn btn-outline-primary" tabindex="-1" role="button" aria-disabled="true">Show</a>
-                        <a href="{% url 'features:form_ogcapi-f' item.pk %}"
-                           class="btn btn-outline-primary" tabindex="-1" role="button" aria-disabled="true">Details</a>
-                    </div>
+            <!-- Buttons group with actions -->
+
+            <div class="align-content-center ms-auto">
+                <div class="btn-group" role="group" aria-label="Permission actions">
+                    
+                    <a href="{% url 'features:collection-detail' item.pk %}" target="_blank"
+                       class="btn btn-outline-primary" role="button">Show</a>
+                    
+                    <a href="{% url 'features:form_ogcapi-f' item.pk %}"
+                       class="btn btn-outline-primary" role="button">Details</a>
+                    
                 </div>
+            </div>
 
         </div>
 
