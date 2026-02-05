@@ -115,7 +115,7 @@ class LayerGroupMp(MP_Node):
     """
 
     themes_json_uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
-    name = models.CharField(max_length=128)
+    name = models.TextField(max_length=2048)
     title = models.CharField(max_length=1000, null=True, default=None, blank=True)
     theme = models.ForeignKey(
         PublishedAsTheme,
@@ -132,6 +132,7 @@ class LayerGroupMp(MP_Node):
     mixed = models.BooleanField(default=None, null=True)
     ogc_server = models.CharField(max_length=2048, default=None, null=True)
     dimensions = models.JSONField(default=None, null=True)
+    path = models.TextField(max_length=2048, unique=True)
     node_order_by = ["name"]
 
     class Meta:
