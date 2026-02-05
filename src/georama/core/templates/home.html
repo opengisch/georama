@@ -27,7 +27,11 @@
             <a class="nav-link" href="https://docs.georama.io">Docs</a>
           </li>
           <li class="nav-item d-flex align-items-center">
-            <a class="btn btn-outline-secondary btn-sm px-4" href="/login">Login</a>
+            {% if user.is_authenticated %}
+              <a class="btn btn-outline-secondary btn-sm px-4" href="/logout">Logout</a>
+            {% else %}
+              <a class="btn btn-outline-secondary btn-sm px-4" href="/login">Login</a>
+            {% endif %}
           </li>
         </ul>
       </div>
@@ -52,7 +56,11 @@
               <div class="icon-circle mb-2"><img src={% static "/images/login-page.svg" %} alt="" aria-hidden="true" loading="lazy"></div>
               <h5 class="mb-1">Login Page</h5>
               <p class="mb-2">Secure sign-in workflows for every user.</p>
-              <a class="btn btn-outline-secondary btn-sm" href="/login">Visit Login</a>
+              {% if user.is_authenticated %}
+                <a class="btn btn-outline-secondary btn-sm" href="/logout">Logout</a>
+              {% else %}
+                <a class="btn btn-outline-secondary btn-sm" href="/login">Visit Login</a>
+              {% endif %}
             </div>
           </div>
           <div class="mindmap-node" style="--angle:72deg;">
