@@ -70,7 +70,7 @@ dependencies = [
     # deps for webgis
     "django-allauth[socialaccount]==65.14.0",
     "django-cors-headers==4.3.1",
-    "django-treebeard==4.7.1",
+    "django-treebeard==4.8.0",
     "django-admin-sortable2==2.2.1",
     "django-simple-history==3.7.0",
     "django-extensions==3.2.3",
