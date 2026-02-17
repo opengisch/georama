@@ -14,7 +14,7 @@ class TestFeaturesViews:
         project = integrated_project
 
         # Publish project as OGC API Features
-        response = client.get(f"/features/publish_as/oapif/{project.id}", follow=True)
+        response = client.get(f"/features/layer/add/{project.id}", follow=True)
         assert response.status_code == 200
         assert b"TestProject" in response.content
 
@@ -72,73 +72,73 @@ class TestFeaturesViews:
                 "type": "application/json",
                 "rel": "root",
                 "title": "The landing page of this server as JSON",
-                "href": "http://testserver/features?f=json",
+                "href": "http://testserver/features/pygeoapi?f=json",
             },
             {
                 "type": "text/html",
                 "rel": "root",
                 "title": "The landing page of this server as HTML",
-                "href": "http://testserver/features?f=html",
+                "href": "http://testserver/features/pygeoapi?f=html",
             },
             {
                 "type": "application/json",
                 "rel": "self",
                 "title": "This document as JSON",
-                "href": "http://testserver/features/collections/<PROJECT_ID>?f=json",
+                "href": "http://testserver/features/pygeoapi/collections/<PROJECT_ID>?f=json",
             },
             {
                 "type": "application/ld+json",
                 "rel": "alternate",
                 "title": "This document as RDF (JSON-LD)",
-                "href": "http://testserver/features/collections/<PROJECT_ID>?f=jsonld",
+                "href": "http://testserver/features/pygeoapi/collections/<PROJECT_ID>?f=jsonld",
             },
             {
                 "type": "text/html",
                 "rel": "alternate",
                 "title": "This document as HTML",
-                "href": "http://testserver/features/collections/<PROJECT_ID>?f=html",
+                "href": "http://testserver/features/pygeoapi/collections/<PROJECT_ID>?f=html",
             },
             {
                 "type": "application/schema+json",
                 "rel": "http://www.opengis.net/def/rel/ogc/1.0/schema",
                 "title": "Schema of collection in JSON",
-                "href": "http://testserver/features/collections/<PROJECT_ID>/schema?f=json",
+                "href": "http://testserver/features/pygeoapi/collections/<PROJECT_ID>/schema?f=json",
             },
             {
                 "type": "text/html",
                 "rel": "http://www.opengis.net/def/rel/ogc/1.0/schema",
                 "title": "Schema of collection in HTML",
-                "href": "http://testserver/features/collections/<PROJECT_ID>/schema?f=html",
+                "href": "http://testserver/features/pygeoapi/collections/<PROJECT_ID>/schema?f=html",
             },
             {
                 "type": "application/schema+json",
                 "rel": "http://www.opengis.net/def/rel/ogc/1.0/queryables",
                 "title": "Queryables for this collection as JSON",
-                "href": "http://testserver/features/collections/<PROJECT_ID>/queryables?f=json",
+                "href": "http://testserver/features/pygeoapi/collections/<PROJECT_ID>/queryables?f=json",
             },
             {
                 "type": "text/html",
                 "rel": "http://www.opengis.net/def/rel/ogc/1.0/queryables",
                 "title": "Queryables for this collection as HTML",
-                "href": "http://testserver/features/collections/<PROJECT_ID>/queryables?f=html",
+                "href": "http://testserver/features/pygeoapi/collections/<PROJECT_ID>/queryables?f=html",
             },
             {
                 "type": "application/geo+json",
                 "rel": "items",
                 "title": "Items as GeoJSON",
-                "href": "http://testserver/features/collections/<PROJECT_ID>/items?f=json",
+                "href": "http://testserver/features/pygeoapi/collections/<PROJECT_ID>/items?f=json",
             },
             {
                 "type": "application/ld+json",
                 "rel": "items",
                 "title": "Items as RDF (GeoJSON-LD)",
-                "href": "http://testserver/features/collections/<PROJECT_ID>/items?f=jsonld",
+                "href": "http://testserver/features/pygeoapi/collections/<PROJECT_ID>/items?f=jsonld",
             },
             {
                 "type": "text/html",
                 "rel": "items",
                 "title": "Items as HTML",
-                "href": "http://testserver/features/collections/<PROJECT_ID>/items?f=html",
+                "href": "http://testserver/features/pygeoapi/collections/<PROJECT_ID>/items?f=html",
             },
         ]
 

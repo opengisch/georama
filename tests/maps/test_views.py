@@ -32,7 +32,7 @@ class TestMapsViews:
 
             # Publish layer as WMS
             response = client.get(
-                f"/maps/publish_as/wms/vector/{vector_dataset.id}",
+                f"/maps/layer/add/vector/{vector_dataset.id}",
                 follow=True,
             )
 
@@ -41,7 +41,7 @@ class TestMapsViews:
             assert PublishedAsWms.objects.filter(title="TestPointLayer").exists()
 
             # Get WMS Capabilities document
-            url = "/maps?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0"
+            url = "/maps/ows?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0"
             response = client.get(url)
 
             assert response.status_code == 200
@@ -81,7 +81,7 @@ class TestMapsViews:
 
         http_get = xp(get_capabilities, "./w:DCPType/w:HTTP/w:Get")
         href = xp(http_get, "./w:OnlineResource/@x:href")
-        assert href == "http://testserver/maps?"
+        assert href == "http://testserver/maps/ows?"
 
         # Layers
         layers = xp(capability, "./w:Layer")

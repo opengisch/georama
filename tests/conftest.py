@@ -20,6 +20,7 @@ from xsdata.models.xsd import (
 )
 
 from georama.data_integration.models import Project, VectorDataSet
+from georama.data_integration.services.project import DBService, FSService
 from georama.data_integration.views import RegisterQgisProject
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0 import WfsOperation
@@ -69,10 +70,9 @@ def projects_dir(settings):
 def integrated_project(projects_dir):
     mandant_name = "TestMandant"
     project_name = "TestProject"
-
-    view = RegisterQgisProject()
-    qgis_project, project_config = view.load_project_config(mandant_name, project_name)
-    view.integrate_project(qgis_project, project_config, mandant_name)
+    fss_project = FSService()
+    qgis_project = fss_project.get(mandant_name, project_name)
+    DBService().integrate_project(qgis_project, qgis_project.config, mandant_name)
     project = Project.objects.get(hash=qgis_project.hash)
     return project
 

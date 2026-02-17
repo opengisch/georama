@@ -21,7 +21,7 @@ class TestDataIntegrationViews:
         )
         assert response.status_code == 200
         assert response.redirect_chain == [
-            ("/data_integration/project/changelist", 302),
+            ("/data_integration/project", 302),
         ]
 
         assert b"TestProject" in response.content
