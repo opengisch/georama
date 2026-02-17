@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 
 from georama.core.entities.models import (
     PermissionInterface,
@@ -64,6 +65,9 @@ class PublishedAsVectorFeature(PublishedAs):
         )
         return self._has_grained_permission(user, permissions, app_name)
 
+    def __str__(self):
+        return self.title or self.name
+
 
 class Column(PublishedAsRoleNameSystem):
     published_as_type = "feature_column"
@@ -107,6 +111,9 @@ class Column(PublishedAsRoleNameSystem):
 
     class Meta:
         abstract = True
+
+    def __str__(self):
+        return self.title or self.name
 
 
 class PublishedAsWfs(PublishedAsVectorFeature):
@@ -182,6 +189,9 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
                     dataset_column=field,
                     public=True,
                 ).save()
+
+    def get_absolute_url(self):
+        return reverse(f"{central_app_label}:layer-detail", kwargs={"pk": self.pk})
 
 
 class ColumnOgcApiFeatures(Column):

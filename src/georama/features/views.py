@@ -1,12 +1,14 @@
-import copy
 import os.path
 
 import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
 from django.apps import apps
+from django.contrib.auth.models import Group, Permission, User
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
+from django.urls import reverse, reverse_lazy
+from django.utils.translation import gettext as _
 from django.views import View
 from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
@@ -14,19 +16,16 @@ from pygeoapi.openapi import get_oas
 from qgis_server_light.interface.qgis import BBox
 
 from georama.core.menu import BreadCrumb
-from georama.core.services import Service
-from georama.core.views import ChangeListView, FormView
+from georama.core.services.permission import DBService
+from georama.core.views.generic.delete import GeoramaDeleteView
+from georama.core.views.generic.detail import GeoramaDetailView
+from georama.core.views.generic.list import GeoramaListView
+from georama.core.views.generic.update import GeoramaUpdateView
 from georama.data_integration.models import Field, VectorDataSet
 from georama.features.apps import central_app_label
 from georama.features.config_server import ServerConfig
 from georama.features.features_config import Config
-from georama.features.forms import PublishedAsOgcApiFeaturesForm
 from georama.features.models import ColumnOgcApiFeatures, PublishedAsOgcApiFeatures
-from georama.features.services import (
-    PermissionService,
-    PublishedAsOgcApiFeaturesService,
-    VectorDatasetService,
-)
 
 api = None
 
@@ -507,6 +506,8 @@ def getDatasetFieldConstraints(
                     schema["maximum"] += 1 - schema["multipleOf"]
             except ValueError:
                 pass
+            except KeyError:
+                pass
 
         field_constraints[str(properties.name)] = schema
 
@@ -530,69 +531,220 @@ def admin_publish_as_oapif(request: HttpRequest, vector_dataset_id: str):
     return redirect("features:index")
 
 
-class Index(ChangeListView):
-    service = PublishedAsOgcApiFeaturesService
-    title = "OGCAPI-F"
-    name = "index"
-    app_menu = apps.get_app_config("features").app_menu()
-    template = "features/index.html"
-    breadcrumbs = [BreadCrumb(app_menu.title, f"{app_menu.app_label}:index")]
-    breadcrumb_action_url = "features:change_list_vector_dataset"
-    breadcrumb_action_icon = "fa fa-circle-plus"
-    breadcrumb_action_title = "publish layer"
-    list_actions = []
+class Index(GeoramaListView):
+    model = PublishedAsOgcApiFeatures
+    template_name = "features/index.html"
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["breadcrumb_action_url"] = f"{central_app_label}:layer-source-list"
+        context["breadcrumb_action_icon"] = "fa fa-circle-plus"
+        context["breadcrumb_action_title"] = _("publish layer")
+        context["breadcrumb_action_tooltip"] = _("Publish a new features layer")
+        return context
 
 
-class Publish(ChangeListView):
-    service = VectorDatasetService
-    title = "Publish"
-    name = f"{ChangeListView.view_type_name}_{service.name}"
-    app_menu = apps.get_app_config("features").app_menu()
-    template = "features/publish.html"
-    breadcrumbs = [
-        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
-        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
+class Publish(GeoramaListView):
+    model = VectorDataSet
+    template_name = "features/publish.html"
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Add")),
+        ]
+
+
+class FeatureDetailView(GeoramaDetailView):
+    model = PublishedAsOgcApiFeatures
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(self.object.title or self.object.name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        context = super().get_context_data(**kwargs)
+        context["update_view_name"] = f"{app_menu.app_label}:layer-update"
+        context["delete_view_name"] = f"{app_menu.app_label}:layer-delete"
+        context["permission_view_name"] = f"{app_menu.app_label}:layer-permission-list"
+        return context
+
+
+class FeatureUpdateView(GeoramaUpdateView):
+    model = PublishedAsOgcApiFeatures
+    fields = [
+        "title",
+        "name",
+        "description",
+        "default_items",
+        "max_items",
+        "on_exceed",
+        "public",
+        "license",
+        "fees",
+        "access_constraints",
     ]
 
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(self.object.title or self.object.name),
+        ]
 
-class PublishedAsOgcApiFeaturesServiceFormView(FormView):
-    service = PublishedAsOgcApiFeaturesService
-    name = f"form_{service.name}"
-    title = "Show"
-    app_menu = apps.get_app_config("features").app_menu()
-    forms = [PublishedAsOgcApiFeaturesForm]
-    template = "features/form.html"
-    breadcrumbs = [
-        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
-        BreadCrumb(
-            Index.title,
-            f"{app_menu.app_label}:{Index.name}",
-        ),
-    ]
+    def get_context_data(self, **kwargs):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        context = super().get_context_data(**kwargs)
+        context["delete_view_name"] = f"{app_menu.app_label}:layer-delete"
+        context["permission_view_name"] = f"{app_menu.app_label}:layer-permission-list"
+        return context
 
-    def extra_context(self, context: dict, service: Service):
-        permissions = []
-        breadcrumbs = copy.deepcopy(context["breadcrumbs"])
-        if context["instance"] is not None:
-            permission_service = PermissionService()
-            permissions = permission_service.get_permission_lookup(context["instance"])
-            breadcrumbs.append(
-                BreadCrumb(context["instance"].title, f"{self.app_menu.app_label}:{self.name}")
+
+class FeatureDeleteView(GeoramaDeleteView):
+    model = PublishedAsOgcApiFeatures
+    success_url = reverse_lazy(f"{central_app_label}:index")
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(self.object.title or self.object.name),
+        ]
+
+
+class PermissionView(GeoramaDetailView):
+    model = Permission
+    template_name = "core/permission.html"
+
+    def get_object(self, queryset=None):
+        object_pk = self.kwargs.get("pk")
+        dbs_permission = DBService(PublishedAsOgcApiFeatures, central_app_label)
+        return dbs_permission.get_permission_lookup(object_pk)
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(
+                PublishedAsOgcApiFeatures.objects.get(pk=self.kwargs.get("pk")).title,
+                reverse(
+                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs.get("pk")}
+                ),
+            ),
+            BreadCrumb(self.model._meta.verbose_name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["add_user_url"] = reverse(
+            f"{central_app_label}:layer-permission-user-list",
+            kwargs={"pk": self.kwargs.get("pk")},
+        )
+        context["add_group_url"] = reverse(
+            f"{central_app_label}:layer-permission-group-list",
+            kwargs={"pk": self.kwargs.get("pk")},
+        )
+        return context
+
+
+class UserListView(GeoramaListView):
+    model = User
+    template_name = "core/user.html"
+
+    def get_queryset(self):
+        return (
+            User.objects.exclude(
+                user_permissions__codename__icontains=str(self.kwargs.get("pk"))
             )
-        return {
-            "permissions": permissions,
-            "form": context["forms"][0],
-            "breadcrumbs": breadcrumbs,
-        }
+            .exclude(pk=None)
+            .filter(is_superuser=False)
+        )
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(
+                PublishedAsOgcApiFeatures.objects.get(pk=self.kwargs.get("pk")).title,
+                reverse(
+                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs.get("pk")}
+                ),
+            ),
+            BreadCrumb(
+                PermissionView.model._meta.verbose_name,
+                reverse(
+                    f"{app_menu.app_label}:layer-permission-list",
+                    kwargs={"pk": self.kwargs.get("pk")},
+                ),
+            ),
+            BreadCrumb(self.model._meta.verbose_name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dbs_permission = DBService(PublishedAsOgcApiFeatures, central_app_label)
+        context["read_permission_id"] = (
+            dbs_permission.get_by_object_pk(self.kwargs.get("pk"))
+            .filter(codename__icontains="read")
+            .get()
+            .pk
+        )
+        context["success_url"] = reverse(
+            "features:layer-permission-list", kwargs={"pk": self.kwargs.get("pk")}
+        )
+        return context
 
 
-class PermissionView(ChangeListView):
-    service = PermissionService
-    title = "Permission"
-    name = f"{ChangeListView.view_type_name}_{service.name}"
-    app_menu = apps.get_app_config("features").app_menu()
-    template = "features/permission.html"
-    breadcrumbs = [
-        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
-        BreadCrumb(title, f"{app_menu.app_label}:{name}"),
-    ]
+class GroupListView(GeoramaListView):
+    model = Group
+    template_name = "core/group.html"
+
+    def get_queryset(self):
+        return Group.objects.exclude(
+            permissions__codename__icontains=str(self.kwargs.get("pk"))
+        )
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(
+                PublishedAsOgcApiFeatures.objects.get(pk=self.kwargs.get("pk")).title,
+                reverse(
+                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs.get("pk")}
+                ),
+            ),
+            BreadCrumb(
+                PermissionView.model._meta.verbose_name,
+                reverse(
+                    f"{app_menu.app_label}:layer-permission-list",
+                    kwargs={"pk": self.kwargs.get("pk")},
+                ),
+            ),
+            BreadCrumb(self.model._meta.verbose_name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dbs_permission = DBService(PublishedAsOgcApiFeatures, central_app_label)
+        context["read_permission_id"] = (
+            dbs_permission.get_by_object_pk(self.kwargs.get("pk"))
+            .filter(codename__icontains="read")
+            .get()
+            .pk
+        )
+        context["success_url"] = reverse(
+            "features:layer-permission-list", kwargs={"pk": self.kwargs.get("pk")}
+        )
+        return context

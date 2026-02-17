@@ -8,7 +8,7 @@
     <div class="align-content-center">
         <div class="btn-group" role="group" aria-label="Layer actions">
             {% blocktranslate asvar title %}Save changes{% endblocktranslate %}
-            <button type="submit" form="{{ instance.pk }}"
+            <button type="submit" form="{{ object.pk }}"
                class="btn btn-outline-primary" role="button"
                data-bs-toggle="tooltip"
                title="{{ title }}"
@@ -17,7 +17,7 @@
             </button>
 
             {% blocktranslate asvar title %}Delete layer{% endblocktranslate %}
-            <a href="#"
+            <a href="{% url 'features:feature-delete' object.pk %}"
                class="btn btn-outline-danger" role="button"
                data-bs-toggle="tooltip"
                title="{{ title }}"
@@ -27,9 +27,4 @@
         </div>
     </div>
 
-{% endblock %}
-
-
-{% block form_right %}
-{% include "core/permission_table.html" %}
 {% endblock %}

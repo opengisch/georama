@@ -1,9 +1,18 @@
-{% extends 'core/change_list.html' %}
+{% extends 'core/list.html' %}
 {% load static i18n %}
 
 {% block list_actions %}
     <div class="btn-group" role="group" aria-label="List actions">
-        <a href="{% url 'features:collections' %}?f=json" target="_blank" class="btn btn-outline-primary">OGCAPI JSON</a>
+        {% blocktranslate asvar title %}Open OAPIF Landing page{% endblocktranslate %}
+        <a
+                href="{% url 'features:collections' %}?f=json"
+                target="_blank"
+                class="btn btn-outline-primary"
+                data-bs-toggle="tooltip"
+                title="{{ title }}"
+                aria-label="{{ title }}">
+            OGCAPI JSON
+        </a>
     </div>
 {% endblock %}
 
@@ -13,29 +22,29 @@
         <div class="d-flex flex-row">
 
             <!-- Thumbnail -->
-        
+
             <div class="me-3">
 
-                <a href="{% url 'features:form_ogcapi-f' item.pk %}">
+                <a href="{% url 'features:layer-detail' item.pk %}">
                     <img src="{% static 'images/OGC_Logo.svg' %}"
                          alt="{% trans 'OGC Logo' %}"
                          class="rounded img-thumbnail preview-image"/>
                 </a>
             </div>
-        
+
             <!-- Title and description -->
-        
+
             <div class="d-flex flex-column flex-grow-1 justify-content-around">
-            
+
                 <div>
-                    <a href="{% url 'features:form_ogcapi-f' item.pk %}"
+                    <a href="{% url 'features:layer-detail' item.pk %}"
                        class="link-offset-3 link-underline link-underline-opacity-75">
                         <h4 class="mb-2">{{ item.title }}</h4>
                     </a>
                     <div class="mb-1">{{ item.name }}</div>
                 </div>
 
-            
+
                 <!-- Pills with layer functionalities -->
 
                 <div class="align-content-bottom">
@@ -46,18 +55,18 @@
                       title="{{ title }}"
                       aria-label="{{ title }}">
                         public</span>
-                
+
                 </div>
             </div>
 
             <!-- Buttons group with layer actions -->
 
             <div class="align-content-center">
-                
+
                 <div class="btn-group mr-2" role="group" aria-label="Feature actions">
 
                     {% blocktranslate asvar title%}Show OGC API Features layer details and permissions{% endblocktranslate %}
-                    <a href="{% url 'features:form_ogcapi-f' item.pk %}"
+                    <a href="{% url 'features:layer-detail' item.pk %}"
                        class="btn btn-outline-primary" role="button"
                        title="{{ title }}"
                        aria-label="{{ title }}"
@@ -65,9 +74,27 @@
                         <i class="fa fa-eye"></i>
                     </a>
 
+                    {% blocktranslate asvar title%}Edit OGC API Features layer details{% endblocktranslate %}
+                    <a href="{% url 'features:layer-update' item.pk %}"
+                       class="btn btn-outline-primary" role="button"
+                       title="{{ title }}"
+                       aria-label="{{ title }}"
+                       data-bs-toggle="tooltip">
+                        <i class="fa fa-pen"></i>
+                    </a>
+
+                    {% blocktranslate asvar title %}Edit permissions{% endblocktranslate %}
+                    <a href="{% url 'features:layer-permission-list' item.pk %}"
+                       class="btn btn-outline-primary" role="button"
+                       data-bs-toggle="tooltip"
+                       title="{{ title }}"
+                       aria-label="{{ title }}">
+                        <i class="fa fa-lock"></i>
+                    </a>
+
                     {% blocktranslate asvar title%}Show OGC API Feature collection endpoint{% endblocktranslate %}
                     <a href="{% url 'features:collection-detail' item.pk %}"
-                       target="_blank" 
+                       target="_blank"
                        class="btn btn-outline-primary" role="button"
                        data-bs-toggle="tooltip"
                        title="{{ title }}"
@@ -76,14 +103,14 @@
                     </a>
 
                     {% blocktranslate asvar title%}Delete OGC API Features layer{% endblocktranslate %}
-                    <a href="#"
+                    <a href="{% url 'features:layer-delete' item.pk %}"
                        class="btn btn-outline-danger" role="button"
                        data-bs-toggle="tooltip"
                        title="{{ title }}"
                        aria-label="{{ title }}">
                         <i class="fa fa-trash-alt"></i>
                     </a>
-                
+
                 </div>
             </div>
 

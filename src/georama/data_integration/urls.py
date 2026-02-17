@@ -24,50 +24,30 @@ app_name = central_app_label
 
 urlpatterns = [
     path(
-        "/register_qgis_project/<str:mandant_name>/<str:project_name>",
+        "/register_qgis_project/<str:folder_name>/<str:project_name>",
         views.RegisterQgisProject.as_view(),
-        name="register_qgis_project",
+        name="project-register",
     ),
     path(
-        "/export_qgis_project/<str:mandant_name>/<str:project_name>",
+        "/export_qgis_project/<str:folder_name>/<str:project_name>",
         views.QgisServerLightExporter.as_view(),
-        name="export_qgis_project",
+        name="project-export",
     ),
     path("/", views.Index.as_view(), name="index"),
     path(
-        "/project/changelist",
+        "/project",
         views.ChangeListProject.as_view(),
-        name=views.ChangeListProject.name,
+        name="project-list",
     ),
-    path("/project/delete/<str:pk>", views.DeleteProject.as_view(), name="project_delete"),
+    path("/project/<str:pk>/delete", views.DeleteProject.as_view(), name="project-delete"),
     path(
         "/project/detail/<str:group_name>/<str:project_name>",
         views.ProjectDetail.as_view(),
-        name="project_detail",
+        name="project-detail",
     ),
     path(
         "/manual_dataset/changelist",
         views.ChangeListManualDataset.as_view(),
         name=views.ChangeListManualDataset.name,
-    ),
-    path(
-        "/vector_dataset/form",
-        views.VectorDatasetFormView.as_view(),
-        name=views.VectorDatasetFormView.name,
-    ),
-    path(
-        "/raster_dataset/form",
-        views.RasterDatasetFormView.as_view(),
-        name=views.RasterDatasetFormView.name,
-    ),
-    path(
-        "/custom_dataset/form",
-        views.CustomDatasetFormView.as_view(),
-        name=views.CustomDatasetFormView.name,
-    ),
-    path(
-        "/new_wms/form",
-        views.NewWmsFormView.as_view(),
-        name=views.NewWmsFormView.name,
     ),
 ]

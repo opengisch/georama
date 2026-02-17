@@ -1,10 +1,12 @@
-import copy
 import logging
 
 from asgiref.sync import sync_to_async
 from django.apps import apps
+from django.contrib.auth.models import Group, Permission, User
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
+from django.urls import reverse, reverse_lazy
+from django.utils.translation import gettext as _
 from django.views import View
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import (
@@ -20,17 +22,19 @@ from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer
 
 from georama.core.menu import BreadCrumb
-from georama.core.services import Service
-from georama.core.views import ChangeListView, FormView
+from georama.core.services.permission import DBService
+from georama.core.views.generic.delete import GeoramaDeleteView
+from georama.core.views.generic.detail import GeoramaDetailView
+from georama.core.views.generic.list import GeoramaListView
+from georama.core.views.generic.update import GeoramaUpdateView
+from georama.core.views.multi_model.list import ChangeListView
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
-from georama.features.services import PermissionService
-from georama.maps.apps import MapsConfig
-from georama.maps.forms import PublishedAsWmsForm
+from georama.maps.apps import MapsConfig, central_app_label
 from georama.maps.interfaces.georama.requests import QslGetMapRequest
 from georama.maps.interfaces.ogc.wfs_2_0_0 import GetFeature as GetFeature200
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
-from georama.maps.services.services import ProjectDatasetsService, PublishedAsWmsService
+from georama.maps.services.services import DatasetService
 from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
 from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
 from georama.maps.services.wfs_2_0_0.get_feature import WfsGetFeature
@@ -59,7 +63,7 @@ class OgcServer(View):
         """
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WmsGetCapabilities(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
         )
         if requested_format not in operation.allowed_formats:
             return HttpResponse(
@@ -84,7 +88,7 @@ class OgcServer(View):
     def wfs_200_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetCapabilities(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
         )
 
         if requested_format not in operation.allowed_formats:
@@ -112,7 +116,7 @@ class OgcServer(View):
         language = "en-US"
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetMetadata(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
         )
         if requested_layer:
             if requested_format not in operation.allowed_formats:
@@ -154,7 +158,7 @@ class OgcServer(View):
             "OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2"
         ).upper()
         operation = WfsDescribeFeatureType(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
         )
         content, content_type, success = operation.render(
             requested_format, operation.describe_feature_type(requested_layer)
@@ -173,7 +177,7 @@ class OgcServer(View):
 
     async def wfs_200_getfeature(self, request: HttpRequest, params: dict) -> HttpResponse:
         operation = WfsGetFeature(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
         )
         get_feature_parameter = operation.query_parameters_to_get_feature_request(params)
 
@@ -288,7 +292,7 @@ class OgcServer(View):
                 )
                 service_params = DictDecoder(parser_config).decode(params, QslGetMapRequest)
                 operation = WmsGetMap(
-                    appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+                    appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
                 )
                 try:
                     job = await sync_to_async(
@@ -353,7 +357,7 @@ class OgcServer(View):
     async def post(self, request: HttpRequest, *args, **kwargs):
         try:
             operation = WfsGetFeature(
-                appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+                appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
             )
             try:
                 get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature200)
@@ -423,18 +427,22 @@ def publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: 
     return redirect("maps:index")
 
 
-class Index(ChangeListView):
-    service = PublishedAsWmsService
-    title = "Layers"
-    name = "index"
-    app_menu = apps.get_app_config("maps").app_menu()
-    template = "maps/index.html"
-    breadcrumbs = [BreadCrumb(app_menu.title, f"{app_menu.app_label}:index")]
-    breadcrumb_action_url = "maps:change_list_dataset"
-    breadcrumb_action_icon = "fa fa-circle-plus"
-    breadcrumb_action_title = "publish layer"
+class Index(GeoramaListView):
+    model = PublishedAsWms
+    template_name = "maps/index.html"
 
-    def extra_context(self, context: dict, service: PublishedAsWmsService):
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["breadcrumb_action_url"] = f"{central_app_label}:layer-source-list"
+        context["breadcrumb_action_icon"] = "fa fa-circle-plus"
+        context["breadcrumb_action_title"] = _("publish layer")
+        context["breadcrumb_action_tooltip"] = _("Publish a new maps layer")
         context["wms_get_capabilities_params"] = (
             PublishedAsWms.create_wms_capabilities_url_params()
         )
@@ -444,44 +452,204 @@ class Index(ChangeListView):
         return context
 
 
-class PublishedAsWmsFormView(FormView):
-    service = PublishedAsWmsService
-    name = f"form_{service.name}"
-    title = "Show"
-    app_menu = apps.get_app_config("maps").app_menu()
-    forms = [PublishedAsWmsForm]
-    template = "maps/form.html"
-    breadcrumbs = [
-        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
-        BreadCrumb(
-            Index.title,
-            f"{app_menu.app_label}:{Index.name}",
-        ),
-    ]
-
-    def extra_context(self, context: dict, service: Service):
-        permissions = []
-        breadcrumbs = copy.deepcopy(context["breadcrumbs"])
-        if context["instance"] is not None:
-            permission_service = PermissionService()
-            permissions = permission_service.get_permission_lookup(context["instance"])
-            breadcrumbs.append(
-                BreadCrumb(context["instance"].title, f"{self.app_menu.app_label}:{self.name}")
-            )
-        return {
-            "permissions": permissions,
-            "form": context["forms"][0],
-            "breadcrumbs": breadcrumbs,
-        }
-
-
 class Publish(ChangeListView):
-    service = ProjectDatasetsService
+    """
+    We use a special type of view here since it need to deal with subclassed models
+    which should be listed in one list for selection.
+    """
+
+    service = DatasetService
     title = "Publish"
-    name = f"{ChangeListView.view_type_name}_{service.name}"
+    name = "layer-source-list"
     app_menu = apps.get_app_config("maps").app_menu()
     template = "maps/publish.html"
     breadcrumbs = [
         BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
         BreadCrumb(title, f"{app_menu.app_label}:{name}"),
     ]
+
+
+class MapDetailView(GeoramaDetailView):
+    model = PublishedAsWms
+    template_name = "maps/detail.html"
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(self.object.title or self.object.name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        context = super().get_context_data(**kwargs)
+        context["update_view_name"] = f"{app_menu.app_label}:layer-update"
+        context["delete_view_name"] = f"{app_menu.app_label}:layer-delete"
+        context["permission_view_name"] = f"{app_menu.app_label}:layer-permission-list"
+        return context
+
+
+class MapUpdateView(GeoramaUpdateView):
+    model = PublishedAsWms
+    fields = [
+        "title",
+        "name",
+        "description",
+        "public",
+        "license",
+        "fees",
+        "access_constraints",
+    ]
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(self.object.title or self.object.name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        context = super().get_context_data(**kwargs)
+        context["delete_view_name"] = f"{app_menu.app_label}:layer-delete"
+        context["permission_view_name"] = f"{app_menu.app_label}:layer-permission-list"
+        return context
+
+
+class MapDeleteView(GeoramaDeleteView):
+    model = PublishedAsWms
+    success_url = reverse_lazy(f"{central_app_label}:index")
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(self.object.title or self.object.name),
+        ]
+
+
+class PermissionView(GeoramaDetailView):
+    model = Permission
+    template_name = "core/permission.html"
+
+    def get_object(self, queryset=None):
+        object_pk = self.kwargs.get("pk")
+        dbs_permission = DBService(PublishedAsWms, central_app_label)
+        return dbs_permission.get_permission_lookup(object_pk)
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(
+                PublishedAsWms.objects.get(pk=self.kwargs.get("pk")).title,
+                reverse(
+                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs.get("pk")}
+                ),
+            ),
+            BreadCrumb(self.model._meta.verbose_name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["add_user_url"] = reverse(
+            f"{central_app_label}:layer-permission-user-list",
+            kwargs={"pk": self.kwargs.get("pk")},
+        )
+        context["add_group_url"] = reverse(
+            f"{central_app_label}:layer-permission-group-list",
+            kwargs={"pk": self.kwargs.get("pk")},
+        )
+        return context
+
+
+class UserListView(GeoramaListView):
+    model = User
+    template_name = "core/user.html"
+
+    def get_queryset(self):
+        return (
+            User.objects.exclude(
+                user_permissions__codename__icontains=str(self.kwargs.get("pk"))
+            )
+            .exclude(pk=None)
+            .filter(is_superuser=False)
+        )
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(
+                PublishedAsWms.objects.get(pk=self.kwargs.get("pk")).title,
+                reverse(
+                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs.get("pk")}
+                ),
+            ),
+            BreadCrumb(
+                PermissionView.model._meta.verbose_name,
+                reverse(
+                    f"{app_menu.app_label}:layer-permission-list",
+                    kwargs={"pk": self.kwargs.get("pk")},
+                ),
+            ),
+            BreadCrumb(self.model._meta.verbose_name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dbs_permission = DBService(PublishedAsWms, central_app_label)
+        context["read_permission_id"] = (
+            dbs_permission.get_by_object_pk(self.kwargs.get("pk"))
+            .filter(codename__icontains="read")
+            .get()
+            .pk
+        )
+        context["success_url"] = reverse(
+            "maps:layer-permission-list", kwargs={"pk": self.kwargs.get("pk")}
+        )
+        return context
+
+
+class GroupListView(GeoramaListView):
+    model = Group
+    template_name = "core/group.html"
+
+    def get_queryset(self):
+        return Group.objects.exclude(
+            permissions__codename__icontains=str(self.kwargs.get("pk"))
+        )
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(
+                PublishedAsWms.objects.get(pk=self.kwargs.get("pk")).title,
+                reverse(
+                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs.get("pk")}
+                ),
+            ),
+            BreadCrumb(
+                PermissionView.model._meta.verbose_name,
+                reverse(
+                    f"{app_menu.app_label}:layer-permission-list",
+                    kwargs={"pk": self.kwargs.get("pk")},
+                ),
+            ),
+            BreadCrumb(self.model._meta.verbose_name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dbs_permission = DBService(PublishedAsWms, central_app_label)
+        context["read_permission_id"] = (
+            dbs_permission.get_by_object_pk(self.kwargs.get("pk"))
+            .filter(codename__icontains="read")
+            .get()
+            .pk
+        )
+        context["success_url"] = reverse(
+            "maps:layer-permission-list", kwargs={"pk": self.kwargs.get("pk")}
+        )
+        return context

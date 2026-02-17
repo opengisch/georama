@@ -49,33 +49,48 @@ urlpatterns = [
         name="collection-item",
     ),
     path(
-        "/publish_as/oapif/<str:vector_dataset_id>",
-        views.admin_publish_as_oapif,
-        name="publish_as_oapif",
-    ),
-    path(
         "/",
         views.Index.as_view(),
         name="index",
     ),
     path(
-        "/publish",
+        "/layer/add",
         views.Publish.as_view(),
-        name=views.Publish.name,
+        name="layer-source-list",
     ),
     path(
-        "/ogcapi-f/form/<str:pk>",
-        views.PublishedAsOgcApiFeaturesServiceFormView.as_view(),
-        name=views.PublishedAsOgcApiFeaturesServiceFormView.name,
+        "/layer/add/<str:vector_dataset_id>",
+        views.admin_publish_as_oapif,
+        name="layer-source-add",
     ),
     path(
-        "/ogcapi-f/form",
-        views.PublishedAsOgcApiFeaturesServiceFormView.as_view(),
-        name=views.PublishedAsOgcApiFeaturesServiceFormView.name,
+        "/layer/<str:pk>",
+        views.FeatureDetailView.as_view(),
+        name="layer-detail",
     ),
     path(
-        "/permission",
+        "/layer/<str:pk>/update",
+        views.FeatureUpdateView.as_view(),
+        name="layer-update",
+    ),
+    path(
+        "/layer/<str:pk>/delete",
+        views.FeatureDeleteView.as_view(),
+        name="layer-delete",
+    ),
+    path(
+        "/layer/<str:pk>/permission",
         views.PermissionView.as_view(),
-        name=views.PermissionView.name,
+        name="layer-permission-list",
+    ),
+    path(
+        "/layer/<str:pk>/permission/user",
+        views.UserListView.as_view(),
+        name="layer-permission-user-list",
+    ),
+    path(
+        "/layer/<str:pk>/permission/group",
+        views.GroupListView.as_view(),
+        name="layer-permission-group-list",
     ),
 ]

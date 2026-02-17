@@ -18,7 +18,7 @@
                              alt="{% trans 'QGIS Logo' %}"
                              class="rounded img-thumbnail preview-image"/>
                 {% else %}
-                    <a href="{% url 'data_integration:project_detail' item.name project_item.name %}">
+                    <a href="{% url 'data_integration:project-detail' item.name project_item.name %}">
                         <img src="{% static project_item.icon %}"
                              alt="{% trans 'QGIS Logo' %}"
                              class="rounded img-thumbnail preview-image"/>
@@ -34,7 +34,7 @@
                     {% if project_item.config is None %}
                         <h4 class="mb-2">{{ project_item.name }}</h4>
                     {% else %}
-                        <a href="{% url 'data_integration:project_detail' item.name project_item.name %}"
+                        <a href="{% url 'data_integration:project-detail' item.name project_item.name %}"
                            class="link-offset-3 link-underline link-underline-opacity-75">
                             <h4 class="mb-2">{{ project_item.name }}</h4>
                         </a>
@@ -70,7 +70,7 @@
                 <div class="btn-group" role="group" aria-label="Project actions">
 
                     {% blocktranslate asvar title%}Show QGIS project details and dataset list{% endblocktranslate %}
-                    <a href="{% if project_item.config %}{% url 'data_integration:project_detail' item.name project_item.name %}{% else %}#{% endif %}"
+                    <a href="{% if project_item.config %}{% url 'data_integration:project-detail' item.name project_item.name %}{% else %}#{% endif %}"
                        class="btn btn-outline-primary{% if project_item.config is None %} disabled{% endif %}" role="button"
                        title="{{ title }}"
                        aria-label="{{ title }}"
@@ -85,7 +85,7 @@
                     {% endif %}
 
                         <a onclick="showWaitModalOverlay()"
-                           href="{% url 'data_integration:export_qgis_project' item.name project_item.name %}"
+                           href="{% url 'data_integration:project-export' item.name project_item.name %}"
                            class="btn btn-outline-primary" role="button"
                            title="{{ title }}"
                            aria-label="{{ title }}"
@@ -96,7 +96,7 @@
                     {% blocktranslate asvar title%}Remove QGIS project from Georama by unlinking it{% endblocktranslate %}
 
                     {% if project_item.database_representation %}
-                        <a href="{% url 'data_integration:project_delete' project_item.database_representation.pk %}"
+                        <a href="{% url 'data_integration:project-delete' project_item.database_representation.pk %}"
                            class="btn btn-outline-danger" role="button"
                            title="{{ title }}"
                            aria-label="{{ title }}"

@@ -7,8 +7,10 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 
-from georama.data_integration.lib.qgis_project_file_structure import QgisProjectFileStructure
-from georama.data_integration.data_integration_config import Config
+from georama.data_integration.lib.data_integration_config import Config
+from georama.data_integration.lib.qgis_project_file_structure import (
+    QgisProjectFileStructure,
+)
 from georama.data_integration.models import (
     CustomDataSet,
     Mandant,
@@ -56,14 +58,14 @@ class ProjectAdmin(admin.ModelAdmin):
             export_url = reverse(
                 "georama.data_integration:export_qgis_project",
                 kwargs={
-                    "mandant_name": obj.mandant.name,
+                    "folder_name": obj.mandant.name,
                     "project_name": obj.name,
                 },
             )
             integrate_url = reverse(
                 "georama.data_integration:register_qgis_project",
                 kwargs={
-                    "mandant_name": obj.mandant.name,
+                    "folder_name": obj.mandant.name,
                     "project_name": obj.name,
                 },
             )

@@ -22,5 +22,5 @@ def get_dict_value_by_key(dictionary, key):
 def field_name_and_value(obj):
     result = []
     for field in obj._meta.fields:
-        result.append([field.verbose_name, getattr(obj, field.name)])
+        result.append([field.verbose_name, field.help_text, getattr(obj, field.name)])
     return result

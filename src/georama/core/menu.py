@@ -30,4 +30,4 @@ def get_menu_item_by_app_name(app_name: str) -> MenuItem | None:
 @dataclass
 class BreadCrumb:
     title: str
-    view_name: str
+    view_name: str | None = None

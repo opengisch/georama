@@ -15,40 +15,40 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.conf import settings
+from django.conf import settings as AppSettings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
-from georama.core import views
 from georama.core.apps import central_app_label
+from georama.core.views import auth, landing, permission, settings
 
 app_name = central_app_label
 
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
-    path("", views.GeoramaLanding.as_view(), name="landing"),
-    path("login", views.Login.as_view(), name="login"),
-    path("logout", views.Logout.as_view(), name="logout"),
+    path("", landing.GeoramaLanding.as_view(), name="landing"),
+    path("login", auth.Login.as_view(), name="login"),
+    path("logout", auth.Logout.as_view(), name="logout"),
+    path("settings", settings.Settings.as_view(), name="settings"),
     path(
         "core/assign_permission_to_user_or_group",
-        views.AssignPermissionToUserOrGroup.as_view(),
+        permission.AssignPermissionToUserOrGroup.as_view(),
         name="assign_permission_to_user_or_group",
     ),
     path(
         "core/remove_permission_from_user_or_group",
-        views.RemovePermissionToUserOrGroup.as_view(),
+        permission.RemovePermissionToUserOrGroup.as_view(),
         name="remove_permission_from_user_or_group",
     ),
-    path("settings", views.Settings.as_view(), name="settings"),
     path("features", include("georama.features.urls")),
     path("data_integration", include("georama.data_integration.urls")),
     path("maps", include("georama.maps.urls")),
     path("webgis", include("georama.webgis.urls")),
     path("qfield_link", include("georama.qfield_link.urls")),
     path("accounts/", include("allauth.urls")),
-    path("admin/", admin.site.urls, {"extra_context": {"DEBUG": settings.DEBUG}}),
+    path("admin/", admin.site.urls, {"extra_context": {"DEBUG": AppSettings.DEBUG}}),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+if AppSettings.DEBUG:
+    urlpatterns += static(AppSettings.STATIC_URL, document_root=AppSettings.STATIC_ROOT)

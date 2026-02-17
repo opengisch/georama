@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#262626" media="(prefers-color-scheme: dark)">
-    
+
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
 
@@ -36,27 +36,34 @@
             <div class="container">
                 <div id="breadcrumb-container" class="d-flex flex-row justify-content-between align-items-center">
                     <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-                        
+
                         {% block breadcrumbs %}
 
                             <!-- breadcrumbs -->
-                            
+
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="{% url 'landing' %}">Home</a></li>
                                 {% for breadcrumb in breadcrumbs %}
-                                    {% if forloop.last %}
-                                        <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb.title }}</li>
-                                    {% else %}
+                                    {% if breadcrumb.view_name %}
                                         <li class="breadcrumb-item"><a
-                                        href="{% url breadcrumb.view_name %}">{{ breadcrumb.title }}</a></li>
+                                        href="{{ breadcrumb.view_name }}">{{ breadcrumb.title }}</a></li>
+                                    {% else %}
+                                        <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb.title }}</li>
                                     {% endif %}
                                 {% endfor %}
-                                
+
                                 <!-- Button as last element of breadcrumbs -->
-                            
+
                                 {% if breadcrumb_action_url %}
                                 <li class="breadcrumb-item breadcrumb-action">
-                                    <a href="{% url breadcrumb_action_url %}" class="btn btn-outline-primary" role="button">
+                                    <a
+                                            href="{% url breadcrumb_action_url %}"
+                                            class="btn btn-outline-primary"
+                                            role="button"
+                                            data-bs-toggle="tooltip"
+                                            title="{{ breadcrumb_action_tooltip }}"
+                                            aria-label="{{ breadcrumb_action_tooltip }}"
+                                    >
                                         {% if breadcrumb_action_icon %}
                                             <i class="{{ breadcrumb_action_icon }}"></i>
                                             <span>{{ breadcrumb_action_title }}</span>
@@ -72,16 +79,16 @@
                     </nav>
 
                     <!-- Button group on the right side -->
-                
+
                     {% block list_actions %}
                     {% endblock %}
-                
+
                 </div>
-            
-            
+
+
                 {% block content %}
                 {% endblock %}
-            
+
             </div>
         </section>
     </main>

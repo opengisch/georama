@@ -1,4 +1,4 @@
-{% extends 'core/change_list.html' %}
+{% extends 'core/list.html' %}
 {% load static i18n %}
 
 {% block list_actions %}
@@ -29,7 +29,7 @@
             <!-- Thumbnail -->
 
             <div class="me-3">
-                <a href="{% url 'maps:form_maps' item.pk %}">
+                <a href="{% url 'maps:layer-detail' item.pk %}">
                     <img src="{{ item.preview_as_base64 }}"
 {#                         TODO PI: What strategy do we want with preview images?#}
 {#                         style="width: 150px; height: 150px"#}
@@ -43,7 +43,7 @@
 
             <div class="d-flex flex-column flex-grow-1 justify-content-around">
                 <div>
-                    <a href="{% url 'maps:form_maps' item.pk %}"
+                    <a href="{% url 'maps:layer-detail' item.pk %}"
                        class="link-offset-3 link-underline link-underline-opacity-75">
                         <h4 class="mb-2">{{ item.title }}</h4>
                     </a>
@@ -93,12 +93,22 @@
                 <div class="btn-group mr-2" role="group" aria-label="Layer actions">
 
                     {% blocktranslate asvar title%}Show layer details and permissions{% endblocktranslate %}
-                    <a href="{% url 'maps:form_maps' item.pk %}"
+                    <a href="{% url 'maps:layer-detail' item.pk %}"
                        class="btn btn-outline-primary" role="button"
                        title="{{ title }}"
                        aria-label="{{ title }}"
                        data-bs-toggle="tooltip">
                         <i class="fa fa-eye"></i>
+                    </a>
+
+
+                    {% blocktranslate asvar title %}Edit permissions{% endblocktranslate %}
+                    <a href="{% url 'maps:layer-permission-list' item.pk %}"
+                       class="btn btn-outline-primary" role="button"
+                       data-bs-toggle="tooltip"
+                       title="{{ title }}"
+                       aria-label="{{ title }}">
+                        <i class="fa fa-lock"></i>
                     </a>
 
                     {% blocktranslate asvar title%}Open GetMap request in new tab{% endblocktranslate %}
@@ -122,7 +132,7 @@
                     </a>
 
                     {% blocktranslate asvar title%}Delete WMS layer{% endblocktranslate %}
-                    <a href="#"
+                    <a href="{% url 'maps:layer-delete' item.pk %}"
                        class="btn btn-outline-danger" role="button"
                        data-bs-toggle="tooltip"
                        title="{{ title }}"

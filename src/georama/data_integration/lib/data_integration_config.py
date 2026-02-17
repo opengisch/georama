@@ -12,4 +12,4 @@ class Config:
 
     @property
     def qgis_project_extensions(self) -> list[str]:
-        return [".qgz", ".qgs"]
+        return settings.QGIS_PROJECT_EXTENSIONS

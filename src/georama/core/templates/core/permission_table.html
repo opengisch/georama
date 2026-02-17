@@ -1,19 +1,18 @@
 {% load model_extras %}
-<h4>Permissions</h4>
 <div class="container pt-2 permissions">
     <div class="row p-2 border-bottom text-muted">
-        <div class="col-5">Name</div>
+        <div class="col-4">Name</div>
         {% for action in permissions.actions %}
-            <div class="col">{{ action|capfirst }}</div>
+            <div class="col-2">{{ action|capfirst }}</div>
         {% endfor %}
     </div>
     {% if permissions.lookup.groups|length > 0 %}
     <div class="row p-2 border-bottom">
         {% for group in permissions.lookup.groups %}
-            <div class="col-5 permission-icon" title="Group {{ group.name }}"><i class="fa fa-users text-muted"></i><span>{{ group.name }}</span></div>
+            <div class="col-4 permission-icon" title="Group {{ group.name }}"><i class="fa fa-users text-muted"></i><span>{{ group.name }}</span></div>
             {% for action in permissions.actions %}
                 {% get_dict_value_by_key group action as group_permission %}
-                <a class="col" role="button"
+                <a class="col-2" role="button"
                      onclick="{% if group_permission.allowed %}remove_permission('{{ group.id }}', '{{ group_permission.id }}', 'group'){% else %}assign_permission('{{ group.id }}', '{{ group_permission.id }}', 'group'){% endif %}">
                     <i class="fa {{ group_permission.icon }} align-self-center {% if group_permission.allowed %} text-primary {% else %} text-muted {% endif %}"></i>
                 </a>
@@ -21,13 +20,13 @@
         {% endfor %}
     </div>
     {% endif %}
-    {% if permissions.lookup.groups|length > 0 %}
+    {% if permissions.lookup.users|length > 0 %}
     <div class="row p-2 border-bottom">
         {% for user in permissions.lookup.users %}
-            <div class="col-5 permission-icon" title="User {{ group.name }}"><i class="fa fa-user text-muted"></i><span>{{ user.name }}</span></div>
+            <div class="col-4 permission-icon" title="User {{ group.name }}"><i class="fa fa-user text-muted"></i><span>{{ user.name }}</span></div>
             {% for action in permissions.actions %}
                 {% get_dict_value_by_key user action as user_permission %}
-                <a class="col" role="button"
+                <a class="col-2" role="button"
                      onclick="{% if user_permission.allowed %}remove_permission('{{ user.id }}', '{{ user_permission.id }}', 'user'){% else %}assign_permission('{{ user.id }}', '{{ user_permission.id }}', 'user'){% endif %}">
                     <i class="fa {{ user_permission.icon }} {% if user_permission.allowed %} text-primary {% else %} text-muted {% endif %}"></i>
                 </a>
@@ -35,21 +34,6 @@
         {% endfor %}
     </div>
     {% endif %}
-    <div class="row pt-4 pb-4">
-        <div class="col-5">
-            <a href="#"
-               role="button"
-               class="btn btn-outline-primary me-2">
-                <i class="fa fa-users"></i><span>add</span>
-            </a>
-            <a href="#"
-               role="button"
-               class="btn btn-outline-primary">
-                <i class="fa fa-user"></i><span>add</span>
-            </a>
-        </div>
-
-    </div>
 </div>
 
 <script>

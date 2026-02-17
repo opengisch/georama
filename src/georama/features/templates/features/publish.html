@@ -1,4 +1,4 @@
-{% extends 'core/change_list.html' %}
+{% extends 'core/list.html' %}
 {% block change_list_item %}
     <div class="list-group-item list-group-item-action p-4" aria-current="true">
 
@@ -22,7 +22,7 @@
                 </div>
             <div class="align-content-center">
                     <div class="btn-group" role="group" aria-label="Basic example">
-                        <a href="{% url 'features:publish_as_oapif' item.pk %}"
+                        <a href="{% url 'features:layer-source-add' item.pk %}"
                            class="btn btn-outline-primary" tabindex="-1" role="button" aria-disabled="true">Publish</a>
                     </div>
                 </div>

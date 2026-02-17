@@ -1,0 +1,49 @@
+{% extends 'core/list.html' %}
+{% load static i18n %}
+
+{% block change_list_item %}
+    <div class="list-group-item list-group-item-action p-4">
+
+        <div class="d-flex flex-row">
+
+            <!-- Thumbnail -->
+
+            <div class="me-3">
+                <img src="{% static 'qfield_link/images/logo.svg' %}"
+                     alt="{% trans 'QFieldCloud Logo' %}"
+                     class="rounded img-thumbnail preview-image"/>
+            </div>
+
+            <!-- Title and description -->
+
+            <div class="d-flex flex-column flex-grow-1 justify-content-around">
+
+                <div>
+                    <h4 class="mb-2">{{ item.name }}</h4>
+                    <div class="mb-1">{{ item.id }}</div>
+                </div>
+            </div>
+
+            <!-- Buttons group with layer actions -->
+
+            <div class="align-content-center">
+
+                <div class="btn-group mr-2" role="group" aria-label="Feature actions">
+
+                    {% blocktranslate asvar title%}Download project from QFieldCloud into Georama{% endblocktranslate %}
+                    <a href="{% url 'qfield_link:project-download' item.id %}"
+                       class="btn btn-outline-primary" role="button"
+                       title="{{ title }}"
+                       aria-label="{{ title }}"
+                       onclick="showWaitModalOverlay()"
+                       data-bs-toggle="tooltip">
+                        <i class="fa fa-download"></i>
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

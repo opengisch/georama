@@ -1,12 +1,9 @@
 {% for obj in objects %}
-    {% if obj.0 %}
+    {% if obj|length > 0 %}
         <li class="list-group-item">
-            {{ obj.0 }}
-            {% if obj.1 %}
-                <ul class="list-group list-group-flush ms-4 mt-2">
-                    {% include "core/includes/nested_delete.html" with objects=obj.1 %}
-                </ul>
-            {% endif %}
+            <ul class="list-group list-group-flush ms-4 mt-2">
+                {% include "core/includes/nested_delete.html" with objects=obj %}
+            </ul>
         </li>
     {% else %}
         <li class="list-group-item">{{ obj }}</li>

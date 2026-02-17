@@ -21,9 +21,9 @@
                     <td>{{ project.has_config }}</td>
                     <td>
                         <div class="d-flex flex-nowrap">
-                            <a onclick="showWaitModalOverlay()" href="{% url 'data_integration:export_qgis_project' group.name project.name %}" class="btn btn-high btn-success mr-2"><i class="fa fa-file-alt"></i> extract</a>
+                            <a onclick="showWaitModalOverlay()" href="{% url 'data_integration:project-export' group.name project.name %}" class="btn btn-high btn-success mr-2"><i class="fa fa-file-alt"></i> extract</a>
                             {% if project.has_config %}
-                                <a href="{% url 'data_integration:register_qgis_project' group.name project.name %}" class="btn btn-high btn-success"><i class="fa fa-arrow-alt-circle-up"></i> integrate</a>
+                                <a href="{% url 'data_integration:project-register' group.name project.name %}" class="btn btn-high btn-success"><i class="fa fa-arrow-alt-circle-up"></i> integrate</a>
                             {% endif %}
                         </div>
                     </td>

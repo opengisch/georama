@@ -19,7 +19,7 @@ from georama.data_integration.models import (
     RasterDataSet,
     VectorDataSet,
 )
-from georama.data_integration.views import RegisterQgisProject
+from georama.data_integration.services.project import FSService
 from georama.maps.views import OgcServer
 from georama.webgis.apps import WebgisConfig
 from georama.webgis.forms import HomeForm
@@ -290,9 +290,8 @@ class PublishProject(View):
         )
         theme.save()
         ogc_server = insert_internal_ogc_server(request)
-        project_from_config, project_config = RegisterQgisProject.load_project_config(
-            project_db.mandant.name, project_db.name
-        )
+        fss_project = FSService()
+        project_from_config = fss_project.get(project_db.mandant.name, project_db.name)
         root_group = LayerGroupMp.add_root(name=theme.name)
         db_root_node = LayerGroupMp.objects.get(pk=root_group.pk)
         db_root_node.theme = theme
@@ -300,11 +299,11 @@ class PublishProject(View):
         # Highly recursive task, we flatten the tree into treebeard structure
         self.assemble_tree_to_treebeard(
             # the element with empty string as name is always the root of the tree
-            project_config.tree.find_by_name("").children,
+            project_from_config.config.tree.find_by_name("").children,
             db_root_node,
             theme,
             project_db,
-            project_config,
+            project_from_config.config,
             ogc_server.name,
         )
         return redirect("admin:webgis_publishedastheme_changelist")

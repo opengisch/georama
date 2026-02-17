@@ -1,12 +1,26 @@
+import logging
+
+from django.conf import settings
+
 from georama.core.apps import GeoramaAbstractConfig
+
+central_app_label = "qfield_link"
 
 
 class QfieldLinkConfig(GeoramaAbstractConfig):
     default_auto_field = "django.db.models.BigAutoField"
     verbose_name = "QFieldLink"
-    name = "georama.qfield_link"
-    label = "qfield_link"
+    name = f"georama.{central_app_label}"
+    label = central_app_label
 
     def ready(self):
-        # TODO: remove this, once ready. We dont want to register a menu for Core on the Page
-        pass
+        if (
+            settings.QFIELD_LINK_URL
+            and settings.QFIELD_LINK_USER
+            and settings.QFIELD_LINK_PASSWORD
+        ):
+            super().ready()
+        else:
+            logging.info(
+                "Omitting QFIELD Cloud linking tool since configuration is not complete."
+            )

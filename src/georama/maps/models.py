@@ -1,27 +1,27 @@
 import base64
 import logging
-from typing import List, Tuple
-
 from dataclasses import fields
+
 from asgiref.sync import async_to_sync, sync_to_async
 from django.db import models
+from django.urls import reverse
+from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from osgeo import osr as osgeo_osr
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import QslGetMapJob, WmsGetMapParams
 from qgis_server_light.interface.qgis import BBox
-from django.utils.http import urlencode
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import central_app_label
-from georama.maps.maps_config import Config
 from georama.maps.interfaces.georama.requests import (
     QslGetMapRequest,
     RequestType,
     ServiceType,
     Version,
 )
+from georama.maps.maps_config import Config
 
 LOGGER = logging.getLogger(__name__)
 
@@ -38,8 +38,8 @@ class PublishedAsWmsAbstract(PublishedAs):
     extent_wgs84 = models.CharField(max_length=1000, null=True, blank=True)
     preview = models.BinaryField(null=True, blank=True)
 
-    preview_dimensions: Tuple[int, int] = (250, 250)
-    preview_dimensions_new_tab: Tuple[int, int] = (1500, 1500)
+    preview_dimensions: tuple[int, int] = (250, 250)
+    preview_dimensions_new_tab: tuple[int, int] = (1500, 1500)
     crs_transform_to_wgs84 = None
 
     @property
@@ -154,7 +154,7 @@ class PublishedAsWmsAbstract(PublishedAs):
         return f"{dataset.project.mandant.name}.{dataset.project.name}.{dataset.name}.{self.identifier}"  # noqa: E501
 
     @property
-    def permissions(self) -> List[PermissionInterface]:
+    def permissions(self) -> list[PermissionInterface]:
         # No need for Update or delete with WMS...
         return self.read_permissions
 
@@ -244,7 +244,10 @@ class PublishedAsWmsAbstract(PublishedAs):
 
     @property
     def preview_as_base64(self):
-        return "data:image/png;base64,{}".format(base64.b64encode(self.preview).decode())
+        if self.preview is not None:
+            return f"data:image/png;base64,{base64.b64encode(self.preview).decode()}"
+        else:
+            return None
 
     @property
     def preview_width(self):
@@ -305,3 +308,6 @@ class PublishedAsWms(PublishedAsWmsAbstract):
     @property
     def get_custom_dataset(self) -> CustomDataSet:
         return self.custom_dataset
+
+    def get_absolute_url(self):
+        return reverse(f"{central_app_label}:layer-detail", kwargs={"pk": self.pk})

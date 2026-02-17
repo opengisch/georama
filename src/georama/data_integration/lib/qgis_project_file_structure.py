@@ -3,7 +3,8 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from georama.data_integration.data_integration_config import Config
+from qgis_server_light.interface.qgis import Config
+
 from georama.data_integration.models import Project
 
 
@@ -13,7 +14,6 @@ class QgisProject:
     name: str
     suffix: str
     database_representation: Project | None = None
-    # TODO RU: Check which Config we actually need here!
     config: Config | None = None
 
     @property

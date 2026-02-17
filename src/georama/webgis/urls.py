@@ -22,8 +22,8 @@ from georama.webgis import views
 urlpatterns = [
     path("", views.home, name="home"),
     path("/themes.<str:format>", views.Themes.as_view(), name="themes"),
-    path("/<str:mandant_name>/", views.GeoGirafe.as_view(), name="geogirafe"),
-    path("/<str:mandant_name>/config.json", views.Config.as_view(), name="config"),
+    path("/<str:folder_name>/", views.GeoGirafe.as_view(), name="geogirafe"),
+    path("/<str:folder_name>/config.json", views.Config.as_view(), name="config"),
     path(
         "/publish_project/<int:project_id>",
         views.PublishProject.as_view(),

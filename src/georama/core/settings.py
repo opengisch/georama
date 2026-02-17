@@ -401,6 +401,11 @@ class Base(Configuration):
 
     APPEND_SLASH = False
     QSL_EXPORTER_URL = values.Value("http://localhost:5000/export", environ_prefix="GEORAMA")
+    QGIS_PROJECT_EXTENSIONS = values.ListValue(
+        [".qgz", ".qgs"],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
 
     QFIELD_LINK_URL = values.Value(None, environ_prefix="GEORAMA")
     QFIELD_LINK_USER = values.Value(None, environ_prefix="GEORAMA")
@@ -408,16 +413,19 @@ class Base(Configuration):
 
     LIST_PAGE_SIZES = values.ListValue(
         [
+            2,
+            5,
+            10,
             25,
             50,
             100,
             200,
             500,
-            1000,
         ],
         separator=" ",
         environ_prefix="GEORAMA",
     )
+    LIST_PAGE_SIZE_DEFAULT = values.IntegerValue(10, environ_prefix="GEORAMA")
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
     CRISPY_TEMPLATE_PACK = "bootstrap5"
