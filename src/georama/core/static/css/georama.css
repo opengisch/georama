@@ -3,7 +3,8 @@ body {
 }
 
 #content {
-    padding-top: var(--navbar-offset)
+    padding-top: var(--navbar-offset);
+    height: 100vh;
 }
 
 .top-wave {
@@ -27,6 +28,7 @@ footer {
     bottom: 0;
     width: 100%;
     height: var(--footer-height);
+    z-index: 4;
 }
 
 footer > .container {
@@ -56,16 +58,11 @@ Navbar
     object-fit: contain
 }
 
-.navbar-brand-text {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: var(--bs-body-color);
-    letter-spacing: 0.04em
-}
-
 .navbar-brand-domain {
-    font-size: clamp(1.6rem, 1rem + 1.2vw, 2rem);
+    font-size: clamp(1.2rem, 1.5rem, 2rem);
+    font-weight: 700;
     letter-spacing: 0.12em;
+    color: var(--bs-body-color);
     text-transform: uppercase;
     display: inline-block;
     line-height: 1
@@ -73,22 +70,11 @@ Navbar
 
 .menu-main .nav-link {
     font-weight: 300;
-    padding-left: 2.75rem;
-    padding-right: 2.75rem
+    white-space: nowrap;
 }
 
 .menu-main.navbar-nav {
-    gap: 0.75rem
-}
-
-.menu-main .nav-item .btn {
-    font-size: var(--bs-body-font-size);
-    line-height: var(--bs-body-line-height);
-    padding-top: 0.35rem;
-    padding-bottom: 0.35rem;
-    display: flex;
-    align-items: center;
-    justify-content: center
+    gap: 0.5rem
 }
 
 .navbar.sticky-top {
@@ -143,8 +129,8 @@ Navbar
     }
 
     .navbar-brand img {
-        width: 150px;
-        height: 136px
+        width: 87px;
+        height: 80px
     }
 }   
 
@@ -166,6 +152,12 @@ Change List and detail forms
     height: 150px;
 }
 
+@media (max-width: 767.98px) {
+    .preview-image-sm, .preview-image, .preview-image-lg {
+        display: none;
+    }
+}
+
 #breadcrumb-container {
     height: var(--breadcrumb-height);
     padding-bottom: 1.5rem;
@@ -185,19 +177,12 @@ Change List and detail forms
     height: var(--form-content-height);
 }
 
-.btn > span {
-    padding-left: 0.5em;
-}
-
 /*
 Permission table
  */
 
 .permission-icon > i {
     width: 1.5em;
-}
-.permission-icon > span {
-    padding-left: 0.25em;
 }
 
 
@@ -206,57 +191,9 @@ Permission table
 CTA Click to action elements on frontpage
  */
 
-/* Button */
-
 .btn-cta {
-    --btn-cta-accent: var(--georama-yellow);
-    --bs-btn-border-color: var(--georama-yellow);
-    --bs-btn-hover-border-color: var(--georama-yellow);
-    --bs-btn-active-border-color: var(--georama-yellow);
-    --bs-btn-focus-shadow-rgb: 0, 0, 0;
-    background-color: var(--bs-body-bg);
-    color: var(--brand-ink);
-    border: 1px solid var(--btn-cta-accent);
-    border-radius: 14px;
-    font-weight: 800;
-    padding: 0.85rem 1.5rem;
-    box-shadow: 3px 3px 0 var(--btn-cta-accent);
-    text-decoration: none
+    box-shadow: 3px 3px 0 var(--georama-yellow);
 }
-
-
-.btn-cta:hover, 
-.btn-cta:focus, 
-.btn-cta:focus-visible {
-    background-color: var(--bs-secondary-bg);
-    color: var(--brand-ink);
-    border-color: var(--btn-cta-accent);
-    box-shadow: 3px 3px 0 var(--btn-cta-accent);
-    outline: none
-}
-
-.btn-cta:active {
-    transform: translate(3px, 3px);
-    border-color: var(--btn-cta-accent);
-    box-shadow: 0 0 0 var(--btn-cta-accent)
-}
-
-[data-bs-theme="dark"] .btn-cta:active {
-    box-shadow: none
-}
-
-.cta-buttons .btn-cta {
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    width: 100%;
-    flex: 1 1 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center
-}
-
-/* Panel */
 
 .cta-panel {
     border-color: var(--georama-border-color);
@@ -267,141 +204,12 @@ CTA Click to action elements on frontpage
     background: linear-gradient(135deg, rgba(var(--georama-green-rgb), 0.18) 0%, rgba(var(--georama-green-rgb), 0.05) 55%, #2f2f2f 100%)
 }
 
-.cta-panel--dashed {
-    background: #ffffff;
-    border: 2px dashed #7c993d
+.cta-panel h3 {
+    color: var(--bs-emphasis-color);
 }
-
-[data-bs-theme="dark"] .cta-panel--dashed {
-    background: #2f2f2f
-}
-
-.cta-panel h3,
-.cta-panel .h3 {
-    color: #2f3b27
-}
-
-[data-bs-theme="dark"] .cta-panel h3,
-[data-bs-theme="dark"] .cta-panel .h3 {
-    color: var(--bs-body-color)
-}
-
-.cta-panel .btn-outline-secondary {
-    border-color: var(--georama-border-color);
-    color: #2e3a27;
-    background-color: #fff
-}
-
-.cta-panel .btn-outline-secondary:hover,
-.cta-panel .btn-outline-secondary:focus {
-    border-color: var(--georama-green-dark);
-    background-color: var(--georama-green-dark);
-    color: #fff
-}
-
-.cta-panel .btn-link {
-    color: var(--georama-green-dark)
-}
-
-.cta-panel .btn-link:hover, 
-.cta-panel .btn-link:focus {
-    color: var(--brand-ink);
-    text-decoration: underline
-}
-
-@media (max-width: 767.98px) {
-    .cta-panel {
-        text-align: center
-    }
-}
-
 
 /*
-Hero cards
- */
-
-
-.section-hero {
-    background: linear-gradient(180deg, var(--bs-body-bg) 0%, #fcfef9 100%);
-    padding-top: 4.5rem;
-    padding-bottom: 4.5rem
-}
-
-[data-bs-theme="dark"] .section-hero {
-    background: linear-gradient(180deg, var(--bs-body-bg) 0%, #1f1f1f 100%)
-}
-
-@media (min-width: 992px) {
-    .section-hero {
-        padding-top: 6rem;
-        padding-bottom: 6rem
-    }
-
-}
-
-.hero-title {
-    font-size: clamp(2.4rem, 4vw, 3.25rem);
-    line-height: 1.1;
-    color: var(--bs-body-color)
-}
-
-.hero-description > p:last-child {
-    margin-bottom: 0
-}
-
-.hero-visual {
-    border-radius: 20px;
-    overflow: hidden;
-    background: radial-gradient(circle at 12% 20%, rgba(var(--georama-green-rgb), 0.12), transparent 30%), #f6f8f2
-}
-
-[data-bs-theme="dark"] .hero-visual {
-    background: radial-gradient(circle at 12% 20%, rgba(var(--georama-green-rgb), 0.18), transparent 30%), #2f2f2f
-}
-
-.hero-visual .ratio {
-    --bs-aspect-ratio: 75%
-}
-
-.hero-visual img {
-    object-fit: cover
-}
-
-.section-heading {
-    font-size: 2.2rem;
-    font-weight: 500;
-    color: var(--bs-body-color)
-}
-
-.feature-card {
-    border: none;
-    border-radius: 16px;
-    background: transparent;
-    box-shadow: none
-}
-
-.icon-circle {
-    width: 93px;
-    height: 93px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    margin: 0 auto;
-    background: var(--brand-cream);
-    color: var(--georama-green-dark);
-    font-size: 2.6rem
-}
-
-.icon-circle img {
-    width: 60%;
-    height: 60%;
-    object-fit: contain;
-    display: block
-}
-
-
-/*
-Mindmap
+Landing Page Mind map
  */
 
 .mindmap {
@@ -468,6 +276,7 @@ Mindmap
 .mindmap-card h5 {
     font-size: 1rem;
     font-weight: 600;
+    color: var(--bs-emphasis-color);
 }
 
 .mindmap-card p {
@@ -490,6 +299,25 @@ Mindmap
     justify-content: center;
 }
 
+.icon-circle {
+    width: 93px;
+    height: 93px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    margin: 0 auto;
+    background: var(--brand-cream);
+    color: var(--georama-green-dark);
+    font-size: 2.6rem
+}
+
+.icon-circle img {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+    display: block
+}
+
 @media (max-width: 992px) {
     .mindmap {
         --mindmap-radius: min(220px, 40vw);
@@ -498,16 +326,17 @@ Mindmap
 
 @media (max-width: 768px) {
     .mindmap {
-        aspect-ratio: auto;
-        height: auto;
+        position: static;
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        align-items: center;
+        width: 100%;
+        margin: 0;
     }
 
     .mindmap-center {
-        position: relative;
-        margin: 0 auto;
+        display: none;
     }
 
     .mindmap-node {
@@ -516,7 +345,6 @@ Mindmap
     }
 
     .mindmap-card {
-        width: 100%;
-        max-width: 360px;
+        width: 360px;
     }
 }

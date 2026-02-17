@@ -76,7 +76,7 @@
                         {% sort_dataset_list_by_title qgis_project_layers as sorted_qgis_project_layers %}
                         {% for ds in sorted_qgis_project_layers %}
                             <li class="list-group-item d-flex align-items-center gap-2">
-                                <i class="{%  icon_by_dataset ds %} text-primary"></i>
+                                <i class="{%  icon_by_dataset ds %} text-primary" style="width: 1.5em;"></i>
                                 <div class="me-auto">{{ ds.title }}</div>
                                 <div class="badge rounded-pill text-bg-primary">{{ ds.driver }}</div>
                             </li>

@@ -9,7 +9,10 @@
     {% if permissions.lookup.groups|length > 0 %}
     <div class="row p-2 border-bottom">
         {% for group in permissions.lookup.groups %}
-            <div class="col-4 permission-icon" title="Group {{ group.name }}"><i class="fa fa-users text-muted"></i><span>{{ group.name }}</span></div>
+            <div class="col-4 permission-icon" title="Group {{ group.name }}">
+                <i class="fa fa-users text-muted"></i>
+                <span class="pl-0">{{ group.name }}</span>
+            </div>
             {% for action in permissions.actions %}
                 {% get_dict_value_by_key group action as group_permission %}
                 <a class="col-2" role="button"
@@ -23,7 +26,10 @@
     {% if permissions.lookup.users|length > 0 %}
     <div class="row p-2 border-bottom">
         {% for user in permissions.lookup.users %}
-            <div class="col-4 permission-icon" title="User {{ group.name }}"><i class="fa fa-user text-muted"></i><span>{{ user.name }}</span></div>
+            <div class="col-4 permission-icon" title="User {{ group.name }}">
+                <i class="fa fa-user text-muted"></i>
+                <span class="pl-0">{{ user.name }}</span>
+            </div>
             {% for action in permissions.actions %}
                 {% get_dict_value_by_key user action as user_permission %}
                 <a class="col-2" role="button"
