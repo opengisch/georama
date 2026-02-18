@@ -33,7 +33,7 @@ urlpatterns = [
         views.QgisServerLightExporter.as_view(),
         name="project-export",
     ),
-    path("/", views.Index.as_view(), name="index"),
+    path("", views.Index.as_view(), name="index"),
     path(
         "/project",
         views.ChangeListProject.as_view(),
@@ -44,10 +44,5 @@ urlpatterns = [
         "/project/detail/<str:group_name>/<str:project_name>",
         views.ProjectDetail.as_view(),
         name="project-detail",
-    ),
-    path(
-        "/manual_dataset/changelist",
-        views.ChangeListManualDataset.as_view(),
-        name=views.ChangeListManualDataset.name,
     ),
 ]

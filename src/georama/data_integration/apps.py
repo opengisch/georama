@@ -13,4 +13,4 @@ class DataintegrationConfig(GeoramaAbstractConfig):
     menu_order: int = 10
 
     def app_permissions(self):
-        return [f"{self.label}.can_use_app"]
+        return [f"{self.label}.view_project"]

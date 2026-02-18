@@ -9,27 +9,41 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 
 from georama.core.menu import BreadCrumb
+from georama.core.views.generic.mixins import (
+    GeoramaAnyPermissionRequiredMixin,
+    GeoramaLoginRequiredMixin,
+)
 from georama.core.views.multi_model.list import ChangeListView
+from georama.data_integration.apps import central_app_label
 from georama.data_integration.models import Project
-from georama.data_integration.services.multi_model.dataset import ProjectDatasetsService
 from georama.data_integration.services.project import DBService, FSService
 from georama.data_integration.services.qgis_server_light import ExporterService
 
 log = logging.getLogger(__name__)
 
 
-class RegisterQgisProject(View):
+class RegisterQgisProject(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
+    permission_required = [
+        f"{central_app_label}.change_project",
+        f"{central_app_label}.add_project",
+    ]
 
     @transaction.atomic
     def get(self, request: HttpRequest, folder_name: str, project_name: str, **kwargs):
         project = FSService().get(folder_name, project_name)
         if not project.has_config or not project:
-            redirect("data_integration:project-list")
+            redirect(f"{central_app_label}:project-list")
         DBService().integrate_project(project, project.config, folder_name)
-        return redirect("data_integration:project-list")
+        return redirect(f"{central_app_label}:project-list")
 
 
-class QgisServerLightExporter(View):
+class QgisServerLightExporter(
+    GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View
+):
+    permission_required = [
+        f"{central_app_label}.change_project",
+        f"{central_app_label}.add_project",
+    ]
 
     def get(self, request: HttpRequest, folder_name: str, project_name: str, **kwargs):
         try:
@@ -40,7 +54,13 @@ class QgisServerLightExporter(View):
         return redirect("data_integration:project-register", folder_name, project_name)
 
 
-class Index(View):
+class Index(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
+    permission_required = [
+        f"{central_app_label}.view_project",
+        f"{central_app_label}.change_project",
+        f"{central_app_label}.add_project",
+        f"{central_app_label}.delete_project",
+    ]
 
     def get(self, request: HttpRequest):
         fss_project = FSService()
@@ -56,7 +76,9 @@ class Index(View):
         return render(request, "data_integration/index.html", context)
 
 
-class ChangeListProject(ChangeListView):
+class ChangeListProject(
+    GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, ChangeListView
+):
     service = FSService
     title = "Projects"
     name = "project-list"
@@ -66,10 +88,19 @@ class ChangeListProject(ChangeListView):
         BreadCrumb(app_menu.title, reverse_lazy(f"{app_menu.app_label}:index")),
         BreadCrumb(title),
     ]
+    permission_required = [
+        f"{central_app_label}.view_project",
+        f"{central_app_label}.change_project",
+        f"{central_app_label}.add_project",
+        f"{central_app_label}.delete_project",
+    ]
 
 
-class DeleteProject(View):
+class DeleteProject(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
     service = FSService
+    permission_required = [
+        f"{central_app_label}.delete_project",
+    ]
 
     def get(self, request, pk):
         service = self.service()
@@ -104,24 +135,13 @@ class DeleteProject(View):
         return redirect("data_integration:project-list")
 
 
-class ChangeListManualDataset(ChangeListView):
-    service = ProjectDatasetsService
-    title = "Manual Datasets"
-    name = f"{ChangeListView.view_type_name}_{service.name}"
-    app_menu = apps.get_app_config("data_integration").app_menu()
-    template = "data_integration/manual_dataset/change_list.html"
-    breadcrumbs = [
-        BreadCrumb(app_menu.title, reverse_lazy(f"{app_menu.app_label}:index")),
-        BreadCrumb(title, reverse_lazy(f"{app_menu.app_label}:{name}")),
+class ProjectDetail(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
+    permission_required = [
+        f"{central_app_label}.view_project",
+        f"{central_app_label}.change_project",
+        f"{central_app_label}.add_project",
+        f"{central_app_label}.delete_project",
     ]
-    list_actions = [
-        ("New Vector Dataset", "data_integration:form_vector_dataset"),
-        ("New Raster Dataset", "data_integration:form_raster_dataset"),
-        ("New Custom Dataset", "data_integration:form_custom_dataset"),
-    ]
-
-
-class ProjectDetail(View):
 
     def get(self, request: HttpRequest, group_name, project_name):
         fss_project = FSService()

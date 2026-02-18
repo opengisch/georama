@@ -10,34 +10,36 @@
         {% else %}
             {% blocktranslate asvar title%}Link QGIS project on disk in Georama{% endblocktranslate %}
         {% endif %}
-
-        <a onclick="showWaitModalOverlay()"
-           href="{% url 'data_integration:project-export' qgis_project.parent.name qgis_project.name %}"
-           class="btn btn-outline-primary" role="button"
-           title="{{ title }}"
-           aria-label="{{ title }}"
-           data-bs-toggle="tooltip">
-            <i class="{% if qgis_project.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
-        </a>
+        {% if perms.data_integration.edit_project or perms.data_integration.add_project %}
+            <a onclick="showWaitModalOverlay()"
+               href="{% url 'data_integration:project-export' qgis_project.parent.name qgis_project.name %}"
+               class="btn btn-outline-primary" role="button"
+               title="{{ title }}"
+               aria-label="{{ title }}"
+               data-bs-toggle="tooltip">
+                <i class="{% if qgis_project.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
+            </a>
+        {% endif %}
 
         {% blocktranslate asvar title%}Remove QGIS project from Georama by unlinking it{% endblocktranslate %}
-
-        {% if qgis_project.database_representation %}
-            <a href="{% url 'data_integration:project-delete' qgis_project.database_representation.pk %}"
-               class="btn btn-outline-danger" role="button"
-               title="{{ title }}"
-               aria-label="{{ title }}"
-               data-bs-toggle="tooltip">
-                <i class="fa fa-unlink"></i>
-            </a>
-        {% else %}
-            <a href="#" class="btn btn-outline-danger disabled"
-               disabled tabindex="-1" role="button" aria-disabled="true"
-               title="{{ title }}"
-               aria-label="{{ title }}"
-               data-bs-toggle="tooltip">
-                <i class="fa fa-unlink"></i>
-            </a>
+        {% if perms.data_integration.delete_project %}
+            {% if qgis_project.database_representation %}
+                <a href="{% url 'data_integration:project-delete' qgis_project.database_representation.pk %}"
+                   class="btn btn-outline-danger" role="button"
+                   title="{{ title }}"
+                   aria-label="{{ title }}"
+                   data-bs-toggle="tooltip">
+                    <i class="fa fa-unlink"></i>
+                </a>
+            {% else %}
+                <a href="#" class="btn btn-outline-danger disabled"
+                   disabled tabindex="-1" role="button" aria-disabled="true"
+                   title="{{ title }}"
+                   aria-label="{{ title }}"
+                   data-bs-toggle="tooltip">
+                    <i class="fa fa-unlink"></i>
+                </a>
+            {% endif %}
         {% endif %}
     </div>
 
