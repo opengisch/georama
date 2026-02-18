@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -8,6 +8,7 @@ class MenuItem:
     app_label: str
     app_index: str
     order: int = 100
+    permissions: list[str] = field(default_factory=list)
 
 
 MENU_ITEMS: list[MenuItem] = []

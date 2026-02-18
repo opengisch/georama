@@ -24,7 +24,11 @@ class GeoramaAbstractConfig(AppConfig, ABC):
             app_name=self.name,
             app_index=f"{self.label}:index",
             order=self.menu_order,
+            permissions=self.app_permissions(),
         )
+
+    def app_permissions(self):
+        return []
 
     def ready(self):
         register_menu_item(self.app_menu())

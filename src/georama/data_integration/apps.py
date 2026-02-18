@@ -11,3 +11,6 @@ class DataintegrationConfig(GeoramaAbstractConfig):
     name = f"georama.{central_app_label}"
     verbose_name = _("Data Integration")
     menu_order: int = 10
+
+    def app_permissions(self):
+        return [f"{self.label}.can_use_app"]

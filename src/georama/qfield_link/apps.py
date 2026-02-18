@@ -13,6 +13,9 @@ class QfieldLinkConfig(GeoramaAbstractConfig):
     name = f"georama.{central_app_label}"
     label = central_app_label
 
+    def app_permissions(self):
+        return [f"{self.label}.can_use_app"]
+
     def ready(self):
         if (
             settings.QFIELD_LINK_URL
