@@ -567,6 +567,7 @@ class MapUpdateView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaU
         "name",
         "description",
         "public",
+        "queryable",
         "license",
         "fees",
         "access_constraints",

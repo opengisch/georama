@@ -64,8 +64,8 @@
                           aria-label="{{ title }}">
                         GetFeatureInfo</span>
 
-                    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides a twin WFS layer to query features: {{ val }}{% endblocktranslate %}
-                    <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
+                    {% blocktranslate asvar title with val=item.queryable|yesno:"yes,no,unknown" %}WMS layer provides a twin WFS layer to query features: {{ val }}{% endblocktranslate %}
+                    <span class="badge rounded-pill {% if item.queryable %}text-bg-primary{% else %}text-bg-light{% endif %}"
                           data-bs-toggle="tooltip"
                           title="{{ title }}"
                           aria-label="{{ title }}">
