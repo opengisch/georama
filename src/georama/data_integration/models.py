@@ -10,6 +10,8 @@ from qgis_server_light.interface.qgis import Raster, Style, Vector
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 
+from georama.core.models.mixins import GeoramaPermissionMixin
+
 log = logging.getLogger(__name__)
 
 
@@ -21,7 +23,7 @@ class Mandant(models.Model):
         return self.name
 
 
-class Project(models.Model):
+class Project(GeoramaPermissionMixin, models.Model):
     name = models.CharField(null=False, max_length=1000, verbose_name="name")
     title = models.CharField(max_length=1000)
     version = models.CharField(max_length=1000)

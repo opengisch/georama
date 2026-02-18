@@ -2,6 +2,7 @@ import logging
 
 from django.apps import apps
 from django.contrib.admin.utils import NestedObjects
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import router, transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -24,8 +25,8 @@ log = logging.getLogger(__name__)
 
 class RegisterQgisProject(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
     permission_required = [
-        f"{central_app_label}.change_project",
-        f"{central_app_label}.add_project",
+        Project.perm_change(),
+        Project.perm_add(),
     ]
 
     @transaction.atomic
@@ -41,8 +42,8 @@ class QgisServerLightExporter(
     GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View
 ):
     permission_required = [
-        f"{central_app_label}.change_project",
-        f"{central_app_label}.add_project",
+        Project.perm_change(),
+        Project.perm_add(),
     ]
 
     def get(self, request: HttpRequest, folder_name: str, project_name: str, **kwargs):
@@ -56,10 +57,10 @@ class QgisServerLightExporter(
 
 class Index(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
     permission_required = [
-        f"{central_app_label}.view_project",
-        f"{central_app_label}.change_project",
-        f"{central_app_label}.add_project",
-        f"{central_app_label}.delete_project",
+        Project.perm_view(),
+        Project.perm_change(),
+        Project.perm_add(),
+        Project.perm_delete(),
     ]
 
     def get(self, request: HttpRequest):
@@ -89,18 +90,16 @@ class ChangeListProject(
         BreadCrumb(title),
     ]
     permission_required = [
-        f"{central_app_label}.view_project",
-        f"{central_app_label}.change_project",
-        f"{central_app_label}.add_project",
-        f"{central_app_label}.delete_project",
+        Project.perm_view(),
+        Project.perm_change(),
+        Project.perm_add(),
+        Project.perm_delete(),
     ]
 
 
-class DeleteProject(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
+class DeleteProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
     service = FSService
-    permission_required = [
-        f"{central_app_label}.delete_project",
-    ]
+    permission_required = Project.perm_delete()
 
     def get(self, request, pk):
         service = self.service()
@@ -135,13 +134,8 @@ class DeleteProject(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin
         return redirect("data_integration:project-list")
 
 
-class ProjectDetail(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
-    permission_required = [
-        f"{central_app_label}.view_project",
-        f"{central_app_label}.change_project",
-        f"{central_app_label}.add_project",
-        f"{central_app_label}.delete_project",
-    ]
+class ProjectDetail(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = Project.perm_view()
 
     def get(self, request: HttpRequest, group_name, project_name):
         fss_project = FSService()
