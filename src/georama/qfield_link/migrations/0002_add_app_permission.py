@@ -18,7 +18,7 @@ def create_app_permission(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("data_integration", "0001_initial"),
+        ("qfield_link", "0001_initial"),
     ]
 
     operations = [
