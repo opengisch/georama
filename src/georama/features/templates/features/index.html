@@ -1,5 +1,5 @@
 {% extends 'core/list.html' %}
-{% load static i18n %}
+{% load static i18n published_as_extras %}
 
 {% block list_actions %}
     <div class="btn-group" role="group" aria-label="List actions">
@@ -25,7 +25,7 @@
 
             <div class="me-3">
 
-                <a href="{% url 'features:layer-detail' item.pk %}">
+                <a href="{% url 'features:collection-detail' item.pk %}" target="_blank">
                     <img src="{% static 'images/OGC_Logo.svg' %}"
                          alt="{% trans 'OGC Logo' %}"
                          class="rounded img-thumbnail preview-image"/>
@@ -37,8 +37,8 @@
             <div class="d-flex flex-column flex-grow-1 justify-content-around">
 
                 <div>
-                    <a href="{% url 'features:layer-detail' item.pk %}"
-                       class="link-offset-3 link-underline link-underline-opacity-75">
+                    <a href="{% url 'features:collection-detail' item.pk %}"
+                       class="link-offset-3 link-underline link-underline-opacity-75" target="_blank">
                         <h4 class="mb-2">{{ item.title }}</h4>
                     </a>
                     <div class="mb-1">{{ item.name }}</div>
@@ -48,14 +48,33 @@
                 <!-- Pills with layer functionalities -->
 
                 <div class="align-content-bottom">
-
-                {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}OAPIF layer is publicly available: {{ val }}{% endblocktranslate %}
-                <span class="badge rounded-pill {% if item.public == True %}text-bg-primary{% else %}text-bg-light{% endif %}"
+                {% can_add item request.user as add_perm %}
+                {% if add_perm %}
+                {% blocktranslate asvar title %}You can add features to this OAPIF layer.{% endblocktranslate %}
+                <span class="badge rounded-pill text-bg-primary"
                       data-bs-toggle="tooltip"
                       title="{{ title }}"
                       aria-label="{{ title }}">
-                        public</span>
-
+                        <i class="fa fa-plus"></i></span>
+                {% endif %}
+                {% can_change item request.user as change_perm %}
+                {% if change_perm %}
+                {% blocktranslate asvar title %}You can change features on this OAPIF layer.{% endblocktranslate %}
+                <span class="badge rounded-pill text-bg-primary"
+                      data-bs-toggle="tooltip"
+                      title="{{ title }}"
+                      aria-label="{{ title }}">
+                        <i class="fa fa-pen"></i></span>
+                {% endif %}
+                {% can_delete item request.user as delete_perm %}
+                {% if delete_perm %}
+                {% blocktranslate asvar title %}You can delete features from this OAPIF layer.{% endblocktranslate %}
+                <span class="badge rounded-pill text-bg-primary"
+                      data-bs-toggle="tooltip"
+                      title="{{ title }}"
+                      aria-label="{{ title }}">
+                        <i class="fa fa-trash-alt"></i></span>
+                {% endif %}
                 </div>
             </div>
 
@@ -65,33 +84,6 @@
 
                 <div class="btn-group mr-2" role="group" aria-label="Feature actions">
 
-                    {% blocktranslate asvar title%}Show OGC API Features layer details and permissions{% endblocktranslate %}
-                    <a href="{% url 'features:layer-detail' item.pk %}"
-                       class="btn btn-outline-primary" role="button"
-                       title="{{ title }}"
-                       aria-label="{{ title }}"
-                       data-bs-toggle="tooltip">
-                        <i class="fa fa-eye"></i>
-                    </a>
-
-                    {% blocktranslate asvar title%}Edit OGC API Features layer details{% endblocktranslate %}
-                    <a href="{% url 'features:layer-update' item.pk %}"
-                       class="btn btn-outline-primary" role="button"
-                       title="{{ title }}"
-                       aria-label="{{ title }}"
-                       data-bs-toggle="tooltip">
-                        <i class="fa fa-pen"></i>
-                    </a>
-
-                    {% blocktranslate asvar title %}Edit permissions{% endblocktranslate %}
-                    <a href="{% url 'features:layer-permission-list' item.pk %}"
-                       class="btn btn-outline-primary" role="button"
-                       data-bs-toggle="tooltip"
-                       title="{{ title }}"
-                       aria-label="{{ title }}">
-                        <i class="fa fa-lock"></i>
-                    </a>
-
                     {% blocktranslate asvar title%}Show OGC API Feature collection endpoint{% endblocktranslate %}
                     <a href="{% url 'features:collection-detail' item.pk %}"
                        target="_blank"
@@ -100,15 +92,6 @@
                        title="{{ title }}"
                        aria-label="{{ title }}">
                         <i class="fa fa-network-wired"></i>
-                    </a>
-
-                    {% blocktranslate asvar title%}Delete OGC API Features layer{% endblocktranslate %}
-                    <a href="{% url 'features:layer-delete' item.pk %}"
-                       class="btn btn-outline-danger" role="button"
-                       data-bs-toggle="tooltip"
-                       title="{{ title }}"
-                       aria-label="{{ title }}">
-                        <i class="fa fa-trash-alt"></i>
                     </a>
 
                 </div>

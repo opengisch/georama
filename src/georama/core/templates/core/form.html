@@ -16,6 +16,7 @@
                 <i class="fa fa-save"></i>
             </button>
 
+            {% if perm_delete %}
             <a href="{% url delete_view_name object.pk %}"
                class="btn btn-outline-danger" role="button"
                data-bs-toggle="tooltip"
@@ -23,7 +24,9 @@
                aria-label="{{ title }}">
                 <i class="fa fa-trash-alt"></i>
             </a>
+            {% endif %}
 
+            {% if perm_manage_permission %}
             {% blocktranslate asvar title %}Edit permissions{% endblocktranslate %}
             <a href="{% url permission_view_name object.pk %}"
                class="btn btn-outline-primary" role="button"
@@ -32,6 +35,7 @@
                aria-label="{{ title }}">
                 <i class="fa fa-lock"></i>
             </a>
+            {% endif %}
         </div>
     </div>
 

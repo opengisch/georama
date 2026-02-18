@@ -49,18 +49,23 @@ urlpatterns = [
         name="collection-item",
     ),
     path(
-        "/",
+        "",
         views.Index.as_view(),
         name="index",
     ),
     path(
+        "/layer",
+        views.LayerListView.as_view(),
+        name="layer-list",
+    ),
+    path(
         "/layer/add",
-        views.Publish.as_view(),
+        views.PublishListView.as_view(),
         name="layer-source-list",
     ),
     path(
         "/layer/add/<str:vector_dataset_id>",
-        views.admin_publish_as_oapif,
+        views.PublishLayer.as_view(),
         name="layer-source-add",
     ),
     path(

@@ -3,6 +3,7 @@ import os.path
 import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
 from django.apps import apps
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission, User
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
@@ -20,6 +21,10 @@ from georama.core.services.permission import DBService
 from georama.core.views.generic.delete import GeoramaDeleteView
 from georama.core.views.generic.detail import GeoramaDetailView
 from georama.core.views.generic.list import GeoramaListView
+from georama.core.views.generic.mixins import (
+    GeoramaAnyPermissionRequiredMixin,
+    GeoramaLoginRequiredMixin,
+)
 from georama.core.views.generic.update import GeoramaUpdateView
 from georama.data_integration.models import Field, VectorDataSet
 from georama.features.apps import central_app_label
@@ -520,18 +525,29 @@ def getDatasetFieldConstraints(
     return field_constraints
 
 
-def admin_publish_as_oapif(request: HttpRequest, vector_dataset_id: str):
-    """
-    helper function to hide actual connection in the database but make publishing
-    straight forward.
-    """
-    vd = VectorDataSet.objects.filter(id=vector_dataset_id)[0]
-    published_as_oapi = PublishedAsOgcApiFeatures(dataset=vd)
-    published_as_oapi.save()
-    return redirect("features:index")
+class PublishLayer(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = PublishedAsOgcApiFeatures.perm_add()
+
+    def get(self, request: HttpRequest, vector_dataset_id: str):
+        """
+        helper function to hide actual connection in the database but make publishing
+        straight forward.
+        """
+        vd = VectorDataSet.objects.filter(pk=vector_dataset_id).get()
+        published_as_oapi = PublishedAsOgcApiFeatures(dataset=vd)
+        published_as_oapi.save()
+        return redirect(f"{central_app_label}:layer-list")
 
 
 class Index(GeoramaListView):
+    """
+    This view is the apps landing page. It shows the available published
+    layers a user can access. This is also available in public and shows
+    layers which are public too. However, the important part is, that we
+    use the Georama inherent ObjectPermissionSystem `PublishedAs` here.
+    Not the Django model permission system.
+    """
+
     model = PublishedAsOgcApiFeatures
     template_name = "features/index.html"
 
@@ -541,34 +557,83 @@ class Index(GeoramaListView):
             BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
         ]
 
+    def get_queryset(self):
+        permitted_layers = []
+        layers = PublishedAsOgcApiFeatures.objects.all()
+        for layer in layers:
+            if layer.has_general_permission(self.request.user, central_app_label):
+                permitted_layers.append(layer)
+        return permitted_layers
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["breadcrumb_action_url"] = f"{central_app_label}:layer-source-list"
-        context["breadcrumb_action_icon"] = "fa fa-circle-plus"
-        context["breadcrumb_action_title"] = _("publish layer")
-        context["breadcrumb_action_tooltip"] = _("Publish a new features layer")
+        if (
+            self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_view())
+            or self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_change())
+            or self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_delete())
+            or self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_add())
+            or self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_manage_permissions())
+        ):
+            context["breadcrumb_action_url"] = f"{central_app_label}:layer-list"
+            context["breadcrumb_action_icon"] = "fa fa-wrench"
+            context["breadcrumb_action_title"] = _("Manage Layers")
+            context["breadcrumb_action_tooltip"] = _("Manage published layers")
         return context
 
 
-class Publish(GeoramaListView):
-    model = VectorDataSet
-    template_name = "features/publish.html"
+class LayerListView(
+    GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, GeoramaListView
+):
+    model = PublishedAsOgcApiFeatures
+    template_name = "features/list.html"
+    permission_required = [
+        PublishedAsOgcApiFeatures.perm_view(),
+        PublishedAsOgcApiFeatures.perm_change(),
+        PublishedAsOgcApiFeatures.perm_delete(),
+        PublishedAsOgcApiFeatures.perm_add(),
+        PublishedAsOgcApiFeatures.perm_manage_permissions(),
+    ]
 
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
             BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Layers")),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_add()):
+            context["breadcrumb_action_url"] = f"{central_app_label}:layer-source-list"
+            context["breadcrumb_action_icon"] = "fa fa-circle-plus"
+            context["breadcrumb_action_title"] = _("publish layer")
+            context["breadcrumb_action_tooltip"] = _("Publish a new features layer")
+        return context
+
+
+class PublishListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaListView):
+    model = VectorDataSet
+    template_name = "features/publish.html"
+    permission_required = PublishedAsOgcApiFeatures.perm_add()
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
             BreadCrumb(_("Add")),
         ]
 
 
-class FeatureDetailView(GeoramaDetailView):
+class FeatureDetailView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaDetailView):
     model = PublishedAsOgcApiFeatures
+    permission_required = PublishedAsOgcApiFeatures.perm_view()
 
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
             BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
             BreadCrumb(self.object.title or self.object.name),
         ]
 
@@ -578,10 +643,19 @@ class FeatureDetailView(GeoramaDetailView):
         context["update_view_name"] = f"{app_menu.app_label}:layer-update"
         context["delete_view_name"] = f"{app_menu.app_label}:layer-delete"
         context["permission_view_name"] = f"{app_menu.app_label}:layer-permission-list"
+        context["perm_change"] = self.request.user.has_perm(
+            PublishedAsOgcApiFeatures.perm_change()
+        )
+        context["perm_manage_permission"] = self.request.user.has_perm(
+            PublishedAsOgcApiFeatures.perm_manage_permissions()
+        )
+        context["perm_delete"] = self.request.user.has_perm(
+            PublishedAsOgcApiFeatures.perm_delete()
+        )
         return context
 
 
-class FeatureUpdateView(GeoramaUpdateView):
+class FeatureUpdateView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaUpdateView):
     model = PublishedAsOgcApiFeatures
     fields = [
         "title",
@@ -595,12 +669,19 @@ class FeatureUpdateView(GeoramaUpdateView):
         "fees",
         "access_constraints",
     ]
+    permission_required = PublishedAsOgcApiFeatures.perm_change()
 
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
             BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
-            BreadCrumb(self.object.title or self.object.name),
+            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
+            BreadCrumb(
+                self.object.title or self.object.name,
+                reverse(
+                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs["pk"]}
+                ),
+            ),
         ]
 
     def get_context_data(self, **kwargs):
@@ -608,24 +689,38 @@ class FeatureUpdateView(GeoramaUpdateView):
         context = super().get_context_data(**kwargs)
         context["delete_view_name"] = f"{app_menu.app_label}:layer-delete"
         context["permission_view_name"] = f"{app_menu.app_label}:layer-permission-list"
+        context["perm_manage_permission"] = self.request.user.has_perm(
+            PublishedAsOgcApiFeatures.perm_manage_permissions()
+        )
+        context["perm_delete"] = self.request.user.has_perm(
+            PublishedAsOgcApiFeatures.perm_delete()
+        )
         return context
 
 
-class FeatureDeleteView(GeoramaDeleteView):
+class FeatureDeleteView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaDeleteView):
     model = PublishedAsOgcApiFeatures
-    success_url = reverse_lazy(f"{central_app_label}:index")
+    success_url = reverse_lazy(f"{central_app_label}:layer-list")
+    permission_required = PublishedAsOgcApiFeatures.perm_delete()
 
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
             BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
-            BreadCrumb(self.object.title or self.object.name),
+            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
+            BreadCrumb(
+                self.object.title or self.object.name,
+                reverse(
+                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs["pk"]}
+                ),
+            ),
         ]
 
 
-class PermissionView(GeoramaDetailView):
+class PermissionView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaDetailView):
     model = Permission
     template_name = "core/permission.html"
+    permission_required = PublishedAsOgcApiFeatures.perm_manage_permissions()
 
     def get_object(self, queryset=None):
         object_pk = self.kwargs.get("pk")
@@ -636,6 +731,7 @@ class PermissionView(GeoramaDetailView):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
             BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
             BreadCrumb(
                 PublishedAsOgcApiFeatures.objects.get(pk=self.kwargs.get("pk")).title,
                 reverse(
@@ -658,9 +754,10 @@ class PermissionView(GeoramaDetailView):
         return context
 
 
-class UserListView(GeoramaListView):
+class UserListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaListView):
     model = User
     template_name = "core/user.html"
+    permission_required = PublishedAsOgcApiFeatures.perm_manage_permissions()
 
     def get_queryset(self):
         return (
@@ -675,6 +772,7 @@ class UserListView(GeoramaListView):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
             BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
             BreadCrumb(
                 PublishedAsOgcApiFeatures.objects.get(pk=self.kwargs.get("pk")).title,
                 reverse(
@@ -706,9 +804,10 @@ class UserListView(GeoramaListView):
         return context
 
 
-class GroupListView(GeoramaListView):
+class GroupListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaListView):
     model = Group
     template_name = "core/group.html"
+    permission_required = PublishedAsOgcApiFeatures.perm_manage_permissions()
 
     def get_queryset(self):
         return Group.objects.exclude(
@@ -719,6 +818,7 @@ class GroupListView(GeoramaListView):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
             BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
             BreadCrumb(
                 PublishedAsOgcApiFeatures.objects.get(pk=self.kwargs.get("pk")).title,
                 reverse(
