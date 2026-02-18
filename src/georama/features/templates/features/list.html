@@ -26,7 +26,7 @@
                 <div>
                     {% if perms.features.view_publishedasogcapifeatures %}
                     <a href="{% url 'features:layer-detail' item.pk %}"
-                       class="link-offset-3 link-underline link-underline-opacity-75{% if perms.features.view_publishedasogcapifeatures %} disabled{% endif %}">
+                       class="link-offset-3 link-underline link-underline-opacity-75">
                         <h4 class="mb-2">{{ item.title }}</h4>
                     </a>
                     {% else %}
@@ -56,7 +56,7 @@
 
                 <div class="btn-group mr-2" role="group" aria-label="Feature actions">
                     {% if perms.features.view_publishedasogcapifeatures %}
-                    {% blocktranslate asvar title%}Show OGC API Features layer details and permissions{% endblocktranslate %}
+                    {% blocktranslate asvar title%}Show OGC API Features layer details{% endblocktranslate %}
                     <a href="{% url 'features:layer-detail' item.pk %}"
                        class="btn btn-outline-primary" role="button"
                        title="{{ title }}"

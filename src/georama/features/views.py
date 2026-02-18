@@ -559,7 +559,7 @@ class Index(GeoramaListView):
 
     def get_queryset(self):
         permitted_layers = []
-        layers = PublishedAsOgcApiFeatures.objects.all()
+        layers = self.model.objects.all()
         for layer in layers:
             if layer.has_general_permission(self.request.user, central_app_label):
                 permitted_layers.append(layer)
@@ -568,11 +568,11 @@ class Index(GeoramaListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if (
-            self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_view())
-            or self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_change())
-            or self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_delete())
-            or self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_add())
-            or self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_manage_permissions())
+            self.request.user.has_perm(self.model.perm_view())
+            or self.request.user.has_perm(self.model.perm_change())
+            or self.request.user.has_perm(self.model.perm_delete())
+            or self.request.user.has_perm(self.model.perm_add())
+            or self.request.user.has_perm(self.model.perm_manage_permissions())
         ):
             context["breadcrumb_action_url"] = f"{central_app_label}:layer-list"
             context["breadcrumb_action_icon"] = "fa fa-wrench"
@@ -587,11 +587,11 @@ class LayerListView(
     model = PublishedAsOgcApiFeatures
     template_name = "features/list.html"
     permission_required = [
-        PublishedAsOgcApiFeatures.perm_view(),
-        PublishedAsOgcApiFeatures.perm_change(),
-        PublishedAsOgcApiFeatures.perm_delete(),
-        PublishedAsOgcApiFeatures.perm_add(),
-        PublishedAsOgcApiFeatures.perm_manage_permissions(),
+        model.perm_view(),
+        model.perm_change(),
+        model.perm_delete(),
+        model.perm_add(),
+        model.perm_manage_permissions(),
     ]
 
     def get_breadcrumbs(self):
@@ -603,7 +603,7 @@ class LayerListView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.has_perm(PublishedAsOgcApiFeatures.perm_add()):
+        if self.request.user.has_perm(self.model.perm_add()):
             context["breadcrumb_action_url"] = f"{central_app_label}:layer-source-list"
             context["breadcrumb_action_icon"] = "fa fa-circle-plus"
             context["breadcrumb_action_title"] = _("publish layer")
@@ -627,7 +627,7 @@ class PublishListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, Georam
 
 class FeatureDetailView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaDetailView):
     model = PublishedAsOgcApiFeatures
-    permission_required = PublishedAsOgcApiFeatures.perm_view()
+    permission_required = model.perm_view()
 
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
@@ -643,15 +643,11 @@ class FeatureDetailView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, Geor
         context["update_view_name"] = f"{app_menu.app_label}:layer-update"
         context["delete_view_name"] = f"{app_menu.app_label}:layer-delete"
         context["permission_view_name"] = f"{app_menu.app_label}:layer-permission-list"
-        context["perm_change"] = self.request.user.has_perm(
-            PublishedAsOgcApiFeatures.perm_change()
-        )
+        context["perm_change"] = self.request.user.has_perm(self.model.perm_change())
         context["perm_manage_permission"] = self.request.user.has_perm(
-            PublishedAsOgcApiFeatures.perm_manage_permissions()
+            self.model.perm_manage_permissions()
         )
-        context["perm_delete"] = self.request.user.has_perm(
-            PublishedAsOgcApiFeatures.perm_delete()
-        )
+        context["perm_delete"] = self.request.user.has_perm(self.model.perm_delete())
         return context
 
 
@@ -669,7 +665,7 @@ class FeatureUpdateView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, Geor
         "fees",
         "access_constraints",
     ]
-    permission_required = PublishedAsOgcApiFeatures.perm_change()
+    permission_required = model.perm_change()
 
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
@@ -690,18 +686,16 @@ class FeatureUpdateView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, Geor
         context["delete_view_name"] = f"{app_menu.app_label}:layer-delete"
         context["permission_view_name"] = f"{app_menu.app_label}:layer-permission-list"
         context["perm_manage_permission"] = self.request.user.has_perm(
-            PublishedAsOgcApiFeatures.perm_manage_permissions()
+            self.model.perm_manage_permissions()
         )
-        context["perm_delete"] = self.request.user.has_perm(
-            PublishedAsOgcApiFeatures.perm_delete()
-        )
+        context["perm_delete"] = self.request.user.has_perm(self.model.perm_delete())
         return context
 
 
 class FeatureDeleteView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaDeleteView):
     model = PublishedAsOgcApiFeatures
     success_url = reverse_lazy(f"{central_app_label}:layer-list")
-    permission_required = PublishedAsOgcApiFeatures.perm_delete()
+    permission_required = model.perm_delete()
 
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
