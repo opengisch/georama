@@ -9,6 +9,7 @@ from georama.core.entities.models import (
     delete_publishedas_db_permissions,
     save_publishedas_db_permissions,
 )
+from georama.core.models.mixins import GeoramaPermissionMixin
 from georama.data_integration.models import Field, VectorDataSet
 from georama.features.apps import central_app_label
 
@@ -66,7 +67,7 @@ class PublishedAsVectorFeature(PublishedAs):
         return self._has_grained_permission(user, permissions, app_name)
 
     def __str__(self):
-        return self.title or self.name
+        return f"{self.title or self.name} ({self.__class__.__name__})"
 
 
 class Column(PublishedAsRoleNameSystem):
@@ -113,7 +114,7 @@ class Column(PublishedAsRoleNameSystem):
         abstract = True
 
     def __str__(self):
-        return self.title or self.name
+        return f"{self.title or self.name} ({self.__class__.__name__})"
 
 
 class PublishedAsWfs(PublishedAsVectorFeature):
@@ -145,7 +146,15 @@ class ColumnWfs(Column):
         return self.published_definition
 
 
-class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
+class PublishedAsOgcApiFeatures(GeoramaPermissionMixin, PublishedAsVectorFeature):
+
+    class Meta:
+        permissions = [("can_manage_object_permissions", "Can manage object permissions")]
+
+    @classmethod
+    def perm_manage_permissions(cls):
+        return cls.assemble_perm(cls._meta.app_label, "can_manage_object_permissions")
+
     dataset = models.ForeignKey(
         VectorDataSet,
         # TODO: this seems wrong => only because error:
