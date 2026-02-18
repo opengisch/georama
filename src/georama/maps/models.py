@@ -13,6 +13,7 @@ from qgis_server_light.interface.job import QslGetMapJob, WmsGetMapParams
 from qgis_server_light.interface.qgis import BBox
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
+from georama.core.models.mixins import GeoramaPermissionMixin
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import central_app_label
 from georama.maps.interfaces.georama.requests import (
@@ -258,10 +259,15 @@ class PublishedAsWmsAbstract(PublishedAs):
         return self.preview_dimensions[1]
 
 
-class PublishedAsWms(PublishedAsWmsAbstract):
+class PublishedAsWms(GeoramaPermissionMixin, PublishedAsWmsAbstract):
     class Meta:
         verbose_name = f'WMS {_("Layer")}'
         verbose_name_plural = f'WMS {_("Layers")}'
+        permissions = [("can_manage_object_permissions", "Can manage object permissions")]
+
+    @classmethod
+    def perm_manage_permissions(cls):
+        return cls.assemble_perm(cls._meta.app_label, "can_manage_object_permissions")
 
     raster_dataset = models.ForeignKey(
         RasterDataSet,

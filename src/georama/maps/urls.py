@@ -8,18 +8,23 @@ app_name = central_app_label
 urlpatterns = [
     path("/ows", views.OgcServer.as_view(), name="maps_ogc_entry"),
     path(
-        "/",
+        "",
         views.Index.as_view(),
         name="index",
     ),
     path(
+        "/layer",
+        views.LayerListView.as_view(),
+        name="layer-list",
+    ),
+    path(
         "/layer/add",
-        views.Publish.as_view(),
+        views.PublishListView.as_view(),
         name="layer-source-list",
     ),
     path(
         "/layer/add/<str:dataset_type>/<str:dataset_id>",
-        views.publish_dataset_as_wms,
+        views.PublishLayer.as_view(),
         name="layer-source-add",
     ),
     path(

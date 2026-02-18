@@ -2,23 +2,7 @@
 {% load static i18n %}
 
 {% block list_actions %}
-    <div class="ms-auto me-2 text-primary">{% trans 'Get Capabilities' %}</div>
-    <div class="btn-group" role="group" aria-label="List Actions">
 
-        <a href="{% url 'maps:maps_ogc_entry' %}?{{ wms_get_capabilities_params }}"
-           target="_blank" class="btn btn-outline-primary"
-           data-bs-toggle="tooltip"
-           title="{% trans 'Request the WMS capability document of this server' %}"
-           aria-label="{% trans 'Request the WMS capability document of this server' %}"
-           role="button">WMS</a>
-
-        <a href="{% url 'maps:maps_ogc_entry' %}?{{ wfs_get_capabilities_params }}"
-           target="_blank" class="btn btn-outline-primary"
-           data-bs-toggle="tooltip"
-           title="{% trans 'Request the WFS capability document of this server' %}"
-           aria-label="{% trans 'Request the WFS capability document of this server' %}"
-           role="button">WFS</a>
-    </div>
 {% endblock %}
 
 {% block change_list_item %}
@@ -29,27 +13,27 @@
             <!-- Thumbnail -->
 
             <div class="me-3">
-                <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wms_url_params }}"
-                   target="_blank"
-                >
-                    <img src="{{ item.preview_as_base64 }}"
+                <img {% if perms.maps.view_publishedaswms %}href="{% url 'maps:layer-detail' item.pk %}"{% endif %}
+                     src="{{ item.preview_as_base64 }}"
 {#                         TODO PI: What strategy do we want with preview images?#}
 {#                         style="width: 150px; height: 150px"#}
-                         class="rounded img-thumbnail preview-image-lg"
-                         alt="{% trans 'WMS preview' %}"
-                    />
-                </a>
+                     class="rounded img-thumbnail preview-image-lg"
+                     alt="{% trans 'WMS preview' %}"
+                />
             </div>
 
             <!-- Title and description -->
 
             <div class="d-flex flex-column flex-grow-1 justify-content-around">
                 <div>
-                    <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wms_url_params }}"
-                       target="_blank"
+                    {% if perms.maps.view_publishedaswms %}
+                    <a href="{% url 'maps:layer-detail' item.pk %}"
                        class="link-offset-3 link-underline link-underline-opacity-75">
                         <h4 class="mb-2">{{ item.title }}</h4>
                     </a>
+                    {% else %}
+                    <h4 class="mb-2">{{ item.title }}</h4>
+                    {% endif %}
                     <div class="mb-1">{{ item.name }}</div>
                 </div>
 
@@ -57,6 +41,13 @@
                 <!-- Pills with layer functionalities -->
 
                 <div class="align-content-bottom">
+
+                    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer is publicly available: {{ val }}{% endblocktranslate %}
+                    <span class="badge rounded-pill {% if item.public == True %}text-bg-primary{% else %}text-bg-light{% endif %}"
+                          data-bs-toggle="tooltip"
+                          title="{{ title }}"
+                          aria-label="{{ title }}">
+                        public</span>
 
                     {#   TODO PI: These functionalities do not exist yet #}
                     {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides a legend: {{ val }}{% endblocktranslate %}
@@ -88,24 +79,49 @@
 
                 <div class="btn-group mr-2" role="group" aria-label="Layer actions">
 
-                    {% blocktranslate asvar title%}Open GetMap request in new tab{% endblocktranslate %}
-                    <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wms_url_params }}"
-                       target="_blank" class="btn btn-outline-primary"
-                       role="button"
+                    {% if perms.maps.view_publishedaswms %}
+                    {% blocktranslate asvar title%}Show layer details{% endblocktranslate %}
+                    <a href="{% url 'maps:layer-detail' item.pk %}"
+                       class="btn btn-outline-primary" role="button"
+                       title="{{ title }}"
+                       aria-label="{{ title }}"
+                       data-bs-toggle="tooltip">
+                        <i class="fa fa-eye"></i>
+                    </a>
+                    {% endif %}
+
+                    {% if perms.maps.change_publishedaswms %}
+                    {% blocktranslate asvar title%}Edit layer details{% endblocktranslate %}
+                    <a href="{% url 'maps:layer-update' item.pk %}"
+                       class="btn btn-outline-primary" role="button"
+                       title="{{ title }}"
+                       aria-label="{{ title }}"
+                       data-bs-toggle="tooltip">
+                        <i class="fa fa-pen"></i>
+                    </a>
+                    {% endif %}
+
+                    {% if perms.maps.can_manage_object_permissions %}
+                    {% blocktranslate asvar title %}Edit permissions{% endblocktranslate %}
+                    <a href="{% url 'maps:layer-permission-list' item.pk %}"
+                       class="btn btn-outline-primary" role="button"
                        data-bs-toggle="tooltip"
                        title="{{ title }}"
                        aria-label="{{ title }}">
-                        <i class="fa fa-map"></i>
+                        <i class="fa fa-lock"></i>
                     </a>
-                    {% blocktranslate asvar title%}Open GetFeature request in new tab{% endblocktranslate %}
-                    <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wfs_url_params }}"
-                       target="_blank" class="btn btn-outline-primary"
-                       role="button"
+                    {% endif %}
+
+                    {% if perms.maps.delete_publishedaswms %}
+                    {% blocktranslate asvar title%}Delete WMS layer{% endblocktranslate %}
+                    <a href="{% url 'maps:layer-delete' item.pk %}"
+                       class="btn btn-outline-danger" role="button"
                        data-bs-toggle="tooltip"
                        title="{{ title }}"
                        aria-label="{{ title }}">
-                        <i class="fa fa-code"></i>
+                        <i class="fa fa-trash-alt"></i>
                     </a>
+                    {% endif %}
                 </div>
             </div>
 
