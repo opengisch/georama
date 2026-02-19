@@ -69,6 +69,10 @@ class PublishedAsWmsAbstract(PublishedAs):
             )
 
     @property
+    def create_preview(self) -> bool:
+        return True
+
+    @property
     def bound_dataset_type(self) -> str | None:
         bound_dataset = self.bound_dataset
         if isinstance(bound_dataset, RasterDataSet):
@@ -172,10 +176,10 @@ class PublishedAsWmsAbstract(PublishedAs):
             # we do not handle layers which have no CRS definition!
             bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
             self.extent_wgs84 = bbox_wgs84.to_2d_string()
-
-            # Generate layer preview image
-            generate_preview_image_sync = async_to_sync(self.generate_preview_image)
-            self.preview = generate_preview_image_sync()
+            if self.create_preview:
+                # Generate layer preview image
+                generate_preview_image_sync = async_to_sync(self.generate_preview_image)
+                self.preview = generate_preview_image_sync()
 
         super().save(
             force_insert=force_insert,
