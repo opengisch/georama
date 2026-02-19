@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block content %}
+    {% block list %}
     {% if object_list|length == 0 %}
         <div class="container d-flex justify-content-center align-items-center">
             <div class="fs-1 fw-bold text-center">
@@ -30,6 +31,7 @@
             {% endfor %}
         </div>
     {% endif %}
+    {% endblock %}
 
 
     {% block pagination %}
