@@ -1,0 +1,52 @@
+{% extends 'core/list.html' %}
+{% load static i18n %}
+
+{% block list_actions %}
+    <div class="btn-group" role="group" aria-label="List Actions">
+        <a href="{{ webgis_url }}"
+           target="_blank"
+           class="btn btn-outline-primary"
+           data-bs-toggle="tooltip"
+           title="{% trans 'Request the WMS capability document of this server' %}"
+           aria-label="{% trans 'Request the WMS capability document of this server' %}"
+           role="button">WebGIS</a>
+    </div>
+{% endblock %}
+
+{% block list %}
+    <div class="row row-cols-1 row-cols-sm-6 g-4">
+    {% blocktranslate asvar title%}Open Theme in WebGIS{% endblocktranslate %}
+    {% for item in object_list %}
+      <div class="col">
+        <div class="card h-30"
+             data-bs-toggle="tooltip"
+            title="{{ title }}"
+            aria-label="{{ title }}">
+            <a href="{{ webgis_url }}?themes={{ item.title }}&map_zoom={{ item.zoom }}&map_x={{ item.location.0 }}&map_y={{ item.location.1 }}">
+
+            <img src="{% if item.icon_as_base64 %}{{ item.icon_as_base64 }}{% else %}{{ item.icon_default }}{% endif %}"
+                 class="card-img-top img-thumbnail"
+                 style="border: none;"
+                 alt="{% trans 'Theme icon' %}"
+                 data-bs-toggle="tooltip"
+                   title="{{ title }}"
+                   aria-label="{{ title }}"/>
+          <div class="card-body">
+            <h5 class="card-title">
+                <h4 class="mb-2 text-center">{{ item.title }}</h4>
+            </h5>
+            {% if item.description %}
+            <p class="card-text text-truncate"
+               data-bs-toggle="tooltip"
+               title="{{ item.description }}"
+               aria-label="{{ item.description }}">
+                {{ item.description }}
+            </p>
+            {% endif %}
+          </div>
+            </a>
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+{% endblock %}

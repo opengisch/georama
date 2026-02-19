@@ -1,11 +1,16 @@
 import json
 import logging
 
-from django.contrib.auth.models import User
+from django.apps import apps
+from django.conf import settings
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.models import Group, Permission, User
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
-from django.templatetags.static import static
+from django.urls import reverse, reverse_lazy
+from django.utils.translation import gettext as _
 from django.views import View
+from qgis_server_light.interface.qgis import BBox
 from qgis_server_light.interface.qgis import Config as QslConfig
 from qgis_server_light.interface.qgis import Custom as QslCustom
 from qgis_server_light.interface.qgis import Group as QslGroup
@@ -13,6 +18,16 @@ from qgis_server_light.interface.qgis import Raster as QslRaster
 from qgis_server_light.interface.qgis import Vector as QslVector
 from xsdata.formats.dataclass.serializers import DictEncoder
 
+from georama.core.menu import BreadCrumb
+from georama.core.services.permission import DBService
+from georama.core.views.generic.delete import GeoramaDeleteView
+from georama.core.views.generic.detail import GeoramaDetailView
+from georama.core.views.generic.list import GeoramaListView
+from georama.core.views.generic.mixins import (
+    GeoramaAnyPermissionRequiredMixin,
+    GeoramaLoginRequiredMixin,
+)
+from georama.core.views.generic.update import GeoramaUpdateView
 from georama.data_integration.models import (
     CustomDataSet,
     Project,
@@ -21,8 +36,7 @@ from georama.data_integration.models import (
 )
 from georama.data_integration.services.project import FSService
 from georama.maps.views import OgcServer
-from georama.webgis.apps import WebgisConfig
-from georama.webgis.forms import HomeForm
+from georama.webgis.apps import central_app_label
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     LayerGroup,
     Theme,
@@ -32,13 +46,470 @@ from georama.webgis.models import LayerGroupMp
 from georama.webgis.models import OgcServer as WebGisOgcServer
 from georama.webgis.models import PublishedAsLayerWms, PublishedAsTheme
 
-appname = WebgisConfig.get_simple_appname()
+
+class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
+    model = PublishedAsTheme
+    permission_required = model.perm_add()
+
+    @staticmethod
+    def extend_bbox(bbox: BBox, bbox_extension: BBox):
+        if bbox_extension.x_min < bbox.x_min or bbox.x_min == 0:
+            bbox.x_min = bbox_extension.x_min
+        if bbox_extension.y_min < bbox.y_min or bbox.y_min == 0:
+            bbox.y_min = bbox_extension.y_min
+        if bbox_extension.x_max > bbox.x_max or bbox.x_max == 0:
+            bbox.x_max = bbox_extension.x_max
+        if bbox_extension.y_max > bbox.y_max or bbox.y_max == 0:
+            bbox.y_max = bbox_extension.y_max
+
+    @staticmethod
+    def bbox_center_position(bbox: BBox):
+        return (
+            (bbox.x_max + bbox.x_min) / 2,
+            (bbox.y_max + bbox.y_min) / 2,
+        )
+
+    @staticmethod
+    def find_dataset_by_name(
+        dataset_name: str,
+        datasets: list[QslGroup] | list[QslRaster] | list[QslVector] | list[QslCustom],
+    ) -> QslGroup | QslVector | QslRaster | QslCustom | None:
+        # TODO: This should be move directly to the QSL interface!
+        for element in datasets:
+            if element.name == dataset_name:
+                return element
+        return None
+
+    def assemble_tree_to_treebeard(
+        self,
+        children: list[str],
+        current_parent: LayerGroupMp,
+        theme: PublishedAsTheme,
+        project: Project,
+        project_config: QslConfig,
+        bbox: BBox,
+        current_ogc_server: str | None = None,
+    ):
+        for child in children:
+            node = current_parent.add_child(name=child)
+            db_node = LayerGroupMp.objects.get(pk=node.pk)
+            db_node.theme = theme
+            db_node.save()
+            group_match = self.find_dataset_by_name(child, project_config.datasets.group)
+            if group_match:
+                # TODO: Improve regarding GMF possibilities!
+                db_node.title = group_match.title
+                db_node.metadata = {}
+                db_node.mixed = False
+                db_node.ogc_server = current_ogc_server
+                db_node.dimensions = {}
+                db_node.save()
+                self.assemble_tree_to_treebeard(
+                    project_config.tree.find_by_name(child).children,
+                    db_node,
+                    theme,
+                    project,
+                    project_config,
+                    bbox,
+                    current_ogc_server,
+                )
+            else:
+                raster_match = self.find_dataset_by_name(child, project_config.datasets.raster)
+                vector_match = self.find_dataset_by_name(child, project_config.datasets.vector)
+                custom_match = self.find_dataset_by_name(child, project_config.datasets.custom)
+                if raster_match:
+                    query = RasterDataSet.objects.filter(project=project, name=child)
+                    if query.exists():
+                        dataset = query.get()
+                    else:
+                        logging.error(f"Could not find raster dataset with name '{child}'")
+                        raise AttributeError()
+                    bbox_extenstion = BBox.from_string(dataset.bbox)
+                    self.extend_bbox(bbox, bbox_extenstion)
+                    PublishedAsLayerWms(
+                        ogc_server=current_ogc_server,
+                        name=dataset.name,
+                        title=dataset.title,
+                        raster_dataset=dataset,
+                        layer_group=db_node,
+                        dimensions={},
+                        public=True,
+                    ).save()
+                elif vector_match:
+                    query = VectorDataSet.objects.filter(project=project, name=child)
+                    if query.exists():
+                        dataset = query.get()
+                    else:
+                        logging.error(f"Could not find vector dataset with name '{child}'")
+                        raise AttributeError()
+                    bbox_extenstion = BBox.from_string(dataset.bbox)
+                    self.extend_bbox(bbox, bbox_extenstion)
+                    PublishedAsLayerWms(
+                        ogc_server=current_ogc_server,
+                        name=dataset.name,
+                        title=dataset.title,
+                        vector_dataset=dataset,
+                        layer_group=db_node,
+                        dimensions={},
+                        public=True,
+                    ).save()
+                elif custom_match:
+                    query = CustomDataSet.objects.filter(project=project, name=child)
+                    if query.exists():
+                        dataset = query.get()
+                    else:
+                        logging.error(f"Could not find custom dataset with name '{child}'")
+                        raise AttributeError()
+                    PublishedAsLayerWms(
+                        ogc_server=current_ogc_server,
+                        name=dataset.name,
+                        title=dataset.title,
+                        custom_dataset=dataset,
+                        layer_group=db_node,
+                        dimensions={},
+                        public=True,
+                    ).save()
+                else:
+                    logging.debug(f"Child {child} was not recognized as WebGIS Layer type")
+
+    def get(self, request: HttpRequest, pk: str, **kwargs):
+        project_db = Project.objects.get(pk=pk)
+        highest_theme = self.model.objects.order_by("ordering").last()
+        theme = self.model(
+            name=project_db.name,
+            title=project_db.title,
+            project=project_db,
+            metadata={"isLegendExpanded": True, "legend": False},
+            ordering=highest_theme.ordering + 1 if highest_theme else 1,
+            zoom=4,
+        )
+        theme.save()
+        ogc_server = insert_internal_ogc_server(request)
+        fss_project = FSService()
+        project_from_config = fss_project.get(project_db.mandant.name, project_db.name)
+        root_group = LayerGroupMp.add_root(name=theme.name)
+        db_root_node = LayerGroupMp.objects.get(pk=root_group.pk)
+        db_root_node.theme = theme
+        db_root_node.save()
+        bbox = BBox(0.0, 0.0, 0.0, 0.0)
+        # Highly recursive task, we flatten the tree into treebeard structure
+        self.assemble_tree_to_treebeard(
+            # the element with empty string as name is always the root of the tree
+            project_from_config.config.tree.find_by_name("").children,
+            db_root_node,
+            theme,
+            project_db,
+            project_from_config.config,
+            bbox,
+            ogc_server.name,
+        )
+        x, y = self.bbox_center_position(bbox)
+        theme.location = [x, y]
+        theme.save()
+        return redirect(f"{central_app_label}:theme-list")
 
 
-def home(request):
-    form = HomeForm()
+class Index(GeoramaListView):
+    """
+    This view is the apps landing page. It shows the available published
+    layers a user can access. This is also available in public and shows
+    layers which are public too. However, the important part is, that we
+    use the Georama inherent ObjectPermissionSystem `PublishedAs` here.
+    Not the Django model permission system.
+    """
 
-    return render(request, "webgis.html", {"form": form})
+    model = PublishedAsTheme
+    template_name = "webgis/index.html"
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+        ]
+
+    def get_queryset(self):
+        permitted_themes = []
+        themes = self.model.objects.all()
+        for theme in themes:
+            if theme.has_general_permission(self.request.user, central_app_label):
+                permitted_themes.append(theme)
+        return permitted_themes
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if (
+            self.request.user.has_perm(self.model.perm_view())
+            or self.request.user.has_perm(self.model.perm_change())
+            or self.request.user.has_perm(self.model.perm_delete())
+            or self.request.user.has_perm(self.model.perm_add())
+            or self.request.user.has_perm(self.model.perm_manage_permissions())
+        ):
+            context["breadcrumb_action_url"] = f"{central_app_label}:theme-list"
+            context["breadcrumb_action_icon"] = "fa fa-wrench"
+            context["breadcrumb_action_title"] = _("Manage Themes")
+            context["breadcrumb_action_tooltip"] = _("Manage and publish themes")
+        context["webgis_url"] = settings.WEBGISURL
+
+        return context
+
+
+class ThemesListView(
+    GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, GeoramaListView
+):
+    model = PublishedAsTheme
+    template_name = "webgis/list.html"
+    permission_required = [
+        model.perm_view(),
+        model.perm_change(),
+        model.perm_delete(),
+        model.perm_add(),
+        model.perm_manage_permissions(),
+    ]
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Themes")),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.has_perm(self.model.perm_add()):
+            context["breadcrumb_action_url"] = f"{central_app_label}:theme-add-project-list"
+            context["breadcrumb_action_icon"] = "fa fa-circle-plus"
+            context["breadcrumb_action_title"] = _("Publish Theme")
+            context["breadcrumb_action_tooltip"] = _("Publish a new theme from QGIS project")
+        return context
+
+
+class PublishProjectListView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaListView
+):
+    model = Project
+    template_name = "webgis/publish.html"
+    permission_required = PublishedAsTheme.perm_add()
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Themes"), reverse(f"{app_menu.app_label}:theme-list")),
+            BreadCrumb(_("Add")),
+        ]
+
+
+class ThemeDetailView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaDetailView):
+    model = PublishedAsTheme
+    permission_required = model.perm_view()
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Themes"), reverse(f"{app_menu.app_label}:theme-list")),
+            BreadCrumb(self.object.title or self.object.name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        context = super().get_context_data(**kwargs)
+        context["update_view_name"] = f"{app_menu.app_label}:theme-update"
+        context["delete_view_name"] = f"{app_menu.app_label}:theme-delete"
+        context["permission_view_name"] = f"{app_menu.app_label}:theme-permission-list"
+        context["perm_change"] = self.request.user.has_perm(self.model.perm_change())
+        context["perm_manage_permission"] = self.request.user.has_perm(
+            self.model.perm_manage_permissions()
+        )
+        context["perm_delete"] = self.request.user.has_perm(self.model.perm_delete())
+        return context
+
+
+class ThemeUpdateView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaUpdateView):
+    model = PublishedAsTheme
+    fields = [
+        "title",
+        "name",
+        "description",
+        "public",
+    ]
+    permission_required = model.perm_change()
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Themes"), reverse(f"{app_menu.app_label}:theme-list")),
+            BreadCrumb(
+                self.object.title or self.object.name,
+                reverse(
+                    f"{app_menu.app_label}:theme-detail", kwargs={"pk": self.kwargs["pk"]}
+                ),
+            ),
+        ]
+
+    def get_context_data(self, **kwargs):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        context = super().get_context_data(**kwargs)
+        context["delete_view_name"] = f"{app_menu.app_label}:theme-delete"
+        context["permission_view_name"] = f"{app_menu.app_label}:theme-permission-list"
+        context["perm_manage_permission"] = self.request.user.has_perm(
+            self.model.perm_manage_permissions()
+        )
+        context["perm_delete"] = self.request.user.has_perm(self.model.perm_delete())
+        return context
+
+
+class ThemeDeleteView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaDeleteView):
+    model = PublishedAsTheme
+    success_url = reverse_lazy(f"{central_app_label}:theme-list")
+    permission_required = model.perm_delete()
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Themes"), reverse(f"{app_menu.app_label}:theme-list")),
+            BreadCrumb(
+                self.object.title or self.object.name,
+                reverse(
+                    f"{app_menu.app_label}:theme-detail", kwargs={"pk": self.kwargs["pk"]}
+                ),
+            ),
+        ]
+
+
+class PermissionView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaDetailView):
+    model = Permission
+    template_name = "core/permission.html"
+    permission_required = PublishedAsTheme.perm_manage_permissions()
+
+    def get_object(self, queryset=None):
+        object_pk = self.kwargs.get("pk")
+        dbs_permission = DBService(PublishedAsTheme, central_app_label)
+        return dbs_permission.get_permission_lookup(object_pk)
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Themes"), reverse(f"{app_menu.app_label}:theme-list")),
+            BreadCrumb(
+                PublishedAsTheme.objects.get(pk=self.kwargs.get("pk")).title,
+                reverse(
+                    f"{app_menu.app_label}:theme-detail", kwargs={"pk": self.kwargs.get("pk")}
+                ),
+            ),
+            BreadCrumb(self.model._meta.verbose_name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["add_user_url"] = reverse(
+            f"{central_app_label}:theme-permission-user-list",
+            kwargs={"pk": self.kwargs.get("pk")},
+        )
+        context["add_group_url"] = reverse(
+            f"{central_app_label}:theme-permission-group-list",
+            kwargs={"pk": self.kwargs.get("pk")},
+        )
+        return context
+
+
+class UserListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaListView):
+    model = User
+    template_name = "core/user.html"
+    permission_required = PublishedAsTheme.perm_manage_permissions()
+
+    def get_queryset(self):
+        return (
+            User.objects.exclude(
+                user_permissions__codename__icontains=str(self.kwargs.get("pk"))
+            )
+            .exclude(pk=None)
+            .filter(is_superuser=False)
+        )
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Themes"), reverse(f"{app_menu.app_label}:theme-list")),
+            BreadCrumb(
+                PublishedAsTheme.objects.get(pk=self.kwargs.get("pk")).title,
+                reverse(
+                    f"{app_menu.app_label}:theme-detail", kwargs={"pk": self.kwargs.get("pk")}
+                ),
+            ),
+            BreadCrumb(
+                PermissionView.model._meta.verbose_name,
+                reverse(
+                    f"{app_menu.app_label}:theme-permission-list",
+                    kwargs={"pk": self.kwargs.get("pk")},
+                ),
+            ),
+            BreadCrumb(self.model._meta.verbose_name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dbs_permission = DBService(PublishedAsTheme, central_app_label)
+        context["read_permission_id"] = (
+            dbs_permission.get_by_object_pk(self.kwargs.get("pk"))
+            .filter(codename__icontains="read")
+            .get()
+            .pk
+        )
+        context["success_url"] = reverse(
+            f"{central_app_label}:theme-permission-list", kwargs={"pk": self.kwargs.get("pk")}
+        )
+        return context
+
+
+class GroupListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaListView):
+    model = Group
+    template_name = "core/group.html"
+    permission_required = PublishedAsTheme.perm_manage_permissions()
+
+    def get_queryset(self):
+        return Group.objects.exclude(
+            permissions__codename__icontains=str(self.kwargs.get("pk"))
+        )
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:theme-list")),
+            BreadCrumb(
+                PublishedAsTheme.objects.get(pk=self.kwargs.get("pk")).title,
+                reverse(
+                    f"{app_menu.app_label}:theme-detail", kwargs={"pk": self.kwargs.get("pk")}
+                ),
+            ),
+            BreadCrumb(
+                PermissionView.model._meta.verbose_name,
+                reverse(
+                    f"{app_menu.app_label}:theme-permission-list",
+                    kwargs={"pk": self.kwargs.get("pk")},
+                ),
+            ),
+            BreadCrumb(self.model._meta.verbose_name),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dbs_permission = DBService(PublishedAsTheme, central_app_label)
+        context["read_permission_id"] = (
+            dbs_permission.get_by_object_pk(self.kwargs.get("pk"))
+            .filter(codename__icontains="read")
+            .get()
+            .pk
+        )
+        context["success_url"] = reverse(
+            f"{central_app_label}:theme-permission-list", kwargs={"pk": self.kwargs.get("pk")}
+        )
+        return context
 
 
 class Themes(View):
@@ -59,7 +530,7 @@ class Themes(View):
                 if hasattr(child, "wms_datasets"):
                     # we filter for permission on the one-to-one field connected
                     # published_as element
-                    if child.wms_datasets.has_read_permission(user, appname):
+                    if child.wms_datasets.has_read_permission(user, central_app_label):
                         layer_group.children.append(child.wms_datasets.as_dataclass(config))
                 elif hasattr(child, "wmts_datasets"):
                     layer_group.children.append(child.wmts_datasets.as_dataclass())
@@ -71,20 +542,18 @@ class Themes(View):
 
     def get(self, request: HttpRequest, format: str):
         geogirafe_config = ThemesJson()
-
         for ogc_server in WebGisOgcServer.objects.all():
             geogirafe_config.ogc_servers.append(ogc_server.as_dataclass())
         for theme in PublishedAsTheme.objects.all():
-            theme_object = theme.as_dataclass()
-            if theme_object.icon is None:
-                theme_object.icon = request.build_absolute_uri(
-                    static("/webgis/assets/images/georama.coming_soon.png")
+            if theme.has_general_permission(self.request.user, central_app_label):
+                theme_object = theme.as_dataclass()
+                if theme_object.icon is None:
+                    theme_object.icon = request.build_absolute_uri(theme.icon_default)
+                geogirafe_config.themes.append(theme_object)
+                root_node = theme.tree_elements.first().get_root()
+                self.assemble_themes_tree_from_treebeard(
+                    root_node, theme_object, geogirafe_config, request.user
                 )
-            geogirafe_config.themes.append(theme_object)
-            root_node = theme.tree_elements.first().get_root()
-            self.assemble_themes_tree_from_treebeard(
-                root_node, theme_object, geogirafe_config, request.user
-            )
         result_dict = {
             "themes": DictEncoder().encode(geogirafe_config.themes),
             "ogcServers": {},
@@ -178,135 +647,6 @@ class Config(View):
         return HttpResponse(
             json.dumps(config_dict, indent=2), status=200, content_type="application/json"
         )
-
-
-class PublishProject(View):
-    @staticmethod
-    def find_dataset_by_name(
-        dataset_name: str,
-        datasets: list[QslGroup] | list[QslRaster] | list[QslVector] | list[QslCustom],
-    ) -> QslGroup | QslVector | QslRaster | QslCustom | None:
-        # TODO: This should be move directly to the QSL interface!
-        for element in datasets:
-            if element.name == dataset_name:
-                return element
-        return None
-
-    def assemble_tree_to_treebeard(
-        self,
-        children: list[str],
-        current_parent: LayerGroupMp,
-        theme: PublishedAsTheme,
-        project: Project,
-        project_config: QslConfig,
-        current_ogc_server: str | None = None,
-    ):
-        for child in children:
-            node = current_parent.add_child(name=child)
-            db_node = LayerGroupMp.objects.get(pk=node.pk)
-            db_node.theme = theme
-            db_node.save()
-            group_match = self.find_dataset_by_name(child, project_config.datasets.group)
-            if group_match:
-                # TODO: Improve regarding GMF possibilities!
-                db_node.title = group_match.title
-                db_node.metadata = {}
-                db_node.mixed = False
-                db_node.ogc_server = current_ogc_server
-                db_node.dimensions = {}
-                db_node.save()
-                self.assemble_tree_to_treebeard(
-                    project_config.tree.find_by_name(child).children,
-                    db_node,
-                    theme,
-                    project,
-                    project_config,
-                    current_ogc_server,
-                )
-            else:
-                raster_match = self.find_dataset_by_name(child, project_config.datasets.raster)
-                vector_match = self.find_dataset_by_name(child, project_config.datasets.vector)
-                custom_match = self.find_dataset_by_name(child, project_config.datasets.custom)
-                if raster_match:
-                    query = RasterDataSet.objects.filter(project=project, name=child)
-                    if query.exists():
-                        dataset = query.get()
-                    else:
-                        logging.error(f"Could not find raster dataset with name '{child}'")
-                        raise AttributeError()
-                    PublishedAsLayerWms(
-                        ogc_server=current_ogc_server,
-                        name=dataset.name,
-                        title=dataset.title,
-                        raster_dataset=dataset,
-                        layer_group=db_node,
-                        dimensions={},
-                        public=True,
-                    ).save()
-                elif vector_match:
-                    query = VectorDataSet.objects.filter(project=project, name=child)
-                    if query.exists():
-                        dataset = query.get()
-                    else:
-                        logging.error(f"Could not find vector dataset with name '{child}'")
-                        raise AttributeError()
-                    PublishedAsLayerWms(
-                        ogc_server=current_ogc_server,
-                        name=dataset.name,
-                        title=dataset.title,
-                        vector_dataset=dataset,
-                        layer_group=db_node,
-                        dimensions={},
-                        public=True,
-                    ).save()
-                elif custom_match:
-                    query = CustomDataSet.objects.filter(project=project, name=child)
-                    if query.exists():
-                        dataset = query.get()
-                    else:
-                        logging.error(f"Could not find custom dataset with name '{child}'")
-                        raise AttributeError()
-                    PublishedAsLayerWms(
-                        ogc_server=current_ogc_server,
-                        name=dataset.name,
-                        title=dataset.title,
-                        custom_dataset=dataset,
-                        layer_group=db_node,
-                        dimensions={},
-                        public=True,
-                    ).save()
-                else:
-                    logging.debug(f"Child {child} was not recognized as WebGIS Layer type")
-
-    def get(self, request: HttpRequest, project_id: int, **kwargs):
-        project_db = Project.objects.get(id=project_id)
-        highest_theme = PublishedAsTheme.objects.order_by("ordering").last()
-        theme = PublishedAsTheme(
-            name=project_db.name,
-            title=project_db.title,
-            project=project_db,
-            metadata={"isLegendExpanded": True, "legend": False},
-            ordering=highest_theme.ordering + 1 if highest_theme else 1,
-        )
-        theme.save()
-        ogc_server = insert_internal_ogc_server(request)
-        fss_project = FSService()
-        project_from_config = fss_project.get(project_db.mandant.name, project_db.name)
-        root_group = LayerGroupMp.add_root(name=theme.name)
-        db_root_node = LayerGroupMp.objects.get(pk=root_group.pk)
-        db_root_node.theme = theme
-        db_root_node.save()
-        # Highly recursive task, we flatten the tree into treebeard structure
-        self.assemble_tree_to_treebeard(
-            # the element with empty string as name is always the root of the tree
-            project_from_config.config.tree.find_by_name("").children,
-            db_root_node,
-            theme,
-            project_db,
-            project_from_config.config,
-            ogc_server.name,
-        )
-        return redirect("admin:webgis_publishedastheme_changelist")
 
 
 class OgcServerWebgis(OgcServer):

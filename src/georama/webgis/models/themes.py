@@ -1,6 +1,9 @@
+import base64
 import uuid
 
 from django.db import models
+from django.templatetags.static import static
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.qgis import DataSource
 from treebeard.mp_tree import MP_Node
@@ -9,6 +12,7 @@ from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
+from georama.core.models.mixins import GeoramaPermissionMixin
 from georama.data_integration.models import (
     CustomDataSet,
     Mandant,
@@ -17,6 +21,7 @@ from georama.data_integration.models import (
     VectorDataSet,
 )
 from georama.maps.models import PublishedAsWmsAbstract
+from georama.webgis.apps import central_app_label
 from georama.webgis.interfaces.geomapfish import ThemesJson
 from georama.webgis.interfaces.geomapfish.themes_json_2_8 import dataclasses
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
@@ -47,7 +52,7 @@ class Interface(models.Model):
         return f"{self.name}"
 
 
-class PublishedAsTheme(PublishedAs):
+class PublishedAsTheme(GeoramaPermissionMixin, PublishedAs):
     """
     Top item of layer tree organization
     """
@@ -62,10 +67,23 @@ class PublishedAsTheme(PublishedAs):
         null=True,
     )
     themes_json_uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    published_as_type = "geogirafe_theme"
+    published_as_type = f"{central_app_label}theme"
     metadata = models.JSONField()
     icon = models.CharField(blank=True, null=True)
     ordering = models.IntegerField()
+    location = models.JSONField(blank=True, null=True)
+    zoom = models.IntegerField(blank=True, null=True)
+
+    @property
+    def icon_as_base64_str(self):
+        if self.preview is not None:
+            return f"data:image/png;base64,{base64.b64encode(self.icon).decode()}"
+        else:
+            return None
+
+    @property
+    def icon_default(self):
+        return static("images/georama-logo-geogirafe.svg")
 
     @property
     def readable_identifier(self) -> str:
@@ -75,6 +93,11 @@ class PublishedAsTheme(PublishedAs):
         ordering = ["ordering"]
         verbose_name = _("Theme")
         verbose_name_plural = _("Themes")
+        permissions = [("can_manage_object_permissions", "Can manage object permissions")]
+
+    @classmethod
+    def perm_manage_permissions(cls):
+        return cls.assemble_perm(cls._meta.app_label, "can_manage_object_permissions")
 
     def __str__(self):
         return f"{self.name}"
@@ -86,6 +109,8 @@ class PublishedAsTheme(PublishedAs):
             id=str(self.themes_json_uuid),
             icon=self.icon,
             metadata=DictDecoder(config).decode(self.metadata, MetaData),
+            location=tuple(self.location),
+            zoom=self.zoom,
         )
 
     @property
@@ -107,6 +132,9 @@ class PublishedAsTheme(PublishedAs):
             using=using,
             update_fields=update_fields,
         )
+
+    def get_absolute_url(self):
+        return reverse(f"{central_app_label}:theme-detail", kwargs={"pk": self.pk})
 
 
 class LayerGroupMp(MP_Node):
@@ -181,7 +209,7 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     Layer extension for WMS layer
     """
 
-    published_as_type = "geogirafe_wms_layer"
+    published_as_type = f"{central_app_label}wmslayer"
     # TODO: This means we currently can add a layer only once into the
     #  tree. It is not allowed in two different groups. Is that what we want?
     layer_group = models.OneToOneField(
@@ -240,6 +268,10 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
         return f"{self.name}"
 
     @property
+    def create_preview(self):
+        return False
+
+    @property
     def get_raster_dataset(self) -> RasterDataSet:
         return self.raster_dataset
 
@@ -290,21 +322,13 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
             ],
         )
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super().save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields,
-        )
-
 
 class PublishedAsLayerWmts(Layer):
     """
     Layer extension for WMTS layer
     """
 
-    published_as_type = "geogirafe_wmts_layer"
+    published_as_type = f"{central_app_label}wmtslayer"
     layer_group = models.OneToOneField(
         LayerGroupMp,
         related_name="wmts_datasets",

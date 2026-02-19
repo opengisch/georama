@@ -1,0 +1,103 @@
+{% extends 'core/list.html' %}
+{% load static i18n %}
+
+{% block list_actions %}
+
+{% endblock %}
+
+{% block change_list_item %}
+    <div class="list-group-item list-group-item-action p-4">
+
+        <div class="d-flex flex-row flex-wrap">
+
+            <!-- Thumbnail -->
+
+            <div class="me-3">
+                <img src="{% if item.icon_as_base64 %}{{ item.icon_as_base64 }}{% else %}{{ item.icon_default }}{% endif %}"
+{#                         TODO PI: What strategy do we want with preview images?#}
+{#                         style="width: 150px; height: 150px"#}
+                         class="rounded img-thumbnail preview-image-lg"
+                            href="{% url 'webgis:theme-detail' item.pk %}"
+                         alt="{% trans 'Theme icon' %}"
+                    />
+            </div>
+
+            <!-- Title and description -->
+
+            <div class="d-flex flex-column flex-grow-1 justify-content-around">
+                <div>
+                    {% if perms.webgis.view_publishedastheme %}
+                    <a href="{% url 'webgis:theme-detail' item.pk %}"
+                       class="link-offset-3 link-underline link-underline-opacity-75">
+                        <h4 class="mb-2">{{ item.title }}</h4>
+                    </a>
+                    {% else %}
+                    <h4 class="mb-2">{{ item.title }}</h4>
+                    {% endif %}
+                    <div class="mb-1">{{ item.name }}</div>
+                </div>
+
+
+                <!-- Pills with layer functionalities -->
+
+                <div class="align-content-bottom">
+
+                </div>
+            </div>
+
+            <!-- Buttons group with layer actions -->
+
+            <div class="align-content-center ms-auto">
+
+                <div class="btn-group mr-2" role="group" aria-label="Layer actions">
+
+                    {% if perms.webgis.view_publishedastheme %}
+                    {% blocktranslate asvar title%}Show layer details{% endblocktranslate %}
+                    <a href="{% url 'webgis:theme-detail' item.pk %}"
+                       class="btn btn-outline-primary" role="button"
+                       title="{{ title }}"
+                       aria-label="{{ title }}"
+                       data-bs-toggle="tooltip">
+                        <i class="fa fa-eye"></i>
+                    </a>
+                    {% endif %}
+
+                    {% if perms.webgis.change_publishedastheme %}
+                    {% blocktranslate asvar title%}Edit layer details{% endblocktranslate %}
+                    <a href="{% url 'webgis:theme-update' item.pk %}"
+                       class="btn btn-outline-primary" role="button"
+                       title="{{ title }}"
+                       aria-label="{{ title }}"
+                       data-bs-toggle="tooltip">
+                        <i class="fa fa-pen"></i>
+                    </a>
+                    {% endif %}
+
+                    {% if perms.webgis.can_manage_object_permissions %}
+                    {% blocktranslate asvar title %}Edit permissions{% endblocktranslate %}
+                    <a href="{% url 'webgis:theme-permission-list' item.pk %}"
+                       class="btn btn-outline-primary" role="button"
+                       data-bs-toggle="tooltip"
+                       title="{{ title }}"
+                       aria-label="{{ title }}">
+                        <i class="fa fa-lock"></i>
+                    </a>
+                    {% endif %}
+
+                    {% if perms.webgis.delete_publishedastheme %}
+                    {% blocktranslate asvar title%}Delete WMS layer{% endblocktranslate %}
+                    <a href="{% url 'webgis:theme-delete' item.pk %}"
+                       class="btn btn-outline-danger" role="button"
+                       data-bs-toggle="tooltip"
+                       title="{{ title }}"
+                       aria-label="{{ title }}">
+                        <i class="fa fa-trash-alt"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

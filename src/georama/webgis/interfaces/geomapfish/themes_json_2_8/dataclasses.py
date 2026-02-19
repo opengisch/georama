@@ -259,6 +259,8 @@ class Theme(AbstractSchema):
     children: list[LayerGroup] = field(
         default_factory=list, metadata={"type": "Element", "required": True}
     )
+    zoom: int | None = field(default=None)
+    location: list[float] = field(default_factory=list)
 
     @property
     def hash(self):
