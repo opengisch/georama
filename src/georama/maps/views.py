@@ -490,11 +490,11 @@ class LayerListView(
     model = PublishedAsWms
     template_name = "maps/list.html"
     permission_required = [
-        PublishedAsWms.perm_view(),
-        PublishedAsWms.perm_change(),
-        PublishedAsWms.perm_delete(),
-        PublishedAsWms.perm_add(),
-        PublishedAsWms.perm_manage_permissions(),
+        model.perm_view(),
+        model.perm_change(),
+        model.perm_delete(),
+        model.perm_add(),
+        model.perm_manage_permissions(),
     ]
 
     def get_breadcrumbs(self):
