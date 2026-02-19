@@ -71,7 +71,7 @@ class PublishedAsVectorFeature(PublishedAs):
 
 
 class Column(PublishedAsRoleNameSystem):
-    published_as_type = "feature_column"
+    published_as_type = f"{central_app_label}column"
     title = models.CharField(max_length=1000)
 
     @classmethod
