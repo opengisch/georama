@@ -124,13 +124,10 @@
                                                            aria-hidden="true" loading="lazy"></div>
                         <h5 class="mb-1">WebGIS</h5>
                         <p class="mb-2">Dive into the GeoGirafe frontend.</p>
-                        {% if 'localhost' in geogirafe_host %}
-                            <a class="btn btn-outline-secondary btn-sm" href="{{ geogirafe_host }}" target="_blank">Open
-                                WebGIS</a>
-                        {% else %}
-                            <a class="btn btn-outline-secondary btn-sm" href="https://mapdemo.georama.io/"
-                               target="_blank">Open WebGIS</a>
-                        {% endif %}
+                            <a class="btn btn-outline-secondary btn-sm"
+                               href="{{ geogirafe_url }}"
+                               target="_blank">Open WebGIS
+                            </a>
                     </div>
                 </div>
             </div>
