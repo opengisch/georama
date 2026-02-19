@@ -22,18 +22,21 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="menu-main navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item align-content-center">
-                            <a class="nav-link" href="{% url "landing" %}">Home</a>
+                            {% url "landing" as landing_url%}
+                            <a class="nav-link{% if request.path == landing_url %} active{% endif %}" href="{{ landing_url }}">Home</a>
                         </li>
                         {% for item in menu_items %}
                             <li class="nav-item align-content-center">
-                                <a class="nav-link" href="{% url item.app_index %}">
+                                {% url item.app_index as item_index_url%}
+                                <a class="nav-link{% if request.path == item_index_url %} active{% endif %}" href="{{ item_index_url }}">
                                     {{ item.title }}
                                 </a>
                             </li>
                         {% endfor %}
                         {% if request.user.is_staff %}
                         <li class="nav-item align-content-center">
-                            <a class="nav-link" href="{% url 'settings' %}">Settings</a>
+                            {% url "settings" as settings_url%}
+                            <a class="nav-link{% if request.path == settings_url %} active{% endif %}" href="{{ settings_url }}">Settings</a>
                         </li>
                         {% endif %}
                         <li class="nav-item align-items-center">
