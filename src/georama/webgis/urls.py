@@ -68,15 +68,15 @@ urlpatterns = [
     path("/themes.<str:format>", views.Themes.as_view(), name="themes"),
     path("/<str:folder_name>/", views.GeoGirafe.as_view(), name="geogirafe"),
     path("/<str:folder_name>/config.json", views.Config.as_view(), name="config"),
-    path("/maps", views.OgcServerWebgis.as_view(), name="webgis_ogc_entry"),
+    path("/maps", views.OgcServerWebgis.as_view(), name="ogc_entry"),
     path(
         "/publish_dataset_as/wms/<str:dataset_type>/<str:dataset_id>",
         views.admin_publish_dataset_as_wms,
-        name="webgis_publish_dataset_as_wms",
+        name="publish_dataset_as_wms",
     ),
     path(
         "/translations/de.json",
         views.translation_json,
-        name="webis_translation_json",
+        name="translation_json",
     ),
 ]

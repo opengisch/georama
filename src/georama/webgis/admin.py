@@ -58,7 +58,7 @@ class LayerWmsAdmin(admin.ModelAdmin):
                 raster_datasets=RasterDataSet.objects.all(),
                 vector_datasets=VectorDataSet.objects.all(),
                 custom_datasets=CustomDataSet.objects.all(),
-                publish_dataset_as_wms_view_name="webgis_publish_dataset_as_wms",
+                publish_dataset_as_wms_view_name="webgis:publish_dataset_as_wms",
             )
         )
         return TemplateResponse(
@@ -69,12 +69,12 @@ class LayerWmsAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         extra_context["wms_get_capabilities_url"] = (
             "{}?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0".format(
-                reverse("webgis_ogc_entry")
+                reverse("webgis:ogc_entry")
             )
         )
         extra_context["wfs_get_capabilities_url"] = (
             "{}?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0".format(
-                reverse("webgis_ogc_entry")
+                reverse("webgis:ogc_entry")
             )
         )
         return super().changelist_view(
