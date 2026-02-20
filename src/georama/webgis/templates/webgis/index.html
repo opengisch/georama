@@ -18,7 +18,7 @@
     {% blocktranslate asvar title%}Open Theme in WebGIS{% endblocktranslate %}
     {% for item in object_list %}
       <div class="col">
-        <div class="card"
+        <div class="card .h-100"
              data-bs-toggle="tooltip"
             title="{{ title }}"
             aria-label="{{ title }}">
@@ -33,7 +33,7 @@
                    aria-label="{{ title }}"/>
           <div class="card-body">
             <h5 class="card-title">
-                <h4 class="mb-2 text-center">{{ item.title }}</h4>
+                <h4 class="mb-2 text-center">{{ item.title|default:item.name}}</h4>
             </h5>
             {% if item.description %}
             <p class="card-text text-truncate"

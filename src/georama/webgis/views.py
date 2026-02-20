@@ -8,6 +8,7 @@ from django.contrib.auth.models import Group, Permission, User
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views import View
 from qgis_server_light.interface.qgis import BBox
@@ -206,6 +207,12 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
         x, y = self.bbox_center_position(bbox)
         theme.location = [x, y]
         theme.save()
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+        ):
+            return redirect(next_url)
         return redirect(f"{central_app_label}:theme-list")
 
 

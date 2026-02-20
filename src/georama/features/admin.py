@@ -103,7 +103,11 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         vector_datasets = VectorDataSet.objects.all()
         extra_context["vector_datasets"] = [
-            (vd, reverse("publish_as_oapif", args=[vd.id])) for vd in vector_datasets
+            (
+                vd,
+                f'{reverse("features:layer-source-add", kwargs={"vector_dataset_id": vd.id})}?next={reverse("admin:features_publishedasogcapifeatures_changelist")}',  # noqa 501
+            )
+            for vd in vector_datasets
         ]
         return super().add_view(
             request,

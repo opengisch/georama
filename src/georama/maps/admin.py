@@ -93,7 +93,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
 
     def delete_link(self, obj: PublishedAsWms):
         return mark_safe(
-            '<a href="{}" class="btn btn-high btn-danger"><i class="fas fa-trash text-xs"/></a>'.format(  # noqa: E501
+            '<a href="{}" class="btn btn-high btn-danger"><i class="fas fa-trash-alt text-xs"/></a>'.format(  # noqa: E501
                 reverse("admin:maps_publishedaswms_delete", args=(obj.pk,))
             )
         )
@@ -147,12 +147,14 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         return mark_safe(
             "".join(
                 [
-                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WMS GetMap"><i class="fas fa-eye text-xs"></i></a>'.format(  # noqa: E501
+                    '<div class="btn-group" role="group">',
+                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WMS GetMap"><i class="fas fa-map text-xs"></i></a>'.format(  # noqa: E501
                         reverse("maps:maps_ogc_entry"), self.create_wms_url_params(obj)
                     ),
-                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WFS GetFeature"><i class="fas fa-eye text-xs"></i></a>'.format(  # noqa: E501
+                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WFS GetFeature"><i class="fas fa-code text-xs"></i></a>'.format(  # noqa: E501
                         reverse("maps:maps_ogc_entry"), self.create_wfs_url_params(obj)
                     ),
+                    "</div>",
                 ]
             )
         )

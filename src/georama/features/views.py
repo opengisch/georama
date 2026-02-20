@@ -9,6 +9,7 @@ from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views import View
 from pygeoapi import l10n
@@ -536,6 +537,13 @@ class PublishLayer(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
         vd = VectorDataSet.objects.filter(pk=vector_dataset_id).get()
         published_as_oapi = PublishedAsOgcApiFeatures(dataset=vd)
         published_as_oapi.save()
+
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+        ):
+            return redirect(next_url)
         return redirect(f"{central_app_label}:layer-list")
 
 
