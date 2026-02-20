@@ -19,16 +19,17 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="menu-main navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item align-content-center">
-                            {% url "landing" as landing_url%}
-                            <a class="nav-link{% if request.path == landing_url %} active{% endif %}" href="{{ landing_url }}">Home</a>
+                            {% url "landing" as landing_url %}
+                            <a class="nav-link {% if request.path == landing_url %}fw-bold active{% endif %}" href="{{ landing_url }}">Home</a>
                         </li>
                         {% for item in menu_items %}
                             <li class="nav-item align-content-center">
                                 {% url item.app_index as item_index_url%}
-                                <a class="nav-link{% if request.path == item_index_url %} active{% endif %}" href="{{ item_index_url }}">
+                                <a class="nav-link {% if request.resolver_match.app_name == item.app_label %}fw-bold active{% endif %}" href="{{ item_index_url }}">
                                     {{ item.title }}
                                 </a>
                             </li>
@@ -36,7 +37,7 @@
                         {% if request.user.is_staff %}
                         <li class="nav-item align-content-center">
                             {% url "settings" as settings_url%}
-                            <a class="nav-link{% if request.path == settings_url %} active{% endif %}" href="{{ settings_url }}">Settings</a>
+                            <a class="nav-link {% if request.path == settings_url %}fw-bold active{% endif %}" href="{{ settings_url }}">Settings</a>
                         </li>
                         {% endif %}
                         <li class="nav-item align-items-center">

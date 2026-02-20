@@ -2,9 +2,8 @@
 {% load static i18n %}
 
 {% block list_actions %}
-    <div class="ms-auto me-2 text-primary">{% trans 'Get Capabilities' %}</div>
     <div class="btn-group" role="group" aria-label="List Actions">
-
+        <span style="pointer-events: none" class="btn btn-high btn-outline-primary" aria-hidden="true">{% trans 'Capabilities' %}</span>
         <a href="{% url 'maps:maps_ogc_entry' %}?{{ wms_get_capabilities_params }}"
            target="_blank" class="btn btn-outline-primary"
            data-bs-toggle="tooltip"

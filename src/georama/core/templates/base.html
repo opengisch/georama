@@ -44,12 +44,13 @@
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="{% url 'landing' %}">Home</a></li>
                                 {% for breadcrumb in breadcrumbs %}
-                                    {% if breadcrumb.view_name %}
-                                        <li class="breadcrumb-item"><a
-                                        href="{{ breadcrumb.view_name }}">{{ breadcrumb.title }}</a></li>
-                                    {% else %}
-                                        <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb.title }}</li>
-                                    {% endif %}
+                                    <li class="breadcrumb-item {% if breadcrumbs|last %}active" aria-current="page{% endif %}">
+                                        {% if breadcrumb.view_name %}
+                                        <a href="{{ breadcrumb.view_name }}">{{ breadcrumb.title }}</a>
+                                        {% else %}
+                                        {{ breadcrumb.title }}
+                                         {% endif %}
+                                    </li>
                                 {% endfor %}
 
                                 <!-- Button as last element of breadcrumbs -->

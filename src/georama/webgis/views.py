@@ -231,7 +231,7 @@ class Index(GeoramaListView):
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb(app_menu.title),
         ]
 
     def get_queryset(self):

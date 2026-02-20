@@ -3,12 +3,13 @@
 
 {% block list_actions %}
     <div class="btn-group" role="group" aria-label="List Actions">
+        {% blocktranslate asvar title%}Open WebGIS{% endblocktranslate %}
         <a href="{{ webgis_url }}"
            target="_blank"
            class="btn btn-outline-primary"
            data-bs-toggle="tooltip"
-           title="{% trans 'Request the WMS capability document of this server' %}"
-           aria-label="{% trans 'Request the WMS capability document of this server' %}"
+           title="{{title}}"
+           aria-label="{{title}}"
            role="button">WebGIS</a>
     </div>
 {% endblock %}
