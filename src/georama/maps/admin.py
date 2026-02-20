@@ -75,7 +75,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         extra_context["raster_datasets"] = RasterDataSet.objects.all()
         extra_context["vector_datasets"] = VectorDataSet.objects.all()
         extra_context["custom_datasets"] = CustomDataSet.objects.all()
-        extra_context["publish_dataset_as_wms_view_name"] = "maps_publish_dataset_as_wms"
+        extra_context["publish_dataset_as_wms_view_name"] = "maps:layer-source-add"
         return super().add_view(
             request,
             form_url,

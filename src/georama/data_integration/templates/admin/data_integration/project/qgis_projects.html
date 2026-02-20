@@ -1,5 +1,5 @@
 {% extends 'admin/base_site.html' %}
-
+{% load static i18n %}
 {% block content %}
     <table class="table table-striped">
         <thead>
@@ -21,10 +21,15 @@
                     <td>{{ project.has_config }}</td>
                     <td>
                         <div class="d-flex flex-nowrap">
-                            <a onclick="showWaitModalOverlay()" href="{% url 'data_integration:project-export' group.name project.name %}" class="btn btn-high btn-success mr-2"><i class="fa fa-file-alt"></i> extract</a>
-                            {% if project.has_config %}
-                                <a href="{% url 'data_integration:project-register' group.name project.name %}" class="btn btn-high btn-success"><i class="fa fa-arrow-alt-circle-up"></i> integrate</a>
-                            {% endif %}
+                            {% blocktranslate asvar title%}Link QGIS project on disk in Georama{% endblocktranslate %}
+                            <a onclick="showWaitModalOverlay()"
+                               href="{% url 'data_integration:project-export' group.name project.name %}?next={% url 'admin:data_integration_project_changelist' %}"
+                               class="btn btn-high btn-success mr-2"
+                               title="{{ title }}"
+                               aria-label="{{ title }}"
+                               data-bs-toggle="tooltip">
+                                <i class="fa fa-link"></i>
+                            </a>
                         </div>
                     </td>
                 </tr>

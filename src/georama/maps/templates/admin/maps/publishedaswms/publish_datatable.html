@@ -20,13 +20,7 @@
                                                     <td>{{ dataset.project.name }}</td>
                                                     <td>{{ dataset.project.mandant.name }}</td>
                                                     <td>
-                                                    {% if model == "vector" %}
-                                                        <a href="{% url publish_view_name model dataset.pk %}" class="btn btn-high btn-success">publish</a>
-                                                    {% elif model == "raster"%}
-                                                        <a href="{% url publish_view_name model dataset.pk %}" class="btn btn-high btn-success">publish</a>
-                                                    {% else %}
-                                                        <a href="{% url publish_view_name model dataset.pk %}" class="btn btn-high btn-success">publish</a>
-                                                    {% endif %}
+                                                        <a href="{% url publish_view_name model dataset.pk %}?next={% url 'admin:maps_publishedaswms_changelist' %}" class="btn btn-high btn-success">publish</a>
                                                     </td>
                                                 </tr>
                                             {% endfor %}

@@ -7,6 +7,7 @@ from django.db import router, transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 
 from georama.core.menu import BreadCrumb
@@ -35,6 +36,13 @@ class RegisterQgisProject(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequire
         if not project.has_config or not project:
             redirect(f"{central_app_label}:project-list")
         DBService().integrate_project(project, project.config, folder_name)
+
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+        ):
+            return redirect(next_url)
         return redirect(f"{central_app_label}:project-list")
 
 
@@ -52,6 +60,14 @@ class QgisServerLightExporter(
         except RuntimeError as e:
             logging.error(e)
             return HttpResponse("Ask the administer", status=500)
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+        ):
+            return redirect(
+                f'{reverse("data_integration:project-register", kwargs={"folder_name": folder_name, "project_name":project_name})}?next={next_url}'  # noqa E501
+            )
         return redirect("data_integration:project-register", folder_name, project_name)
 
 

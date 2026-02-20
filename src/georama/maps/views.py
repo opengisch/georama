@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group, Permission, User
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views import View
 from qgis_server_light.interface.dispatcher import RedisQueue
@@ -433,6 +434,13 @@ class PublishLayer(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
         else:
             raise Http404
         published_as_wms.save()
+
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+        ):
+            return redirect(next_url)
         return redirect(f"{central_app_label}:layer-list")
 
 
