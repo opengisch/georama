@@ -1,0 +1,50 @@
+{% extends 'core/entity_list.html' %}
+{% load i18n %}
+{% block change_list_item %}
+    <div class="list-group-item list-group-item-action p-4">
+
+        <div class="d-flex flex-row flex-wrap">
+
+            <!-- Title and description -->
+
+            <div class="d-flex flex-column flex-grow-1 justify-content-around">
+                {% block list_item_title_and_name %}
+                    <h4 class="mb-2">
+                        {% block list_item_title %}
+                        {{ item.title }}
+                        {% endblock %}
+                    </h4>
+                    <div class="mb-1">
+                        {% block list_item_name %}
+                        {{ item.name }}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                <!-- Pills -->
+
+                <div class="align-content-bottom">
+                    {% block list_item_pills %}
+                    {% endblock %}
+                </div>
+
+            </div>
+
+            <!-- Buttons group with publish action -->
+
+            <div class="align-content-center ms-auto">
+
+                <div class="btn-group" role="group" aria-label="Publish actions">
+                    {% block list_item_actions_add %}
+                    <a href="{% url view_name_add item.pk %}"
+                       class="btn btn-outline-primary" role="button">Publish</a>
+                    {% endblock %}
+                    {% block list_item_actions_additional %}
+                    {% endblock %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

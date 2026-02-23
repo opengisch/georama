@@ -198,6 +198,13 @@ class PublishedAs(PublishedAsRoleNameSystem):
 
     class Meta:
         abstract = True
+        permissions = [("can_manage_object_permissions", "Can manage object permissions")]
+
+    @property
+    def endpoint_url(self):
+        raise NotImplementedError(
+            "This property has to be defined by each implementing app model!"
+        )
 
 
 def delete_publishedas_db_permissions(sender, instance, **kwargs):

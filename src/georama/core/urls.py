@@ -21,7 +21,8 @@ from django.contrib import admin
 from django.urls import include, path
 
 from georama.core.apps import central_app_label
-from georama.core.views import auth, landing, permission, settings
+from georama.core.views import auth, landing, settings
+from georama.core.views.entities import permission_assign, permission_remove
 
 app_name = central_app_label
 
@@ -33,12 +34,12 @@ urlpatterns = [
     path("settings", settings.Settings.as_view(), name="settings"),
     path(
         "core/assign_permission_to_user_or_group",
-        permission.AssignPermissionToUserOrGroup.as_view(),
+        permission_assign.GeoramaAssignPermissionToUserOrGroup.as_view(),
         name="assign_permission_to_user_or_group",
     ),
     path(
         "core/remove_permission_from_user_or_group",
-        permission.RemovePermissionToUserOrGroup.as_view(),
+        permission_remove.GeoramaRemovePermissionToUserOrGroup.as_view(),
         name="remove_permission_from_user_or_group",
     ),
     path("features", include("georama.features.urls")),

@@ -31,3 +31,7 @@ class GeoramaPermissionMixin(models.Model):
     @classmethod
     def perm_view(cls):
         return cls.perm("view")
+
+    @classmethod
+    def perm_manage_permissions(cls):
+        return cls.assemble_perm(cls._meta.app_label, "can_manage_object_permissions")

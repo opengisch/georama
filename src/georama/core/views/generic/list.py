@@ -6,7 +6,7 @@ from georama.core.views.generic.mixins import BreadcrumbMixin
 
 class GeoramaListView(BreadcrumbMixin, ListView):
     paginate_by = settings.LIST_PAGE_SIZE_DEFAULT
-    template_name = "core/list.html"
+    template_name = "core/entity_list.html"
 
     def handle_per_page(self):
         per_page = self.request.GET.get("per_page")

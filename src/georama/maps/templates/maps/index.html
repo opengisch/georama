@@ -1,4 +1,4 @@
-{% extends 'core/list.html' %}
+{% extends 'core/published_item_index.html' %}
 {% load static i18n %}
 
 {% block list_actions %}
@@ -9,108 +9,77 @@
            data-bs-toggle="tooltip"
            title="{% trans 'Request the WMS capability document of this server' %}"
            aria-label="{% trans 'Request the WMS capability document of this server' %}"
-           role="button">WMS</a>
+           role="button"><i class="fa-solid fa-map"></i></a>
 
         <a href="{% url 'maps:maps_ogc_entry' %}?{{ wfs_get_capabilities_params }}"
            target="_blank" class="btn btn-outline-primary"
            data-bs-toggle="tooltip"
            title="{% trans 'Request the WFS capability document of this server' %}"
            aria-label="{% trans 'Request the WFS capability document of this server' %}"
-           role="button">WFS</a>
+           role="button"><i class="fa-solid fa-shapes"></i></a>
     </div>
 {% endblock %}
 
-{% block change_list_item %}
-    <div class="list-group-item list-group-item-action p-4">
+{% block item_card_image %}
+{% blocktranslate asvar title %}WMS preview{% endblocktranslate %}
+<img src="{{ item.preview_as_base64 }}"
+     alt="{{ title }}"
+     data-bs-toggle="tooltip"
+     title="{{ title }}"
+     aria-label="{{ title }}"
+     class="card-img-top img-thumbnail"
+     style="border: none;"/>
+{% endblock %}
 
-        <div class="d-flex flex-row flex-wrap">
+{% block item_card_badges %}
+    {% if item.queryable %}
+    {% blocktranslate asvar title with val=item.queryable|yesno:"yes,no,unknown" %}WMS layer provides a twin WFS layer to query features: {{ val }}{% endblocktranslate %}
+    <span class="badge rounded-pill text-bg-primary"
+          data-bs-toggle="tooltip"
+          title="{{ title }}"
+          aria-label="{{ title }}">
+        WfsQuery</span>
+    {% endif %}
 
-            <!-- Thumbnail -->
+    {#   TODO PI: These functionalities do not exist yet #}
+    {% if False %}
+    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides a legend: {{ val }}{% endblocktranslate %}
+    <span class="badge rounded-pill text-bg-primary"
+          data-bs-toggle="tooltip"
+          title="{{ title }}"
+          aria-label="{{ title }}">
+        GetLegend</span>
+    {% endif %}
+    {#   TODO PI: These functionalities do not exist yet #}
+    {% if False %}
+    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides feature infos at coordinates: {{ val }}{% endblocktranslate %}
+    <span class="badge rounded-pill text-bg-primary"
+          data-bs-toggle="tooltip"
+          title="{{ title }}"
+          aria-label="{{ title }}">
+        GetFeatureInfo</span>
+    {% endif %}
+{% endblock %}
 
-            <div class="me-3">
-                <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wms_url_params }}"
-                   target="_blank"
-                >
-                    <img src="{{ item.preview_as_base64 }}"
-{#                         TODO PI: What strategy do we want with preview images?#}
-{#                         style="width: 150px; height: 150px"#}
-                         class="rounded img-thumbnail preview-image-lg"
-                         alt="{% trans 'WMS preview' %}"
-                    />
-                </a>
-            </div>
-
-            <!-- Title and description -->
-
-            <div class="d-flex flex-column flex-grow-1 justify-content-around">
-                <div>
-                    <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wms_url_params }}"
-                       target="_blank"
-                       class="link-offset-3 link-underline link-underline-opacity-75">
-                        <h4 class="mb-2">{{ item.title }}</h4>
-                    </a>
-                    <div class="mb-1">{{ item.name }}</div>
-                </div>
-
-
-                <!-- Pills with layer functionalities -->
-
-                <div class="align-content-bottom">
-
-                    {#   TODO PI: These functionalities do not exist yet #}
-                    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides a legend: {{ val }}{% endblocktranslate %}
-                    <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
-                          data-bs-toggle="tooltip"
-                          title="{{ title }}"
-                          aria-label="{{ title }}">
-                        GetLegend</span>
-
-                    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides feature infos at coordinates: {{ val }}{% endblocktranslate %}
-                    <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
-                          data-bs-toggle="tooltip"
-                          title="{{ title }}"
-                          aria-label="{{ title }}">
-                        GetFeatureInfo</span>
-
-                    {% blocktranslate asvar title with val=item.queryable|yesno:"yes,no,unknown" %}WMS layer provides a twin WFS layer to query features: {{ val }}{% endblocktranslate %}
-                    <span class="badge rounded-pill {% if item.queryable %}text-bg-primary{% else %}text-bg-light{% endif %}"
-                          data-bs-toggle="tooltip"
-                          title="{{ title }}"
-                          aria-label="{{ title }}">
-                        WfsQuery</span>
-                </div>
-            </div>
-
-            <!-- Buttons group with layer actions -->
-
-            <div class="align-content-center ms-auto">
-
-                <div class="btn-group mr-2" role="group" aria-label="Layer actions">
-
-                    {% blocktranslate asvar title%}Open GetMap request in new tab{% endblocktranslate %}
-                    <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wms_url_params }}"
-                       target="_blank" class="btn btn-outline-primary"
-                       role="button"
-                       data-bs-toggle="tooltip"
-                       title="{{ title }}"
-                       aria-label="{{ title }}">
-                        <i class="fa fa-map"></i>
-                    </a>
-                    {% if item.queryable %}
-                    {% blocktranslate asvar title%}Open GetFeature request in new tab{% endblocktranslate %}
-                    <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wfs_url_params }}"
-                       target="_blank" class="btn btn-outline-primary"
-                       role="button"
-                       data-bs-toggle="tooltip"
-                       title="{{ title }}"
-                       aria-label="{{ title }}">
-                        <i class="fa fa-code"></i>
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-
-        </div>
-
-    </div>
+{% block item_card_footer %}
+    {% blocktranslate asvar title%}Open GetMap request in new tab{% endblocktranslate %}
+    <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wms_url_params }}"
+       target="_blank" class="btn btn-outline-primary"
+       role="button"
+       data-bs-toggle="tooltip"
+       title="{{ title }}"
+       aria-label="{{ title }}">
+        <i class="fa fa-map"></i>
+    </a>
+    {% if item.queryable %}
+    {% blocktranslate asvar title%}Open GetFeature request in new tab{% endblocktranslate %}
+    <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wfs_url_params }}"
+       target="_blank" class="btn btn-outline-primary"
+       role="button"
+       data-bs-toggle="tooltip"
+       title="{{ title }}"
+       aria-label="{{ title }}">
+        <i class="fa fa-code"></i>
+    </a>
+    {% endif %}
 {% endblock %}

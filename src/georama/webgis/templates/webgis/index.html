@@ -1,4 +1,4 @@
-{% extends 'core/list.html' %}
+{% extends 'core/published_item_index.html' %}
 {% load static i18n %}
 
 {% block list_actions %}
@@ -14,40 +14,13 @@
     </div>
 {% endblock %}
 
-{% block list %}
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-6 g-4">
-    {% blocktranslate asvar title%}Open Theme in WebGIS{% endblocktranslate %}
-    {% for item in object_list %}
-      <div class="col">
-        <div class="card .h-100"
-             data-bs-toggle="tooltip"
-            title="{{ title }}"
-            aria-label="{{ title }}">
-            <a href="{{ webgis_url }}?themes={{ item.title }}&map_zoom={{ item.zoom }}&map_x={{ item.location.0 }}&map_y={{ item.location.1 }}">
 
-            <img src="{% if item.icon_as_base64 %}{{ item.icon_as_base64 }}{% else %}{{ item.icon_default }}{% endif %}"
-                 class="card-img-top img-thumbnail"
-                 style="border: none;"
-                 alt="{% trans 'Theme icon' %}"
-                 data-bs-toggle="tooltip"
-                   title="{{ title }}"
-                   aria-label="{{ title }}"/>
-          <div class="card-body">
-            <h5 class="card-title">
-                <h4 class="mb-2 text-center">{{ item.title|default:item.name}}</h4>
-            </h5>
-            {% if item.description %}
-            <p class="card-text text-truncate"
-               data-bs-toggle="tooltip"
-               title="{{ item.description }}"
-               aria-label="{{ item.description }}">
-                {{ item.description }}
-            </p>
-            {% endif %}
-          </div>
-            </a>
-        </div>
-      </div>
-    {% endfor %}
-    </div>
+{% block item_card_image %}
+<img src="{% if item.icon_as_base64 %}{{ item.icon_as_base64 }}{% else %}{{ item.icon_default }}{% endif %}"
+     class="card-img-top img-thumbnail"
+     style="border: none;"
+     alt="{% trans 'Theme icon' %}"
+     data-bs-toggle="tooltip"
+       title="{{ title }}"
+       aria-label="{{ title }}"/>
 {% endblock %}

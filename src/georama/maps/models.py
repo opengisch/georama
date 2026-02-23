@@ -163,6 +163,20 @@ class PublishedAsWmsAbstract(PublishedAs):
         # No need for Update or delete with WMS...
         return self.read_permissions
 
+    @property
+    def endpoint_url_wms(self):
+        url = reverse(f"{self._meta.app_label}:maps_ogc_entry")
+        return f"{url}?{self.create_wms_url_params}"
+
+    @property
+    def endpoint_url_wfs(self):
+        url = reverse(f"{self._meta.app_label}:maps_ogc_entry")
+        return f"{url}?{self.create_wfs_url_params}"
+
+    @property
+    def endpoint_url(self):
+        return self.endpoint_url_wms
+
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         dataset = self.bound_dataset
         if self.name is None:
@@ -269,10 +283,6 @@ class PublishedAsWms(GeoramaPermissionMixin, PublishedAsWmsAbstract):
         verbose_name_plural = f'WMS {_("Layers")}'
         permissions = [("can_manage_object_permissions", "Can manage object permissions")]
 
-    @classmethod
-    def perm_manage_permissions(cls):
-        return cls.assemble_perm(cls._meta.app_label, "can_manage_object_permissions")
-
     raster_dataset = models.ForeignKey(
         RasterDataSet,
         # TODO: this seems wrong => only because error:
@@ -320,4 +330,4 @@ class PublishedAsWms(GeoramaPermissionMixin, PublishedAsWmsAbstract):
         return self.custom_dataset
 
     def get_absolute_url(self):
-        return reverse(f"{central_app_label}:layer-detail", kwargs={"pk": self.pk})
+        return reverse(f"{self._meta.app_label}:layer-detail", kwargs={"pk": self.pk})

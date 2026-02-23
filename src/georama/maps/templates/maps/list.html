@@ -1,131 +1,32 @@
-{% extends 'core/list.html' %}
-{% load static i18n %}
+{% extends 'core/entity_list.html' %}
+{% load i18n %}
 
-{% block list_actions %}
-
+{%  block list_item_image %}
+    <img src="{{ item.preview_as_base64 }}"
+         class="rounded img-thumbnail preview-image-lg"
+         alt="{% trans 'WMS preview' %}"
+    />
 {% endblock %}
+{% block list_item_pills_additional %}
+    {% blocktranslate asvar title with val=item.queryable|yesno:"yes,no,unknown" %}WMS layer provides a twin WFS layer to query features: {{ val }}{% endblocktranslate %}
+    <span class="badge rounded-pill {% if item.queryable %}text-bg-primary{% else %}text-bg-light{% endif %}"
+          data-bs-toggle="tooltip"
+          title="{{ title }}"
+          aria-label="{{ title }}">
+        WfsQuery</span>
 
-{% block change_list_item %}
-    <div class="list-group-item list-group-item-action p-4">
-
-        <div class="d-flex flex-row flex-wrap">
-
-            <!-- Thumbnail -->
-
-            <div class="me-3">
-                <img {% if perms.maps.view_publishedaswms %}href="{% url 'maps:layer-detail' item.pk %}"{% endif %}
-                     src="{{ item.preview_as_base64 }}"
-{#                         TODO PI: What strategy do we want with preview images?#}
-{#                         style="width: 150px; height: 150px"#}
-                     class="rounded img-thumbnail preview-image-lg"
-                     alt="{% trans 'WMS preview' %}"
-                />
-            </div>
-
-            <!-- Title and description -->
-
-            <div class="d-flex flex-column flex-grow-1 justify-content-around">
-                <div>
-                    {% if perms.maps.view_publishedaswms %}
-                    <a href="{% url 'maps:layer-detail' item.pk %}"
-                       class="link-offset-3 link-underline link-underline-opacity-75">
-                        <h4 class="mb-2">{{ item.title }}</h4>
-                    </a>
-                    {% else %}
-                    <h4 class="mb-2">{{ item.title }}</h4>
-                    {% endif %}
-                    <div class="mb-1">{{ item.name }}</div>
-                </div>
-
-
-                <!-- Pills with layer functionalities -->
-
-                <div class="align-content-bottom">
-
-                    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer is publicly available: {{ val }}{% endblocktranslate %}
-                    <span class="badge rounded-pill {% if item.public == True %}text-bg-primary{% else %}text-bg-light{% endif %}"
-                          data-bs-toggle="tooltip"
-                          title="{{ title }}"
-                          aria-label="{{ title }}">
-                        public</span>
-
-                    {#   TODO PI: These functionalities do not exist yet #}
-                    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides a legend: {{ val }}{% endblocktranslate %}
-                    <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
-                          data-bs-toggle="tooltip"
-                          title="{{ title }}"
-                          aria-label="{{ title }}">
-                        GetLegend</span>
-
-                    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides feature infos at coordinates: {{ val }}{% endblocktranslate %}
-                    <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
-                          data-bs-toggle="tooltip"
-                          title="{{ title }}"
-                          aria-label="{{ title }}">
-                        GetFeatureInfo</span>
-
-                    {% blocktranslate asvar title with val=item.queryable|yesno:"yes,no,unknown" %}WMS layer provides a twin WFS layer to query features: {{ val }}{% endblocktranslate %}
-                    <span class="badge rounded-pill {% if item.queryable %}text-bg-primary{% else %}text-bg-light{% endif %}"
-                          data-bs-toggle="tooltip"
-                          title="{{ title }}"
-                          aria-label="{{ title }}">
-                        WfsQuery</span>
-                </div>
-            </div>
-
-            <!-- Buttons group with layer actions -->
-
-            <div class="align-content-center ms-auto">
-
-                <div class="btn-group mr-2" role="group" aria-label="Layer actions">
-
-                    {% if perms.maps.view_publishedaswms %}
-                    {% blocktranslate asvar title%}Show layer details{% endblocktranslate %}
-                    <a href="{% url 'maps:layer-detail' item.pk %}"
-                       class="btn btn-outline-primary" role="button"
-                       title="{{ title }}"
-                       aria-label="{{ title }}"
-                       data-bs-toggle="tooltip">
-                        <i class="fa fa-eye"></i>
-                    </a>
-                    {% endif %}
-
-                    {% if perms.maps.change_publishedaswms %}
-                    {% blocktranslate asvar title%}Edit layer details{% endblocktranslate %}
-                    <a href="{% url 'maps:layer-update' item.pk %}"
-                       class="btn btn-outline-primary" role="button"
-                       title="{{ title }}"
-                       aria-label="{{ title }}"
-                       data-bs-toggle="tooltip">
-                        <i class="fa fa-pen"></i>
-                    </a>
-                    {% endif %}
-
-                    {% if perms.maps.can_manage_object_permissions %}
-                    {% blocktranslate asvar title %}Edit permissions{% endblocktranslate %}
-                    <a href="{% url 'maps:layer-permission-list' item.pk %}"
-                       class="btn btn-outline-primary" role="button"
-                       data-bs-toggle="tooltip"
-                       title="{{ title }}"
-                       aria-label="{{ title }}">
-                        <i class="fa fa-lock"></i>
-                    </a>
-                    {% endif %}
-
-                    {% if perms.maps.delete_publishedaswms %}
-                    {% blocktranslate asvar title%}Delete WMS layer{% endblocktranslate %}
-                    <a href="{% url 'maps:layer-delete' item.pk %}"
-                       class="btn btn-outline-danger" role="button"
-                       data-bs-toggle="tooltip"
-                       title="{{ title }}"
-                       aria-label="{{ title }}">
-                        <i class="fa fa-trash-alt"></i>
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-
-        </div>
-
-    </div>
+    {#   TODO PI: These functionalities do not exist yet #}
+    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides a legend: {{ val }}{% endblocktranslate %}
+    <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
+          data-bs-toggle="tooltip"
+          title="{{ title }}"
+          aria-label="{{ title }}">
+        GetLegend</span>
+    {#   TODO PI: These functionalities do not exist yet #}
+    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides feature infos at coordinates: {{ val }}{% endblocktranslate %}
+    <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
+          data-bs-toggle="tooltip"
+          title="{{ title }}"
+          aria-label="{{ title }}">
+        GetFeatureInfo</span>
 {% endblock %}

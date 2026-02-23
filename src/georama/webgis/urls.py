@@ -28,12 +28,12 @@ urlpatterns = [
     path(
         "/theme/add/project/<str:pk>",
         views.PublishThemeFromProject.as_view(),
-        name="theme-add-project",
+        name="theme-add",
     ),
     path(
         "/theme/add/project",
         views.PublishProjectListView.as_view(),
-        name="theme-add-project-list",
+        name="theme-add-list",
     ),
     path(
         "/theme/<str:pk>",

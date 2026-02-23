@@ -8,4 +8,4 @@ class WebgisConfig(GeoramaAbstractConfig):
     verbose_name = "Webgis"
     name = f"georama.{central_app_label}"
     label = central_app_label
-    menu_order: int = 1
+    menu_order: int = 20

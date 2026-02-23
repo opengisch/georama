@@ -1,14 +1,10 @@
 import logging
 
 from asgiref.sync import sync_to_async
-from django.apps import apps
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.models import Group, Permission, User
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
-from django.urls import reverse, reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import gettext as _
 from django.views import View
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import (
@@ -23,24 +19,25 @@ from xsdata.formats.dataclass.parsers import DictDecoder, XmlParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer
 
-from georama.core.menu import BreadCrumb
-from georama.core.services.permission import DBService
-from georama.core.views.generic.delete import GeoramaDeleteView
-from georama.core.views.generic.detail import GeoramaDetailView
-from georama.core.views.generic.list import GeoramaListView
+from georama.core.views.entities.entity_delete import GeoramaEntityDeleteView
+from georama.core.views.entities.entity_detail import GeoramaEntityDetailView
+from georama.core.views.entities.entity_list import GeoramaEntityListView
+from georama.core.views.entities.entity_publish_list import GeoramaEntityPublishListView
+from georama.core.views.entities.entity_update import GeoramaEntityUpdateView
+from georama.core.views.entities.permission_detail import GeoramaPermissionDetailView
+from georama.core.views.entities.permission_group import GeoramaGroupListView
+from georama.core.views.entities.permission_user import GeoramaUserListView
+from georama.core.views.entities.published_item_index import GeoramaPublishedItemIndex
 from georama.core.views.generic.mixins import (
     GeoramaAnyPermissionRequiredMixin,
     GeoramaLoginRequiredMixin,
 )
-from georama.core.views.generic.update import GeoramaUpdateView
-from georama.core.views.multi_model.list import ChangeListView
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import MapsConfig, central_app_label
 from georama.maps.interfaces.georama.requests import QslGetMapRequest
 from georama.maps.interfaces.ogc.wfs_2_0_0 import GetFeature as GetFeature200
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
-from georama.maps.services.services import DatasetService
 from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
 from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
 from georama.maps.services.wfs_2_0_0.get_feature import WfsGetFeature
@@ -444,45 +441,14 @@ class PublishLayer(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
         return redirect(f"{central_app_label}:layer-list")
 
 
-class Index(GeoramaListView):
-    """
-    This view is the apps landing page. It shows the available published
-    layers a user can access. This is also available in public and shows
-    layers which are public too. However, the important part is, that we
-    use the Georama inherent ObjectPermissionSystem `PublishedAs` here.
-    Not the Django model permission system.
-    """
+class Index(GeoramaPublishedItemIndex):
 
     model = PublishedAsWms
     template_name = "maps/index.html"
-
-    def get_breadcrumbs(self):
-        app_menu = apps.get_app_config(central_app_label).app_menu()
-        return [
-            BreadCrumb(app_menu.title),
-        ]
-
-    def get_queryset(self):
-        permitted_layers = []
-        layers = self.model.objects.all()
-        for layer in layers:
-            if layer.has_general_permission(self.request.user, central_app_label):
-                permitted_layers.append(layer)
-        return permitted_layers
+    entity_name = "layer"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if (
-            self.request.user.has_perm(self.model.perm_view())
-            or self.request.user.has_perm(self.model.perm_change())
-            or self.request.user.has_perm(self.model.perm_delete())
-            or self.request.user.has_perm(self.model.perm_add())
-            or self.request.user.has_perm(self.model.perm_manage_permissions())
-        ):
-            context["breadcrumb_action_url"] = f"{central_app_label}:layer-list"
-            context["breadcrumb_action_icon"] = "fa fa-wrench"
-            context["breadcrumb_action_title"] = _("Manage Layers")
-            context["breadcrumb_action_tooltip"] = _("Manage published layers")
         context["wms_get_capabilities_params"] = (
             self.model.create_wms_capabilities_url_params()
         )
@@ -493,7 +459,7 @@ class Index(GeoramaListView):
 
 
 class LayerListView(
-    GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, GeoramaListView
+    GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, GeoramaEntityListView
 ):
     model = PublishedAsWms
     template_name = "maps/list.html"
@@ -504,72 +470,40 @@ class LayerListView(
         model.perm_add(),
         model.perm_manage_permissions(),
     ]
-
-    def get_breadcrumbs(self):
-        app_menu = apps.get_app_config(central_app_label).app_menu()
-        return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
-            BreadCrumb(_("Manage Layers")),
-        ]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.user.has_perm(self.model.perm_add()):
-            context["breadcrumb_action_url"] = f"{central_app_label}:layer-source-list"
-            context["breadcrumb_action_icon"] = "fa fa-circle-plus"
-            context["breadcrumb_action_title"] = _("publish layer")
-            context["breadcrumb_action_tooltip"] = _("Publish a new maps layer")
-        return context
+    entity_name = "layer"
 
 
-class PublishListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, ChangeListView):
-    """
-    We use a special type of view here since it need to deal with subclassed models
-    which should be listed in one list for selection.
-    """
+class PublishListView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityPublishListView
+):
 
-    service = DatasetService
-    title = "Publish"
-    name = "layer-source-list"
-    app_menu = apps.get_app_config("maps").app_menu()
-    template = "maps/publish.html"
-    breadcrumbs = [
-        BreadCrumb(app_menu.title, f"{app_menu.app_label}:index"),
-        BreadCrumb(_("Manage Layers"), reverse_lazy(f"{app_menu.app_label}:layer-list")),
-        BreadCrumb(_("Add")),
-    ]
-    permission_required = PublishedAsWms.perm_add()
+    model_publish = PublishedAsWms
+    template_name = "maps/publish.html"
+    entity_name = "layer"
+    permission_required = model_publish.perm_add()
+
+    def get_queryset(self):
+        items = []
+        items += list(VectorDataSet.objects.all())
+        items += list(RasterDataSet.objects.all())
+        items += list(CustomDataSet.objects.all())
+        return items
 
 
-class MapDetailView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaDetailView):
+class MapDetailView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityDetailView
+):
     model = PublishedAsWms
+    entity_name = "layer"
     template_name = "maps/detail.html"
     permission_required = model.perm_view()
 
-    def get_breadcrumbs(self):
-        app_menu = apps.get_app_config(central_app_label).app_menu()
-        return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
-            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
-            BreadCrumb(self.object.title or self.object.name),
-        ]
 
-    def get_context_data(self, **kwargs):
-        app_menu = apps.get_app_config(central_app_label).app_menu()
-        context = super().get_context_data(**kwargs)
-        context["update_view_name"] = f"{app_menu.app_label}:layer-update"
-        context["delete_view_name"] = f"{app_menu.app_label}:layer-delete"
-        context["permission_view_name"] = f"{app_menu.app_label}:layer-permission-list"
-        context["perm_change"] = self.request.user.has_perm(self.model.perm_change())
-        context["perm_manage_permission"] = self.request.user.has_perm(
-            self.model.perm_manage_permissions()
-        )
-        context["perm_delete"] = self.request.user.has_perm(self.model.perm_delete())
-        return context
-
-
-class MapUpdateView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaUpdateView):
+class MapUpdateView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityUpdateView
+):
     model = PublishedAsWms
+    entity_name = "layer"
     fields = [
         "title",
         "name",
@@ -582,177 +516,30 @@ class MapUpdateView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaU
     ]
     permission_required = model.perm_change()
 
-    def get_breadcrumbs(self):
-        app_menu = apps.get_app_config(central_app_label).app_menu()
-        return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
-            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
-            BreadCrumb(
-                self.object.title or self.object.name,
-                reverse(
-                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs["pk"]}
-                ),
-            ),
-        ]
 
-    def get_context_data(self, **kwargs):
-        app_menu = apps.get_app_config(central_app_label).app_menu()
-        context = super().get_context_data(**kwargs)
-        context["delete_view_name"] = f"{app_menu.app_label}:layer-delete"
-        context["permission_view_name"] = f"{app_menu.app_label}:layer-permission-list"
-        context["perm_manage_permission"] = self.request.user.has_perm(
-            self.model.perm_manage_permissions()
-        )
-        context["perm_delete"] = self.request.user.has_perm(self.model.perm_delete())
-        return context
-
-
-class MapDeleteView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaDeleteView):
+class MapDeleteView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityDeleteView
+):
     model = PublishedAsWms
-    success_url = reverse_lazy(f"{central_app_label}:layer-list")
+    entity_name = "layer"
     permission_required = model.perm_delete()
 
-    def get_breadcrumbs(self):
-        app_menu = apps.get_app_config(central_app_label).app_menu()
-        return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
-            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
-            BreadCrumb(
-                self.object.title or self.object.name,
-                reverse(
-                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs["pk"]}
-                ),
-            ),
-        ]
+
+class PermissionView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaPermissionDetailView
+):
+    model_entity = PublishedAsWms
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "layer"
 
 
-class PermissionView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaDetailView):
-    model = Permission
-    template_name = "core/permission.html"
-    permission_required = PublishedAsWms.perm_manage_permissions()
-
-    def get_object(self, queryset=None):
-        object_pk = self.kwargs.get("pk")
-        dbs_permission = DBService(PublishedAsWms, central_app_label)
-        return dbs_permission.get_permission_lookup(object_pk)
-
-    def get_breadcrumbs(self):
-        app_menu = apps.get_app_config(central_app_label).app_menu()
-        return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
-            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
-            BreadCrumb(
-                PublishedAsWms.objects.get(pk=self.kwargs.get("pk")).title,
-                reverse(
-                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs.get("pk")}
-                ),
-            ),
-            BreadCrumb(self.model._meta.verbose_name),
-        ]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["add_user_url"] = reverse(
-            f"{central_app_label}:layer-permission-user-list",
-            kwargs={"pk": self.kwargs.get("pk")},
-        )
-        context["add_group_url"] = reverse(
-            f"{central_app_label}:layer-permission-group-list",
-            kwargs={"pk": self.kwargs.get("pk")},
-        )
-        return context
+class UserListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaUserListView):
+    model_entity = PublishedAsWms
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "layer"
 
 
-class UserListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaListView):
-    model = User
-    template_name = "core/user.html"
-    permission_required = PublishedAsWms.perm_manage_permissions()
-
-    def get_queryset(self):
-        return (
-            User.objects.exclude(
-                user_permissions__codename__icontains=str(self.kwargs.get("pk"))
-            )
-            .exclude(pk=None)
-            .filter(is_superuser=False)
-        )
-
-    def get_breadcrumbs(self):
-        app_menu = apps.get_app_config(central_app_label).app_menu()
-        return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
-            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
-            BreadCrumb(
-                PublishedAsWms.objects.get(pk=self.kwargs.get("pk")).title,
-                reverse(
-                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs.get("pk")}
-                ),
-            ),
-            BreadCrumb(
-                PermissionView.model._meta.verbose_name,
-                reverse(
-                    f"{app_menu.app_label}:layer-permission-list",
-                    kwargs={"pk": self.kwargs.get("pk")},
-                ),
-            ),
-            BreadCrumb(self.model._meta.verbose_name),
-        ]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        dbs_permission = DBService(PublishedAsWms, central_app_label)
-        context["read_permission_id"] = (
-            dbs_permission.get_by_object_pk(self.kwargs.get("pk"))
-            .filter(codename__icontains="read")
-            .get()
-            .pk
-        )
-        context["success_url"] = reverse(
-            "maps:layer-permission-list", kwargs={"pk": self.kwargs.get("pk")}
-        )
-        return context
-
-
-class GroupListView(GeoramaListView):
-    model = Group
-    template_name = "core/group.html"
-
-    def get_queryset(self):
-        return Group.objects.exclude(
-            permissions__codename__icontains=str(self.kwargs.get("pk"))
-        )
-
-    def get_breadcrumbs(self):
-        app_menu = apps.get_app_config(central_app_label).app_menu()
-        return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
-            BreadCrumb(_("Manage Layers"), reverse(f"{app_menu.app_label}:layer-list")),
-            BreadCrumb(
-                PublishedAsWms.objects.get(pk=self.kwargs.get("pk")).title,
-                reverse(
-                    f"{app_menu.app_label}:layer-detail", kwargs={"pk": self.kwargs.get("pk")}
-                ),
-            ),
-            BreadCrumb(
-                PermissionView.model._meta.verbose_name,
-                reverse(
-                    f"{app_menu.app_label}:layer-permission-list",
-                    kwargs={"pk": self.kwargs.get("pk")},
-                ),
-            ),
-            BreadCrumb(self.model._meta.verbose_name),
-        ]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        dbs_permission = DBService(PublishedAsWms, central_app_label)
-        context["read_permission_id"] = (
-            dbs_permission.get_by_object_pk(self.kwargs.get("pk"))
-            .filter(codename__icontains="read")
-            .get()
-            .pk
-        )
-        context["success_url"] = reverse(
-            "maps:layer-permission-list", kwargs={"pk": self.kwargs.get("pk")}
-        )
-        return context
+class GroupListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaGroupListView):
+    model_entity = PublishedAsWms
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "layer"

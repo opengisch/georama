@@ -6,16 +6,17 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import router, transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.translation import gettext as _
 from django.views import View
 
 from georama.core.menu import BreadCrumb
+from georama.core.views.generic.list import GeoramaListView
 from georama.core.views.generic.mixins import (
     GeoramaAnyPermissionRequiredMixin,
     GeoramaLoginRequiredMixin,
 )
-from georama.core.views.multi_model.list import ChangeListView
 from georama.data_integration.apps import central_app_label
 from georama.data_integration.models import Project
 from georama.data_integration.services.project import DBService, FSService
@@ -93,24 +94,32 @@ class Index(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
         return render(request, "data_integration/index.html", context)
 
 
-class ChangeListProject(
-    GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, ChangeListView
+class ProjectListView(
+    GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, GeoramaListView
 ):
-    service = FSService
-    title = "Projects"
-    name = "project-list"
-    app_menu = apps.get_app_config("data_integration").app_menu()
-    template = "data_integration/project/change_list.html"
-    breadcrumbs = [
-        BreadCrumb(app_menu.title, reverse_lazy(f"{app_menu.app_label}:index")),
-        BreadCrumb(title),
-    ]
+    model = Project
+    template_name = "data_integration/project/change_list.html"
     permission_required = [
-        Project.perm_view(),
-        Project.perm_change(),
-        Project.perm_add(),
-        Project.perm_delete(),
+        model.perm_view(),
+        model.perm_change(),
+        model.perm_add(),
+        model.perm_delete(),
     ]
+
+    def get_queryset(self):
+        """
+        IMPORTANT: We use the file system elements here!
+        Returns:
+            The list of QGIS projects on the file system.
+        """
+        return FSService().get_list()
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(self.model._meta.app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{self.model._meta.app_label}:index")),
+            BreadCrumb(_("Projects")),
+        ]
 
 
 class DeleteProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
@@ -134,8 +143,8 @@ class DeleteProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
             "breadcrumbs": [
                 BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
                 BreadCrumb(
-                    ChangeListProject.title,
-                    reverse(f"{app_menu.app_label}:{ChangeListProject.name}"),
+                    _("Projects"),
+                    reverse(f"{app_menu.app_label}:project-list"),
                 ),
                 BreadCrumb(
                     f"{qgis_project.parent.name}/{qgis_project.name}.{qgis_project.suffix}"
@@ -170,7 +179,7 @@ class ProjectDetail(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
             {
                 "app_menu": app_menu,
                 "change_list_page_title": "Project",
-                "change_list_view_name": f"{app_menu.app_label}:{ChangeListProject.name}",
+                "change_list_view_name": f"{app_menu.app_label}:project-list",
                 "instance_title": qgis_project.name,
                 "qgis_project": qgis_project,
                 "qgis_project_config": qgis_project.config,
@@ -178,8 +187,8 @@ class ProjectDetail(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
                 "breadcrumbs": [
                     BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
                     BreadCrumb(
-                        ChangeListProject.title,
-                        reverse(f"{app_menu.app_label}:{ChangeListProject.name}"),
+                        _("Projects"),
+                        reverse(f"{app_menu.app_label}:project-list"),
                     ),
                     BreadCrumb(
                         f"{qgis_project.project_path_as_string}",

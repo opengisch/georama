@@ -1,37 +1,7 @@
-{% extends 'core/list.html' %}
-{% load i18n %}
-{% block change_list_item %}
-    <div class="list-group-item list-group-item-action p-4">
-
-        <div class="d-flex flex-row flex-wrap">
-
-            <!-- Title and description -->
-
-            <div class="d-flex flex-column flex-grow-1 justify-content-around">
-                <div>
-                    <h4 class="mb-2">{{ item.title }}</h4>
-                    <div class="mb-1">{{ item.name }} ({{ item.project.name }})</div>
-                </div>
-
-                <!-- Pills -->
-
-                <div class="align-content-bottom">
-                    <span class="badge rounded-pill text-bg-primary">{{ item.driver_name }}</span>
-                </div>
-
-            </div>
-
-            <!-- Buttons group with publish action -->
-
-            <div class="align-content-center ms-auto">
-
-                <div class="btn-group" role="group" aria-label="Publish actions">
-                    <a href="{% url 'features:layer-source-add' item.pk %}"
-                       class="btn btn-outline-primary" role="button">Publish</a>
-                </div>
-            </div>
-
-        </div>
-
-    </div>
+{% extends 'core/entity_publish_list.html' %}
+{% block list_item_name %}
+    {{ item.name }} ({{ item.project.name }})
+{% endblock %}
+{% block list_item_pills %}
+    <span class="badge rounded-pill text-bg-primary">{{ item.driver_name }}</span>
 {% endblock %}

@@ -25,4 +25,4 @@ class FeaturesConfig(GeoramaAbstractConfig):
     verbose_name = "Features"
     name = f"georama.{central_app_label}"
     label = central_app_label
-    menu_order: int = 20
+    menu_order: int = 30

@@ -20,12 +20,12 @@ urlpatterns = [
     path(
         "/layer/add",
         views.PublishListView.as_view(),
-        name="layer-source-list",
+        name="layer-add-list",
     ),
     path(
         "/layer/add/<str:dataset_type>/<str:dataset_id>",
         views.PublishLayer.as_view(),
-        name="layer-source-add",
+        name="layer-add",
     ),
     path(
         "/layer/<str:pk>",

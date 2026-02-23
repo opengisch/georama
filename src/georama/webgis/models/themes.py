@@ -1,6 +1,7 @@
 import base64
 import uuid
 
+from django.conf import settings
 from django.db import models
 from django.templatetags.static import static
 from django.urls import reverse
@@ -135,6 +136,13 @@ class PublishedAsTheme(GeoramaPermissionMixin, PublishedAs):
 
     def get_absolute_url(self):
         return reverse(f"{central_app_label}:theme-detail", kwargs={"pk": self.pk})
+
+    @property
+    def endpoint_url(self):
+        return (
+            f"{settings.WEBGISURL}?themes={self.title}&map_zoom="
+            f"{self.zoom}&map_x={self.location[0]}&map_y={self.location[1]}"
+        )
 
 
 class LayerGroupMp(MP_Node):

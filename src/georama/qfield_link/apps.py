@@ -12,7 +12,7 @@ class QfieldLinkConfig(GeoramaAbstractConfig):
     verbose_name = "QFieldLink"
     name = f"georama.{central_app_label}"
     label = central_app_label
-    menu_order: int = 40
+    menu_order: int = 15
 
     def app_permissions(self):
         return [f"{self.label}.can_use_app"]

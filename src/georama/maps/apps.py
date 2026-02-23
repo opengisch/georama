@@ -8,4 +8,4 @@ class MapsConfig(GeoramaAbstractConfig):
     verbose_name = "Maps"
     name = f"georama.{central_app_label}"
     label = central_app_label
-    menu_order: int = 30
+    menu_order: int = 40

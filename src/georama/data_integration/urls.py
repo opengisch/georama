@@ -36,7 +36,7 @@ urlpatterns = [
     path("", views.Index.as_view(), name="index"),
     path(
         "/project",
-        views.ChangeListProject.as_view(),
+        views.ProjectListView.as_view(),
         name="project-list",
     ),
     path("/project/<str:pk>/delete", views.DeleteProject.as_view(), name="project-delete"),
