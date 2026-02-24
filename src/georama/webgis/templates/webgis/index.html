@@ -2,15 +2,16 @@
 {% load static i18n %}
 
 {% block list_actions %}
+    <a class="navbar-brand">{% trans 'WebGIS' %}</a>
     <div class="btn-group" role="group" aria-label="List Actions">
-        {% blocktranslate asvar title%}Open WebGIS{% endblocktranslate %}
+        {% blocktranslate asvar title%}Open WebGIS in new tab{% endblocktranslate %}
         <a href="{{ webgis_url }}"
            target="_blank"
            class="btn btn-outline-primary"
            data-bs-toggle="tooltip"
            title="{{title}}"
            aria-label="{{title}}"
-           role="button">WebGIS</a>
+           role="button"><i class="fa-solid fa-globe"></i></a>
     </div>
 {% endblock %}
 

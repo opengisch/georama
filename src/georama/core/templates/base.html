@@ -3,8 +3,8 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light" data-theme-default="light">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#262626" media="(prefers-color-scheme: dark)">
 
@@ -19,9 +19,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-  <title>Georama – Your Geospatial Data Hub</title>
+    <title>Georama – Your Geospatial Data Hub</title>
 
-  {% block extra_head %}{% endblock %}
+    {% block extra_head %}{% endblock %}
 
 </head>
 <body>
@@ -46,42 +46,47 @@
                                 {% for breadcrumb in breadcrumbs %}
                                     <li class="breadcrumb-item {% if breadcrumbs|last %}active" aria-current="page{% endif %}">
                                         {% if breadcrumb.view_name %}
-                                        <a href="{{ breadcrumb.view_name }}">{{ breadcrumb.title }}</a>
+                                            <a href="{{ breadcrumb.view_name }}">{{ breadcrumb.title }}</a>
                                         {% else %}
-                                        {{ breadcrumb.title }}
-                                         {% endif %}
+                                            {{ breadcrumb.title }}
+                                        {% endif %}
                                     </li>
                                 {% endfor %}
 
                                 <!-- Button as last element of breadcrumbs -->
 
                                 {% if breadcrumb_action_url %}
-                                <li class="breadcrumb-item breadcrumb-action">
-                                    <a
-                                            href="{% url breadcrumb_action_url %}"
-                                            class="btn btn-outline-primary"
-                                            role="button"
-                                            data-bs-toggle="tooltip"
-                                            title="{{ breadcrumb_action_tooltip }}"
-                                            aria-label="{{ breadcrumb_action_tooltip }}"
-                                    >
-                                        {% if breadcrumb_action_icon %}
-                                            <i class="{{ breadcrumb_action_icon }}"></i>
-                                            <span class="ps-1">{{ breadcrumb_action_title }}</span>
-                                        {% else %}
-                                            {{ breadcrumb_action_title }}
-                                        {% endif %}
-                                    </a>
-                                </li>
-                            {% endif %}
+                                    <li class="breadcrumb-item breadcrumb-action">
+                                        <a
+                                                href="{% url breadcrumb_action_url %}"
+                                                class="btn btn-outline-primary"
+                                                role="button"
+                                                data-bs-toggle="tooltip"
+                                                title="{{ breadcrumb_action_tooltip }}"
+                                                aria-label="{{ breadcrumb_action_tooltip }}"
+                                        >
+                                            {% if breadcrumb_action_icon %}
+                                                <i class="{{ breadcrumb_action_icon }}"></i>
+                                                <span class="ps-1">{{ breadcrumb_action_title }}</span>
+                                            {% else %}
+                                                {{ breadcrumb_action_title }}
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                {% endif %}
 
                             </ol>
                         {% endblock %}
                     </nav>
 
                     <!-- Button group on the right side -->
-
-                    {% block list_actions %}
+                    {% block list_action_container %}
+                    <nav class="navbar">
+                        <div class="container-fluid">
+                            {% block list_actions %}
+                            {% endblock %}
+                        </div>
+                    </nav>
                     {% endblock %}
 
                 </div>
@@ -119,7 +124,6 @@
 
     </div>
 </footer>
-
 
 
 <script src="{% static 'js/dark-mode-init.js' %}"></script>

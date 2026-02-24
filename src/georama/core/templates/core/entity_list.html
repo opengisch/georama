@@ -2,113 +2,114 @@
 {% load static i18n %}
 
 {% block list_actions %}
-
 {% endblock %}
 
 {% block content %}
     {% block list %}
-    {% if object_list|length == 0 %}
-        <div class="container d-flex justify-content-center align-items-center">
-            <div class="fs-1 fw-bold text-center">
-                No items in this list
+        {% if object_list|length == 0 %}
+            <div class="container d-flex justify-content-center align-items-center">
+                <div class="fs-1 fw-bold text-center">
+                    No items in this list
+                </div>
             </div>
-        </div>
-    {% else %}
-        <div class="list-group">
-            {% for item in object_list %}
-                {% block change_list_item %}
-                    <div class="list-group-item list-group-item-action p-4">
-                        <div class="d-flex w-100 justify-content-between">
-                            <div class="me-3">
-                                {%  block list_item_image %}
-                                <img alt="{% trans 'Logo' %}"
-                                     class="rounded img-thumbnail preview-image"
-                                     src="{% static 'images/main_plain.svg' %}"
-                                />
-                                {% endblock %}
-                            </div>
-                            <div class="d-flex flex-column flex-grow-1 justify-content-around">
-                                {% block list_item_title_and_name %}
-                                <h4 class="mb-2">
-                                    {% block list_item_title %}
-                                    {{ item.title }}
-                                    {% endblock %}
-                                </h4>
-                                <div class="mb-1">
-                                    {% block list_item_name %}
-                                    {{ item.name }}
+        {% else %}
+            <div class="list-group">
+                {% for item in object_list %}
+                    {% block change_list_item %}
+                        <div class="list-group-item list-group-item-action p-4">
+                            <div class="d-flex w-100 justify-content-between">
+                                <div class="me-3">
+                                    {% block list_item_image %}
+                                        <img alt="{% trans 'Logo' %}"
+                                             class="rounded img-thumbnail preview-image"
+                                             src="{% static 'images/main_plain.svg' %}"
+                                        />
                                     {% endblock %}
                                 </div>
-                                {% endblock %}
-                                {% block list_item_pills %}
-                                <div class="align-content-bottom">
-                                    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}The item is publicly available: {{ val }}{% endblocktranslate %}
-                                    <span class="badge rounded-pill {% if item.public == True %}text-bg-primary{% else %}text-bg-light{% endif %}"
-                                          data-bs-toggle="tooltip"
-                                          title="{{ title }}"
-                                          aria-label="{{ title }}">
+                                <div class="d-flex flex-column flex-grow-1 justify-content-around">
+                                    {% block list_item_title_and_name %}
+                                        <h4 class="mb-2">
+                                            {% block list_item_title %}
+                                                {{ item.title }}
+                                            {% endblock %}
+                                        </h4>
+                                        <div class="mb-1">
+                                            {% block list_item_name %}
+                                                {{ item.name }}
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                    {% block list_item_pills %}
+                                        <div class="align-content-bottom">
+                                            {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}
+                                                The item is publicly available: {{ val }}{% endblocktranslate %}
+                                            <span class="badge rounded-pill {% if item.public == True %}text-bg-primary{% else %}text-bg-light{% endif %}"
+                                                  data-bs-toggle="tooltip"
+                                                  title="{{ title }}"
+                                                  aria-label="{{ title }}">
                                             public</span>
-                                    {% block list_item_pills_additional %}
+                                            {% block list_item_pills_additional %}
+                                            {% endblock %}
+                                        </div>
                                     {% endblock %}
                                 </div>
-                                {% endblock %}
-                            </div>
-                            <div class="align-content-center ms-auto">
-                                <div class="btn-group mr-2" role="group" aria-label="Feature actions">
-                                    {% block list_item_actions %}
-                                        {% if model_perm_view %}
-                                        {% blocktranslate asvar title%}Show item details{% endblocktranslate %}
-                                        <a href="{% url view_name_detail item.pk %}"
-                                           class="btn btn-outline-primary" role="button"
-                                           title="{{ title }}"
-                                           aria-label="{{ title }}"
-                                           data-bs-toggle="tooltip">
-                                            <i class="fa fa-eye"></i>
-                                        </a>
-                                        {% endif %}
+                                <div class="align-content-center ms-auto">
+                                    <div class="btn-group mr-2" role="group" aria-label="Feature actions">
+                                        {% block list_item_actions %}
+                                            {% if model_perm_view %}
+                                                {% blocktranslate asvar title %}Show item details{% endblocktranslate %}
+                                                <a href="{% url view_name_detail item.pk %}"
+                                                   class="btn btn-outline-primary" role="button"
+                                                   title="{{ title }}"
+                                                   aria-label="{{ title }}"
+                                                   data-bs-toggle="tooltip">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                            {% endif %}
 
-                                        {% if model_perm_change %}
-                                        {% blocktranslate asvar title%}Edit item{% endblocktranslate %}
-                                        <a href="{% url view_name_update item.pk %}"
-                                           class="btn btn-outline-primary" role="button"
-                                           title="{{ title }}"
-                                           aria-label="{{ title }}"
-                                           data-bs-toggle="tooltip">
-                                            <i class="fa fa-pen"></i>
-                                        </a>
-                                        {% endif %}
-                                        {% if model_perm_manage %}
-                                        {% blocktranslate asvar title %}Edit permissions for item{% endblocktranslate %}
-                                        <a href="{% url view_name_permission_list item.pk %}"
-                                           class="btn btn-outline-primary" role="button"
-                                           data-bs-toggle="tooltip"
-                                           title="{{ title }}"
-                                           aria-label="{{ title }}">
-                                            <i class="fa fa-lock"></i>
-                                        </a>
-                                        {% endif %}
+                                            {% if model_perm_change %}
+                                                {% blocktranslate asvar title %}Edit item{% endblocktranslate %}
+                                                <a href="{% url view_name_update item.pk %}"
+                                                   class="btn btn-outline-primary" role="button"
+                                                   title="{{ title }}"
+                                                   aria-label="{{ title }}"
+                                                   data-bs-toggle="tooltip">
+                                                    <i class="fa fa-pen"></i>
+                                                </a>
+                                            {% endif %}
+                                            {% if model_perm_manage %}
+                                                {% blocktranslate asvar title %}Edit permissions for item
+                                                {% endblocktranslate %}
+                                                <a href="{% url view_name_permission_list item.pk %}"
+                                                   class="btn btn-outline-primary" role="button"
+                                                   data-bs-toggle="tooltip"
+                                                   title="{{ title }}"
+                                                   aria-label="{{ title }}">
+                                                    <i class="fa fa-lock"></i>
+                                                </a>
+                                            {% endif %}
 
-                                        {% if model_perm_delete %}
-                                        {% blocktranslate asvar title%}Delete item{% endblocktranslate %}
-                                        <a href="{% url view_name_delete item.pk %}"
-                                           class="btn btn-outline-danger" role="button"
-                                           data-bs-toggle="tooltip"
-                                           title="{{ title }}"
-                                           aria-label="{{ title }}">
-                                            <i class="fa fa-trash-alt"></i>
-                                        </a>
-                                        {% endif %}
-                                    {% endblock %}
-                                    {% block list_item_actions_additional %}
-                                    {% endblock %}
+                                            {% if model_perm_delete %}
+                                                {% blocktranslate asvar title %}Delete item{% endblocktranslate %}
+                                                <a href="{% url view_name_delete item.pk %}"
+                                                   class="btn btn-outline-danger" role="button"
+                                                   data-bs-toggle="tooltip"
+                                                   title="{{ title }}"
+                                                   aria-label="{{ title }}">
+                                                    <i class="fa fa-trash-alt"></i>
+                                                </a>
+                                            {% endif %}
+                                        {% endblock %}
+                                        {% block list_item_actions_additional %}
+                                        {% endblock %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                {% endblock %}
-            {% endfor %}
-        </div>
-    {% endif %}
+                    {% endblock %}
+                {% endfor %}
+            </div>
+        {% endif %}
     {% endblock %}
 
 

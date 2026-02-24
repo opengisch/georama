@@ -2,20 +2,21 @@
 {% load static i18n %}
 
 {% block list_actions %}
+    <a class="navbar-brand" aria-hidden="true">{% trans 'Capabilities' %}</a>
     <div class="btn-group" role="group" aria-label="List Actions">
-        <span style="pointer-events: none" class="btn btn-high btn-outline-primary" aria-hidden="true">{% trans 'Capabilities' %}</span>
+        {% blocktranslate asvar title %}Request the WMS capability document of this server{% endblocktranslate %}
         <a href="{% url 'maps:maps_ogc_entry' %}?{{ wms_get_capabilities_params }}"
            target="_blank" class="btn btn-outline-primary"
            data-bs-toggle="tooltip"
-           title="{% trans 'Request the WMS capability document of this server' %}"
-           aria-label="{% trans 'Request the WMS capability document of this server' %}"
+           title="{{ title }}"
+           aria-label="{{ title }}"
            role="button"><i class="fa-solid fa-map"></i></a>
-
+        {% blocktranslate asvar title %}Request the WFS capability document of this server{% endblocktranslate %}
         <a href="{% url 'maps:maps_ogc_entry' %}?{{ wfs_get_capabilities_params }}"
            target="_blank" class="btn btn-outline-primary"
            data-bs-toggle="tooltip"
-           title="{% trans 'Request the WFS capability document of this server' %}"
-           aria-label="{% trans 'Request the WFS capability document of this server' %}"
+           title="{{ title }}"
+           aria-label="{{ title }}"
            role="button"><i class="fa-solid fa-shapes"></i></a>
     </div>
 {% endblock %}

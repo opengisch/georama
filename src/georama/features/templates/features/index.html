@@ -2,8 +2,8 @@
 {% load static i18n published_as_extras %}
 
 {% block list_actions %}
+    <a class="navbar-brand">{% trans 'OAPIF' %}</a>
     <div class="btn-group" role="group" aria-label="List actions">
-        <span style="pointer-events: none" class="btn btn-high btn-outline-primary" aria-hidden="true">{% trans 'OAPIF' %}</span>
         {% blocktranslate asvar title %}Open OAPIF Landing page{% endblocktranslate %}
         <a
                 href="{% url 'features:collections' %}"
@@ -36,29 +36,29 @@
 {% block item_card_badges %}
     {% can_add item request.user as add_perm %}
     {% if add_perm %}
-    {% blocktranslate asvar title %}You can add features to this OAPIF layer.{% endblocktranslate %}
-    <span class="badge rounded-pill text-bg-primary"
-          data-bs-toggle="tooltip"
-          title="{{ title }}"
-          aria-label="{{ title }}">
+        {% blocktranslate asvar title %}You can add features to this OAPIF layer.{% endblocktranslate %}
+        <span class="badge rounded-pill text-bg-primary"
+              data-bs-toggle="tooltip"
+              title="{{ title }}"
+              aria-label="{{ title }}">
             <i class="fa fa-plus"></i></span>
     {% endif %}
     {% can_change item request.user as change_perm %}
     {% if change_perm %}
-    {% blocktranslate asvar title %}You can change features on this OAPIF layer.{% endblocktranslate %}
-    <span class="badge rounded-pill text-bg-primary"
-          data-bs-toggle="tooltip"
-          title="{{ title }}"
-          aria-label="{{ title }}">
+        {% blocktranslate asvar title %}You can change features on this OAPIF layer.{% endblocktranslate %}
+        <span class="badge rounded-pill text-bg-primary"
+              data-bs-toggle="tooltip"
+              title="{{ title }}"
+              aria-label="{{ title }}">
             <i class="fa fa-pen"></i></span>
     {% endif %}
     {% can_delete item request.user as delete_perm %}
     {% if delete_perm %}
-    {% blocktranslate asvar title %}You can delete features from this OAPIF layer.{% endblocktranslate %}
-    <span class="badge rounded-pill text-bg-primary"
-          data-bs-toggle="tooltip"
-          title="{{ title }}"
-          aria-label="{{ title }}">
+        {% blocktranslate asvar title %}You can delete features from this OAPIF layer.{% endblocktranslate %}
+        <span class="badge rounded-pill text-bg-primary"
+              data-bs-toggle="tooltip"
+              title="{{ title }}"
+              aria-label="{{ title }}">
             <i class="fa fa-trash-alt"></i></span>
     {% endif %}
     {% blocktranslate asvar title %}Available Coordinate Reference System{% endblocktranslate %}
