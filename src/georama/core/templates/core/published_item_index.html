@@ -10,23 +10,22 @@
         {% for item in object_list %}
             <div class="col">
                 {% block item_card %}
-                    <div class="card .h-100">
+                    <div class="card h-100">
                         {% block item_card_image %}
                         <img src="{% static 'images/main_plain.svg' %}"
-                             class="card-img-top img-thumbnail"
-                             style="border: none;"
+                             class="card-img-top p-3"
                              alt="{% trans 'Published item icon' %}"/>
                         {% endblock %}
-                        <div class="card-body">
+                        <div class="card-body item-card-body">
                             <h5 class="card-title">
                                 {% block item_card_title %}
                                 {{ item.title|default:item.name }}
                                 {% endblock %}
                             </h5>
-                            <div class="meta" style="min-height: 24px;">
+                            <div>
                             {% block item_card_description %}
                                 {% if item.description %}
-                                    <p class="card-text text-truncate"
+                                    <p class="card-text text-truncate text-muted"
                                        data-bs-toggle="tooltip"
                                        title="{{ item.description }}"
                                        aria-label="{{ item.description }}">
@@ -35,7 +34,7 @@
                                 {% endif %}
                             {% endblock %}
                             </div>
-                            <div class="meta" style="min-height: 24px;">
+                            <div class="card-meta">
                             {% block item_card_badges %}
                             {% endblock %}
                             </div>

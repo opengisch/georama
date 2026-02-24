@@ -17,8 +17,7 @@
 
 {% block item_card_image %}
 <img src="{% if item.icon_as_base64 %}{{ item.icon_as_base64 }}{% else %}{{ item.icon_default }}{% endif %}"
-     class="card-img-top img-thumbnail"
-     style="border: none;"
+     class="card-img-top p-3"
      alt="{% trans 'Theme icon' %}"
      data-bs-toggle="tooltip"
        title="{{ title }}"

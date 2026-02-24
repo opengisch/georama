@@ -185,6 +185,18 @@ Permission table
     width: 1.5em;
 }
 
+/*
+Published Item Index Cards
+ */
+
+.item-card-body {
+    display: flex;
+    flex-direction: column;
+}
+.card-meta {
+    margin-top: auto;
+}
+
 
 
 /*
