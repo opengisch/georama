@@ -14,7 +14,7 @@
                     <img src="{% static 'images/main_plain.svg' %}" alt="Georama" class="d-inline-block align-text-top">
                     <span class="navbar-brand-domain text-nowrap ms-2">{{ site_title }}</span>
                 </a>
-                <button class="navbar-toggler ms-auto me-3" type="button" data-bs-toggle="collapse"
+                <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -50,7 +50,7 @@
                             </div>
                         </li>
                         <li class="nav-item align-items-center">
-                            <div class="nav-link">
+                            <div class="nav-link ps-0">
                                 <a id="themeToggle"
                                    class="btn btn-outline-secondary"
                                    role="button"
@@ -77,7 +77,8 @@
                 </div>
                 <div class="mindmap-node" style="--angle:0deg;">
                     <div class="mindmap-card">
-                        <div class="icon-circle mb-2"><img src={% static "/images/login-page.svg" %} alt=""
+                        <div class="icon-circle mb-2"><img src="{% static "/images/login-page.svg" %}"
+                                                           alt="Login"
                                                            aria-hidden="true" loading="lazy"></div>
                         <h5 class="mb-1">Authentication</h5>
                         <p class="mb-2">Secure sign-in workflows for every user.</p>
@@ -90,16 +91,18 @@
                 </div>
                 <div class="mindmap-node" style="--angle:72deg;">
                     <div class="mindmap-card">
-                        <div class="icon-circle mb-2"><img src={% static "/images/admin-page.svg" %} alt=""
+                        <div class="icon-circle mb-2"><img src="{% static "/images/admin-page.svg" %}"
+                                                           alt="Admin"
                                                            aria-hidden="true" loading="lazy"></div>
                         <h5 class="mb-1">Admin Panel</h5>
                         <p class="mb-2">Manage data sources, users, and permissions.</p>
-                        <a class="btn btn-outline-secondary btn-sm" href="/admin">Go Admin</a>
+                        <a class="btn btn-outline-secondary btn-sm" href="/admin/">Go Admin</a>
                     </div>
                 </div>
                 <div class="mindmap-node" style="--angle:144deg;">
                     <div class="mindmap-card">
-                        <div class="icon-circle mb-2"><img src={% static "/images/wms-endpoints.svg" %} alt=""
+                        <div class="icon-circle mb-2"><img src="{% static "/images/wms-endpoints.svg" %}"
+                                                           alt="WMS Endpoint"
                                                            aria-hidden="true" loading="lazy"></div>
                         <h5 class="mb-1">WMS Endpoint</h5>
                         <p class="mb-2">Integrate tiled layers with standard requests.</p>
@@ -115,7 +118,8 @@
                 </div>
                 <div class="mindmap-node" style="--angle:216deg;">
                     <div class="mindmap-card">
-                        <div class="icon-circle mb-2"><img src={% static "/images/oapif-endpoints.svg" %} alt=""
+                        <div class="icon-circle mb-2"><img src="{% static "/images/oapif-endpoints.svg" %}"
+                                                           alt="OAPIF Features"
                                                            aria-hidden="true" loading="lazy"></div>
                         <h5 class="mb-1">OAPIF Features</h5>
                         <p class="mb-2">RESTful vector access for modern apps.</p>
@@ -124,7 +128,8 @@
                 </div>
                 <div class="mindmap-node" style="--angle:288deg;">
                     <div class="mindmap-card">
-                        <div class="icon-circle mb-2"><img src={% static "/images/webgis.svg" %} alt=""
+                        <div class="icon-circle mb-2"><img src="{% static "/images/webgis.svg" %}"
+                                                           alt="WebGIS"
                                                            aria-hidden="true" loading="lazy"></div>
                         <h5 class="mb-1">WebGIS</h5>
                         <p class="mb-2">Dive into the GeoGirafe frontend.</p>
