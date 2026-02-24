@@ -132,7 +132,70 @@ Navbar
         width: 87px;
         height: 80px
     }
-}   
+}
+
+/*
+Data Integration Gauge
+ */
+
+.clickable {
+    cursor: pointer;
+}
+.gauge-container {
+    --gauge-green: var(--georama-green);
+    --gauge-orange: #ed7f2c;
+    --gauge-gray-light: #b0b0b0;
+    --gauge-gray-dark: var(--georama-gray);
+    --gauge-height: 180px;
+    --gauge-padding: 10px;
+    
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+/* Creating the semi-circular ring */
+.gauge-ring {
+    width: var(--gauge-height);
+    height: var(--gauge-height);
+    margin-top: var(--gauge-padding);
+    border-radius: 50%;
+    mask: radial-gradient(transparent 62%, black 63%);
+    -webkit-mask: radial-gradient(transparent 62%, black 63%);
+}
+
+.gauge-center {
+    position: absolute;
+    top: calc(var(--gauge-padding) + var(--gauge-height) / 5);
+    display: flex;
+    flex-direction: column;
+}
+
+.main-number {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: var(--gauge-green);
+    line-height: 1;
+}
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+}
+
+.stat-num {
+    font-size: 1.8rem;
+    font-weight: bold;
+    min-width: 2rem;
+    text-align: right;
+}
+
+.orange { color: var(--gauge-orange); }
+.gray { color: var(--gauge-gray-light); }
 
 
 /*

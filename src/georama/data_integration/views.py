@@ -91,7 +91,22 @@ class Index(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
             "outdated_count": fss_project.count_out_dated(),
             "breadcrumbs": [BreadCrumb(app_menu.title)],
         }
+        context.update(
+            self.calculate_gauge_values(
+                fss_project.count(),
+                dbs_project.count_db_projects(),
+                fss_project.count_out_dated(),
+            )
+        )
         return render(request, "data_integration/index.html", context)
+
+    @staticmethod
+    def calculate_gauge_values(total, linked, outdated):
+        end = 270
+        return {
+            "gauge_linked": f"{round((end/total) * linked)}deg",
+            "gauge_outdated": f"{round((end/total) * outdated)}deg",
+        }
 
 
 class ProjectListView(

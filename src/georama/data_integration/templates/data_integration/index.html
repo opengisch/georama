@@ -4,23 +4,47 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <div class="col-md-4">
-                <div class="card border-success mb-3">
+            <div class="col-md-3">
+                <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">{{ project_count }}</h5>
-                        <p class="card-text">
-                        <a class="nav-link"
-                           href="{% url 'data_integration:project-list' %}">Projects</a>
-                        </p>
-                        <p>
-                            {% if outdated_count %}
-                            {% blocktranslate asvar title%}QGIS projects on disk have been changed, re-link to update the projects{% endblocktranslate %}
-                            <span class="badge rounded-pill text-bg-warning"
 
-                                  title="{{ title }}"
-                                  aria-label="{{ title }}">{{ outdated_count }} outdated</span>
-                            {% endif %}
-                        </p>
+                        <div class="gauge-container">
+                            <!-- The Ring -->
+                            <div class="gauge-ring" 
+                                 style="background: conic-gradient(from 225deg,
+                                var(--gauge-orange) 0deg {{ gauge_outdated }},
+                                var(--gauge-green) {{ gauge_outdated }} {{ gauge_linked }},
+                                var(--gauge-gray-light) {{ gauge_linked }} 270deg,
+                                transparent 270deg)"
+                            >
+                            </div>
+
+                            <!-- Central Text -->
+                            
+                            <div class="gauge-center">
+                                <span class="main-number">{{ project_db_count }}</span>
+                                <span class="h5">
+                                     <a href="{% url 'data_integration:project-list' %}"
+                                        class="link-underline link-underline-opacity-0 stretched-link">
+                                         QGIS Projects<br>linked</a>
+                                </span>
+                               
+                            </div>
+
+                            <!-- Bottom Stats -->
+                            
+                            <div class="gauge-footer">
+                                <div class="stat-row">
+                                    <span class="stat-num gray">{{ project_count }}</span>
+                                    <span class="badge rounded-pill text-bg-light">available</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-num orange">{{ outdated_count }}</span>
+                                    <span class="badge rounded-pill text-bg-warning">outdated</span>
+                                </div>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
