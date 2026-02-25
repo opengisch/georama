@@ -135,7 +135,7 @@ class PublishedAsTheme(GeoramaPermissionMixin, PublishedAs):
         if self.title is None:
             self.title = self.project.title
 
-        self.assign_public_to_all_theme_layers()
+        self.assign_theme_public_to_all_theme_layers()
 
         super().save(
             force_insert=force_insert,
