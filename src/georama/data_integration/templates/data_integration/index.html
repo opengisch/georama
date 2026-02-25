@@ -36,9 +36,10 @@
                             <div class="gauge-footer">
                                 <div class="stat-row">
                                     <span class="stat-num gray">{{ gauge_not_integrated }}</span>
-                                    <span class="badge rounded-pill text-bg-light">notIntegrated</span>
+                                    <span class="badge rounded-pill text-bg-light">not integrated</span>
                                 </div>
-                                <div class="stat-row">
+                                <div class="stat-row"
+                                     style="visibility: {% if outdated_count > 0 %}visible{% else %}hidden{% endif %};">
                                     <span class="stat-num orange">{{ outdated_count }}</span>
                                     <span class="badge rounded-pill text-bg-warning">outdated</span>
                                 </div>
