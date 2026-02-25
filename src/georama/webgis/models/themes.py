@@ -122,11 +122,7 @@ class PublishedAsTheme(GeoramaPermissionMixin, PublishedAs):
             return self.read_permissions
 
     def assign_theme_public_to_all_theme_layers(self):
-        old = PublishedAsTheme.objects.get(pk=self.pk)
-        if self.pk and old.public != self.public:
-            PublishedAsLayerWms.objects.filter(layer_group__theme=self).update(
-                public=self.public
-            )
+        PublishedAsLayerWms.objects.filter(layer_group__theme=self).update(public=self.public)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.name is None:
