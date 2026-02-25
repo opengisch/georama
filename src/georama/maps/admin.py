@@ -44,8 +44,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         "title",
         "public",
         "queryable",
-        "delete_link",
-        "show_published",
+        "operations",
         "preview_image",
     ]
     list_editable = ["public", "queryable"]
@@ -75,7 +74,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         extra_context["raster_datasets"] = RasterDataSet.objects.all()
         extra_context["vector_datasets"] = VectorDataSet.objects.all()
         extra_context["custom_datasets"] = CustomDataSet.objects.all()
-        extra_context["publish_dataset_as_wms_view_name"] = "maps:layer-source-add"
+        extra_context["publish_dataset_as_wms_view_name"] = "maps:layer-add"
         return super().add_view(
             request,
             form_url,
@@ -89,13 +88,6 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
         return super().changelist_view(
             request,
             extra_context=extra_context,
-        )
-
-    def delete_link(self, obj: PublishedAsWms):
-        return mark_safe(
-            '<a href="{}" class="btn btn-high btn-danger"><i class="fas fa-trash-alt text-xs"/></a>'.format(  # noqa: E501
-                reverse("admin:maps_publishedaswms_delete", args=(obj.pk,))
-            )
         )
 
     @staticmethod
@@ -143,7 +135,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             ]
         )
 
-    def show_published(self, obj: PublishedAsWms):
+    def operations(self, obj: PublishedAsWms):
         return mark_safe(
             "".join(
                 [
@@ -154,12 +146,15 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
                     '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WFS GetFeature"><i class="fas fa-code text-xs"></i></a>'.format(  # noqa: E501
                         reverse("maps:maps_ogc_entry"), self.create_wfs_url_params(obj)
                     ),
+                    '<a href="{}" class="btn btn-high btn-danger"><i class="fas fa-trash-alt text-xs"/></a>'.format(  # noqa: E501
+                        reverse("admin:maps_publishedaswms_delete", args=(obj.pk,))
+                    ),
                     "</div>",
                 ]
             )
         )
 
-    show_published.short_description = "Operations"
+    operations.short_description = "Operations"
 
     def preview_image(self, obj: PublishedAsWms):
         base64_img = f"data:image/png;base64,{base64.b64encode(obj.preview).decode()}"

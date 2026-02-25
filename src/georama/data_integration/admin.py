@@ -1,5 +1,6 @@
 import logging
 import os
+from dataclasses import fields
 
 from django.contrib import admin
 from django.http import HttpRequest
@@ -29,6 +30,7 @@ class ProjectAdmin(admin.ModelAdmin):
         "custom_dataset_count",
         "project_file_uptodate",
     ]
+    readonly_fields = ["name", "title", "version", "hash", "integration_date", "mandant"]
 
     def vector_dataset_count(self, obj):
         return obj.vector_datasets.count()
@@ -131,8 +133,8 @@ class ProjectAdmin(admin.ModelAdmin):
             request, "admin/data_integration/project/qgis_projects.html", context
         )
 
-    def get_readonly_fields(self, request, obj=None):
-        return ["integration_date", "hash"]
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 class DataSetAdmin(admin.ModelAdmin):
@@ -153,6 +155,8 @@ class DataSetAdmin(admin.ModelAdmin):
         "name",
         "title",
         "bbox",
+        "minimum_scale",
+        "maximum_scale",
         "source_detail",
         "crs_detail",
         "path",
@@ -160,13 +164,19 @@ class DataSetAdmin(admin.ModelAdmin):
     ]
 
     def source_detail(self, obj):
-        snippet_parts = ["<ul>"]
-        for key in obj.source:
-            snippet_parts.append(
-                f'<li><label>{key}</label> → <span class="badge badge-secondary">{obj.source[key]}</span></li>'  # noqa: E501
-            )
-        snippet_parts.append("</ul>")
-        return mark_safe("".join(snippet_parts))
+        source = obj.source_to_qsl[0]
+        for source_field in fields(source):
+            source_config = getattr(source, source_field.name)
+            if source_config is not None:
+                source_list = ["<ul>"]
+                source = obj.source_to_qsl[0]
+                for field in fields(source_config):
+                    source_list.append(
+                        f"<li>{field.name}: {getattr(source_config, field.name)}</li>"
+                    )
+                source_list.append("</ul>")
+                snippet = f"<label>{source_field.name}:</label>{''.join(source_list)}"
+                return mark_safe(snippet)
 
     source_detail.short_description = "Source"
 
@@ -180,6 +190,9 @@ class DataSetAdmin(admin.ModelAdmin):
         return mark_safe("".join(snippet_parts))
 
     crs_detail.short_description = "Crs"
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 class RasterDataSetAdmin(DataSetAdmin):
@@ -221,7 +234,10 @@ class VectorDataSetAdmin(DataSetAdmin):
 
 
 class MandantAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ["name", "description"]
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 # Register your models here.

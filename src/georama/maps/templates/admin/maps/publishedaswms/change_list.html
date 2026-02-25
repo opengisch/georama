@@ -3,9 +3,30 @@
 
 {% block object-tools-items %}
     {{ block.super }}
-    <div class="btn-group">
-        <span style="pointer-events: none" class="btn btn-high btn-primary" aria-hidden="true">Capabilities</span>
-        <a href="{{ wms_get_capabilities_url }}" target="_blank" class="btn btn-high btn-primary">WMS</a>
-        <a href="{{ wfs_get_capabilities_url }}" target="_blank" class="btn btn-high btn-primary">WFS</a>
-    </div>
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand text-bg-success" aria-hidden="true">{% trans 'Capabilities' %}</a>
+            <div class="btn-group">
+                {% blocktranslate asvar title %}Request the WMS capability document of this server{% endblocktranslate %}
+                <a href="{{ wms_get_capabilities_url }}"
+                   target="_blank" class="btn btn-success"
+                   data-bs-toggle="tooltip"
+                   title="{{ title }}"
+                   aria-label="{{ title }}"
+                   role="button">
+                    <i class="fa-solid fa-map"></i>
+                </a>
+                {% blocktranslate asvar title %}Request the WFS capability document of this server{% endblocktranslate %}
+                <a href="{{ wfs_get_capabilities_url }}"
+                   target="_blank" class="btn btn-success"
+                   data-bs-toggle="tooltip"
+                   title="{{ title }}"
+                   aria-label="{{ title }}"
+                   role="button">
+                    <i class="fa-solid fa-shapes"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
 {% endblock %}
