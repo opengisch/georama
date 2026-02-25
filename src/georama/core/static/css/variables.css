@@ -2,7 +2,7 @@
 
 :root {
     --georama-font: "Georama", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    
+
     --georama-green: #7c993d;
     --georama-green-rgb: 124, 153, 61;
     --georama-green-dark: #4a6317;
@@ -17,18 +17,20 @@
     --georama-yellow-desat: #a19272;
 
     --georama-gray: #333333;
-    
+
     --brand-ink: #1f2a1c;
     --brand-cream: #f7f9f2;
 
-    --navbar-height: 140px;
+    --navbar-height: 80px;
     --navbar-offset: var(--navbar-height);
     --navbar-height-scrolled: 80px;
     --breadcrumb-height: 65px;
     --footer-height: 50px;
-    
+
     /* Height of scrollable form content area */
     --form-content-height: calc(100vh - var(--navbar-height) - var(--footer-height) - var(--breadcrumb-height) - 48px);
+    --list-paging-height: 54px;
+    --list-content-height: calc(var(--form-content-height) - var(--list-paging-height));
 }
 
 [data-bs-theme=dark] {

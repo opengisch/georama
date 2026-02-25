@@ -90,7 +90,7 @@ Navbar
         height: var(--navbar-height);
         padding-top: 1.25rem;
         padding-bottom: 1.25rem;
-        transition: height 200ms ease, padding 200ms ease
+        /*transition: height 200ms ease, padding 200ms ease*/
     }
 
     .navbar.sticky-top > .container {
@@ -102,7 +102,7 @@ Navbar
         max-height: var(--navbar-height);
         height: auto;
         width: auto;
-        transition: max-width 200ms ease, max-height 200ms ease
+        /*transition: height 200ms ease, padding 200ms ease*/
     }
 
     .navbar.sticky-top.scrolled {
@@ -148,7 +148,7 @@ Data Integration Gauge
     --gauge-gray-dark: var(--georama-gray);
     --gauge-height: 180px;
     --gauge-padding: 10px;
-    
+
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -238,6 +238,17 @@ Change List and detail forms
 /* Add this to the div that should scroll */
 .form-content-scrollable {
     height: var(--form-content-height);
+    padding-right: 24px;
+    padding-left: 24px;
+}
+
+.list-content-scrollable {
+    height: var(--list-content-height);
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    padding-right: 24px;
+    padding-left: 24px;
 }
 
 /*
