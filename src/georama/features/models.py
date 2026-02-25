@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from georama.core.entities.models import (
     PermissionInterface,
@@ -150,6 +151,8 @@ class PublishedAsOgcApiFeatures(GeoramaPermissionMixin, PublishedAsVectorFeature
 
     class Meta:
         permissions = [("can_manage_object_permissions", "Can manage object permissions")]
+        verbose_name = f'OAPIF {_("Layer")}'
+        verbose_name_plural = f'OAPIF {_("Layers")}'
 
     dataset = models.ForeignKey(
         VectorDataSet,
@@ -206,6 +209,11 @@ class PublishedAsOgcApiFeatures(GeoramaPermissionMixin, PublishedAsVectorFeature
 
 
 class ColumnOgcApiFeatures(Column):
+
+    class Meta:
+        verbose_name = f'OAPIF {_("Column")}'
+        verbose_name_plural = f'OAPIF {_("Columns")}'
+
     published_definition = models.ForeignKey(
         PublishedAsOgcApiFeatures,
         related_name="columns",

@@ -1,6 +1,5 @@
 from django.apps import apps
 from django.urls import reverse
-from django.utils.translation import gettext as _
 
 from georama.core.menu import BreadCrumb
 from georama.core.views.entities.entity_base import TypingHelperClass
@@ -16,7 +15,7 @@ class GeoramaEntityDetailView(GeoramaDetailView):
         return [
             BreadCrumb(app_menu.title, reverse(f"{self.model._meta.app_label}:index")),
             BreadCrumb(
-                _("Manage Layers"),
+                self.model._meta.verbose_name_plural,
                 reverse(f"{self.model._meta.app_label}:{self.entity_name}-list"),
             ),
             BreadCrumb(self.object.title or self.object.name),

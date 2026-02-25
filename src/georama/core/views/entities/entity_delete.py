@@ -1,6 +1,5 @@
 from django.apps import apps
 from django.urls import reverse
-from django.utils.translation import gettext as _
 
 from georama.core.entities.models import PublishedAs
 from georama.core.menu import BreadCrumb
@@ -19,7 +18,7 @@ class GeoramaEntityDeleteView(GeoramaDeleteView):
         return [
             BreadCrumb(app_menu.title, reverse(f"{self.model._meta.app_label}:index")),
             BreadCrumb(
-                _("Manage Layers"),
+                self.model._meta.verbose_name_plural,
                 reverse(f"{self.model._meta.app_label}:{self.entity_name}-list"),
             ),
             BreadCrumb(

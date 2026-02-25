@@ -19,7 +19,7 @@ class GeoramaEntityPublishListView(GeoramaListView):
         return [
             BreadCrumb(app_menu.title, reverse(f"{self.model_publish._meta.app_label}:index")),
             BreadCrumb(
-                _("Manage Layers"),
+                self.model_publish._meta.verbose_name_plural,
                 reverse(f"{self.model_publish._meta.app_label}:{self.entity_name}-list"),
             ),
             BreadCrumb(_("Publish")),

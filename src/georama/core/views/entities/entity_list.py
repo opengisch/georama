@@ -16,7 +16,7 @@ class GeoramaEntityListView(GeoramaListView):
         app_menu = apps.get_app_config(self.model._meta.app_label).app_menu()
         return [
             BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
-            BreadCrumb(_("Manage Items")),
+            BreadCrumb(self.model._meta.verbose_name_plural),
         ]
 
     def get_context_data(self, **kwargs):
