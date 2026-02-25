@@ -2,7 +2,6 @@ from django.apps import apps
 from django.contrib.auth.models import Permission
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext as _
 
 from georama.core.entities.models import PublishedAs
 from georama.core.menu import BreadCrumb
@@ -13,6 +12,7 @@ from georama.core.views.generic.list import GeoramaListView
 class GeoramaPrincipalListView(GeoramaListView):
     model: models.Model
     model_entity: PublishedAs
+    models_related_entity: list[PublishedAs]
     template_name: str
     entity_name: str
 
@@ -22,7 +22,8 @@ class GeoramaPrincipalListView(GeoramaListView):
         return [
             BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
             BreadCrumb(
-                _("Manage Layers"), reverse(f"{app_menu.app_label}:{self.entity_name}-list")
+                self.model_entity._meta.verbose_name_plural,
+                reverse(f"{app_menu.app_label}:{self.entity_name}-list"),
             ),
             BreadCrumb(
                 related_object.title or related_object.name,
@@ -41,14 +42,23 @@ class GeoramaPrincipalListView(GeoramaListView):
             BreadCrumb(self.model._meta.verbose_name),
         ]
 
+    def add_related_permission_ids(self, permission_ids: list):
+        """
+        It can be necessary to assign read permissions to items of related
+        models for initial setup. This method allows that.
+        """
+        return permission_ids
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         dbs_permission = DBService(self.model_entity, self.model_entity._meta.app_label)
-        context["read_permission_id"] = (
-            dbs_permission.get_by_object_pk(self.kwargs.get("pk"))
-            .filter(codename__icontains="read")
-            .get()
-            .pk
+        context["permissions"] = self.add_related_permission_ids(
+            [
+                dbs_permission.get_by_object_pk(self.kwargs.get("pk"))
+                .filter(codename__icontains="read")
+                .get()
+                .pk
+            ]
         )
         context["success_url"] = reverse(
             f"{self.model_entity._meta.app_label}:{self.entity_name}-permission-list",

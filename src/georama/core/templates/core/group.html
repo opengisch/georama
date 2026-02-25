@@ -3,14 +3,18 @@
 
 {% block list_actions %}
     <script>
-        function assign_permission(principal_id, permission_id, principal_type) {
-            fetch(`{% url "assign_permission_to_user_or_group" %}?principal_id=${principal_id}&permission_id=${permission_id}&principal_type=${principal_type}`, {
+        function assign_permission(principal_id, permission_ids, principal_type) {
+            fetch(`{% url "assign_permission_to_user_or_group" %}`, {
                 method: "POST",
                 headers: {
                     "X-CSRFToken": "{{ csrf_token }}",
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({})
+                body: JSON.stringify({
+                    principal_id: principal_id,
+                    permission_ids: permission_ids,
+                    principal_type: principal_type
+                })
             })
                 .then(response => {
                     if (response.ok) {
@@ -46,7 +50,7 @@
                 <div class="btn-group mr-2" role="group" aria-label="Feature actions">
 
                     {% blocktranslate asvar title %}Add this group as permitted{% endblocktranslate %}
-                    <a onclick="assign_permission('{{ item.id }}', '{{ read_permission_id }}', 'group')"
+                    <a onclick="assign_permission('{{ item.id }}', {{ permissions }}, 'group')"
                        class="btn btn-outline-primary" role="button"
                        title="{{ title }}"
                        aria-label="{{ title }}"

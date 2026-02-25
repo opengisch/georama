@@ -15,6 +15,7 @@ from qgis_server_light.interface.qgis import Raster as QslRaster
 from qgis_server_light.interface.qgis import Vector as QslVector
 from xsdata.formats.dataclass.serializers import DictEncoder
 
+from georama.core.services.permission import DBService
 from georama.core.views.entities.entity_delete import GeoramaEntityDeleteView
 from georama.core.views.entities.entity_detail import GeoramaEntityDetailView
 from georama.core.views.entities.entity_list import GeoramaEntityListView
@@ -187,7 +188,9 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
         ogc_server = insert_internal_ogc_server(request)
         fss_project = FSService()
         project_from_config = fss_project.get(project_db.mandant.name, project_db.name)
-        root_group = LayerGroupMp.add_root(name=theme.name)
+        root_group = LayerGroupMp.add_root(
+            name=theme.name, ogc_server=ogc_server, title=theme.title
+        )
         db_root_node = LayerGroupMp.objects.get(pk=root_group.pk)
         db_root_node.theme = theme
         db_root_node.save()
@@ -283,17 +286,86 @@ class PermissionView(
     permission_required = model_entity.perm_manage_permissions()
     entity_name = "theme"
 
+    def get_related_layer_permissions(
+        self, theme: PublishedAsTheme, theme_layers: list[PublishedAsLayerWms], action: str
+    ):
+        dbs_permission = DBService(PublishedAsLayerWms, PublishedAsLayerWms._meta.app_label)
+        additional_permission_ids = [
+            perm.pk
+            for perm in dbs_permission.get_by_object_pks([tl.pk for tl in theme_layers])
+            .filter(codename__icontains=action)
+            .all()
+        ]
+        return additional_permission_ids
+
+    def get_object(self, queryset=None):
+        object_pk = self.kwargs.get("pk")
+        dbs_permission = DBService(self.model_entity, self.model_entity._meta.app_label)
+        lookup = dbs_permission.get_permission_lookup(object_pk)
+        theme = self.model_entity.objects.get(pk=self.kwargs["pk"])
+        theme_layers = PublishedAsLayerWms.objects.filter(layer_group__theme=theme).all()
+
+        for action in lookup["actions"]:
+            for principal in ["users", "groups"]:
+                for perms in lookup["lookup"][principal]:
+                    additional_perms = self.get_related_layer_permissions(
+                        theme, theme_layers, action
+                    )
+                    perms[action]["ids"] += additional_perms
+
+        return lookup
+
 
 class UserListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaUserListView):
     model_entity = PublishedAsTheme
     permission_required = model_entity.perm_manage_permissions()
     entity_name = "theme"
 
+    def add_related_permission_ids(self, permission_ids):
+        """
+        Currently we support permission assignment on theme level only.
+        This means we need to assign the read permission to all theme
+        related layers too, so that they are secured on the webgis wms endpoint.
+
+        Returns:
+            Context with updated permissions.
+        """
+        theme = self.model_entity.objects.get(pk=self.kwargs["pk"])
+        themes_layers = PublishedAsLayerWms.objects.filter(layer_group__theme=theme).all()
+        dbs_permission = DBService(PublishedAsLayerWms, PublishedAsLayerWms._meta.app_label)
+        permission_ids += [
+            perm.pk
+            for perm in dbs_permission.get_by_object_pks([tl.pk for tl in themes_layers])
+            .filter(codename__icontains="read")
+            .all()
+        ]
+        return permission_ids
+
 
 class GroupListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaGroupListView):
     model_entity = PublishedAsTheme
     permission_required = model_entity.perm_manage_permissions()
     entity_name = "theme"
+
+    def add_related_permission_ids(self, permission_ids):
+        """
+        Currently we support permission assignment on theme level only. This
+        means we need to assign the read permission to all theme related layers
+        too, so that they are secured on the webgis wms endpoint.
+
+        Returns:
+            Context with updated permissions.
+        """
+        theme = self.model_entity.objects.get(pk=self.kwargs["pk"])
+        themes_layers = PublishedAsLayerWms.objects.filter(layer_group__theme=theme).all()
+        dbs_permission = DBService(PublishedAsLayerWms, PublishedAsLayerWms._meta.app_label)
+        permission_ids += [
+            perm.pk
+            for perm in dbs_permission.get_by_object_pks([tl.pk for tl in themes_layers])
+            .filter(codename__icontains="read")
+            .all()
+        ]
+        return permission_ids
 
 
 class Themes(View):

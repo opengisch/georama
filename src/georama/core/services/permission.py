@@ -1,6 +1,9 @@
 import copy
+import operator
+from functools import reduce
 
 from django.contrib.auth.models import Group, Permission, User
+from django.db.models import Q
 
 from georama.core.entities.models import PermissionInterface
 
@@ -32,6 +35,16 @@ class DBService:
         groups = Group.objects.filter(permissions=permission).distinct()
         return groups
 
+    def get_by_object_pks(self, object_pks: list[str]):
+        query = reduce(operator.or_, (Q(codename__icontains=item) for item in object_pks))
+        queryset = (
+            Permission.objects.filter(content_type__model=self.model._meta.model_name)
+            .filter(codename__startswith=self.app_label)
+            .filter(query)
+            .all()
+        )
+        return queryset
+
     def get_by_object_pk(self, object_pk: str):
         queryset = (
             Permission.objects.filter(content_type__model=self.model._meta.model_name)
@@ -57,7 +70,7 @@ class DBService:
             if permission_interface.action not in permission_dict:
                 permission_dict[permission_interface.action] = {
                     "allowed": False,
-                    "id": permission.pk,
+                    "ids": [permission.pk],
                     "icon": self.icon_lookup(permission_interface.action),
                 }
             if permission_interface.action not in permission_actions:

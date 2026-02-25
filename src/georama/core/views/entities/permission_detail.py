@@ -1,7 +1,6 @@
 from django.apps import apps
 from django.contrib.auth.models import Permission
 from django.urls import reverse
-from django.utils.translation import gettext as _
 
 from georama.core.entities.models import PublishedAs
 from georama.core.menu import BreadCrumb
@@ -26,7 +25,8 @@ class GeoramaPermissionDetailView(GeoramaDetailView):
         return [
             BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
             BreadCrumb(
-                _("Manage Layers"), reverse(f"{app_menu.app_label}:{self.entity_name}-list")
+                self.model_entity._meta.verbose_name_plural,
+                reverse(f"{app_menu.app_label}:{self.entity_name}-list"),
             ),
             BreadCrumb(
                 related_object.title or related_object.name,

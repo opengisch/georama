@@ -58,6 +58,12 @@ class PublishedAsTheme(GeoramaPermissionMixin, PublishedAs):
     Top item of layer tree organization
     """
 
+    class Meta:  # noqa: F811
+        ordering = ["ordering"]
+        verbose_name = _("Theme")
+        verbose_name_plural = _("Themes")
+        permissions = [("can_manage_object_permissions", "Can manage object permissions")]
+
     project = models.ForeignKey(
         Project,
         related_name="published_as_geogirafe_themes",
@@ -90,12 +96,6 @@ class PublishedAsTheme(GeoramaPermissionMixin, PublishedAs):
     def readable_identifier(self) -> str:
         return f"{self.name}.{self.name}.{self.identifier}"
 
-    class Meta:
-        ordering = ["ordering"]
-        verbose_name = _("Theme")
-        verbose_name_plural = _("Themes")
-        permissions = [("can_manage_object_permissions", "Can manage object permissions")]
-
     @classmethod
     def perm_manage_permissions(cls):
         return cls.assemble_perm(cls._meta.app_label, "can_manage_object_permissions")
@@ -121,12 +121,22 @@ class PublishedAsTheme(GeoramaPermissionMixin, PublishedAs):
         else:
             return self.read_permissions
 
+    def assign_theme_public_to_all_theme_layers(self):
+        old = PublishedAsTheme.objects.get(pk=self.pk)
+        if self.pk and old.public != self.public:
+            PublishedAsLayerWms.objects.filter(layer_group__theme=self).update(
+                public=self.public
+            )
+
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.name is None:
             # TODO: maybe we want this to be configurable?
             self.name = self.project.name
         if self.title is None:
             self.title = self.project.title
+
+        self.assign_public_to_all_theme_layers()
+
         super().save(
             force_insert=force_insert,
             force_update=force_update,
@@ -150,6 +160,10 @@ class LayerGroupMp(MP_Node):
     Recursive model from django-treebeard to handle children-parent relationships
     """
 
+    class Meta:  # noqa: F811
+        verbose_name = _("Group")
+        verbose_name_plural = _("Groups")
+
     themes_json_uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
     name = models.TextField(max_length=2048)
     title = models.CharField(max_length=1000, null=True, default=None, blank=True)
@@ -170,10 +184,6 @@ class LayerGroupMp(MP_Node):
     dimensions = models.JSONField(default=None, null=True)
     path = models.TextField(max_length=2048, unique=True)
     node_order_by = ["name"]
-
-    class Meta:
-        verbose_name = _("Group")
-        verbose_name_plural = _("Groups")
 
     def __str__(self):
         return f"{_('Group')}: {self.name}"
@@ -205,7 +215,7 @@ class Layer(PublishedAs):
     metadata = models.JSONField(default=None, null=True, blank=True)
     dimensions = models.JSONField(default=None, null=True, blank=True)
 
-    class Meta:
+    class Meta:  # noqa: F811
         abstract = True
 
     def __str__(self):
@@ -216,6 +226,10 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     """
     Layer extension for WMS layer
     """
+
+    class Meta:  # noqa: F811
+        verbose_name = f'WMS {_("Layer")}'
+        verbose_name_plural = f'WMS {_("Layers")}'
 
     published_as_type = f"{central_app_label}wmslayer"
     # TODO: This means we currently can add a layer only once into the
@@ -267,10 +281,6 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     ogc_server = models.CharField(null=True)
     min_resolution_hint = models.FloatField(default=0.0)
     max_resolution_hint = models.FloatField(default=999999999.0)
-
-    class Meta:
-        verbose_name = f'WMS {_("Layer")}'
-        verbose_name_plural = f'WMS {_("Layers")}'
 
     def __str__(self):
         return f"{self.name}"
@@ -336,6 +346,10 @@ class PublishedAsLayerWmts(Layer):
     Layer extension for WMTS layer
     """
 
+    class Meta:  # noqa: F811
+        verbose_name = f'WMTS {_("Layer")}'
+        verbose_name_plural = f'WMTS {_("Layers")}'
+
     published_as_type = f"{central_app_label}wmtslayer"
     layer_group = models.OneToOneField(
         LayerGroupMp,
@@ -349,10 +363,6 @@ class PublishedAsLayerWmts(Layer):
         related_query_name="published_as_geogirafe_wmts",
         on_delete=models.CASCADE,
     )
-
-    class Meta:
-        verbose_name = f'WMTS {_("Layer")}'
-        verbose_name_plural = f'WMTS {_("Layers")}'
 
     def __str__(self):
         return f"{self.name}"
@@ -400,6 +410,10 @@ class OgcServer(models.Model):
     Definition of cartographic servers that can be selected when configurating layers
     """
 
+    class Meta:  # noqa: F811
+        verbose_name = _("OGC Server")
+        verbose_name_plural = _("OGC Servers")
+
     url = models.URLField()
     type = models.CharField()
     credential = models.BooleanField(default=False)
@@ -411,13 +425,6 @@ class OgcServer(models.Model):
     description = models.CharField(blank=True, null=True)
     url_wfs = models.URLField(blank=True, null=True)
     attributes = models.JSONField(blank=True, null=True)
-
-    class Meta:
-        verbose_name = _("OGC Server")
-        verbose_name_plural = _("OGC Servers")
-
-    def __str__(self):
-        return f"{self.name}"
 
     def as_dataclass(self):
         attributes: list[dataclasses.LinkedLayer] = [
