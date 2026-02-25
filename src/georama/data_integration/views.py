@@ -103,9 +103,12 @@ class Index(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
     @staticmethod
     def calculate_gauge_values(total, linked, outdated):
         end = 270
+        outdated_deg = round((end / total) * outdated)
+        linked_deg = outdated_deg + round((end / total) * (linked - outdated))
         return {
-            "gauge_linked": f"{round((end/total) * linked)}deg",
-            "gauge_outdated": f"{round((end/total) * outdated)}deg",
+            "gauge_linked": f"{linked_deg}deg",
+            "gauge_outdated": f"{outdated_deg}deg",
+            "gauge_not_integrated": total - linked,
         }
 
 

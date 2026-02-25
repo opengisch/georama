@@ -44,6 +44,15 @@ class FSService:
         return count
 
     def count_out_dated(self):
+        """
+        Counts file system projects which are integrated into Georama DB already
+        and where the JSON config file on the disk has a different hash then the
+        hash wich was stored in the database when the project was integrated.
+
+        Returns:
+            The count of items matching the described criteria.
+        """
+
         count = 0
         for group in self.get_list():
             for project in group.projects:

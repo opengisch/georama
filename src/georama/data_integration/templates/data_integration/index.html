@@ -10,7 +10,7 @@
 
                         <div class="gauge-container">
                             <!-- The Ring -->
-                            <div class="gauge-ring" 
+                            <div class="gauge-ring"
                                  style="background: conic-gradient(from 225deg,
                                 var(--gauge-orange) 0deg {{ gauge_outdated }},
                                 var(--gauge-green) {{ gauge_outdated }} {{ gauge_linked }},
@@ -20,7 +20,7 @@
                             </div>
 
                             <!-- Central Text -->
-                            
+
                             <div class="gauge-center">
                                 <span class="main-number">{{ project_db_count }}</span>
                                 <span class="h5">
@@ -28,15 +28,15 @@
                                         class="link-underline link-underline-opacity-0 stretched-link">
                                          QGIS Projects<br>linked</a>
                                 </span>
-                               
+
                             </div>
 
                             <!-- Bottom Stats -->
-                            
+
                             <div class="gauge-footer">
                                 <div class="stat-row">
-                                    <span class="stat-num gray">{{ project_count }}</span>
-                                    <span class="badge rounded-pill text-bg-light">available</span>
+                                    <span class="stat-num gray">{{ gauge_not_integrated }}</span>
+                                    <span class="badge rounded-pill text-bg-light">notIntegrated</span>
                                 </div>
                                 <div class="stat-row">
                                     <span class="stat-num orange">{{ outdated_count }}</span>
@@ -44,7 +44,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
             </div>
