@@ -14,6 +14,7 @@ from pathlib import Path
 
 from configurations import Configuration, values
 from corsheaders.defaults import default_headers
+from django.utils.translation import gettext_lazy as _
 
 from georama.core.auth import get_authentication_methods_middlewares
 
@@ -85,6 +86,10 @@ class Base(Configuration):
             },
         },
     }
+    # This is a reduced list of settings. Activate the "show_ui_builder" option
+    # to play around with settings in the admin and generate a complete list
+    # of settings
+    # https://django-jazzmin.readthedocs.io/ui_customisation/#ui-customizer
     JAZZMIN_SETTINGS = {
         # title of the window (Will default to current_admin_site.site_titl
         # if absent or None)
@@ -97,13 +102,71 @@ class Base(Configuration):
         "site_brand": "Georama",
         # Logo to use for your site, must be present in static files, used for
         # brand on top left
-        "site_logo": "logo/georama_intermediate_white.png",
+        "site_logo": "images/main_plain.svg",
         # "site_logo": "logo/georama_snowglobe_logo.png",
         # CSS classes that are applied to the logo above
         "site_logo_classes": "img-circle",
         # Relative path to a favicon for your site, will default to
         # site_logo if absent (ideally 32x32 px)
         "site_icon": "logo/favicon.ico",
+        "language_chooser": True,
+        # Side Menu #
+        #############
+        # Hide these apps when generating side menu e.g (auth)
+        "hide_apps": [],
+        # Hide these models when generating side menu (e.g auth.user)
+        "hide_models": [],
+        # List of apps (and/or models) to base side menu ordering off of
+        # (does not need to contain all apps/models)
+        "order_with_respect_to": [
+            "account",
+            "auth",
+            "data_integration",
+            "data_integration.mandant",
+            "data_integration.project",
+            "qfield_link",
+            "maps",
+            "features",
+            "webgis",
+            "webgis.publishedastheme",
+            "webgis.layergroupmp",
+            "webgis.ogcserver",
+            "webgis.publishedaslayerwms",
+            "webgis.publishedaslayerwmts",
+        ],
+        # Custom icons for side menu apps/models
+        "icons": {
+            "account.emailaddress": "fas fa-at",
+            "auth": "fas fa-users-cog",
+            "auth.user": "fas fa-user",
+            "auth.Group": "fas fa-users",
+            "data_integration.Mandant": "fas fa-folder",
+            "data_integration.Project": "fas fa-upload",
+            "data_integration.VectorDataSet": "fas fa-file",
+            "data_integration.RasterDataSet": "fas fa-file",
+            "data_integration.CustomDataSet": "fas fa-file",
+            "data_integration.ManualDataSet": "fas fa-hand-paper",
+            "data_integration.QfieldCloudProject": "fas fa-cloud",
+            "maps.PublishedAsWms": "fas fa-map",
+            "features.PublishedAsOgcApiFeatures": "fas fa-code",
+            "webgis.publishedastheme": "fas fa-th-large",
+            "webgis.layergroupmp": "fas fa-stream",
+            "webgis.ogcserver": "fas fa-database",
+            "webgis.publishedaslayerwms": "fas fa-map",
+            "webgis.publishedaslayerwmts": "far fa-map",
+        },
+        "show_ui_builder": False,
+        "custom_css": "css/jazzmin.admin.overwrites.css",
+    }
+    JAZZMIN_UI_TWEAKS = {
+        "theme": "litera",
+        "custom_css": "css/jazzmin.admin.overwrites.css",
+        "brand_colour": "navbar-dark",
+        "accent": "accent-olive",
+        "navbar": "navbar-white navbar-light",
+        "sidebar": "sidebar-dark-olive",
+        "sidebar_nav_compact_style": True,
+        "sidebar_nav_flat_style": True,
     }
 
     ALLOWED_HOSTS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")
@@ -138,6 +201,11 @@ class Base(Configuration):
         "adminsortable2",
         "treebeard",
         "django_extensions",
+        "crispy_forms",
+        "crispy_bootstrap5",
+    ]
+    AUTHENTICATION_BACKENDS = [
+        "django.contrib.auth.backends.ModelBackend",
     ]
 
     GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
@@ -186,6 +254,7 @@ class Base(Configuration):
             "django.contrib.sessions.middleware.SessionMiddleware",
             "corsheaders.middleware.CorsMiddleware",
             "django.middleware.common.CommonMiddleware",
+            "django.middleware.locale.LocaleMiddleware",
             # "django.middleware.csrf.CsrfViewMiddleware",
             "django.contrib.auth.middleware.AuthenticationMiddleware",
             *get_authentication_methods_middlewares(self.GEORAMA_AUTHENTICATION_METHODS),
@@ -209,6 +278,7 @@ class Base(Configuration):
                     "django.template.context_processors.request",
                     "django.contrib.auth.context_processors.auth",
                     "django.contrib.messages.context_processors.messages",
+                    "georama.core.context_processors.menu_items",
                 ],
             },
         },
@@ -305,13 +375,18 @@ class Base(Configuration):
     # Internationalization
     # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-    LANGUAGE_CODE = "en-us"
+    LANGUAGE_CODE = "en"
 
     TIME_ZONE = "UTC"
 
     USE_I18N = True
 
     USE_TZ = True
+
+    LANGUAGES = [
+        ("en", _("English")),
+        ("de", _("German")),
+    ]
 
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -326,10 +401,34 @@ class Base(Configuration):
 
     APPEND_SLASH = False
     QSL_EXPORTER_URL = values.Value("http://localhost:5000/export", environ_prefix="GEORAMA")
+    QGIS_PROJECT_EXTENSIONS = values.ListValue(
+        [".qgz", ".qgs"],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
 
     QFIELD_LINK_URL = values.Value(None, environ_prefix="GEORAMA")
     QFIELD_LINK_USER = values.Value(None, environ_prefix="GEORAMA")
     QFIELD_LINK_PASSWORD = values.Value(None, environ_prefix="GEORAMA")
+
+    LIST_PAGE_SIZES = values.ListValue(
+        [
+            2,
+            5,
+            10,
+            25,
+            50,
+            100,
+            200,
+            500,
+        ],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
+    LIST_PAGE_SIZE_DEFAULT = values.IntegerValue(10, environ_prefix="GEORAMA")
+
+    CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+    CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 class Dev(Base):

@@ -1,0 +1,9 @@
+{% extends 'core/entity_list.html' %}
+{% load i18n %}
+
+{%  block list_item_image %}
+    <img src="{% if item.icon_as_base64 %}{{ item.icon_as_base64 }}{% else %}{{ item.icon_default }}{% endif %}"
+         class="rounded img-thumbnail preview-image-lg"
+         alt="{% trans 'Theme icon' %}"
+    />
+{% endblock %}

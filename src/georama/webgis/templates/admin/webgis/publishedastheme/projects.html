@@ -17,7 +17,7 @@
                 <td>{{ project.name }}</td>
                 <td>{{ project.hash }}</td>
                 <td>
-                    <a href="{% url 'publish_project' project.id %}" class="btn btn-high btn-success">publish</a>
+                    <a href="{% url 'webgis:theme-add-project' project.id %}?next={% url 'admin:webgis_publishedastheme_changelist' %}" class="btn btn-high btn-success">publish</a>
                 </td>
             </tr>
             {% endfor %}

@@ -26,6 +26,16 @@ class PermissionInterface:
         Is a method and not a property to avoid database queries for Permission checking."""
         return f"Can {self.action} {self.target_name} ({target_readable_identifier})"
 
+    @classmethod
+    def from_code_name(cls, codename, target_name):
+        published_as_type, action, target_identifier = codename.split("_")
+        return PermissionInterface(
+            published_as_type=published_as_type,
+            action=action,
+            target_identifier=target_identifier,
+            target_name=target_name,
+        )
+
 
 class PublishedAsRoleNameSystem(models.Model):
     """PublishedAsRoleNameSystem: a published resource with CRUD operations ruled
@@ -188,6 +198,13 @@ class PublishedAs(PublishedAsRoleNameSystem):
 
     class Meta:
         abstract = True
+        permissions = [("can_manage_object_permissions", "Can manage object permissions")]
+
+    @property
+    def endpoint_url(self):
+        raise NotImplementedError(
+            "This property has to be defined by each implementing app model!"
+        )
 
 
 def delete_publishedas_db_permissions(sender, instance, **kwargs):

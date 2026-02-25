@@ -24,7 +24,7 @@
     }
     const current = document.documentElement.getAttribute("data-bs-theme");
     icon.className =
-      current === "dark" ? "bi bi-sun-fill" : "bi bi-moon-stars-fill";
+      current === "dark" ? "fa fa-regular fa-sun" : "fa fa-solid fa-moon";
   }
 
   function applyTheme(theme) {

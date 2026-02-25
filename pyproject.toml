@@ -65,6 +65,8 @@ dependencies = [
     "redis==5.0.8",
     "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
     "numpy==2.2.5",
+    "django-crispy-forms",
+    "crispy-bootstrap5",
     # deps for webgis
     "django-allauth[socialaccount]==65.14.0",
     "django-cors-headers==4.3.1",

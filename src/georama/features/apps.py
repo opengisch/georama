@@ -17,8 +17,12 @@ pygeoapi.plugin.PLUGINS["provider"][
 
 inittime_api.DEFAULT_CRS = Config().default_crs
 
+central_app_label = "features"
+
 
 class FeaturesConfig(GeoramaAbstractConfig):
     default_auto_field = "django.db.models.BigAutoField"
     verbose_name = "Features"
-    name = "georama.features"
+    name = f"georama.{central_app_label}"
+    label = central_app_label
+    menu_order: int = 30

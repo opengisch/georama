@@ -1,11 +1,13 @@
 import json
 import logging
 
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
-from django.templatetags.static import static
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
+from qgis_server_light.interface.qgis import BBox
 from qgis_server_light.interface.qgis import Config as QslConfig
 from qgis_server_light.interface.qgis import Custom as QslCustom
 from qgis_server_light.interface.qgis import Group as QslGroup
@@ -13,16 +15,29 @@ from qgis_server_light.interface.qgis import Raster as QslRaster
 from qgis_server_light.interface.qgis import Vector as QslVector
 from xsdata.formats.dataclass.serializers import DictEncoder
 
+from georama.core.services.permission import DBService
+from georama.core.views.entities.entity_delete import GeoramaEntityDeleteView
+from georama.core.views.entities.entity_detail import GeoramaEntityDetailView
+from georama.core.views.entities.entity_list import GeoramaEntityListView
+from georama.core.views.entities.entity_publish_list import GeoramaEntityPublishListView
+from georama.core.views.entities.entity_update import GeoramaEntityUpdateView
+from georama.core.views.entities.permission_detail import GeoramaPermissionDetailView
+from georama.core.views.entities.permission_group import GeoramaGroupListView
+from georama.core.views.entities.permission_user import GeoramaUserListView
+from georama.core.views.entities.published_item_index import GeoramaPublishedItemIndex
+from georama.core.views.generic.mixins import (
+    GeoramaAnyPermissionRequiredMixin,
+    GeoramaLoginRequiredMixin,
+)
 from georama.data_integration.models import (
     CustomDataSet,
     Project,
     RasterDataSet,
     VectorDataSet,
 )
-from georama.data_integration.views import RegisterQgisProject
+from georama.data_integration.services.project import FSService
 from georama.maps.views import OgcServer
-from georama.webgis.apps import WebgisConfig
-from georama.webgis.forms import HomeForm
+from georama.webgis.apps import central_app_label
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     LayerGroup,
     Theme,
@@ -32,13 +47,325 @@ from georama.webgis.models import LayerGroupMp
 from georama.webgis.models import OgcServer as WebGisOgcServer
 from georama.webgis.models import PublishedAsLayerWms, PublishedAsTheme
 
-appname = WebgisConfig.get_simple_appname()
+
+class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
+    model = PublishedAsTheme
+    permission_required = model.perm_add()
+
+    @staticmethod
+    def extend_bbox(bbox: BBox, bbox_extension: BBox):
+        if bbox_extension.x_min < bbox.x_min or bbox.x_min == 0:
+            bbox.x_min = bbox_extension.x_min
+        if bbox_extension.y_min < bbox.y_min or bbox.y_min == 0:
+            bbox.y_min = bbox_extension.y_min
+        if bbox_extension.x_max > bbox.x_max or bbox.x_max == 0:
+            bbox.x_max = bbox_extension.x_max
+        if bbox_extension.y_max > bbox.y_max or bbox.y_max == 0:
+            bbox.y_max = bbox_extension.y_max
+
+    @staticmethod
+    def bbox_center_position(bbox: BBox):
+        return (
+            (bbox.x_max + bbox.x_min) / 2,
+            (bbox.y_max + bbox.y_min) / 2,
+        )
+
+    @staticmethod
+    def find_dataset_by_name(
+        dataset_name: str,
+        datasets: list[QslGroup] | list[QslRaster] | list[QslVector] | list[QslCustom],
+    ) -> QslGroup | QslVector | QslRaster | QslCustom | None:
+        # TODO: This should be move directly to the QSL interface!
+        for element in datasets:
+            if element.name == dataset_name:
+                return element
+        return None
+
+    def assemble_tree_to_treebeard(
+        self,
+        children: list[str],
+        current_parent: LayerGroupMp,
+        theme: PublishedAsTheme,
+        project: Project,
+        project_config: QslConfig,
+        bbox: BBox,
+        current_ogc_server: str | None = None,
+    ):
+        for child in children:
+            node = current_parent.add_child(name=child)
+            db_node = LayerGroupMp.objects.get(pk=node.pk)
+            db_node.theme = theme
+            db_node.save()
+            group_match = self.find_dataset_by_name(child, project_config.datasets.group)
+            if group_match:
+                # TODO: Improve regarding GMF possibilities!
+                db_node.title = group_match.title
+                db_node.metadata = {}
+                db_node.mixed = False
+                db_node.ogc_server = current_ogc_server
+                db_node.dimensions = {}
+                db_node.save()
+                self.assemble_tree_to_treebeard(
+                    project_config.tree.find_by_name(child).children,
+                    db_node,
+                    theme,
+                    project,
+                    project_config,
+                    bbox,
+                    current_ogc_server,
+                )
+            else:
+                raster_match = self.find_dataset_by_name(child, project_config.datasets.raster)
+                vector_match = self.find_dataset_by_name(child, project_config.datasets.vector)
+                custom_match = self.find_dataset_by_name(child, project_config.datasets.custom)
+                if raster_match:
+                    query = RasterDataSet.objects.filter(project=project, name=child)
+                    if query.exists():
+                        dataset = query.get()
+                    else:
+                        logging.error(f"Could not find raster dataset with name '{child}'")
+                        raise AttributeError()
+                    bbox_extenstion = BBox.from_string(dataset.bbox)
+                    self.extend_bbox(bbox, bbox_extenstion)
+                    PublishedAsLayerWms(
+                        ogc_server=current_ogc_server,
+                        name=dataset.name,
+                        title=dataset.title,
+                        raster_dataset=dataset,
+                        layer_group=db_node,
+                        dimensions={},
+                        public=True,
+                    ).save()
+                elif vector_match:
+                    query = VectorDataSet.objects.filter(project=project, name=child)
+                    if query.exists():
+                        dataset = query.get()
+                    else:
+                        logging.error(f"Could not find vector dataset with name '{child}'")
+                        raise AttributeError()
+                    bbox_extenstion = BBox.from_string(dataset.bbox)
+                    self.extend_bbox(bbox, bbox_extenstion)
+                    PublishedAsLayerWms(
+                        ogc_server=current_ogc_server,
+                        name=dataset.name,
+                        title=dataset.title,
+                        vector_dataset=dataset,
+                        layer_group=db_node,
+                        dimensions={},
+                        public=True,
+                    ).save()
+                elif custom_match:
+                    query = CustomDataSet.objects.filter(project=project, name=child)
+                    if query.exists():
+                        dataset = query.get()
+                    else:
+                        logging.error(f"Could not find custom dataset with name '{child}'")
+                        raise AttributeError()
+                    PublishedAsLayerWms(
+                        ogc_server=current_ogc_server,
+                        name=dataset.name,
+                        title=dataset.title,
+                        custom_dataset=dataset,
+                        layer_group=db_node,
+                        dimensions={},
+                        public=True,
+                    ).save()
+                else:
+                    logging.debug(f"Child {child} was not recognized as WebGIS Layer type")
+
+    def get(self, request: HttpRequest, pk: str, **kwargs):
+        project_db = Project.objects.get(pk=pk)
+        highest_theme = self.model.objects.order_by("ordering").last()
+        theme = self.model(
+            name=project_db.name,
+            title=project_db.title,
+            project=project_db,
+            metadata={"isLegendExpanded": True, "legend": False},
+            ordering=highest_theme.ordering + 1 if highest_theme else 1,
+            zoom=4,
+        )
+        theme.save()
+        ogc_server = insert_internal_ogc_server(request)
+        fss_project = FSService()
+        project_from_config = fss_project.get(project_db.mandant.name, project_db.name)
+        root_group = LayerGroupMp.add_root(
+            name=theme.name, ogc_server=ogc_server, title=theme.title
+        )
+        db_root_node = LayerGroupMp.objects.get(pk=root_group.pk)
+        db_root_node.theme = theme
+        db_root_node.save()
+        bbox = BBox(0.0, 0.0, 0.0, 0.0)
+        # Highly recursive task, we flatten the tree into treebeard structure
+        self.assemble_tree_to_treebeard(
+            # the element with empty string as name is always the root of the tree
+            project_from_config.config.tree.find_by_name("").children,
+            db_root_node,
+            theme,
+            project_db,
+            project_from_config.config,
+            bbox,
+            ogc_server.name,
+        )
+        x, y = self.bbox_center_position(bbox)
+        theme.location = [x, y]
+        theme.save()
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+        ):
+            return redirect(next_url)
+        return redirect(f"{central_app_label}:theme-list")
 
 
-def home(request):
-    form = HomeForm()
+class Index(GeoramaPublishedItemIndex):
+    model = PublishedAsTheme
+    template_name = "webgis/index.html"
+    entity_name = "theme"
 
-    return render(request, "webgis.html", {"form": form})
+
+class ThemesListView(
+    GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, GeoramaEntityListView
+):
+    model = PublishedAsTheme
+    template_name = "webgis/list.html"
+    permission_required = [
+        model.perm_view(),
+        model.perm_change(),
+        model.perm_delete(),
+        model.perm_add(),
+        model.perm_manage_permissions(),
+    ]
+    entity_name = "theme"
+
+
+class PublishProjectListView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityPublishListView
+):
+    model = Project
+    model_publish = PublishedAsTheme
+    template_name = "webgis/publish.html"
+    entity_name = "theme"
+    permission_required = model_publish.perm_add()
+
+
+class ThemeDetailView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityDetailView
+):
+    model = PublishedAsTheme
+    entity_name = "theme"
+    permission_required = model.perm_view()
+
+
+class ThemeUpdateView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityUpdateView
+):
+    model = PublishedAsTheme
+    entity_name = "theme"
+    fields = [
+        "title",
+        "name",
+        "description",
+        "public",
+    ]
+    permission_required = model.perm_change()
+
+
+class ThemeDeleteView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityDeleteView
+):
+    model = PublishedAsTheme
+    entity_name = "theme"
+    permission_required = model.perm_delete()
+
+
+class PermissionView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaPermissionDetailView
+):
+    model_entity = PublishedAsTheme
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "theme"
+
+    def get_related_layer_permissions(
+        self, theme: PublishedAsTheme, theme_layers: list[PublishedAsLayerWms], action: str
+    ):
+        dbs_permission = DBService(PublishedAsLayerWms, PublishedAsLayerWms._meta.app_label)
+        additional_permission_ids = [
+            perm.pk
+            for perm in dbs_permission.get_by_object_pks([tl.pk for tl in theme_layers])
+            .filter(codename__icontains=action)
+            .all()
+        ]
+        return additional_permission_ids
+
+    def get_object(self, queryset=None):
+        object_pk = self.kwargs.get("pk")
+        dbs_permission = DBService(self.model_entity, self.model_entity._meta.app_label)
+        lookup = dbs_permission.get_permission_lookup(object_pk)
+        theme = self.model_entity.objects.get(pk=self.kwargs["pk"])
+        theme_layers = PublishedAsLayerWms.objects.filter(layer_group__theme=theme).all()
+
+        for action in lookup["actions"]:
+            for principal in ["users", "groups"]:
+                for perms in lookup["lookup"][principal]:
+                    additional_perms = self.get_related_layer_permissions(
+                        theme, theme_layers, action
+                    )
+                    perms[action]["ids"] += additional_perms
+
+        return lookup
+
+
+class UserListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaUserListView):
+    model_entity = PublishedAsTheme
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "theme"
+
+    def add_related_permission_ids(self, permission_ids):
+        """
+        Currently we support permission assignment on theme level only.
+        This means we need to assign the read permission to all theme
+        related layers too, so that they are secured on the webgis wms endpoint.
+
+        Returns:
+            Context with updated permissions.
+        """
+        theme = self.model_entity.objects.get(pk=self.kwargs["pk"])
+        themes_layers = PublishedAsLayerWms.objects.filter(layer_group__theme=theme).all()
+        dbs_permission = DBService(PublishedAsLayerWms, PublishedAsLayerWms._meta.app_label)
+        permission_ids += [
+            perm.pk
+            for perm in dbs_permission.get_by_object_pks([tl.pk for tl in themes_layers])
+            .filter(codename__icontains="read")
+            .all()
+        ]
+        return permission_ids
+
+
+class GroupListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaGroupListView):
+    model_entity = PublishedAsTheme
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "theme"
+
+    def add_related_permission_ids(self, permission_ids):
+        """
+        Currently we support permission assignment on theme level only. This
+        means we need to assign the read permission to all theme related layers
+        too, so that they are secured on the webgis wms endpoint.
+
+        Returns:
+            Context with updated permissions.
+        """
+        theme = self.model_entity.objects.get(pk=self.kwargs["pk"])
+        themes_layers = PublishedAsLayerWms.objects.filter(layer_group__theme=theme).all()
+        dbs_permission = DBService(PublishedAsLayerWms, PublishedAsLayerWms._meta.app_label)
+        permission_ids += [
+            perm.pk
+            for perm in dbs_permission.get_by_object_pks([tl.pk for tl in themes_layers])
+            .filter(codename__icontains="read")
+            .all()
+        ]
+        return permission_ids
 
 
 class Themes(View):
@@ -59,7 +386,7 @@ class Themes(View):
                 if hasattr(child, "wms_datasets"):
                     # we filter for permission on the one-to-one field connected
                     # published_as element
-                    if child.wms_datasets.has_read_permission(user, appname):
+                    if child.wms_datasets.has_read_permission(user, central_app_label):
                         layer_group.children.append(child.wms_datasets.as_dataclass(config))
                 elif hasattr(child, "wmts_datasets"):
                     layer_group.children.append(child.wmts_datasets.as_dataclass())
@@ -71,20 +398,18 @@ class Themes(View):
 
     def get(self, request: HttpRequest, format: str):
         geogirafe_config = ThemesJson()
-
         for ogc_server in WebGisOgcServer.objects.all():
             geogirafe_config.ogc_servers.append(ogc_server.as_dataclass())
         for theme in PublishedAsTheme.objects.all():
-            theme_object = theme.as_dataclass()
-            if theme_object.icon is None:
-                theme_object.icon = request.build_absolute_uri(
-                    static("/webgis/assets/images/georama.coming_soon.png")
+            if theme.has_general_permission(self.request.user, central_app_label):
+                theme_object = theme.as_dataclass()
+                if theme_object.icon is None:
+                    theme_object.icon = request.build_absolute_uri(theme.icon_default)
+                geogirafe_config.themes.append(theme_object)
+                root_node = theme.tree_elements.first().get_root()
+                self.assemble_themes_tree_from_treebeard(
+                    root_node, theme_object, geogirafe_config, request.user
                 )
-            geogirafe_config.themes.append(theme_object)
-            root_node = theme.tree_elements.first().get_root()
-            self.assemble_themes_tree_from_treebeard(
-                root_node, theme_object, geogirafe_config, request.user
-            )
         result_dict = {
             "themes": DictEncoder().encode(geogirafe_config.themes),
             "ogcServers": {},
@@ -103,7 +428,7 @@ class GeoGirafe(View):
     #  directly through Django
 
     def get(self, request: HttpRequest, mandant_name: str):
-        return render(request, "geogirafe/index.html")
+        return render(request, "geogirafe/published_item_index.html")
 
 
 class Config(View):
@@ -178,136 +503,6 @@ class Config(View):
         return HttpResponse(
             json.dumps(config_dict, indent=2), status=200, content_type="application/json"
         )
-
-
-class PublishProject(View):
-    @staticmethod
-    def find_dataset_by_name(
-        dataset_name: str,
-        datasets: list[QslGroup] | list[QslRaster] | list[QslVector] | list[QslCustom],
-    ) -> QslGroup | QslVector | QslRaster | QslCustom | None:
-        # TODO: This should be move directly to the QSL interface!
-        for element in datasets:
-            if element.name == dataset_name:
-                return element
-        return None
-
-    def assemble_tree_to_treebeard(
-        self,
-        children: list[str],
-        current_parent: LayerGroupMp,
-        theme: PublishedAsTheme,
-        project: Project,
-        project_config: QslConfig,
-        current_ogc_server: str | None = None,
-    ):
-        for child in children:
-            node = current_parent.add_child(name=child)
-            db_node = LayerGroupMp.objects.get(pk=node.pk)
-            db_node.theme = theme
-            db_node.save()
-            group_match = self.find_dataset_by_name(child, project_config.datasets.group)
-            if group_match:
-                # TODO: Improve regarding GMF possibilities!
-                db_node.title = group_match.title
-                db_node.metadata = {}
-                db_node.mixed = False
-                db_node.ogc_server = current_ogc_server
-                db_node.dimensions = {}
-                db_node.save()
-                self.assemble_tree_to_treebeard(
-                    project_config.tree.find_by_name(child).children,
-                    db_node,
-                    theme,
-                    project,
-                    project_config,
-                    current_ogc_server,
-                )
-            else:
-                raster_match = self.find_dataset_by_name(child, project_config.datasets.raster)
-                vector_match = self.find_dataset_by_name(child, project_config.datasets.vector)
-                custom_match = self.find_dataset_by_name(child, project_config.datasets.custom)
-                if raster_match:
-                    query = RasterDataSet.objects.filter(project=project, name=child)
-                    if query.exists():
-                        dataset = query.get()
-                    else:
-                        logging.error(f"Could not find raster dataset with name '{child}'")
-                        raise AttributeError()
-                    PublishedAsLayerWms(
-                        ogc_server=current_ogc_server,
-                        name=dataset.name,
-                        title=dataset.title,
-                        raster_dataset=dataset,
-                        layer_group=db_node,
-                        dimensions={},
-                        public=True,
-                    ).save()
-                elif vector_match:
-                    query = VectorDataSet.objects.filter(project=project, name=child)
-                    if query.exists():
-                        dataset = query.get()
-                    else:
-                        logging.error(f"Could not find vector dataset with name '{child}'")
-                        raise AttributeError()
-                    PublishedAsLayerWms(
-                        ogc_server=current_ogc_server,
-                        name=dataset.name,
-                        title=dataset.title,
-                        vector_dataset=dataset,
-                        layer_group=db_node,
-                        dimensions={},
-                        public=True,
-                    ).save()
-                elif custom_match:
-                    query = CustomDataSet.objects.filter(project=project, name=child)
-                    if query.exists():
-                        dataset = query.get()
-                    else:
-                        logging.error(f"Could not find custom dataset with name '{child}'")
-                        raise AttributeError()
-                    PublishedAsLayerWms(
-                        ogc_server=current_ogc_server,
-                        name=dataset.name,
-                        title=dataset.title,
-                        custom_dataset=dataset,
-                        layer_group=db_node,
-                        dimensions={},
-                        public=True,
-                    ).save()
-                else:
-                    logging.debug(f"Child {child} was not recognized as WebGIS Layer type")
-
-    def get(self, request: HttpRequest, project_id: int, **kwargs):
-        project_db = Project.objects.get(id=project_id)
-        highest_theme = PublishedAsTheme.objects.order_by("ordering").last()
-        theme = PublishedAsTheme(
-            name=project_db.name,
-            title=project_db.title,
-            project=project_db,
-            metadata={"isLegendExpanded": True, "legend": False},
-            ordering=highest_theme.ordering + 1 if highest_theme else 1,
-        )
-        theme.save()
-        ogc_server = insert_internal_ogc_server(request)
-        project_from_config, project_config = RegisterQgisProject.load_project_config(
-            project_db.mandant.name, project_db.name
-        )
-        root_group = LayerGroupMp.add_root(name=theme.name)
-        db_root_node = LayerGroupMp.objects.get(pk=root_group.pk)
-        db_root_node.theme = theme
-        db_root_node.save()
-        # Highly recursive task, we flatten the tree into treebeard structure
-        self.assemble_tree_to_treebeard(
-            # the element with empty string as name is always the root of the tree
-            project_config.tree.find_by_name("").children,
-            db_root_node,
-            theme,
-            project_db,
-            project_config,
-            ogc_server.name,
-        )
-        return redirect("admin:webgis_publishedastheme_changelist")
 
 
 class OgcServerWebgis(OgcServer):

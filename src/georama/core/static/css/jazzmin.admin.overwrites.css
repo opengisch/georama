@@ -1,0 +1,88 @@
+/* 
+Overwrites JAZZMIN styles for Django Admin
+
+Jazzmin has its own Bootstrap (v4.6) which is different from 
+the rest of Georama!
+*/
+
+/* Import georama colors */
+@import url(variables.css);
+
+
+/* Increase font sizes and buttons */
+.btn {
+    font-size: 1rem;
+}
+
+.badge {
+    font-size: 100%;
+}
+
+.breadcrumb,.nav,.pagination {
+    font-size: 1rem;
+}
+
+/* Fix wrong font in navbar */
+p {
+    font-family: inherit;
+}
+/* Make code blocks wrap and grey */
+pre code {
+    font-size: 13px;
+    text-wrap: auto;
+}
+code {
+    color: var(--georama-gray)
+}
+pre {
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+
+/* 
+Overwrite bootstrap colors for buttons and links
+*/
+
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+    color: var(--georama-gray);
+}
+
+.btn-primary,
+.btn-primary:not(:disabled):not(.disabled).active,
+.badge-primary,
+.btn-success,
+.badge-success {
+    background-color: var(--georama-green);
+    border-color: var(--georama-green);
+}
+.btn-primary:hover,
+.btn-primary:not(:disabled):not(.disabled):hover,
+.badge-primary:hover,
+.btn-success:hover,
+.badge-success:hover {
+    background-color: var(--georama-green-dark);
+    border-color: var(--georama-green-dark);
+}
+
+.btn-info:hover,
+.btn-secondary:hover {
+    background-color: var(--georama-yellow-dark);
+    border-color: var(--georama-yellow-dark);
+}
+.btn-info,
+.btn-secondary {
+    background-color: var(--georama-yellow);
+    border-color: var(--georama-yellow);
+}
+
+.accent-primary {
+    color: var(--georama-green);
+}
+
+/* Don't like the no-border-style of button groups */
+.btn-group>.btn-group:not(:first-child), 
+.btn-group>.btn:not(:first-child) {
+    border-left-color: #dee2e6;
+    margin-left: 0;
+}

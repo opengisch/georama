@@ -1,8 +1,10 @@
 import logging
 
 from asgiref.sync import sync_to_async
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 from qgis_server_light.interface.dispatcher import RedisQueue
 from qgis_server_light.interface.job import (
@@ -17,8 +19,21 @@ from xsdata.formats.dataclass.parsers import DictDecoder, XmlParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer
 
+from georama.core.views.entities.entity_delete import GeoramaEntityDeleteView
+from georama.core.views.entities.entity_detail import GeoramaEntityDetailView
+from georama.core.views.entities.entity_list import GeoramaEntityListView
+from georama.core.views.entities.entity_publish_list import GeoramaEntityPublishListView
+from georama.core.views.entities.entity_update import GeoramaEntityUpdateView
+from georama.core.views.entities.permission_detail import GeoramaPermissionDetailView
+from georama.core.views.entities.permission_group import GeoramaGroupListView
+from georama.core.views.entities.permission_user import GeoramaUserListView
+from georama.core.views.entities.published_item_index import GeoramaPublishedItemIndex
+from georama.core.views.generic.mixins import (
+    GeoramaAnyPermissionRequiredMixin,
+    GeoramaLoginRequiredMixin,
+)
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
-from georama.maps.apps import MapsConfig
+from georama.maps.apps import MapsConfig, central_app_label
 from georama.maps.interfaces.georama.requests import QslGetMapRequest
 from georama.maps.interfaces.ogc.wfs_2_0_0 import GetFeature as GetFeature200
 from georama.maps.maps_config import Config
@@ -51,7 +66,7 @@ class OgcServer(View):
         """
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WmsGetCapabilities(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
         )
         if requested_format not in operation.allowed_formats:
             return HttpResponse(
@@ -76,7 +91,7 @@ class OgcServer(View):
     def wfs_200_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetCapabilities(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
         )
 
         if requested_format not in operation.allowed_formats:
@@ -104,7 +119,7 @@ class OgcServer(View):
         language = "en-US"
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetMetadata(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
         )
         if requested_layer:
             if requested_format not in operation.allowed_formats:
@@ -146,7 +161,7 @@ class OgcServer(View):
             "OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2"
         ).upper()
         operation = WfsDescribeFeatureType(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
         )
         content, content_type, success = operation.render(
             requested_format, operation.describe_feature_type(requested_layer)
@@ -165,7 +180,7 @@ class OgcServer(View):
 
     async def wfs_200_getfeature(self, request: HttpRequest, params: dict) -> HttpResponse:
         operation = WfsGetFeature(
-            appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
         )
         get_feature_parameter = operation.query_parameters_to_get_feature_request(params)
 
@@ -280,7 +295,7 @@ class OgcServer(View):
                 )
                 service_params = DictDecoder(parser_config).decode(params, QslGetMapRequest)
                 operation = WmsGetMap(
-                    appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+                    appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
                 )
                 try:
                     job = await sync_to_async(
@@ -345,7 +360,7 @@ class OgcServer(View):
     async def post(self, request: HttpRequest, *args, **kwargs):
         try:
             operation = WfsGetFeature(
-                appname, f'{request.build_absolute_uri("maps")}?', request.user, self.model
+                appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
             )
             try:
                 get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature200)
@@ -389,27 +404,142 @@ class OgcServer(View):
             return HttpResponse(e, status=400, content_type="text/xml")
 
 
-def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):
-    """
-    helper function to hide actual connection in the database but make
-    publishing straight forward.
-    """
-    allowed_dataset_types = ["raster", "vector", "custom"]
-    if dataset_type not in allowed_dataset_types:
-        raise Http404
-    if dataset_type == "raster":
-        published_as_wms = PublishedAsWms(
-            raster_dataset=RasterDataSet.objects.filter(id=dataset_id)[0]
+class PublishLayer(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
+    model = PublishedAsWms
+    permission_required = model.perm_add()
+
+    def get(self, request: HttpRequest, dataset_type: str, dataset_id: str):
+        """
+        helper function to hide actual connection in the database but make
+        publishing straight forward.
+        """
+        allowed_dataset_types = ["raster", "vector", "custom"]
+        if dataset_type not in allowed_dataset_types:
+            raise Http404
+        if dataset_type == "raster":
+            published_as_wms = self.model(
+                raster_dataset=RasterDataSet.objects.filter(id=dataset_id)[0]
+            )
+        elif dataset_type == "vector":
+            published_as_wms = self.model(
+                vector_dataset=VectorDataSet.objects.filter(id=dataset_id)[0]
+            )
+        elif dataset_type == "custom":
+            published_as_wms = self.model(
+                custom_dataset=CustomDataSet.objects.filter(id=dataset_id)[0]
+            )
+        else:
+            raise Http404
+        published_as_wms.save()
+
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+        ):
+            return redirect(next_url)
+        return redirect(f"{central_app_label}:layer-list")
+
+
+class Index(GeoramaPublishedItemIndex):
+
+    model = PublishedAsWms
+    template_name = "maps/index.html"
+    entity_name = "layer"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["wms_get_capabilities_params"] = (
+            self.model.create_wms_capabilities_url_params()
         )
-    elif dataset_type == "vector":
-        published_as_wms = PublishedAsWms(
-            vector_dataset=VectorDataSet.objects.filter(id=dataset_id)[0]
+        context["wfs_get_capabilities_params"] = (
+            self.model.create_wfs_capabilities_url_params()
         )
-    elif dataset_type == "custom":
-        published_as_wms = PublishedAsWms(
-            custom_dataset=CustomDataSet.objects.filter(id=dataset_id)[0]
-        )
-    else:
-        raise Http404
-    published_as_wms.save()
-    return redirect("admin:maps_publishedaswms_changelist")
+        return context
+
+
+class LayerListView(
+    GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, GeoramaEntityListView
+):
+    model = PublishedAsWms
+    template_name = "maps/list.html"
+    permission_required = [
+        model.perm_view(),
+        model.perm_change(),
+        model.perm_delete(),
+        model.perm_add(),
+        model.perm_manage_permissions(),
+    ]
+    entity_name = "layer"
+
+
+class PublishListView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityPublishListView
+):
+
+    model_publish = PublishedAsWms
+    template_name = "maps/publish.html"
+    entity_name = "layer"
+    permission_required = model_publish.perm_add()
+
+    def get_queryset(self):
+        items = []
+        items += list(VectorDataSet.objects.all())
+        items += list(RasterDataSet.objects.all())
+        items += list(CustomDataSet.objects.all())
+        return items
+
+
+class MapDetailView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityDetailView
+):
+    model = PublishedAsWms
+    entity_name = "layer"
+    template_name = "maps/detail.html"
+    permission_required = model.perm_view()
+
+
+class MapUpdateView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityUpdateView
+):
+    model = PublishedAsWms
+    entity_name = "layer"
+    fields = [
+        "title",
+        "name",
+        "description",
+        "public",
+        "queryable",
+        "license",
+        "fees",
+        "access_constraints",
+    ]
+    permission_required = model.perm_change()
+
+
+class MapDeleteView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityDeleteView
+):
+    model = PublishedAsWms
+    entity_name = "layer"
+    permission_required = model.perm_delete()
+
+
+class PermissionView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaPermissionDetailView
+):
+    model_entity = PublishedAsWms
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "layer"
+
+
+class UserListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaUserListView):
+    model_entity = PublishedAsWms
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "layer"
+
+
+class GroupListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaGroupListView):
+    model_entity = PublishedAsWms
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "layer"

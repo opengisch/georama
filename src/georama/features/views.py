@@ -2,25 +2,37 @@ import os.path
 
 import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
-from django.urls import path
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
 from qgis_server_light.interface.qgis import BBox
 
+from georama.core.views.entities.entity_delete import GeoramaEntityDeleteView
+from georama.core.views.entities.entity_detail import GeoramaEntityDetailView
+from georama.core.views.entities.entity_list import GeoramaEntityListView
+from georama.core.views.entities.entity_publish_list import GeoramaEntityPublishListView
+from georama.core.views.entities.entity_update import GeoramaEntityUpdateView
+from georama.core.views.entities.permission_detail import GeoramaPermissionDetailView
+from georama.core.views.entities.permission_group import GeoramaGroupListView
+from georama.core.views.entities.permission_user import GeoramaUserListView
+from georama.core.views.entities.published_item_index import GeoramaPublishedItemIndex
+from georama.core.views.generic.mixins import (
+    GeoramaAnyPermissionRequiredMixin,
+    GeoramaLoginRequiredMixin,
+)
 from georama.data_integration.models import Field, VectorDataSet
-from georama.features.apps import FeaturesConfig
+from georama.features.apps import central_app_label
 from georama.features.config_server import ServerConfig
 from georama.features.features_config import Config
 from georama.features.models import ColumnOgcApiFeatures, PublishedAsOgcApiFeatures
 
 api = None
-
-appname = FeaturesConfig.get_simple_appname()
 
 
 class PygeoapiServer(View):
@@ -28,59 +40,13 @@ class PygeoapiServer(View):
     model = PublishedAsOgcApiFeatures
 
     @classmethod
-    def urls(cls, prefix=""):
+    def urls(cls):
         """
         Prepares a tuple of 2 elements which can be used directly with django.urls.include.
         """
 
-        path_elements = [prefix]
-        patterns = [
-            path("/".join(path_elements), cls.as_view(action="landing"), name="landing"),
-            path(
-                "/".join(path_elements + ["conformance"]),
-                cls.as_view(action="conformance"),
-                name="conformance",
-            ),
-            path(
-                "/".join(path_elements + ["openapi"]),
-                cls.as_view(action="openapi"),
-                name="openapi",
-            ),
-            path(
-                "/".join(path_elements + ["collections"]),
-                cls.as_view(action="collections"),
-                name="collections",
-            ),
-            path(
-                "/".join(path_elements + ["collections", "<str:collection_id>"]),
-                cls.as_view(action="collections"),
-                name="collection-detail",
-            ),
-            path(
-                "/".join(path_elements + ["collections", "<str:collection_id>", "schema"]),
-                cls.as_view(action="collection_schema"),
-                name="collection-schema",
-            ),
-            path(
-                "/".join(path_elements + ["collections", "<str:collection_id>", "queryables"]),
-                cls.as_view(action="collection_queryables"),
-                name="collection-queryables",
-            ),
-            path(
-                "/".join(path_elements + ["collections", "<str:collection_id>", "items"]),
-                cls.as_view(action="collection_items"),
-                name="collection-items",
-            ),
-            path(
-                "/".join(
-                    path_elements
-                    + ["collections", "<str:collection_id>", "items", "<str:item_id>"]
-                ),
-                cls.as_view(action="collection_item"),
-                name="collection-item",
-            ),
-        ]
-        return patterns, appname
+        patterns = []
+        return (patterns, central_app_label)
 
     def dispatch(self, request, *args, **kwargs):
         handler = getattr(self, f"{self.action}", None)
@@ -171,7 +137,7 @@ class PygeoapiServer(View):
         :returns: Django HTTP Response
         """
         if self.model.objects.get(identifier=collection_id).has_read_permission(
-            request.user, appname
+            request.user, central_app_label
         ):
             return self.execute_from_django(
                 core_api.get_collection_schema, request, collection_id
@@ -191,7 +157,7 @@ class PygeoapiServer(View):
         :returns: Django HTTP Response
         """
         if self.model.objects.get(identifier=collection_id).has_read_permission(
-            request.user, appname
+            request.user, central_app_label
         ):
             return self.execute_from_django(
                 itemtypes_api.get_collection_queryables, request, collection_id
@@ -212,7 +178,7 @@ class PygeoapiServer(View):
         published_as = self.model.objects.get(identifier=collection_id)
 
         if request.method == "GET":
-            if published_as.has_read_permission(request.user, appname):
+            if published_as.has_read_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.get_collection_items,
                     request,
@@ -222,7 +188,7 @@ class PygeoapiServer(View):
             else:
                 raise PermissionDenied()
         elif request.method == "POST":
-            if published_as.has_create_permission(request.user, appname):
+            if published_as.has_create_permission(request.user, central_app_label):
                 if request.content_type is not None:
                     if request.content_type == "application/geo+json":
                         response_ = self.execute_from_django(
@@ -242,7 +208,7 @@ class PygeoapiServer(View):
             else:
                 raise PermissionDenied()
         elif request.method == "OPTIONS":
-            if published_as.has_read_permission(request.user, appname):
+            if published_as.has_read_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.manage_collection_item,
                     request,
@@ -272,14 +238,14 @@ class PygeoapiServer(View):
         published_as = self.model.objects.get(identifier=collection_id)
 
         if request.method == "GET":
-            if published_as.has_read_permission(request.user, appname):
+            if published_as.has_read_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.get_collection_item, request, collection_id, item_id
                 )
             else:
                 raise PermissionDenied()
         elif request.method == "PUT":
-            if published_as.has_update_permission(request.user, appname):
+            if published_as.has_update_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.manage_collection_item,
                     request,
@@ -291,7 +257,7 @@ class PygeoapiServer(View):
             else:
                 raise PermissionDenied()
         elif request.method == "DELETE":
-            if published_as.has_delete_permission(request.user, appname):
+            if published_as.has_delete_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.manage_collection_item,
                     request,
@@ -303,7 +269,7 @@ class PygeoapiServer(View):
             else:
                 raise PermissionDenied()
         elif request.method == "OPTIONS":
-            if published_as.has_read_permission(request.user, appname):
+            if published_as.has_read_permission(request.user, central_app_label):
                 response_ = self.execute_from_django(
                     itemtypes_api.manage_collection_item,
                     request,
@@ -321,9 +287,11 @@ class PygeoapiServer(View):
 
     def handle_runtime_config(self, request: HttpRequest) -> tuple[dict, dict]:
         server_config = ServerConfig().get()
-        server_config["server"]["url"] = f"{request.scheme}://{request.get_host()}/features"
+        server_config["server"][
+            "url"
+        ] = f"{request.scheme}://{request.get_host()}/features/pygeoapi"
         for published_as in self.model.objects.all():
-            if published_as.has_general_permission(request.user, appname):
+            if published_as.has_general_permission(request.user, central_app_label):
                 server_config["resources"][str(published_as.identifier)] = (
                     self.create_resource(published_as, request)
                 )
@@ -432,16 +400,16 @@ class PygeoapiServer(View):
         self, published_as: PublishedAsOgcApiFeatures, request: HttpRequest
     ) -> dict:
         editable = (
-            published_as.has_update_permission(request.user, appname)
-            or published_as.has_create_permission(request.user, appname)
-            or published_as.has_delete_permission(request.user, appname)
+            published_as.has_update_permission(request.user, central_app_label)
+            or published_as.has_create_permission(request.user, central_app_label)
+            or published_as.has_delete_permission(request.user, central_app_label)
         )
 
         features_properties = [
             p
             for p in published_as.columns.all()
             if not published_as.column_permission
-            or p.has_general_permission(request.user, appname)
+            or p.has_general_permission(request.user, central_app_label)
         ]
 
         if published_as.dataset.driver.upper() == "POSTGRES":
@@ -543,6 +511,8 @@ def getDatasetFieldConstraints(
                     schema["maximum"] += 1 - schema["multipleOf"]
             except ValueError:
                 pass
+            except KeyError:
+                pass
 
         field_constraints[str(properties.name)] = schema
 
@@ -555,12 +525,110 @@ def getDatasetFieldConstraints(
     return field_constraints
 
 
-def admin_publish_as_oapif(request: HttpRequest, vector_dataset_id: str):
-    """
-    helper function to hide actual connection in the database but make publishing
-    straight forward.
-    """
-    vd = VectorDataSet.objects.filter(id=vector_dataset_id)[0]
-    published_as_oapi = PublishedAsOgcApiFeatures(dataset=vd)
-    published_as_oapi.save()
-    return redirect("admin:features_publishedasogcapifeatures_changelist")
+class PublishLayer(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = PublishedAsOgcApiFeatures.perm_add()
+
+    def get(self, request: HttpRequest, vector_dataset_id: str):
+        """
+        helper function to hide actual connection in the database but make publishing
+        straight forward.
+        """
+        vd = VectorDataSet.objects.filter(pk=vector_dataset_id).get()
+        published_as_oapi = PublishedAsOgcApiFeatures(dataset=vd)
+        published_as_oapi.save()
+
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+        ):
+            return redirect(next_url)
+        return redirect(f"{central_app_label}:layer-list")
+
+
+class Index(GeoramaPublishedItemIndex):
+
+    model = PublishedAsOgcApiFeatures
+    template_name = "features/index.html"
+    entity_name = "layer"
+
+
+class LayerListView(
+    GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, GeoramaEntityListView
+):
+    model = PublishedAsOgcApiFeatures
+    template_name = "features/list.html"
+    permission_required = [
+        model.perm_view(),
+        model.perm_change(),
+        model.perm_delete(),
+        model.perm_add(),
+        model.perm_manage_permissions(),
+    ]
+    entity_name = "layer"
+
+
+class PublishListView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityPublishListView
+):
+    model = VectorDataSet
+    model_publish = PublishedAsOgcApiFeatures
+    template_name = "features/publish.html"
+    entity_name = "layer"
+    permission_required = model_publish.perm_add()
+
+
+class FeatureDetailView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityDetailView
+):
+    model = PublishedAsOgcApiFeatures
+    entity_name = "layer"
+    permission_required = model.perm_view()
+
+
+class FeatureUpdateView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityUpdateView
+):
+    model = PublishedAsOgcApiFeatures
+    entity_name = "layer"
+    fields = [
+        "title",
+        "name",
+        "description",
+        "default_items",
+        "max_items",
+        "on_exceed",
+        "public",
+        "license",
+        "fees",
+        "access_constraints",
+    ]
+    permission_required = model.perm_change()
+
+
+class FeatureDeleteView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityDeleteView
+):
+    model = PublishedAsOgcApiFeatures
+    entity_name = "layer"
+    permission_required = model.perm_delete()
+
+
+class PermissionView(
+    GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaPermissionDetailView
+):
+    model_entity = PublishedAsOgcApiFeatures
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "layer"
+
+
+class UserListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaUserListView):
+    model_entity = PublishedAsOgcApiFeatures
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "layer"
+
+
+class GroupListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaGroupListView):
+    model_entity = PublishedAsOgcApiFeatures
+    permission_required = model_entity.perm_manage_permissions()
+    entity_name = "layer"

@@ -1,18 +1,27 @@
 import datetime
 import logging
 import os.path
+from dataclasses import fields
 
 from django.db import models
+from django.utils.translation import gettext as _
 from qgis_server_light.interface.qgis import BBox, Crs, Custom, DataSource
 from qgis_server_light.interface.qgis import Field as QslField
 from qgis_server_light.interface.qgis import Raster, Style, Vector
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 
+from georama.core.models.mixins import GeoramaPermissionMixin
+
 log = logging.getLogger(__name__)
 
 
 class Mandant(models.Model):
+
+    class Meta:
+        verbose_name = _("Mandant")
+        verbose_name_plural = _("Mandants")
+
     name = models.CharField(unique=True)
     description = models.TextField(null=True)
 
@@ -20,8 +29,18 @@ class Mandant(models.Model):
         return self.name
 
 
-class Project(models.Model):
-    name = models.CharField(null=False, max_length=1000)
+class Project(GeoramaPermissionMixin, models.Model):
+
+    class Meta:
+        unique_together = (
+            "name",
+            "version",
+            "mandant",
+        )
+        verbose_name = _("Project")
+        verbose_name_plural = _("Projects")
+
+    name = models.CharField(null=False, max_length=1000, verbose_name="name")
     title = models.CharField(max_length=1000)
     version = models.CharField(max_length=1000)
     hash = models.CharField(max_length=20000, null=True, blank=True)
@@ -33,13 +52,6 @@ class Project(models.Model):
         on_delete=models.CASCADE,
         null=True,
     )
-
-    class Meta:
-        unique_together = (
-            "name",
-            "version",
-            "mandant",
-        )
 
 
 class DataSet(models.Model):
@@ -61,6 +73,10 @@ class DataSet(models.Model):
     maximum_scale = models.FloatField(null=True)
 
     @property
+    def dataset_type(self):
+        raise NotImplementedError("This is a abstract base class")
+
+    @property
     def get_parser_config(self):
         return ParserConfig(fail_on_unknown_attributes=False, fail_on_unknown_properties=False)
 
@@ -76,6 +92,15 @@ class DataSet(models.Model):
         elif datasource.vector_tile and not datasource.vector_tile.remote:
             path = os.path.join(self.project.mandant.name, datasource.vector_tile.url)
         return datasource, path
+
+    @property
+    def driver_name(self):
+        datasource, path = self.source_to_qsl
+        for field in fields(datasource):
+            value = getattr(datasource, field.name)
+            if value is not None:
+                return field.name
+        return None
 
     @property
     def crs_to_qsl(self) -> Crs:
@@ -95,6 +120,8 @@ class VectorDataSet(DataSet):
             "name",
             "project",
         )
+        verbose_name = _("Vector Dataset")
+        verbose_name_plural = _("Vector Datasets")
 
     project = models.ForeignKey(
         Project,
@@ -104,6 +131,10 @@ class VectorDataSet(DataSet):
     )
     geometry_type_simple = models.CharField(max_length=1000, null=False, default="UNSET")
     geometry_type_wkb = models.CharField(max_length=1000, null=False, default="UNSET")
+
+    @property
+    def dataset_type(self):
+        return "vector"
 
     @property
     def fields_to_qsl(self) -> list[QslField]:
@@ -140,6 +171,8 @@ class RasterDataSet(DataSet):
             "name",
             "project",
         )
+        verbose_name = _("Raster Dataset")
+        verbose_name_plural = _("Raster Datasets")
 
     project = models.ForeignKey(
         Project,
@@ -147,6 +180,10 @@ class RasterDataSet(DataSet):
         related_query_name="raster_dataset",
         on_delete=models.CASCADE,
     )
+
+    @property
+    def dataset_type(self):
+        return "raster"
 
     @property
     def to_qsl(self) -> Raster:
@@ -173,6 +210,8 @@ class CustomDataSet(DataSet):
             "name",
             "project",
         )
+        verbose_name = _("Custom Dataset")
+        verbose_name_plural = _("Custom Datasets")
 
     project = models.ForeignKey(
         Project,
@@ -180,6 +219,10 @@ class CustomDataSet(DataSet):
         related_query_name="custom_dataset",
         on_delete=models.CASCADE,
     )
+
+    @property
+    def dataset_type(self):
+        return "custom"
 
     @property
     def to_qsl(self) -> Custom:
@@ -206,6 +249,8 @@ class Field(models.Model):
             "name",
             "vector_dataset",
         )
+        verbose_name = _("Vector Dataset Field")
+        verbose_name_plural = _("Vector Dataset Fields")
 
     name = models.CharField(null=False, max_length=1000)
     type = models.CharField(null=False, max_length=1000)

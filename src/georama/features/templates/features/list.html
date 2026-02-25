@@ -1,0 +1,8 @@
+{% extends 'core/entity_list.html' %}
+{% load static i18n published_as_extras %}
+
+{%  block list_item_image %}
+    <img src="{% static 'images/OGC_Logo.svg' %}"
+         alt="{% trans 'OGC Logo' %}"
+         class="rounded img-thumbnail preview-image"/>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% load model_extras %}
+{{ permissions }}
+<div class="container pt-2 permissions">
+    <div class="row p-2 border-bottom text-muted">
+        <div class="col-4">Name</div>
+        <div class="col-8 d-flex justify-content-between">
+        {% for action in permissions.actions %}
+            <div class="flex-fill text-center">{{ action|capfirst }}</div>
+        {% endfor %}
+        </div>
+    </div>
+    {% if permissions.lookup.groups|length > 0 %}
+    <div class="row p-2 border-bottom">
+        {% for group in permissions.lookup.groups %}
+            <div class="col-4 permission-icon" title="Group {{ group.name }}">
+                <i class="fa fa-users text-muted"></i>
+                <span class="pl-0">{{ group.name }}</span>
+            </div>
+            <div class="col-8 d-flex justify-content-between">
+                {% for action in permissions.actions %}
+                {% get_dict_value_by_key group action as group_permission %}
+                <a class="flex-fill text-center" role="button"
+                     onclick="{% if group_permission.allowed %}remove_permission('{{ group.id }}', {{ group_permission.ids }}, 'group'){% else %}assign_permission('{{ group.id }}', {{ group_permission.ids }}, 'group'){% endif %}">
+                    <i class="fa {{ group_permission.icon }} align-self-center {% if group_permission.allowed %} text-primary {% else %} text-muted {% endif %}"></i>
+                </a>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if permissions.lookup.users|length > 0 %}
+    <div class="row p-2 border-bottom">
+        {% for user in permissions.lookup.users %}
+            <div class="col-4 permission-icon" title="User {{ group.name }}">
+                <i class="fa fa-user text-muted"></i>
+                <span class="pl-0">{{ user.name }}</span>
+            </div>
+            <div class="col-8 d-flex justify-content-between">
+            {% for action in permissions.actions %}
+                {% get_dict_value_by_key user action as user_permission %}
+                <a class="flex-fill text-center" role="button"
+                     onclick="{% if user_permission.allowed %}remove_permission('{{ user.id }}', {{ user_permission.ids }}, 'user'){% else %}assign_permission('{{ user.id }}', {{ user_permission.ids }}, 'user'){% endif %}">
+                    <i class="fa {{ user_permission.icon }} {% if user_permission.allowed %} text-primary {% else %} text-muted {% endif %}"></i>
+                </a>
+            {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function assign_permission(principal_id, permission_ids, principal_type) {
+        fetch(`{% url "assign_permission_to_user_or_group" %}`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                    principal_id: principal_id,
+                    permission_ids: permission_ids,
+                    principal_type: principal_type
+                })
+        })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    console.log(response);
+                }
+            });
+    }
+
+    function remove_permission(principal_id, permission_ids, principal_type) {
+        fetch(`{% url "remove_permission_from_user_or_group" %}`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                    principal_id: principal_id,
+                    permission_ids: permission_ids,
+                    principal_type: principal_type
+                })
+        })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    console.log(response);
+                }
+            });
+    }
+</script>

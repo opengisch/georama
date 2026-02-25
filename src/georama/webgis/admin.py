@@ -58,7 +58,7 @@ class LayerWmsAdmin(admin.ModelAdmin):
                 raster_datasets=RasterDataSet.objects.all(),
                 vector_datasets=VectorDataSet.objects.all(),
                 custom_datasets=CustomDataSet.objects.all(),
-                publish_dataset_as_wms_view_name="webgis_publish_dataset_as_wms",
+                publish_dataset_as_wms_view_name="webgis:publish_dataset_as_wms",
             )
         )
         return TemplateResponse(
@@ -69,12 +69,12 @@ class LayerWmsAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         extra_context["wms_get_capabilities_url"] = (
             "{}?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0".format(
-                reverse("webgis_ogc_entry")
+                reverse("webgis:ogc_entry")
             )
         )
         extra_context["wfs_get_capabilities_url"] = (
             "{}?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0".format(
-                reverse("webgis_ogc_entry")
+                reverse("webgis:ogc_entry")
             )
         )
         return super().changelist_view(
@@ -94,11 +94,14 @@ class LayerWmtsAdmin(admin.ModelAdmin):
 
 class LayerGroupMpAdmin(TreeAdmin):
     form = movenodeform_factory(models.LayerGroupMp)
-    list_display = ("name",)
+    list_display = ("name", "theme__name")
 
     def move_node(self, request, extra_context=None):
         # Call the original method without the extra_context
         return super().move_node(request)
+
+    def has_add_permission(self, request):
+        return False
 
 
 class LayergroupmpInlines(admin.TabularInline):
@@ -106,6 +109,9 @@ class LayergroupmpInlines(admin.TabularInline):
     extra = 2
     verbose_name = _("Groupe de couche")
     verbose_name_plural = _("Groupes de couches")
+
+    def has_add_permission(self, request, obj):
+        return False
 
 
 class ThemeAdmin(SortableAdminMixin, admin.ModelAdmin):
@@ -143,9 +149,29 @@ class ThemeAdmin(SortableAdminMixin, admin.ModelAdmin):
 class OgcServerAdmin(admin.ModelAdmin):
     list_display = ("name", "url")
 
+    def has_add_permission(self, request):
+        return False
+
+    def get_readonly_fields(self, request, obj: models.OgcServer):
+        if obj.type == "georama.webgis":
+            return [
+                "url",
+                "type",
+                "credential",
+                "image_type",
+                "wfs_support",
+                "is_single_tile",
+                "namespace",
+                "name",
+                "description",
+                "url_wfs",
+                "attributes",
+            ]
+
 
 admin.site.register(models.LayerGroupMp, LayerGroupMpAdmin)
-admin.site.register(models.OgcServer, OgcServerAdmin)
 admin.site.register(models.PublishedAsTheme, ThemeAdmin)
 admin.site.register(models.PublishedAsLayerWms, LayerWmsAdmin)
-admin.site.register(models.PublishedAsLayerWmts, LayerWmtsAdmin)
+# currently this is not specified how it might work
+# admin.site.register(models.PublishedAsLayerWmts, LayerWmtsAdmin)
+# admin.site.register(models.OgcServer, OgcServerAdmin)

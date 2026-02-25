@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+    {{ block.super }}
+{% endblock %}
+
+
+{% block header %}
+    <header class="main-header">
+        <nav class="navbar navbar-expand-lg bg-body border-bottom sticky-top">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="{% url "landing" %}">
+                    <img src="{% static 'images/main_plain.svg' %}" alt="Georama" class="d-inline-block align-text-top">
+                    <span class="navbar-brand-domain text-nowrap ms-2">{{ site_title }}</span>
+                </a>
+                <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="menu-main navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item align-content-center">
+                            {% url "landing" as landing_url %}
+                            <a class="nav-link {% if request.path == landing_url %}fw-bold active{% endif %}" href="{{ landing_url }}">Home</a>
+                        </li>
+                        {% for item in menu_items %}
+                            <li class="nav-item align-content-center">
+                                {% url item.app_index as item_index_url%}
+                                <a class="nav-link {% if request.resolver_match.app_name == item.app_label %}fw-bold active{% endif %}" href="{{ item_index_url }}">
+                                    {{ item.title }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                        {% if request.user.is_staff %}
+                        <li class="nav-item align-content-center">
+                            {% url "settings" as settings_url%}
+                            <a class="nav-link {% if request.path == settings_url %}fw-bold active{% endif %}" href="{{ settings_url }}">Settings</a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item align-items-center">
+                            <div class="nav-link">
+                                {% if user.is_authenticated %}
+                                    <a class="btn btn-outline-secondary" href="/logout">Logout</a>
+                                {% else %}
+                                    <a class="btn btn-outline-secondary" href="/login">Login</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                        <li class="nav-item align-items-center">
+                            <div class="nav-link ps-0">
+                                <a id="themeToggle"
+                                   class="btn btn-outline-secondary"
+                                   role="button"
+                                   aria-label="Toggle theme">
+                                    <i id="themeIcon" class="bi"></i>
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <section class="section-block" id="modules">
+        <div class="container text-center">
+            <h3 class="fw-bold text-center mb-4">Explore the Modules</h3>
+            <p class="text-muted mb-2">&nbsp;</p>
+            <div class="mindmap">
+                <div class="mindmap-center">
+                    <img src="{% static 'images/main.svg' %}" alt="Georama" loading="lazy">
+                </div>
+                <div class="mindmap-node" style="--angle:0deg;">
+                    <div class="mindmap-card">
+                        <div class="icon-circle mb-2"><img src="{% static "/images/login-page.svg" %}"
+                                                           alt="Login"
+                                                           aria-hidden="true" loading="lazy"></div>
+                        <h5 class="mb-1">Authentication</h5>
+                        <p class="mb-2">Secure sign-in workflows for every user.</p>
+                        {% if user.is_authenticated %}
+                            <a class="btn btn-outline-secondary btn-sm" href="/logout">Logout</a>
+                        {% else %}
+                            <a class="btn btn-outline-secondary btn-sm" href="/login">Visit Login</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="mindmap-node" style="--angle:72deg;">
+                    <div class="mindmap-card">
+                        <div class="icon-circle mb-2"><img src="{% static "/images/admin-page.svg" %}"
+                                                           alt="Admin"
+                                                           aria-hidden="true" loading="lazy"></div>
+                        <h5 class="mb-1">Admin Panel</h5>
+                        <p class="mb-2">Manage data sources, users, and permissions.</p>
+                        <a class="btn btn-outline-secondary btn-sm" href="/admin/">Go Admin</a>
+                    </div>
+                </div>
+                <div class="mindmap-node" style="--angle:144deg;">
+                    <div class="mindmap-card">
+                        <div class="icon-circle mb-2"><img src="{% static "/images/wms-endpoints.svg" %}"
+                                                           alt="WMS Endpoint"
+                                                           aria-hidden="true" loading="lazy"></div>
+                        <h5 class="mb-1">WMS Endpoint</h5>
+                        <p class="mb-2">Integrate tiled layers with standard requests.</p>
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <a class="btn btn-outline-secondary btn-sm"
+                               href="/maps?service=WMS&amp;request=GetCapabilities&amp;version=1.3.0">WMS
+                                Capabilities</a>
+                            <button class="btn btn-sm btn-outline-secondary" type="button"
+                                    onclick="copyCodeToClipboard()">📋 Copy URL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mindmap-node" style="--angle:216deg;">
+                    <div class="mindmap-card">
+                        <div class="icon-circle mb-2"><img src="{% static "/images/oapif-endpoints.svg" %}"
+                                                           alt="OAPIF Features"
+                                                           aria-hidden="true" loading="lazy"></div>
+                        <h5 class="mb-1">OAPIF Features</h5>
+                        <p class="mb-2">RESTful vector access for modern apps.</p>
+                        <a class="btn btn-outline-secondary btn-sm" href="/features">Explore OAPIF</a>
+                    </div>
+                </div>
+                <div class="mindmap-node" style="--angle:288deg;">
+                    <div class="mindmap-card">
+                        <div class="icon-circle mb-2"><img src="{% static "/images/webgis.svg" %}"
+                                                           alt="WebGIS"
+                                                           aria-hidden="true" loading="lazy"></div>
+                        <h5 class="mb-1">WebGIS</h5>
+                        <p class="mb-2">Dive into the GeoGirafe frontend.</p>
+                            <a class="btn btn-outline-secondary btn-sm"
+                               href="{{ geogirafe_url }}"
+                               target="_blank">Open WebGIS
+                            </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section-block py-5" id="docs">
+        <div class="container">
+            <div class="cta-panel rounded-4 p-4 p-lg-5 shadow-sm text-center">
+                <h3 class="fw-bold mb-3">📘 Read the Docs</h3>
+                <p class="text-muted mb-4">Dive into the full documentation to get started with setup, API, and module
+                    structure.</p>
+                <a href="https://docs.georama.io" class="btn btn-outline-secondary btn-cta btn-lg"
+                   target="_blank" rel="noopener noreferrer">View
+                    Documentation</a>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function copyCodeToClipboard() {
+            const code = "{{ maps_endpoint }}?service=WMS&request=GetCapabilities&version=1.3.0";
+            navigator.clipboard.writeText(code).then(
+                () => {
+                    alert(`Url: ${code} copied to clipboard!`);
+                },
+                () => {
+                    alert("Failed to copy.");
+                }
+            );
+        }
+    </script>
+{% endblock %}

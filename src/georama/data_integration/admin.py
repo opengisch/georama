@@ -1,8 +1,6 @@
-import hashlib
 import logging
 import os
-from dataclasses import dataclass, field
-from pathlib import Path
+from dataclasses import fields
 
 from django.contrib import admin
 from django.http import HttpRequest
@@ -10,7 +8,10 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 
-from georama.data_integration.data_integration_config import Config
+from georama.data_integration.lib.data_integration_config import Config
+from georama.data_integration.lib.qgis_project_file_structure import (
+    QgisProjectFileStructure,
+)
 from georama.data_integration.models import (
     CustomDataSet,
     Mandant,
@@ -18,111 +19,6 @@ from georama.data_integration.models import (
     RasterDataSet,
     VectorDataSet,
 )
-
-
-@dataclass
-class QgisProject:
-    parent: "QgisProjectGroup"
-    name: str
-    suffix: str
-
-    @property
-    def qualified_config_name(self) -> str:
-        return f"{self.name}.json"
-
-    @property
-    def qualified_project_name(self) -> str:
-        return f"{self.name}{self.suffix}"
-
-    @property
-    def config_path(self) -> str:
-        return os.path.join(
-            self.parent.parent.path, self.parent.name, self.qualified_config_name
-        )
-
-    @property
-    def project_path(self) -> str:
-        return os.path.join(
-            self.parent.parent.path, self.parent.name, self.qualified_project_name
-        )
-
-    @property
-    def has_config(self) -> bool:
-        return os.path.isfile(self.config_path)
-
-    @property
-    def hash(self) -> str:
-        if self.has_config:
-            with open(self.config_path, mode="rb") as cf:
-                return hashlib.md5(cf.read()).hexdigest()
-
-
-@dataclass
-class QgisProjectGroup:
-    parent: "QgisProjectFileStructure"
-    name: str
-    projects: list[QgisProject] = field(default_factory=list)
-
-    @property
-    def project_paths(self) -> list[str]:
-        return [project.project_path for project in self.projects]
-
-    @property
-    def config_paths(self) -> list[str]:
-        return [project.config_path for project in self.projects]
-
-    @property
-    def path(self) -> str:
-        return os.path.join(self.parent.path, self.name)
-
-    def is_file(self, name) -> bool:
-        return os.path.isfile(os.path.join(self.path, name))
-
-    def create_projects(self, allowed_extensions: list[str]):
-        for name in os.listdir(self.path):
-            if self.is_file(name):
-                project_file_name = Path(name).stem
-                project_file_suffix = name.replace(project_file_name, "")
-                if project_file_suffix in allowed_extensions:
-                    project = QgisProject(
-                        parent=self, name=project_file_name, suffix=project_file_suffix
-                    )
-                    self.projects.append(project)
-
-    def find_project_by_name(self, name) -> QgisProject | None:
-        for project in self.projects:
-            if project.name == name:
-                return project
-
-
-@dataclass
-class QgisProjectFileStructure:
-    path: str
-    groups: list[QgisProjectGroup] = field(default_factory=list)
-
-    def is_dir(self, name) -> bool:
-        return os.path.isdir(os.path.join(self.path, name))
-
-    def dirs(self) -> list[str]:
-        dirs = []
-        for name in os.listdir(self.path):
-            dir_path = os.path.join(self.path, name)
-            if os.path.isdir(dir_path):
-                dirs.append(name)
-            else:
-                pass
-        return dirs
-
-    def create_groups(self, allowed_extensions: list[str]):
-        for name in self.dirs():
-            group = QgisProjectGroup(parent=self, name=name)
-            group.create_projects(allowed_extensions=allowed_extensions)
-            self.groups.append(group)
-
-    def find_group_by_name(self, name) -> QgisProjectGroup | None:
-        for group in self.groups:
-            if group.name == name:
-                return group
 
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -134,6 +30,7 @@ class ProjectAdmin(admin.ModelAdmin):
         "custom_dataset_count",
         "project_file_uptodate",
     ]
+    readonly_fields = ["name", "title", "version", "hash", "integration_date", "mandant"]
 
     def vector_dataset_count(self, obj):
         return obj.vector_datasets.count()
@@ -163,14 +60,14 @@ class ProjectAdmin(admin.ModelAdmin):
             export_url = reverse(
                 "georama.data_integration:export_qgis_project",
                 kwargs={
-                    "mandant_name": obj.mandant.name,
+                    "folder_name": obj.mandant.name,
                     "project_name": obj.name,
                 },
             )
             integrate_url = reverse(
                 "georama.data_integration:register_qgis_project",
                 kwargs={
-                    "mandant_name": obj.mandant.name,
+                    "folder_name": obj.mandant.name,
                     "project_name": obj.name,
                 },
             )
@@ -236,8 +133,8 @@ class ProjectAdmin(admin.ModelAdmin):
             request, "admin/data_integration/project/qgis_projects.html", context
         )
 
-    def get_readonly_fields(self, request, obj=None):
-        return ["integration_date", "hash"]
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 class DataSetAdmin(admin.ModelAdmin):
@@ -258,6 +155,8 @@ class DataSetAdmin(admin.ModelAdmin):
         "name",
         "title",
         "bbox",
+        "minimum_scale",
+        "maximum_scale",
         "source_detail",
         "crs_detail",
         "path",
@@ -265,13 +164,19 @@ class DataSetAdmin(admin.ModelAdmin):
     ]
 
     def source_detail(self, obj):
-        snippet_parts = ["<ul>"]
-        for key in obj.source:
-            snippet_parts.append(
-                f'<li><label>{key}</label> → <span class="badge badge-secondary">{obj.source[key]}</span></li>'  # noqa: E501
-            )
-        snippet_parts.append("</ul>")
-        return mark_safe("".join(snippet_parts))
+        source = obj.source_to_qsl[0]
+        for source_field in fields(source):
+            source_config = getattr(source, source_field.name)
+            if source_config is not None:
+                source_list = ["<ul>"]
+                source = obj.source_to_qsl[0]
+                for field in fields(source_config):
+                    source_list.append(
+                        f"<li>{field.name}: {getattr(source_config, field.name)}</li>"
+                    )
+                source_list.append("</ul>")
+                snippet = f"<label>{source_field.name}:</label>{''.join(source_list)}"
+                return mark_safe(snippet)
 
     source_detail.short_description = "Source"
 
@@ -285,6 +190,9 @@ class DataSetAdmin(admin.ModelAdmin):
         return mark_safe("".join(snippet_parts))
 
     crs_detail.short_description = "Crs"
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 class RasterDataSetAdmin(DataSetAdmin):
@@ -326,7 +234,10 @@ class VectorDataSetAdmin(DataSetAdmin):
 
 
 class MandantAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ["name", "description"]
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 # Register your models here.

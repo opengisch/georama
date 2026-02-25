@@ -1,0 +1,85 @@
+{% extends 'core/published_item_index.html' %}
+{% load static i18n %}
+
+{% block list_actions %}
+    <a class="navbar-brand" aria-hidden="true">{% trans 'Capabilities' %}</a>
+    <div class="btn-group" role="group" aria-label="List Actions">
+        {% blocktranslate asvar title %}Request the WMS capability document of this server{% endblocktranslate %}
+        <a href="{% url 'maps:maps_ogc_entry' %}?{{ wms_get_capabilities_params }}"
+           target="_blank" class="btn btn-outline-primary"
+           data-bs-toggle="tooltip"
+           title="{{ title }}"
+           aria-label="{{ title }}"
+           role="button"><i class="fa-solid fa-map"></i></a>
+        {% blocktranslate asvar title %}Request the WFS capability document of this server{% endblocktranslate %}
+        <a href="{% url 'maps:maps_ogc_entry' %}?{{ wfs_get_capabilities_params }}"
+           target="_blank" class="btn btn-outline-primary"
+           data-bs-toggle="tooltip"
+           title="{{ title }}"
+           aria-label="{{ title }}"
+           role="button"><i class="fa-solid fa-shapes"></i></a>
+    </div>
+{% endblock %}
+
+{% block item_card_image %}
+{% blocktranslate asvar title %}WMS preview{% endblocktranslate %}
+<img src="{{ item.preview_as_base64 }}"
+     alt="{{ title }}"
+     data-bs-toggle="tooltip"
+     title="{{ title }}"
+     aria-label="{{ title }}"
+     class="card-img-top p-3"/>
+{% endblock %}
+
+{% block item_card_badges %}
+    {% if item.queryable %}
+    {% blocktranslate asvar title with val=item.queryable|yesno:"yes,no,unknown" %}WMS layer provides a twin WFS layer to query features: {{ val }}{% endblocktranslate %}
+    <span class="badge rounded-pill text-bg-primary"
+          data-bs-toggle="tooltip"
+          title="{{ title }}"
+          aria-label="{{ title }}">
+        WfsQuery</span>
+    {% endif %}
+
+    {#   TODO PI: These functionalities do not exist yet #}
+    {% if False %}
+    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides a legend: {{ val }}{% endblocktranslate %}
+    <span class="badge rounded-pill text-bg-primary"
+          data-bs-toggle="tooltip"
+          title="{{ title }}"
+          aria-label="{{ title }}">
+        GetLegend</span>
+    {% endif %}
+    {#   TODO PI: These functionalities do not exist yet #}
+    {% if False %}
+    {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides feature infos at coordinates: {{ val }}{% endblocktranslate %}
+    <span class="badge rounded-pill text-bg-primary"
+          data-bs-toggle="tooltip"
+          title="{{ title }}"
+          aria-label="{{ title }}">
+        GetFeatureInfo</span>
+    {% endif %}
+{% endblock %}
+
+{% block item_card_footer %}
+    {% blocktranslate asvar title%}Open GetMap request in new tab{% endblocktranslate %}
+    <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wms_url_params }}"
+       target="_blank" class="btn btn-outline-primary"
+       role="button"
+       data-bs-toggle="tooltip"
+       title="{{ title }}"
+       aria-label="{{ title }}">
+        <i class="fa fa-map"></i>
+    </a>
+    {% if item.queryable %}
+    {% blocktranslate asvar title%}Open GetFeature request in new tab{% endblocktranslate %}
+    <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wfs_url_params }}"
+       target="_blank" class="btn btn-outline-primary"
+       role="button"
+       data-bs-toggle="tooltip"
+       title="{{ title }}"
+       aria-label="{{ title }}">
+        <i class="fa fa-code"></i>
+    </a>
+    {% endif %}
+{% endblock %}

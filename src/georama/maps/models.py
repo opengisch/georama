@@ -1,7 +1,11 @@
+import base64
 import logging
+from dataclasses import fields
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.db import models
+from django.urls import reverse
+from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from osgeo import osr as osgeo_osr
 from qgis_server_light.interface.dispatcher import RedisQueue
@@ -9,7 +13,15 @@ from qgis_server_light.interface.job import QslGetMapJob, WmsGetMapParams
 from qgis_server_light.interface.qgis import BBox
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
+from georama.core.models.mixins import GeoramaPermissionMixin
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
+from georama.maps.apps import central_app_label
+from georama.maps.interfaces.georama.requests import (
+    QslGetMapRequest,
+    RequestType,
+    ServiceType,
+    Version,
+)
 from georama.maps.maps_config import Config
 
 LOGGER = logging.getLogger(__name__)
@@ -19,7 +31,7 @@ class PublishedAsWmsAbstract(PublishedAs):
     class Meta:
         abstract = True
 
-    published_as_type = "maps"
+    published_as_type = central_app_label
     extent_buffer = models.FloatField(default=0.0, null=False)
     queryable = models.BooleanField(default=True, null=True, blank=True)
 
@@ -27,7 +39,8 @@ class PublishedAsWmsAbstract(PublishedAs):
     extent_wgs84 = models.CharField(max_length=1000, null=True, blank=True)
     preview = models.BinaryField(null=True, blank=True)
 
-    preview_dimensions = (250, 250)
+    preview_dimensions: tuple[int, int] = (250, 250)
+    preview_dimensions_new_tab: tuple[int, int] = (1500, 1500)
     crs_transform_to_wgs84 = None
 
     @property
@@ -56,12 +69,89 @@ class PublishedAsWmsAbstract(PublishedAs):
             )
 
     @property
+    def create_preview(self) -> bool:
+        return True
+
+    @property
+    def bound_dataset_type(self) -> str | None:
+        bound_dataset = self.bound_dataset
+        if isinstance(bound_dataset, RasterDataSet):
+            return "raster"
+        elif isinstance(bound_dataset, VectorDataSet):
+            return "vector"
+        elif isinstance(bound_dataset, CustomDataSet):
+            return "custom"
+        return None
+
+    @property
     def is_queryable(self):
         # Currently we do allow querying on VectorDatasets only
         if isinstance(self.bound_dataset, VectorDataSet):
             return self.queryable
         else:
             return False
+
+    @property
+    def create_wms_url_params(self) -> str:
+        dataset = self.bound_dataset
+        bbox = BBox.from_string(self.extent).to_2d_list()
+        params = QslGetMapRequest(
+            SERVICE=ServiceType.wms.value,
+            REQUEST=RequestType.get_map.value,
+            VERSION=Version.v_1_3_0.value,
+            LAYERS=[self.name],
+            BBOX=bbox,
+            CRS=dataset.crs_to_qsl.auth_id,
+            WIDTH=self.preview_dimensions_new_tab[0],
+            HEIGHT=self.preview_dimensions_new_tab[1],
+            FORMAT="image/png",
+            TRANSPARENT=True,
+            STYLES="",
+            DPI=72,
+            FILTER=None,
+            MAP_RESOLUTION=72,
+            FORMAT_OPTIONS="dpi%3A72",
+        )
+        url_params = {}
+        for field in fields(QslGetMapRequest):
+            field_value = getattr(params, field.name)
+            if isinstance(field_value, list):
+                field_value = ",".join([str(value) for value in field_value])
+            if field_value is not None:
+                url_params[field.name] = field_value
+        return urlencode(url_params)
+
+    @property
+    def create_wfs_url_params(self, output_format: str = "text/xml") -> str:
+        url_params = {
+            "SERVICE": "WFS",
+            "REQUEST": "GetFeature",
+            "VERSION": "2.0.0",
+            # TODO PI: Can't use WfsOperation, circular reference
+            # "TYPENAMES": f"{WfsOperation.own_namespace}:{self.name}",
+            "TYPENAMES": f"georama:{self.name}",
+            "SRSNAME": self.bound_dataset.crs_to_qsl.ogc_urn,
+            "OUTPUTFORMAT": output_format,
+        }
+        return urlencode(url_params)
+
+    @staticmethod
+    def create_wms_capabilities_url_params():
+        url_params = {
+            "SERVICE": "WMS",
+            "REQUEST": "GetCapabilities",
+            "VERSION": "1.3.0",
+        }
+        return urlencode(url_params)
+
+    @staticmethod
+    def create_wfs_capabilities_url_params():
+        url_params = {
+            "SERVICE": "WFS",
+            "REQUEST": "GetCapabilities",
+            "VERSION": "2.0.0",
+        }
+        return urlencode(url_params)
 
     @property
     def readable_identifier(self) -> str:
@@ -72,6 +162,20 @@ class PublishedAsWmsAbstract(PublishedAs):
     def permissions(self) -> list[PermissionInterface]:
         # No need for Update or delete with WMS...
         return self.read_permissions
+
+    @property
+    def endpoint_url_wms(self):
+        url = reverse(f"{self._meta.app_label}:maps_ogc_entry")
+        return f"{url}?{self.create_wms_url_params}"
+
+    @property
+    def endpoint_url_wfs(self):
+        url = reverse(f"{self._meta.app_label}:maps_ogc_entry")
+        return f"{url}?{self.create_wfs_url_params}"
+
+    @property
+    def endpoint_url(self):
+        return self.endpoint_url_wms
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         dataset = self.bound_dataset
@@ -86,10 +190,10 @@ class PublishedAsWmsAbstract(PublishedAs):
             # we do not handle layers which have no CRS definition!
             bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
             self.extent_wgs84 = bbox_wgs84.to_2d_string()
-
-            # Generate layer preview image
-            generate_preview_image_sync = async_to_sync(self.generate_preview_image)
-            self.preview = generate_preview_image_sync()
+            if self.create_preview:
+                # Generate layer preview image
+                generate_preview_image_sync = async_to_sync(self.generate_preview_image)
+                self.preview = generate_preview_image_sync()
 
         super().save(
             force_insert=force_insert,
@@ -157,11 +261,27 @@ class PublishedAsWmsAbstract(PublishedAs):
         spatial_ref.ImportFromEPSG(epsg_code)
         return spatial_ref
 
+    @property
+    def preview_as_base64(self):
+        if self.preview is not None:
+            return f"data:image/png;base64,{base64.b64encode(self.preview).decode()}"
+        else:
+            return None
 
-class PublishedAsWms(PublishedAsWmsAbstract):
+    @property
+    def preview_width(self):
+        return self.preview_dimensions[0]
+
+    @property
+    def preview_height(self):
+        return self.preview_dimensions[1]
+
+
+class PublishedAsWms(GeoramaPermissionMixin, PublishedAsWmsAbstract):
     class Meta:
         verbose_name = f'WMS {_("Layer")}'
         verbose_name_plural = f'WMS {_("Layers")}'
+        permissions = [("can_manage_object_permissions", "Can manage object permissions")]
 
     raster_dataset = models.ForeignKey(
         RasterDataSet,
@@ -208,3 +328,6 @@ class PublishedAsWms(PublishedAsWmsAbstract):
     @property
     def get_custom_dataset(self) -> CustomDataSet:
         return self.custom_dataset
+
+    def get_absolute_url(self):
+        return reverse(f"{self._meta.app_label}:layer-detail", kwargs={"pk": self.pk})

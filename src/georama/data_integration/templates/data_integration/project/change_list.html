@@ -1,0 +1,165 @@
+{% extends 'core/entity_list.html' %}
+{% load static i18n %}
+{{ items }}
+{% block change_list_item %}
+    {{ items }}
+    <h4 class="mt-3">{{ item.name }}</h4>
+
+    {% for project_item in item.projects %}
+    <div class="list-group-item list-group-item-action p-4">
+
+        <div class="d-flex flex-row flex-wrap">
+
+            <!-- Thumbnail -->
+
+            <div class="me-3">
+
+                {% if project_item.config is None %}
+                    <img src="{% static project_item.icon %}"
+                             alt="{% trans 'QGIS Logo' %}"
+                             class="rounded img-thumbnail preview-image"/>
+                {% else %}
+                    <a href="{% url 'data_integration:project-detail' item.name project_item.name %}">
+                        <img src="{% static project_item.icon %}"
+                             alt="{% trans 'QGIS Logo' %}"
+                             class="rounded img-thumbnail preview-image"/>
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Title and description -->
+
+            <div class="d-flex flex-column flex-grow-1 justify-content-around">
+
+                <div>
+                    {% if project_item.config is None %}
+                        <h4 class="mb-2">{{ project_item.name }}</h4>
+                    {% else %}
+                        <a href="{% url 'data_integration:project-detail' item.name project_item.name %}"
+                           class="link-offset-3 link-underline link-underline-opacity-75">
+                            <h4 class="mb-2">{{ project_item.name }}</h4>
+                        </a>
+                    {% endif %}
+                    <div class="mb-1">{{ project_item.project_path_as_string }}</div>
+                </div>
+
+                <!-- Pills with project states -->
+
+                <div class="align-content-bottom">
+                    {% if project_item.database_representation %}
+                        {% if project_item.hash == project_item.database_representation.hash %}
+
+                            {% blocktranslate asvar title%}The QGIS project in Georama has the same state as on disk{% endblocktranslate %}
+                            <span class="badge rounded-pill text-bg-primary"
+                                  data-bs-toggle="tooltip"
+                                  title="{{ title }}"
+                                  aria-label="{{ title }}">up to date</span>
+                        {% else %}
+
+                            {% blocktranslate asvar title%}The QGIS project on disk has been changed, re-link to update the project{% endblocktranslate %}
+                            <span class="badge rounded-pill text-bg-warning"
+                                  title="{{ title }}"
+                                  aria-label="{{ title }}">outdated</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Buttons group with layer actions -->
+
+            <div class="align-content-center ms-auto">
+                <div class="btn-group" role="group" aria-label="Project actions">
+
+                    {% blocktranslate asvar title%}Show QGIS project details and dataset list{% endblocktranslate %}
+                    <a href="{% if project_item.config %}{% url 'data_integration:project-detail' item.name project_item.name %}{% else %}#{% endif %}"
+                       class="btn btn-outline-primary{% if project_item.config is None %} disabled{% endif %}" role="button"
+                       title="{{ title }}"
+                       aria-label="{{ title }}"
+                       data-bs-toggle="tooltip">
+                        <i class="fa fa-eye"></i>
+                    </a>
+
+                    {% if project_item.database_representation %}
+                        {% blocktranslate asvar title%}Refresh QGIS project in Georama by loading it from disk{% endblocktranslate %}
+                    {% else %}
+                        {% blocktranslate asvar title%}Link QGIS project on disk in Georama{% endblocktranslate %}
+                    {% endif %}
+                    {% if perms.data_integration.edit_project or perms.data_integration.add_project %}
+                        <a onclick="showWaitModalOverlay()"
+                           href="{% url 'data_integration:project-export' item.name project_item.name %}"
+                           class="btn btn-outline-primary" role="button"
+                           title="{{ title }}"
+                           aria-label="{{ title }}"
+                           data-bs-toggle="tooltip">
+                            <i class="{% if project_item.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
+                        </a>
+                    {% endif %}
+                    {% blocktranslate asvar title%}Remove QGIS project from Georama by unlinking it{% endblocktranslate %}
+
+                    {% if perms.data_integration.delete_project %}
+                        {% if project_item.database_representation %}
+                            <a href="{% url 'data_integration:project-delete' project_item.database_representation.pk %}"
+                               class="btn btn-outline-danger" role="button"
+                               title="{{ title }}"
+                               aria-label="{{ title }}"
+                               data-bs-toggle="tooltip">
+                                <i class="fa fa-unlink"></i>
+                            </a>
+                        {% else %}
+                            <a href="#" class="btn btn-outline-danger disabled"
+                               disabled tabindex="-1" role="button" aria-disabled="true"
+                               title="{{ title }}"
+                               aria-label="{{ title }}"
+                               data-bs-toggle="tooltip">
+                                <i class="fa fa-unlink"></i>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+{% endblock %}
+{% block pagination %}
+<style>
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(72, 78, 101, 0.95);
+        display: none;
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    .modal-overlay video {
+        width: 30%;
+        margin-top: 10%;
+    }
+    .wait-message {
+        color: rgb(27 32 51);
+        font-size: 2rem;
+        font-weight: bold;
+        text-align: center;
+    }
+</style>
+<div id="please-wait-modal-overlay" class="modal-overlay">
+    <video autoplay loop muted>
+        <source src="{% static 'logo/please_wait.mp4' %}" type="video/mp4">
+    </video>
+    <div class="wait-message">Please wait...</div>
+</div>
+<script>
+    function showWaitModalOverlay() {
+        document.getElementById('please-wait-modal-overlay').style.display = 'flex';
+    }
+</script>
+
+{% endblock %}

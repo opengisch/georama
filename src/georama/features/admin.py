@@ -4,11 +4,12 @@ from django.forms import BaseInlineFormSet
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from georama.core.entities.models import save_group_permissions, save_user_permissions
 from georama.data_integration.models import VectorDataSet
 from georama.features.apps import FeaturesConfig
-from georama.features.forms import PublishedAsOgcApiFeaturesForm
+from georama.features.forms import PublishedAsOgcApiFeaturesAdminForm
 from georama.features.models import ColumnOgcApiFeatures, PublishedAsOgcApiFeatures
 
 appname = FeaturesConfig.get_simple_appname()
@@ -37,14 +38,14 @@ def _get_permissions(obj: PublishedAsOgcApiFeatures, permission_type: str):
 
 @admin.register(PublishedAsOgcApiFeatures)
 class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
-    list_display = ["icon_column", "name", "title", "public", "delete_link", "show_published"]
+    list_display = ["icon_column", "name", "title", "public", "operations"]
     list_display_links = ["icon_column", "name", "title"]
     inlines = [ColumnOgcApiFeaturesInline]
     add_form_template = "admin/features/publishedasvectorfeature/publish.html"
     list_editable = ["public"]
     readonly_fields = ["dataset"]
 
-    form = PublishedAsOgcApiFeaturesForm
+    form = PublishedAsOgcApiFeaturesAdminForm
 
     fieldsets = (
         (
@@ -103,7 +104,11 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         vector_datasets = VectorDataSet.objects.all()
         extra_context["vector_datasets"] = [
-            (vd, reverse("publish_as_oapif", args=[vd.id])) for vd in vector_datasets
+            (
+                vd,
+                f'{reverse("features:layer-add", kwargs={"vector_dataset_id": vd.id})}?next={reverse("admin:features_publishedasogcapifeatures_changelist")}',  # noqa 501
+            )
+            for vd in vector_datasets
         ]
         return super().add_view(
             request,
@@ -111,19 +116,28 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
             extra_context=extra_context,
         )
 
-    def delete_link(self, obj: PublishedAsOgcApiFeatures):
-        return mark_safe(
-            '<a href="{}" class="btn btn-high btn-success">&#128465;</a>'.format(
-                reverse("admin:features_publishedasogcapifeatures_delete", args=(obj.pk,))
-            )
-        )
+    def obj_perms_manage_view(self, request, object_pk, extra_context=None):
+        # Call the original but ignore extra_context if needed
+        return super().obj_perms_manage_view(request, object_pk)
 
-    def show_published(self, obj: PublishedAsOgcApiFeatures):
-        return mark_safe(
-            '<a href="{}" class="btn btn-high btn-success">&#128065;</a>'.format(
-                reverse(f"{appname}:collection-detail", args=(str(obj.identifier),))
-            )
-        )
+    def operations(self, obj: PublishedAsOgcApiFeatures):
+        operations = [
+            '<div class="btn-group" role="group">',
+            '<a href="{}" target="_blank" class="btn btn-high btn-success x-1" '
+            'title="{}"><i class="fas fa-map text-xs"></i></a>'.format(
+                reverse(f"{appname}:collection-detail", args=(str(obj.identifier),)),
+                _("Open OAPIF Collection GUI in new Tab"),
+            ),
+            '<a href="{}" target="_blank" class="btn btn-high btn-danger x-1" '
+            'title="{}"><i class="fas fa-trash-alt text-xs"></i></a>'.format(
+                reverse("admin:features_publishedasogcapifeatures_delete", args=(obj.pk,)),
+                _("Delete item"),
+            ),
+            "</div>",
+        ]
+        return mark_safe("".join(operations))
+
+    operations.short_description = "Operations"
 
     def save_model(self, request, obj, form, change):
         permissions_dct = {"read": "", "create": "", "update": "", "delete": ""}

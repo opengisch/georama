@@ -1,0 +1,51 @@
+{% extends 'core/form.html' %}
+{% load model_extras i18n %}
+
+{% block list_actions %}
+    <div class="align-content-center">
+        <div class="btn-group" role="group" aria-label="Permission actions">
+            <span style="pointer-events: none" class="btn btn-high btn-outline-primary" aria-hidden="true">{% trans 'add' %}</span>
+            {% blocktranslate asvar title %}Add Group{% endblocktranslate %}
+            <a href="{{ add_group_url}}"
+               class="btn btn-outline-primary" role="button"
+               data-bs-toggle="tooltip"
+               title="{{ title }}"
+               aria-label="{{ title }}">
+                <i class="fa fa-users"></i>
+            </a>
+            {% blocktranslate asvar title %}Add User{% endblocktranslate %}
+            <a href="{{ add_user_url }}"
+               class="btn btn-outline-primary" role="button"
+               data-bs-toggle="tooltip"
+               title="{{ title }}"
+               aria-label="{{ title }}">
+                <i class="fa fa-user"></i>
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Scrollable form header -->
+    <div class="pt-4 form-content-scrollable">
+
+        <div class="container">
+            <div class="row">
+
+                <!-- Left column-->
+
+                <div class="col form-content-scrollable overflow-auto">
+
+                    <!-- Form content -->
+
+                    {% include "core/permission_table.html" with permissions=object %}
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group, User
 from georama.features.models import PublishedAsOgcApiFeatures
 
 
-class PublishedAsOgcApiFeaturesForm(forms.ModelForm):
+class PublishedAsOgcApiFeaturesAdminForm(forms.ModelForm):
     class Meta:
         model = PublishedAsOgcApiFeatures
         fields = "__all__"
@@ -86,8 +86,10 @@ class PublishedAsOgcApiFeaturesForm(forms.ModelForm):
             # mapping the permission to the field by part of the dict key
             # f.e. field "group_read_permission" to 'wms_read_bdb158db-3501-4563-be37-b2369ccf64e6'  # noqa: E501
             for perm in permission_codenames:
-                permission_keys = PublishedAsOgcApiFeaturesForm.get_first_match_partial_key(
-                    perm_fields, perm.split("_")[1]
+                permission_keys = (
+                    PublishedAsOgcApiFeaturesAdminForm.get_first_match_partial_key(
+                        perm_fields, perm.split("_")[1]
+                    )
                 )
                 if len(permission_keys) > 0:
                     for p_key in permission_keys:
@@ -113,3 +115,27 @@ class PublishedAsOgcApiFeaturesForm(forms.ModelForm):
                         ).exclude(is_superuser=True)
                     else:
                         raise Exception(f"Unknown permission field: {field}")
+
+
+class PublishedAsOgcApiFeaturesForm(forms.ModelForm):
+    read_only_fields = []
+
+    class Meta:
+        model = PublishedAsOgcApiFeatures
+        fields = [
+            "name",
+            "title",
+            "description",
+            "license",
+            "fees",
+            "access_constraints",
+            "default_items",
+            "max_items",
+            "on_exceed",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Alle Felder read-only machen
+        for read_only_field in self.read_only_fields:
+            self.fields[read_only_field].disabled = True

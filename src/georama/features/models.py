@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from georama.core.entities.models import (
     PermissionInterface,
@@ -8,7 +10,9 @@ from georama.core.entities.models import (
     delete_publishedas_db_permissions,
     save_publishedas_db_permissions,
 )
+from georama.core.models.mixins import GeoramaPermissionMixin
 from georama.data_integration.models import Field, VectorDataSet
+from georama.features.apps import central_app_label
 
 COLUMN_TYPE_VALUES = {
     "numeric": "Numerical Type",
@@ -24,7 +28,7 @@ class PublishedAsVectorFeature(PublishedAs):
         ("ERROR", "error"),
         ("THROTTLE", "throttle"),
     )
-    published_as_type = "feature"
+    published_as_type = central_app_label
     column_permission = models.BooleanField(default=False)
     default_items = models.IntegerField(default=10, null=True)
     max_items = models.IntegerField(default=500, null=True)
@@ -63,9 +67,12 @@ class PublishedAsVectorFeature(PublishedAs):
         )
         return self._has_grained_permission(user, permissions, app_name)
 
+    def __str__(self):
+        return f"{self.title or self.name} ({self.__class__.__name__})"
+
 
 class Column(PublishedAsRoleNameSystem):
-    published_as_type = "feature_column"
+    published_as_type = f"{central_app_label}column"
     title = models.CharField(max_length=1000)
 
     @classmethod
@@ -107,6 +114,9 @@ class Column(PublishedAsRoleNameSystem):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return f"{self.title or self.name} ({self.__class__.__name__})"
+
 
 class PublishedAsWfs(PublishedAsVectorFeature):
     dataset = models.ForeignKey(
@@ -137,7 +147,13 @@ class ColumnWfs(Column):
         return self.published_definition
 
 
-class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
+class PublishedAsOgcApiFeatures(GeoramaPermissionMixin, PublishedAsVectorFeature):
+
+    class Meta:
+        permissions = [("can_manage_object_permissions", "Can manage object permissions")]
+        verbose_name = f'OAPIF {_("Layer")}'
+        verbose_name_plural = f'OAPIF {_("Layers")}'
+
     dataset = models.ForeignKey(
         VectorDataSet,
         # TODO: this seems wrong => only because error:
@@ -182,8 +198,22 @@ class PublishedAsOgcApiFeatures(PublishedAsVectorFeature):
                     public=True,
                 ).save()
 
+    def get_absolute_url(self):
+        return reverse(f"{central_app_label}:layer-detail", kwargs={"pk": self.pk})
+
+    @property
+    def endpoint_url(self):
+        return reverse(
+            f"{self._meta.app_label}:collection-detail", kwargs={"collection_id": self.pk}
+        )
+
 
 class ColumnOgcApiFeatures(Column):
+
+    class Meta:
+        verbose_name = f'OAPIF {_("Column")}'
+        verbose_name_plural = f'OAPIF {_("Columns")}'
+
     published_definition = models.ForeignKey(
         PublishedAsOgcApiFeatures,
         related_name="columns",

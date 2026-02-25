@@ -30,6 +30,8 @@ services:
     image: opengisch/qgis-server-light:latest
     env_file:
       - .env
+    environment:
+      - "QSL_REDIS_URL=${QSL_REDIS_URL:-redis://qsl-redis:6379}"
     volumes:
       - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data:ro"
     deploy:

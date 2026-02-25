@@ -18,18 +18,31 @@ Including another URLconf
 from django.urls import path
 
 from georama.data_integration import views
+from georama.data_integration.apps import central_app_label
 
-app_name = "georama.data_integration"
+app_name = central_app_label
 
 urlpatterns = [
     path(
-        "register_qgis_project/<str:mandant_name>/<str:project_name>",
+        "/register_qgis_project/<str:folder_name>/<str:project_name>",
         views.RegisterQgisProject.as_view(),
-        name="register_qgis_project",
+        name="project-register",
     ),
     path(
-        "export_qgis_project/<str:mandant_name>/<str:project_name>",
+        "/export_qgis_project/<str:folder_name>/<str:project_name>",
         views.QgisServerLightExporter.as_view(),
-        name="export_qgis_project",
+        name="project-export",
+    ),
+    path("", views.Index.as_view(), name="index"),
+    path(
+        "/project",
+        views.ProjectListView.as_view(),
+        name="project-list",
+    ),
+    path("/project/<str:pk>/delete", views.DeleteProject.as_view(), name="project-delete"),
+    path(
+        "/project/detail/<str:group_name>/<str:project_name>",
+        views.ProjectDetail.as_view(),
+        name="project-detail",
     ),
 ]
