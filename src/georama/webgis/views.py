@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
@@ -222,6 +223,11 @@ class Index(GeoramaPublishedItemIndex):
     model = PublishedAsTheme
     template_name = "webgis/index.html"
     entity_name = "theme"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["webgis_url"] = settings.WEBGISURL
+        return context
 
 
 class ThemesListView(
