@@ -16,6 +16,7 @@ from qgis_server_light.interface.qgis import Raster as QslRaster
 from qgis_server_light.interface.qgis import Vector as QslVector
 from xsdata.formats.dataclass.serializers import DictEncoder
 
+from georama.core.decorators.debugging import temporary_fix
 from georama.core.services.permission import DBService
 from georama.core.views.entities.entity_delete import GeoramaEntityDeleteView
 from georama.core.views.entities.entity_detail import GeoramaEntityDetailView
@@ -292,6 +293,10 @@ class PermissionView(
     permission_required = model_entity.perm_manage_permissions()
     entity_name = "theme"
 
+    @temporary_fix(
+        "Workaround! We add the same permissions to each theme "
+        "related layer currently, this will be refactored!"
+    )
     def get_related_layer_permissions(
         self, theme: PublishedAsTheme, theme_layers: list[PublishedAsLayerWms], action: str
     ):
@@ -304,6 +309,10 @@ class PermissionView(
         ]
         return additional_permission_ids
 
+    @temporary_fix(
+        "Workaround! We add the same permissions to each theme "
+        "related layer currently, this will be refactored!"
+    )
     def get_object(self, queryset=None):
         object_pk = self.kwargs.get("pk")
         dbs_permission = DBService(self.model_entity, self.model_entity._meta.app_label)
@@ -327,6 +336,10 @@ class UserListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaUs
     permission_required = model_entity.perm_manage_permissions()
     entity_name = "theme"
 
+    @temporary_fix(
+        "Workaround! We add the read permission to each theme "
+        "related layer currently. this will be refactored!"
+    )
     def add_related_permission_ids(self, permission_ids):
         """
         Currently we support permission assignment on theme level only.
@@ -353,6 +366,10 @@ class GroupListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaG
     permission_required = model_entity.perm_manage_permissions()
     entity_name = "theme"
 
+    @temporary_fix(
+        "Workaround! We add the read permission to each theme "
+        "related layer currently. this will be refactored!"
+    )
     def add_related_permission_ids(self, permission_ids):
         """
         Currently we support permission assignment on theme level only. This

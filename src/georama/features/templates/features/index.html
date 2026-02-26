@@ -6,7 +6,7 @@
     <div class="btn-group" role="group" aria-label="List actions">
         {% blocktranslate asvar title %}Open OAPIF Landing page{% endblocktranslate %}
         <a
-                href="{% url 'features:collections' %}"
+                href="{% url 'features:api-collections' %}"
                 target="_blank"
                 class="btn btn-outline-primary"
                 data-bs-toggle="tooltip"
@@ -16,7 +16,7 @@
         </a>
         {% blocktranslate asvar title %}Open OAPIF JSON endpoint{% endblocktranslate %}
         <a
-                href="{% url 'features:collections' %}?f=json"
+                href="{% url 'features:api-collections' %}?f=json"
                 target="_blank"
                 class="btn btn-outline-primary"
                 data-bs-toggle="tooltip"

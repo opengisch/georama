@@ -12,6 +12,7 @@ from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder
 
+from georama.core.decorators.debugging import temporary_fix
 from georama.core.entities.models import PermissionInterface, PublishedAs
 from georama.core.models.mixins import GeoramaPermissionMixin
 from georama.data_integration.models import (
@@ -121,6 +122,10 @@ class PublishedAsTheme(GeoramaPermissionMixin, PublishedAs):
         else:
             return self.read_permissions
 
+    @temporary_fix(
+        "Workaround! When a theme is public, all related layers "
+        "are public too! This will be refactored!"
+    )
     def assign_theme_public_to_all_theme_layers(self):
         PublishedAsLayerWms.objects.filter(layer_group__theme=self).update(public=self.public)
 
