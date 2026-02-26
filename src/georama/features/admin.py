@@ -125,7 +125,7 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
             '<div class="btn-group" role="group">',
             '<a href="{}" target="_blank" class="btn btn-high btn-success x-1" '
             'title="{}"><i class="fas fa-map text-xs"></i></a>'.format(
-                reverse(f"{appname}:collection-detail", args=(str(obj.identifier),)),
+                reverse(f"{appname}:api-collection-detail", args=(str(obj.identifier),)),
                 _("Open OAPIF Collection GUI in new Tab"),
             ),
             '<a href="{}" target="_blank" class="btn btn-high btn-danger x-1" '

@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 from pygeoapi import l10n
@@ -13,6 +14,8 @@ from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
 from qgis_server_light.interface.qgis import BBox
 
+from georama.core.decorators.debugging import temporary_fix
+from georama.core.services.permission import DBService
 from georama.core.views.entities.entity_delete import GeoramaEntityDeleteView
 from georama.core.views.entities.entity_detail import GeoramaEntityDetailView
 from georama.core.views.entities.entity_list import GeoramaEntityListView
@@ -289,7 +292,7 @@ class PygeoapiServer(View):
         server_config = ServerConfig().get()
         server_config["server"][
             "url"
-        ] = f"{request.scheme}://{request.get_host()}/features/pygeoapi"
+        ] = f"{request.scheme}://{request.get_host()}{reverse('features:api-landing')}"
         for published_as in self.model.objects.all():
             if published_as.has_general_permission(request.user, central_app_label):
                 server_config["resources"][str(published_as.identifier)] = (
@@ -347,7 +350,7 @@ class PygeoapiServer(View):
             ),
             "geom_field": geom_field,
             "geom_type": geom_type,
-            "properties": features_properties,
+            "properties": [f.name for f in features_properties],
             "field_constraints": field_constraints,
         }
 
@@ -390,7 +393,7 @@ class PygeoapiServer(View):
             "table": source.postgres.table,
             "geom_field": geom_field,
             "geom_type": geom_type,
-            "properties": features_properties,
+            "properties": [f.name for f in features_properties],
             "field_constraints": field_constraints,
         }
 
@@ -621,14 +624,102 @@ class PermissionView(
     permission_required = model_entity.perm_manage_permissions()
     entity_name = "layer"
 
+    @temporary_fix(
+        "Workaround! We add the same permissions to each layer "
+        "related column currently, this will be refactored!"
+    )
+    def get_related_column_permissions(
+        self,
+        layer: PublishedAsOgcApiFeatures,
+        layer_columns: list[ColumnOgcApiFeatures],
+        action: str,
+    ):
+        dbs_permission = DBService(ColumnOgcApiFeatures, ColumnOgcApiFeatures._meta.app_label)
+        additional_permission_ids = [
+            perm.pk
+            for perm in dbs_permission.get_by_object_pks([lc.pk for lc in layer_columns])
+            .filter(codename__icontains=action)
+            .all()
+        ]
+        return additional_permission_ids
+
+    @temporary_fix(
+        "Workaround! We add the same permissions to each layer "
+        "related column currently, this will be refactored!"
+    )
+    def get_object(self, queryset=None):
+        object_pk = self.kwargs.get("pk")
+        dbs_permission = DBService(self.model_entity, self.model_entity._meta.app_label)
+        lookup = dbs_permission.get_permission_lookup(object_pk)
+        layer = self.model_entity.objects.get(pk=self.kwargs["pk"])
+        layer_columns = ColumnOgcApiFeatures.objects.filter(published_definition=layer).all()
+
+        for action in lookup["actions"]:
+            for principal in ["users", "groups"]:
+                for perms in lookup["lookup"][principal]:
+                    additional_perms = self.get_related_column_permissions(
+                        layer, layer_columns, action
+                    )
+                    perms[action]["ids"] += additional_perms
+
+        return lookup
+
 
 class UserListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaUserListView):
     model_entity = PublishedAsOgcApiFeatures
     permission_required = model_entity.perm_manage_permissions()
     entity_name = "layer"
 
+    @temporary_fix(
+        "Workaround! We add the read permission to each layer "
+        "related column currently, this will be refactored!"
+    )
+    def add_related_permission_ids(self, permission_ids):
+        """
+        Currently we support permission assignment on layer level only.
+        This means we need to assign the permission to all layer
+        related columns too, so that they are secured on the oapif endpoint.
+
+        Returns:
+            Context with updated permissions.
+        """
+        layer = self.model_entity.objects.get(pk=self.kwargs["pk"])
+        layer_columns = ColumnOgcApiFeatures.objects.filter(published_definition=layer).all()
+        dbs_permission = DBService(ColumnOgcApiFeatures, ColumnOgcApiFeatures._meta.app_label)
+        permission_ids += [
+            perm.pk
+            for perm in dbs_permission.get_by_object_pks([tl.pk for tl in layer_columns])
+            .filter(codename__icontains="read")
+            .all()
+        ]
+        return permission_ids
+
 
 class GroupListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaGroupListView):
     model_entity = PublishedAsOgcApiFeatures
     permission_required = model_entity.perm_manage_permissions()
     entity_name = "layer"
+
+    @temporary_fix(
+        "Workaround! We add the read permission to each layer "
+        "related column currently, this will be refactored!"
+    )
+    def add_related_permission_ids(self, permission_ids):
+        """
+        Currently we support permission assignment on layer level only.
+        This means we need to assign the permission to all layer
+        related columns too, so that they are secured on the oapif endpoint.
+
+        Returns:
+            Context with updated permissions.
+        """
+        layer = self.model_entity.objects.get(pk=self.kwargs["pk"])
+        layer_columns = ColumnOgcApiFeatures.objects.filter(published_definition=layer).all()
+        dbs_permission = DBService(ColumnOgcApiFeatures, ColumnOgcApiFeatures._meta.app_label)
+        permission_ids += [
+            perm.pk
+            for perm in dbs_permission.get_by_object_pks([tl.pk for tl in layer_columns])
+            .filter(codename__icontains="read")
+            .all()
+        ]
+        return permission_ids

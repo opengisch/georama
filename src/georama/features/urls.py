@@ -7,46 +7,46 @@ app_name = central_app_label
 
 urlpatterns = [
     # path("/pygeoapi", include(views.PygeoapiServer.urls(), namespace=app_name)),
-    path("/pygeoapi", views.PygeoapiServer.as_view(action="landing"), name="landing"),
+    path("/api", views.PygeoapiServer.as_view(action="landing"), name="api-landing"),
     path(
-        "/pygeoapi/conformance",
+        "/api/conformance",
         views.PygeoapiServer.as_view(action="conformance"),
-        name="conformance",
+        name="api-conformance",
     ),
     path(
-        "/pygeoapi/openapi",
+        "/api/openapi",
         views.PygeoapiServer.as_view(action="openapi"),
-        name="openapi",
+        name="api-openapi",
     ),
     path(
-        "/pygeoapi/collections",
+        "/api/collections",
         views.PygeoapiServer.as_view(action="collections"),
-        name="collections",
+        name="api-collections",
     ),
     path(
-        "/pygeoapi/collections/<str:collection_id>",
+        "/api/collections/<str:collection_id>",
         views.PygeoapiServer.as_view(action="collections"),
-        name="collection-detail",
+        name="api-collection-detail",
     ),
     path(
-        "/pygeoapi/collections/<str:collection_id>/schema",
+        "/api/collections/<str:collection_id>/schema",
         views.PygeoapiServer.as_view(action="collection_schema"),
-        name="collection-schema",
+        name="api-collection-schema",
     ),
     path(
-        "/pygeoapi/collections/<str:collection_id>/queryables",
+        "/api/collections/<str:collection_id>/queryables",
         views.PygeoapiServer.as_view(action="collection_queryables"),
-        name="collection-queryables",
+        name="api-collection-queryables",
     ),
     path(
-        "/pygeoapi/collections/<str:collection_id>/items",
+        "/api/collections/<str:collection_id>/items",
         views.PygeoapiServer.as_view(action="collection_items"),
-        name="collection-items",
+        name="api-collection-items",
     ),
     path(
-        "/pygeoapi/collections/<str:collection_id>/items/<str:item_id>",
+        "/api/collections/<str:collection_id>/items/<str:item_id>",
         views.PygeoapiServer.as_view(action="collection_item"),
-        name="collection-item",
+        name="api-collection-item",
     ),
     path(
         "",

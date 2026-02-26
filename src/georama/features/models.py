@@ -3,6 +3,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from georama.core.decorators.debugging import temporary_fix
 from georama.core.entities.models import (
     PermissionInterface,
     PublishedAs,
@@ -180,6 +181,7 @@ class PublishedAsOgcApiFeatures(GeoramaPermissionMixin, PublishedAsVectorFeature
             self.name = f"{self.dataset.project.mandant.name}.{self.dataset.project.name}.{self.dataset.name}"  # noqa: E501
         if self.title is None and isinstance(self.dataset, VectorDataSet):
             self.title = self.dataset.title
+        self.assign_layer_public_to_all_related_columns()
         super().save(
             force_insert=force_insert,
             force_update=force_update,
@@ -204,7 +206,16 @@ class PublishedAsOgcApiFeatures(GeoramaPermissionMixin, PublishedAsVectorFeature
     @property
     def endpoint_url(self):
         return reverse(
-            f"{self._meta.app_label}:collection-detail", kwargs={"collection_id": self.pk}
+            f"{self._meta.app_label}:api-collection-detail", kwargs={"collection_id": self.pk}
+        )
+
+    @temporary_fix(
+        "Workaround! When a layer is public, all related "
+        "columns are public too! This will be refactored!"
+    )
+    def assign_layer_public_to_all_related_columns(self):
+        ColumnOgcApiFeatures.objects.filter(published_definition=self).update(
+            public=self.public
         )
 
 
