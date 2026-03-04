@@ -4,10 +4,15 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
+    types: [opened, synchronize, closed]
 
 jobs:
   docker-image-latest-dev:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -30,3 +35,38 @@ jobs:
           target: dev
           cache-from: type=local,src=cache
           tags: ghcr.io/${{ github.repository }}:latest-dev
+
+  ghcr-pr-image:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push PR Image
+        if: github.event.action != 'closed'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.head_ref }}
+
+      - name: Delete PR Image
+        if: github.event.action == 'closed'
+        run: |
+          echo "Deleting GHCR image for PR branch ${{ github.head_ref }}"
+          # Löschen über GitHub API
+          curl -s -X DELETE \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://ghcr.io/v2/${{ github.repository }}/manifests/${{ github.head_ref }} || true
