@@ -1,0 +1,25 @@
+{% extends 'core/home.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+
+            <!-- Left column-->
+
+            <div class="col form-content-scrollable overflow-auto">
+                {% load crispy_forms_tags %}
+                <form id="{{ object.tid }}" method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    {{ formsets_otherLocale }}
+                    {% for form in formsets_otherLocale %}
+                        <div class="address-form">
+                            {{ form.as_p }}
+                        </div>
+                    {% endfor %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    </div>
+{% endblock %}
