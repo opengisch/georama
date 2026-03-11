@@ -42,21 +42,24 @@
                         {% endif %}
                         <li class="nav-item align-items-center">
                             <div class="nav-link">
-                                {% if user.is_authenticated %}
-                                    <a class="btn btn-outline-secondary" href="/logout">Logout</a>
-                                {% else %}
-                                    <a class="btn btn-outline-secondary" href="/login">Login</a>
-                                {% endif %}
-                            </div>
-                        </li>
-                        <li class="nav-item align-items-center">
-                            <div class="nav-link ps-0">
                                 <a id="themeToggle"
                                    class="btn btn-outline-secondary"
                                    role="button"
                                    aria-label="Toggle theme">
                                     <i id="themeIcon" class="bi"></i>
                                 </a>
+                            </div>
+                        </li>
+                        <li class="nav-item align-items-center">
+                            <div class="nav-link ps-0">
+                                {% if user.is_authenticated %}
+                                    <a class="btn btn-outline-secondary" href="/logout" title="Logout">
+                                        {{ user.username }}
+                                        <i class="fa fa-arrow-right-from-bracket ps-1"></i>
+                                    </a>
+                                {% else %}
+                                    <a class="btn btn-outline-secondary" href="/login">Login</a>
+                                {% endif %}
                             </div>
                         </li>
                     </ul>
@@ -83,7 +86,10 @@
                         <h5 class="mb-1">Authentication</h5>
                         <p class="mb-2">Secure sign-in workflows for every user.</p>
                         {% if user.is_authenticated %}
-                            <a class="btn btn-outline-secondary btn-sm" href="/logout">Logout</a>
+                            <a class="btn btn-outline-secondary btn-sm" href="/logout" title="Logout">
+                                <i class="fa fa-user"></i>
+                                {{ user.username }}
+                            </a>
                         {% else %}
                             <a class="btn btn-outline-secondary btn-sm" href="/login">Visit Login</a>
                         {% endif %}
