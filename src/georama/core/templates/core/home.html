@@ -86,7 +86,7 @@
                         <h5 class="mb-1">Authentication</h5>
                         <p class="mb-2">Secure sign-in workflows for every user.</p>
                         {% if user.is_authenticated %}
-                            <a class="btn btn-outline-secondary btn-sm" href="/logout" title="Logout">
+                            <a class="btn btn-outline-secondary btn-sm user-btn" href="/logout" title="Logout">
                                 <i class="fa fa-user"></i>
                                 {{ user.username }}
                             </a>
