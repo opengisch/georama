@@ -114,7 +114,8 @@ services:
       - ./keycloak/certs/server.truststore:/etc/x509/https/server.truststore
       - ./keycloak/import:/opt/keycloak/data/import
     depends_on:
-      - keycloak-db
+      keycloak-db:
+        condition: service_healthy
 
   keycloak-db:
     image: postgres:14
