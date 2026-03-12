@@ -7,10 +7,20 @@ services:
       context: .
       target: dev
     volumes:
-      - ./:/app
+      - ./.env:/app/.env
+      - ./src:/app/src
+      - ./pyproject.toml:/app/pyproject.toml
+      - ./tests:/app/tests
+      - ./Makefile:/app/Makefile
       - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data:ro"
     ports:
       - "4242:4242"
+    depends_on:
+      georama-db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      
   georama-db:
     image: postgis/postgis:14-3.4
     volumes:
@@ -21,6 +31,11 @@ services:
       - "POSTGRES_USER=${GEORAMA_DB_USER:-postgres}"
       - "POSTGRES_PASSWORD=${GEORAMA_DB_PW:-test}"
       - "POSTGRES_DB=${GEORAMA_DB_NAME:-postgres}"
+    healthcheck:
+      test: psql -U ${GEORAMA_DB_USER} -d ${GEORAMA_DB_NAME} -c 'SELECT ST_MakePoint(0,0)'
+      interval: 5s
+      timeout: 5s
+      retries: 5
   qsl-redis:
     image: redis:7.4.0
     ports:
@@ -80,7 +95,10 @@ services:
       KC_HTTPS_MANAGEMENT_CLIENT_AUTH: none
       X509_CA_BUNDLE: /etc/x509/https/rootCA.crt
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:7080/health/ready"]
+      test: [
+        "CMD-SHELL",
+        'exec 3<>/dev/tcp/localhost/9000; echo -e "GET /health/ready HTTP/1.1\nhost: localhost:9000\n" >&3; timeout --preserve-status 1 cat <&3 | grep -m 1 status | grep -m 1 UP; ERROR=$?; exec 3<&-; exec 3>&-; exit $ERROR'
+      ]
       interval: 15s
       timeout: 2s
       retries: 15
@@ -99,7 +117,7 @@ services:
       - keycloak-db
 
   keycloak-db:
-    image: postgres
+    image: postgres:14
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
