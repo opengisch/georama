@@ -42,7 +42,7 @@ jobs:
       - run: sudo apt-get install -y python3-venv python3-dev unixodbc odbc-mdbtools gdal-bin libgdal-dev libpq-dev build-essential make git curl
       - name: Start services
         run: |
-          docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 54321:5432 postgis/postgis:latest
+          docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 5433:5432 postgis/postgis:latest
       - name: Set up test environment
         run: make install-test
       - name: Run tests for Python ${{ matrix.python-version }}

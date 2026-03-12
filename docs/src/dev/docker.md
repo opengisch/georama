@@ -11,7 +11,7 @@ tags:
 #### Start a database (for georama admin configuration)
 
 ```shell
-docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 54321:5432 postgis/postgis:latest
+docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 5433:5432 postgis/postgis:latest
 ```
 
 #### Start a redis instance

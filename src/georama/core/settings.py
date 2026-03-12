@@ -300,7 +300,7 @@ class Base(Configuration):
     DB_USER = values.Value("postgres", environ_prefix="GEORAMA")
     DB_PW = values.Value("test", environ_prefix="GEORAMA")
     DB_HOST = values.Value("localhost", environ_prefix="GEORAMA")
-    DB_PORT = values.Value("54321", environ_prefix="GEORAMA")
+    DB_PORT = values.Value("5433", environ_prefix="GEORAMA")
     DB_OPTIONS = values.DictValue({}, environ_prefix="GEORAMA")
 
     @property

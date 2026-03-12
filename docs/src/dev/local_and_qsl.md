@@ -31,7 +31,7 @@ The following steps have to be done outside the Georama project path on your fil
 
 The following steps have to be done inside the Georama project path on your file system:
 
-1. `docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 54321:5432 postgis/postgis:latest`
+1. `docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 5433:5432 postgis/postgis:latest`
 2. `LOCAL_QGIS_SERVER_LIGHT_PATH=<absolute-local-filesystem-path-to-qsl> make install-dev-local-qsl`
 3. `make serve-dev`
 4. 2nd shell: `make migrate`
