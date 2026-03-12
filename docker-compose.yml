@@ -16,7 +16,7 @@ services:
     volumes:
       - "georama-db_data:/var/lib/postgresql/data"
     ports:
-      - "54321:5432"
+      - "5433:5432"
     environment:
       - "POSTGRES_USER=${GEORAMA_DB_USER:-postgres}"
       - "POSTGRES_PASSWORD=${GEORAMA_DB_PW:-test}"
