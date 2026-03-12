@@ -385,6 +385,12 @@ Landing Page Mind map
     justify-content: center;
 }
 
+.mindmap-card a.user-btn {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .icon-circle {
     width: 93px;
     height: 93px;
