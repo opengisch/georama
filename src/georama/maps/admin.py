@@ -4,6 +4,7 @@ from urllib.parse import quote
 
 from django.contrib import admin
 from django.contrib.auth.models import Permission
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.http import urlencode
@@ -157,12 +158,17 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     operations.short_description = "Operations"
 
     def preview_image(self, obj: PublishedAsWms):
-        base64_img = f"data:image/png;base64,{base64.b64encode(obj.preview).decode()}"
+        if obj.preview:
+            img_src = f"data:image/png;base64,{base64.b64encode(obj.preview).decode()}"
+            dimensions = obj.preview_dimensions
+        else:
+            img_src = static("wms-placeholder.svg")
+            dimensions = (250, 195)
         return mark_safe(
             "".join(
                 [
                     '<img src="{}" class="border shadow-sm" style="width: {}px; height: {}px"/>'.format(  # noqa: E501
-                        base64_img, *obj.preview_dimensions
+                        img_src, *dimensions
                     ),
                 ]
             )
