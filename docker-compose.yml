@@ -7,11 +7,7 @@ services:
       context: .
       target: dev
     volumes:
-      - ./.env:/app/.env
-      - ./src:/app/src
-      - ./pyproject.toml:/app/pyproject.toml
-      - ./tests:/app/tests
-      - ./Makefile:/app/Makefile
+      - ./:/app
       - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data:ro"
     ports:
       - "4242:4242"
@@ -33,8 +29,8 @@ services:
       - "POSTGRES_DB=${GEORAMA_DB_NAME:-postgres}"
     healthcheck:
       test: psql -U ${GEORAMA_DB_USER} -d ${GEORAMA_DB_NAME} -c 'SELECT ST_MakePoint(0,0)'
-      interval: 5s
-      timeout: 5s
+      interval: 10s
+      timeout: 2s
       retries: 5
   qsl-redis:
     image: redis:7.4.0
@@ -123,6 +119,11 @@ services:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 2s
+      retries: 5
     volumes:
       - keycloakdb-data:/var/lib/postgresql/data
 
