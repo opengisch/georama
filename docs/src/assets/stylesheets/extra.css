@@ -14,6 +14,8 @@
 
     /* A bit darker headers than what is defined originally */
     --md-default-fg-color--light: rgba(0, 0, 0, 0.8);
+    
+    --logo-background-color: white;
 }
 
 [data-md-color-scheme="slate"] {
@@ -28,13 +30,14 @@
     
     /* A bit lighter headers than what is defined originally */
     --md-default-fg-color--light: rgba(255, 255, 255, 0.8);
+    
+    --logo-background-color: var(--md-default-bg-color);
 }
 
 
 /* Add a white round background to the logo in the header and make it bigger */
 .md-header__button.md-logo {
-    background: white;
-    border: 1px solid white;
+    background: var(--logo-background-color);
     border-radius: 50%;
 }
 .md-header__button.md-logo > img {
