@@ -1,6 +1,6 @@
 # Welcome to the Georama Documentation
 
-<img src="assets/logo/georama_2.png" alt="Example" style="max-width: 400px; display: block; margin: auto;">
+<img src="assets/logo/main.svg" alt="Georama" style="width: 300px; display: block; margin: auto; padding: 20px;">
 
 **Georama** is a modular suite of Django apps designed to help you organize, manage, and publish geospatial data directly from your QGIS projects.
 

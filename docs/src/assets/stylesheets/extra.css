@@ -1,0 +1,53 @@
+
+:root  > * { 
+    /* Georama primary and secondary color */
+    --md-primary-fg-color: #7c993d;
+    --md-primary-fg-color--light: #95b354;
+    --md-primary-fg-color--dark: #1f2a1c;
+    --md-primary-bg-color: #fff;
+    --md-primary-bg-color--light: #fff;
+    
+    --md-accent-fg-color: #d2a444;
+    --md-accent-fg-color--transparent: rgba(210, 164, 68, 0.53);
+
+    --md-footer-bg-color: rgba(0, 0, 0, 0.75);
+
+    /* A bit darker headers than what is defined originally */
+    --md-default-fg-color--light: rgba(0, 0, 0, 0.8);
+    
+    --logo-background-color: white;
+}
+
+[data-md-color-scheme="slate"] {
+    /* Primary and secondary colors from root rules above */
+    
+    /* Slight green/yellowish colors in dark mode */
+    --md-hue: 38;
+    /* Same background as Georama */
+    --md-default-bg-color: #262626;
+    
+    --md-footer-bg-color: rgba(0, 0, 0, 0.30);
+    
+    /* A bit lighter headers than what is defined originally */
+    --md-default-fg-color--light: rgba(255, 255, 255, 0.8);
+    
+    --logo-background-color: var(--md-default-bg-color);
+}
+
+
+/* Add a white round background to the logo in the header and make it bigger */
+.md-header__button.md-logo {
+    background: var(--logo-background-color);
+    border-radius: 50%;
+}
+.md-header__button.md-logo > img {
+    height: 1.6rem;
+}
+
+/* Change the font style of the title in the header */
+.md-header__topic {
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    font-size: 1rem;
+}
