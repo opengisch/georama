@@ -37,17 +37,49 @@ nav:
 theme:
   # 1
   name: material
+  palette:
+    
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+  
+  font:
+    text: Georama
+    code: Roboto Mono
+  
+  logo: assets/logo/main_plain.svg
+  favicon: assets/logo/favicon.ico
+  
   icon:
-    logo: material/palette
     previous: fontawesome/solid/angle-left
     next: fontawesome/solid/angle-right
-    default: material/tag
-    favicon: assets/logo/favicon.ico
 
   features:
     - navigation.path
     - navigation.top
     - navigation.footer
+      
+extra_css:
+  - assets/stylesheets/extra.css
 
 plugins:
   # Enable jinja inside your markdown files
