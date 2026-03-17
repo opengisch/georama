@@ -39,7 +39,6 @@ COPY ./ .
 RUN VENV_PATH=${VENV_PATH} make install-dev
 
 ENV PYTHONUNBUFFERED=1
-ENV DJANGO_SETTINGS_MODULE=core.settings
 
 ENTRYPOINT ["/usr/bin/tini", "--", "make"]
 

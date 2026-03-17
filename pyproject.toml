@@ -231,7 +231,3 @@ select = [
     "SIM",  # simplify
 ]
 fixable = ["ALL"]
-
-[virtualenvs]
-create = true
-in-project = true

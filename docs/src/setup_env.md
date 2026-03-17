@@ -20,7 +20,13 @@ Copy the provided example file
 cp .env.dev.example .env
 ```
 
-You only need to provide `GEORAMA_LOCAL_DATA` to spin up the stack on your local machine
+You only need to provide `GEORAMA_LOCAL_DATA` to spin up the stack on your local machine.
+
+When using the Docker/Docker Compose setup on an arm64 architecture (such as Macs with M chip), you would have to update the .env to add the following environment variable:
+
+```
+COMPOSE_FILE=docker-compose.yml:docker-compose.arm64.yml
+```
 
 
 ## Production
