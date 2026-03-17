@@ -45,6 +45,8 @@ jobs:
           docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 54321:5432 postgis/postgis:latest
       - name: Set up test environment
         run: make install-test
+      - name: Run migration checks
+        run: make check-migrations
       - name: Run tests for Python ${{ matrix.python-version }}
         run: DJANGO_CONFIGURATION=Test make tests
       - name: Test Coverage
