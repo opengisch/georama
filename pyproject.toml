@@ -54,6 +54,7 @@ dependencies = [
     # pygeoapi and its friends
     "pygeoapi==0.20.0",
     "psycopg2",
+    "psycopg[binary,pool]",
     "geoalchemy2",
     "gdal",
     # django stuff
