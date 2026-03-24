@@ -1,3 +1,7 @@
+"""This module is an interface to fill the missing specs for
+WMS requests and their params.
+"""
+
 import logging
 import re
 from dataclasses import dataclass, field
@@ -41,14 +45,14 @@ class Version(Enum):
 
 
 @dataclass
-class AbstractRequest:
+class AbstractRequestParams:
     SERVICE: "ServiceType"
     REQUEST: "RequestType"
     VERSION: "Version"
 
 
 @dataclass
-class AbstractGetMapRequest(AbstractRequest):
+class AbstractGetMapRequestParams(AbstractRequestParams):
     _default_style_name = "default"
     LAYERS: str = field(metadata={"type": "Element"})
     BBOX: str = field(metadata={"type": "Element"})
@@ -130,6 +134,6 @@ class AbstractGetMapRequest(AbstractRequest):
 
 
 @dataclass
-class QslGetMapRequest(AbstractGetMapRequest):
+class GetMapRequestParams(AbstractGetMapRequestParams):
     MAP_RESOLUTION: Optional[int] = None
     FORMAT_OPTIONS: Optional[str] = None
