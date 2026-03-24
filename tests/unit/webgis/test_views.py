@@ -21,7 +21,7 @@ class TestMapsViews:
         mock_instance.post.return_value = empty_png_bytes_job_result
 
         with patch(
-            "qgis_server_light.interface.dispatcher.RedisQueue.create",
+            "qgis_server_light.interface.dispatcher.redis_asio.RedisQueue.create",
             new_callable=AsyncMock,
         ) as mock_create:
             mock_create.return_value = mock_instance

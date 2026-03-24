@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
-from qgis_server_light.interface.job import QslGetFeatureJob
+from qgis_server_light.interface.job.feature.input import QslJobParameterFeature
 from xsdata.formats.dataclass.parsers import XmlParser
 from xsdata.formats.dataclass.serializers import XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
@@ -391,9 +391,9 @@ class TestWfsGetFeature:
             )
             job1 = wfs_get_feature.getfeature_to_qslgetfeaturejob(get_feature_params)
 
-            assert isinstance(job1, QslGetFeatureJob)
+            assert isinstance(job1, QslJobParameterFeature)
             assert len(job1.queries) == 1
-            assert job1.queries[0].datasets == [mock_layer.vector_dataset.to_qsl]
+            assert job1.queries[0].layers == [mock_layer.vector_dataset.to_qsl_job_layer()]
             assert job1.start_index == 7
             assert job1.count == 42
 
@@ -409,12 +409,14 @@ class TestWfsGetFeature:
             )
             job2 = wfs_get_feature.getfeature_to_qslgetfeaturejob(get_feature_params)
 
-            assert isinstance(job2, QslGetFeatureJob)
+            assert isinstance(job2, QslJobParameterFeature)
             assert len(job2.queries) == 1
             query = job2.queries[0]
 
-            assert query.datasets == [mock_layer.vector_dataset.to_qsl]
-            assert wfs_get_feature.prepare_filter_element(query.filter) == fes_filter
+            assert query.layers == [mock_layer.vector_dataset.to_qsl_job_layer()]
+            assert (
+                wfs_get_feature.prepare_filter_element(query.filter.definition) == fes_filter
+            )
 
             # Query with filter and multiple layers
             mock_get.return_value = [mock_layer, mock_layer]
