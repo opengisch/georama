@@ -41,3 +41,8 @@ map.cartoriviera.ch.json
 mapnv.c.json
 test.py
 dict.py
+
+tests/resources
+!tests/resources/TestMandant
+
+.profile

@@ -141,23 +141,23 @@ git-attributes:
 
 .PHONY: test-core
 test-core: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	COVERAGE_FILE=.coverage.core $(VENV_BIN)/pytest --nomigrations -vv tests/core
+	$(VENV_BIN)/pytest -vv tests/unit/core
 
 .PHONY: test-data_integration
 test-data_integration: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	$(VENV_BIN)/pytest --nomigrations -vv tests/data_integration
+	$(VENV_BIN)/pytest --nomigrations -vv tests/unit/data_integration
 
 .PHONY: test-features
 test-features: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	$(VENV_BIN)/pytest --nomigrations -vv tests/features
+	$(VENV_BIN)/pytest --nomigrations -vv tests/unit/features
 
 .PHONY: test-maps
 test-maps: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	$(VENV_BIN)/pytest --nomigrations -vv tests/maps
+	$(VENV_BIN)/pytest --nomigrations -vv tests/unit/maps
 
 .PHONY: test-webgis
 test-webgis: $(TEST_REQUIREMENTS) $(VARS_FILES)
-	$(VENV_BIN)/pytest --nomigrations -vv tests/webgis
+	$(VENV_BIN)/pytest --nomigrations -vv tests/unit/webgis
 
 .PHONY: tests
 tests: test-core test-data_integration test-features test-maps test-webgis
