@@ -361,7 +361,7 @@ class PygeoapiServer(View):
         editable: bool,
         features_properties: list[ColumnOgcApiFeatures],
     ) -> dict:
-        source, _ = published_as.dataset.source_to_qsl
+        source = published_as.dataset.source_to_qsl
 
         crs = published_as.dataset.crs_to_qsl
         available_crs_list = self.getAvailableCrsList(crs)

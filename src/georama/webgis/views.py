@@ -79,7 +79,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
     ) -> QslGroup | QslVector | QslRaster | QslCustom | None:
         # TODO: This should be move directly to the QSL interface!
         for element in datasets:
-            if element.name == dataset_name:
+            if element.id == dataset_name:
                 return element
         return None
 
@@ -121,7 +121,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                 vector_match = self.find_dataset_by_name(child, project_config.datasets.vector)
                 custom_match = self.find_dataset_by_name(child, project_config.datasets.custom)
                 if raster_match:
-                    query = RasterDataSet.objects.filter(project=project, name=child)
+                    query = RasterDataSet.objects.filter(project=project, qgis_layer_id=child)
                     if query.exists():
                         dataset = query.get()
                     else:
@@ -139,7 +139,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         public=True,
                     ).save()
                 elif vector_match:
-                    query = VectorDataSet.objects.filter(project=project, name=child)
+                    query = VectorDataSet.objects.filter(project=project, qgis_layer_id=child)
                     if query.exists():
                         dataset = query.get()
                     else:
@@ -157,7 +157,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         public=True,
                     ).save()
                 elif custom_match:
-                    query = CustomDataSet.objects.filter(project=project, name=child)
+                    query = CustomDataSet.objects.filter(project=project, qgis_layer_id=child)
                     if query.exists():
                         dataset = query.get()
                     else:
