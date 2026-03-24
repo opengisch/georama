@@ -1,6 +1,6 @@
 import datetime
+import json
 import logging
-import os.path
 from dataclasses import fields
 
 from django.db import models
@@ -65,10 +65,8 @@ class DataSet(models.Model):
     title = models.CharField(max_length=1000)
     bbox = models.CharField(max_length=1000)
     bbox_wgs84 = models.CharField(max_length=1000)
-    path = models.CharField(max_length=10000)
     source = models.JSONField(default=dict)
     styles = models.JSONField(default=dict)
-    # TODO: implement ENUM (wms, ogr, gdal, etc.)
     driver = models.CharField(max_length=50)
     crs = models.JSONField(default=dict)
     minimum_scale = models.FloatField(null=True)
@@ -83,21 +81,14 @@ class DataSet(models.Model):
         return ParserConfig(fail_on_unknown_attributes=False, fail_on_unknown_properties=False)
 
     @property
-    def source_to_qsl(self) -> tuple[DataSource, str]:
+    def source_to_qsl(self) -> DataSource:
         # TODO: Implement an ENV Django app to manipulate datasources in a hookable way
         datasource = DictDecoder(config=self.get_parser_config).decode(self.source, DataSource)
-        path = self.path
-        if datasource.postgres:
-            path = path
-        elif datasource.ogr or datasource.gdal:
-            path = os.path.join(self.project.mandant.name, path)
-        elif datasource.vector_tile and not datasource.vector_tile.remote:
-            path = os.path.join(self.project.mandant.name, datasource.vector_tile.url)
-        return datasource, path
+        return datasource
 
     @property
     def driver_name(self):
-        datasource, path = self.source_to_qsl
+        datasource = self.source_to_qsl
         for field in fields(datasource):
             value = getattr(datasource, field.name)
             if value is not None:
@@ -200,13 +191,12 @@ class VectorDataSet(DataSet):
 
     @property
     def to_qsl(self) -> Vector:
-        datasource, path = self.source_to_qsl
+        datasource = self.source_to_qsl
         return Vector(
             name=self.name,
             title=self.title,
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),
-            path=path,
             driver=self.driver,
             source=datasource,
             styles=self.styles_to_qsl,
@@ -242,13 +232,12 @@ class RasterDataSet(DataSet):
 
     @property
     def to_qsl(self) -> Raster:
-        datasource, path = self.source_to_qsl
+        datasource = self.source_to_qsl
         return Raster(
             name=self.name,
             title=self.title,
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),
-            path=path,
             driver=self.driver,
             source=datasource,
             styles=DictDecoder().decode(self.styles, list[Style]),
@@ -281,13 +270,12 @@ class CustomDataSet(DataSet):
 
     @property
     def to_qsl(self) -> Custom:
-        datasource, path = self.source_to_qsl
+        datasource = self.source_to_qsl
         return Custom(
             name=self.name,
             title=self.title,
             bbox=BBox.from_string(self.bbox),
             bbox_wgs84=BBox.from_string(self.bbox_wgs84),
-            path=path,
             driver=self.driver,
             source=datasource,
             styles=DictDecoder().decode(self.styles, list[Style]),

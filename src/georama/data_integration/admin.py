@@ -147,7 +147,6 @@ class DataSetAdmin(admin.ModelAdmin):
         "maximum_scale",
         "source_detail",
         "crs_detail",
-        "path",
         "driver",
     ]
 
@@ -159,7 +158,6 @@ class DataSetAdmin(admin.ModelAdmin):
         "maximum_scale",
         "source_detail",
         "crs_detail",
-        "path",
         "driver",
     ]
 
