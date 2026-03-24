@@ -1,6 +1,7 @@
 import base64
 import logging
 from dataclasses import fields
+from typing import Literal
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.db import models
@@ -73,7 +74,7 @@ class PublishedAsWmsAbstract(PublishedAs):
         return True
 
     @property
-    def bound_dataset_type(self) -> str | None:
+    def bound_dataset_type(self) -> Literal["raster", "vector", "custom"] | None:
         bound_dataset = self.bound_dataset
         if isinstance(bound_dataset, RasterDataSet):
             return "raster"
@@ -279,8 +280,8 @@ class PublishedAsWmsAbstract(PublishedAs):
 
 class PublishedAsWms(GeoramaPermissionMixin, PublishedAsWmsAbstract):
     class Meta:
-        verbose_name = f'WMS {_("Layer")}'
-        verbose_name_plural = f'WMS {_("Layers")}'
+        verbose_name = f"WMS {_('Layer')}"
+        verbose_name_plural = f"WMS {_('Layers')}"
         permissions = [("can_manage_object_permissions", "Can manage object permissions")]
 
     raster_dataset = models.ForeignKey(
