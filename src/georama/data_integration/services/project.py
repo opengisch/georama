@@ -1,8 +1,8 @@
 import logging
 import math
 
-from qgis_server_light.interface.qgis import Config as QslConfig
-from qgis_server_light.interface.qgis import Custom, Raster, Vector
+from qgis_server_light.interface.exporter.extract import Config as QslConfig
+from qgis_server_light.interface.exporter.extract import Custom, Raster, Vector
 from xsdata.formats.dataclass.parsers import JsonParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder
@@ -224,7 +224,6 @@ class DBService:
             dataset.title = layer.title
             dataset.bbox = layer.bbox.to_string()
             dataset.bbox_wgs84 = layer.bbox_wgs84.to_string()
-            dataset.path = layer.path
             dataset.styles = DictEncoder().encode(layer.styles)
             dataset.driver = layer.driver
             dataset.source = DictEncoder().encode(layer.source)
@@ -339,7 +338,6 @@ class DBService:
             dataset.title = layer.title
             dataset.bbox = layer.bbox.to_string()
             dataset.bbox_wgs84 = layer.bbox_wgs84.to_string()
-            dataset.path = layer.path
             dataset.styles = DictEncoder().encode(layer.styles)
             dataset.driver = layer.driver
             dataset.source = DictEncoder().encode(layer.source)
@@ -383,7 +381,6 @@ class DBService:
             dataset.title = layer.title
             dataset.bbox = layer.bbox.to_string()
             dataset.bbox_wgs84 = layer.bbox_wgs84.to_string()
-            dataset.path = layer.path
             dataset.styles = DictEncoder().encode(layer.styles)
             dataset.driver = layer.driver
             dataset.source = DictEncoder().encode(layer.source)

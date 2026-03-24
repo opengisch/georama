@@ -1,5 +1,5 @@
 import requests
-from qgis_server_light.interface.exporter import ExportParameters, ExportResult
+from qgis_server_light.interface.exporter.api import ExportParameters, ExportResult
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.serializers import JsonSerializer
 

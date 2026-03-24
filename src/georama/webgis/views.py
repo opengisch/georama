@@ -8,12 +8,12 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
-from qgis_server_light.interface.qgis import BBox
-from qgis_server_light.interface.qgis import Config as QslConfig
-from qgis_server_light.interface.qgis import Custom as QslCustom
-from qgis_server_light.interface.qgis import Group as QslGroup
-from qgis_server_light.interface.qgis import Raster as QslRaster
-from qgis_server_light.interface.qgis import Vector as QslVector
+from qgis_server_light.interface.common import BBox
+from qgis_server_light.interface.exporter.extract import Config as QslConfig
+from qgis_server_light.interface.exporter.extract import Custom as QslCustom
+from qgis_server_light.interface.exporter.extract import Group as QslGroup
+from qgis_server_light.interface.exporter.extract import Raster as QslRaster
+from qgis_server_light.interface.exporter.extract import Vector as QslVector
 from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.decorators.debugging import temporary_fix

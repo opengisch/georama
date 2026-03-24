@@ -1,7 +1,7 @@
 import logging
 from decimal import Decimal
 
-from qgis_server_light.interface.qgis import BBox
+from qgis_server_light.interface.common import BBox
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig

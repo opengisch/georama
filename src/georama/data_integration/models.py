@@ -5,9 +5,11 @@ from dataclasses import fields
 
 from django.db import models
 from django.utils.translation import gettext as _
-from qgis_server_light.interface.qgis import BBox, Crs, Custom, DataSource
-from qgis_server_light.interface.qgis import Field as QslField
-from qgis_server_light.interface.qgis import Raster, Style, Vector
+from qgis_server_light.interface.common import BBox
+from qgis_server_light.interface.exporter.extract import Crs, Custom, DataSource
+from qgis_server_light.interface.exporter.extract import Field as QslField
+from qgis_server_light.interface.exporter.extract import Raster, Style, Vector
+from qgis_server_light.interface.job.common.input import QslJobLayer
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 
@@ -109,6 +111,59 @@ class DataSet(models.Model):
     @property
     def styles_to_qsl(self) -> list[Style]:
         return DictDecoder(config=self.get_parser_config).decode(self.styles, list[Style])
+
+    @property
+    def bbox_to_list(self) -> list:
+        return BBox.from_string(self.bbox).to_list()
+
+    @property
+    def bbox_2d_string(self) -> str:
+        return BBox.from_string(self.bbox).to_2d_string()
+
+    @property
+    def bbox_wgs84_to_list(self) -> list:
+        return BBox.from_string(self.bbox_wgs84).to_list()
+
+    def to_qsl_job_layer(self, style_name: str | None = None) -> QslJobLayer:
+        source_definition = self.source_to_qsl.definition
+        if style_name is not None:
+            style = self.get_style_by_name(style_name)
+        else:
+            style = self.get_default_style()
+        return QslJobLayer(
+            id=self.qgis_layer_id,
+            name=self.name,
+            source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
+            driver=self.driver,
+            style=style,
+            remote=source_definition.remote,
+            folder_name=self.project.mandant.name,
+        )
+
+    def get_style_by_name(self, name: str) -> Style:
+        styles = self.styles_to_qsl
+        for style in styles:
+            if style.name == name:
+                return style
+        raise LookupError(
+            f"No Style was found with name: '{name}' - "
+            f"Available names are {[s.name for s in styles]}"
+        )
+
+    def get_default_style(self) -> Style:
+        default_style_name = "default"
+        styles = self.styles_to_qsl
+        for style in styles:
+            if style.name == default_style_name:
+                return style
+        logging.debug(
+            f"Requested style name for layer '{self.name}'"
+            f"was {default_style_name} "
+            f"but this is not in the available styles,"
+            f"we choose the first available style "
+            f"instead which is '{styles[0].name}'"
+        )
+        return styles[0]
 
     def __str__(self):
         return f"{self.title} ({self.name})"

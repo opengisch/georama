@@ -1,5 +1,5 @@
 from django import template
-from qgis_server_light.interface.qgis import Custom, DataSet, Raster, Vector
+from qgis_server_light.interface.exporter.extract import Custom, DataSet, Raster, Vector
 
 register = template.Library()
 

@@ -9,16 +9,16 @@ from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from osgeo import osr as osgeo_osr
-from qgis_server_light.interface.dispatcher import RedisQueue
-from qgis_server_light.interface.job import QslGetMapJob, WmsGetMapParams
-from qgis_server_light.interface.qgis import BBox
+from qgis_server_light.interface.common import BBox
+from qgis_server_light.interface.dispatcher.redis_asio import RedisQueue
+from qgis_server_light.interface.job.render.input import QslJobParameterRender
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
 from georama.core.models.mixins import GeoramaPermissionMixin
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import central_app_label
 from georama.maps.interfaces.georama.requests import (
-    QslGetMapRequest,
+    GetMapRequestParams,
     RequestType,
     ServiceType,
     Version,
@@ -95,13 +95,12 @@ class PublishedAsWmsAbstract(PublishedAs):
     @property
     def create_wms_url_params(self) -> str:
         dataset = self.bound_dataset
-        bbox = BBox.from_string(self.extent).to_2d_list()
-        params = QslGetMapRequest(
+        params = GetMapRequestParams(
             SERVICE=ServiceType.wms.value,
             REQUEST=RequestType.get_map.value,
             VERSION=Version.v_1_3_0.value,
-            LAYERS=[self.name],
-            BBOX=bbox,
+            LAYERS=",".join([self.name]),
+            BBOX=BBox.from_string(self.extent).to_string(),
             CRS=dataset.crs_to_qsl.auth_id,
             WIDTH=self.preview_dimensions_new_tab[0],
             HEIGHT=self.preview_dimensions_new_tab[1],
@@ -114,7 +113,7 @@ class PublishedAsWmsAbstract(PublishedAs):
             FORMAT_OPTIONS="dpi%3A72",
         )
         url_params = {}
-        for field in fields(QslGetMapRequest):
+        for field in fields(GetMapRequestParams):
             field_value = getattr(params, field.name)
             if isinstance(field_value, list):
                 field_value = ",".join([str(value) for value in field_value])
@@ -186,7 +185,7 @@ class PublishedAsWmsAbstract(PublishedAs):
         if self.title is None:
             self.title = dataset.title
         if not self.extent:
-            self.extent = BBox.from_string(dataset.bbox).to_2d_string()
+            self.extent = dataset.bbox_2d_string
         if dataset.crs_to_qsl.auth_id:
             # we do not handle layers which have no CRS definition!
             bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
@@ -207,29 +206,17 @@ class PublishedAsWmsAbstract(PublishedAs):
         # We have to call the following @properties a bit awkward because
         # they contain sync django orm actions
         dataset = await sync_to_async(lambda: self.bound_dataset)()
-        qsl_instance = await sync_to_async(lambda: dataset.to_qsl)()
+        qsl_job_layer = await sync_to_async(lambda: dataset.to_qsl_job_layer())()
         # this way we always set a style, or it will fail if list has no styles
         # we could make that configurable in admin gui easily
-        default_style = qsl_instance.get_style_by_name("default")
-        if default_style is None:
-            default_style = qsl_instance.styles[0]
-        qsl_instance.style_name = default_style.name
-        service_params = WmsGetMapParams(
-            BBOX=self.extent,
-            CRS=dataset.crs_to_qsl.auth_id,
-            WIDTH=str(self.preview_dimensions[0]),
-            HEIGHT=str(self.preview_dimensions[1]),
-            DPI="72",
-            FORMAT_OPTIONS="dpi%3A72",
-            LAYERS=self.name,
-            FORMAT="image/png",
-        )
-        get_map_job = QslGetMapJob(
-            extent_buffer=0.0,
-            service_params=service_params,
-            raster_layers=[qsl_instance] if isinstance(dataset, RasterDataSet) else [],
-            vector_layers=[qsl_instance] if isinstance(dataset, VectorDataSet) else [],
-            custom_layers=[qsl_instance] if isinstance(dataset, CustomDataSet) else [],
+        get_map_job = QslJobParameterRender(
+            bbox=BBox.from_string(self.extent),
+            crs=dataset.crs_to_qsl.auth_id,
+            width=self.preview_dimensions[0],
+            height=self.preview_dimensions[1],
+            dpi=72,
+            format="image/png",
+            layers=[qsl_job_layer],
         )
         try:
             redis_queue = await RedisQueue.create(Config().redis_url)
