@@ -55,7 +55,7 @@ jobs:
           cp .coverage.xml coverage-${{ matrix.python-version }}.xml
       - name: Stop services
         if: always()
-        run: docker compose down
+        run: docker compose down georama-db qsl-exporter
 # TODO: Uncomment this once we have decided if we use codecov?
 #      - name: Upload coverage to Codecov
 #        uses: codecov/codecov-action@v5
