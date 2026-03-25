@@ -93,7 +93,7 @@ services:
     healthcheck:
       test: [
         "CMD-SHELL",
-        'exec 3<>/dev/tcp/localhost/9000; echo -e "GET /health/ready HTTP/1.1\nhost: localhost:9000\n" >&3; timeout --preserve-status 1 cat <&3 | grep -m 1 status | grep -m 1 UP; ERROR=$?; exec 3<&-; exec 3>&-; exit $ERROR'
+        'exec 3<>/dev/tcp/localhost/9000; echo -e "GET /health/ready HTTP/1.1\nhost: localhost:9000\n" >&3; timeout --preserve-status 1 cat <&3 | grep -m 1 status | grep -m 1 UP; ERROR=$?; exec 3<&-; exec 3>&-; exit $$ERROR'
       ]
       interval: 15s
       timeout: 2s
