@@ -28,7 +28,7 @@ services:
       - "POSTGRES_PASSWORD=${GEORAMA_DB_PW:-test}"
       - "POSTGRES_DB=${GEORAMA_DB_NAME:-postgres}"
     healthcheck:
-      test: psql -U ${GEORAMA_DB_USER} -d ${GEORAMA_DB_NAME} -c 'SELECT PostGIS_Version()'
+      test: psql -U ${GEORAMA_DB_USER:-postgres} -d ${GEORAMA_DB_NAME:-postgres} -c 'SELECT PostGIS_Version()'
       interval: 10s
       timeout: 2s
       retries: 5
