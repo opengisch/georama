@@ -220,7 +220,7 @@ class PublishedAsWmsAbstract(PublishedAs):
         )
         try:
             redis_queue = await RedisQueue.create(Config().redis_url)
-            result = await redis_queue.post(get_map_job, Config().job_timeout)
+            result, _ = await redis_queue.post(get_map_job, Config().job_timeout)
             return result.data
         except ValueError as e:
             LOGGER.error(f"Error while generating preview image: {e}")
