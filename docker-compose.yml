@@ -16,7 +16,7 @@ services:
         condition: service_healthy
       keycloak:
         condition: service_healthy
-      
+
   georama-db:
     image: postgis/postgis:14-3.4
     volumes:
@@ -28,7 +28,7 @@ services:
       - "POSTGRES_PASSWORD=${GEORAMA_DB_PW:-test}"
       - "POSTGRES_DB=${GEORAMA_DB_NAME:-postgres}"
     healthcheck:
-      test: psql -U ${GEORAMA_DB_USER} -d ${GEORAMA_DB_NAME} -c 'SELECT ST_MakePoint(0,0)'
+      test: psql -U ${GEORAMA_DB_USER:-postgres} -d ${GEORAMA_DB_NAME:-postgres} -c 'SELECT PostGIS_Version()'
       interval: 10s
       timeout: 2s
       retries: 5
@@ -93,7 +93,7 @@ services:
     healthcheck:
       test: [
         "CMD-SHELL",
-        'exec 3<>/dev/tcp/localhost/9000; echo -e "GET /health/ready HTTP/1.1\nhost: localhost:9000\n" >&3; timeout --preserve-status 1 cat <&3 | grep -m 1 status | grep -m 1 UP; ERROR=$?; exec 3<&-; exec 3>&-; exit $ERROR'
+        'exec 3<>/dev/tcp/localhost/9000; echo -e "GET /health/ready HTTP/1.1\nhost: localhost:9000\n" >&3; timeout --preserve-status 1 cat <&3 | grep -m 1 status | grep -m 1 UP; ERROR=$?; exec 3<&-; exec 3>&-; exit $$ERROR'
       ]
       interval: 15s
       timeout: 2s

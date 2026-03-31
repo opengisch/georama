@@ -15,6 +15,11 @@ class TestDataIntegrationViews:
         client.login(username=admin_user_name, password=admin_password)
 
         project_path = "TestMandant/TestProject"
+        export_response = client.get(
+            f"/data_integration/export_qgis_project/{project_path}",
+            follow=True,
+        )
+        assert export_response.status_code == 200
         response = client.get(
             f"/data_integration/register_qgis_project/{project_path}",
             follow=True,
