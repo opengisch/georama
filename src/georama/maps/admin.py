@@ -130,30 +130,19 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
                 "SERVICE=WFS",
                 "REQUEST=GetFeature",
                 "VERSION=2.0.0",
-                f'TYPENAMES={quote(f"{WfsOperation.own_namespace}:{layer.name}")}',
+                f"TYPENAMES={quote(f'{WfsOperation.own_namespace}:{layer.name}')}",
                 f"SRSNAME={quote(layer.bound_dataset.crs_to_qsl.ogc_urn)}",
                 f"outputformat={quote(output_format)}",
             ]
         )
 
     def operations(self, obj: PublishedAsWms):
-        return mark_safe(
-            "".join(
-                [
-                    '<div class="btn-group" role="group">',
-                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WMS GetMap"><i class="fas fa-map text-xs"></i></a>'.format(  # noqa: E501
-                        reverse("maps:maps_ogc_entry"), self.create_wms_url_params(obj)
-                    ),
-                    '<a href="{}?{}" target="_blank" class="btn btn-high btn-success x-1" title="WFS GetFeature"><i class="fas fa-code text-xs"></i></a>'.format(  # noqa: E501
-                        reverse("maps:maps_ogc_entry"), self.create_wfs_url_params(obj)
-                    ),
-                    '<a href="{}" class="btn btn-high btn-danger"><i class="fas fa-trash-alt text-xs"/></a>'.format(  # noqa: E501
-                        reverse("admin:maps_publishedaswms_delete", args=(obj.pk,))
-                    ),
-                    "</div>",
-                ]
-            )
-        )
+        links = []
+        links += f'<a href="{reverse("maps:maps_ogc_entry")}?{self.create_wms_url_params(obj)}" target="_blank" class="btn btn-high btn-success x-1" title="WMS GetMap"><i class="fas fa-map text-xs"></i></a>'  # noqa: E501
+        if obj.is_queryable:
+            links += f'<a href="{reverse("maps:maps_ogc_entry")}?{self.create_wfs_url_params(obj)}" target="_blank" class="btn btn-high btn-success x-1" title="WFS GetFeature"><i class="fas fa-code text-xs"></i></a>'  # noqa: E501
+        links += f'<a href="{reverse("admin:maps_publishedaswms_delete", args=(obj.pk,))}" class="btn btn-high btn-danger"><i class="fas fa-trash-alt text-xs"/></a>'  # noqa: E501
+        return mark_safe(f'<div class="btn-group" role="group">{"".join(links)}</div>')
 
     operations.short_description = "Operations"
 

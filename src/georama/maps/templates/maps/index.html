@@ -32,7 +32,7 @@
 {% endblock %}
 
 {% block item_card_badges %}
-    {% if item.queryable %}
+    {% if item.is_queryable %}
     {% blocktranslate asvar title with val=item.queryable|yesno:"yes,no,unknown" %}WMS layer provides a twin WFS layer to query features: {{ val }}{% endblocktranslate %}
     <span class="badge rounded-pill text-bg-primary"
           data-bs-toggle="tooltip"
@@ -71,7 +71,7 @@
        aria-label="{{ title }}">
         <i class="fa fa-map"></i>
     </a>
-    {% if item.queryable %}
+    {% if item.is_queryable %}
     {% blocktranslate asvar title%}Open GetFeature request in new tab{% endblocktranslate %}
     <a href="{% url 'maps:maps_ogc_entry' %}?{{ item.create_wfs_url_params }}"
        target="_blank" class="btn btn-outline-primary"
