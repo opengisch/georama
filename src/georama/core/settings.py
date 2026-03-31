@@ -341,6 +341,15 @@ class Base(Configuration):
         },
     ]
 
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.Argon2PasswordHasher",
+        "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+        "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+        "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+        "django.contrib.auth.hashers.ScryptPasswordHasher",
+        "django.contrib.auth.hashers.MD5PasswordHasher",
+    ]
+
     CORS_ALLOWED_ORIGINS = values.ListValue(
         ["https://localhost:9309"],
         separator=" ",
@@ -487,6 +496,10 @@ class Dev(Base):
 
 class Test(Base):
     SECRET_KEY = "django-testing-secret-key"
+
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.MD5PasswordHasher",
+    ]
 
 
 class Prod(Base):
