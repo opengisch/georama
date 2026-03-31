@@ -83,12 +83,11 @@ dependencies = [
 
 # DEV: deps
 optional-dependencies.dev =[
-    "black==25.1.0",
-    "isort==6.0.1",
     "debugpy",
     "python-lsp-server[all]",
     "pylsp-mypy",
-    "pylsp-rope"
+    "pylsp-rope",
+    "ruff"
 ]
 
 optional-dependencies.dev_xsd =[
@@ -183,33 +182,6 @@ exclude_lines = [
 ]
 fail_under = 13
 
-
-[tool.black]
-line-length = 95
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-tests
-| dist
-| src\/georama\/maps\/interfaces
-)/
-'''
-# TODO: exclude tests & migrations generated interfaces
-
-[tool.isort]
-profile = 'black'
-extend_skip_glob = [
-    "src/georama/maps/interfaces/*",
-    "src/georama/*/migrations/*",
-    "tests/*"
-]
-
-[tool.bandit]
-tests = []
-skips = [
-    "B101",
-]
-
 [tool.software-release]
 version_variable = "src/georama/__init__.py:__version__"
 
@@ -229,5 +201,6 @@ select = [
     "UP",   # pyupgrade replacement
     "B",    # bugbear
     "SIM",  # simplify
+    "I",    # isort
 ]
 fixable = ["ALL"]
