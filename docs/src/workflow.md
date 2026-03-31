@@ -151,7 +151,7 @@ to the QGIS project.
 ## 🚀 Start the Georama services
 
 ```shell
-docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 54321:5432 postgis/postgis:latest
+docker run --rm -d --name georama-db -e POSTGRES_PASSWORD=test -p 5433:5432 postgis/postgis:latest
 docker run --rm -d -p 1234:6379 --name qsl-redis redis
 # it is correct that we use a different image for the qsl worker here
 docker run -d --rm --net host --name qsl -v $(pwd):/io/data opengisch/qgis-server-light:latest
