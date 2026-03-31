@@ -77,7 +77,7 @@ class QgisProjectGroup:
         return os.path.isfile(os.path.join(self.path, name))
 
     def create_projects(self, allowed_extensions: list[str]):
-        for name in os.listdir(self.path):
+        for name in sorted(os.listdir(self.path)):
             if self.is_file(name):
                 project_file_name = Path(name).stem
                 project_file_suffix = name.replace(project_file_name, "")
@@ -113,7 +113,7 @@ class QgisProjectFileStructure:
         return dirs
 
     def create_groups(self, allowed_extensions: list[str]):
-        for name in self.dirs():
+        for name in sorted(self.dirs()):
             group = QgisProjectGroup(parent=self, name=name)
             group.create_projects(allowed_extensions=allowed_extensions)
             self.groups.append(group)
