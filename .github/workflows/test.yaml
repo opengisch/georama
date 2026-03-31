@@ -40,7 +40,7 @@ jobs:
       - run: sudo rm /etc/apt/sources.list.d/*.list
       - run: sudo apt update
       - run: sudo apt-get install -y python3-venv python3-dev unixodbc odbc-mdbtools gdal-bin libgdal-dev libpq-dev build-essential make git curl
-      - run: cp .env.ci .env
+      - run: touch .env
       - name: Start services
         run: docker compose up -d --wait georama-db qsl-exporter
       - name: Set up test environment
