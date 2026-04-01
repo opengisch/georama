@@ -65,12 +65,13 @@ services:
       - "9309:443"
       - "9308:80"
   keycloak:
-    image: quay.io/keycloak/keycloak:26.1
+    image: quay.io/keycloak/keycloak:26.5
     environment:
       KC_HOSTNAME: localhost
       KC_HOSTNAME_PORT: 7080
       KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
       KC_HEALTH_ENABLED: "true"
+      KC_HTTP_MANAGEMENT_SCHEME: http
       KC_LOG_LEVEL: info
       KC_DB: postgres
       KC_DB_URL_DATABASE: keycloak
@@ -93,7 +94,7 @@ services:
     healthcheck:
       test: [
         "CMD-SHELL",
-        'exec 3<>/dev/tcp/localhost/9000; echo -e "GET /health/ready HTTP/1.1\nhost: localhost:9000\n" >&3; timeout --preserve-status 1 cat <&3 | grep -m 1 status | grep -m 1 UP; ERROR=$?; exec 3<&-; exec 3>&-; exit $$ERROR'
+        "exec 3<>/dev/tcp/localhost/9000; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:9000\r\nConnection: close\r\n\r\n' >&3; if cat <&3 | grep -q UP; then exit 0; else exit 1; fi",
       ]
       interval: 15s
       timeout: 2s
