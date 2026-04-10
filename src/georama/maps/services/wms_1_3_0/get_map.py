@@ -17,7 +17,7 @@ class WmsGetMap(WmsOperation):
 
     def prepare_job_content(
         self, service_params: GetMapRequestParams
-    ) -> QslJobParameterRender | str:
+    ) -> QslJobParameterRender:
         # we pass the requested layers to filter DB objects
         # (this includes permission checks and fails for
         # all request when only one layer is not permitted!)
