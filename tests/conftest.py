@@ -6,8 +6,8 @@ import pytest
 from django.contrib.auth.models import User
 from django.core.management import call_command
 from PIL import Image
-from qgis_server_light.interface.job import JobResult
-from qgis_server_light.interface.qgis import Crs
+from qgis_server_light.interface.exporter.extract import Crs
+from qgis_server_light.interface.job.common.output import JobResult
 from xsdata.models.enums import FormType
 from xsdata.models.xsd import (
     ComplexContent,
@@ -93,6 +93,7 @@ def empty_png_bytes_job_result() -> JobResult:
     img.save(buf, format="PNG")
 
     return JobResult(
+        id="abc",
         data=buf.getvalue(),
         content_type="image/png",
     )

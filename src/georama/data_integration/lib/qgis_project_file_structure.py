@@ -3,7 +3,7 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from qgis_server_light.interface.qgis import Config
+from qgis_server_light.interface.exporter.extract import Config
 
 from georama.data_integration.models import Project
 

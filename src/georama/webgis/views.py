@@ -8,12 +8,12 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
-from qgis_server_light.interface.qgis import BBox
-from qgis_server_light.interface.qgis import Config as QslConfig
-from qgis_server_light.interface.qgis import Custom as QslCustom
-from qgis_server_light.interface.qgis import Group as QslGroup
-from qgis_server_light.interface.qgis import Raster as QslRaster
-from qgis_server_light.interface.qgis import Vector as QslVector
+from qgis_server_light.interface.common import BBox
+from qgis_server_light.interface.exporter.extract import Config as QslConfig
+from qgis_server_light.interface.exporter.extract import Custom as QslCustom
+from qgis_server_light.interface.exporter.extract import Group as QslGroup
+from qgis_server_light.interface.exporter.extract import Raster as QslRaster
+from qgis_server_light.interface.exporter.extract import Vector as QslVector
 from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.decorators.debugging import temporary_fix
@@ -39,15 +39,14 @@ from georama.data_integration.models import (
 )
 from georama.data_integration.services.project import FSService
 from georama.maps.views import OgcServer
-from georama.webgis.apps import central_app_label
+from georama.webgis.apps import WebgisConfig, central_app_label
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     LayerGroup,
     Theme,
     ThemesJson,
 )
-from georama.webgis.models import LayerGroupMp
+from georama.webgis.models import LayerGroupMp, PublishedAsLayerWms, PublishedAsTheme
 from georama.webgis.models import OgcServer as WebGisOgcServer
-from georama.webgis.models import PublishedAsLayerWms, PublishedAsTheme
 
 
 class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
@@ -79,7 +78,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
     ) -> QslGroup | QslVector | QslRaster | QslCustom | None:
         # TODO: This should be move directly to the QSL interface!
         for element in datasets:
-            if element.name == dataset_name:
+            if element.id == dataset_name:
                 return element
         return None
 
@@ -121,7 +120,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                 vector_match = self.find_dataset_by_name(child, project_config.datasets.vector)
                 custom_match = self.find_dataset_by_name(child, project_config.datasets.custom)
                 if raster_match:
-                    query = RasterDataSet.objects.filter(project=project, name=child)
+                    query = RasterDataSet.objects.filter(project=project, qgis_layer_id=child)
                     if query.exists():
                         dataset = query.get()
                     else:
@@ -139,7 +138,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         public=True,
                     ).save()
                 elif vector_match:
-                    query = VectorDataSet.objects.filter(project=project, name=child)
+                    query = VectorDataSet.objects.filter(project=project, qgis_layer_id=child)
                     if query.exists():
                         dataset = query.get()
                     else:
@@ -157,7 +156,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         public=True,
                     ).save()
                 elif custom_match:
-                    query = CustomDataSet.objects.filter(project=project, name=child)
+                    query = CustomDataSet.objects.filter(project=project, qgis_layer_id=child)
                     if query.exists():
                         dataset = query.get()
                     else:
@@ -530,6 +529,7 @@ class Config(View):
 
 class OgcServerWebgis(OgcServer):
     model = PublishedAsLayerWms
+    appname = WebgisConfig.get_simple_appname()
 
 
 def insert_internal_ogc_server(request: HttpRequest) -> WebGisOgcServer:
@@ -547,7 +547,7 @@ def insert_internal_ogc_server(request: HttpRequest) -> WebGisOgcServer:
         AttributeError: If more than one OGC-Server was found with the name.
     """
     webgis_ogc_server_name = "georama.webgis"
-    url = f'{request.build_absolute_uri("/webgis")}/maps?'
+    url = f"{request.build_absolute_uri('/webgis')}/maps?"
     ogc_servers = WebGisOgcServer.objects.filter(name=webgis_ogc_server_name).all()
     if len(ogc_servers) == 0:
         ogc_server = WebGisOgcServer(
@@ -560,8 +560,7 @@ def insert_internal_ogc_server(request: HttpRequest) -> WebGisOgcServer:
             is_single_tile=False,
             namespace="https://www.opengis.ch/georama",
             name=webgis_ogc_server_name,
-            description="The Georama OGC Server which publishes "
-            "all configured WebGIS Layers.",
+            description="The Georama OGC Server which publishes all configured WebGIS Layers.",
             attributes={},
         )
         ogc_server.save()

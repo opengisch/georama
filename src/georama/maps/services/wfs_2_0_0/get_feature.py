@@ -33,8 +33,13 @@ from typing import Any
 
 import numpy as np
 from django.db.models import Model
-from qgis_server_light.interface.job import FeatureQuery, JobResult, QslGetFeatureJob
-from qgis_server_light.interface.qgis import QueryCollection
+from qgis_server_light.interface.job.common.input import OgcFilterFES20
+from qgis_server_light.interface.job.common.output import JobResult
+from qgis_server_light.interface.job.feature.input import (
+    FeatureQuery,
+    QslJobParameterFeature,
+)
+from qgis_server_light.interface.job.feature.output import QueryCollection
 from xsdata.formats.converter import Converter, converter
 from xsdata.formats.dataclass.parsers import JsonParser, XmlParser
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
@@ -366,7 +371,7 @@ class WfsGetFeature(WfsOperation):
 
     def getfeature_to_qslgetfeaturejob(
         self, get_feature_parameter: GetFeature
-    ) -> QslGetFeatureJob:
+    ) -> QslJobParameterFeature:
         """
         This method transforms a
         georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.get_feature.GetFeature
@@ -389,7 +394,7 @@ class WfsGetFeature(WfsOperation):
             for layer in self.obtain_accessible_layers(
                 self.sanitized_typenames(query.type_names)
             ):
-                accessible_datasets.append(layer.vector_dataset.to_qsl)
+                accessible_datasets.append(layer.vector_dataset.to_qsl_job_layer())
             if query.filter:
                 if len(accessible_datasets) > 1:
                     # we dont allow that, since its not possible to create filter
@@ -414,12 +419,12 @@ class WfsGetFeature(WfsOperation):
                 filter = None
             qsl_feature_queries.append(
                 FeatureQuery(
-                    datasets=accessible_datasets,
-                    alias=query.aliases,
-                    filter=filter,
+                    layers=accessible_datasets,
+                    aliases=query.aliases,
+                    filter=OgcFilterFES20(definition=filter),
                 )
             )
-        return QslGetFeatureJob(
+        return QslJobParameterFeature(
             start_index=get_feature_parameter.start_index,
             count=get_feature_parameter.count,
             queries=qsl_feature_queries,
@@ -727,7 +732,7 @@ class WfsGetFeature(WfsOperation):
                 return GeometryMember(polygon=polygons[0])
 
     def get_feature(
-        self, get_feature_parameter: GetFeature, result: JobResult, job: QslGetFeatureJob
+        self, get_feature_parameter: GetFeature, result: JobResult, job: QslJobParameterFeature
     ):
         qsl_query_collection = JsonParser().from_bytes(result.data, QueryCollection)
         wfs_feature_collection = FeatureCollection(
@@ -752,7 +757,16 @@ class WfsGetFeature(WfsOperation):
                         # data in this step we
                         # define all None values to be str, which can be None then -.-
                         type_name = str
-                    fields.append((attribute.name, type_name, field(default=None)))
+                    field_metadata = {}
+                    if isinstance(attribute.value, bytes):
+                        field_metadata["format"] = "base64"
+                    fields.append(
+                        (
+                            attribute.name,
+                            type_name,
+                            field(default=None, metadata=field_metadata),
+                        )
+                    )
                     if attribute.value is None:
                         # related to: https://github.com/tefra/xsdata/issues/408
                         feature_dict[attribute.name] = ""
@@ -799,7 +813,7 @@ class WfsGetFeature(WfsOperation):
                             srs = dataset.crs.ogc_uri
                             break
                 feature_object.geometry = self.parse_wkb_to_gml3(
-                    feature.geometry_as_bytes(),
+                    feature.geometry.value,
                     srs,
                 )
                 logging.debug(f"Rendered GML3 from WKB direct: {time.time() - start}")

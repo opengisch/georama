@@ -108,7 +108,7 @@ class Base(Configuration):
         "site_logo_classes": "img-circle",
         # Relative path to a favicon for your site, will default to
         # site_logo if absent (ideally 32x32 px)
-        "site_icon": "logo/favicon.ico",
+        "site_icon": "images/favicon.svg",
         "language_chooser": True,
         # Side Menu #
         #############

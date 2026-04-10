@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group, User
 from django.forms import Widget
 from django.urls import reverse
 from pyproj import CRS
-from qgis_server_light.interface.qgis import BBox
+from qgis_server_light.interface.common import BBox
 
 from georama.maps.models import PublishedAsWms
 
@@ -109,7 +109,7 @@ class PublishedAsWmsAdminForm(forms.ModelForm):
         if self.instance.name:
             # Provide additional context for the map widget for defining the layer extent
             widget_attrs = {
-                "layer_srid": self.instance.bound_dataset.crs["AuthId"],
+                "layer_srid": self.instance.bound_dataset.crs["auth_id"],
                 "original_extent": self.instance.bound_dataset.bbox,
                 "layer_url": reverse("maps:maps_ogc_entry"),
                 "layer_name": self.instance.name,

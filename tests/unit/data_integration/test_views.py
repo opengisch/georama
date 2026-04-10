@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pytest
-from qgis_server_light.interface.qgis import Crs, DataSource, OgrSource
+from qgis_server_light.interface.exporter.extract import Crs, DataSource, OgrSource
 
 from georama.data_integration.models import Project
 
@@ -55,8 +55,7 @@ class TestDataIntegrationViews:
         assert point_layer.name.startswith("TestPointLayer_")
         assert point_layer.qgis_layer_id.startswith("TestPointLayer_")
 
-        datasource, path = point_layer.source_to_qsl
-        assert path == "TestMandant/data/TestPointLayer.gpkg|layername=TestPointLayer"
+        datasource = point_layer.source_to_qsl
         assert datasource == DataSource(
             ogr=OgrSource(
                 path="data/TestPointLayer.gpkg",

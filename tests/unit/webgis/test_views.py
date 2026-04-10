@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, patch, Mock
 
 import pytest
 
@@ -21,8 +21,8 @@ class TestMapsViews:
         mock_instance.post.return_value = empty_png_bytes_job_result
 
         with patch(
-            "qgis_server_light.interface.dispatcher.RedisQueue.create",
-            new_callable=AsyncMock,
+            "qgis_server_light.interface.dispatcher.redis_asio.RedisQueue.create",
+            new_callable=Mock,
         ) as mock_create:
             mock_create.return_value = mock_instance
             client.login(username=admin_user_name, password=admin_password)

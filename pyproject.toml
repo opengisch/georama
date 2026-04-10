@@ -13,7 +13,7 @@ description = "The habitat of geoanimals"
 authors = [
     {name="Clemens Rudert", email="clemens@opengis.ch"}
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 maintainers = [
     {name="Clemens Rudert", email="clemens@opengis.ch"}
 ]
@@ -37,7 +37,6 @@ classifiers = [
     "Operating System :: Unix",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -61,13 +60,14 @@ dependencies = [
     "django[argon2]==5.2.10",
     "django-jazzmin==3.0.1",
     "django-configurations==2.5.1",
-    "xsdata[lxml]==24.12",
+    "xsdata[lxml]==26.2",
     "async-timeout==4.0.3",
     "redis==5.0.8",
     "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
     "numpy==2.2.5",
     "django-crispy-forms",
     "crispy-bootstrap5",
+    "uvicorn==0.44.0",
     # deps for webgis
     "django-allauth[socialaccount]==65.14.0",
     "django-cors-headers==4.3.1",
@@ -77,7 +77,6 @@ dependencies = [
     "django-extensions==3.2.3",
     # prod-server deps
     "gunicorn==23.0.0",
-    "uvicorn==0.35.0",
     # qfield_link deps
     "qfieldcloud-sdk==0.10.0"
 ]
@@ -88,12 +87,13 @@ optional-dependencies.dev =[
     "python-lsp-server[all]",
     "pylsp-mypy",
     "pylsp-rope",
-    "ruff"
+    "ruff",
+    "pyprof2calltree",
 ]
 
 optional-dependencies.dev_xsd =[
     # to derive dataclasses from xsd schemas
-    "xsdata[cli,soap]==24.12",
+    "xsdata[cli,soap]==26.2",
 ]
 
 # Test: packages imported in test code and packages required for the "test runner"
@@ -194,8 +194,8 @@ exclude = [
     "src/georama/*/migrations/**",
     "tests/**",
 ]
-
-[tool.ruff.lint]
+fix = true
+show-fixes = true
 select = [
     "E",    # pycodestyle
     "F",    # pyflakes

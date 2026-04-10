@@ -1,8 +1,8 @@
 import logging
 import math
 
-from qgis_server_light.interface.qgis import Config as QslConfig
-from qgis_server_light.interface.qgis import Custom, Raster, Vector
+from qgis_server_light.interface.exporter.extract import Config as QslConfig
+from qgis_server_light.interface.exporter.extract import Custom, Raster, Vector
 from xsdata.formats.dataclass.parsers import JsonParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder
@@ -27,7 +27,6 @@ from georama.data_integration.models import (
 
 
 class FSService:
-
     def __init__(self):
         """
         Implements handling of file system related stuff. Like reading in
@@ -150,7 +149,6 @@ class FSService:
 
 
 class DBService:
-
     def get_list(self) -> list[Project]:
         return list(Project.objects.all())
 
@@ -208,106 +206,107 @@ class DBService:
         fss_project = FSService()
         logging.debug("Handling of vector datasets")
         for layer in project_config.datasets.vector:
-            dataset = self.get_dataset_by_id(layer.id, VectorDataSet)
-            if dataset is None:
-                logging.debug(
-                    f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
-                )
-                dataset = VectorDataSet()
-            else:
-                logging.debug(
-                    f" Dataset was found and will be updated {layer.name}"
-                    f" (qgis-layer-id: {layer.id})"
-                )
-            dataset.project = project_db
-            dataset.name = layer.name
-            dataset.title = layer.title
-            dataset.bbox = layer.bbox.to_string()
-            dataset.bbox_wgs84 = layer.bbox_wgs84.to_string()
-            dataset.path = layer.path
-            dataset.styles = DictEncoder().encode(layer.styles)
-            dataset.driver = layer.driver
-            dataset.source = DictEncoder().encode(layer.source)
-            dataset.qgis_layer_id = layer.id
-            dataset.crs = DictEncoder().encode(layer.crs)
-            dataset.minimum_scale = layer.minimum_scale
-            dataset.maximum_scale = layer.maximum_scale
-            dataset.geometry_type_simple = layer.geometry_type_simple
-            dataset.geometry_type_wkb = layer.geometry_type_wkb
-            dataset.save()
-            logging.debug(
-                f" ✓ Dataset {layer.name} (qgis-layer-id: {layer.id})"
-                f" was written to DB successfully."
-            )
-            logging.debug(" Handling of related fields.")
-            for field in layer.fields:
-
-                field_qs = Field.objects.filter(
-                    name=field.name,
-                    type=field.type,
-                    is_primary_key=field.is_primary_key,
-                    type_wfs=field.type_wfs,
-                    type_oapif=field.type_oapif,
-                    type_oapif_format=field.type_oapif_format,
-                    alias=field.alias,
-                    comment=field.comment,
-                    nullable=field.nullable,
-                    length=field.length,
-                    precision=field.precision,
-                    vector_dataset=dataset,
-                )
-                if not field_qs.exists():
+            if layer.is_spatial:
+                dataset = self.get_dataset_by_id(layer.id, VectorDataSet)
+                if dataset is None:
                     logging.debug(
-                        f"   New Field {field.name} (type: {field.type}) will be added."
+                        f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
                     )
-                    field = Field(
-                        name=field.name,
-                        type=field.type,
-                        is_primary_key=field.is_primary_key,
-                        type_wfs=field.type_wfs,
-                        type_oapif=field.type_oapif,
-                        type_oapif_format=field.type_oapif_format,
-                        alias=field.alias,
-                        comment=field.comment,
-                        nullable=field.nullable,
-                        length=field.length,
-                        precision=field.precision,
-                        vector_dataset=dataset,
-                    )
+                    dataset = VectorDataSet()
                 else:
                     logging.debug(
-                        f"   Field {field.name} (type: {field.type})"
-                        f" was found and will be updated."
+                        f" Dataset was found and will be updated {layer.name}"
+                        f" (qgis-layer-id: {layer.id})"
                     )
-                    field: Field = field_qs.get()
-                    field.name = field.name
-                    field.type = field.type
-                    field.is_primary_key = field.is_primary_key
-                    field.type_wfs = field.type_wfs
-                    field.type_oapif = field.type_oapif
-                    field.type_oapif_format = field.type_oapif_format
-                    field.alias = field.alias
-                    field.comment = field.comment
-                    field.nullable = field.nullable
-                    field.length = field.length
-                    field.precision = field.precision
-                    field.vector_dataset = dataset
-                field.save()
+                dataset.project = project_db
+                dataset.name = layer.name
+                dataset.title = layer.title
+                dataset.bbox = layer.bbox.to_string()
+                dataset.bbox_wgs84 = layer.bbox_wgs84.to_string()
+                dataset.styles = DictEncoder().encode(layer.styles)
+                dataset.driver = layer.driver
+                dataset.source = DictEncoder().encode(layer.source)
+                dataset.qgis_layer_id = layer.id
+                dataset.crs = DictEncoder().encode(layer.crs)
+                dataset.minimum_scale = layer.minimum_scale
+                dataset.maximum_scale = layer.maximum_scale
+                dataset.geometry_type_simple = layer.geometry_type_simple
+                dataset.geometry_type_wkb = layer.geometry_type_wkb
+                dataset.save()
                 logging.debug(
-                    f"   ✓ Field {field.name} (type: {field.type})"
+                    f" ✓ Dataset {layer.name} (qgis-layer-id: {layer.id})"
                     f" was written to DB successfully."
                 )
-            logging.debug("   Cleaning out old fields...")
-            for field_db in Field.objects.filter(vector_dataset=dataset).all():
-                field_match = layer.get_field_by_name(field_db.name)
-                if field_match is None:
-                    logging.debug(
-                        f'    Deleting field "{field.name}" of vector dataset {dataset.name}'
-                        f" since it was"
-                        " not in project config anymore"
+                logging.debug(" Handling of related fields.")
+                for qsl_field in layer.fields:
+                    field_qs = Field.objects.filter(
+                        name=qsl_field.name,
+                        type=qsl_field.type,
+                        is_primary_key=qsl_field.is_primary_key,
+                        type_wfs=qsl_field.type_wfs,
+                        type_oapif=qsl_field.type_oapif,
+                        type_oapif_format=qsl_field.type_oapif_format,
+                        alias=qsl_field.alias,
+                        comment=qsl_field.comment,
+                        nullable=qsl_field.nullable,
+                        length=qsl_field.length,
+                        precision=qsl_field.precision,
+                        vector_dataset=dataset,
                     )
-                    field_db.delete()
-            logging.debug("   ✓ Finished - Cleaning out old fields...")
+                    if not field_qs.exists():
+                        logging.debug(
+                            f"   New Field {qsl_field.name} "
+                            f"(type: {qsl_field.type}) will be added."
+                        )
+                        field = Field(
+                            name=qsl_field.name,
+                            type=qsl_field.type,
+                            is_primary_key=qsl_field.is_primary_key,
+                            type_wfs=qsl_field.type_wfs,
+                            type_oapif=qsl_field.type_oapif,
+                            type_oapif_format=qsl_field.type_oapif_format,
+                            alias=qsl_field.alias,
+                            comment=qsl_field.comment,
+                            nullable=qsl_field.nullable,
+                            length=qsl_field.length,
+                            precision=qsl_field.precision,
+                            vector_dataset=dataset,
+                        )
+                    else:
+                        logging.debug(
+                            f"   Field {qsl_field.name} (type: {qsl_field.type})"
+                            f" was found and will be updated."
+                        )
+                        field: Field = field_qs.get()
+                        field.name = qsl_field.name
+                        field.type = qsl_field.type
+                        field.is_primary_key = qsl_field.is_primary_key
+                        field.type_wfs = qsl_field.type_wfs
+                        field.type_oapif = qsl_field.type_oapif
+                        field.type_oapif_format = qsl_field.type_oapif_format
+                        field.alias = qsl_field.alias
+                        field.comment = qsl_field.comment
+                        field.nullable = qsl_field.nullable
+                        field.length = qsl_field.length
+                        field.precision = qsl_field.precision
+                        field.vector_dataset = dataset
+                    field.save()
+                    logging.debug(
+                        f"   ✓ Field {field.name} (type: {field.type})"
+                        f" was written to DB successfully."
+                    )
+                logging.debug("   Cleaning out old fields...")
+                for field_db in Field.objects.filter(vector_dataset=dataset).all():
+                    field_match = layer.get_field_by_name(field_db.name)
+                    if field_match is None:
+                        logging.debug(
+                            f'    Deleting field "{field.name}" of vector '
+                            f"dataset {dataset.name}"
+                            f" since it was"
+                            " not in project config anymore"
+                        )
+                        field_db.delete()
+                logging.debug("   ✓ Finished - Cleaning out old fields...")
         logging.debug(" Cleaning out old vector datasets.")
         for dataset_db in VectorDataSet.objects.filter(project=project_db).all():
             dataset_match = fss_project.find_config_dataset_by_id(
@@ -339,7 +338,6 @@ class DBService:
             dataset.title = layer.title
             dataset.bbox = layer.bbox.to_string()
             dataset.bbox_wgs84 = layer.bbox_wgs84.to_string()
-            dataset.path = layer.path
             dataset.styles = DictEncoder().encode(layer.styles)
             dataset.driver = layer.driver
             dataset.source = DictEncoder().encode(layer.source)
@@ -383,7 +381,6 @@ class DBService:
             dataset.title = layer.title
             dataset.bbox = layer.bbox.to_string()
             dataset.bbox_wgs84 = layer.bbox_wgs84.to_string()
-            dataset.path = layer.path
             dataset.styles = DictEncoder().encode(layer.styles)
             dataset.driver = layer.driver
             dataset.source = DictEncoder().encode(layer.source)

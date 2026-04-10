@@ -16,8 +16,8 @@ Including another URLconf
 """
 
 from django.conf import settings as AppSettings
-from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 
 from georama.core.apps import central_app_label
@@ -52,4 +52,6 @@ urlpatterns = [
 ]
 
 if AppSettings.DEBUG:
-    urlpatterns += static(AppSettings.STATIC_URL, document_root=AppSettings.STATIC_ROOT)
+    # in dev mode we directly serve static files so we don't need
+    # to execute collectstatic everytime.
+    urlpatterns += staticfiles_urlpatterns()

@@ -3,7 +3,8 @@ from unittest.mock import Mock, patch
 from xml.etree.ElementTree import QName
 
 from lxml import etree
-from qgis_server_light.interface.qgis import BBox
+from qgis_server_light.interface.common import BBox
+from qgis_server_light.interface.exporter.extract import Crs
 
 from georama.data_integration.models import VectorDataSet
 from georama.maps.interfaces.ogc import wfs_2_0_0
@@ -82,11 +83,17 @@ class TestWfsGetCapabilities:
             spec=VectorDataSet,
             geometry_type_wkb="Point",
             crs={
-                "AuthId": "EPSG:4326",
-                "OgcUri": "http://www.opengis.net/def/crs/EPSG/0/4326",
-                "OgcUrn": "urn:ogc:def:crs:EPSG::4326",
-                "PostgisSrid": 4326,
+                "auth_id": "EPSG:4326",
+                "ogc_uri": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                "ogc_urn": "urn:ogc:def:crs:EPSG::4326",
+                "postgis_srid": 4326,
             },
+            crs_to_qsl=Crs(
+                auth_id="EPSG:4326",
+                ogc_uri="http://www.opengis.net/def/crs/EPSG/0/4326",
+                ogc_urn="urn:ogc:def:crs:EPSG::4326",
+                postgis_srid=4326,
+            ),
         )
         layer = Mock(
             title="Cities",

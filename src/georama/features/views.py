@@ -12,7 +12,6 @@ from django.views import View
 from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
-from qgis_server_light.interface.qgis import BBox
 
 from georama.core.decorators.debugging import temporary_fix
 from georama.core.services.permission import DBService
@@ -313,7 +312,7 @@ class PygeoapiServer(View):
         editable: bool,
         features_properties: list[ColumnOgcApiFeatures],
     ) -> dict:
-        source, _ = published_as.dataset.source_to_qsl
+        source = published_as.dataset.source_to_qsl
 
         crs = published_as.dataset.crs_to_qsl
         available_crs_list = self.getAvailableCrsList(crs)
@@ -362,7 +361,7 @@ class PygeoapiServer(View):
         editable: bool,
         features_properties: list[ColumnOgcApiFeatures],
     ) -> dict:
-        source, _ = published_as.dataset.source_to_qsl
+        source = published_as.dataset.source_to_qsl
 
         crs = published_as.dataset.crs_to_qsl
         available_crs_list = self.getAvailableCrsList(crs)
@@ -443,7 +442,7 @@ class PygeoapiServer(View):
             "links": [],
             "extents": {
                 "spatial": {
-                    "bbox": BBox.from_string(published_as.dataset.bbox).to_list(),
+                    "bbox": published_as.dataset.bbox_to_list,
                     "crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
                 }
             },

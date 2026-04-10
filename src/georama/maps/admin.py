@@ -10,13 +10,13 @@ from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from qgis_server_light.interface.qgis import BBox
+from qgis_server_light.interface.common import BBox
 
 from georama.core.entities.models import save_group_permissions, save_user_permissions
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.forms import PublishedAsWmsAdminForm
 from georama.maps.interfaces.georama.requests import (
-    QslGetMapRequest,
+    GetMapRequestParams,
     RequestType,
     ServiceType,
     Version,
@@ -97,7 +97,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     ) -> str:
         dataset = layer.bound_dataset
         bbox = BBox.from_string(layer.extent).to_2d_list()
-        params = QslGetMapRequest(
+        params = GetMapRequestParams(
             SERVICE=ServiceType.wms.value,
             REQUEST=RequestType.get_map.value,
             VERSION=Version.v_1_3_0.value,
@@ -115,7 +115,7 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
             FORMAT_OPTIONS="dpi%3A72",
         )
         url_params = {}
-        for field in fields(QslGetMapRequest):
+        for field in fields(GetMapRequestParams):
             field_value = getattr(params, field.name)
             if isinstance(field_value, list):
                 field_value = ",".join([str(value) for value in field_value])

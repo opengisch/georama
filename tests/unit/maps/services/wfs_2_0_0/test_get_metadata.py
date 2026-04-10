@@ -4,7 +4,7 @@ from decimal import Decimal
 from unittest.mock import Mock, patch
 
 from lxml import etree
-from qgis_server_light.interface.qgis import BBox
+from qgis_server_light.interface.common import BBox
 
 from georama.data_integration.models import VectorDataSet
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses import (

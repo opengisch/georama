@@ -6,7 +6,7 @@ from django.db import models
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from qgis_server_light.interface.qgis import DataSource
+from qgis_server_light.interface.exporter.extract import DataSource
 from treebeard.mp_tree import MP_Node
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig

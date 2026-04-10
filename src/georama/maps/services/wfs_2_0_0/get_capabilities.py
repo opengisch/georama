@@ -1,9 +1,7 @@
 import logging
 from xml.etree.ElementTree import QName
 
-from qgis_server_light.interface.qgis import BBox
-from qgis_server_light.interface.qgis import Crs as QSL_Crs
-from xsdata.formats.dataclass.parsers import DictDecoder
+from qgis_server_light.interface.exporter.extract import BBox
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 
 from georama.maps.interfaces.ogc.wfs_2_0_0 import (
@@ -51,13 +49,12 @@ class WfsGetCapabilities(WfsOperation):
         wfs_capabilities = self.get_capabilities_body()
         for published_as in self.obtain_accessible_layers():
             dataset = published_as.vector_dataset
-            source_crs = DictDecoder().decode(dataset.crs, QSL_Crs)
             bbox = BBox.from_string(published_as.extent_wgs84)
             wfs_capabilities.feature_type_list.feature_type.append(
                 self.create_feature_type(
                     f"{self.own_namespace}:{published_as.name}",
                     published_as.title,
-                    source_crs.ogc_uri,
+                    dataset.crs_to_qsl.ogc_uri,
                     bbox,
                     self.url,
                 )

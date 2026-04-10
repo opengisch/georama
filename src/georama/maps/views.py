@@ -6,18 +6,12 @@ from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
-from qgis_server_light.interface.dispatcher import RedisQueue
-from qgis_server_light.interface.job import (
-    JobResult,
-    QslGetFeatureInfoJob,
-    WmsGetFeatureInfoParams,
-    WmsGetMapParams,
-)
-from qgis_server_light.interface.qgis import Custom, Raster, Vector
+from qgis_server_light.interface.dispatcher.common import Status
+from qgis_server_light.interface.exporter.extract import Custom, Raster, Vector
+from qgis_server_light.interface.job.common.output import JobResult
 from xsdata.exceptions import ParserError
 from xsdata.formats.dataclass.parsers import DictDecoder, XmlParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
-from xsdata.formats.dataclass.serializers import JsonSerializer
 
 from georama.core.views.entities.entity_delete import GeoramaEntityDeleteView
 from georama.core.views.entities.entity_detail import GeoramaEntityDetailView
@@ -33,8 +27,9 @@ from georama.core.views.generic.mixins import (
     GeoramaLoginRequiredMixin,
 )
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
-from georama.maps.apps import MapsConfig, central_app_label
-from georama.maps.interfaces.georama.requests import QslGetMapRequest
+from georama.maps.apps import MapsConfig, central_app_label, qsl_redis_queue
+from georama.maps.exception.job import JobExecutionError, UnexpectedBehaviourError
+from georama.maps.interfaces.georama.requests import GetMapRequestParams
 from georama.maps.interfaces.ogc.wfs_2_0_0 import GetFeature as GetFeature200
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
@@ -47,11 +42,10 @@ from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
 
 log = logging.getLogger(__name__)
 
-appname = MapsConfig.get_simple_appname()
-
 
 class OgcServer(View):
     model = PublishedAsWms
+    appname = MapsConfig.get_simple_appname()
 
     def wms_130_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
         """
@@ -66,7 +60,7 @@ class OgcServer(View):
         """
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WmsGetCapabilities(
-            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         if requested_format not in operation.allowed_formats:
             return HttpResponse(
@@ -91,7 +85,7 @@ class OgcServer(View):
     def wfs_200_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetCapabilities(
-            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
 
         if requested_format not in operation.allowed_formats:
@@ -119,7 +113,7 @@ class OgcServer(View):
         language = "en-US"
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetMetadata(
-            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         if requested_layer:
             if requested_format not in operation.allowed_formats:
@@ -161,7 +155,7 @@ class OgcServer(View):
             "OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2"
         ).upper()
         operation = WfsDescribeFeatureType(
-            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         content, content_type, success = operation.render(
             requested_format, operation.describe_feature_type(requested_layer)
@@ -180,15 +174,17 @@ class OgcServer(View):
 
     async def wfs_200_getfeature(self, request: HttpRequest, params: dict) -> HttpResponse:
         operation = WfsGetFeature(
-            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         get_feature_parameter = operation.query_parameters_to_get_feature_request(params)
 
         job = await sync_to_async(
             operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True
         )(get_feature_parameter)
-        redis_queue = await self.redis_queue_instance
-        result = await redis_queue.post(job, Config().job_timeout)
+        result, status = await qsl_redis_queue.post(job, Config().job_timeout)
+
+        self.handle_job_result(result, status)
+
         content, content_type, success = operation.render(
             get_feature_parameter.output_format,
             operation.get_feature(
@@ -231,7 +227,7 @@ class OgcServer(View):
         return params
 
     def extract_layers(
-        self, request: HttpRequest, service_params: WmsGetMapParams
+        self, request: HttpRequest, service_params: GetMapRequestParams
     ) -> tuple[list[Raster], list[Vector], list[Custom], float]:
         accessible_raster: list[Raster] = []
         accessible_vector: list[Vector] = []
@@ -240,7 +236,7 @@ class OgcServer(View):
         # https://github.com/qgis/QGIS/issues/30251
         vector_extent_buffer = 0.0
         for published_as in self.model.objects.filter(name__in=service_params.layers):
-            if published_as.has_read_permission(request.user, appname):
+            if published_as.has_read_permission(request.user, self.appname):
                 if isinstance(published_as.raster_dataset, RasterDataSet):
                     accessible_raster.append(published_as.raster_dataset.to_qsl)
                 elif isinstance(published_as.vector_dataset, VectorDataSet):
@@ -258,9 +254,24 @@ class OgcServer(View):
                     )
         return accessible_raster, accessible_vector, accessible_custom, vector_extent_buffer
 
-    @property
-    async def redis_queue_instance(self) -> RedisQueue:
-        return await RedisQueue.create(Config().redis_url)
+    def handle_job_result(self, result: JobResult, status: str):
+        """Handles general behavior on job result and status.
+
+        Args:
+            result: The result received from redis queue.
+            status: The status of the job execution.
+
+        Raises:
+            JobExecutionError: If the job has status failed.
+            UnexpectedBehaviourError: In any other case then Status.FAILURE,
+                Status.SUCCESS.
+        """
+        if status == Status.FAILURE.value:
+            raise JobExecutionError(job_id=result.id)
+        elif status == Status.SUCCESS.value:
+            pass
+        else:
+            raise UnexpectedBehaviourError(job_id=result.id)
 
     async def get(self, request: HttpRequest, *args, **kwargs):
         params = self.sanitize_query_parameters(request.GET.dict())
@@ -293,38 +304,33 @@ class OgcServer(View):
                 parser_config = ParserConfig(
                     fail_on_unknown_properties=False, fail_on_unknown_attributes=False
                 )
-                service_params = DictDecoder(parser_config).decode(params, QslGetMapRequest)
+                service_params = DictDecoder(parser_config).decode(params, GetMapRequestParams)
                 operation = WmsGetMap(
-                    appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+                    self.appname,
+                    f"{request.build_absolute_uri('ows')}?",
+                    request.user,
+                    self.model,
                 )
                 try:
                     job = await sync_to_async(
                         operation.prepare_job_content, thread_sensitive=True
                     )(service_params)
-                    logging.debug(JsonSerializer().render(job))
+                    logging.debug(job)
                 except ValueError as e:
                     return HttpResponse(e, status=400, content_type="text/plain")
                 except PermissionError as e:
                     return HttpResponse(e, status=403, content_type="text/plain")
 
             elif params["REQUEST"] == "GETFEATUREINFO":
-                # TODO: this needs to be improved a bit, currently
-                #  the layers are not sent to QSL.
-                service_params = WmsGetFeatureInfoParams.from_overloaded_dict(params)
-                job = QslGetFeatureInfoJob(service_params=service_params)
+                raise NotImplementedError("Currently not supported")
             else:
                 return HttpResponse("Only WMS Service is available", 500)
             config = Config()
-            try:
-                redis_queue = await self.redis_queue_instance
-                result = await redis_queue.post(job, config.job_timeout)
-                return HttpResponse(result.data, result.content_type)
-            except RuntimeError:
-                return HttpResponse(
-                    "Something went wrong while job handling, see QSL logs for details",
-                    status=500,
-                    content_type="text/plain",
-                )
+            result, status = await qsl_redis_queue.post(job, config.job_timeout)
+
+            self.handle_job_result(result, status)
+
+            return HttpResponse(result.data, result.content_type)
         elif params["SERVICE"].upper() == "WFS":
             if params.get("VERSION", "2.0.0") == "2.0.0":
                 pass
@@ -360,7 +366,7 @@ class OgcServer(View):
     async def post(self, request: HttpRequest, *args, **kwargs):
         try:
             operation = WfsGetFeature(
-                appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+                self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
             )
             try:
                 get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature200)
@@ -374,8 +380,10 @@ class OgcServer(View):
                     status=400,
                     content_type="text/xml",
                 )
-            redis_queue = await self.redis_queue_instance
-            result: JobResult = await redis_queue.post(job, Config().job_timeout)
+            result, status = await qsl_redis_queue.post(job, Config().job_timeout)
+
+            self.handle_job_result(result, status)
+
             content, content_type, success = operation.render(
                 get_feature_parameter.output_format.upper(),
                 operation.get_feature(
@@ -442,7 +450,6 @@ class PublishLayer(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
 
 
 class Index(GeoramaPublishedItemIndex):
-
     model = PublishedAsWms
     template_name = "maps/index.html"
     entity_name = "layer"
@@ -476,7 +483,6 @@ class LayerListView(
 class PublishListView(
     GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityPublishListView
 ):
-
     model_publish = PublishedAsWms
     template_name = "maps/publish.html"
     entity_name = "layer"

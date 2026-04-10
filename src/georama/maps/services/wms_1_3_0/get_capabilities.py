@@ -1,8 +1,6 @@
 import logging
 
-from qgis_server_light.interface.qgis import BBox
-from qgis_server_light.interface.qgis import Crs as QslCrs
-from qgis_server_light.interface.qgis import Style as QslStyle
+from qgis_server_light.interface.common import BBox
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
@@ -92,14 +90,9 @@ class WmsGetCapabilities(WmsOperation):
 
     def get_capabilities(self) -> WmsCapabilities:
         capabilities = self.get_capabilities_body()
-        parser_config = ParserConfig(
-            fail_on_unknown_attributes=False, fail_on_unknown_properties=False
-        )
-        decoder = DictDecoder(parser_config)
         for published_as in self.obtain_accessible_layers():
             dataset = published_as.bound_dataset
-            source_crs = decoder.decode(dataset.crs, QslCrs)
-            styles = decoder.decode(dataset.styles, list[QslStyle])
+            styles = dataset.styles_to_qsl
             style_names = [style.name for style in styles]
             if "default" not in style_names:
                 logging.debug(
@@ -115,7 +108,7 @@ class WmsGetCapabilities(WmsOperation):
                 published_as.name,
                 published_as.title,
                 published_as.description,
-                source_crs.auth_id,
+                dataset.crs_to_qsl.auth_id,
                 extent,
                 extent_wgs84,
                 style_names,
