@@ -10,13 +10,12 @@ from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from osgeo import osr as osgeo_osr
 from qgis_server_light.interface.common import BBox
-from qgis_server_light.interface.dispatcher.redis_asio import RedisQueue
 from qgis_server_light.interface.job.render.input import QslJobParameterRender
 
 from georama.core.entities.models import PermissionInterface, PublishedAs
 from georama.core.models.mixins import GeoramaPermissionMixin
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
-from georama.maps.apps import central_app_label
+from georama.maps.apps import central_app_label, qsl_redis_queue
 from georama.maps.interfaces.georama.requests import (
     GetMapRequestParams,
     RequestType,
@@ -219,8 +218,8 @@ class PublishedAsWmsAbstract(PublishedAs):
             layers=[qsl_job_layer],
         )
         try:
-            redis_queue = await RedisQueue.create(Config().redis_url)
-            result, _ = await redis_queue.post(get_map_job, Config().job_timeout)
+            result_tuple = await qsl_redis_queue.post(get_map_job, Config().job_timeout)
+            result, _ = result_tuple
             return result.data
         except ValueError as e:
             LOGGER.error(f"Error while generating preview image: {e}")

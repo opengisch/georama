@@ -1,7 +1,8 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, patch, Mock
 
 import pytest
 from lxml import etree
+from qgis_server_light.interface.dispatcher.common import Status
 
 from georama.maps.models import PublishedAsWms
 
@@ -19,11 +20,11 @@ class TestMapsViews:
         admin_user,
     ):
         mock_instance = AsyncMock()
-        mock_instance.post.return_value = empty_png_bytes_job_result
+        mock_instance.post.return_value = (empty_png_bytes_job_result, Status.SUCCESS.value)
 
         with patch(
             "qgis_server_light.interface.dispatcher.redis_asio.RedisQueue.create",
-            new_callable=AsyncMock,
+            new_callable=Mock,
         ) as mock_create:
             mock_create.return_value = mock_instance
 

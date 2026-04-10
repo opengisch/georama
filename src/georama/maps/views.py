@@ -7,7 +7,6 @@ from django.shortcuts import redirect
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 from qgis_server_light.interface.dispatcher.common import Status
-from qgis_server_light.interface.dispatcher.redis_asio import RedisQueue
 from qgis_server_light.interface.exporter.extract import Custom, Raster, Vector
 from qgis_server_light.interface.job.common.output import JobResult
 from xsdata.exceptions import ParserError
@@ -28,7 +27,7 @@ from georama.core.views.generic.mixins import (
     GeoramaLoginRequiredMixin,
 )
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
-from georama.maps.apps import MapsConfig, central_app_label
+from georama.maps.apps import MapsConfig, central_app_label, qsl_redis_queue
 from georama.maps.exception.job import JobExecutionError, UnexpectedBehaviourError
 from georama.maps.interfaces.georama.requests import GetMapRequestParams
 from georama.maps.interfaces.ogc.wfs_2_0_0 import GetFeature as GetFeature200
@@ -62,7 +61,7 @@ class OgcServer(View):
         """
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WmsGetCapabilities(
-            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+            appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         if requested_format not in operation.allowed_formats:
             return HttpResponse(
@@ -87,7 +86,7 @@ class OgcServer(View):
     def wfs_200_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetCapabilities(
-            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+            appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
 
         if requested_format not in operation.allowed_formats:
@@ -115,7 +114,7 @@ class OgcServer(View):
         language = "en-US"
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetMetadata(
-            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+            appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         if requested_layer:
             if requested_format not in operation.allowed_formats:
@@ -157,7 +156,7 @@ class OgcServer(View):
             "OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2"
         ).upper()
         operation = WfsDescribeFeatureType(
-            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+            appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         content, content_type, success = operation.render(
             requested_format, operation.describe_feature_type(requested_layer)
@@ -176,15 +175,14 @@ class OgcServer(View):
 
     async def wfs_200_getfeature(self, request: HttpRequest, params: dict) -> HttpResponse:
         operation = WfsGetFeature(
-            appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+            appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         get_feature_parameter = operation.query_parameters_to_get_feature_request(params)
 
         job = await sync_to_async(
             operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True
         )(get_feature_parameter)
-        redis_queue = await self.redis_queue_instance
-        result, status = await redis_queue.post(job, Config().job_timeout)
+        result, status = await qsl_redis_queue.post(job, Config().job_timeout)
 
         self.handle_job_result(result, status)
 
@@ -257,10 +255,6 @@ class OgcServer(View):
                     )
         return accessible_raster, accessible_vector, accessible_custom, vector_extent_buffer
 
-    @property
-    async def redis_queue_instance(self) -> RedisQueue:
-        return await RedisQueue.create(Config().redis_url)
-
     def handle_job_result(self, result: JobResult, status: str):
         """Handles general behavior on job result and status.
 
@@ -313,7 +307,7 @@ class OgcServer(View):
                 )
                 service_params = DictDecoder(parser_config).decode(params, GetMapRequestParams)
                 operation = WmsGetMap(
-                    appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+                    appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
                 )
                 try:
                     job = await sync_to_async(
@@ -330,8 +324,7 @@ class OgcServer(View):
             else:
                 return HttpResponse("Only WMS Service is available", 500)
             config = Config()
-            redis_queue = await self.redis_queue_instance
-            result, status = await redis_queue.post(job, config.job_timeout)
+            result, status = await qsl_redis_queue.post(job, config.job_timeout)
 
             self.handle_job_result(result, status)
 
@@ -371,7 +364,7 @@ class OgcServer(View):
     async def post(self, request: HttpRequest, *args, **kwargs):
         try:
             operation = WfsGetFeature(
-                appname, f'{request.build_absolute_uri("ows")}?', request.user, self.model
+                appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
             )
             try:
                 get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature200)
@@ -385,8 +378,7 @@ class OgcServer(View):
                     status=400,
                     content_type="text/xml",
                 )
-            redis_queue = await self.redis_queue_instance
-            result, status = await redis_queue.post(job, Config().job_timeout)
+            result, status = await qsl_redis_queue.post(job, Config().job_timeout)
 
             self.handle_job_result(result, status)
 
@@ -456,7 +448,6 @@ class PublishLayer(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
 
 
 class Index(GeoramaPublishedItemIndex):
-
     model = PublishedAsWms
     template_name = "maps/index.html"
     entity_name = "layer"
@@ -490,7 +481,6 @@ class LayerListView(
 class PublishListView(
     GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityPublishListView
 ):
-
     model_publish = PublishedAsWms
     template_name = "maps/publish.html"
     entity_name = "layer"
