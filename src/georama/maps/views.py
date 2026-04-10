@@ -42,11 +42,10 @@ from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
 
 log = logging.getLogger(__name__)
 
-appname = MapsConfig.get_simple_appname()
-
 
 class OgcServer(View):
     model = PublishedAsWms
+    appname = MapsConfig.get_simple_appname()
 
     def wms_130_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
         """
@@ -61,7 +60,7 @@ class OgcServer(View):
         """
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WmsGetCapabilities(
-            appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         if requested_format not in operation.allowed_formats:
             return HttpResponse(
@@ -86,7 +85,7 @@ class OgcServer(View):
     def wfs_200_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetCapabilities(
-            appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
 
         if requested_format not in operation.allowed_formats:
@@ -114,7 +113,7 @@ class OgcServer(View):
         language = "en-US"
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetMetadata(
-            appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         if requested_layer:
             if requested_format not in operation.allowed_formats:
@@ -156,7 +155,7 @@ class OgcServer(View):
             "OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2"
         ).upper()
         operation = WfsDescribeFeatureType(
-            appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         content, content_type, success = operation.render(
             requested_format, operation.describe_feature_type(requested_layer)
@@ -175,7 +174,7 @@ class OgcServer(View):
 
     async def wfs_200_getfeature(self, request: HttpRequest, params: dict) -> HttpResponse:
         operation = WfsGetFeature(
-            appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
         )
         get_feature_parameter = operation.query_parameters_to_get_feature_request(params)
 
@@ -237,7 +236,7 @@ class OgcServer(View):
         # https://github.com/qgis/QGIS/issues/30251
         vector_extent_buffer = 0.0
         for published_as in self.model.objects.filter(name__in=service_params.layers):
-            if published_as.has_read_permission(request.user, appname):
+            if published_as.has_read_permission(request.user, self.appname):
                 if isinstance(published_as.raster_dataset, RasterDataSet):
                     accessible_raster.append(published_as.raster_dataset.to_qsl)
                 elif isinstance(published_as.vector_dataset, VectorDataSet):
@@ -307,7 +306,10 @@ class OgcServer(View):
                 )
                 service_params = DictDecoder(parser_config).decode(params, GetMapRequestParams)
                 operation = WmsGetMap(
-                    appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+                    self.appname,
+                    f"{request.build_absolute_uri('ows')}?",
+                    request.user,
+                    self.model,
                 )
                 try:
                     job = await sync_to_async(
@@ -364,7 +366,7 @@ class OgcServer(View):
     async def post(self, request: HttpRequest, *args, **kwargs):
         try:
             operation = WfsGetFeature(
-                appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+                self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
             )
             try:
                 get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature200)

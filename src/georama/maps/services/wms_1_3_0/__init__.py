@@ -1,3 +1,4 @@
+from georama.core.entities.models import PublishedAs
 from georama.maps.models import PublishedAsWms
 from georama.maps.services import OgcOperation
 
@@ -16,6 +17,7 @@ class WmsOperation(OgcOperation):
             if len(found_difference) > 0:
                 raise PermissionError(f"Layer(s) not found: {list(found_difference)}")
         for published_as in found_layers:
+            published_as: PublishedAs
             if published_as.has_read_permission(self.user, self.appname):
                 accessible_layers[published_as.name] = published_as
         if layer_names:

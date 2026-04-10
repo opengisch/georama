@@ -39,15 +39,14 @@ from georama.data_integration.models import (
 )
 from georama.data_integration.services.project import FSService
 from georama.maps.views import OgcServer
-from georama.webgis.apps import central_app_label
+from georama.webgis.apps import WebgisConfig, central_app_label
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     LayerGroup,
     Theme,
     ThemesJson,
 )
-from georama.webgis.models import LayerGroupMp
+from georama.webgis.models import LayerGroupMp, PublishedAsLayerWms, PublishedAsTheme
 from georama.webgis.models import OgcServer as WebGisOgcServer
-from georama.webgis.models import PublishedAsLayerWms, PublishedAsTheme
 
 
 class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
@@ -530,6 +529,7 @@ class Config(View):
 
 class OgcServerWebgis(OgcServer):
     model = PublishedAsLayerWms
+    appname = WebgisConfig.get_simple_appname()
 
 
 def insert_internal_ogc_server(request: HttpRequest) -> WebGisOgcServer:
@@ -547,7 +547,7 @@ def insert_internal_ogc_server(request: HttpRequest) -> WebGisOgcServer:
         AttributeError: If more than one OGC-Server was found with the name.
     """
     webgis_ogc_server_name = "georama.webgis"
-    url = f'{request.build_absolute_uri("/webgis")}/maps?'
+    url = f"{request.build_absolute_uri('/webgis')}/maps?"
     ogc_servers = WebGisOgcServer.objects.filter(name=webgis_ogc_server_name).all()
     if len(ogc_servers) == 0:
         ogc_server = WebGisOgcServer(
@@ -560,8 +560,7 @@ def insert_internal_ogc_server(request: HttpRequest) -> WebGisOgcServer:
             is_single_tile=False,
             namespace="https://www.opengis.ch/georama",
             name=webgis_ogc_server_name,
-            description="The Georama OGC Server which publishes "
-            "all configured WebGIS Layers.",
+            description="The Georama OGC Server which publishes all configured WebGIS Layers.",
             attributes={},
         )
         ogc_server.save()
