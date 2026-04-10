@@ -67,6 +67,7 @@ dependencies = [
     "numpy==2.2.5",
     "django-crispy-forms",
     "crispy-bootstrap5",
+    "uvicorn==0.44.0",
     # deps for webgis
     "django-allauth[socialaccount]==65.14.0",
     "django-cors-headers==4.3.1",
@@ -76,7 +77,6 @@ dependencies = [
     "django-extensions==3.2.3",
     # prod-server deps
     "gunicorn==23.0.0",
-    "uvicorn==0.35.0",
     # qfield_link deps
     "qfieldcloud-sdk==0.10.0"
 ]

@@ -137,7 +137,12 @@ clean-all: clean
 
 .PHONY: git-attributes
 git-attributes:
-	git --no-pager diff --check `git log --oneline | tail -1 | cut --fields=1 --delimiter=' '`
+	git \
+	--no-pager diff \
+	--check `git log \
+		--oneline | tail -1 | cut \
+		--fields=1 \
+		--delimiter=' '`
 
 .PHONY: test-core
 test-core: $(TEST_REQUIREMENTS) $(VARS_FILES)
@@ -164,7 +169,12 @@ tests: test-core test-data_integration test-features test-maps test-webgis
 
 .PHONY: coverage
 coverage: $(TEST_REQUIREMENTS)
-	$(VENV_BIN)/pytest --nomigrations -vv --cov $(PACKAGE) --cov-report term-missing:skip-covered --cov-report=xml:.coverage.xml tests
+	$(VENV_BIN)/pytest \
+	--nomigrations \
+	-vv \
+	--cov $(PACKAGE) \
+	--cov-report term-missing:skip-covered \
+	--cov-report=xml:.coverage.xml tests
 
 .PHONY: check-types
 check-types: $(CHECK_REQUIREMENTS)
@@ -185,8 +195,11 @@ doc-html: $(DOC_REQUIREMENTS) docs/mkdocs.yml
 .PHONY: doc-live-prereqs
 doc-live-prereqs:
 	@echo "Running documentation pre-generation scripts..."
-	python ./docs/scripts/visualize-dockerfile.py -o docs/src/dockerfile_mermaid.md
-	python ./docs/scripts/visualize-ga-workflow.py .github/workflows/test.yaml -o docs/src/cicd_mermaid.md
+	python ./docs/scripts/visualize-dockerfile.py \
+	-o docs/src/dockerfile_mermaid.md
+
+	python ./docs/scripts/visualize-ga-workflow.py \
+	.github/workflows/test.yaml -o docs/src/cicd_mermaid.md
 
 .PHONY: doc-serve
 doc-serve: $(DOC_REQUIREMENTS) doc-live-prereqs docs/mkdocs.yml
@@ -202,13 +215,23 @@ updates: $(PIP_REQUIREMENTS)
 
 .PHONY: serve-dev
 serve-dev: $(DEV_REQUIREMENTS)
-	$(VENV_BIN)/python src/georama/manage.py runserver localhost:4242
+	DJANGO_SETTINGS_MODULE=georama.core.settings \
+	DJANGO_CONFIGURATION=Dev \
+	$(VENV_BIN)/uvicorn \
+		--host localhost \
+		--port 4242 \
+		--reload georama.core.asgi:application
 
 # This target is for serving DEV georama so that it can  be reached within its network, you never want to do
 # that locally on your host machine unless in docker containers or you have a good reason.
 .PHONY: serve-dev-outbound
 serve-dev-outbound: $(DEV_REQUIREMENTS)
-	$(VENV_BIN)/python src/georama/manage.py runserver 0.0.0.0:4242
+	DJANGO_SETTINGS_MODULE=georama.core.settings \
+	DJANGO_CONFIGURATION=Dev \
+	$(VENV_BIN)/uvicorn \
+		--host 0.0.0.0 \
+		--port 4242 \
+		--reload georama.core.asgi:application
 
 MANAGE_ACTION="shell_plus"
 .PHONY: manage
@@ -217,23 +240,29 @@ manage: $(PIP_REQUIREMENTS)
 
 .PHONY: migrate
 collectstatic: $(PIP_REQUIREMENTS)
-	$(VENV_BIN)/python src/georama/manage.py collectstatic
+	$(VENV_BIN)/python src/georama/manage.py \
+	collectstatic
 
 .PHONY: migrate
 migrate: $(PIP_REQUIREMENTS)
-	$(VENV_BIN)/python src/georama/manage.py migrate
+	$(VENV_BIN)/python src/georama/manage.py \
+	migrate
 
 .PHONY: make-migrations
 make-migrations: $(PIP_REQUIREMENTS)
-	$(VENV_BIN)/python src/georama/manage.py makemigrations
+	$(VENV_BIN)/python src/georama/manage.py \
+	makemigrations
 
 .PHONY: check-migrations
 check-migrations: $(PIP_REQUIREMENTS)
-	$(VENV_BIN)/python src/georama/manage.py makemigrations --check --dry-run
+	$(VENV_BIN)/python src/georama/manage.py makemigrations \
+	--check --dry-run
 
 .PHONY: create-superuser
 create-superuser: $(PIP_REQUIREMENTS) migrate
-	$(VENV_BIN)/python src/georama/manage.py createsuperuser --username admin --email admin@xy.ch
+	$(VENV_BIN)/python src/georama/manage.py createsuperuser \
+	--username admin \
+	--email admin@xy.ch
 
 .PHONY: create-example-content
 create-example-content: $(PIP_REQUIREMENTS) migrate
