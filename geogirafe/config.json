@@ -14,7 +14,7 @@
   "themes": {
     "url": "http://localhost:4242/webgis/themes.json",
     "defaultTheme": "",
-    "selectionMode": "add"
+    "selectionMode": "replace"
   },
   "basemaps": {
     "defaultBasemap": "OpenStreetMap",
@@ -30,18 +30,16 @@
     }
   },
   "search": {
-    "url": "https://map.geo.bs.ch/search?limit=90&partitionlimit=15&interface=desktop&query=###SEARCHTERM###&lang=###SEARCHLANG###",
+    "url": "https://empty/###SEARCHTERM###",
     "objectPreview": true,
     "layerPreview": true
   },
   "print": {
-    "url": "https://map.geo.bs.ch/printproxy/",
-    "defaultLayout": "print_A4_hochformat"
+    "url": "https://empty"
   },
   "share": {
-    "service": "geogirafe",
-    "createUrl": "https://map.geo.test.bs.ch/short/create",
-    "getUrl": "https://map.geo.test.bs.ch/short/get"
+    "service": "",
+    "createUrl": "https://empty"
   },
   "projections": {
     "EPSG:3857": "W-M",
@@ -50,39 +48,21 @@
   },
   "map": {
     "srid": "EPSG:2056",
-    "startZoom": "5",
-    "startPosition": "2728253.1,1404432.8",
+    "startZoom": "0",
+    "startPosition": "2670000,1220000",
     "maxExtent": "2420000,1030000,3000000,1500000",
-    "scales": [1000000, 400000, 200000, 75000, 40000, 20000, 10000, 7500, 5000, 3500, 2000, 1000, 500, 200, 100, 50]
+    "scales": [1000000, 400000, 200000, 80000, 40000, 20000, 10000, 8000, 6000, 4000, 2000, 1000, 500, 250, 100, 50]
   },
   "map3d": {
-    "terrainUrl": "https://3d.geo.dev.fgi.cloud.bs.ch/terrainproxy/028401be-a5fc-4560-a489-f64f458cd6ad_5/",
+    "terrainUrl": "https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/",
     "terrainImagery": {
-      "url": "https://wmts.geo.bs.ch/wmts/1.0.0/BaseMap_farbig/default/3857/{z}/{y}/{x}.png",
-      "srid": 3857,
+      "url": "https://wmts20.geo.admin.ch/1.0.0/ch.swisstopo.swissimage-product/default/current/4326/{z}/{x}/{y}.jpeg",
       "minLoD": 8,
       "maxLoD": 17,
-      "coverageArea": [6.78, 47.05, 8.6, 47.8]
+      "coverageArea": [5.013926957923385, 45.35600133779394, 11.477436312994008, 48.27502358353741]
     },
-    "tilesetsUrls": [
-      "https://3d.geo.bs.ch/cesium/tiles/av-bb-gebaude-ohne-bauprojekt/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/av-bb-weitere-objekte-und-bruecken-ohne-bauprojekt/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/av-bb-bewilligte-bauten-teilobjekte-im-bestand/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/av-bb-geplante-bauvorhaben-teilobjekte-im-bestand/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/av-bb-projektideen-teilobjekt-im-bestand/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/bb-bauprojekte/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/bl-gebaeude-2023/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/de-gebaeude-2023/tileset.json",
-      "https://3d.geo.bs.ch/cesium/tiles/fr-gebaeude-2023/tileset.json"
-    ],
+    "tilesetsUrls": ["https://vectortiles100.geo.admin.ch/3d-tiles/ch.swisstopo.swisstlm3d.3d/20201020/tileset.json"],
     "maximumZoomDistance": 25000
-  },
-  "metadata": {
-    "metadataUrlPrefix": "https://map.geo.bs.ch"
-  },
-  "infoWindow": {
-    "defaultWindowWidth": "500px",
-    "defaultWindowHeight": "350px"
   },
   "oauth": {
     "issuer": {
@@ -114,42 +94,26 @@
     }
   ],
   "contact": {
-    "url": "https://map.geo.test.bs.ch/feedback",
+    "url": "https://mydomain.ch",
     "reasons": ["Give feeback", "Ask a question", "Report an error", "Request secure access"],
-    "email": "geo@bs.ch"
+    "email": "contact@mydomain.ch"
   },
-  "external_layers": {
-    "predefined_sources": [
+  "externalLayers": {
+    "predefinedSources": [
       {
-        "label": "WMS Bundes Geodaten-Infrastruktur (BGDI)",
+        "label": "Swisstopo WMS",
         "type": "WMS",
         "url": "https://wms.geo.admin.ch"
       },
       {
-        "label": "WMTS Bundes Geodaten-Infrastruktur (BGDI)",
+        "label": "Swisstopo WMTS",
         "type": "WMTS",
-        "url": "https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml?lang=de"
-      },
-      {
-        "label": "WMTS Kanton Basel-Landschaft",
-        "type": "WMTS",
-        "url": "https://tile.geoview.bl.ch/1.0.0/WMTSCapabilities.xml"
-      },
-      {
-        "label": "WMS GeoRhena",
-        "type": "WMS",
-        "url": "https://geoportal.georhena.eu/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities"
-      },
-      {
-        "label": "WMS Kanton Solothurn",
-        "type": "WMS",
-        "url": "https://geo.so.ch/api/wms"
-      },
-      {
-        "label": "WMTS Kanton Solothurn",
-        "type": "WMTS",
-        "url": "https://geo.so.ch/api/wmts/1.0.0/WMTSCapabilities.xml"
+        "url": "https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml?lang=fr"
       }
     ]
+  },
+  "news": {
+    "urls": ["https://geogirafe.org/feed/atom/"],
+    "autoDisplay": false
   }
 }
