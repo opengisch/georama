@@ -94,9 +94,12 @@ class PublishedAsWmsAdmin(admin.ModelAdmin):
     @staticmethod
     def create_wms_url_params(
         layer: PublishedAsWms, img_width: int = 1500, img_height: int = 1500
-    ) -> str:
+    ) -> str | None:
         dataset = layer.bound_dataset
-        bbox = BBox.from_string(layer.extent).to_2d_list()
+        bbox = layer.get_preview_extent_or_default(img_width)
+        if bbox is None:
+            return None
+        bbox = bbox.to_2d_list()
         params = GetMapRequestParams(
             SERVICE=ServiceType.wms.value,
             REQUEST=RequestType.get_map.value,

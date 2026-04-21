@@ -1,6 +1,7 @@
 import base64
 import logging
 from dataclasses import fields
+from numbers import Real
 from typing import Literal
 
 from asgiref.sync import async_to_sync, sync_to_async
@@ -42,6 +43,7 @@ class PublishedAsWmsAbstract(PublishedAs):
     preview_dimensions: tuple[int, int] = (250, 250)
     preview_dimensions_new_tab: tuple[int, int] = (1500, 1500)
     crs_transform_to_wgs84 = None
+    preview_pixel_size_m = 0.00028
 
     @property
     def get_raster_dataset(self) -> RasterDataSet:
@@ -91,15 +93,116 @@ class PublishedAsWmsAbstract(PublishedAs):
         else:
             return False
 
+    @staticmethod
+    def _linear_units_m(crs_auth_id: str | None) -> float | None:
+        if not crs_auth_id:
+            return None
+
+        spatial_reference = osgeo_osr.SpatialReference()
+        try:
+            result = spatial_reference.SetFromUserInput(crs_auth_id)
+        except RuntimeError:
+            return None
+
+        if result != 0 or not spatial_reference.IsProjected():
+            return None
+
+        linear_units = spatial_reference.GetLinearUnits()
+        if linear_units is None or linear_units <= 0:
+            return None
+        return linear_units
+
+    @staticmethod
+    def _scale_denominator(extent: BBox, pixel_width: int, linear_units_m: float) -> float | None:
+        bbox_width = extent.x_max - extent.x_min
+        if pixel_width <= 0 or bbox_width <= 0:
+            return None
+
+        bbox_width_m = bbox_width * linear_units_m
+        return bbox_width_m / (pixel_width * PublishedAsWmsAbstract.preview_pixel_size_m)
+
+    @staticmethod
+    def _normalize_scale_denominator(value) -> float | None:
+        if not isinstance(value, Real):
+            return None
+        if value <= 0:
+            return None
+        return float(value)
+
+    def get_default_extent(self) -> BBox | None:
+        try:
+            return BBox.from_string(self.extent)
+        except (TypeError, ValueError):
+            return None
+
+    def get_preview_extent(self, pixel_width: int) -> BBox | None:
+        extent = self.get_default_extent()
+        if extent is None:
+            return None
+
+        dataset = self.bound_dataset
+        linear_units_m = self._linear_units_m(dataset.crs_to_qsl.auth_id)
+        if linear_units_m is None:
+            return extent
+
+        current_scale = self._scale_denominator(extent, pixel_width, linear_units_m)
+        if current_scale is None:
+            return extent
+
+        min_scale = self._normalize_scale_denominator(dataset.minimum_scale)
+        max_scale = self._normalize_scale_denominator(dataset.maximum_scale)
+        if max_scale is not None and max_scale <= 1:
+            max_scale = None
+
+        target_scale = None
+        if min_scale is not None and current_scale > min_scale:
+            target_scale = min_scale
+        elif max_scale is not None and current_scale < max_scale:
+            target_scale = max_scale
+
+        if target_scale is None:
+            return extent
+
+        current_width = extent.x_max - extent.x_min
+        current_height = extent.y_max - extent.y_min
+        if current_width <= 0:
+            return extent
+
+        target_width_m = target_scale * pixel_width * self.preview_pixel_size_m
+        target_width = target_width_m / linear_units_m
+        scale_factor = target_width / current_width
+        target_height = current_height * scale_factor if current_height > 0 else target_width
+
+        center_x = extent.x_min + current_width / 2
+        center_y = extent.y_min + current_height / 2
+        half_width = target_width / 2
+        half_height = target_height / 2
+
+        return BBox(
+            x_min=center_x - half_width,
+            x_max=center_x + half_width,
+            y_min=center_y - half_height,
+            y_max=center_y + half_height,
+            z_min=extent.z_min,
+            z_max=extent.z_max,
+        )
+
+    def get_preview_extent_or_default(self, pixel_width: int) -> BBox | None:
+        return self.get_preview_extent(pixel_width) or self.get_default_extent()
+
     @property
-    def create_wms_url_params(self) -> str:
+    def create_wms_url_params(self) -> str | None:
+        extent = self.get_preview_extent_or_default(self.preview_dimensions_new_tab[0])
+        if extent is None:
+            return None
+
         dataset = self.bound_dataset
         params = GetMapRequestParams(
             SERVICE=ServiceType.wms.value,
             REQUEST=RequestType.get_map.value,
             VERSION=Version.v_1_3_0.value,
             LAYERS=",".join([self.name]),
-            BBOX=BBox.from_string(self.extent).to_string(),
+            BBOX=extent.to_string(),
             CRS=dataset.crs_to_qsl.auth_id,
             WIDTH=self.preview_dimensions_new_tab[0],
             HEIGHT=self.preview_dimensions_new_tab[1],
@@ -202,6 +305,10 @@ class PublishedAsWmsAbstract(PublishedAs):
         )
 
     async def generate_preview_image(self) -> bytes | None:
+        extent = self.get_preview_extent_or_default(self.preview_dimensions[0])
+        if extent is None:
+            return None
+
         # We have to call the following @properties a bit awkward because
         # they contain sync django orm actions
         dataset = await sync_to_async(lambda: self.bound_dataset)()
@@ -209,7 +316,7 @@ class PublishedAsWmsAbstract(PublishedAs):
         # this way we always set a style, or it will fail if list has no styles
         # we could make that configurable in admin gui easily
         get_map_job = QslJobParameterRender(
-            bbox=BBox.from_string(self.extent),
+            bbox=extent,
             crs=dataset.crs_to_qsl.auth_id,
             width=self.preview_dimensions[0],
             height=self.preview_dimensions[1],

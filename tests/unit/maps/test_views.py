@@ -3,6 +3,9 @@ from unittest.mock import AsyncMock, patch, Mock
 import pytest
 from lxml import etree
 from qgis_server_light.interface.dispatcher.common import Status
+from qgis_server_light.interface.exporter.extract import Crs
+
+from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.maps.models import PublishedAsWms
 
@@ -95,3 +98,45 @@ class TestMapsViews:
         layer = xp(layers, "./w:Layer")
         assert xp(layer, "./w:Title/text()") == "TestPointLayer"
         assert xp(layer, "./w:CRS/text()") == ["EPSG:4326", "CRS:84"]
+
+    def test_publish_as_wms_view_adjusts_preview_bbox_to_visible_scale(
+        self,
+        client,
+        integrated_project,
+        admin_user_name,
+        admin_password,
+        empty_png_bytes_job_result,
+        admin_user,
+    ):
+        with patch(
+            "georama.maps.apps.qsl_redis_queue.post",
+            new_callable=AsyncMock,
+        ) as mock_redis_queue_post:
+            mock_redis_queue_post.return_value = (empty_png_bytes_job_result, Status.SUCCESS.value)
+
+            client.login(username=admin_user_name, password=admin_password)
+            vector_dataset = integrated_project.vector_datasets.get(title="TestPointLayer")
+            vector_dataset.crs = DictEncoder().encode(
+                Crs(
+                    auth_id="EPSG:2056",
+                    postgis_srid=2056,
+                    ogc_uri="http://www.opengis.net/def/crs/EPSG/0/2056",
+                    ogc_urn="urn:ogc:def:crs:EPSG::2056",
+                )
+            )
+            vector_dataset.bbox = "2672000.0,1214000.0,0.0,2696000.0,1234000.0,0.0"
+            vector_dataset.bbox_wgs84 = "2672000.0,1214000.0,0.0,2696000.0,1234000.0,0.0"
+            vector_dataset.minimum_scale = 13000.0
+            vector_dataset.maximum_scale = 1.0
+            vector_dataset.save()
+
+            response = client.get(
+                f"/maps/layer/add/vector/{vector_dataset.id}",
+                follow=True,
+            )
+
+            assert response.status_code == 200
+            preview_job = mock_redis_queue_post.await_args.args[0]
+            assert preview_job.bbox.x_max - preview_job.bbox.x_min == pytest.approx(910.0)
+            assert preview_job.bbox.x_min == pytest.approx(2683545.0)
+            assert preview_job.bbox.x_max == pytest.approx(2684455.0)

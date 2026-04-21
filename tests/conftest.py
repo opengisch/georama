@@ -240,6 +240,7 @@ def mock_layer(mock_dataset) -> Mock:
         bound_dataset=dataset,
         description="This is a test layer.",
         extent=extent,
+        get_preview_extent=Mock(return_value=BBox.from_string(extent)),
     )
     layer.configure_mock(**{"name": layer_name})
     return layer
