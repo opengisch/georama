@@ -23,6 +23,7 @@
             {% endif %}
 
             {% if perm_delete %}
+            {% blocktranslate asvar title %}Delete item{% endblocktranslate %}
             <a href="{% url delete_view_name object.pk %}"
                class="btn btn-outline-danger" role="button"
                data-bs-toggle="tooltip"
