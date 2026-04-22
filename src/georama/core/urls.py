@@ -48,7 +48,7 @@ urlpatterns = [
     path("webgis", include("georama.webgis.urls")),
     path("qfield_link", include("georama.qfield_link.urls")),
     path("accounts/", include("allauth.urls")),
-    path("admin/", admin.site.urls, {"extra_context": {"DEBUG": AppSettings.DEBUG}}),
+    path("admin/", admin.site.urls),
 ]
 
 if AppSettings.DEBUG:
