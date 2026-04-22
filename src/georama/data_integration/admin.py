@@ -162,12 +162,12 @@ class DataSetAdmin(admin.ModelAdmin):
     ]
 
     def source_detail(self, obj):
-        source = obj.source_to_qsl[0]
+        source = obj.source_to_qsl
         for source_field in fields(source):
             source_config = getattr(source, source_field.name)
             if source_config is not None:
                 source_list = ["<ul>"]
-                source = obj.source_to_qsl[0]
+                source = obj.source_to_qsl
                 for field in fields(source_config):
                     source_list.append(
                         f"<li>{field.name}: {getattr(source_config, field.name)}</li>"
@@ -194,7 +194,6 @@ class DataSetAdmin(admin.ModelAdmin):
 
 
 class RasterDataSetAdmin(DataSetAdmin):
-
     pass
 
 
