@@ -1,0 +1,11 @@
+{% load crispy_forms_tags %}
+{% if item.fs.form.base_fields %}
+    <div class="container border border-primary">{% endif %}
+{% if item.fs.form.base_fields %}<h5 class="mb-1">{{ item.fs.title }}
+    ({{ item.fs.extra }}
+    - {{ item.fs.max_num }})</h5>{% endif %}
+{{ item.fs|crispy }}
+{% for child_item in item.child_fs %}
+    {% include 'maps/metadata/sub_form.html' with item=child_item %}
+{% endfor %}
+{% if item.fs.form.base_fields %}</div>{% endif %}
