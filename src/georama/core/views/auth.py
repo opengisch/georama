@@ -6,7 +6,7 @@ from django.views import View
 
 class Login(View):
     def get(self, request, *args, **kwargs):
-        return TemplateResponse(request, "login.html")
+        return TemplateResponse(request, "admin/login.html")
 
     def post(self, request, *args, **kwargs):
         username = request.POST["username"]
