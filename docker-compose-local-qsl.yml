@@ -1,0 +1,8 @@
+services:
+  georama:
+    volumes:
+      - ${EXTERNAL_QGIS_SERVER_LIGHT_PATH:?}:${LOCAL_QGIS_SERVER_LIGHT_PATH}
+  qsl:
+    image: local/opengisch/qgis-server-light-dev:latest
+  qsl-exporter:
+    image: local/opengisch/qgis-server-light-dev:latest

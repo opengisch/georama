@@ -39,7 +39,7 @@ services:
       - "1234:6379"
   qsl:
     restart: unless-stopped
-    image: opengisch/qgis-server-light-dev:latest
+    image: local/opengisch/qgis-server-light-dev:latest
     env_file:
       - .env
     environment:
@@ -49,7 +49,7 @@ services:
     deploy:
       replicas: 1
   qsl-exporter:
-    image: opengisch/qgis-server-light-dev:latest
+    image: local/opengisch/qgis-server-light-dev:latest
     restart: unless-stopped
     ports:
       - "5000:5000"

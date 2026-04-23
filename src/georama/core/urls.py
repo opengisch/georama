@@ -43,6 +43,7 @@ urlpatterns = [
         name="remove_permission_from_user_or_group",
     ),
     path("features", include("georama.features.urls")),
+    path("process", include("georama.process.urls")),
     path("data_integration", include("georama.data_integration.urls")),
     path("maps", include("georama.maps.urls")),
     path("webgis", include("georama.webgis.urls")),
