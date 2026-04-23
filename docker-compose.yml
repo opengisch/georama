@@ -9,6 +9,7 @@ services:
     volumes:
       - ./:/app
       - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data:ro"
+      - ${EXTERNAL_QGIS_SERVER_LIGHT_PATH:?}:${LOCAL_QGIS_SERVER_LIGHT_PATH}
     ports:
       - "4242:4242"
     depends_on:
