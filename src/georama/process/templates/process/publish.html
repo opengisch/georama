@@ -1,0 +1,12 @@
+{% extends 'core/entity_publish_list.html' %}
+
+{% block list_item_actions_add %}
+<a href="{% url view_name_add item.dataset_type item.pk %}"
+   class="btn btn-outline-primary" role="button">Publish</a>
+{% endblock %}
+{% block list_item_name %}
+    {{ item.name }} ({{ item.project.name }})
+{% endblock %}
+{% block list_item_pills %}
+    <span class="badge rounded-pill text-bg-primary">{{ item.driver_name }}</span>
+{% endblock %}

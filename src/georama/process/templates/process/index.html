@@ -1,0 +1,44 @@
+{% extends 'core/published_item_index.html' %}
+{% load static i18n %}
+
+{% block list_actions %}
+    <a class="navbar-brand" aria-hidden="true">{% trans 'OAPIP' %}</a>
+    <div class="btn-group" role="group" aria-label="List actions">
+        {% blocktranslate asvar title %}OGC API Processes JSON endpoint{% endblocktranslate %}
+        <a
+                href="#"
+                target="_blank"
+                class="btn btn-outline-primary"
+                data-bs-toggle="tooltip"
+                title="{{ title }}"
+                aria-label="{{ title }}">
+            <i class="fa-solid fa-plug"></i>
+        </a>
+    </div>
+{% endblock %}
+
+{% block item_card_image %}
+{% blocktranslate asvar title %}QGIS Logo{% endblocktranslate %}
+<img src="{% static 'images/qgis.png' %}"
+     alt="{{ title }}"
+     data-bs-toggle="tooltip"
+     title="{{ title }}"
+     aria-label="{{ title }}"
+     class="card-img-top p-3"/>
+{% endblock %}
+
+{% block item_card_badges %}
+
+{% endblock %}
+
+{% block item_card_footer %}
+    {% blocktranslate asvar title%}Open Process Endpoint in new Tab{% endblocktranslate %}
+    <a href="#"
+       target="_blank" class="btn btn-outline-primary"
+       role="button"
+       data-bs-toggle="tooltip"
+       title="{{ title }}"
+       aria-label="{{ title }}">
+        <i class="fa fa-eye"></i>
+    </a>
+{% endblock %}
