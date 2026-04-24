@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import copy
 from pathlib import Path
 
 from configurations import Configuration, values
@@ -449,6 +450,15 @@ class Dev(Base):
     SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!"
 
     DEBUG = values.BooleanValue(True, environ_prefix="GEORAMA")
+
+    TEMPLATES = copy.deepcopy(Base.TEMPLATES)
+
+    # Beispiel: zusätzlichen context processor nur in Dev hinzufügen
+    TEMPLATES[0]["OPTIONS"]["loaders"] = [
+        "django.template.loaders.filesystem.Loader",
+        "django.template.loaders.app_directories.Loader",
+    ]
+    del TEMPLATES[0]["APP_DIRS"]
 
     ALLOWED_HOSTS = values.ListValue(
         [
