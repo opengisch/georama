@@ -11,7 +11,6 @@ from qgis_server_light.interface.job.process.input import (
 from qgis_server_light.interface.job.process.process_list import available
 from xsdata.formats.dataclass.parsers import DictDecoder
 
-from georama.core.menu import BreadCrumb
 from georama.core.views.entities.permission_detail import GeoramaPermissionDetailView
 from georama.core.views.entities.permission_group import GeoramaGroupListView
 from georama.core.views.entities.permission_user import GeoramaUserListView
@@ -40,8 +39,14 @@ class Index(GeoramaPublishedItemIndex):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        request_format = self.request.GET.get("f", "html")
+        if request_format == "json":
+            return HttpResponse("{}", content_type="application/json")
+        else:
+            return super().render_to_response(context, **response_kwargs)
 
 
 class ExecuteProcess(View):
@@ -240,11 +245,6 @@ class PublishedAsProcessDetailView(
     entity_name = "process"
     permission_required = model.perm_view()
 
-    def get_breadcrumbs(self):
-        bc = super().get_breadcrumbs()
-        bc[-1] = BreadCrumb(self.object.qsl_algorithm.display_name)
-        return bc
-
 
 class PublishedAsProcessUpdateView(
     GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityUpdateView
@@ -252,7 +252,7 @@ class PublishedAsProcessUpdateView(
     model = PublishedAsProcess
     entity_name = "process"
     fields = [
-        "process_id",
+        "public",
     ]
     permission_required = model.perm_change()
 

@@ -43,6 +43,22 @@ class PublishedAsProcess(GeoramaPermissionMixin, PublishedAs):
     def qsl_algorithm(self) -> Algorithm:
         return qsl_available_processes.algorithm_by_id(self.process_id)
 
+    @property
+    def permissions(self) -> list[PermissionInterface]:
+        return self.read_permissions
+
+    @property
+    def title(self):
+        return self.qsl_algorithm.display_name
+
+    @property
+    def description(self) -> str:
+        return self.qsl_algorithm.short_description
+
+    @property
+    def help(self) -> str:
+        return self.qsl_algorithm.short_help_string
+
 
 class PublishedAsDataset(GeoramaPermissionMixin, PublishedAs):
     class Meta:
@@ -101,7 +117,6 @@ class PublishedAsDataset(GeoramaPermissionMixin, PublishedAs):
 
     @property
     def permissions(self) -> list[PermissionInterface]:
-        # No need for Update or delete with WMS...
         return self.read_permissions
 
     def get_absolute_url(self):

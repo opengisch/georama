@@ -1,8 +1,10 @@
 {% extends 'core/entity_list.html' %}
 
 {% block list_item_title %}
-    {{ item.qsl_algorithm.display_name }} ({{ item.qsl_algorithm.name }})
+    {{ item.title }} ({{ item.qsl_algorithm.name }})
 {% endblock %}
 {% block list_item_name %}
-    {{ item.qsl_algorithm.help_string }}
+    <div class="text-truncate" style="max-width: 100%">
+    {{ item.description }}
+    </div>
 {% endblock %}

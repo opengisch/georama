@@ -8,7 +8,9 @@
 {{ item.display_name }} ({{ item.name }})
 {% endblock %}
 {% block list_item_name %}
-    {{ item.help_string }}
+    <div class="text-truncate">
+    {{ item.short_description }}
+    </div>
 {% endblock %}
 {% block list_item_pills %}
     <span class="badge rounded-pill text-bg-primary">{{ item.id }}</span>

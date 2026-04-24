@@ -27,6 +27,8 @@ class GeoramaPublishedItemIndex(GeoramaListView):
 
     def get_queryset(self):
         permitted_items = []
+        # TODO: We should prefilter here, since we know the list of permissions a user
+        #   has
         items = self.model.objects.all()
         for item in items:
             if item.has_general_permission(self.request.user, self.model._meta.app_label):

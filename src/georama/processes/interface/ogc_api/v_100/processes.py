@@ -4,8 +4,17 @@ from mypy.nodes import Enum
 
 
 @dataclass
+class Link:
+    type: str = field()
+    rel: str = field()
+    title: str = field()
+    href: str = field()
+    href_lang: str | None = field(default=None, metadata={"name": "hreflang"})
+
+
+@dataclass
 class Base:
-    links: list[str] = field()
+    links: list[Link] = field()
 
 
 class Input:
@@ -32,19 +41,29 @@ class TransmissionMode(str, Enum):
 
 
 @dataclass
-class Process(Base):
+class ProcessBase(Base):
     description: str = field()
     id: str = field()
-    inputs: list[Input] | Input = field()
-    jobControlOptions: JobControlOptions = field()
-    outputs: list[Output] = field()
-    outputTransmission: list[TransmissionMode] = field()
-    response: str = field()
-    subscriber: Subscriber = field()
+    job_control_options: list[JobControlOptions] = field(
+        metadata={"name": "jobControlOptions"}
+    )
+    output_transmission: list[TransmissionMode] = field(
+        metadata={"name": "outputTransmission"}
+    )
     title: str = field()
     version: str = field()
 
 
 @dataclass
+class Process(ProcessBase):
+    inputs: list[Input] | Input = field()
+
+    outputs: list[Output] = field()
+
+    response: str = field()
+    subscriber: Subscriber = field()
+
+
+@dataclass
 class Landing(Base):
-    processes: list[Process] = field()
+    processes: list[ProcessBase] = field()
