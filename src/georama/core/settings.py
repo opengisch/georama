@@ -188,7 +188,7 @@ class Base(Configuration):
         "django.contrib.sessions",
         "django.contrib.messages",
         "django.contrib.staticfiles",
-        "georama.process.apps.ProcessConfig",
+        "georama.processes.apps.ProcessConfig",
         "georama.features.apps.FeaturesConfig",
         "georama.maps.apps.MapsConfig",
         "georama.data_integration.apps.DataintegrationConfig",

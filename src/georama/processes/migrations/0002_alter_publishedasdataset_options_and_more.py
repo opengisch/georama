@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("data_integration", "0033_remove_path_field_from_dataset"),
-        ("process", "0001_initial"),
+        ("processes", "0001_initial"),
     ]
 
     operations = [

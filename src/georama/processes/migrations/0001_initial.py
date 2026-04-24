@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('job_parameters', models.JSONField()),
                 ('job_result', models.JSONField()),
                 ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('process', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='process.process')),
+                ('process', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='processes.process')),
             ],
         ),
     ]

@@ -1,7 +1,7 @@
 from django.urls import path
 
-from georama.process import views
-from georama.process.apps import central_app_label
+from georama.processes import views
+from georama.processes.apps import central_app_label
 
 app_name = central_app_label
 
@@ -51,14 +51,14 @@ urlpatterns = [
     ),
     path("/process", views.PublishedAsProcessListView.as_view(), name="process-list"),
     path(
-        "/process/add/<str:process_type>/<str:process_id>",
-        views.PublishProcess.as_view(),
-        name="process-add",
-    ),
-    path(
         "/process/add/process",
         views.PublishProcessListView.as_view(),
         name="process-add-list",
+    ),
+    path(
+        "/process/add/<str:process_id>",
+        views.PublishProcess.as_view(),
+        name="process-add",
     ),
     path(
         "/process/<str:pk>",

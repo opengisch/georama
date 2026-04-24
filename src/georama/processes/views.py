@@ -3,11 +3,15 @@ from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
+from qgis_server_light.interface.exporter.extract import Process
 from qgis_server_light.interface.job.process.input import (
     ParameterInput,
     QslJobParameterExecuteProcess,
 )
+from qgis_server_light.interface.job.process.process_list import available
+from xsdata.formats.dataclass.parsers import DictDecoder
 
+from georama.core.menu import BreadCrumb
 from georama.core.views.entities.permission_detail import GeoramaPermissionDetailView
 from georama.core.views.entities.permission_group import GeoramaGroupListView
 from georama.core.views.entities.permission_user import GeoramaUserListView
@@ -20,8 +24,8 @@ from georama.maps.views import (
     GeoramaEntityListView,
     GeoramaEntityUpdateView,
 )
-from georama.process.apps import central_app_label, qsl_redis_queue
-from georama.process.models import PublishedAsDataset, PublishedAsProcess
+from georama.processes.apps import central_app_label, qsl_redis_queue
+from georama.processes.models import PublishedAsDataset, PublishedAsProcess
 from georama.webgis.views import (
     GeoramaEntityDeleteView,
     GeoramaEntityDetailView,
@@ -31,7 +35,7 @@ from georama.webgis.views import (
 
 class Index(GeoramaPublishedItemIndex):
     model = PublishedAsProcess
-    template_name = "process/index.html"
+    template_name = "processes/index.html"
     entity_name = "process"
 
     def get_context_data(self, **kwargs):
@@ -117,7 +121,7 @@ class PublishDataset(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
 class PublishDatasetListView(
     GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityPublishListView
 ):
-    template_name = "process/publish.html"
+    template_name = "processes/publish.html"
     model_publish = PublishedAsDataset
     entity_name = "dataset"
     permission_required = model_publish.perm_add()
@@ -187,6 +191,7 @@ class PublishedAsDatasetGroupListView(
 class PublishedAsProcessListView(
     GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, GeoramaEntityListView
 ):
+    template_name = "processes/process/entity_list.html"
     model = PublishedAsProcess
     permission_required = [
         model.perm_view(),
@@ -218,14 +223,14 @@ class PublishProcess(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
 class PublishProcessListView(
     GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaEntityPublishListView
 ):
+    template_name = "processes/process/publish.html"
     model_publish = PublishedAsProcess
     entity_name = "process"
     permission_required = model_publish.perm_add()
 
     def get_queryset(self):
-        items = []
-        # get available processes from qsl interface
-        return items
+        process = DictDecoder().decode(available, Process)
+        return process.algorithms
 
 
 class PublishedAsProcessDetailView(
@@ -234,6 +239,11 @@ class PublishedAsProcessDetailView(
     model = PublishedAsProcess
     entity_name = "process"
     permission_required = model.perm_view()
+
+    def get_breadcrumbs(self):
+        bc = super().get_breadcrumbs()
+        bc[-1] = BreadCrumb(self.object.qsl_algorithm.display_name)
+        return bc
 
 
 class PublishedAsProcessUpdateView(

@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("process", "0002_alter_publishedasdataset_options_and_more"),
+        ("processes", "0002_alter_publishedasdataset_options_and_more"),
     ]
 
     operations = [

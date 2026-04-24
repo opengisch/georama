@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("process", "0003_alter_publishedasdataset_options"),
+        ("processes", "0003_alter_publishedasdataset_options"),
     ]
 
     operations = [
@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
             name="process",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                to="process.publishedasprocess",
+                to="processes.publishedasprocess",
             ),
         ),
         migrations.DeleteModel(

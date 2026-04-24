@@ -2,12 +2,13 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from qgis_server_light.interface.exporter.extract import Algorithm
 
 from georama.core.entities.models import PublishedAs
 from georama.core.models.mixins import GeoramaPermissionMixin
 from georama.core.services.permission import PermissionInterface
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
-from georama.process.apps import central_app_label
+from georama.processes.apps import central_app_label, qsl_available_processes
 
 User = get_user_model()
 
@@ -37,6 +38,10 @@ class PublishedAsProcess(GeoramaPermissionMixin, PublishedAs):
 
     def get_absolute_url(self):
         return reverse(f"{central_app_label}:process-detail", kwargs={"pk": self.pk})
+
+    @property
+    def qsl_algorithm(self) -> Algorithm:
+        return qsl_available_processes.algorithm_by_id(self.process_id)
 
 
 class PublishedAsDataset(GeoramaPermissionMixin, PublishedAs):
