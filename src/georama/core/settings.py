@@ -428,8 +428,6 @@ class Base(Configuration):
 
     LIST_PAGE_SIZES = values.ListValue(
         [
-            2,
-            5,
             10,
             25,
             50,
