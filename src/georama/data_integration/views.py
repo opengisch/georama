@@ -67,7 +67,7 @@ class QgisServerLightExporter(
             allowed_hosts={request.get_host()},
         ):
             return redirect(
-                f'{reverse("data_integration:project-register", kwargs={"folder_name": folder_name, "project_name":project_name})}?next={next_url}'  # noqa E501
+                f"{reverse('data_integration:project-register', kwargs={'folder_name': folder_name, 'project_name': project_name})}?next={next_url}"  # noqa E501
             )
         return redirect("data_integration:project-register", folder_name, project_name)
 
@@ -102,9 +102,13 @@ class Index(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
 
     @staticmethod
     def calculate_gauge_values(total, linked, outdated):
-        end = 270
-        outdated_deg = round((end / total) * outdated)
-        linked_deg = outdated_deg + round((end / total) * (linked - outdated))
+        if total == 0:
+            outdated_deg = 0
+            linked_deg = 0
+        else:
+            end = 270
+            outdated_deg = round((end / total) * outdated)
+            linked_deg = outdated_deg + round((end / total) * (linked - outdated))
         return {
             "gauge_linked": f"{linked_deg}deg",
             "gauge_outdated": f"{outdated_deg}deg",
