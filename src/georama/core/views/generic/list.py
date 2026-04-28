@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.paginator import Page
 from django.views.generic import ListView
 
 from georama.core.views.generic.mixins import BreadcrumbMixin
@@ -31,4 +32,10 @@ class GeoramaListView(BreadcrumbMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["per_page"] = self.handle_per_page()
         context["per_page_options"] = settings.LIST_PAGE_SIZES
+
+        page: Page = context["page_obj"]
+        context["page_range"] = page.paginator.get_elided_page_range(
+            page.number, on_each_side=2, on_ends=1
+        )
+
         return context

@@ -141,28 +141,30 @@
 
                     <!-- Page back -->
 
-                    <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                    <li class="page-item {% if page_obj.number == 1 %}disabled{% endif %}">
                         <a class="page-link" role="button"
                            href="?page={{ prev_page }}&per_page={{ per_page }}">&laquo;</a>
                     </li>
 
                     <!-- Page number -->
 
-                    {% for page_number in paginator.page_range %}
-                        <li class="page-item {% if page_number == page.number %}active{% endif %}">
-                            <a class="page-link" role="button"
-                               href="{% if page_number == page.number %}#
-                                     {% else %}?page={{ page_number }}&per_page={{ per_page }}
-                                     {% endif %}"
-                               aria-current="page">{{ page_number }}</a>
-                        </li>
+                    {% for page_number in page_range %}
+                    <li class="page-item">
+                        {% if page_number == page_obj.number %}
+                            <a class="page-link active" role="button" aria-current="page" href="#">{{ page_number }}</a>
+                        {% elif page_number == paginator.ELLIPSIS %}
+                            <a class="page-link disabled" role="button" href="#">{{ page_number }}</a>
+                        {% else %}
+                            <a class="page-link" role="button" href="?page={{ page_number }}&per_page={{ per_page }}">{{ page_number }}</a>
+                        {% endif %}
+                    </li>
                     {% endfor %}
 
                     <!-- Page forward -->
 
                     <li class="page-item">
                         <a role="button"
-                           class="page-link {% if pages|length == current_page or absolute_count == 0 %}disabled{% endif %}"
+                           class="page-link {% if pages|length == page_obj.number or absolute_count == 0 %}disabled{% endif %}"
                            href="?page={{ next_page }}&per_page={{ per_page }}">&raquo;</a>
                     </li>
                 </ul>
