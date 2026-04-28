@@ -34,7 +34,7 @@ class TestFeaturesViews:
             "itemType",
             "keywords",
             "links",
-            "storageCRS",
+            "storageCrs",
             "title",
         }
 
@@ -50,7 +50,7 @@ class TestFeaturesViews:
             "id": str(published.identifier),
             "itemType": "feature",
             "keywords": [],
-            "storageCRS": "http://www.opengis.net/def/crs/EPSG/0/4326",
+            "storageCrs": "http://www.opengis.net/def/crs/EPSG/0/4326",
             "title": "TestPointLayer",
         }
         assert expected_subset.items() <= collection_detail.items()
