@@ -84,18 +84,21 @@ class Index(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
         fss_project = FSService()
         dbs_project = DBService()
         app_menu = apps.get_app_config("data_integration").app_menu()
+        project_count = fss_project.count()
+        project_db_count = dbs_project.count_db_projects()
+        outdated_count = fss_project.count_out_dated()
         context = {
             "app_menu": app_menu,
-            "project_count": fss_project.count(),
-            "project_db_count": dbs_project.count_db_projects(),
-            "outdated_count": fss_project.count_out_dated(),
+            "project_count": project_count,
+            "project_db_count": project_db_count,
+            "outdated_count": outdated_count,
             "breadcrumbs": [BreadCrumb(app_menu.title)],
         }
         context.update(
             self.calculate_gauge_values(
-                fss_project.count(),
-                dbs_project.count_db_projects(),
-                fss_project.count_out_dated(),
+                project_count,
+                project_db_count,
+                outdated_count,
             )
         )
         return render(request, "data_integration/index.html", context)
