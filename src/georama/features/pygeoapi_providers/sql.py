@@ -1,12 +1,11 @@
 import logging
 
-from pygeoapi.provider.postgresql import PostgreSQLProvider
+from pygeoapi.provider.sql import PostgreSQLProvider
 
 LOGGER = logging.getLogger(__name__)
 
 
 class GeoramaSqlProvider(PostgreSQLProvider):
-
     def __init__(self, provider_def):
         self.properties = provider_def.get("properties", {})
 

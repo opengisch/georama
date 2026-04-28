@@ -51,7 +51,7 @@ dependencies = [
     # cli tooling
     "click==8.1.7",
     # pygeoapi and its friends
-    "pygeoapi==0.20.0",
+    "pygeoapi==0.21.0",
     "psycopg2",
     "psycopg[binary,pool]",
     "geoalchemy2",

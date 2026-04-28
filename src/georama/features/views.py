@@ -73,7 +73,6 @@ class PygeoapiServer(View):
         if not skip_valid_check and not api_request.is_valid():
             headers, status, content = api.get_format_exception(api_request)
         else:
-
             headers, status, content = api_function(api, api_request, *args)
             content = apply_gzip(headers, content)
 
@@ -289,9 +288,9 @@ class PygeoapiServer(View):
 
     def handle_runtime_config(self, request: HttpRequest) -> tuple[dict, dict]:
         server_config = ServerConfig().get()
-        server_config["server"][
-            "url"
-        ] = f"{request.scheme}://{request.get_host()}{reverse('features:api-landing')}"
+        server_config["server"]["url"] = (
+            f"{request.scheme}://{request.get_host()}{reverse('features:api-landing')}"
+        )
         for published_as in self.model.objects.all():
             if published_as.has_general_permission(request.user, central_app_label):
                 server_config["resources"][str(published_as.identifier)] = (
@@ -520,8 +519,10 @@ def getDatasetFieldConstraints(
 
     # In the schema, the geometry column is always called
     # `geometry`, independent of the actual column name in the DB
+    api_geom_type = f"geometry-{geom_type if geom_type != 'UNSET' else 'any'}"
     field_constraints["geometry"] = {
-        "format": f'geometry-{geom_type if geom_type != "UNSET" else "any"}',
+        "type": api_geom_type,
+        "format": api_geom_type,
         "x-ogc-role": "primary-geometry",
     }
     return field_constraints
@@ -549,7 +550,6 @@ class PublishLayer(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
 
 
 class Index(GeoramaPublishedItemIndex):
-
     model = PublishedAsOgcApiFeatures
     template_name = "features/index.html"
     entity_name = "layer"
