@@ -90,5 +90,5 @@ urlpatterns = [
         gui.PublishedAsProcessGroupListView.as_view(),
         name="process-permission-group-list",
     ),
-    path("/api", api.OgcApiProcesses100.as_view(action="landing"), name="api-landing"),
+    path("/api", api.api.urls),
 ]

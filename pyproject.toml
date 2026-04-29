@@ -66,6 +66,7 @@ dependencies = [
     "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
     "numpy==2.2.5",
     "django-crispy-forms",
+    "django-ninja",
     "crispy-bootstrap5",
     "uvicorn==0.44.0",
     # deps for webgis

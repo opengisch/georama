@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
+from enum import StrEnum
 
-from mypy.nodes import Enum
+from pydantic.dataclasses import dataclass as pydantic_dataclass
 
 
+@pydantic_dataclass
 @dataclass
 class Link:
     type: str = field()
@@ -12,34 +14,42 @@ class Link:
     href_lang: str | None = field(default=None, metadata={"name": "hreflang"})
 
 
+@pydantic_dataclass
 @dataclass
 class Base:
     links: list[Link] = field()
 
 
+@pydantic_dataclass
+@dataclass
 class Input:
     pass
 
 
+@pydantic_dataclass
+@dataclass
 class Output:
     pass
 
 
+@pydantic_dataclass
+@dataclass
 class Subscriber:
     pass
 
 
-class JobControlOptions(str, Enum):
+class JobControlOptions(StrEnum):
     SYNC = "sync-execute"
     ASYNC = "async-execute"
     DISMISS = "dismiss"
 
 
-class TransmissionMode(str, Enum):
+class TransmissionMode(StrEnum):
     VALUE = "value"
     REFERENCE = "reference"
 
 
+@pydantic_dataclass
 @dataclass
 class ProcessBase(Base):
     description: str = field()
@@ -54,16 +64,16 @@ class ProcessBase(Base):
     version: str = field()
 
 
+@pydantic_dataclass
 @dataclass
 class Process(ProcessBase):
     inputs: list[Input] | Input = field()
-
     outputs: list[Output] = field()
-
     response: str = field()
     subscriber: Subscriber = field()
 
 
+@pydantic_dataclass
 @dataclass
 class Landing(Base):
     processes: list[ProcessBase] = field()
