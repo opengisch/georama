@@ -1,12 +1,13 @@
+from django.shortcuts import redirect
 from django.urls import path
 
 from georama.processes.apps import central_app_label
-from georama.processes.views import api, gui
+from georama.processes.views import gui
 
 app_name = central_app_label
 
 urlpatterns = [
-    path("", gui.Index.as_view(), name="index"),
+    path("/", lambda _: redirect("processes:api-landing"), name="index"),
     path("/execute_process", gui.ExecuteProcess.as_view(), name="process-execute"),
     path("/dataset", gui.PublishedAsDatasetListView.as_view(), name="dataset-list"),
     path(
@@ -90,5 +91,5 @@ urlpatterns = [
         gui.PublishedAsProcessGroupListView.as_view(),
         name="process-permission-group-list",
     ),
-    path("/api", api.api.urls),
+    path("/api", gui.ApiProcessList.as_view(), name="api-landing"),
 ]

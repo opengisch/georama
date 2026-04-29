@@ -181,6 +181,7 @@ class Base(Configuration):
 
     INSTALLED_APPS = [
         "georama.core.apps.CoreConfig",
+        "ninja",
         "jazzmin",
         "django.contrib.admin",
         "django.contrib.auth",
