@@ -17,7 +17,6 @@ from xsdata.formats.dataclass.serializers import JsonSerializer
 from georama.core.views.entities.permission_detail import GeoramaPermissionDetailView
 from georama.core.views.entities.permission_group import GeoramaGroupListView
 from georama.core.views.entities.permission_user import GeoramaUserListView
-from georama.core.views.entities.published_item_index import GeoramaPublishedItemIndex
 from georama.core.views.generic.mixins import GeoramaLoginRequiredMixin
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.data_integration.views import PermissionRequiredMixin
@@ -42,9 +41,9 @@ from georama.webgis.views import (
 )
 
 
-class ApiProcessList(GeoramaPublishedItemIndex):
+class ApiProcessList(GeoramaEntityListView):
     model = PublishedAsProcess
-    template_name = "processes/index.html"
+    template_name = "processes/api/process_list.html"
     entity_name = "process"
     limit: int
     format: str
@@ -83,30 +82,30 @@ class ApiProcessList(GeoramaPublishedItemIndex):
                     links=[],
                 )
             )
-            landing = Landing(
-                processes=api_processes,
-                links=[
-                    Link(
-                        type=self.media_types["json"],
-                        rel="self",
-                        href=request.build_absolute_uri(
-                            reverse(f"{central_app_label}:api-landing")
-                        ),
-                        href_lang="en",
-                        title=_("This document as JSON"),
+        landing = Landing(
+            processes=api_processes,
+            links=[
+                Link(
+                    type=self.media_types["json"],
+                    rel="self",
+                    href=request.build_absolute_uri(
+                        reverse(f"{central_app_label}:api-landing")
                     ),
-                    Link(
-                        type=self.media_types["html"],
-                        rel="self",
-                        href=request.build_absolute_uri(
-                            reverse(f"{central_app_label}:api-landing")
-                        )
-                        + "?f=html",
-                        href_lang="en",
-                        title=_("This document as HTML"),
-                    ),
-                ],
-            )
+                    href_lang="en",
+                    title=_("This document as JSON"),
+                ),
+                Link(
+                    type=self.media_types["html"],
+                    rel="self",
+                    href=request.build_absolute_uri(
+                        reverse(f"{central_app_label}:api-landing")
+                    )
+                    + "?f=html",
+                    href_lang="en",
+                    title=_("This document as HTML"),
+                ),
+            ],
+        )
         return JsonSerializer().render(landing)
 
 
