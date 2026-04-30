@@ -14,7 +14,6 @@ from georama.data_integration.lib.qgis_project_file_structure import (
     Config,
     QgisProject,
     QgisProjectFileStructure,
-    QgisProjectGroup,
 )
 from georama.data_integration.models import (
     CustomDataSet,
@@ -37,10 +36,7 @@ class FSService:
         self.qpfs.create_groups(self.config.qgis_project_extensions)
 
     def count(self) -> int:
-        count = 0
-        for group in self.qpfs.groups:
-            count += len(group.projects)
-        return count
+        return sum(len(group.projects) for group in self.qpfs.groups)
 
     def count_out_dated(self):
         """
@@ -122,8 +118,9 @@ class FSService:
         found_project.config = self.load_project_config(found_project)
         return found_project
 
-    def get_list(self) -> list[QgisProjectGroup]:
+    def get_list(self) -> list[QgisProject]:
         integrated_projects = DBService().get_list()
+
         for integrated_project in integrated_projects:
             found_group = self.qpfs.find_group_by_name(integrated_project.mandant.name)
             found_project = found_group.find_project_by_name(integrated_project.name)
@@ -131,7 +128,8 @@ class FSService:
         for group in self.qpfs.groups:
             for project in group.projects:
                 project.config = self.load_project_config(project)
-        return self.qpfs.groups
+
+        return sum((group.projects for group in self.qpfs.groups), [])
 
     def get_list_page(self, offset: int | None = None, count: int | None = None):
         return self.get_list()
