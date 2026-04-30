@@ -1,9 +1,7 @@
 from asgiref.sync import sync_to_async
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
-from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import gettext as _
 from django.views import View
 from qgis_server_light.interface.exporter.extract import Process
 from qgis_server_light.interface.job.process.input import (
@@ -12,7 +10,6 @@ from qgis_server_light.interface.job.process.input import (
 )
 from qgis_server_light.interface.job.process.process_list import available
 from xsdata.formats.dataclass.parsers import DictDecoder
-from xsdata.formats.dataclass.serializers import JsonSerializer
 
 from georama.core.views.entities.permission_detail import GeoramaPermissionDetailView
 from georama.core.views.entities.permission_group import GeoramaGroupListView
@@ -26,87 +23,12 @@ from georama.maps.views import (
     GeoramaEntityUpdateView,
 )
 from georama.processes.apps import central_app_label, qsl_redis_queue
-from georama.processes.interface.ogc_api.v_100.processes import (
-    JobControlOptions,
-    Landing,
-    Link,
-    ProcessBase,
-    TransmissionMode,
-)
 from georama.processes.models import PublishedAsDataset, PublishedAsProcess
 from georama.webgis.views import (
     GeoramaEntityDeleteView,
     GeoramaEntityDetailView,
     GeoramaEntityPublishListView,
 )
-
-
-class ApiProcessList(GeoramaEntityListView):
-    model = PublishedAsProcess
-    template_name = "processes/api/process_list.html"
-    entity_name = "process"
-    limit: int
-    format: str
-    media_types: dict[str, str] = {"json": "application/json", "html": "text/html"}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def get_queryset(self):
-        permitted_items = []
-        items = self.model.objects.all()
-        for item in items:
-            if item.has_general_permission(self.request.user, self.model._meta.app_label):
-                permitted_items.append(item)
-        return super().get_queryset()
-
-    def render_to_response(self, context, **response_kwargs):
-        request_format = self.request.GET.get("f", "json")
-        if request_format == "json":
-            return HttpResponse(self.as_json(self.request), content_type="application/json")
-        else:
-            return super().render_to_response(context, **response_kwargs)
-
-    def as_json(self, request):
-        api_processes = []
-        for process in self.object_list:
-            api_processes.append(
-                ProcessBase(
-                    id=process.process_id,
-                    description=process.qsl_algorithm.short_help_string,
-                    job_control_options=[JobControlOptions.SYNC],
-                    output_transmission=[TransmissionMode.VALUE],
-                    title=process.qsl_algorithm.display_name,
-                    version="1.0.0",
-                    links=[],
-                )
-            )
-        landing = Landing(
-            processes=api_processes,
-            links=[
-                Link(
-                    type=self.media_types["json"],
-                    rel="self",
-                    href=request.build_absolute_uri(
-                        reverse(f"{central_app_label}:api-landing")
-                    ),
-                    href_lang="en",
-                    title=_("This document as JSON"),
-                ),
-                Link(
-                    type=self.media_types["html"],
-                    rel="self",
-                    href=request.build_absolute_uri(
-                        reverse(f"{central_app_label}:api-landing")
-                    )
-                    + "?f=html",
-                    href_lang="en",
-                    title=_("This document as HTML"),
-                ),
-            ],
-        )
-        return JsonSerializer().render(landing)
 
 
 class ExecuteProcess(View):

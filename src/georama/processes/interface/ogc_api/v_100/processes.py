@@ -75,5 +75,5 @@ class Process(ProcessBase):
 
 @pydantic_dataclass
 @dataclass
-class Landing(Base):
+class Processes(Base):
     processes: list[ProcessBase] = field()
