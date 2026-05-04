@@ -17,6 +17,7 @@
 
     {#   TODO PI: These functionalities do not exist yet #}
     {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides a legend: {{ val }}{% endblocktranslate %}
+    {% if False %}
     <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
           data-bs-toggle="tooltip"
           title="{{ title }}"
@@ -24,9 +25,12 @@
         GetLegend</span>
     {#   TODO PI: These functionalities do not exist yet #}
     {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}WMS layer provides feature infos at coordinates: {{ val }}{% endblocktranslate %}
+    {% endif %}
+    {% if False %}
     <span class="badge rounded-pill {% if False %}text-bg-primary{% else %}text-bg-light{% endif %}"
           data-bs-toggle="tooltip"
           title="{{ title }}"
           aria-label="{{ title }}">
         GetFeatureInfo</span>
+    {% endif %}
 {% endblock %}
