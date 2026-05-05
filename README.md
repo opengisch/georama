@@ -1,4 +1,4 @@
-# Georama
+# Welcome to Georama!
 
 <div align="center">
   <br>
@@ -6,7 +6,12 @@
   <br>
 </div>
 
-**The open, interoperable platform for any geospatial data publication workflows, from complex enterprise workflows down to anyone sharing their first dataset.**
+---
+
+> **The open, interoperable platform for any geospatial data publication workflows, from complex enterprise workflows down to anyone sharing their first dataset.**
+> Georama is your bridge between powerful desktop GIS and scalable, standards-based web publishing.
+
+---
 
 Georama is an open-source project by [OPENGIS.ch](https://opengis.ch), the team behind [QField](https://qfield.org), [QFieldCloud](https://qfield.cloud), and other open geospatial tools.
 
@@ -15,6 +20,13 @@ Georama is an open-source project by [OPENGIS.ch](https://opengis.ch), the team 
 Georama bridges the gap between desktop GIS and the web. It lets you take your QGIS projects and publish them as standards-compliant web services, complete with metadata management, fine-grained access control, and, thanks to its native integration with [GeoGirafe](https://geogirafe.org/), a modern web map interface.
 
 Whether you are a small organization sharing a handful of datasets, or a large institution managing hundreds of projects and complex publication workflows, Georama is designed to scale with you.
+
+<div align="center">
+  <img width="40%" alt="Screenshot 1" src="https://github.com/user-attachments/assets/e86272a1-9e47-4a26-8e31-fd05cd7c27c9" />
+  <img width="40%" alt="Screenshot 2" src="https://github.com/user-attachments/assets/8f433811-82c0-4cfd-bbdb-f25f29a8ed72" />
+  <br><br><br><br>
+  <img width="80%" alt="Screenshot 3" src="https://github.com/user-attachments/assets/7daf38b0-c81d-4245-b0cd-85cd19b2b297" />
+</div>
 
 ## Core features
 
