@@ -53,13 +53,12 @@ class FSService:
         """
 
         count = 0
-        for group in self.get_list():
-            for project in group.projects:
-                if (
-                    project.database_representation is not None
-                    and project.hash != project.database_representation.hash
-                ):
-                    count += 1
+        integrated_projects = DBService().get_list()
+        for integrated_project in integrated_projects:
+            found_group = self.qpfs.find_group_by_name(integrated_project.mandant.name)
+            found_project = found_group.find_project_by_name(integrated_project.name)
+            if found_project.hash != integrated_project.hash:
+                count += 1
         return count
 
     def load_project_config(self, project: QgisProject) -> QslConfig | None:
