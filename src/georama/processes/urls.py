@@ -7,6 +7,7 @@ from georama.processes.views import api, management
 app_name = central_app_label
 
 urlpatterns = [
+    # TODO: remove this
     path("/execute_process", management.ExecuteProcess.as_view(), name="process-execute"),
     path("/dataset", management.PublishedAsDatasetListView.as_view(), name="dataset-list"),
     path(
@@ -91,17 +92,18 @@ urlpatterns = [
         name="process-permission-group-list",
     ),
     path("/", lambda _: redirect("processes:api-landing"), name="index"),
-    path("/api", api.ApiLanding.as_view(), name="api-landing"),
-    path("/api/processes", api.ApiProcessList.as_view(), name="api-process-list"),
+    path("/api", api.LandingView.as_view(), name="api-landing"),
+    path("/api/conformance", api.ConformanceView.as_view(), name="api-conformance"),
+    path("/api/processes", api.ProcessListView.as_view(), name="api-process-list"),
     path(
         "/api/processes/<process_id>",
-        api.ApiProcessDetail.as_view(),
+        api.ProcessDetailView.as_view(),
         name="api-process-detail",
     ),
     path(
         "/api/processes/<process_id>/execution",
-        api.ApiProcessExection.as_view(),
-        name="api-process-execute",
+        api.ProcessExectionView.as_view(),
+        name="api-process-execution",
     ),
-    path("/api/jobs", api.ApiJobList.as_view(), name="api-process-list"),
+    path("/api/jobs", api.JobListView.as_view(), name="api-job-list"),
 ]

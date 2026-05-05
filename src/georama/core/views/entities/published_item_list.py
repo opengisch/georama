@@ -6,7 +6,7 @@ from georama.core.menu import BreadCrumb
 from georama.core.views.generic.list import GeoramaListView
 
 
-class GeoramaPublishedItemIndex(GeoramaListView):
+class GeoramaPublishedItemList(GeoramaListView):
     """
     This view is the apps landing page. It shows the available published
     layers a user can access. This is also available in public and shows
@@ -16,7 +16,7 @@ class GeoramaPublishedItemIndex(GeoramaListView):
     """
 
     model: PublishedAs
-    template_name = "core/published_item_index.html"
+    template_name = "core/published_item_list.html"
     entity_name: str
 
     def get_breadcrumbs(self):

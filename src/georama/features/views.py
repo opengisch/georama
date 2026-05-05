@@ -23,7 +23,7 @@ from georama.core.views.entities.entity_update import GeoramaEntityUpdateView
 from georama.core.views.entities.permission_detail import GeoramaPermissionDetailView
 from georama.core.views.entities.permission_group import GeoramaGroupListView
 from georama.core.views.entities.permission_user import GeoramaUserListView
-from georama.core.views.entities.published_item_index import GeoramaPublishedItemIndex
+from georama.core.views.entities.published_item_list import GeoramaPublishedItemList
 from georama.core.views.generic.mixins import (
     GeoramaAnyPermissionRequiredMixin,
     GeoramaLoginRequiredMixin,
@@ -549,7 +549,7 @@ class PublishLayer(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
         return redirect(f"{central_app_label}:layer-list")
 
 
-class Index(GeoramaPublishedItemIndex):
+class Index(GeoramaPublishedItemList):
     model = PublishedAsOgcApiFeatures
     template_name = "features/index.html"
     entity_name = "layer"

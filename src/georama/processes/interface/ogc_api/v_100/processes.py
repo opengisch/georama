@@ -77,3 +77,22 @@ class Process(ProcessBase):
 @dataclass
 class Processes(Base):
     processes: list[ProcessBase] = field()
+
+
+@pydantic_dataclass
+@dataclass
+class Landing(Base):
+    title: str = field()
+    description: str = field()
+
+
+@pydantic_dataclass
+@dataclass
+class Conformance:
+    conforms_to: list[str] = field(
+        metadata={
+            "name": "conformsTo",
+            "type": "Attribute",
+            "tokens": True,
+        }
+    )

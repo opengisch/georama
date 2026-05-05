@@ -1,6 +1,10 @@
+from functools import cached_property
+from typing import Self
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.exporter.extract import Algorithm
 
@@ -9,6 +13,12 @@ from georama.core.models.mixins import GeoramaPermissionMixin
 from georama.core.services.permission import PermissionInterface
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.processes.apps import central_app_label, qsl_available_processes
+from georama.processes.interface.ogc_api.v_100.processes import (
+    JobControlOptions,
+    Link,
+    ProcessBase,
+    TransmissionMode,
+)
 
 User = get_user_model()
 
@@ -39,7 +49,7 @@ class PublishedAsProcess(GeoramaPermissionMixin, PublishedAs):
     def get_absolute_url(self):
         return reverse(f"{central_app_label}:process-detail", kwargs={"pk": self.pk})
 
-    @property
+    @cached_property
     def qsl_algorithm(self) -> Algorithm:
         return qsl_available_processes.algorithm_by_id(self.process_id)
 
@@ -58,6 +68,39 @@ class PublishedAsProcess(GeoramaPermissionMixin, PublishedAs):
     @property
     def help(self) -> str:
         return self.qsl_algorithm.short_help_string
+
+    @property
+    def dataclass(self: Self):
+        return ProcessBase(
+            id=self.process_id,
+            description=self.qsl_algorithm.short_help_string,
+            job_control_options=[JobControlOptions.SYNC],
+            output_transmission=[TransmissionMode.VALUE],
+            title=self.qsl_algorithm.display_name,
+            version="1.0.0",
+            links=[
+                Link(
+                    type="application/json",
+                    rel="self",
+                    href=reverse(
+                        f"{central_app_label}:api-process-detail",
+                        kwargs={"process_id": self.process_id},
+                    ),
+                    href_lang="en",
+                    title=gettext("Process execution"),
+                ),
+                Link(
+                    type="application/json",
+                    rel="execution",
+                    href=reverse(
+                        f"{central_app_label}:api-process-execution",
+                        kwargs={"process_id": self.process_id},
+                    ),
+                    href_lang="en",
+                    title=gettext("Process execution"),
+                ),
+            ],
+        )
 
 
 class PublishedAsDataset(GeoramaPermissionMixin, PublishedAs):

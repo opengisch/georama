@@ -2,11 +2,9 @@
 {% load static i18n %}
 
 {% block detail_content %}
-    <h1>Title: {{ object.title }}</h1>
-    <h4>Description: {{ object.description }} </h4>
-    <h4>Links:</h4>
+    <h1>Conforms to:</h1>
     <ul>
-        {% for link in object.links %}
+        {% for link in object.conforms_to %}
         <li>
             <a href="{{ link.href }}">{{ link.title }}</a>
         </li>

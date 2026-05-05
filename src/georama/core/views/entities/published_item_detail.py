@@ -27,8 +27,8 @@ class GeoramaPublishedItemDetail(DetailView):
             BreadCrumb(self.object.title or self.object.name),
         ]
 
-    def get_object(self):
-        obj = super.get_object()
+    def get_object(self, queryset=None):
+        obj = super().get_object()
         if obj.has_general_permission(self.request.user, self.model._meta.app_label):
             return obj
         raise PermissionDenied()

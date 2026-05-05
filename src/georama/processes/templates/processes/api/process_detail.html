@@ -1,0 +1,8 @@
+{% extends 'core/published_item_detail.html' %}
+{% load static i18n %}
+
+{% block content %}
+<h1> {{ object.title }}</h1>
+<h2> {{ object.description }}</h2>
+<div> {{ object.help }}</div>
+{% endblock %}

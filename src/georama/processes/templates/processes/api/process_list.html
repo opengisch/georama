@@ -1,4 +1,4 @@
-{% extends 'core/published_item_index.html' %}
+{% extends 'core/published_item_list.html' %}
 {% load static i18n %}
 
 {% block list_actions %}
@@ -33,7 +33,7 @@
 
 {% block item_card_footer %}
     {% blocktranslate asvar title%}Open Process Endpoint in new Tab{% endblocktranslate %}
-    <a href="{% url 'processes:api-process-list' %}"
+    <a href="{% url 'processes:api-process-detail' item.process_id %}"
        target="_blank" class="btn btn-outline-primary"
        role="button"
        data-bs-toggle="tooltip"
