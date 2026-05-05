@@ -187,10 +187,6 @@ From most to least urgent:
 5. Major documentation updates
 6. New features
 
-### Releases TBD IF WE REALLY STILL FOLLOW SEMVER
-
-We follow [semantic versioning](http://semver.org). The roadmap lives [here](https://github.com/opengisch/georama/milestones?direction=desc&sort=due_date&state=open). Due dates are flexible.
-
 ---
 
 *Georama is a volunteer-driven project. We appreciate your patience, your ideas, and your contributions, big or small. Welcome aboard!* 🌍
