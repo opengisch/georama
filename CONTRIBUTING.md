@@ -1,6 +1,10 @@
-<img width="150" height="136" alt="georama_logo" src="https://github.com/user-attachments/assets/f2464ee3-d238-495c-91ab-dd771056196b" />
-
 # Contributing to Georama
+
+<div align="center">
+  <br>
+  <img width="150" height="136" alt="georama_logo" src="https://github.com/user-attachments/assets/abcf1b27-c221-454b-a526-ed086d9a38b8" />
+  <br>
+</div>
 
 First off, thank you for being here! 🎉
 
