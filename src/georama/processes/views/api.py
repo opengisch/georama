@@ -1,6 +1,5 @@
-from typing import Literal
-
 from django.apps import apps
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -30,29 +29,16 @@ class TemplateOrApiView(PermissionRequiredMixin, BreadcrumbMixin, TemplateView):
     def render_to_json(self, context, **json_kwargs):
         raise NotImplementedError()
 
-    def get_output_format(self) -> Literal["html", "json"]:
-        param_preferred_type = self.request.GET.get("f")
-        header_preferred_type = self.request.get_preferred_type(
+    def render(self, context):
+        preferred_type = self.request.GET.get("f") or self.request.get_preferred_type(
             [
                 "text/html",
                 "application/json",
             ]
         )
-        if param_preferred_type is not None:
-            if param_preferred_type == "html":
-                return "html"
-            if param_preferred_type == "json":
-                return "json"
-        if header_preferred_type == "text/html":
-            return "html"
-        if header_preferred_type == "application/json":
-            return "json"
-
-    def render(self, context):
-        output_format = self.get_output_format()
-        if output_format == "html":
+        if preferred_type in {"html", "text/html"}:
             return self.render_to_response(context)
-        if output_format == "json":
+        if preferred_type in {"json", "application/json"}:
             return self.render_to_json(context)
         return JsonResponse({"detail": "Unsupported media type"}, status=406)
 
@@ -63,6 +49,25 @@ class TemplateOrApiView(PermissionRequiredMixin, BreadcrumbMixin, TemplateView):
 
 class TemplateOrApiListView(TemplateOrApiView, GeoramaPublishedItemList):
     permission_required = []
+
+    def setup(self, request, *args, **kwargs):
+        # This is a hack: the templates and django pagination works with
+        # `per_page` and `page` parameters but the OGC API requires `limit`
+        # and `offset`. We convert the latter into the former here so that
+        # we can keep using the pagination features without additional changes
+        # TODO: catch errors
+        limit = request.GET.get("limit")
+        offset = request.GET.get("offset")
+        if limit is not None:
+            limit = int(limit)
+            if limit not in settings.LIST_PAGE_SIZES:
+                limit = settings.LIST_PAGE_SIZE_DEFAULT
+            kwargs["per_page"] = limit
+        if offset is not None:
+            offset = int(offset)
+            page = 1 if limit in (None, 0) else (offset // limit) + 1
+            kwargs["page"] = page
+        super().setup(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()
@@ -237,6 +242,14 @@ class ProcessExectionView(TemplateOrApiView):
 class JobListView(TemplateOrApiListView):
     entity_name = "job"
     model = Job
+    template_name = "processes/api/job_list.html"
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb("Job list"),
+        ]
 
     def render_to_json(self, context, **json_kwargs):
         return HttpResponse(
@@ -247,8 +260,49 @@ class JobListView(TemplateOrApiListView):
 class JobDetailView(TemplateOrApiDetailView):
     entity_name = "job"
     model = Job
+    template_name = "processes/api/job_detail.html"
+
+    slug_url_kwarg = "job_id"
+    slug_field = "job_id"
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb("Job list", reverse(f"{app_menu.app_label}:api-job-list")),
+            BreadCrumb(self.object.title),
+        ]
 
     def render_to_json(self, context, **json_kwargs):
         return HttpResponse(
-            JsonSerializer().render(context["object_list"]), content_type="application/json"
+            JsonSerializer().render(context["object"]), content_type="application/json"
+        )
+
+
+class JobResultView(TemplateOrApiDetailView):
+    entity_name = "job"
+    model = Job
+    template_name = "processes/api/job_result.html"
+
+    slug_url_kwarg = "job_id"
+    slug_field = "job_id"
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb("Job list", reverse(f"{app_menu.app_label}:api-job-list")),
+            BreadCrumb(
+                self.object.title,
+                reverse(
+                    f"{app_menu.app_label}:api-job-detail",
+                    kwargs={"job_id": self.object.job_id},
+                ),
+            ),
+            BreadCrumb("Results"),
+        ]
+
+    def render_to_json(self, context, **json_kwargs):
+        return HttpResponse(
+            JsonSerializer().render(context["object"]), content_type="application/json"
         )
