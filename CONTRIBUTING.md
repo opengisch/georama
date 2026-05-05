@@ -1,79 +1,77 @@
-# Contributing
+<img width="150" height="136" alt="georama_logo" src="https://github.com/user-attachments/assets/f2464ee3-d238-495c-91ab-dd771056196b" />
 
-Thank you for considering reading this guide!
-Contributions are welcome :)
+# Contributing to Georama
 
+First off, thank you for being here! 🎉
 
-* [Types of Contributions](#Types-of-Contributions)
-* [Contributor Setup](#Setting-Up-the-Code-for-Local-Development)
-* [Contributor Guidelines](#Contributor-Guidelines)
-* [Contributor Testing](#Testing-with-tox)
-* [Core Committer Guide](#Core-Committer-Guide)
+Georama is an open-source project by [OPENGIS.ch](https://opengis.ch), and we genuinely value every contribution, whether it's a bug report, a documentation fix, a feature idea, or a pull request. 
 
+Open-source thrives on community, and we're glad you're part of ours!
 
-## Types of Contributions
+---
 
-You can contribute in many ways:
+## Before you dive in
 
-### Report Bugs
+We want to be upfront with you: **at the moment, we have limited time and resources to review and merge external contributions**. This doesn't mean we don't want your help, quite the opposite! It just means that, to avoid frustration on both sides, we strongly encourage you to **get in touch with us before investing significant time in a PR or a new feature**.
 
-Report bugs at [https://github.com/opengisch/georama/issues](https://github.com/opengisch/georama/issues).
-W
-Stambling upon a Bug means encountering different behaviour than the expected/advertised one. When you are reporting a bug, please include the following infromation by filling in [the template](https://github.com/opengisch/georama/.github/blob/master/.github/ISSUE_TEMPLATE/bug_report.md).
+The best ways to do this are:
 
-* Your operating system name and version.
-* Any details about your local setup that might be helpful in troubleshooting.
-* If you can, provide detailed steps to reproduce the bug.
-* If you don't have steps to reproduce the bug, just note your observations in as much detail as you can. Questions to start a discussion about the issue are welcome.
+- [**Open an issue**](https://github.com/opengisch/georama/issues/new) if you've found a bug or have a concrete feature request
+- **Start a discussion** in our [GitHub Discussions space](https://github.com/opengisch/georama/discussions) if you have an idea you'd like to explore or get feedback on
 
-### Fix Bugs
+Early dialogue helps everyone: it ensures we're not stepping on each other's feet, gives the community a chance to weigh in, and often leads to better solutions. Your idea might cover one specific use case, but a quick conversation could help shape it into something that benefits many more users.
 
-Look through the GitHub issues for bugs. Anything tagged with "bug" is open to whoever wants to implement it. See [Contributor Setup](#Setting-Up-the-Code-for-Local-Development) to get started.
+---
 
-### Implement Features
+## What we're focused on right now
 
-Look through the GitHub issues for features. Anything tagged with "enhancement" and "please-help" is open to whoever wants to implement it.
+Georama's mission is to be a **strong, robust core platform for geospatial data publication workflows**, simple enough for anyone, powerful enough for complex enterprise needs.
 
-Please do not combine multiple feature enhancements into a single pull request.
+We have a longer-term vision of supporting additional features and functionalities through **plugins and extensions**, but we're not there yet architecturally. For now, we are laser-focused on doing one thing really well: geospatial data publication. This means we will prioritize contributions that strengthen the core, including bug fixes, stability improvements, and features that are central to the publication workflow.
 
-See [Contributor Setup](#Setting-Up-the-Code-for-Local-Development) to get started.
+If you have an idea that feels more like an add-on or a niche use case, don't be discouraged. Start a discussion! It may well be the perfect candidate for a future plugin.
 
-### Write Documentation
+---
 
-GeoRama could always use more documentation, whether as part of the official GeoRama docs, in docstrings, etc.
+## Ways to contribute
 
-If you want to review your changes on the documentation locally, you can do:
+### 🐛 Report a bug
 
-```bash
-python3 -m pip install --user tox
-tox -e live-html
-```
+Found something that doesn't behave as expected? Please [open an issue](https://github.com/opengisch/georama/issues/new) and include:
 
-This will compile the documentation (into html) and start watching the files for changes, recompiling as you save.
-You can open it in your browser at http://127.0.0.1:8000 !
+- Your operating system and version
+- Steps to reproduce the problem (even rough ones help!)
+- What you expected to happen, and what actually happened
+- Any relevant details about your local setup
+- A picture is worth 1000 words! Please add screenshots / screencasts if possible
 
-### Submit Feedback
+### 💡 Suggest a feature or improvement
 
-The best way to send feedback is to file an issue at [https://github.com/opengisch/georama/issues](https://github.com/opengisch/georama/issues).
+Have an idea? We'd love to hear it. Head over to [Discussions](https://github.com/opengisch/georama/discussions) and share your thoughts. The more context you can give, such as why you need it, what problem it solves, and who else might benefit, the better.
 
-If you are proposing a feature:
+### 📝 Improve documentation
 
-* Explain in detail how it would work.
-* Keep the scope as narrow as possible, to make it easier to implement.
-* Remember that this is a volunteer-driven project, and that contributions are welcome :)
+Good documentation is as valuable as good code. If you spot something unclear, outdated, or missing, feel free to open an issue for doc fixes.
 
-## Setting Up the Code for Local Development
+### 🔧 Submit a fix or feature
 
-Here's how to set up `georama` for local development.
+Ready to write some code? Wonderful! Please make sure you've discussed it with us first (see [Before you dive in](#before-you-dive-in)), then follow the technical setup below.
 
-1. Fork the `georama` repo on GitHub.
-2. Clone your fork locally:
+---
+
+## Technical setup
+
+### 1. Fork and clone
+
+Fork the repository on GitHub, then clone your fork locally:
 
 ```bash
 git clone git@github.com:opengisch/georama.git
 ```
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenv installed, this is how you set up your fork for local development:
+### 2. Set up your local environment
+
+Assuming you have virtualenv installed, this is how you set up your fork for local development:
 
 ```bash
 cd georama
@@ -82,158 +80,117 @@ source env/bin/activate
 pip install -e .
 ```
 
-4. Create a branch for local development:
+### 3. Create a branch for local development
 
 ```bash
 git checkout -b name-of-your-bugfix-or-feature
 ```
 
-Now you can make your changes locally.
+### 4. Make your changes
 
-1. When you're done making changes, check that your changes pass the tests locally:
+Go ahead! If you're adding functionality, please write tests as you go. It makes review much smoother.
+
+### 5. Run the tests
 
 ```bash
 pip install tox
-alias tox='PKG_VERSION=$(./scripts/parse_version.py) tox'
 tox
 ```
 
-Please note that tox runs test test suite against multiple python versions, if they are found available on the host machine.
+This runs the test suite against multiple Python versions. Make sure everything passes before submitting.
 
-If you want to produce a built tar.gz and wheel distributions:
+### 6. Check test coverage
 
+Coverage is important to us. After running tox, check the report in the `htmlcov` directory. Please don't include this directory in your commits.
+
+### 7. Commit and push
+
+```bash
+git add -p
+git commit -m "A clear and descriptive commit message"
+git push origin name-of-your-bugfix-or-feature
+```
+
+### 8. Open a pull request
+
+Submit your PR through GitHub. Please keep PRs focused: one feature or fix per PR makes review much easier.
+
+### Testing with tox
+ 
+Tox uses pytest under the hood and supports the same syntax for selecting tests. For more details, see the [pytest usage docs](http://pytest.org/en/latest/example/index.html).
+ 
+To run the full test suite across all configured Python versions:
+ 
+```bash
+tox
+```
+ 
+To run all tests using a specific Python version, e.g. Python 3.8:
+ 
+```bash
+tox -e py38
+```
+ 
+To run only tests matching a specific name, e.g. `smoke_test`, using Python 3.8:
+ 
+```bash
+tox -e py38 -- -k 'smoke_test'
+```
+ 
+To produce built `.tar.gz` and wheel distributions:
+ 
 ```bash
 tox -e check && tox -e build
 ```
 
-1. Ensure that your feature or commit is fully covered by tests. Check the coverage report that should be visible on the console when you run tox
 
-You report will be placed to `htmlcov` directory. Please do not include this directory to your commits, accidentally.
+---
 
-1. Commit your changes and push your branch to GitHub:
+## Pull request checklist
 
-```bash
-git add -p
-git commit -m "Your detailed description of your changes."
-git push origin name-of-your-bugfix-or-feature
-```
+Before submitting, please check:
 
-8. Submit a pull request through the GitHub website.
+- [ ] My changes are covered by tests
+- [ ] All tests pass locally
+- [ ] I've updated the documentation where relevant
+- [ ] My PR is focused and doesn't bundle multiple unrelated changes
+- [ ] I've discussed this change with the team (via issue or discussion)
 
-## Contributor Guidelines
+---
 
-### Pull Request Guidelines
+## Coding standards
 
-Before you submit a pull request, check that it meets these guidelines:
+We value:
 
-1. The pull request should include tests.
-2. The pull request should be contained: if it's too big consider splitting it into smaller pull requests.
-3. If the pull request adds functionality, the docs should be updated.
-4. The pull request must pass all CI/CD jobs before being ready for review.
-5. If one CI/CD job is failing for unrelated reasons you may want to create another PR to fix that first.
+- **Single responsibility:** each unit of code does one thing
+- **Modularity:** keep things loosely coupled
+- **Composition over inheritance**
 
-### Coding Standards
+---
 
-* Single Responsibility of Units
-* Modularity
-* Composition over Inheritance
+## For core committers
 
+### Reviewing pull requests
 
-## Testing with tox
+- Think carefully about long-term implications. Will this affect existing users? Is it something we want to maintain indefinitely?
+- Be thorough. PRs almost always need at least one round of feedback before they're ready. Quality over speed.
+- When merging, close or update any related issues with a note on how they were addressed.
 
-Tox uses pytest under the hood, hence it supports the same syntax for selecting tests.
+### Prioritizing pull requests
 
-For further information please consult the [pytest usage docs](http://pytest.org/en/latest/example/index.html).
+From most to least urgent:
 
+1. Fixes for broken tests (on any supported platform or Python version)
+2. Tests for uncovered corner cases
+3. Minor documentation edits
+4. Bug fixes
+5. Major documentation updates
+6. New features
 
-To run all tests using various versions of python in virtualenvs defined in tox.ini, just run tox:
+### Releases TBD IF WE REALLY STILL FOLLOW SEMVER
 
-```bash
-tox
-```
+We follow [semantic versioning](http://semver.org). The roadmap lives [here](https://github.com/opengisch/georama/milestones?direction=desc&sort=due_date&state=open). Due dates are flexible.
 
-To run all tests using python 3.8:
+---
 
-```bash
-tox -e py38
-```
-
-To only run test cases matching the string 'smoke_test', using python 3.8:
-
-```bash
-tox -e py38 -- -k 'smoke_test'
-```
-
-
-## Core Committer Guide
-
-### Vision and Scope
-
-Core committers, use this section to:
-
-* Guide your instinct and decisions as a core committer
-* Limit the codebase from growing infinitely
-
-#### API Accessible
-
-* Modular API striving for statelessness
-* Easy to use without having to think too hard
-* Flexible for more complex use cases
-* Easily extensible
-
-#### Extensible
-
-* Modular Design
-* Aim for statelessness
-
-
-#### Fast and Focused
-
-GeoRama is designed to do one thing, and do that one thing very well.
-
-* Cover the important use cases and as little as possible beyond that :)
-
-
-#### Inclusive
-
-* Cross-platform and cross-version support
-
-#### Stable
-
-* Aim for high test coverage and covering corner cases
-* No pull requests will be accepted that drop test coverage on any platform
-* Stable APIs that tool builders can rely on
-
-
-### Process: Pull Requests
-
-How to prioritize pull requests, from most to least important:
-
-* Fixes for broken tests. Broken means broken on any supported platform or Python version.
-* Extra tests to cover corner cases.
-* Minor edits to docs.
-* Bug fixes.
-* Major edits to docs.
-* Features.
-
-#### Pull Requests Review Guidelines
-- Think carefully about the long-term implications of the change. How will it affect existing projects that are dependent on this? If this is complicated, do we really want to maintain it forever?
-- Take the time to get things right, PRs almost always require additional improvements to meet the bar for quality. **Be very strict about quality.**
-- When you merge a pull request take care of closing/updating every related issue explaining how they were affected by those changes. Also, remember to add the author to `AUTHORS.md`.
-
-### Process: Issues
-
-If an issue is a bug that needs an urgent fix, mark it for the next patch release.
-Then either fix it or mark as please-help.
-
-For other issues: encourage friendly discussion, moderate debate, offer your thoughts.
-
-### Process: Roadmap
-
-The roadmap located [here](https://github.com/opengisch/georama/milestones?direction=desc&sort=due_date&state=open)
-
-Due dates are flexible.
-
-### Process: Release:
-
-* Follow semantic versioning. Look at: [http://semver.org](http://semver.org)
+*Georama is a volunteer-driven project. We appreciate your patience, your ideas, and your contributions, big or small. Welcome aboard!* 🌍
