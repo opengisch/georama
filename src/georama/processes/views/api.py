@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.conf import settings
+from django.core.paginator import Page
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -200,9 +201,43 @@ class ProcessListView(TemplateOrApiListView):
         ]
 
     def render_to_json(self, context, **json_kwargs):
+        page: Page = context["page_obj"]
+        per_page = context["per_page"]
+        offset = (page.number - 1) * per_page
+        links = [
+            Link(
+                rel="self",
+                title="Processes (current page)",
+                href=reverse(f"{central_app_label}:api-process-list")
+                + f"?f=json&limit={per_page}&offset={offset}",
+                type="application/json",
+            ),
+        ]
+        if page.has_previous():
+            offset = (page.previous_page_number() - 1) * per_page
+            links.append(
+                Link(
+                    rel="prev",
+                    title="Processes (previous page)",
+                    href=reverse(f"{central_app_label}:api-process-list")
+                    + f"?f=json&limit={per_page}&offset={offset}",
+                    type="application/json",
+                )
+            )
+        if page.has_next():
+            offset = (page.next_page_number() - 1) * per_page
+            links.append(
+                Link(
+                    rel="next",
+                    title="Processes (next page)",
+                    href=reverse(f"{central_app_label}:api-process-list")
+                    + f"?f=json&limit={per_page}&offset={offset}",
+                    type="application/json",
+                )
+            )
         processes = Processes(
             processes=[process.dataclass for process in self.object_list],
-            links=[],
+            links=links,
         )
         return HttpResponse(
             JsonSerializer().render(processes), content_type="application/json"
