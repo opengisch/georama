@@ -33,8 +33,8 @@ class TemplateOrApiView(PermissionRequiredMixin, BreadcrumbMixin, TemplateView):
     def render(self, context):
         preferred_type = self.request.GET.get("f") or self.request.get_preferred_type(
             [
-                "text/html",
                 "application/json",
+                "text/html",
             ]
         )
         if preferred_type in {"html", "text/html"}:
