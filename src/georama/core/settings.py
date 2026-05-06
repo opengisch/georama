@@ -508,6 +508,21 @@ class Dev(Base):
         environ_prefix="GEORAMA",
     )
 
+    LIST_PAGE_SIZES = values.ListValue(
+        [
+            2,
+            5,
+            10,
+            25,
+            50,
+            100,
+            200,
+            500,
+        ],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
+
 
 class Test(Base):
     SECRET_KEY = "django-testing-secret-key"
