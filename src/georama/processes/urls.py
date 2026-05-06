@@ -91,7 +91,7 @@ urlpatterns = [
         management.PublishedAsProcessGroupListView.as_view(),
         name="process-permission-group-list",
     ),
-    path("/", lambda _: redirect("processes:api-landing"), name="index"),
+    path("/", lambda _: redirect("processes:process-list"), name="index"),
     path("/api", api.LandingView.as_view(), name="api-landing"),
     path("/api/conformance", api.ConformanceView.as_view(), name="api-conformance"),
     path("/api/processes", api.ProcessListView.as_view(), name="api-process-list"),

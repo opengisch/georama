@@ -90,7 +90,8 @@ class LandingView(TemplateOrApiView):
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
-            BreadCrumb(app_menu.title),
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb("OGC API Processes"),
         ]
 
     def get_context_data(self, **kwargs):
@@ -162,7 +163,8 @@ class ConformanceView(TemplateOrApiView):
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb("OGC API Processes", reverse(f"{app_menu.app_label}:api-landing")),
             BreadCrumb("Conformance"),
         ]
 
@@ -192,7 +194,8 @@ class ProcessListView(TemplateOrApiListView):
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(self.model._meta.app_label).app_menu()
         return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb("OGC API Processes", reverse(f"{app_menu.app_label}:api-landing")),
             BreadCrumb("Process list"),
         ]
 
@@ -219,7 +222,8 @@ class ProcessDetailView(TemplateOrApiDetailView):
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb("OGC API Processes", reverse(f"{app_menu.app_label}:api-landing")),
             BreadCrumb("Process list", reverse(f"{app_menu.app_label}:api-process-list")),
             BreadCrumb(self.object.title),
         ]
@@ -247,7 +251,8 @@ class JobListView(TemplateOrApiListView):
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb("OGC API Processes", reverse(f"{app_menu.app_label}:api-landing")),
             BreadCrumb("Job list"),
         ]
 
@@ -268,7 +273,8 @@ class JobDetailView(TemplateOrApiDetailView):
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:index")),
+            BreadCrumb("OGC API Processes", reverse(f"{app_menu.app_label}:api-landing")),
             BreadCrumb("Job list", reverse(f"{app_menu.app_label}:api-job-list")),
             BreadCrumb(self.object.title),
         ]
@@ -290,7 +296,8 @@ class JobResultView(TemplateOrApiDetailView):
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [
-            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb(app_menu.title, reverse(f"{self.model._meta.app_label}:index")),
+            BreadCrumb("OGC API Processes", reverse(f"{app_menu.app_label}:api-landing")),
             BreadCrumb("Job list", reverse(f"{app_menu.app_label}:api-job-list")),
             BreadCrumb(
                 self.object.title,
