@@ -66,6 +66,13 @@ class WmsGetCapabilities(WmsOperation):
             miny=bbox_wgs84.y_min,
             maxy=bbox_wgs84.y_max,
         )
+        bbox_object_4326 = BoundingBox(
+            crs="EPSG:4326",
+            minx=bbox_wgs84.y_min,
+            maxx=bbox_wgs84.y_max,
+            miny=bbox_wgs84.x_min,
+            maxy=bbox_wgs84.x_max,
+        )
         return Layer(
             # we use a 0/1 instead True/False here since this also conforms
             # to Chapter 7.2.4.7.1 in
@@ -78,9 +85,9 @@ class WmsGetCapabilities(WmsOperation):
             name=Name(value=name),
             title=Title(value=title),
             abstract=Abstract(value=description),
-            crs=[Crs(crs), Crs("CRS:84")],
+            crs=[Crs(crs), Crs(bbox_object_84.crs), Crs(bbox_object_4326.crs)],
             ex_geographic_bounding_box=ex_geographic_bounding_box_object,
-            bounding_box=[bbox_object_storage, bbox_object_84],
+            bounding_box=[bbox_object_storage, bbox_object_84, bbox_object_4326],
             # TODO: We can obtain information about available styles from passed QML
             style=[
                 Style(name=Name(style_name), title=Title(style_name.title()))
