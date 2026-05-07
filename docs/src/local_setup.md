@@ -207,4 +207,4 @@ That's it — you're on the latest version. ✅
 | Georama source code | `~/georama/` |
 | Your QGIS projects folder | `~/georama-data/` |
 | Georama web interface | http://localhost:4242/ |
-| Georama Django web interface | http://localhost:4242/admin/ |
+| Georama admin panel (Django) | http://localhost:4242/admin/ |
