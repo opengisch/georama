@@ -306,23 +306,8 @@ success "Migrations applied."
 # ------------------------------------------------------------------------------
 step "STEP 10 — Creating admin user"
 
-log "Running: docker compose exec georama make create-superuser"
-log "You will be prompted to set a password for the 'admin' user."
-echo ""
-if ! echo "$GEORAMA_ADMIN_PASSWORD" | $DOCKER compose exec -T georama python manage.py shell -c "
-from django.contrib.auth import get_user_model
-User = get_user_model()
-import sys
-password = sys.stdin.readline().strip()
-if User.objects.filter(username='admin').exists():
-    u = User.objects.get(username='admin')
-    u.set_password(password)
-    u.save()
-    print('Admin password updated.')
-else:
-    User.objects.create_superuser('admin', 'admin@localhost', password)
-    print('Admin user created.')
-"; then
+log "Creating admin user non-interactively..."
+if ! printf '%s\n%s\n' "$GEORAMA_ADMIN_PASSWORD" "$GEORAMA_ADMIN_PASSWORD" | $DOCKER compose exec -T georama make create-superuser; then
     error "Superuser creation failed. Check the output above for details."
     exit 1
 fi
