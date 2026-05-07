@@ -43,7 +43,7 @@ If you have an idea that feels more like an add-on or a niche use case, don't be
 
 Found something that doesn't behave as expected? Please [open an issue](https://github.com/opengisch/georama/issues/new) and include:
 
-- Your operating system and version
+- Your browser and version
 - Steps to reproduce the problem (even rough ones help!)
 - What you expected to happen, and what actually happened
 - Any relevant details about your local setup
