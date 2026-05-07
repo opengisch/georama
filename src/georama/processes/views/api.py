@@ -17,6 +17,7 @@ from georama.core.views.generic.mixins import (
 from georama.processes.apps import central_app_label
 from georama.processes.interface.ogc_api.v_100.processes import (
     Conformance,
+    Jobs,
     Landing,
     Link,
     Processes,
@@ -292,9 +293,11 @@ class JobListView(TemplateOrApiListView):
         ]
 
     def render_to_json(self, context, **json_kwargs):
-        return HttpResponse(
-            JsonSerializer().render(context["object_list"]), content_type="application/json"
+        jobs = Jobs(
+            jobs=[job.dataclass for job in self.object_list],
+            links=[],
         )
+        return HttpResponse(JsonSerializer().render(jobs), content_type="application/json")
 
 
 class JobDetailView(TemplateOrApiDetailView):
@@ -315,9 +318,8 @@ class JobDetailView(TemplateOrApiDetailView):
         ]
 
     def render_to_json(self, context, **json_kwargs):
-        return HttpResponse(
-            JsonSerializer().render(context["object"]), content_type="application/json"
-        )
+        job = self.object.dataclass
+        return HttpResponse(JsonSerializer().render(job), content_type="application/json")
 
 
 class JobResultView(TemplateOrApiDetailView):

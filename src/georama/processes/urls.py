@@ -107,5 +107,5 @@ urlpatterns = [
     ),
     path("/api/jobs", api.JobListView.as_view(), name="api-job-list"),
     path("/api/jobs/<job_id>", api.JobDetailView.as_view(), name="api-job-detail"),
-    path("/api/jobs/<job_id>/results", api.JobResultView.as_view(), name="api-job-detail"),
+    path("/api/jobs/<job_id>/results", api.JobResultView.as_view(), name="api-job-results"),
 ]

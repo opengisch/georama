@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import StrEnum
 
 from pydantic.dataclasses import dataclass as pydantic_dataclass
@@ -96,3 +97,24 @@ class Conformance:
             "tokens": True,
         }
     )
+
+
+@pydantic_dataclass
+@dataclass
+class Job(Base):
+    type: str = field()
+    job_id: str = field(metadata={"name": "jobId"})
+    process_id: str = field(metadata={"name": "processId"})
+    status: str = field()
+    message: str = field()
+    progress: int = field()
+    created: datetime = field()
+    started: datetime = field()
+    finished: datetime = field()
+    updated: datetime = field()
+
+
+@pydantic_dataclass
+@dataclass
+class Jobs(Base):
+    jobs: list[Job] = field()
