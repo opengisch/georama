@@ -129,6 +129,8 @@ if [[ "$GEORAMA_ADMIN_PASSWORD" == "your_admin_password" || -z "$GEORAMA_ADMIN_P
     error "GEORAMA_ADMIN_PASSWORD is not set. Please edit the script and set a password for the admin account."
     CONFIG_OK=false
 fi
+
+if [[ "$CONFIG_OK" == false ]]; then
     echo ""
     error "One or more configuration variables are missing or invalid."
     error "Please open this script in a text editor, fix the variables at the top, and run it again."
