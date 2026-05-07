@@ -123,8 +123,8 @@ class Config:
                     ]
                 ),
                 crs=[
-                    wms130_capabilities.Crs(value="CRS:84"),
                     wms130_capabilities.Crs(value="EPSG:4326"),
+                    wms130_capabilities.Crs(value="CRS:84"),
                 ],
                 ex_geographic_bounding_box=wms130_capabilities.ExGeographicBoundingBox(
                     west_bound_longitude=180.0,
