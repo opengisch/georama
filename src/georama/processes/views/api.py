@@ -280,6 +280,9 @@ class JobListView(TemplateOrApiListView):
     model = Job
     template_name = "processes/api/job_list.html"
 
+    def get_breadcrumb_action(self):
+        return {}
+
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(central_app_label).app_menu()
         return [

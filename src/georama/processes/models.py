@@ -23,7 +23,7 @@ from georama.processes.interface.ogc_api.v_100.processes import (
 User = get_user_model()
 
 
-class Job(models.Model):
+class Job(GeoramaPermissionMixin):
     redis_job_id = models.UUIDField(db_index=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_created=True)

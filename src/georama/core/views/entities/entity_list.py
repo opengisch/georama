@@ -19,15 +19,20 @@ class GeoramaEntityListView(GeoramaListView):
             BreadCrumb(self.model._meta.verbose_name_plural),
         ]
 
+    def get_breadcrumb_action(self):
+        return {
+            "breadcrumb_action_url": (
+                f"{self.model._meta.app_label}:{self.entity_name}-add-list"
+            ),
+            "breadcrumb_action_icon": "fa fa-circle-plus",
+            "breadcrumb_action_title": _("Publish"),
+            "breadcrumb_action_tooltip": _("Publish a new item"),
+        }
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.has_perm(self.model.perm_add()):
-            context["breadcrumb_action_url"] = (
-                f"{self.model._meta.app_label}:{self.entity_name}-add-list"
-            )
-            context["breadcrumb_action_icon"] = "fa fa-circle-plus"
-            context["breadcrumb_action_title"] = _("Publish")
-            context["breadcrumb_action_tooltip"] = _("Publish a new item")
+            context.update(self.get_breadcrumb_action())
         context["model_perm_manage"] = self.request.user.has_perm(
             f"{self.model._meta.app_label}.can_manage_object_permissions"
         )
