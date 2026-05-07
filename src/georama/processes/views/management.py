@@ -188,6 +188,7 @@ class PublishedAsProcessListView(
         model.perm_manage_permissions(),
     ]
     entity_name = "process"
+    ordering = ("process_id",)
 
 
 class PublishProcess(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
