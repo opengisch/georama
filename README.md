@@ -21,15 +21,21 @@ Georama bridges the gap between desktop GIS and the web. It lets you take your Q
 
 Whether you are a small organization sharing a handful of datasets, or a large institution managing hundreds of projects and complex publication workflows, Georama is designed to scale with you.
 
+### Georama impressions
+
 <div align="center">
-  <img width="40%" alt="View maps" src="https://github.com/user-attachments/assets/e86272a1-9e47-4a26-8e31-fd05cd7c27c9" />
-  <img width="40%" alt="View projects" src="https://github.com/user-attachments/assets/8f433811-82c0-4cfd-bbdb-f25f29a8ed72" />
-  <br><br><br><br>
-  <img width="80%" alt="View GeoGirafe" src="https://github.com/user-attachments/assets/7daf38b0-c81d-4245-b0cd-85cd19b2b297" />
-  <br>
-  <img width="80%" alt="View GeoGirafe 2D/3D" src="https://github.com/user-attachments/assets/d9bc7610-643f-4ce7-be99-97974b4db62d" />
+  <img width="80%" alt="View maps" src="https://github.com/user-attachments/assets/e86272a1-9e47-4a26-8e31-fd05cd7c27c9" />
+  <hr />
+  <img width="80%" alt="View projects" src="https://github.com/user-attachments/assets/8f433811-82c0-4cfd-bbdb-f25f29a8ed72" />
 </div>
 
+### GeoGirafe impressions
+
+<div align="center">
+  <img width="80%" alt="View GeoGirafe" src="https://github.com/user-attachments/assets/7daf38b0-c81d-4245-b0cd-85cd19b2b297" />
+  <hr />
+  <img width="80%" alt="View GeoGirafe 2D/3D" src="https://github.com/user-attachments/assets/d9bc7610-643f-4ce7-be99-97974b4db62d" />
+</div>
 
 ## Core features
 
