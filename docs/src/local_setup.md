@@ -16,6 +16,8 @@ If you need to deploy Georama in a real environment, refer to the official docum
 
 It has been tested on Ubuntu 24.04 LTS.
 
+NB: if you don't want to click your way through the installation, you can also use the shell script below
+
 ## 🧱 PART 1: Install Docker (one-time setup)
 
 Docker is like a "portable box" that runs software without you needing to install all its complicated dependencies manually. You only need to do this once.
@@ -200,11 +202,45 @@ That's it — you're on the latest version. ✅
 
 ---
 
-## 🗂️ Quick Reference: Where things live
+## 🚀 Alternative to those 6 steps
+
+> ⚠️ **WARNING — LOCAL TESTING ONLY** ⚠️
+>
+> - Uses development settings (debug mode ON, default passwords, no HTTPS, no real authentication)
+> - **NOT** suitable for production or public-facing deployments
+> - Provided as-is, with no warranty of any kind
+
+### Prerequisites
+
+- A GitHub Personal Access Token with access to this repository
+- A folder for the source code (e.g. `~/git`)
+- A folder for your QGIS projects (e.g. `~/georama-data`)
+
+### Run the setup script
+
+**1. Download the script**
+```bash
+curl -O https://raw.githubusercontent.com/opengisch/georama/main/setup_local.sh
+```
+
+**2. Edit the variables at the top of the file** — set your GitHub credentials and folder paths.
+
+**3. Run it**
+```bash
+chmod +x setup_local.sh && ./setup_local.sh
+```
+
+The script will install dependencies, build Docker containers, run migrations, and prompt you to create an admin user. It takes about 10–15 minutes on first run.
+
+### Once complete
+
+Open **http://localhost:4242/** and log in with username `admin` and the password you chose.
+
+---
+
+## 🗂️ Quick Reference: Where to see Georama in action
 
 | Thing | Location |
 |---|---|
-| Georama source code | `~/georama/` |
-| Your QGIS projects folder | `~/georama-data/` |
 | Georama web interface | http://localhost:4242/ |
 | Georama admin panel (Django) | http://localhost:4242/admin/ |
