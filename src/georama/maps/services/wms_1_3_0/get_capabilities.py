@@ -46,26 +46,30 @@ class WmsGetCapabilities(WmsOperation):
         styles: list[str],
         queryable: bool,
     ) -> Layer:
-        bbox_object_storage = BoundingBox(
-            crs=crs,
-            minx=bbox.x_min,
-            maxx=bbox.x_max,
-            miny=bbox.y_min,
-            maxy=bbox.y_max,
-        )
-        ex_geographic_bounding_box_object = ExGeographicBoundingBox(
-            west_bound_longitude=bbox_wgs84.x_min,
-            east_bound_longitude=bbox_wgs84.x_max,
-            south_bound_latitude=bbox_wgs84.y_min,
-            north_bound_latitude=bbox_wgs84.y_max,
-        )
-        bbox_object_84 = BoundingBox(
-            crs="CRS:84",
-            minx=bbox_wgs84.x_min,
-            maxx=bbox_wgs84.x_max,
-            miny=bbox_wgs84.y_min,
-            maxy=bbox_wgs84.y_max,
-        )
+        layer_crs_bboxes = {
+            crs: BoundingBox(
+                crs=crs,
+                minx=bbox.x_min,
+                maxx=bbox.x_max,
+                miny=bbox.y_min,
+                maxy=bbox.y_max,
+            ),
+            WmsGetCapabilities.crs_84: ExGeographicBoundingBox(
+                west_bound_longitude=bbox_wgs84.x_min,
+                east_bound_longitude=bbox_wgs84.x_max,
+                south_bound_latitude=bbox_wgs84.y_min,
+                north_bound_latitude=bbox_wgs84.y_max,
+            ),
+        }
+        if WmsGetCapabilities.crs_4326 not in layer_crs_bboxes:
+            layer_crs_bboxes[WmsGetCapabilities.crs_4326] = BoundingBox(
+                crs="EPSG:4326",
+                minx=bbox_wgs84.y_min,
+                maxx=bbox_wgs84.y_max,
+                miny=bbox_wgs84.x_min,
+                maxy=bbox_wgs84.x_max,
+            )
+
         return Layer(
             # we use a 0/1 instead True/False here since this also conforms
             # to Chapter 7.2.4.7.1 in
@@ -78,9 +82,11 @@ class WmsGetCapabilities(WmsOperation):
             name=Name(value=name),
             title=Title(value=title),
             abstract=Abstract(value=description),
-            crs=[Crs(crs), Crs("CRS:84")],
-            ex_geographic_bounding_box=ex_geographic_bounding_box_object,
-            bounding_box=[bbox_object_storage, bbox_object_84],
+            crs=[Crs(key) for key in layer_crs_bboxes],
+            ex_geographic_bounding_box=layer_crs_bboxes[WmsGetCapabilities.crs_84],
+            bounding_box=[
+                bbox for _, bbox in layer_crs_bboxes.items() if isinstance(bbox, BoundingBox)
+            ],
             # TODO: We can obtain information about available styles from passed QML
             style=[
                 Style(name=Name(style_name), title=Title(style_name.title()))

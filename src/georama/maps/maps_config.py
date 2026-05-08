@@ -123,7 +123,7 @@ class Config:
                     ]
                 ),
                 crs=[
-                    wms130_capabilities.Crs(value="EPSG:2056"),
+                    wms130_capabilities.Crs(value="EPSG:4326"),
                     wms130_capabilities.Crs(value="CRS:84"),
                 ],
                 ex_geographic_bounding_box=wms130_capabilities.ExGeographicBoundingBox(
@@ -134,12 +134,12 @@ class Config:
                 ),
                 bounding_box=[
                     wms130_capabilities.BoundingBox(
-                        crs="EPSG:2056",
-                        minx=1.0,
-                        miny=1.0,
-                        maxx=1.0,
-                        maxy=1.0,
-                    )
+                        crs="EPSG:4326",
+                        minx=-90.0,
+                        miny=-180,
+                        maxx=90.0,
+                        maxy=180,
+                    ),
                 ],
                 style=[
                     wms130_capabilities.Style(
