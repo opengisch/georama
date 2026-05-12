@@ -50,19 +50,23 @@
 
         <div class="row h-100">
 
-            <!-- Column(s), scrollable-->
+            {% block form_details %}
+                
+                <!-- Column(s), scrollable -->
 
-            <div class="col h-100 px-4 overflow-auto">
+                <div class="col h-100 px-4 overflow-auto">
+    
+                    <!-- Form content -->
+    
+                    {% load crispy_forms_tags %}
+                    <form id="{{ object.pk }}" method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                    </form>
+    
+                </div>
 
-                <!-- Form content -->
-
-                {% load crispy_forms_tags %}
-                <form id="{{ object.pk }}" method="post">
-                    {% csrf_token %}
-                    {{ form|crispy }}
-                </form>
-
-            </div>
+            {% endblock %}
             
         </div>
 
