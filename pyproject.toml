@@ -90,6 +90,7 @@ optional-dependencies.dev =[
     "pylsp-rope",
     "ruff",
     "pyprof2calltree",
+    "pyyaml"
 ]
 
 optional-dependencies.dev_xsd =[

@@ -90,6 +90,25 @@ $(LOCAL_QGIS_SERVER_LIGHT_REQUIREMENTS): $(DEV_REQUIREMENTS)
 	$(if $(LOCAL_QGIS_SERVER_LIGHT_PATH),,$(error LOCAL_QGIS_SERVER_LIGHT_PATH has to be defined))
 	$(VENV_BIN)/$(PIP_COMMAND) install -e file://$(LOCAL_QGIS_SERVER_LIGHT_PATH)\#qgis_server_light --config-settings editable_mode=compat
 
+# **************
+# Schema and model recreation targets
+# **************
+
+# ogc api processes yaml files
+OGC_API_PROCESSES_SCHEMA_TARGETS = $(shell find ./tests/unit/processes/resources/SCHEMAS_OPENGIS_NET/ogcapi/processes/part1/1.0/openapi -name "*.yaml" | sed 's/.yaml$$/.json/')
+
+$(OGC_API_PROCESSES_SCHEMA_TARGETS):
+	$(VENV_BIN)/python scripts/yml2json.py $(subst .json,.yaml,"$@") "$@"
+
+.PHONY: oapi-processes-schema-json
+oapi-processes-schema-json: $(OGC_API_PROCESSES_SCHEMA_TARGETS)
+
+.PHONY: clean-oapi-processes-schema-json
+clean-oapi-processes-schema-json:
+	rm -f $(OGC_API_PROCESSES_SCHEMA_TARGETS)
+
+.PHONY: clean-oapi-schema-json
+clean-oapi-schema-json: clean-oapi-processes-schema-json
 
 # **************
 # Common targets
