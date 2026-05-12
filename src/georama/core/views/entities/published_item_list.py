@@ -1,12 +1,12 @@
 from django.apps import apps
-from django.utils.translation import gettext as _
 
 from georama.core.entities.models import PublishedAs
 from georama.core.menu import BreadCrumb
+from georama.core.views.entities.mixins import BreadCrumbAction
 from georama.core.views.generic.list import GeoramaListView
 
 
-class GeoramaPublishedItemList(GeoramaListView):
+class GeoramaPublishedItemList(BreadCrumbAction, GeoramaListView):
     """
     This view is the apps landing page. It shows the available published
     layers a user can access. This is also available in public and shows
@@ -37,18 +37,5 @@ class GeoramaPublishedItemList(GeoramaListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if (
-            self.request.user.has_perm(self.model.perm_view())
-            or self.request.user.has_perm(self.model.perm_change())
-            or self.request.user.has_perm(self.model.perm_delete())
-            or self.request.user.has_perm(self.model.perm_add())
-            or self.request.user.has_perm(self.model.perm_manage_permissions())
-        ):
-            context["breadcrumb_action_url"] = (
-                f"{self.model._meta.app_label}:{self.entity_name}-list"
-            )
-            context["breadcrumb_action_icon"] = "fa fa-wrench"
-            context["breadcrumb_action_title"] = _("Manage")
-            context["breadcrumb_action_tooltip"] = _("Manage and publish items")
-
+        context.update(self.get_breadcrumb_action_context())
         return context

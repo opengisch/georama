@@ -21,7 +21,7 @@ class GeoramaEntityListView(GeoramaListView):
 
     def get_breadcrumb_action(self):
         return {
-            "breadcrumb_action_url": (
+            "breadcrumb_action_url": reverse(
                 f"{self.model._meta.app_label}:{self.entity_name}-add-list"
             ),
             "breadcrumb_action_icon": "fa fa-circle-plus",
