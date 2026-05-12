@@ -1,39 +1,46 @@
-from functools import cached_property
-from typing import Self
-
+from crispy_bootstrap5.bootstrap5 import Switch
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.forms import fields, forms
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from qgis_server_light.interface.exporter.extract import Algorithm
+from qgis_server_light.interface.exporter.extract import Algorithm, ProcessingParameterType
 
 from georama.core.entities.models import PublishedAs
 from georama.core.models.mixins import GeoramaPermissionMixin
 from georama.core.services.permission import PermissionInterface
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.processes.apps import central_app_label, qsl_available_processes
-from georama.processes.interface.ogc_api.v_100.processes import (
+from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     JobControlOptions,
     Link,
     ProcessBase,
     TransmissionMode,
 )
+from georama.processes.mappers.parameter_types import HtmlInputMapper, JsonSchemaMapper
 
 User = get_user_model()
 
 
-class Job(GeoramaPermissionMixin):
+class Job(models.Model):
     redis_job_id = models.UUIDField(db_index=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # TODO @oreilles: Why was auto_created used here?
     created_at = models.DateTimeField(auto_created=True)
     process = models.ForeignKey("PublishedAsProcess", on_delete=models.CASCADE)
     job_parameters = models.JSONField()
-    job_result = models.JSONField()
+    job_result = models.JSONField(null=True)
 
     # @property
     # def job_result(self):
     #     redis_job = qsl_redis_queue.client.get(f"job:{self.redis_job_id}")
+
+    @property
+    def title(self):
+        return self.process.title
 
 
 class PublishedAsProcess(GeoramaPermissionMixin, PublishedAs):
@@ -46,12 +53,44 @@ class PublishedAsProcess(GeoramaPermissionMixin, PublishedAs):
 
     process_id = models.CharField(max_length=None, db_index=True, unique=True)
 
+    def __str__(self):
+        return f"{self.title} ({self.process_id})"
+
     def get_absolute_url(self):
         return reverse(f"{central_app_label}:process-detail", kwargs={"pk": self.pk})
 
-    @cached_property
+    @property
     def qsl_algorithm(self) -> Algorithm:
         return qsl_available_processes.algorithm_by_id(self.process_id)
+
+    @property
+    def qsl_algorithm_params_jsonschema(self) -> list[tuple[ProcessingParameterType, dict]]:
+        mapper = JsonSchemaMapper()
+        parameter_and_schema = []
+        for p in self.qsl_algorithm.parameters:
+            parameter_and_schema.append(
+                (
+                    p,
+                    mapper.map(p),
+                )
+            )
+        return parameter_and_schema
+
+    @property
+    def qsl_algorithm_params_html_form(self) -> forms.Form:
+        mapper = HtmlInputMapper()
+        attrs = {}
+        switch_fields = []
+        for p in self.qsl_algorithm.parameters:
+            field = mapper.map(p)
+            attrs[p.name] = field
+            if isinstance(field, fields.BooleanField):
+                switch_fields.append(Switch(p.name))
+        attrs["helper"] = FormHelper()
+        attrs["helper"].layout = Layout(*tuple(switch_fields))
+
+        form = type("DynamicParamsForm", (forms.Form,), attrs)
+        return form
 
     @property
     def permissions(self) -> list[PermissionInterface]:
@@ -70,7 +109,7 @@ class PublishedAsProcess(GeoramaPermissionMixin, PublishedAs):
         return self.qsl_algorithm.short_help_string
 
     @property
-    def dataclass(self: Self):
+    def dataclass(self):
         return ProcessBase(
             id=self.process_id,
             description=self.qsl_algorithm.short_help_string,

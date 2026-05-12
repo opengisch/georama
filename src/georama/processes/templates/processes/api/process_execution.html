@@ -1,0 +1,61 @@
+{% extends 'core/detail.html' %}
+{% load static i18n model_extras crispy_forms_tags %}
+
+{% block list_actions %}
+
+    <!-- Form actions -->
+    <div class="align-content-center">
+        <div class="btn-group" role="group" aria-label="Form actions">
+            {% blocktranslate asvar title %}Execute Process to create a Job{% endblocktranslate %}
+            <button type="submit" form="{{ object.process.process_id }}"
+               class="btn btn-outline-primary" role="button"
+               data-bs-toggle="tooltip"
+               title="{{ title }}"
+               aria-label="{{ title }}">
+                <i class="fa fa-play"></i>
+            </button>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <!-- Scrollable form header -->
+
+    <div class="pt-4">
+
+        <div class="container">
+            <div class="row">
+
+                <!-- Left column-->
+
+                <div class="col form-content-scrollable overflow-auto">
+
+                    <!-- Form content -->
+
+                    <form id="{{ object.process.process_id }}" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col">
+                              <label for="process" class="form-label">Process</label>
+                              <input type="text" readonly id="process" class="form-control-plaintext" placeholder="{{ object.process }}">
+                            </div>
+                            <div class="col">
+                              <label for="user" class="form-label">User</label>
+                              <input type="text" readonly id="user" class="form-control-plaintext" placeholder="{{ object.created_by }}">
+                            </div>
+                        </div>
+                        {{ form.DISSOLVE. }}
+                        <legend>{% trans 'Parameters' %}</legend>
+                        {{ form|crispy }}
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

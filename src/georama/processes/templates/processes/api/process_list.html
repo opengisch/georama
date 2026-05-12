@@ -32,13 +32,22 @@
 {% endblock %}
 
 {% block item_card_footer %}
-    {% blocktranslate asvar title%}Open Process Endpoint in new Tab{% endblocktranslate %}
+    {% blocktranslate asvar title%}Show process details{% endblocktranslate %}
     <a href="{% url 'processes:api-process-detail' item.process_id %}"
-       target="_blank" class="btn btn-outline-primary"
+       class="btn btn-outline-primary"
        role="button"
        data-bs-toggle="tooltip"
        title="{{ title }}"
        aria-label="{{ title }}">
         <i class="fa fa-eye"></i>
+    </a>
+    {% blocktranslate asvar title%}Execute a job with this process{% endblocktranslate %}
+    <a href="{% url 'processes:api-process-execution' item.process_id %}"
+       class="btn btn-outline-primary"
+       role="button"
+       data-bs-toggle="tooltip"
+       title="{{ title }}"
+       aria-label="{{ title }}">
+        <i class="fa fa-play"></i>
     </a>
 {% endblock %}

@@ -4,5 +4,31 @@
 {% block content %}
 <h1> {{ object.title }}</h1>
 <h2> {{ object.description }}</h2>
-<div> {{ object.help }}</div>
+<p> {{ object.help }}</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans 'Id' %}</th>
+            <th>{% trans 'Title' %}</th>
+            <th>{% trans 'Data Type' %}</th>
+            <th>{% trans 'Description' %}</th>
+            <th>{% trans 'Default' %}</th>
+            <th>{% trans 'Options' %}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for p, schema in object.qsl_algorithm_params_jsonschema %}
+        <tr>
+            <td>{{ p.name }}</td>
+            <td>{{ p.name }}</td>
+            <td>{{ schema.type }}</td>
+            <td>{{ p.description }}</td>
+            <td>{% if p.default %}{{ p.default }}{% endif %}</td>
+            <td>{% if p.type.options %}{{ p.type.options }}{% endif %}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
 {% endblock %}
