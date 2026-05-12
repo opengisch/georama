@@ -5,59 +5,57 @@
 {% endblock %}
 
 {% block list %}
-    <div class="list-content-scrollable">
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-5 g-4">
-            {% for item in object_list %}
-                <div class="col">
-                    {% block item_card %}
-                        <div class="card h-100">
-                            {% block item_card_image %}
-                                <img src="{% static 'images/main_plain.svg' %}"
-                                     class="card-img-top p-3"
-                                     alt="{% trans 'Published item icon' %}"/>
-                            {% endblock %}
-                            <div class="card-body item-card-body">
-                                <h5 class="card-title">
-                                    {% block item_card_title %}
-                                        {{ item.title|default:item.name }}
-                                    {% endblock %}
-                                </h5>
-                                <div>
-                                    {% block item_card_description %}
-                                        {% if item.description %}
-                                            <p class="card-text text-truncate text-muted"
-                                               data-bs-toggle="tooltip"
-                                               title="{{ item.description }}"
-                                               aria-label="{{ item.description }}">
-                                                {{ item.description }}
-                                            </p>
-                                        {% endif %}
-                                    {% endblock %}
-                                </div>
-                                <div class="card-meta">
-                                    {% block item_card_badges %}
-                                    {% endblock %}
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                {% block item_card_footer %}
-                                    <div class="btn-group" role="group" aria-label="Item actions">
-                                        {% blocktranslate asvar title %}Open Item{% endblocktranslate %}
-                                        <a href="{{ item.endpoint_url }}"
-                                           target="_blank"
-                                           class="btn btn-outline-primary"
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-5 g-4">
+        {% for item in object_list %}
+            <div class="col">
+                {% block item_card %}
+                    <div class="card h-100">
+                        {% block item_card_image %}
+                            <img src="{% static 'images/main_plain.svg' %}"
+                                 class="card-img-top p-3"
+                                 alt="{% trans 'Published item icon' %}"/>
+                        {% endblock %}
+                        <div class="card-body item-card-body">
+                            <h5 class="card-title">
+                                {% block item_card_title %}
+                                    {{ item.title|default:item.name }}
+                                {% endblock %}
+                            </h5>
+                            <div>
+                                {% block item_card_description %}
+                                    {% if item.description %}
+                                        <p class="card-text text-truncate text-muted"
                                            data-bs-toggle="tooltip"
-                                           title="{{ title }}"
-                                           aria-label="{{ title }}">
-                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                        </a>
-                                    </div>
+                                           title="{{ item.description }}"
+                                           aria-label="{{ item.description }}">
+                                            {{ item.description }}
+                                        </p>
+                                    {% endif %}
+                                {% endblock %}
+                            </div>
+                            <div class="card-meta">
+                                {% block item_card_badges %}
                                 {% endblock %}
                             </div>
                         </div>
-                    {% endblock %}
-                </div>
-            {% endfor %}
-        </div>
+                        <div class="card-footer">
+                            {% block item_card_footer %}
+                                <div class="btn-group" role="group" aria-label="Item actions">
+                                    {% blocktranslate asvar title %}Open Item{% endblocktranslate %}
+                                    <a href="{{ item.endpoint_url }}"
+                                       target="_blank"
+                                       class="btn btn-outline-primary"
+                                       data-bs-toggle="tooltip"
+                                       title="{{ title }}"
+                                       aria-label="{{ title }}">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    </a>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}

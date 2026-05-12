@@ -44,28 +44,26 @@
 
 {% block content %}
 
-    <!-- Scrollable form header -->
+    <!-- Non-scrollable form parent container -->
 
-    <div class="pt-4">
+    <div class="container h-100 pt-4 overflow-hidden">
 
-        <div class="container">
-            <div class="row">
+        <div class="row h-100">
 
-                <!-- Left column-->
+            <!-- Column(s), scrollable-->
 
-                <div class="col form-content-scrollable overflow-auto">
+            <div class="col h-100 px-4 overflow-auto">
 
-                    <!-- Form content -->
+                <!-- Form content -->
 
-                    {% load crispy_forms_tags %}
-                    <form id="{{ object.pk }}" method="post">
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                    </form>
+                {% load crispy_forms_tags %}
+                <form id="{{ object.pk }}" method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                </form>
 
-
-                </div>
             </div>
+            
         </div>
 
     </div>
