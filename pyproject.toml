@@ -190,7 +190,7 @@ version_variable = "src/georama/__init__.py:__version__"
 
 [tool.ruff]
 line-length = 95
-target-version = "py313"
+target-version = "py311"
 exclude = [
     "src/georama/maps/interfaces/**",
     "src/georama/*/migrations/**",
