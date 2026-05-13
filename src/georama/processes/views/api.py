@@ -356,7 +356,7 @@ class ProcessExectionView(TemplateOrApiDetailView, FormView):
             form = self.get_form()(request.POST)
             if not form.is_valid():
                 return render(request, self.template_name, {"form": form})
-            data = form.cleaned_data.items()
+            data = form.cleaned_data
             self.persist(data)
             return HttpResponseRedirect(reverse(f"{app_menu.app_label}:api-job-list"))
         else:

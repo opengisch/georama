@@ -82,8 +82,7 @@ class Format:
 class Output:
     format: Format | None = field(default=None)
     transmission_mode: TransmissionMode = field(
-        default=TransmissionMode.value,
-        metadata={"name": "transmissionMode"}
+        default=TransmissionMode.VALUE, metadata={"name": "transmissionMode"}
     )
 
 
