@@ -31,72 +31,70 @@
 
 
 <div id="content">
-    <main class="h-100 overflow-hidden">
-        <section class="section-block h-100 py-2 overflow-auto">
-            <div class="container h-100 d-flex flex-column">
-                
-                <div id="breadcrumb-container" class="d-flex flex-row justify-content-between align-items-center pb-4">
-                    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-                        {% block breadcrumbs %}
+    <main class="h-100 overflow-auto">
+        <div class="container h-100 d-flex py-2 flex-column">
+            
+            <div id="breadcrumb-container" class="d-flex flex-row justify-content-between align-items-center pb-4">
+                <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                    {% block breadcrumbs %}
 
-                            <!-- breadcrumbs -->
+                        <!-- breadcrumbs -->
 
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{% url 'landing' %}">Home</a></li>
-                                {% for breadcrumb in breadcrumbs %}
-                                    <li class="breadcrumb-item {% if breadcrumbs|last %}active" aria-current="page{% endif %}">
-                                        {% if breadcrumb.view_name %}
-                                            <a href="{{ breadcrumb.view_name }}">{{ breadcrumb.title }}</a>
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'landing' %}">Home</a></li>
+                            {% for breadcrumb in breadcrumbs %}
+                                <li class="breadcrumb-item {% if breadcrumbs|last %}active" aria-current="page{% endif %}">
+                                    {% if breadcrumb.view_name %}
+                                        <a href="{{ breadcrumb.view_name }}">{{ breadcrumb.title }}</a>
+                                    {% else %}
+                                        {{ breadcrumb.title }}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+
+                            <!-- Button as last element of breadcrumbs -->
+
+                            {% if breadcrumb_action_url %}
+                                <li class="breadcrumb-item breadcrumb-action">
+                                    <a
+                                            href="{% url breadcrumb_action_url %}"
+                                            class="btn btn-outline-primary"
+                                            role="button"
+                                            data-bs-toggle="tooltip"
+                                            title="{{ breadcrumb_action_tooltip }}"
+                                            aria-label="{{ breadcrumb_action_tooltip }}"
+                                    >
+                                        {% if breadcrumb_action_icon %}
+                                            <i class="{{ breadcrumb_action_icon }}"></i>
+                                            <span class="ps-1">{{ breadcrumb_action_title }}</span>
                                         {% else %}
-                                            {{ breadcrumb.title }}
+                                            {{ breadcrumb_action_title }}
                                         {% endif %}
-                                    </li>
-                                {% endfor %}
+                                    </a>
+                                </li>
+                            {% endif %}
 
-                                <!-- Button as last element of breadcrumbs -->
-
-                                {% if breadcrumb_action_url %}
-                                    <li class="breadcrumb-item breadcrumb-action">
-                                        <a
-                                                href="{% url breadcrumb_action_url %}"
-                                                class="btn btn-outline-primary"
-                                                role="button"
-                                                data-bs-toggle="tooltip"
-                                                title="{{ breadcrumb_action_tooltip }}"
-                                                aria-label="{{ breadcrumb_action_tooltip }}"
-                                        >
-                                            {% if breadcrumb_action_icon %}
-                                                <i class="{{ breadcrumb_action_icon }}"></i>
-                                                <span class="ps-1">{{ breadcrumb_action_title }}</span>
-                                            {% else %}
-                                                {{ breadcrumb_action_title }}
-                                            {% endif %}
-                                        </a>
-                                    </li>
-                                {% endif %}
-
-                            </ol>
-                        {% endblock %}
-                    </nav>
-
-                    <!-- Button group on the right side -->
-                    {% block list_action_container %}
-                    <nav class="navbar">
-                        <div class="container-fluid">
-                            {% block list_actions %}
-                            {% endblock %}
-                        </div>
-                    </nav>
+                        </ol>
                     {% endblock %}
+                </nav>
 
-                </div>
-
-
-                {% block content %}
+                <!-- Button group on the right side -->
+                {% block list_action_container %}
+                <nav class="navbar">
+                    <div class="container-fluid">
+                        {% block list_actions %}
+                        {% endblock %}
+                    </div>
+                </nav>
                 {% endblock %}
 
             </div>
-        </section>
+
+
+            {% block content %}
+            {% endblock %}
+
+        </div>
     </main>
 </div>
 
