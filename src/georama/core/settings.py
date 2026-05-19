@@ -27,6 +27,10 @@ class Base(Configuration):
     # Quick-start development settings - unsuitable for production
     # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
+    QGIS_EXPORTER_UNIFY_LAYER_NAMES_BY_GROUP = values.BooleanValue(
+        True, environ_prefix="GEORAMA"
+    )
+
     # SECURITY WARNING: keep the secret key used in production secret!
     SECRET_KEY = values.SecretValue()
 
