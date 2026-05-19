@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.exporter.extract import Algorithm, ProcessingParameterType
+from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.entities.models import PublishedAs
 from georama.core.models.mixins import GeoramaPermissionMixin
@@ -30,7 +31,9 @@ class Job(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     # TODO @oreilles: Why was auto_created used here?
     created_at = models.DateTimeField(auto_created=True)
-    process = models.ForeignKey("PublishedAsProcess", on_delete=models.CASCADE)
+    process = models.ForeignKey(
+        "PublishedAsProcess", on_delete=models.CASCADE, related_name="jobs"
+    )
     job_parameters = models.JSONField()
     job_result = models.JSONField(null=True)
 
@@ -53,11 +56,38 @@ class PublishedAsProcess(GeoramaPermissionMixin, PublishedAs):
 
     process_id = models.CharField(max_length=None, db_index=True, unique=True)
 
+    @property
+    def links(self):
+        return DictEncoder().encode(
+            [
+                Link(
+                    type="application/json",
+                    rel="self",
+                    href=self.get_absolute_url(),
+                    href_lang="en",
+                    title=gettext("Process execution"),
+                ),
+                Link(
+                    type="application/json",
+                    rel="execution",
+                    href=reverse(
+                        f"{self._meta.app_label}:api-process-execution",
+                        kwargs={"process_id": self.process_id},
+                    ),
+                    href_lang="en",
+                    title=gettext("Process execution"),
+                ),
+            ]
+        )
+
     def __str__(self):
         return f"{self.title} ({self.process_id})"
 
     def get_absolute_url(self):
-        return reverse(f"{central_app_label}:process-detail", kwargs={"pk": self.pk})
+        return reverse(
+            f"{self._meta.app_label}:api-process-detail",
+            kwargs={"process_id": self.process_id},
+        )
 
     @property
     def qsl_algorithm(self) -> Algorithm:

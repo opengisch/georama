@@ -13,6 +13,7 @@ from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from qgis_server_light.interface.job.process.input import ParameterInput
+from rest_framework import pagination, routers, serializers, viewsets
 from xsdata.formats.dataclass.serializers import DictEncoder, JsonSerializer
 
 from georama.core.menu import BreadCrumb
@@ -464,3 +465,23 @@ class JobResultView(TemplateOrApiDetailView):
         return HttpResponse(
             JsonSerializer().render(context["object"]), content_type="application/json"
         )
+
+
+class ProcessSerializer(serializers.ModelSerializer):
+    links = serializers.ListField(read_only=True)
+    id = serializers.CharField(read_only=True, source="process_id")
+
+    class Meta:
+        model = PublishedAsProcess
+        fields = ["id", "title", "description", "help", "links"]
+
+
+class ProcessViewSet(viewsets.ModelViewSet):
+    queryset = PublishedAsProcess.objects.all()
+    serializer_class = ProcessSerializer
+    pagination_class = pagination.LimitOffsetPagination
+    lookup_field = "process_id"
+
+
+router = routers.DefaultRouter()
+router.register(r"/processes", ProcessViewSet)

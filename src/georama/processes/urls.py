@@ -1,8 +1,9 @@
 from django.shortcuts import redirect
-from django.urls import path
+from django.urls import include, path
 
 from georama.processes.apps import central_app_label
 from georama.processes.views import api, management
+from georama.processes.views.api import router
 
 app_name = central_app_label
 
@@ -108,4 +109,5 @@ urlpatterns = [
     path("/api/jobs", api.JobListView.as_view(), name="api-job-list"),
     path("/api/jobs/<job_id>", api.JobDetailView.as_view(), name="api-job-detail"),
     path("/api/jobs/<job_id>/results", api.JobResultView.as_view(), name="api-job-results"),
+    path("/drf", include(router.urls)),
 ]
