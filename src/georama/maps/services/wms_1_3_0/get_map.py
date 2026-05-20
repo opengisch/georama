@@ -42,10 +42,12 @@ class WmsGetMap(WmsOperation):
             format=service_params.FORMAT,
             layers=[],
         )
-        styles = service_params.style_list
-        filters = service_params.filter_list
-        for index, published_as in enumerate(accessible_published_as):
-            requested_style_name = styles[index]
+        for published_as, requested_style_name, filter_definition in zip(
+            accessible_published_as,
+            service_params.style_list,
+            service_params.filter_list or [None] * len(accessible_published_as),
+            strict=True,
+        ):
             dataset = published_as.bound_dataset
             if requested_style_name == self.default_style_name:
                 qsl_job_layer = dataset.to_qsl_job_layer()
@@ -59,11 +61,14 @@ class WmsGetMap(WmsOperation):
                     )
 
             logging.debug(f"Set style for layer to: {qsl_job_layer.style.name}")
-            if isinstance(dataset, VectorDataSet) and filters:
+            if isinstance(dataset, VectorDataSet) and filter_definition:
                 # since we will use this in the on a plain
                 # list of layers, the largest extent buffer
                 # should be applied
-                qsl_job_layer.filter = OgcFilter110(definition=filters[index])
+                qsl_job_layer.filter = OgcFilter110(definition=filter_definition)
             job.layers.append(qsl_job_layer)
+        # WMS layers order are given in the order they should be drawn, but the QSL
+        # uses QgsMapSettings in which the drawing order is reversed
+        job.layers.reverse()
         logging.debug(f"Job prepared successfully: {job}")
         return job
