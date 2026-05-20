@@ -1,4 +1,5 @@
 import requests
+from django.conf import settings
 from qgis_server_light.interface.exporter.api import ExportParameters, ExportResult
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.serializers import JsonSerializer
@@ -7,7 +8,6 @@ from georama.data_integration.lib.data_integration_config import Config
 
 
 class ExporterService:
-
     def execute_export(self, mandant_name: str, project_name: str):
         config = Config()
         response = requests.post(
@@ -17,7 +17,7 @@ class ExporterService:
                 ExportParameters(
                     mandant_name,
                     project_name,
-                    unify_layer_names_by_group=True,
+                    unify_layer_names_by_group=settings.QGIS_EXPORTER_UNIFY_LAYER_NAMES_BY_GROUP,
                     output_format="json",
                 )
             ),
