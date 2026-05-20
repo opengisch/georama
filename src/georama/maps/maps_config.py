@@ -617,6 +617,15 @@ class Config:
             ),
             version=version,
         )
+
+        if settings.WFS_COUNTDEFAULT is not None:
+            wfs_capabilities.operations_metadata.constraint.append(
+                wfs_2_0_0.DomainType(
+                    name="CountDefault",
+                    default_value=wfs_2_0_0.DefaultValue(value=str(settings.WFS_COUNTDEFAULT)),
+                )
+            )
+
         return wfs_capabilities
 
     def wfs_get_metadata_config(self, url: str) -> dict:

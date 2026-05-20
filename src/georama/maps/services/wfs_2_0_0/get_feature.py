@@ -32,6 +32,7 @@ from dataclasses import field, make_dataclass
 from typing import Any
 
 import numpy as np
+from django.conf import settings
 from django.db.models import Model
 from qgis_server_light.interface.job.common.input import OgcFilterFES20
 from qgis_server_light.interface.job.common.output import JobResult
@@ -320,7 +321,7 @@ class WfsGetFeature(WfsOperation):
             version=query_params["VERSION"],
             stored_query_or_query=self.prepare_queries(query_params),
             start_index=query_params.get("STARTINDEX"),
-            count=query_params.get("COUNT"),
+            count=query_params.get("COUNT", settings.WFS_COUNTDEFAULT),
             output_format=query_params.get(
                 "OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2"
             ).upper(),
@@ -386,7 +387,6 @@ class WfsGetFeature(WfsOperation):
         """
         qsl_feature_queries = []
         for query in get_feature_parameter.stored_query_or_query:
-
             # based on the sanitized list of requested layer names we fetch then
             # the definitions of these
             # layers (this includes permission check and existence check)
@@ -464,7 +464,6 @@ class WfsGetFeature(WfsOperation):
 
         is_multipoint = geometry_type in self.geometry_types["multipoint"]
         if geometry_type in self.geometry_types["point"] or is_multipoint:
-
             # POINT or MULTIPOINT
             # ==================================================================
 
@@ -507,7 +506,6 @@ class WfsGetFeature(WfsOperation):
             points = [None] * number_of_wkb_points
 
             for i in range(number_of_wkb_points):
-
                 # Parsing single point
                 # -------------------------------------------
 
@@ -589,7 +587,6 @@ class WfsGetFeature(WfsOperation):
             lines = [None] * number_of_wkb_lines
 
             for i in range(number_of_wkb_lines):
-
                 # Parsing single LineString
                 # -------------------------------------------
 
@@ -675,7 +672,6 @@ class WfsGetFeature(WfsOperation):
             polygons = [None] * number_of_wkb_polygons
 
             for i in range(number_of_wkb_polygons):
-
                 # Parsing single Polygon
                 # -------------------------------------------
 
@@ -796,7 +792,11 @@ class WfsGetFeature(WfsOperation):
                         f"{self.own_namespace}:{feature_collection.name}.{feature_sequence}"
                     )
                 fields.append(
-                    ("geometry", GeometryMember | GeometryMembers, field(default=None))
+                    (
+                        "geometry",
+                        GeometryMember | GeometryMembers,
+                        field(default=None),
+                    )
                 )
                 feature_dataclass = make_dataclass(feature_collection.name, fields=fields)
                 feature_dataclass.Meta = GeoramaMeta

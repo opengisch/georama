@@ -443,6 +443,8 @@ class Base(Configuration):
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
     CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+    WFS_COUNTDEFAULT = values.IntegerValue(None, environ_prefix="GEORAMA")
+
 
 class Dev(Base):
     SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!"
