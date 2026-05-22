@@ -1,0 +1,17 @@
+{% extends 'core/entity_publish_list.html' %}
+
+{% block list_item_actions_add %}
+<a href="{% url view_name_add item.id %}"
+   class="btn btn-outline-primary" role="button">Publish</a>
+{% endblock %}
+{% block list_item_title %}
+{{ item.display_name }} ({{ item.name }})
+{% endblock %}
+{% block list_item_name %}
+    <div class="text-truncate">
+    {{ item.short_description }}
+    </div>
+{% endblock %}
+{% block list_item_pills %}
+    <span class="badge rounded-pill text-bg-primary">{{ item.id }}</span>
+{% endblock %}

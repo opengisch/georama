@@ -1,0 +1,15 @@
+{% extends 'core/detail.html' %}
+{% load static i18n %}
+
+{% block detail_content %}
+    <h1>Title: {{ object.title }}</h1>
+    <h4>Description: {{ object.description }} </h4>
+    <h4>Links:</h4>
+    <ul>
+        {% for link in object.links %}
+        <li>
+            <a href="{{ link.href }}">{{ link.title }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

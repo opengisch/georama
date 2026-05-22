@@ -1,12 +1,12 @@
 from django.apps import apps
-from django.utils.translation import gettext as _
 
 from georama.core.entities.models import PublishedAs
 from georama.core.menu import BreadCrumb
+from georama.core.views.entities.mixins import BreadCrumbAction
 from georama.core.views.generic.list import GeoramaListView
 
 
-class GeoramaPublishedItemIndex(GeoramaListView):
+class GeoramaPublishedItemList(BreadCrumbAction, GeoramaListView):
     """
     This view is the apps landing page. It shows the available published
     layers a user can access. This is also available in public and shows
@@ -16,7 +16,7 @@ class GeoramaPublishedItemIndex(GeoramaListView):
     """
 
     model: PublishedAs
-    template_name = "core/published_item_index.html"
+    template_name = "core/published_item_list.html"
     entity_name: str
 
     def get_breadcrumbs(self):
@@ -27,6 +27,8 @@ class GeoramaPublishedItemIndex(GeoramaListView):
 
     def get_queryset(self):
         permitted_items = []
+        # TODO: We should prefilter here, since we know the list of permissions a user
+        #   has
         items = self.model.objects.all()
         for item in items:
             if item.has_general_permission(self.request.user, self.model._meta.app_label):
@@ -35,18 +37,5 @@ class GeoramaPublishedItemIndex(GeoramaListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if (
-            self.request.user.has_perm(self.model.perm_view())
-            or self.request.user.has_perm(self.model.perm_change())
-            or self.request.user.has_perm(self.model.perm_delete())
-            or self.request.user.has_perm(self.model.perm_add())
-            or self.request.user.has_perm(self.model.perm_manage_permissions())
-        ):
-            context["breadcrumb_action_url"] = (
-                f"{self.model._meta.app_label}:{self.entity_name}-list"
-            )
-            context["breadcrumb_action_icon"] = "fa fa-wrench"
-            context["breadcrumb_action_title"] = _("Manage")
-            context["breadcrumb_action_tooltip"] = _("Manage and publish items")
-
+        context.update(self.get_breadcrumb_action_context())
         return context

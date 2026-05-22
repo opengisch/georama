@@ -1,0 +1,464 @@
+import json
+import uuid
+from typing import Any
+
+from django.apps import apps
+from django.conf import settings
+from django.core.paginator import Page
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import render
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView
+from qgis_server_light.interface.job.process.input import ParameterInput
+from xsdata.formats.dataclass.serializers import DictEncoder, JsonSerializer
+
+from georama.core.menu import BreadCrumb
+from georama.core.views.entities.published_item_detail import GeoramaPublishedItemDetail
+from georama.core.views.entities.published_item_list import GeoramaPublishedItemList
+from georama.core.views.generic.mixins import (
+    BreadcrumbMixin,
+    PermissionRequiredMixin,
+)
+from georama.processes.apps import central_app_label
+from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
+    Conformance,
+    Jobs,
+    Landing,
+    Link,
+    Processes,
+)
+from georama.processes.models import Job, PublishedAsProcess
+
+
+class TemplateOrApiView(PermissionRequiredMixin, BreadcrumbMixin, TemplateView):
+    permission_required = []
+
+    def render_to_json(self, context, **json_kwargs):
+        raise NotImplementedError()
+
+    def render(self, context):
+        preferred_type = self.request.GET.get("f") or self.request.get_preferred_type(
+            [
+                "application/json",
+                "text/html",
+            ]
+        )
+        if preferred_type in {"html", "text/html"}:
+            return self.render_to_response(context)
+        if preferred_type in {"json", "application/json"}:
+            return self.render_to_json(context)
+        return JsonResponse({"detail": "Unsupported media type"}, status=406)
+
+    def get(self, request: HttpRequest, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render(context)
+
+
+class TemplateOrApiListView(TemplateOrApiView, GeoramaPublishedItemList):
+    permission_required = []
+
+    def setup(self, request, *args, **kwargs):
+        # This is a hack: the templates and django pagination works with
+        # `per_page` and `page` parameters but the OGC API requires `limit`
+        # and `offset`. We convert the latter into the former here so that
+        # we can keep using the pagination features without additional changes
+        # TODO: catch errors
+        limit = request.GET.get("limit")
+        offset = request.GET.get("offset")
+        if limit is not None:
+            limit = int(limit)
+            if limit not in settings.LIST_PAGE_SIZES:
+                limit = settings.LIST_PAGE_SIZE_DEFAULT
+            kwargs["per_page"] = limit
+        if offset is not None:
+            offset = int(offset)
+            page = 1 if limit in (None, 0) else (offset // limit) + 1
+            kwargs["page"] = page
+        super().setup(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.object_list = self.get_queryset()
+        context = self.get_context_data(**kwargs)
+        return self.render(context)
+
+
+class TemplateOrApiDetailView(TemplateOrApiView, GeoramaPublishedItemDetail):
+    permission_required = []
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object, **kwargs)
+        return self.render(context)
+
+
+class LandingView(TemplateOrApiView):
+    template_name = "processes/api/landing.html"
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object"] = Landing(
+            title="Georama OGC API Processes",
+            description="...",
+            links=[
+                Link(
+                    type="application/json",
+                    rel="self",
+                    href=self.request.build_absolute_uri(
+                        reverse(f"{central_app_label}:api-landing")
+                    )
+                    + "?f=json",
+                    href_lang="en",
+                    title=_("This document as JSON"),
+                ),
+                Link(
+                    type="text/html",
+                    rel="self",
+                    href=self.request.build_absolute_uri(
+                        reverse(f"{central_app_label}:api-landing")
+                    )
+                    + "?f=html",
+                    href_lang="en",
+                    title=_("This document as HTML"),
+                ),
+                Link(
+                    type="application/json",
+                    rel="conformance",
+                    href=self.request.build_absolute_uri(
+                        reverse(f"{central_app_label}:api-conformance")
+                    ),
+                    href_lang="en",
+                    title=_("Conformance"),
+                ),
+                Link(
+                    type="application/json",
+                    rel="http://www.opengis.net/def/rel/ogc/1.0/processes",
+                    href=self.request.build_absolute_uri(
+                        reverse(f"{central_app_label}:api-process-list")
+                    ),
+                    href_lang="en",
+                    title=_("Process list"),
+                ),
+                Link(
+                    type="application/json",
+                    rel="http://www.opengis.net/def/rel/ogc/1.0/job-list",
+                    href=self.request.build_absolute_uri(
+                        reverse(f"{central_app_label}:api-job-list")
+                    ),
+                    href_lang="en",
+                    title=_("Jobs list"),
+                ),
+            ],
+        )
+        return context
+
+    def render_to_json(self, context, **json_kwargs):
+        return HttpResponse(
+            JsonSerializer().render(context["object"]), content_type="application/json"
+        )
+
+
+class ConformanceView(TemplateOrApiView):
+    template_name = "processes/api/conformance.html"
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb("Conformance"),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object"] = Conformance(
+            conforms_to=[
+                "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/core",
+                "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/ogc-process-description",
+                "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/json",
+            ]
+        )
+        return context
+
+    def render_to_json(self, context, **json_kwargs):
+        return HttpResponse(
+            JsonSerializer().render(context["object"]), content_type="application/json"
+        )
+
+
+class ProcessListView(TemplateOrApiListView):
+    model = PublishedAsProcess
+    template_name = "processes/api/process_list.html"
+    entity_name = "process"
+    permission_required = model.perm_view()
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(self.model._meta.app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb("Processes"),
+        ]
+
+    def render_to_json(self, context, **json_kwargs):
+        page: Page = context["page_obj"]
+        per_page = context["per_page"]
+        offset = (page.number - 1) * per_page
+        links = [
+            Link(
+                rel="self",
+                title="Processes (current page)",
+                href=reverse(f"{central_app_label}:api-process-list")
+                + f"?f=json&limit={per_page}&offset={offset}",
+                type="application/json",
+            ),
+        ]
+        if page.has_previous():
+            offset = (page.previous_page_number() - 1) * per_page
+            links.append(
+                Link(
+                    rel="prev",
+                    title="Processes (previous page)",
+                    href=reverse(f"{central_app_label}:api-process-list")
+                    + f"?f=json&limit={per_page}&offset={offset}",
+                    type="application/json",
+                )
+            )
+        if page.has_next():
+            offset = (page.next_page_number() - 1) * per_page
+            links.append(
+                Link(
+                    rel="next",
+                    title="Processes (next page)",
+                    href=reverse(f"{central_app_label}:api-process-list")
+                    + f"?f=json&limit={per_page}&offset={offset}",
+                    type="application/json",
+                )
+            )
+        processes = Processes(
+            processes=[process.dataclass for process in self.object_list],
+            links=links,
+        )
+        return HttpResponse(
+            JsonSerializer().render(processes), content_type="application/json"
+        )
+
+
+class ProcessDetailView(TemplateOrApiDetailView):
+    model = PublishedAsProcess
+    entity_name = "process"
+    template_name = "processes/api/process_detail.html"
+
+    slug_url_kwarg = "process_id"
+    slug_field = "process_id"
+
+    permission_required = model.perm_view()
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb("Processes", reverse(f"{app_menu.app_label}:api-process-list")),
+            BreadCrumb(self.object.title),
+        ]
+
+    def get_breadcrumb_action_context(self) -> dict:
+        action_context = {}
+        action_context["breadcrumb_action_url"] = reverse(
+            f"{self.model._meta.app_label}:api-process-execution",
+            kwargs={self.slug_field: self.object.process_id},
+        )
+        action_context["breadcrumb_action_icon"] = "fa fa-play"
+        action_context["breadcrumb_action_title"] = _("Execute")
+        action_context["breadcrumb_action_tooltip"] = _("Execute Process")
+        return action_context
+
+    def render_to_json(self, context, **json_kwargs):
+        process = self.object.dataclass
+        return HttpResponse(JsonSerializer().render(process), content_type="application/json")
+
+
+class ProcessExectionView(TemplateOrApiDetailView, FormView):
+    model = Job
+    entity_name = "job"
+    template_name = "processes/api/process_execution.html"
+
+    slug_url_kwarg = "process_id"
+    slug_field = "process_id"
+    linked_process: PublishedAsProcess | None = None
+    fields = ["process"]
+
+    permission_required = []
+
+    def get_form(self, form_class=None):
+        return self.object.process.qsl_algorithm_params_html_form
+
+    def setup(self, request: HttpRequest, *args: Any, **kwargs: Any):
+        super().setup(request, *args, **kwargs)
+        self.linked_process = PublishedAsProcess.objects.get(
+            process_id=self.kwargs["process_id"]
+        )
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb("Processes", reverse(f"{app_menu.app_label}:api-process-list")),
+            BreadCrumb(
+                self.linked_process.title,
+                reverse(
+                    f"{app_menu.app_label}:api-process-detail",
+                    kwargs={"process_id": self.kwargs["process_id"]},
+                ),
+            ),
+            BreadCrumb(_("Execute")),
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_breadcrumb_action_context(self) -> dict:
+        return {}
+
+    def get_object(self, queryset=None) -> Job:
+        return Job(created_by=self.request.user, process=self.linked_process)
+
+    def persist(self, data: dict):
+        parameters = []
+        for k, v in data.items():
+            parameters.append(ParameterInput(name=k, value=v))
+        self.object.job_parameters = DictEncoder().encode(parameters)
+        self.object.redis_job_id = uuid.uuid4()
+        self.object.save()
+
+    def post(self, request: HttpRequest, process_id: str):
+        self.object = self.get_object()
+        content_type = request.content_type
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+
+        if content_type == "application/json":
+            data = json.loads(request.body)
+            self.persist(data["inputs"])
+            # TODO: Finish handling and return conforming to specs
+
+        elif content_type in [
+            "application/x-www-form-urlencoded",
+            "multipart/form-data",
+        ]:
+            form = self.get_form()(request.POST)
+            if not form.is_valid():
+                return render(request, self.template_name, {"form": form})
+            data = form.cleaned_data
+            self.persist(data)
+            return HttpResponseRedirect(reverse(f"{app_menu.app_label}:api-job-list"))
+        else:
+            raise LookupError("Unsupported media type")
+
+        return JsonResponse(
+            {
+                "type": "json",
+                "data": data,
+            }
+        )
+
+
+class JobListView(GeoramaPublishedItemList):
+    entity_name = "job"
+    model = Job
+    template_name = "processes/api/job_list.html"
+    ordering = ("created_at",)
+
+    def get_queryset(self):
+        queryset = self.model.objects.all()
+        if not self.request.user.is_superuser:
+            queryset = queryset.filter(created_by=self.request.user)
+        return queryset
+
+    def get_breadcrumb_action(self):
+        """
+        We do not want any bread crumb actions here currently.
+
+        Returns:
+            Empty context since we don't want to add anything.
+        """
+        return {}
+
+    def get_breadcrumb_action_context(self):
+        """
+        We do not want any manage actions on jobs currently.
+
+        Returns:
+            Empty context since we don't want to add anything.
+        """
+        return {}
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb("Jobs"),
+        ]
+
+    def render_to_json(self, context, **json_kwargs):
+        jobs = Jobs(
+            jobs=[job.dataclass for job in self.object_list],
+            links=[],
+        )
+        return HttpResponse(JsonSerializer().render(jobs), content_type="application/json")
+
+
+class JobDetailView(TemplateOrApiDetailView):
+    entity_name = "job"
+    model = Job
+    template_name = "processes/api/job_detail.html"
+
+    slug_url_kwarg = "job_id"
+    slug_field = "job_id"
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb("Job list", reverse(f"{app_menu.app_label}:api-job-list")),
+            BreadCrumb(self.object.title),
+        ]
+
+    def render_to_json(self, context, **json_kwargs):
+        job = self.object.dataclass
+        return HttpResponse(JsonSerializer().render(job), content_type="application/json")
+
+
+class JobResultView(TemplateOrApiDetailView):
+    entity_name = "job"
+    model = Job
+    template_name = "processes/api/job_result.html"
+
+    slug_url_kwarg = "job_id"
+    slug_field = "job_id"
+
+    def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(central_app_label).app_menu()
+        return [
+            BreadCrumb(app_menu.title, reverse(f"{self.model._meta.app_label}:index")),
+            BreadCrumb("OGC API Processes", reverse(f"{app_menu.app_label}:api-landing")),
+            BreadCrumb("Job list", reverse(f"{app_menu.app_label}:api-job-list")),
+            BreadCrumb(
+                self.object.title,
+                reverse(
+                    f"{app_menu.app_label}:api-job-detail",
+                    kwargs={"job_id": self.object.job_id},
+                ),
+            ),
+            BreadCrumb("Results"),
+        ]
+
+    def render_to_json(self, context, **json_kwargs):
+        return HttpResponse(
+            JsonSerializer().render(context["object"]), content_type="application/json"
+        )

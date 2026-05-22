@@ -44,5 +44,6 @@ dict.py
 
 tests/resources
 !tests/resources/TestMandant
+tests/unit/processes/resources/SCHEMAS_OPENGIS_NET/ogcapi/processes/part1/1.0/openapi/**/*.json
 
 .profile

@@ -11,7 +11,7 @@ class GeoramaListView(BreadcrumbMixin, ListView):
     ordering = ("title", "name")
 
     def handle_per_page(self):
-        per_page = self.request.GET.get("per_page")
+        per_page = self.kwargs.get("per_page") or self.request.GET.get("per_page")
 
         if per_page:
             try:

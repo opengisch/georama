@@ -1,0 +1,24 @@
+{% extends 'core/entity_list.html' %}
+{% load static i18n %}
+
+{% block list_actions %}
+    <a class="navbar-brand" aria-hidden="true">{% trans 'Capabilities' %}</a>
+    <div class="btn-group" role="group" aria-label="List Actions">
+        {% blocktranslate asvar title %}Request the OGC API Features document of this server{% endblocktranslate %}
+        <a href="{% url 'processes:api-landing' %}"
+           target="_blank" class="btn btn-outline-primary"
+           data-bs-toggle="tooltip"
+           title="{{ title }}"
+           aria-label="{{ title }}"
+           role="button"><i class="fa-solid fa-code"></i></a>
+    </div>
+{% endblock %}
+
+{% block list_item_title %}
+    {{ item.title }} ({{ item.qsl_algorithm.name }})
+{% endblock %}
+{% block list_item_name %}
+    <div class="text-truncate" style="max-width: 100%">
+    {{ item.description }}
+    </div>
+{% endblock %}

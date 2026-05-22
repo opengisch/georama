@@ -185,6 +185,7 @@ class Base(Configuration):
 
     INSTALLED_APPS = [
         "georama.core.apps.CoreConfig",
+        "ninja",
         "jazzmin",
         "django.contrib.admin",
         "django.contrib.auth",
@@ -192,6 +193,7 @@ class Base(Configuration):
         "django.contrib.sessions",
         "django.contrib.messages",
         "django.contrib.staticfiles",
+        "georama.processes.apps.ProcessConfig",
         "georama.features.apps.FeaturesConfig",
         "georama.maps.apps.MapsConfig",
         "georama.data_integration.apps.DataintegrationConfig",
@@ -505,6 +507,21 @@ class Dev(Base):
             "https://localhost:8080",  # GG (standalone)
             # convenience GG hostnames used by developers can be added here
             "http://geogirafe.local",
+        ],
+        separator=" ",
+        environ_prefix="GEORAMA",
+    )
+
+    LIST_PAGE_SIZES = values.ListValue(
+        [
+            2,
+            5,
+            10,
+            25,
+            50,
+            100,
+            200,
+            500,
         ],
         separator=" ",
         environ_prefix="GEORAMA",

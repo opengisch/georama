@@ -66,6 +66,7 @@ dependencies = [
     "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
     "numpy==2.2.5",
     "django-crispy-forms",
+    "django-ninja",
     "crispy-bootstrap5",
     "uvicorn==0.44.0",
     # deps for webgis
@@ -89,6 +90,7 @@ optional-dependencies.dev =[
     "pylsp-rope",
     "ruff",
     "pyprof2calltree",
+    "pyyaml"
 ]
 
 optional-dependencies.dev_xsd =[
@@ -188,7 +190,7 @@ version_variable = "src/georama/__init__.py:__version__"
 
 [tool.ruff]
 line-length = 95
-target-version = "py313"
+target-version = "py311"
 exclude = [
     "src/georama/maps/interfaces/**",
     "src/georama/*/migrations/**",
