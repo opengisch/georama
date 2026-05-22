@@ -28,7 +28,6 @@ User = get_user_model()
 class Job(models.Model):
     redis_job_id = models.UUIDField(db_index=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    # TODO @oreilles: Why was auto_created used here?
     created_at = models.DateTimeField(auto_created=True)
     process = models.ForeignKey("PublishedAsProcess", on_delete=models.CASCADE)
     job_parameters = models.JSONField()

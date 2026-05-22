@@ -1,6 +1,5 @@
 import json
 import uuid
-from datetime import datetime
 from typing import Any
 
 from django.apps import apps
@@ -335,7 +334,6 @@ class ProcessExectionView(TemplateOrApiDetailView, FormView):
         for k, v in data.items():
             parameters.append(ParameterInput(name=k, value=v))
         self.object.job_parameters = DictEncoder().encode(parameters)
-        self.object.created_at = datetime.now()
         self.object.redis_job_id = uuid.uuid4()
         self.object.save()
 
