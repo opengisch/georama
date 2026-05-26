@@ -50,35 +50,34 @@
 
 {% block content %}
 
-    <!-- Scrollable form header -->
+    <!-- Non-scrollable form parent container -->
 
-    <div class="pt-4 form-content-scrollable">
+    <div class="container h-100 pt-4 overflow-hidden">
 
-        <div class="container">
-            <div class="row">
+        <div class="row h-100">
 
-                <!-- Left column-->
-
-                <div class="col form-content-scrollable overflow-auto">
-
-                    <!-- Form content -->
-
-                    {% block detail_content %}
-                        {% field_name_and_value object as fields %}
-                        {% for name, help_text, value in fields %}
-
-                            <div class="mb-4" data-bs-toggle="tooltip"
-                                 title="{{ help_text }}">
-                                <label class="form-text">{{ name|capfirst }}</label>
-                                <div>{{ value }}</div>
-                            </div>
-                        {% endfor %}
-                    {% endblock %}
-
-                </div>
+            <!-- Column(s), scrollable -->
+    
+            <div class="col h-100 px-4 overflow-auto">
+    
+                <!-- Form content -->
+        
+                {% block detail_content %}
+                    {% field_name_and_value object as fields %}
+                    {% for name, help_text, value in fields %}
+        
+                        <div class="mb-4" data-bs-toggle="tooltip"
+                             title="{{ help_text }}">
+                            <label class="form-text">{{ name|capfirst }}</label>
+                            <div>{{ value }}</div>
+                        </div>
+                    {% endfor %}
+                {% endblock %}
+            
             </div>
+        
         </div>
-
+    
     </div>
 
 {% endblock %}

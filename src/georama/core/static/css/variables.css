@@ -26,11 +26,6 @@
     --navbar-height-scrolled: 80px;
     --breadcrumb-height: 65px;
     --footer-height: 50px;
-
-    /* Height of scrollable form content area */
-    --form-content-height: calc(100vh - var(--navbar-height) - var(--footer-height) - var(--breadcrumb-height) - 48px);
-    --list-paging-height: 54px;
-    --list-content-height: calc(var(--form-content-height) - var(--list-paging-height));
 }
 
 [data-bs-theme=dark] {

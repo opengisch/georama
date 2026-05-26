@@ -25,27 +25,16 @@
     </div>
 {% endblock %}
 
-{% block content %}
+{% block form_details %}
 
-    <!-- Scrollable form header -->
-    <div class="pt-4 form-content-scrollable">
+    <!-- Column, scrollable -->
 
-        <div class="container">
-            <div class="row">
+    <div class="col h-100 px-4 overflow-auto">
 
-                <!-- Left column-->
+        <!-- Form content -->
 
-                <div class="col form-content-scrollable overflow-auto">
-
-                    <!-- Form content -->
-
-                    {% include "core/permission_table.html" with permissions=object %}
-
-
-                </div>
-            </div>
-        </div>
-
+        {% include "core/permission_table.html" with permissions=object %}
+    
     </div>
 
 {% endblock %}

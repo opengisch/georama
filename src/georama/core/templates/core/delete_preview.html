@@ -19,45 +19,37 @@
 
 {% endblock %}
 
-{% block content %}
-    <div class="pt-4 form-content-scrollable">
+{% block form_details %}
 
-        <div class="container">
-            <div class="row">
+    <!-- Column, scrollable -->
 
-                <!-- Left column-->
+    <div class="col h-100 px-4 overflow-auto">
 
-                <div class="col form-content-scrollable overflow-auto">
+        <!-- Form content -->
 
-                    <!-- Form content -->
+        <h5>Removing this Element has impact on the following content in Georama:</h5>
 
-                    <h5>Removing this Element has impact on the following content in Georama:</h5>
+        <ul class="list-group">
+            {% include "core/includes/nested_delete.html" with objects=related_objects %}
+        </ul>
 
-                    <ul class="list-group">
-                        {% include "core/includes/nested_delete.html" with objects=related_objects %}
-                    </ul>
-
-                    {% if protected %}
-                        <div class="alert alert-danger mt-3">
-                            <strong>The project can't be deleted!</strong><br>
-                            The following elements are protected:
-                            <ul>
-                                {% for obj in protected %}
-                                    <li>{{ obj }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% else %}
-                        <form id="{{ object.pk }}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                        </form>
-                    {% endif %}
-
-
-                </div>
+        {% if protected %}
+            <div class="alert alert-danger mt-3">
+                <strong>The project can't be deleted!</strong><br>
+                The following elements are protected:
+                <ul>
+                    {% for obj in protected %}
+                        <li>{{ obj }}</li>
+                    {% endfor %}
+                </ul>
             </div>
-        </div>
-
+        {% else %}
+            <form id="{{ object.pk }}" method="post" style="display:inline;">
+                {% csrf_token %}
+            </form>
+        {% endif %}
+    
     </div>
+
 
 {% endblock %}

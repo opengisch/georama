@@ -4,7 +4,9 @@ body {
 
 #content {
     padding-top: var(--navbar-offset);
+    padding-bottom: var(--footer-height);
     height: 100vh;
+    overflow: hidden;
 }
 
 .top-wave {
@@ -223,7 +225,6 @@ Change List and detail forms
 
 #breadcrumb-container {
     height: var(--breadcrumb-height);
-    padding-bottom: 1.5rem;
 }
 
 #form-header-sticky {
@@ -233,22 +234,6 @@ Change List and detail forms
     left: 0;
     right: 0;
     padding: 1.5rem 0;
-}
-
-/* Add this to the div that should scroll */
-.form-content-scrollable {
-    height: var(--form-content-height);
-    padding-right: 24px;
-    padding-left: 24px;
-}
-
-.list-content-scrollable {
-    height: var(--list-content-height);
-    overflow-y: auto;
-    overflow-x: hidden;
-    min-height: 0;
-    padding-right: 24px;
-    padding-left: 24px;
 }
 
 /*
