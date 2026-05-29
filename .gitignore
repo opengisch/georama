@@ -15,6 +15,7 @@ docs/_build/
 dist/
 build/
 htmlcov/
+src/georama/.static
 
 .tox/
 node_modules
