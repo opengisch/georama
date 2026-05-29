@@ -183,6 +183,7 @@ class DBService:
                 mandant=mandant_db,
                 name=project.name,
                 hash=project.hash,
+                version=project_config.project.version,
                 title=project_config.project.name,
             )
 
@@ -198,6 +199,7 @@ class DBService:
                 project_db.mandant = mandant_db
                 project_db.name = project.name
                 project_db.hash = project.hash
+                project_db.version = project_config.project.version
                 project_db.title = project_config.project.name
         project_db.save()
         fss_project = FSService()

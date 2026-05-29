@@ -34,10 +34,10 @@ class TestDataIntegrationViews:
 
         project = Project.objects.get(name="TestProject")
         assert isinstance(project.id, int)
-        assert project.name == "TestProject"
         assert project.mandant.name == "TestMandant"
-        assert project.title == ""
-        assert project.version == ""
+        assert project.name == "TestProject"
+        assert project.title == "TestProject"
+        assert project.version == "3.44.1-Solothurn"
 
         # TODO: Should use a static UUID generator for this
         assert isinstance(project.hash, str)
