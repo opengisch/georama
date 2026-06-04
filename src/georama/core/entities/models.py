@@ -215,9 +215,12 @@ def save_publishedas_db_permissions(published_as):
     content_type = ContentType.objects.get_for_model(type(published_as))
     for permission in published_as.permissions:
         if not Permission.objects.filter(codename=permission.codename).exists():
+            name = permission.readable_name(published_as.readable_identifier)
+            if len(name) > 255:
+                name = name[:254] + "…"
             Permission(
                 codename=permission.codename,
-                name=permission.readable_name(published_as.readable_identifier),
+                name=name,
                 content_type=content_type,
             ).save()
 
