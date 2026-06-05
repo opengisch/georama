@@ -21,7 +21,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 
 from georama.core.apps import central_app_label
-from georama.core.views import auth, landing, settings
+from georama.core.views import auth, debug, landing, settings
 from georama.core.views.entities import permission_assign, permission_remove
 
 app_name = central_app_label
@@ -49,6 +49,7 @@ urlpatterns = [
     path("qfield_link", include("georama.qfield_link.urls")),
     path("accounts/", include("allauth.urls")),
     path("admin/", admin.site.urls),
+    path("debug/host-headers", debug.host_headers, name="debug_host_headers"),
 ]
 
 if AppSettings.DEBUG:

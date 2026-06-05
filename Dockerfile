@@ -14,7 +14,8 @@ RUN apt-get update && \
       make \
       git \
       curl \
-      tini
+      tini \
+      nano
 
 #########################
 #  DEV
