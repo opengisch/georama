@@ -151,7 +151,7 @@ class PublishedAsTheme(GeoramaPermissionMixin, PublishedAs):
     @property
     def endpoint_url(self):
         return (
-            f"{settings.WEBGISURL}?themes={self.title}&map_zoom="
+            f"{settings.WEBGISURL}?themes={self.name}&map_zoom="
             f"{self.zoom}&map_x={self.location[0]}&map_y={self.location[1]}"
         )
 
