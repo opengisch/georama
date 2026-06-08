@@ -543,3 +543,12 @@ class Prod(Base):
     DB_PORT = values.Value(environ_required=True, environ_prefix="GEORAMA")
 
     CORS_ALLOWED_ORIGINS = values.ListValue([], separator=" ", environ_prefix="GEORAMA")
+    
+    # Allow a Webgis to access Georama as an authenticated user
+    # e.g. fetch themes.json with private themes included.
+    # ref. https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+    # ref. https://docs.djangoproject.com/en/6.0/ref/settings/#session-cookie-samesite
+    # ref. https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie#samesitesamesite-value
+    # by default, fetch() requests do not send cookies to different subdomains, even for samesite=lax cookies.
+    SESSION_COOKIE_SECURE = True # means cookies will only be sent over HTTPS
+    SESSION_COOKIE_SAMESITE = 'None'    
