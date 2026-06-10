@@ -19,6 +19,10 @@ class ColumnOgcApiFeaturesInlineFormset(BaseInlineFormSet):
     model = ColumnOgcApiFeatures
     fields = ["name", "title"]
 
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+        form.fields["public"].label = "Visible"
+
 
 class ColumnOgcApiFeaturesInline(admin.TabularInline):
     model = ColumnOgcApiFeatures
@@ -106,7 +110,7 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
         extra_context["vector_datasets"] = [
             (
                 vd,
-                f'{reverse("features:layer-add", kwargs={"vector_dataset_id": vd.id})}?next={reverse("admin:features_publishedasogcapifeatures_changelist")}',  # noqa 501
+                f"{reverse('features:layer-add', kwargs={'vector_dataset_id': vd.id})}?next={reverse('admin:features_publishedasogcapifeatures_changelist')}",  # noqa 501
             )
             for vd in vector_datasets
         ]
