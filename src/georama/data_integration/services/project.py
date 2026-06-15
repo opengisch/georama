@@ -1,5 +1,6 @@
 import logging
 import math
+from dataclasses import dataclass
 
 from qgis_server_light.interface.exporter.extract import Config as QslConfig
 from qgis_server_light.interface.exporter.extract import Custom, Raster, Vector
@@ -14,6 +15,7 @@ from georama.data_integration.lib.qgis_project_file_structure import (
     Config,
     QgisProject,
     QgisProjectFileStructure,
+    QgisProjectGroup,
 )
 from georama.data_integration.models import (
     CustomDataSet,
@@ -23,6 +25,14 @@ from georama.data_integration.models import (
     RasterDataSet,
     VectorDataSet,
 )
+
+
+@dataclass
+class FSServiceStats:
+    integrated: int
+    outdated: int
+    stale: int
+    total: int
 
 
 class FSService:
@@ -35,12 +45,10 @@ class FSService:
         self.qpfs = QgisProjectFileStructure(self.config.path)
         self.qpfs.create_groups(self.config.qgis_project_extensions)
 
-    def count(self) -> int:
-        return sum(len(group.projects) for group in self.qpfs.groups)
-
-    def count_out_dated(self):
+    def stats(self) -> FSServiceStats:
         """
-        Counts file system projects which are integrated into Georama DB already
+        Counts total qgis projects on disk, integrated, stale (integrated into Georama
+        but not found on disk), and outdated (integrated into Georama DB already
         and where the JSON config file on the disk has a different hash then the
         hash wich was stored in the database when the project was integrated.
 
@@ -48,14 +56,28 @@ class FSService:
             The count of items matching the described criteria.
         """
 
-        count = 0
+        integrated = 0
+        outdated = 0
+        stale = 0
         integrated_projects = DBService().get_list()
         for integrated_project in integrated_projects:
+            integrated += 1
             found_group = self.qpfs.find_group_by_name(integrated_project.mandant.name)
+            if found_group is None:
+                stale += 1
+                continue
             found_project = found_group.find_project_by_name(integrated_project.name)
+            if found_project is None:
+                stale += 1
+                continue
             if found_project.hash != integrated_project.hash:
-                count += 1
-        return count
+                outdated += 1
+        return FSServiceStats(
+            integrated=integrated,
+            outdated=outdated,
+            stale=stale,
+            total=sum(len(group.projects) for group in self.qpfs.groups),
+        )
 
     def load_project_config(self, project: QgisProject) -> QslConfig | None:
         """
@@ -120,16 +142,34 @@ class FSService:
 
     def get_list(self) -> list[QgisProject]:
         integrated_projects = DBService().get_list()
+        stale_projects: list[QgisProject] = []
 
         for integrated_project in integrated_projects:
             found_group = self.qpfs.find_group_by_name(integrated_project.mandant.name)
-            found_project = found_group.find_project_by_name(integrated_project.name)
-            found_project.database_representation = integrated_project
+            if found_group:
+                found_project = found_group.find_project_by_name(integrated_project.name)
+                if found_project:
+                    found_project.database_representation = integrated_project
+                    continue
+            # If not found, the project has been moved on disk.
+            stale_projects.append(
+                QgisProject(
+                    parent=QgisProjectGroup(
+                        parent=self.qpfs,
+                        name=integrated_project.mandant.name,
+                    ),
+                    name=integrated_project.name,
+                    suffix="",
+                    database_representation=integrated_project,
+                    stale=True,
+                )
+            )
+
         for group in self.qpfs.groups:
             for project in group.projects:
                 project.config = self.load_project_config(project)
 
-        return sum((group.projects for group in self.qpfs.groups), [])
+        return sum((group.projects for group in self.qpfs.groups), stale_projects)
 
     def get_list_page(self, offset: int | None = None, count: int | None = None):
         return self.get_list()
@@ -240,16 +280,6 @@ class DBService:
                 for qsl_field in layer.fields:
                     field_qs = Field.objects.filter(
                         name=qsl_field.name,
-                        type=qsl_field.type,
-                        is_primary_key=qsl_field.is_primary_key,
-                        type_wfs=qsl_field.type_wfs,
-                        type_oapif=qsl_field.type_oapif,
-                        type_oapif_format=qsl_field.type_oapif_format,
-                        alias=qsl_field.alias,
-                        comment=qsl_field.comment,
-                        nullable=qsl_field.nullable,
-                        length=qsl_field.length,
-                        precision=qsl_field.precision,
                         vector_dataset=dataset,
                     )
                     if not field_qs.exists():

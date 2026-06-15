@@ -82,23 +82,21 @@ class Index(GeoramaLoginRequiredMixin, GeoramaAnyPermissionRequiredMixin, View):
 
     def get(self, request: HttpRequest):
         fss_project = FSService()
-        dbs_project = DBService()
         app_menu = apps.get_app_config("data_integration").app_menu()
-        project_count = fss_project.count()
-        project_db_count = dbs_project.count_db_projects()
-        outdated_count = fss_project.count_out_dated()
+        project_stats = fss_project.stats()
         context = {
             "app_menu": app_menu,
-            "project_count": project_count,
-            "project_db_count": project_db_count,
-            "outdated_count": outdated_count,
+            "project_count": project_stats.total,
+            "project_db_count": project_stats.integrated - project_stats.stale,
+            "outdated_count": project_stats.outdated,
+            "stale_count": project_stats.stale,
             "breadcrumbs": [BreadCrumb(app_menu.title)],
         }
         context.update(
             self.calculate_gauge_values(
-                project_count,
-                project_db_count,
-                outdated_count,
+                context["project_count"],
+                context["project_db_count"],
+                context["outdated_count"],
             )
         )
         return render(request, "data_integration/index.html", context)
@@ -154,7 +152,10 @@ class DeleteProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
     def get(self, request, pk):
         service = self.service()
         obj = get_object_or_404(Project, pk=pk)
-        qgis_project = service.get(obj.mandant.name, obj.name)
+        try:
+            qgis_project = service.get(obj.mandant.name, obj.name)
+        except BaseException:
+            qgis_project = None
         app_menu = apps.get_app_config("data_integration").app_menu()
         using = router.db_for_write(obj.__class__)
         collector = NestedObjects(using=using)
@@ -173,6 +174,8 @@ class DeleteProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
                 ),
                 BreadCrumb(
                     f"{qgis_project.parent.name}/{qgis_project.name}.{qgis_project.suffix}"
+                    if qgis_project
+                    else f"{obj.mandant.name}/{obj.name}"
                 ),
             ],
         }
