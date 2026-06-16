@@ -30,6 +30,12 @@ class ColumnOgcApiFeaturesInline(admin.TabularInline):
     def has_add_permission(self, request, obj):
         return False
 
+    def get_readonly_fields(self, request, obj=...):
+        fields = super().get_readonly_fields(request, obj)
+        if obj and not obj.column_permission:
+            return ("public", *fields)
+        return fields
+
 
 def _get_permissions(obj: PublishedAsOgcApiFeatures, permission_type: str):
     permissions = obj.permissions
@@ -106,7 +112,7 @@ class PublishedAsOgcApiFeaturesAdmin(admin.ModelAdmin):
         extra_context["vector_datasets"] = [
             (
                 vd,
-                f'{reverse("features:layer-add", kwargs={"vector_dataset_id": vd.id})}?next={reverse("admin:features_publishedasogcapifeatures_changelist")}',  # noqa 501
+                f"{reverse('features:layer-add', kwargs={'vector_dataset_id': vd.id})}?next={reverse('admin:features_publishedasogcapifeatures_changelist')}",  # noqa 501
             )
             for vd in vector_datasets
         ]
