@@ -4,6 +4,7 @@ import logging
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -175,47 +176,51 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                     logging.debug(f"Child {child} was not recognized as WebGIS Layer type")
 
     def get(self, request: HttpRequest, pk: str, **kwargs):
-        project_db = Project.objects.get(pk=pk)
-        highest_theme = self.model.objects.order_by("ordering").last()
-        theme = self.model(
-            name=project_db.name,
-            title=project_db.title,
-            project=project_db,
-            metadata={"isLegendExpanded": True, "legend": False},
-            ordering=highest_theme.ordering + 1 if highest_theme else 1,
-            zoom=4,
-        )
-        theme.save()
-        ogc_server = insert_internal_ogc_server(request)
-        fss_project = FSService()
-        project_from_config = fss_project.get(project_db.mandant.name, project_db.name)
-        root_group = LayerGroupMp.add_root(
-            name=theme.name, ogc_server=ogc_server, title=theme.title
-        )
-        db_root_node = LayerGroupMp.objects.get(pk=root_group.pk)
-        db_root_node.theme = theme
-        db_root_node.save()
-        bbox = BBox(0.0, 0.0, 0.0, 0.0)
-        # Highly recursive task, we flatten the tree into treebeard structure
-        self.assemble_tree_to_treebeard(
-            # the element with empty string as name is always the root of the tree
-            project_from_config.config.tree.find_by_name("").children,
-            db_root_node,
-            theme,
-            project_db,
-            project_from_config.config,
-            bbox,
-            ogc_server.name,
-        )
-        x, y = self.bbox_center_position(bbox)
-        theme.location = [x, y]
-        theme.save()
-        next_url = request.GET.get("next")
-        if next_url and url_has_allowed_host_and_scheme(
-            next_url,
-            allowed_hosts={request.get_host()},
-        ):
-            return redirect(next_url)
+        try:
+            with transaction.atomic():
+                project_db = Project.objects.get(pk=pk)
+                highest_theme = self.model.objects.order_by("ordering").last()
+                theme = self.model(
+                    name=project_db.name,
+                    title=project_db.title,
+                    project=project_db,
+                    metadata={"isLegendExpanded": True, "legend": False},
+                    ordering=highest_theme.ordering + 1 if highest_theme else 1,
+                    zoom=4,
+                )
+                theme.save()
+                ogc_server = insert_internal_ogc_server(request)
+                fss_project = FSService()
+                project_from_config = fss_project.get(project_db.mandant.name, project_db.name)
+                root_group = LayerGroupMp.add_root(
+                    name=theme.name, ogc_server=ogc_server, title=theme.title
+                )
+                db_root_node = LayerGroupMp.objects.get(pk=root_group.pk)
+                db_root_node.theme = theme
+                db_root_node.save()
+                bbox = BBox(0.0, 0.0, 0.0, 0.0)
+                # Highly recursive task, we flatten the tree into treebeard structure
+                self.assemble_tree_to_treebeard(
+                    # the element with empty string as name is always the root of the tree
+                    project_from_config.config.tree.find_by_name("").children,
+                    db_root_node,
+                    theme,
+                    project_db,
+                    project_from_config.config,
+                    bbox,
+                    ogc_server.name,
+                )
+                x, y = self.bbox_center_position(bbox)
+                theme.location = [x, y]
+                theme.save()
+                next_url = request.GET.get("next")
+                if next_url and url_has_allowed_host_and_scheme(
+                    next_url,
+                    allowed_hosts={request.get_host()},
+                ):
+                    return redirect(next_url)
+        except BaseException as e:
+            logging.exception(e)
         return redirect(f"{central_app_label}:theme-list")
 
 
