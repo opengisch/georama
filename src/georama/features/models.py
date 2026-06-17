@@ -74,6 +74,7 @@ class PublishedAsVectorFeature(PublishedAs):
 class Column(PublishedAsRoleNameSystem):
     published_as_type = f"{central_app_label}column"
     title = models.CharField(max_length=1000)
+    public = models.BooleanField(default=True)
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
