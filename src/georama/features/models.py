@@ -3,7 +3,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from georama.core.decorators.debugging import temporary_fix
 from georama.core.entities.models import (
     PermissionInterface,
     PublishedAs,
@@ -75,6 +74,7 @@ class PublishedAsVectorFeature(PublishedAs):
 class Column(PublishedAsRoleNameSystem):
     published_as_type = f"{central_app_label}column"
     title = models.CharField(max_length=1000)
+    public = models.BooleanField(default=True)
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -111,6 +111,10 @@ class Column(PublishedAsRoleNameSystem):
         """Using the publicatoin identifier at the end to make column visibly
         linked to their publication"""
         return f"{self.get_published_definition().readable_identifier}.{self.name}"
+
+    def has_general_permission(self, user: User, app_name: str) -> bool:
+        """include columns permissions in this check"""
+        return self.public
 
     class Meta:
         abstract = True
@@ -149,11 +153,10 @@ class ColumnWfs(Column):
 
 
 class PublishedAsOgcApiFeatures(GeoramaPermissionMixin, PublishedAsVectorFeature):
-
     class Meta:
         permissions = [("can_manage_object_permissions", "Can manage object permissions")]
-        verbose_name = f'OAPIF {_("Layer")}'
-        verbose_name_plural = f'OAPIF {_("Layers")}'
+        verbose_name = f"OAPIF {_('Layer')}"
+        verbose_name_plural = f"OAPIF {_('Layers')}"
 
     dataset = models.ForeignKey(
         VectorDataSet,
@@ -181,7 +184,6 @@ class PublishedAsOgcApiFeatures(GeoramaPermissionMixin, PublishedAsVectorFeature
             self.name = f"{self.dataset.project.mandant.name}.{self.dataset.project.name}.{self.dataset.name}"  # noqa: E501
         if self.title is None and isinstance(self.dataset, VectorDataSet):
             self.title = self.dataset.title
-        self.assign_layer_public_to_all_related_columns()
         super().save(
             force_insert=force_insert,
             force_update=force_update,
@@ -209,21 +211,11 @@ class PublishedAsOgcApiFeatures(GeoramaPermissionMixin, PublishedAsVectorFeature
             f"{self._meta.app_label}:api-collection-detail", kwargs={"collection_id": self.pk}
         )
 
-    @temporary_fix(
-        "Workaround! When a layer is public, all related "
-        "columns are public too! This will be refactored!"
-    )
-    def assign_layer_public_to_all_related_columns(self):
-        ColumnOgcApiFeatures.objects.filter(published_definition=self).update(
-            public=self.public
-        )
-
 
 class ColumnOgcApiFeatures(Column):
-
     class Meta:
-        verbose_name = f'OAPIF {_("Column")}'
-        verbose_name_plural = f'OAPIF {_("Columns")}'
+        verbose_name = f"OAPIF {_('Column')}"
+        verbose_name_plural = f"OAPIF {_('Columns')}"
 
     published_definition = models.ForeignKey(
         PublishedAsOgcApiFeatures,
