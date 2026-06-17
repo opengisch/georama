@@ -1,15 +1,32 @@
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+  - repo: local
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: mixed-line-ending
-        args: ["--fix=lf"]
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.6
-    hooks:
-      - id: ruff-check
+      - id: ruff
+        name: ruff
+        entry: docker compose exec -T georama uv run ruff check
+        language: system
+        types: [ python ]
         args: [ --fix ]
+        # unfortunately we need to redefine excludes
+        exclude: |
+          (?x)^(
+            src/georama/maps/interfaces/.*|
+            src/georama/.*/migrations/.*
+          )$
       - id: ruff-format
+        name: ruff-format
+        entry: docker compose exec -T georama uv run ruff format
+        language: system
+        types: [ python ]
+        exclude: |
+          (?x)^(
+            src/georama/maps/interfaces/.*|
+            src/georama/.*/migrations/.*
+          )$
+      - id: forgotten-migrations
+        name: Django migrations not applies
+        entry: docker compose exec -T georama uv run manage makemigrations
+        language: system
+        args: [ --check, --dry-run ]
+        pass_filenames: false
+        types: [ python ]

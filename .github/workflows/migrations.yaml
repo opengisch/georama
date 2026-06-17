@@ -1,0 +1,56 @@
+name: MissingDjangoMigrations
+on:
+  push:
+    branches:
+      - "*"
+    tags:
+      - v*
+env:
+  GEORAMA_DB_NAME: "test"
+  GEORAMA_DB_USER: "postgres"
+  GEORAMA_DB_PW: "test"
+  GEORAMA_DB_HOST: "localhost"
+  GEORAMA_DB_PORT: "5432"
+  GEORAMA_DB_OPTIONS: "{}"
+jobs:
+  test-migrations:
+    name: Test Python
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    services:
+      georama-db:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_DB: ${{ env.GEORAMA_DB_NAME }}
+          POSTGRES_USER: ${{ env.GEORAMA_DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.GEORAMA_DB_PW }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Install deps
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update && sudo apt-get install -y binutils libproj-dev gdal-bin
+      - uses: actions/checkout@v6
+      - name: "Set up Python"
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: "pyproject.toml"
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+
+      - name: Check migrations
+        env:
+          DJANGO_CONFIGURATION: Dev
+        run: uv run manage makemigrations --check --dry-run

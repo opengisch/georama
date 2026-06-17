@@ -1,49 +1,15 @@
-.idea/
-.vscode/
-.env
-*.egg-info/
-*.pyc
-*\.bak
-\.fuse*
-.coverage
-.coverage.*
-.DS_Store
-*__pycache__
-reqs.txt
-
-docs/_build/
-dist/
+# Python-generated files
+__pycache__/
+*.py[oc]
 build/
-htmlcov/
-src/georama/.static
+dist/
+wheels/
+*.egg-info
+.idea
 
-.tox/
-node_modules
-
-dependency-graphs/
-test-results/
-uml-diagrams/
-pydoer-graphs/
-
-poetry.lock
-
-# LOGS
-
-cookie-py.log
-georama.log
-src/georama/georama.log
-
+# Virtual environments
 .venv
-docs/site
+.static
 
-
-# GeoGirafe themes.json examples
-map.cartoriviera.ch.json
-mapnv.c.json
-test.py
-dict.py
-
-tests/resources
-!tests/resources/TestMandant
-
-.profile
+# environment
+.env

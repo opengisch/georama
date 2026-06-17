@@ -1,7 +1,0 @@
-<GetFeature service="WFS" version="2.0.0"
-            xmlns="http://www.opengis.net/wfs/2.0"
-            xmlns:georama="https://www.opengis.ch/georama"
-            xmlns:fes="http://www.opengis.net/ogc/1.1"
-            xmlns:gml="http://www.opengis.net/gml/3.2">
-    <Query typeNames="georama:orientierung.staedte_namen georama:orientierung.kantons_grenzen"/>
-</GetFeature>

@@ -1,9 +1,0 @@
-services:
-  georama-db:
-    platform: linux/amd64
-  qsl:
-    platform: linux/amd64
-  qsl-exporter:
-    platform: linux/amd64
-  geogirafe:
-    platform: linux/amd64

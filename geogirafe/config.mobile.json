@@ -1,9 +1,0 @@
-{
-  "map": {
-    "constrainScales": false
-  },
-  "offline": {
-    "downloadStartZoom": 7,
-    "downloadEndZoom": 11
-  }
-}

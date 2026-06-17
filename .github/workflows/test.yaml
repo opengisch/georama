@@ -1,69 +1,56 @@
-name: CI/CD Pipeline
+name: TestSuite
 on:
   push:
     branches:
       - "*"
     tags:
       - v*
-
+env:
+  GEORAMA_DB_NAME: "test"
+  GEORAMA_DB_USER: "postgres"
+  GEORAMA_DB_PW: "test"
+  GEORAMA_DB_HOST: "localhost"
+  GEORAMA_DB_PORT: "5432"
+  GEORAMA_DB_OPTIONS: "{}"
 jobs:
-
-  gitattributes:
-    name: Check style (git-attributes)
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v6
-      - run: sudo rm /etc/apt/sources.list.d/*.list
-      - name: Run make git-attributes
-        run: make git-attributes
-
-  # TODO: Add linting here when we decided what approach we go for.
-
   test-py:
     name: Test Python
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     strategy:
       matrix:
         python-version:
-          - '3.11'
           - '3.12'
           - '3.13'
+    services:
+      georama-db:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_DB: ${{ env.GEORAMA_DB_NAME }}
+          POSTGRES_USER: ${{ env.GEORAMA_DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.GEORAMA_DB_PW }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
-      - uses: actions/checkout@v6
-      - name: Set up Python v${{ matrix.python-version }}
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-      - run: sudo rm /etc/apt/sources.list.d/*.list
-      - run: sudo apt update
-      - run: sudo apt-get install -y python3-venv python3-dev unixodbc odbc-mdbtools gdal-bin libgdal-dev libpq-dev build-essential make git curl
-      - run: touch .env
-      - name: Start services
-        run: docker compose up -d --wait georama-db qsl-exporter
-      - name: Set up test environment
-        run: make install-test
-      - name: Run migration checks
-        run: make check-migrations
-      - name: Run tests for Python ${{ matrix.python-version }}
-        run: DJANGO_CONFIGURATION=Test make tests
-      - name: Test Coverage
-        shell: bash
+      - name: Install deps
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
-          make coverage
-          cp .coverage.xml coverage-${{ matrix.python-version }}.xml
-      - name: Stop services
-        if: always()
-        run: docker compose down georama-db qsl-exporter
-# TODO: Uncomment this once we have decided if we use codecov?
-#      - name: Upload coverage to Codecov
-#        uses: codecov/codecov-action@v5
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          env_vars: OS,PYTHON
-#          fail_ci_if_error: true
-#          files: coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
-#          flags: unittests
-#          name: codecov-unittest
-#          verbose: true
+          sudo apt-get update && sudo apt-get install -y binutils libproj-dev gdal-bin
+      - uses: actions/checkout@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+
+      - name: Run tests
+        run: uv run pytest

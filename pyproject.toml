@@ -1,207 +1,75 @@
-# BUILD
-
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
-# Information required for building (sdist/wheel)
-## Also renders on pypi as 'subtitle'
 [project]
 name = "georama"
-dynamic = ["version"]
-description = "The habitat of geoanimals"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
 authors = [
-    {name="Clemens Rudert", email="clemens@opengis.ch"}
+    { name = "Clemens Rudert", email = "crud3_rt@posteo.ch" }
 ]
-requires-python = ">=3.11"
-maintainers = [
-    {name="Clemens Rudert", email="clemens@opengis.ch"}
-]
-# license = "AGPL-3.0-only"
-urls.Tracker = "https://github.com/georama/issues"
-urls.CI = "https://github.com/opengisch/georama/actions"
-urls.Documentation = "https://opengisch.github.io/georama"
-urls.Source = "https://github.com/opengisch/georama"
-urls.Changelog = "https://github.com/opengisch/georama/blob/master/CHANGELOG.md"
-urls.Contributing = "https://github.com/opengisch/georama/blob/master/CONTRIBUTING.md"
-keywords = [
-    "python package",
-]
-classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
-    "Intended Audience :: Developers",
-    "Intended Audience :: End Users/Desktop",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU Affero General Public License v3",
-    "Natural Language :: English",
-    "Operating System :: Unix",
-    "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Software Development",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Typing :: Typed"
-]
-
-
-### Dependency Constraints, aka Requirements ###
+requires-python = ">=3.12"
 dependencies = [
-    # cli tooling
-    "click==8.3.3",
-    # pygeoapi and its friends
-    "pygeoapi==0.21.0",
-    "psycopg2",
-    "psycopg[binary,pool]",
-    "geoalchemy2",
-    "gdal",
-    # django stuff
-    "django[argon2]==5.2.14",
-    "django-jazzmin==3.0.4",
-    "django-configurations==2.5.1",
-    "xsdata[lxml]==26.2",
-    "async-timeout==4.0.3",
-    "redis==5.0.8",
-    "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
-    "numpy==2.2.5",
-    "django-crispy-forms",
-    "crispy-bootstrap5",
-    "uvicorn==0.44.0",
-    # deps for webgis
-    "django-allauth[socialaccount]==65.16.1",
-    "django-cors-headers==4.9.0",
-    "django-treebeard==4.8.0",
-    "django-admin-sortable2==2.3.1",
-    "django-simple-history==3.11.0",
-    "django-extensions==3.2.3",
-    # prod-server deps
-    "gunicorn==26.0.0",
-    # qfield_link deps
-    "qfieldcloud-sdk==0.15.0"
+    "django[argon2]>=6.0.6",
+    "django-configurations>=2.5.1",
+    "django-cors-headers>=4.9.0",
+    "django-filter>=25.2",
+    "django-guardian>=3.3.1",
+    "psycopg[pool]>=3.3.4",
+    "django-unfold>=0.96.0",
+    "uvicorn>=0.49.0",
+    "django-formset>=2.2.4",
+    "django-extensions>=4.1",
+    "djangorestframework>=3.17.1",
+    "drf-spectacular[sidecar]>=0.29.0",
+    "djangorestframework-gis>=1.2.1",
 ]
 
-# DEV: deps
-optional-dependencies.dev =[
-    "debugpy",
-    "python-lsp-server[all]",
-    "pylsp-mypy",
-    "pylsp-rope",
-    "ruff",
-    "pyprof2calltree",
+[project.scripts]
+manage = "georama.manage:main"
+[build-system]
+requires = ["uv_build>=0.11.15,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    { include-group = "lint-format" },
+    { include-group = "test" },
+    "django-extensions>=4.1",
+    "django-silk>=5.5.0",
+    "pre-commit",
+]
+lint-format = [
+    "ruff>=0.15.15",
+]
+test = [
+    "factory-boy>=3.3.3",
+    "pytest>=9.0.3",
+    "pytest-django>=4.12.0",
 ]
 
-optional-dependencies.dev_xsd =[
-    # to derive dataclasses from xsd schemas
-    "xsdata[cli,soap]==26.2",
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [
+    "src/georama/maps/interfaces/**",
+    "src/georama/*/migrations/**",
 ]
-
-# Test: packages imported in test code and packages required for the "test runner"
-optional-dependencies.test = [
-    "pytest-django",
-    "pytest==8.0.0",
-    "pytest-cov[toml]==5.0.0",
-    "pytest-explicit==1.0.1",
-    "pytest-xdist==3.5.0",
-    "pytest-click==1.1.0",
-    "pytest-run-subprocess==0.10.0",
-    "pyroma==4.2",
-    "twine==6.1.0",
-    "pillow==11.3.0"
+[tool.ruff.lint]
+extend-select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "Q", # Quotes
+    "UP", # pyupgrade replacement
+    "B", # bugbear
+    "SIM", # simplify
+    "I", # isort
 ]
-# Type Checking
-optional-dependencies.check =[
-    "mypy==1.8.0",
-    "pyroma==4.2",
-    "twine==6.1.0",
-]
-# Docs: dev and build dependencies
-optional-dependencies.docs = [
-    "mkdocs==1.6.1",
-    "mkdocs-macros-plugin==1.0.5",
-    "mkdocs-material==9.5.34",
-    "mkdocs-mermaid2-plugin==1.1.1",
-    "mkdocs-section-index==0.3.8",
-    "mkdocs-gen-files==0.5.0",
-    "mkdocstrings==0.28.2",
-    "mkdocstrings-python==1.16.2",
-    "mkdocs-literate-nav==0.6.1",
-    "mkdocs-autorefs==1.4.0",
-    "pymdown-extensions==10.5",
-    "mkdocs-click==0.8.1",
-    "griffe==1.2.0"
-]
+fixable = ["ALL"]
 
-[tool.setuptools.dynamic]
-version = {attr = "georama.__version__"}  # any module attribute compatible with ast.literal_eval
-readme = {file = ["README.md", "CHANGELOG.md"]}
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-# TOOLS
 [tool.pytest.ini_options]
-minversion = "6.2"
-DJANGO_SETTINGS_MODULE = "georama.core.settings"
-DJANGO_CONFIGURATION = "Test"
-addopts = "--strict-markers"
-markers = [
-    "slow: Marks a slow test",
-    "integration: Integration Tests",
-    "network_bound: Require internet connection",
-]
+addopts = "-vra --reuse-db --dc=Test"
+DJANGO_SETTINGS_MODULE = "georama.settings"
 testpaths = [
     "tests",
 ]
-explicit-only = [
-    "integration",
-    "network_bound",
-]
 python_files = ["test_*.py"]
-
-
-[tool.coverage.paths]
-source = [
-    "src/georama"
-]
-[tool.coverage.run]
-branch = true
-omit = [
-    "src/georama/**/migrations/*",
-    "src/georama/maps/interfaces/**/*"
-]
-[tool.coverage.report]
-show_missing = true
-precision = 2
-omit = [
-    "src/georama/**/migrations/*",
-    "src/georama/maps/interfaces/**/*"
-]
-exclude_lines = [
-    "raise NotImplementedError",
-    "raise NotImplemented"
-]
-fail_under = 13
-
-[tool.software-release]
-version_variable = "src/georama/__init__.py:__version__"
-
-[tool.ruff]
-line-length = 95
-target-version = "py313"
-exclude = [
-    "src/georama/maps/interfaces/**",
-    "src/georama/*/migrations/**",
-    "tests/**",
-]
-fix = true
-show-fixes = true
-select = [
-    "E",    # pycodestyle
-    "F",    # pyflakes
-    "UP",   # pyupgrade replacement
-    "B",    # bugbear
-    "SIM",  # simplify
-    "I",    # isort
-]
-fixable = ["ALL"]

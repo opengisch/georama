@@ -1,133 +1,46 @@
 services:
   georama:
-    image: georama:dev
     env_file:
       - .env
+    user: "${UID:-1000}:${GID:-1000}"
     build:
       context: .
+      dockerfile: Dockerfile
       target: dev
-    volumes:
-      - ./:/app
-      - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data:ro"
+    develop:
+      watch:
+        - action: rebuild
+          path: uv.lock
+        - action: rebuild
+          path: Dockerfile
+    entrypoint: ["/app/docker/dev.entrypoint.sh"]
     ports:
       - "4242:4242"
+    volumes:
+      - ./:/app
+      - georama-venv:/.venv
+      - georama-static:/georama/static
     depends_on:
       georama-db:
         condition: service_healthy
-      keycloak:
-        condition: service_healthy
 
   georama-db:
-    image: postgis/postgis:14-3.4
+    platform: "${GEORAMA_PG_PLATFORM:-linux/amd64}"
+    image: postgis/postgis:17-3.5
     volumes:
-      - "georama-db_data:/var/lib/postgresql/data"
+      - "georama-db:/var/lib/postgresql/data"
     ports:
-      - "54321:5432"
+      - "5433:5432"
     environment:
-      - "POSTGRES_USER=${GEORAMA_DB_USER:-postgres}"
-      - "POSTGRES_PASSWORD=${GEORAMA_DB_PW:-test}"
-      - "POSTGRES_DB=${GEORAMA_DB_NAME:-postgres}"
+      - "POSTGRES_USER=${GEORAMA_DB_USER?}"
+      - "POSTGRES_PASSWORD=${GEORAMA_DB_PW?}"
+      - "POSTGRES_DB=${GEORAMA_DB_NAME?}"
     healthcheck:
-      test: psql -U ${GEORAMA_DB_USER:-postgres} -d ${GEORAMA_DB_NAME:-postgres} -c 'SELECT PostGIS_Version()'
-      interval: 10s
-      timeout: 2s
-      retries: 5
-  qsl-redis:
-    image: redis:8.6.2
-    ports:
-      - "1234:6379"
-  qsl:
-    restart: unless-stopped
-    image: opengisch/qgis-server-light-dev:latest
-    env_file:
-      - .env
-    environment:
-      - "QSL_REDIS_URL=${QSL_REDIS_URL:-redis://qsl-redis:6379}"
-    volumes:
-      - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data:ro"
-    deploy:
-      replicas: 1
-  qsl-exporter:
-    image: opengisch/qgis-server-light-dev:latest
-    restart: unless-stopped
-    ports:
-      - "5000:5000"
-    command:
-      - "serve-exporter-api-outbound"
-    volumes:
-      - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data"
-  geogirafe:
-    image: geogirafe/viewer:latest
-    volumes:
-      - ./geogirafe/config.json:/var/www/localhost/htdocs/config.json
-      - ./geogirafe/config.mobile.json:/var/www/localhost/htdocs/config.mobile.json
-    ports:
-      - "9309:443"
-      - "9308:80"
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.5
-    environment:
-      KC_HOSTNAME: localhost
-      KC_HOSTNAME_PORT: 7080
-      KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
-      KC_HEALTH_ENABLED: "true"
-      KC_HTTP_MANAGEMENT_SCHEME: http
-      KC_LOG_LEVEL: info
-      KC_DB: postgres
-      KC_DB_URL_DATABASE: keycloak
-      KC_DB_SCHEMA: public
-      KC_DB_URL: jdbc:postgresql://keycloak-db/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: password
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/tls.crt
-      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/tls.key
-      KC_HTTPS_KEY_STORE_FILE: /etc/x509/https/server.keystore
-      KC_HTTPS_KEY_STORE_PASSWORD: changeit
-      KC_HTTPS_KEY_STORE_TYPE: PKCS12
-      KC_HTTPS_TRUST_STORE_FILE: /etc/x509/https/server.truststore
-      KC_HTTPS_TRUST_STORE_PASSWORD: changeit
-      KC_HTTPS_TRUST_STORE_TYPE: JKS
-      KC_HTTPS_MANAGEMENT_CLIENT_AUTH: none
-      X509_CA_BUNDLE: /etc/x509/https/rootCA.crt
-    healthcheck:
-      test: [
-        "CMD-SHELL",
-        "exec 3<>/dev/tcp/localhost/9000; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:9000\r\nConnection: close\r\n\r\n' >&3; if cat <&3 | grep -q UP; then exit 0; else exit 1; fi",
-      ]
-      interval: 15s
-      timeout: 2s
-      retries: 15
-    restart: unless-stopped
-    command: ["start-dev", "--http-port", "7080", "--https-port", "7443", "--import-realm"]
-    ports:
-      - "7080:7080"
-      - "7443:7443"
-    volumes:
-      - ./keycloak/certs/keycloak.crt:/etc/x509/https/tls.crt
-      - ./keycloak/certs/keycloak.key:/etc/x509/https/tls.key
-      - ./keycloak/certs/rootCA.crt:/etc/x509/https/rootCA.crt
-      - ./keycloak/certs/server.truststore:/etc/x509/https/server.truststore
-      - ./keycloak/import:/opt/keycloak/data/import
-    depends_on:
-      keycloak-db:
-        condition: service_healthy
-
-  keycloak-db:
-    image: postgres:14
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
-      interval: 10s
-      timeout: 2s
-      retries: 5
-    volumes:
-      - keycloakdb-data:/var/lib/postgresql/data
-
+      test: psql -U $$POSTGRES_USER -d $$POSTGRES_DB -c 'SELECT PostGIS_Version()'
+      interval: 0.1s
+      timeout: 1s
+      retries: 50
 volumes:
-  georama-db_data:
-  keycloakdb-data:
+  georama-venv:
+  georama-static:
+  georama-db:

@@ -4,26 +4,11 @@
 import os
 import sys
 
-this_file_location = os.path.dirname(os.path.realpath(os.path.abspath(__file__)))
-
-
-def version_msg():
-    """georama version, location and Python version.
-
-    Get message about georama version, location
-    and Python version.
-    """
-    python_version = sys.version[:3]
-    message = "GeoRama %(version)s from {} (Python {})"
-    location = os.path.dirname(this_file_location)
-    return message.format(location, python_version)
-
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "georama.core.settings")
-    os.environ.setdefault("DJANGO_CONFIGURATION", "Dev")
-
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "georama.settings")
+    os.environ.setdefault("DJANGO_CONFIGURATION", "Prod")
     try:
         from configurations.management import execute_from_command_line
     except ImportError as exc:

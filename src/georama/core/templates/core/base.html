@@ -1,0 +1,213 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light" data-theme-default="light">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#262626" media="(prefers-color-scheme: dark)">
+
+    <link rel="icon" type="image/svg+xml" href="{% static 'core/images/favicon.svg' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'core/images/favicon.ico' %}">
+
+    <link rel="stylesheet" href="{% static 'core/css/variables.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/bootstrap.overwrites.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/georama.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'core/css/fontawesome.6.5.2.all.min.css' %}">
+
+    <script src="{% static 'core/js/bootstrap.5.3.8.bundle.min.js' %}"></script>
+
+    <title>Georama – Your Geospatial Data Hub</title>
+
+    {% block extra_head %}{% endblock %}
+
+</head>
+<body>
+
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg bg-body border-bottom sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center"
+               href="/">
+                <img src="{% static 'core/images/main_plain.svg' %}" alt="Georama"
+                     class="d-inline-block align-text-top">
+                <span class="navbar-brand-domain text-nowrap ms-2">{{ site_title }}</span>
+            </a>
+            <button class="navbar-toggler ms-auto" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="menu-main navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item align-content-center">
+                        <a class="nav-link {% if request.path == "" %}fw-bold active{% endif %}"
+                           href="/">Home</a>
+                    </li>
+                    {% for item in menu_items %}
+                        <li class="nav-item align-content-center">
+                            {% url item.app_index as item_index_url %}
+                            <a class="nav-link {% if request.resolver_match.app_name == item.app_label %}fw-bold active{% endif %}"
+                               href="{{ item_index_url }}">
+                                {{ item.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                    {% if request.user.is_staff %}
+                        <li class="nav-item align-content-center">
+                            {% url "settings" as settings_url %}
+                            <a class="nav-link {% if request.path == settings_url %}fw-bold active{% endif %}"
+                               href="{{ settings_url }}">Settings</a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item align-items-center">
+                        <div class="nav-link">
+                            <a id="themeToggle"
+                               class="btn btn-outline-secondary"
+                               role="button"
+                               aria-label="Toggle theme">
+                                <i id="themeIcon" class="bi"></i>
+                            </a>
+                        </div>
+                    </li>
+                    <li class="nav-item align-items-center">
+                        <div class="nav-link ps-0">
+                            {% if user.is_authenticated %}
+                                <a class="btn btn-outline-secondary" href="/logout"
+                                   title="Logout">
+                                    {{ user.username }}
+                                    <i class="fa fa-arrow-right-from-bracket ps-1"></i>
+                                </a>
+                            {% else %}
+                                <a class="btn btn-outline-secondary"
+                                   href="/login">Login</a>
+                            {% endif %}
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+
+<div id="content">
+    <main class="h-100 overflow-auto">
+        <div class="container h-100 d-flex py-2 flex-column">
+
+            <div id="breadcrumb-container"
+                 class="d-flex flex-row justify-content-between align-items-center pb-4">
+                <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                    {% block breadcrumbs %}
+
+                        <!-- breadcrumbs -->
+
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">Home</a>
+                            </li>
+                            {% for breadcrumb in breadcrumbs %}
+                                <li class="breadcrumb-item {% if breadcrumbs|last %}active" aria-current="page{% endif %}">
+                                    {% if breadcrumb.view_name %}
+                                        <a href="{{ breadcrumb.view_name }}">{{ breadcrumb.title }}</a>
+                                    {% else %}
+                                        {{ breadcrumb.title }}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+
+                            <!-- Button as last element of breadcrumbs -->
+
+                            {% if breadcrumb_action_url %}
+                                <li class="breadcrumb-item breadcrumb-action">
+                                    <a
+                                            href="{% url breadcrumb_action_url %}"
+                                            class="btn btn-outline-primary"
+                                            role="button"
+                                            data-bs-toggle="tooltip"
+                                            title="{{ breadcrumb_action_tooltip }}"
+                                            aria-label="{{ breadcrumb_action_tooltip }}"
+                                    >
+                                        {% if breadcrumb_action_icon %}
+                                            <i class="{{ breadcrumb_action_icon }}"></i>
+                                            <span class="ps-1">{{ breadcrumb_action_title }}</span>
+                                        {% else %}
+                                            {{ breadcrumb_action_title }}
+                                        {% endif %}
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                        </ol>
+                    {% endblock %}
+                </nav>
+
+                <!-- Button group on the right side -->
+                {% block list_action_container %}
+                    <nav class="navbar">
+                        <div class="container-fluid">
+                            {% block list_actions %}
+                            {% endblock %}
+                        </div>
+                    </nav>
+                {% endblock %}
+
+            </div>
+
+
+            {% block content %}
+            {% endblock %}
+
+        </div>
+    </main>
+</div>
+
+<footer>
+    <div class="">
+        <hr>
+        <div class="container d-flex">
+            <small class="text-muted ms-auto">
+                &copy; 2026 Georama. Made for geospatial developers.</small>
+
+            <div class="small ms-auto">
+                <a href="https://github.com/opengisch/georama"
+                   target="_blank"
+                   class="">Github</a>
+                ·
+                <a href="https://docs.georama.io"
+                   target="_blank"
+                   class="">Docs</a>
+                ·
+                <a href="https://georama.io"
+                   target="_blank"
+                   class="">About</a>
+            </div>
+        </div>
+
+    </div>
+</footer>
+
+
+<script src="{% static 'core/js/dark-mode-init.js' %}"></script>
+<script src="{% static 'core/js/main.js' %}"></script>
+<script src="{% static 'core/js/dark-mode.js' %}"></script>
+
+
+<script>
+    // Init bootstrap tooltips
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+</script>
+
+
+{% block extrajs %}
+{% endblock %}
+
+</body>
+</html>
