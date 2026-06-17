@@ -146,6 +146,7 @@ Data Integration Gauge
 .gauge-container {
     --gauge-green: var(--georama-green);
     --gauge-orange: #ed7f2c;
+    --gauge-red: #ed2c2c;
     --gauge-gray-light: #b0b0b0;
     --gauge-gray-dark: var(--georama-gray);
     --gauge-height: 180px;
@@ -198,6 +199,7 @@ Data Integration Gauge
 
 .orange { color: var(--gauge-orange); }
 .gray { color: var(--gauge-gray-light); }
+.red { color: var(--gauge-red); }
 
 
 /*

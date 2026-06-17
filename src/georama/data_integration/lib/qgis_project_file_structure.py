@@ -15,6 +15,7 @@ class QgisProject:
     suffix: str
     database_representation: Project | None = None
     config: Config | None = None
+    stale: bool = False
 
     @property
     def qualified_config_name(self) -> str:
@@ -52,7 +53,10 @@ class QgisProject:
 
     @property
     def icon(self) -> str:
-        return "images/qgis.png" if self.database_representation else "images/qgis_grey.png"
+        if self.stale or not self.database_representation:
+            return "images/qgis_grey.png"
+        else:
+            return "images/qgis.png"
 
 
 @dataclass

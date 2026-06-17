@@ -29,7 +29,7 @@
 
                 <div>
                     {% if item.config is None %}
-                        <h4 class="mb-2">{{ item.name }}</h4>
+                        <h4 class="mb-2 {% if item.stale %}text-danger{% endif %}">{{ item.name }}</h4>
                     {% else %}
                         <a href="{% url 'data_integration:project-detail' item.parent.name item.name %}"
                            class="link-offset-3 link-underline link-underline-opacity-75">
@@ -43,7 +43,11 @@
 
                 <div class="align-content-bottom">
                     {% if item.database_representation %}
-                        {% if item.hash == item.database_representation.hash %}
+                        {% if item.stale %}
+                            <span class="badge rounded-pill text-bg-danger"
+                                  title="{{ title }}"
+                                  aria-label="{{ title }}">stale</span>
+                        {% elif item.hash == item.database_representation.hash %}
 
                             {% blocktranslate asvar title%}The QGIS project in Georama has the same state as on disk{% endblocktranslate %}
                             <span class="badge rounded-pill text-bg-primary"
@@ -66,32 +70,34 @@
             <div class="align-content-center ms-auto">
                 <div class="btn-group" role="group" aria-label="Project actions">
 
-                    {% blocktranslate asvar title%}Show QGIS project details and dataset list{% endblocktranslate %}
-                    <a href="{% if item.config %}{% url 'data_integration:project-detail' item.parent.name item.name %}{% else %}#{% endif %}"
-                       class="btn btn-outline-primary{% if item.config is None %} disabled{% endif %}" role="button"
-                       title="{{ title }}"
-                       aria-label="{{ title }}"
-                       data-bs-toggle="tooltip">
-                        <i class="fa fa-eye"></i>
-                    </a>
-
-                    {% if item.database_representation %}
-                        {% blocktranslate asvar title%}Refresh QGIS project in Georama by loading it from disk{% endblocktranslate %}
-                    {% else %}
-                        {% blocktranslate asvar title%}Link QGIS project on disk in Georama{% endblocktranslate %}
-                    {% endif %}
-                    {% if perms.data_integration.edit_project or perms.data_integration.add_project %}
-                        <a onclick="showWaitModalOverlay()"
-                           href="{% url 'data_integration:project-export' item.parent.name item.name %}"
-                           class="btn btn-outline-primary" role="button"
-                           title="{{ title }}"
-                           aria-label="{{ title }}"
-                           data-bs-toggle="tooltip">
-                            <i class="{% if item.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
+                    {% if not item.stale %}
+                        {% blocktranslate asvar title%}Show QGIS project details and dataset list{% endblocktranslate %}
+                        <a href="{% if item.config %}{% url 'data_integration:project-detail' item.parent.name item.name %}{% else %}#{% endif %}"
+                        class="btn btn-outline-primary{% if item.config is None %} disabled{% endif %}" role="button"
+                        title="{{ title }}"
+                        aria-label="{{ title }}"
+                        data-bs-toggle="tooltip">
+                            <i class="fa fa-eye"></i>
                         </a>
-                    {% endif %}
-                    {% blocktranslate asvar title%}Remove QGIS project from Georama by unlinking it{% endblocktranslate %}
 
+                        {% if item.database_representation %}
+                            {% blocktranslate asvar title%}Refresh QGIS project in Georama by loading it from disk{% endblocktranslate %}
+                        {% else %}
+                            {% blocktranslate asvar title%}Link QGIS project on disk in Georama{% endblocktranslate %}
+                        {% endif %}
+                        {% if perms.data_integration.edit_project or perms.data_integration.add_project %}
+                            <a onclick="showWaitModalOverlay()"
+                            href="{% url 'data_integration:project-export' item.parent.name item.name %}"
+                            class="btn btn-outline-primary" role="button"
+                            title="{{ title }}"
+                            aria-label="{{ title }}"
+                            data-bs-toggle="tooltip">
+                                <i class="{% if item.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+                    {% blocktranslate asvar title%}Remove QGIS project from Georama by unlinking it{% endblocktranslate %}
                     {% if perms.data_integration.delete_project %}
                         {% if item.database_representation %}
                             <a href="{% url 'data_integration:project-delete' item.database_representation.pk %}"
