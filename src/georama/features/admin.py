@@ -34,6 +34,12 @@ class ColumnOgcApiFeaturesInline(admin.TabularInline):
     def has_add_permission(self, request, obj):
         return False
 
+    def get_readonly_fields(self, request, obj=...):
+        fields = super().get_readonly_fields(request, obj)
+        if obj and not obj.column_permission:
+            return ("public", *fields)
+        return fields
+
 
 def _get_permissions(obj: PublishedAsOgcApiFeatures, permission_type: str):
     permissions = obj.permissions
