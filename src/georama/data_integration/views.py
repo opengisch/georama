@@ -128,6 +128,8 @@ class ProjectListView(
         model.perm_add(),
         model.perm_delete(),
     ]
+    ordering = ("name",)
+    sortable_by = ("name",)
 
     def get_queryset(self):
         """
