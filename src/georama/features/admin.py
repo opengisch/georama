@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Permission
-from django.forms import BaseInlineFormSet
+from django.forms import ModelForm
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -15,18 +15,16 @@ from georama.features.models import ColumnOgcApiFeatures, PublishedAsOgcApiFeatu
 appname = FeaturesConfig.get_simple_appname()
 
 
-class ColumnOgcApiFeaturesInlineFormset(BaseInlineFormSet):
-    model = ColumnOgcApiFeatures
-    fields = ["name", "title"]
-
-    def add_fields(self, form, index):
-        super().add_fields(form, index)
-        form.fields["public"].label = "Visible"
+class ColumnOgcApiFeaturesInlineForm(ModelForm):
+    class Meta:
+        model = ColumnOgcApiFeatures
+        fields = ["name", "title", "public", "dataset_column"]
+        labels = {"public": _("Visible")}
 
 
 class ColumnOgcApiFeaturesInline(admin.TabularInline):
     model = ColumnOgcApiFeatures
-    formset = ColumnOgcApiFeaturesInlineFormset
+    form = ColumnOgcApiFeaturesInlineForm
     readonly_fields = ["dataset_column"]
     can_delete = False
     extra = 0
