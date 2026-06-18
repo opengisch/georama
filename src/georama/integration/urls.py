@@ -18,8 +18,8 @@ management_router.register(r"collections", CollectionViewSet, basename="collecti
 management_router.register(r"projects", ProjectViewSet, basename="project")
 management_router.register(r"vector_datasets", VectorDatasetViewSet, basename="vector")
 management_router.register(r"vector_dataset_fields", FieldViewSet, basename="field")
-management_router.register(r"raster_dataset", RasterDatasetViewSet, basename="raster")
-management_router.register(r"custom_dataset", CustomDatasetViewSet, basename="custom")
+management_router.register(r"raster_datasets", RasterDatasetViewSet, basename="raster")
+management_router.register(r"custom_datasets", CustomDatasetViewSet, basename="custom")
 
 urlpatterns = [
     path("", Index.as_view()),

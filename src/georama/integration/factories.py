@@ -5,7 +5,6 @@ from faker import Faker
 
 from georama.core.factories import OrganisationFactory
 from georama.integration import models
-from georama.integration.models import field
 
 fake = Faker()
 
@@ -915,7 +914,7 @@ class VectorFactory(DatasetFactory):
 
 class FieldFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = field.Field
+        model = models.Field
         django_get_or_create = ("name", "dataset")
 
     name = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][0])

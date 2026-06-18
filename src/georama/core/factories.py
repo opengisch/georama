@@ -65,7 +65,7 @@ class UserFactory(AdminUserFactory):
     @factory.post_generation
     def password(self, create, extracted, **kwargs):
         if create:
-            self.set_password(self.username)
+            self.set_password(extracted if extracted else self.username)
             self.save()
 
     @factory.post_generation

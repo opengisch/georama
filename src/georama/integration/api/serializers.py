@@ -10,6 +10,7 @@ class CollectionSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "organisation_id",
         ]
         extra_kwargs = {"id": {"read_only": True}}
 

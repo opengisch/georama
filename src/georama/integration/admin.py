@@ -1,67 +1,49 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
 
+from georama.core.common.admin import OrganisationalModelAdmin
 from georama.integration.models import Field
 from georama.integration.models.collection import Collection
 from georama.integration.models.dataset import Custom, Dataset, Raster, Vector
 from georama.integration.models.project import Project
 
 
-@admin.register(Project)
-class ProjectAdmin(ModelAdmin):
-    list_display = ["name", "collection__organisation__name"]
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related("collection__organisation")
-
-
 @admin.register(Collection)
-class CollectionAdmin(ModelAdmin):
+class CollectionAdmin(OrganisationalModelAdmin):
     list_display = ["name", "organisation__name"]
+    prefetch_organisation_related = "organisation"
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related("organisation")
+
+@admin.register(Project)
+class ProjectAdmin(OrganisationalModelAdmin):
+    list_display = ["name", "collection__organisation__name"]
+    prefetch_organisation_related = "collection__organisation"
 
 
 @admin.register(Dataset)
-class DatasetAdmin(ModelAdmin):
+class DatasetAdmin(OrganisationalModelAdmin):
     list_display = ["name", "project__collection__organisation__name"]
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related("project__collection__organisation")
+    prefetch_organisation_related = "project__collection__organisation"
 
 
 @admin.register(Custom)
-class CustomAdmin(ModelAdmin):
+class CustomAdmin(OrganisationalModelAdmin):
     list_display = ["name", "project__collection__organisation__name"]
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related("project__collection__organisation")
+    prefetch_organisation_related = "project__collection__organisation"
 
 
 @admin.register(Raster)
-class RasterAdmin(ModelAdmin):
+class RasterAdmin(OrganisationalModelAdmin):
     list_display = ["name", "project__collection__organisation__name"]
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related("project__collection__organisation")
+    prefetch_organisation_related = "project__collection__organisation"
 
 
 @admin.register(Vector)
-class VectorAdmin(ModelAdmin):
+class VectorAdmin(OrganisationalModelAdmin):
     list_display = ["name", "project__collection__organisation__name"]
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related("project__collection__organisation")
+    prefetch_organisation_related = "project__collection__organisation"
 
 
 @admin.register(Field)
-class FieldAdmin(ModelAdmin):
+class FieldAdmin(OrganisationalModelAdmin):
     list_display = ["name", "dataset__project__collection__organisation__name"]
-
-    def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .prefetch_related("dataset__project__collection__organisation")
-        )
+    prefetch_organisation_related = "dataset__project__collection__organisation"

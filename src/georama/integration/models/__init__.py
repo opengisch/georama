@@ -1,5 +1,6 @@
 from georama.integration.models.collection import Collection
 from georama.integration.models.dataset import Custom, Dataset, Field, Raster, Vector
+from georama.integration.models.meta import Permission
 from georama.integration.models.project import Project
 
 __all__ = [
@@ -10,4 +11,5 @@ __all__ = [
     "Raster",
     "Custom",
     "Dataset",
+    "Permission",
 ]
