@@ -449,4 +449,4 @@ class Test(Base):
         "django.contrib.auth.hashers.MD5PasswordHasher",
     ]
     ALLOWED_HOSTS = Dev.ALLOWED_HOSTS
-    DOMAIN = Dev.ORGANISATION_DOMAIN
+    ORGANISATION_DOMAIN = Dev.ORGANISATION_DOMAIN

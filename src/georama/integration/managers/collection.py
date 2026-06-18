@@ -10,4 +10,4 @@ class CollectionManager(OrganisationalManager):
         Returns:
             the filtered QuerySet
         """
-        return super().get_queryset()
+        return super().get_queryset().prefetch_related("organisation")

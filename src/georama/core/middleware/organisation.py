@@ -54,6 +54,7 @@ class OrganisationMiddleware:
                     return redirect(reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET))
 
             request.georama_organisation = matched_organisation
+            logging.debug("Organisation middleware passed.")
 
         response = self.get_response(request)
 

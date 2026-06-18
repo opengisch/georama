@@ -27,3 +27,11 @@ docker compose exec georama uv run manage
 ```shell
 docker compose exec georama uv run pytest
 ```
+
+```shell
+docker compose exec georama uv run manage create_dev_content_core
+```
+
+```shell
+docker compose exec georama uv run manage create_dev_content_integration
+```

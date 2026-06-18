@@ -9,34 +9,59 @@ from georama.integration.models.project import Project
 
 @admin.register(Project)
 class ProjectAdmin(ModelAdmin):
-    pass
+    list_display = ["name", "collection__organisation__name"]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("collection__organisation")
 
 
 @admin.register(Collection)
 class CollectionAdmin(ModelAdmin):
-    pass
+    list_display = ["name", "organisation__name"]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("organisation")
 
 
 @admin.register(Dataset)
 class DatasetAdmin(ModelAdmin):
-    pass
+    list_display = ["name", "project__collection__organisation__name"]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("project__collection__organisation")
 
 
 @admin.register(Custom)
 class CustomAdmin(ModelAdmin):
-    pass
+    list_display = ["name", "project__collection__organisation__name"]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("project__collection__organisation")
 
 
 @admin.register(Raster)
 class RasterAdmin(ModelAdmin):
-    pass
+    list_display = ["name", "project__collection__organisation__name"]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("project__collection__organisation")
 
 
 @admin.register(Vector)
 class VectorAdmin(ModelAdmin):
-    pass
+    list_display = ["name", "project__collection__organisation__name"]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("project__collection__organisation")
 
 
 @admin.register(Field)
 class FieldAdmin(ModelAdmin):
-    pass
+    list_display = ["name", "dataset__project__collection__organisation__name"]
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .prefetch_related("dataset__project__collection__organisation")
+        )

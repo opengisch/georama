@@ -41,6 +41,7 @@ class MembershipGroupAdmin(ModelAdmin):
 @admin.register(Organisation)
 class OrganisationAdmin(ModelAdmin):
     inlines = [MembershipInlineAdmin]
+    list_display = ["name", "public_access"]
 
 
 @admin.register(Fence)

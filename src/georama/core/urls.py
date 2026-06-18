@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 
 from georama.core.api import views
 from georama.core.api.routers import GeoramaAdminRouter
@@ -26,6 +26,7 @@ urlpatterns = [
     path("", Index.as_view(), name="index"),
     path("login", auth.Login.as_view(), name="login"),
     path("logout", auth.Logout.as_view(), name="logout"),
+    path("manage/", include(management_router.urls)),
     path(
         "manage/schema/",
         views.GeoramaAdminSchemaView.as_view(urlconf=management_router.urls),
