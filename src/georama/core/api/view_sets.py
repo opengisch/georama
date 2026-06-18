@@ -3,12 +3,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, viewsets
 
 from georama.core.api.serializers import (
-    FenceSchema,
-    GroupSchema,
-    MembershipSchema,
-    OrganisationSchema,
-    PermissionSchema,
-    UserSchema,
+    FenceSerializer,
+    GroupSerializer,
+    MembershipSerializer,
+    OrganisationSerializer,
+    PermissionSerializer,
+    UserSerializer,
 )
 from georama.core.models import Fence, GeoramaUser, Membership, Organisation
 
@@ -16,7 +16,7 @@ from georama.core.models import Fence, GeoramaUser, Membership, Organisation
 class MembershipViewSet(viewsets.ModelViewSet):
     queryset = Membership.objects.all()
     permission_classes = [permissions.IsAdminUser]
-    serializer_class = MembershipSchema
+    serializer_class = MembershipSerializer
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -30,7 +30,7 @@ class MembershipViewSet(viewsets.ModelViewSet):
 class FenceViewSet(viewsets.ModelViewSet):
     queryset = Fence.objects.all()
     permission_classes = [permissions.IsAdminUser]
-    serializer_class = FenceSchema
+    serializer_class = FenceSerializer
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -46,7 +46,7 @@ class FenceViewSet(viewsets.ModelViewSet):
 class OrganisationViewSet(viewsets.ModelViewSet):
     queryset = Organisation.objects.all()
     permission_classes = [permissions.IsAdminUser]
-    serializer_class = OrganisationSchema
+    serializer_class = OrganisationSerializer
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -60,7 +60,7 @@ class OrganisationViewSet(viewsets.ModelViewSet):
 class PermissionViewSet(viewsets.ModelViewSet):
     queryset = Permission.objects.all()
     permission_classes = [permissions.IsAdminUser]
-    serializer_class = PermissionSchema
+    serializer_class = PermissionSerializer
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -74,7 +74,7 @@ class PermissionViewSet(viewsets.ModelViewSet):
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     permission_classes = [permissions.IsAdminUser, permissions.IsAuthenticated]
-    serializer_class = GroupSchema
+    serializer_class = GroupSerializer
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -90,7 +90,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = GeoramaUser.objects.all()
     permission_classes = [permissions.IsAdminUser]
-    serializer_class = UserSchema
+    serializer_class = UserSerializer
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,

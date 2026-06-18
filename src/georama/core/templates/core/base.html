@@ -34,7 +34,9 @@
                href="/">
                 <img src="{% static 'core/images/main_plain.svg' %}" alt="Georama"
                      class="d-inline-block align-text-top">
-                <span class="navbar-brand-domain text-nowrap ms-2">{{ site_title }}</span>
+                <span class="navbar-brand-domain text-nowrap ms-2">{{ site_title }}
+                        {% if request.georama_organisation %}
+                            {{ request.georama_organisation.name }}{% endif %}</span>
             </a>
             <button class="navbar-toggler ms-auto" type="button"
                     data-bs-toggle="collapse"
@@ -79,14 +81,18 @@
                     <li class="nav-item align-items-center">
                         <div class="nav-link ps-0">
                             {% if user.is_authenticated %}
-                                <a class="btn btn-outline-secondary" href="/logout"
-                                   title="Logout">
-                                    {{ user.username }}
-                                    <i class="fa fa-arrow-right-from-bracket ps-1"></i>
-                                </a>
+                                <form action="{% url 'account_logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button title="Logout"
+                                            class="btn btn-outline-secondary"
+                                            type="submit">
+                                        {{ user.username }}
+                                        <i class="fa fa-arrow-right-from-bracket ps-1"></i>
+                                    </button>
+                                </form>
                             {% else %}
                                 <a class="btn btn-outline-secondary"
-                                   href="/login">Login</a>
+                                   href="{% url 'account_login' %}">Login</a>
                             {% endif %}
                         </div>
                     </li>

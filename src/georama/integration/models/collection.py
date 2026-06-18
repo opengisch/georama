@@ -11,12 +11,17 @@ class Collection(models.Model):
     class Meta:
         verbose_name = _("collection")
         verbose_name_plural = _("collections")
+        unique_together = (
+            "name",
+            "organisation",
+        )
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the collection.")
+        primary_key=True, default=uuid.uuid4,
+        help_text=_("Identifier of the collection.")
     )
     name = models.CharField(
-        max_length=1000, unique=True, help_text=_("Unique name of the collection.")
+        max_length=1000, help_text=_("Unique name of the collection.")
     )
     organisation = models.ForeignKey(
         Organisation,

@@ -21,6 +21,7 @@ dependencies = [
     "djangorestframework>=3.17.1",
     "drf-spectacular[sidecar]>=0.29.0",
     "djangorestframework-gis>=1.2.1",
+    "django-allauth[socialaccount]>=65.18.0",
 ]
 
 [project.scripts]

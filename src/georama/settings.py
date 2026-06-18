@@ -17,11 +17,14 @@ from configurations import Configuration, values
 from corsheaders.defaults import default_headers
 from django.utils.translation import gettext_lazy as _
 
+LIST_ENV_SEPARATOR = " "
+GEORAMA_ENV_PREFIX = "GEORAMA"
+
 
 class Base(Configuration):
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR = Path(__file__).resolve().parent.parent.parent
-    STATIC_ROOT = values.Value(BASE_DIR / ".static", environ_prefix="GEORAMA")
+    STATIC_ROOT = values.Value(BASE_DIR / ".static", environ_prefix=GEORAMA_ENV_PREFIX)
 
     # Quick-start development settings - unsuitable for production
     # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -30,23 +33,23 @@ class Base(Configuration):
     SECRET_KEY = values.SecretValue()
 
     # https://docs.djangoproject.com/en/6.0/ref/settings/#std-setting-ALLOWED_HOSTS
-    ALLOWED_HOSTS = values.ListValue([], separator=" ")
+    ALLOWED_HOSTS = values.ListValue([], separator=LIST_ENV_SEPARATOR)
 
     # https://docs.djangoproject.com/en/6.0/ref/settings/#std-setting-CSRF_TRUSTED_ORIGINS
     CSRF_TRUSTED_ORIGINS = values.ListValue(
         ["http://localhost:4242"],
-        separator=" ",
+        separator=LIST_ENV_SEPARATOR,
     )
 
     # https://github.com/adamchainz/django-cors-headers#cors_allowed_origins-sequencestr
     CORS_ALLOWED_ORIGINS = values.ListValue(
         ["https://localhost:9309"],
-        separator=" ",
-        environ_prefix="GEORAMA",
+        separator=LIST_ENV_SEPARATOR,
+        environ_prefix=GEORAMA_ENV_PREFIX,
     )
     CORS_ALLOW_CREDENTIALS = values.BooleanValue(
         True,
-        environ_prefix="GEORAMA",
+        environ_prefix=GEORAMA_ENV_PREFIX,
     )
     CORS_ALLOW_METHODS = values.ListValue(
         [
@@ -58,16 +61,16 @@ class Base(Configuration):
             "POST",
             "PUT",
         ],
-        separator=" ",
-        environ_prefix="GEORAMA",
+        separator=LIST_ENV_SEPARATOR,
+        environ_prefix=GEORAMA_ENV_PREFIX,
     )
     CORS_ALLOW_HEADERS = values.ListValue(
         [
             *default_headers,
             "content-crs",
         ],
-        separator=" ",
-        environ_prefix="GEORAMA",
+        separator=LIST_ENV_SEPARATOR,
+        environ_prefix=GEORAMA_ENV_PREFIX,
     )
 
     # Proxy "X-Forwarded-..." headers
@@ -163,6 +166,10 @@ class Base(Configuration):
         "guardian",
         "georama.core.apps.CoreConfig",
         "georama.integration.apps.IntegrationConfig",
+        "allauth",
+        "allauth.account",
+        "allauth.socialaccount",
+        "allauth.socialaccount.providers.openid_connect",
     ]
 
     MIDDLEWARE = [
@@ -171,9 +178,11 @@ class Base(Configuration):
         "corsheaders.middleware.CorsMiddleware",
         "django.middleware.common.CommonMiddleware",
         "django.middleware.locale.LocaleMiddleware",
+        "django.middleware.csrf.CsrfViewMiddleware",
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        "allauth.account.middleware.AccountMiddleware",
         "georama.core.middleware.organisation.OrganisationMiddleware",
     ]
 
@@ -206,17 +215,19 @@ class Base(Configuration):
     # Database
     # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-    DB_NAME = values.Value(environ_prefix="GEORAMA")
-    DB_ENGINE = values.Value("django.contrib.gis.db.backends.postgis", environ_prefix="GEORAMA")
-    DB_USER = values.Value(environ_prefix="GEORAMA")
-    DB_PW = values.Value(environ_prefix="GEORAMA")
-    DB_HOST = values.Value(environ_prefix="GEORAMA")
-    DB_PORT = values.Value(environ_prefix="GEORAMA")
+    DB_NAME = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_ENGINE = values.Value(
+        "django.contrib.gis.db.backends.postgis", environ_prefix=GEORAMA_ENV_PREFIX
+    )
+    DB_USER = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_PW = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_HOST = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_PORT = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
     DB_OPTIONS = values.DictValue(
         {
             "pool": True,
         },
-        environ_prefix="GEORAMA",
+        environ_prefix=GEORAMA_ENV_PREFIX,
     )
 
     @property
@@ -317,14 +328,30 @@ class Base(Configuration):
         "URL_FORMAT_OVERRIDE": "f",
     }
 
+    LOGIN_REDIRECT_URL = "core:index"
+
     ###########################
     # Georama specific settings
     ###########################
     # the domain georama runs-this is be used for deriving the organisation
-    DOMAIN = values.Value(environ_prefix="GEORAMA")
-    QGIS_EXPORTER_UNIFY_LAYER_NAMES_BY_GROUP = values.BooleanValue(True, environ_prefix="GEORAMA")
-    WEBGISURL = values.Value(environ_prefix="GEORAMA")
-    SITE_TITLE = values.Value("Georama", environ_prefix="GEORAMA")
+    # if georama runs already below a subdomain, you need to include it in this setting
+    # e.g. sub.example.com or sub.sub.example.com
+    ORGANISATION_DOMAIN = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    QGIS_EXPORTER_UNIFY_LAYER_NAMES_BY_GROUP = values.BooleanValue(
+        True, environ_prefix=GEORAMA_ENV_PREFIX
+    )
+    WEBGISURL = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    SITE_TITLE = values.Value("Georama", environ_prefix=GEORAMA_ENV_PREFIX)
+
+    ORGANISATION_GLOBAL_PUBLIC_ACCESS = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+    ORGANISATION_NOT_AUTHENTICATED_TARGET = values.Value(
+        "core:login", environ_prefix=GEORAMA_ENV_PREFIX
+    )
+    ORGANISATION_GLOBAL_PUBLIC_ACCESS_BYPASS_TARGETS = values.ListValue(
+        [],
+        environ_prefix=GEORAMA_ENV_PREFIX,
+        separator=LIST_ENV_SEPARATOR,
+    )
 
 
 class Dev(Base):
@@ -350,8 +377,8 @@ class Dev(Base):
             # convenience hostnames used by developers can be added here
             "georama.local",
         ],
-        separator=" ",
-        environ_prefix="GEORAMA",
+        separator=LIST_ENV_SEPARATOR,
+        environ_prefix=GEORAMA_ENV_PREFIX,
     )
 
     # https://docs.djangoproject.com/en/6.0/ref/settings/#std-setting-CSRF_TRUSTED_ORIGINS
@@ -365,7 +392,7 @@ class Dev(Base):
             # convenience GG hostnames used by developers can be added here
             "http://geogirafe.local",
         ],
-        separator=" ",
+        separator=LIST_ENV_SEPARATOR,
     )
 
     # https://github.com/adamchainz/django-cors-headers#cors_allowed_origins-sequencestr
@@ -378,7 +405,7 @@ class Dev(Base):
             # convenience GG hostnames used by developers can be added here
             "http://geogirafe.local",
         ],
-        separator=" ",
+        separator=LIST_ENV_SEPARATOR,
     )
 
     INSTALLED_APPS = Base.INSTALLED_APPS + [
@@ -392,11 +419,11 @@ class Dev(Base):
 
     GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
         ["BASIC_HTTP"],
-        separator=" ",
+        separator=LIST_ENV_SEPARATOR,
         environ_prefix=None,
     )
 
-    DOMAIN = "localhost"
+    ORGANISATION_DOMAIN = "localhost"
 
 
 class Prod(Base):
@@ -416,4 +443,4 @@ class Test(Base):
         "django.contrib.auth.hashers.MD5PasswordHasher",
     ]
     ALLOWED_HOSTS = Dev.ALLOWED_HOSTS
-    DOMAIN = Dev.DOMAIN
+    DOMAIN = Dev.ORGANISATION_DOMAIN

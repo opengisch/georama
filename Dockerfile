@@ -5,7 +5,7 @@ LABEL org.opencontainers.image.vendor="opengis.ch"
 LABEL org.opencontainers.image.title="Georama Base Image"
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y binutils libproj-dev gdal-bin
+RUN apt-get update && apt-get install -y binutils libproj-dev gdal-bin gettext
 
 FROM base AS dev
 

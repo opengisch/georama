@@ -5,7 +5,7 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from georama.core.models import Fence, GeoramaUser, Membership, Organisation
 
 
-class PermissionSchema(serializers.ModelSerializer):
+class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Permission
         fields = [
@@ -14,9 +14,10 @@ class PermissionSchema(serializers.ModelSerializer):
             "codename",
             "content_type",
         ]
+        extra_kwargs = {"id": {"read_only": True}}
 
 
-class GroupSchema(serializers.ModelSerializer):
+class GroupSerializer(serializers.ModelSerializer):
     permissions = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Permission.objects.all(),
@@ -29,9 +30,10 @@ class GroupSchema(serializers.ModelSerializer):
             "name",
             "permissions",
         ]
+        extra_kwargs = {"id": {"read_only": True}}
 
 
-class UserSchema(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     groups = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Group.objects.all(),
@@ -63,9 +65,10 @@ class UserSchema(serializers.ModelSerializer):
             "user_permissions",
             "memberships",
         ]
+        extra_kwargs = {"id": {"read_only": True}}
 
 
-class OrganisationSchema(serializers.ModelSerializer):
+class OrganisationSerializer(serializers.ModelSerializer):
     fences = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Fence.objects.all(),
@@ -84,9 +87,10 @@ class OrganisationSchema(serializers.ModelSerializer):
             "fences",
             "memberships",
         ]
+        extra_kwargs = {"id": {"read_only": True}}
 
 
-class FenceSchema(GeoFeatureModelSerializer):
+class FenceSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Fence
         geo_field = "geometry"
@@ -95,9 +99,10 @@ class FenceSchema(GeoFeatureModelSerializer):
             "name",
             "organisation_id",
         ]
+        extra_kwargs = {"id": {"read_only": True}}
 
 
-class MembershipSchema(serializers.ModelSerializer):
+class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
         fields = [
@@ -105,3 +110,4 @@ class MembershipSchema(serializers.ModelSerializer):
             "user_id",
             "organisation_id",
         ]
+        extra_kwargs = {"id": {"read_only": True}}

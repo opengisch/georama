@@ -2,6 +2,9 @@ import logging
 
 from django.conf import settings
 from django.http import HttpResponseForbidden, HttpResponseNotFound
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from georama.core.models.organisation import Organisation
 
@@ -11,20 +14,42 @@ class OrganisationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        hostname = self.remove_www(request.get_host().split(":")[0])
-        subdomains = self.derive_subdomain(hostname, settings.DOMAIN)
-        print(hostname)
-        print(subdomains)
-        if subdomains is None:
-            request.georama_organisation = None
-        else:
-            try:
-                organisation = Organisation.objects.get(domain=subdomains)
-            except Organisation.DoesNotExist:
-                return HttpResponseNotFound()
-            if not organisation.public_access and not request.user.is_authenticated:
-                return HttpResponseForbidden()
-            request.georama_organisation = organisation
+        if request.path_info not in [
+            reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET),
+        ]:
+            # removing the maybe existing www part of the domain and getting rid of ports
+            hostname = self.remove_www(request.get_host().split(":")[0])
+            # deriving subdomains which distinguish the organisation
+            subdomains = self.derive_subdomain(hostname, settings.DOMAIN)
+            if subdomains is None:
+                logging.debug("Request for global organisation")
+                matched_organisation = None
+                public_access = settings.GLOBAL_ORG_PUBLIC_ACCESS
+            else:
+                try:
+                    logging.debug(f"Request for dedicated organisation. Domain: {subdomains}")
+                    matched_organisation = Organisation.objects.get(domain=subdomains)
+                    public_access = matched_organisation.public_access
+                except Organisation.DoesNotExist:
+                    logging.debug(f"Organisation not found in database. Domain: {subdomains}")
+                    return HttpResponseNotFound(_("Not found"))
+            logging.debug(f"Organisation offers public access: {public_access}")
+            if not public_access:
+                if request.user.is_authenticated:
+                    if not any(
+                        matched_organisation == membership.organisation
+                        for membership in request.user.memberships
+                    ):
+                        logging.debug("user has no membership of the requested organisation")
+                        return HttpResponseForbidden(_("No Access"))
+                else:
+                    logging.debug(
+                        f"User was not authenticated, "
+                        f"forwarding to {settings.ORGANISATION_NOT_AUTHENTICATED_TARGET}"
+                    )
+                    return redirect(reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET))
+
+            request.georama_organisation = matched_organisation
 
         response = self.get_response(request)
 

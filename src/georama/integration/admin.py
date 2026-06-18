@@ -1,8 +1,9 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 
+from georama.integration.models import Field
 from georama.integration.models.collection import Collection
-from georama.integration.models.dataset import Custom, Dataset, Field, Raster, Vector
+from georama.integration.models.dataset import Custom, Dataset, Raster, Vector
 from georama.integration.models.project import Project
 
 
