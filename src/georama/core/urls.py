@@ -10,6 +10,7 @@ from georama.core.api.view_sets import (
     PermissionViewSet,
     UserViewSet,
 )
+from georama.core.views import auth
 from georama.core.views.index import Index
 
 app_name = "core"
@@ -23,6 +24,8 @@ management_router.register(r"fences", FenceViewSet)
 management_router.register(r"memberships", MembershipViewSet)
 urlpatterns = [
     path("", Index.as_view(), name="index"),
+    path("login", auth.Login.as_view(), name="login"),
+    path("logout", auth.Logout.as_view(), name="logout"),
     path(
         "manage/schema/",
         views.GeoramaAdminSchemaView.as_view(urlconf=management_router.urls),

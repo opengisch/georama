@@ -14,17 +14,21 @@ class OrganisationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.path_info not in [
-            reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET),
-        ]:
+        if (
+            request.path_info
+            not in [
+                reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET),
+            ]
+            + settings.ORGANISATION_GLOBAL_PUBLIC_ACCESS_BYPASS_TARGETS
+        ):
             # removing the maybe existing www part of the domain and getting rid of ports
             hostname = self.remove_www(request.get_host().split(":")[0])
             # deriving subdomains which distinguish the organisation
-            subdomains = self.derive_subdomain(hostname, settings.DOMAIN)
+            subdomains = self.derive_subdomain(hostname, settings.ORGANISATION_DOMAIN)
             if subdomains is None:
                 logging.debug("Request for global organisation")
                 matched_organisation = None
-                public_access = settings.GLOBAL_ORG_PUBLIC_ACCESS
+                public_access = settings.ORGANISATION_GLOBAL_PUBLIC_ACCESS
             else:
                 try:
                     logging.debug(f"Request for dedicated organisation. Domain: {subdomains}")

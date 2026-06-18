@@ -333,20 +333,26 @@ class Base(Configuration):
     ###########################
     # Georama specific settings
     ###########################
-    # the domain georama runs-this is be used for deriving the organisation
-    # if georama runs already below a subdomain, you need to include it in this setting
-    # e.g. sub.example.com or sub.sub.example.com
-    ORGANISATION_DOMAIN = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+
     QGIS_EXPORTER_UNIFY_LAYER_NAMES_BY_GROUP = values.BooleanValue(
         True, environ_prefix=GEORAMA_ENV_PREFIX
     )
     WEBGISURL = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
     SITE_TITLE = values.Value("Georama", environ_prefix=GEORAMA_ENV_PREFIX)
 
+    # the domain georama runs-this is be used for deriving the organisation
+    # if georama runs already below a subdomain, you need to include it in this setting
+    # e.g. sub.example.com or sub.sub.example.com
+    ORGANISATION_DOMAIN = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    # Allow public access on the global application or not
     ORGANISATION_GLOBAL_PUBLIC_ACCESS = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+    # view name which should be used to redirect to, when someone tries to
+    # access nonpublic organisation unauthenticated
     ORGANISATION_NOT_AUTHENTICATED_TARGET = values.Value(
         "core:login", environ_prefix=GEORAMA_ENV_PREFIX
     )
+    # view names which should be accessable without middleware handling
+    # use this with CAUTION because it might expose data unwanted!
     ORGANISATION_GLOBAL_PUBLIC_ACCESS_BYPASS_TARGETS = values.ListValue(
         [],
         environ_prefix=GEORAMA_ENV_PREFIX,
