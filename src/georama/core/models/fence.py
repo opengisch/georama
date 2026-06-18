@@ -13,10 +13,17 @@ class Fence(models.Model):
         verbose_name = _("fence")
         verbose_name_plural = _("fences")
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    name = models.CharField()
-    geometry = MultiPolygonField()
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the fence.")
+    )
+    name = models.CharField(help_text=_("Name of the fence."))
+    geometry = MultiPolygonField(help_text=_("Geographic boundary of the fence."))
     organisation = models.ForeignKey(
-        Organisation, null=True, blank=True, on_delete=models.CASCADE, related_name="fences"
+        Organisation,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="fences",
+        help_text=_("Organisation the fence belongs to."),
     )
     objects = FenceManager()

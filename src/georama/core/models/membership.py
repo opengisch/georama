@@ -17,10 +17,22 @@ class Membership(models.Model):
             "user",
         )
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    user = models.ForeignKey(GeoramaUser, on_delete=models.CASCADE, related_name="memberships")
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the membership.")
+    )
+    user = models.ForeignKey(
+        GeoramaUser,
+        on_delete=models.CASCADE,
+        related_name="memberships",
+        help_text=_("User associated with the membership."),
+    )
     organisation = models.ForeignKey(
-        Organisation, on_delete=models.CASCADE, blank=True, null=True, related_name="memberships"
+        Organisation,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="memberships",
+        help_text=_("Organisation associated with the membership."),
     )
 
     objects = MembershipManager()

@@ -16,20 +16,40 @@ class Dataset(models.Model):
             "project",
         )
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    qgis_layer_id = models.CharField(max_length=1000)
-    name = models.CharField(max_length=1000)
-    bbox = models.CharField(max_length=1000)
-    bbox_wgs84 = models.CharField(max_length=1000)
-    source = models.JSONField(default=dict)
-    styles = models.JSONField(default=dict)
-    driver = models.CharField(max_length=50)
-    crs = models.JSONField(default=dict)
-    minimum_scale = models.FloatField(null=True)
-    maximum_scale = models.FloatField(null=True)
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the dataset.")
+    )
+    qgis_layer_id = models.CharField(
+        max_length=1000, help_text=_("Layer identifier from the source QGIS project.")
+    )
+    name = models.CharField(max_length=1000, help_text=_("Name of the dataset."))
+    bbox = models.CharField(
+        max_length=1000,
+        help_text=_("Bounding box of the dataset in the source coordinate reference system."),
+    )
+    bbox_wgs84 = models.CharField(
+        max_length=1000, help_text=_("Bounding box of the dataset transformed to WGS84.")
+    )
+    source = models.JSONField(
+        default=dict, help_text=_("Source configuration and connection metadata of the dataset.")
+    )
+    styles = models.JSONField(
+        default=dict, help_text=_("Rendered style definitions associated with this dataset.")
+    )
+    driver = models.CharField(
+        max_length=50, help_text=_("Provider driver name used to access the dataset.")
+    )
+    crs = models.JSONField(default=dict, help_text=_("Coordinate reference system of the dataset."))
+    minimum_scale = models.FloatField(
+        null=True, help_text=_("Minimum scale at which the dataset is visible.")
+    )
+    maximum_scale = models.FloatField(
+        null=True, help_text=_("Maximum scale at which the dataset is visible.")
+    )
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
+        help_text=_("Project the dataset belongs to."),
     )
 
     objects = DatasetManager()
@@ -45,8 +65,13 @@ class Vector(Dataset):
 
     objects = VectorManager()
 
-    geometry_type_simple = models.CharField(max_length=1000)
-    geometry_type_wkb = models.CharField(max_length=1000)
+    geometry_type_simple = models.CharField(
+        max_length=1000,
+        help_text=_("Simplified geometry type of the vector dataset (eg. point, line, polygon)."),
+    )
+    geometry_type_wkb = models.CharField(
+        max_length=1000, help_text=_("Geometry type of the vector dataset.")
+    )
 
 
 class Field(models.Model):
@@ -58,21 +83,36 @@ class Field(models.Model):
         verbose_name = _("field")
         verbose_name_plural = _("fields")
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    name = models.CharField(max_length=1000)
-    type = models.CharField(max_length=1000)
-    is_primary_key = models.BooleanField(default=False)
-    type_wfs = models.CharField(max_length=1000)
-    type_oapif = models.CharField(max_length=1000)
-    type_oapif_format = models.CharField(max_length=1000)
-    alias = models.CharField(max_length=1000)
-    comment = models.CharField(max_length=1000)
-    nullable = models.BooleanField(default=True)
-    length = models.IntegerField(null=True)
-    precision = models.IntegerField(null=True)
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the field.")
+    )
+    name = models.CharField(
+        max_length=1000, help_text=_("Original field name from the source dataset.")
+    )
+    type = models.CharField(
+        max_length=1000, help_text=_("Original data type from the source dataset.")
+    )
+    is_primary_key = models.BooleanField(
+        default=False, help_text=_("Whether this field is the dataset primary key.")
+    )
+    type_wfs = models.CharField(max_length=1000, help_text=_("Field datatype exposed through WFS."))
+    type_oapif = models.CharField(
+        max_length=1000, help_text=_("Field datatype exposed through OGC API Features.")
+    )
+    type_oapif_format = models.CharField(
+        max_length=1000, help_text=_("Output format for the OGC API Features field type.")
+    )
+    alias = models.CharField(max_length=1000, help_text=_("Human-readable field label."))
+    comment = models.CharField(max_length=1000, help_text=_("Comment or description of the field."))
+    nullable = models.BooleanField(
+        default=True, help_text=_("Whether this field can store null values.")
+    )
+    length = models.IntegerField(null=True, help_text=_("...."))
+    precision = models.IntegerField(null=True, help_text=_("Numeric precision."))
     dataset = models.ForeignKey(
         Vector,
         on_delete=models.CASCADE,
+        help_text=_("Vector dataset this field belongs to."),
     )
 
     def __str__(self):

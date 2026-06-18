@@ -1,6 +1,5 @@
 import uuid
 
-from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -13,22 +12,21 @@ class Project(models.Model):
         verbose_name = _("project")
         verbose_name_plural = _("projects")
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    name = models.CharField(max_length=1000)
-    version = models.CharField(max_length=1000, blank=True)
-    hash = models.CharField(max_length=20000, blank=True)
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the project.")
+    )
+    name = models.CharField(max_length=1000, help_text=_("Name of the project."))
+    qgis_version = models.CharField(
+        max_length=1000, blank=True, help_text=_("QGIS version the project was created with.")
+    )
+    hash = models.CharField(
+        max_length=20000, blank=True, help_text=_("Hash used to detect changes in project content.")
+    )
     collection = models.ForeignKey(
         Collection,
         on_delete=models.CASCADE,
+        help_text=_("Collection this project belongs to actually."),
     )
-    integrated_at = models.DateTimeField(auto_now=True)
-    integrated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        editable=False,
-        null=True,
-        on_delete=models.SET_NULL,
-    )
-    integrated_by_name = models.CharField(max_length=150, null=False, editable=False)
 
     objects = ProjectManager()
 

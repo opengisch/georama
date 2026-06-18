@@ -11,4 +11,8 @@ class GeoramaUser(AbstractUser, GuardianUserMixin):
         verbose_name = _("user")
         verbose_name_plural = _("users")
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the user."),
+    )

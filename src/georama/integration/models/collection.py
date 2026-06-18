@@ -12,9 +12,19 @@ class Collection(models.Model):
         verbose_name = _("collection")
         verbose_name_plural = _("collections")
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    name = models.CharField(max_length=1000, unique=True)
-    organisation = models.ForeignKey(Organisation, null=True, blank=True, on_delete=models.CASCADE)
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the collection.")
+    )
+    name = models.CharField(
+        max_length=1000, unique=True, help_text=_("Unique name of the collection.")
+    )
+    organisation = models.ForeignKey(
+        Organisation,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        help_text=_("Organisation that owns this collection."),
+    )
 
     objects = CollectionManager()
 
