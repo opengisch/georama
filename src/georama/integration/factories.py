@@ -869,7 +869,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ("name", "collection")
 
     name = factory.Faker("word")
-    version = "Qgis 3.44"
+    qgis_version = "Qgis 3.44"
     hash = factory.Faker("md5")
     collection = factory.SubFactory(CollectionFactory)
 
