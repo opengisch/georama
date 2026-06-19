@@ -24,6 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("georama.core.urls")),
     path("integration/", include("georama.integration.urls")),
+    path("accounts/", include("allauth.urls")),
 ]
 
 if AppSettings.DEBUG:

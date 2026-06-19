@@ -191,6 +191,37 @@ class Base(Configuration):
         "guardian.backends.ObjectPermissionBackend",
     )
 
+    # Django allauth's social account configuration
+    # https://docs.allauth.org/en/dev/socialaccount/configuration.html
+    SOCIALACCOUNT_QUERY_EMAIL = True
+    SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+    SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+    SOCIALACCOUNT_LOGIN_ON_GET = True
+
+    OIDC_NAME = values.Value("Keycloak", environ_prefix="GEORAMA")
+    OIDC_SERVER_URL = values.Value(environ_prefix="GEORAMA")
+    OIDC_CLIENT_ID = values.Value("georama-oidc", environ_prefix="GEORAMA")
+    OIDC_OAUTH_PKCE_ENABLED = values.BooleanValue(True, environ_prefix="GEORAMA")
+    OIDC_SECRET = values.Value("secret", environ_prefix="GEORAMA")
+    OIDC_PROVIDER_ID = values.Value("keycloak", environ_prefix="GEORAMA")
+
+    @property
+    def SOCIALACCOUNT_PROVIDERS(self):
+        return {
+            "openid_connect": {
+                "OAUTH_PKCE_ENABLED": self.OIDC_OAUTH_PKCE_ENABLED,
+                "APP": {
+                    "provider_id": self.OIDC_PROVIDER_ID,
+                    "name": self.OIDC_NAME,
+                    "client_id": self.OIDC_CLIENT_ID,
+                    "secret": self.OIDC_SECRET,
+                    "settings": {
+                        "server_url": self.OIDC_SERVER_URL,
+                    },
+                },
+            },
+        }
+
     ROOT_URLCONF = "georama.urls"
 
     TEMPLATES = [

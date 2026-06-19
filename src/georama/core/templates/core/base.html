@@ -81,12 +81,14 @@
                     <li class="nav-item align-items-center">
                         <div class="nav-link ps-0">
                             {% if user.is_authenticated %}
-                                <a href="{% url 'core:logout' %}" title="Logout"
-                                   class="btn btn-outline-secondary"
-                                   type="submit">
-                                    {{ user.username }}
-                                    <i class="fa fa-arrow-right-from-bracket ps-1"></i>
-                                </a>
+                                <form method="post" action="{% url 'core:logout' %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" title="Logout"
+                                       class="btn btn-outline-secondary">
+                                        {{ user.username }}
+                                        <i class="fa fa-arrow-right-from-bracket ps-1"></i>
+                                    </button>
+                                </form>
                             {% else %}
                                 <a class="btn btn-outline-secondary"
                                    href="{% url 'core:login' %}">Login</a>

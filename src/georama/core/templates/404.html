@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Not Found</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <section class="row justify-content-center py-5">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4 p-md-5 text-center">
+                    <div class="text-danger fw-bold display-3 mb-2">404</div>
+                    <h1 class="h4 mb-2">Page not found</h1>
+                    <p class="text-muted mb-4">
+                        The page may have moved or the URL may be incorrect.
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a href="/" class="btn btn-outline-secondary">Back to Home</a>
+                        <button type="button" class="btn btn-outline-primary" onclick="history.back()">Go Back</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

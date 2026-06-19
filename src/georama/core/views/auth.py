@@ -1,25 +1,10 @@
-from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import redirect
-from django.template.response import TemplateResponse
-from django.views import View
+from django.contrib.auth.views import LoginView, LogoutView
 
 
-class Login(View):
-    def get(self, request, *args, **kwargs):
-        return TemplateResponse(request, "admin/login.html")
-
-    def post(self, request, *args, **kwargs):
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect("core:index")
-        else:
-            return redirect("core:login")
+class Login(LoginView):
+    template_name = "core/login.html"
+    next_page = "core:index"
 
 
-class Logout(View):
-    def get(self, request, *args, **kwargs):
-        logout(request)
-        return redirect("core:index")
+class Logout(LogoutView):
+    next_page = "core:index"
