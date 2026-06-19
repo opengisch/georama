@@ -7,11 +7,14 @@ class GeoramaUserListView(GeoramaPrincipalListView):
     model = User
     template_name = "core/user.html"
 
+    ordering = ("username",)
+    sortable_by = ("username",)
+
     def get_queryset(self):
         return (
-            self.model.objects.exclude(
-                user_permissions__codename__icontains=str(self.kwargs.get("pk"))
-            )
+            super()
+            .get_queryset()
+            .exclude(user_permissions__codename__icontains=str(self.kwargs.get("pk")))
             .exclude(pk=None)
             .filter(is_superuser=False)
         )

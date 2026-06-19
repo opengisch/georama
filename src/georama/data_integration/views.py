@@ -137,7 +137,20 @@ class ProjectListView(
         Returns:
             The list of QGIS projects on the file system.
         """
-        return FSService().get_list()
+        projects = FSService().get_list()
+        ordering = self.get_ordering()
+        if not ordering:
+            return projects
+        # We can only really easily sort over one key
+        ordering = ordering[0]
+        if ordering.startswith("-"):
+            reverse = True
+            key = ordering[1:]
+        else:
+            reverse = False
+            key = ordering
+
+        return sorted(projects, key=lambda item: getattr(item, key), reverse=reverse)
 
     def get_breadcrumbs(self):
         app_menu = apps.get_app_config(self.model._meta.app_label).app_menu()

@@ -24,6 +24,9 @@ class ProjectList(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaLis
     template_name = "qfield_link/index.html"
     permission_required = f"{central_app_label}.can_use_app"
 
+    ordering = tuple()
+    sortable_by = tuple()
+
     def get_queryset(self):
         qfc_api = ApiService()
         return qfc_api.get_project_list()

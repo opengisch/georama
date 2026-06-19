@@ -27,7 +27,7 @@ class GeoramaPublishedItemIndex(GeoramaListView):
 
     def get_queryset(self):
         permitted_items = []
-        items = self.model.objects.all()
+        items = super().get_queryset()
         for item in items:
             if item.has_general_permission(self.request.user, self.model._meta.app_label):
                 permitted_items.append(item)
