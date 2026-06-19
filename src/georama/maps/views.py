@@ -493,7 +493,20 @@ class PublishListView(
         items += list(VectorDataSet.objects.all())
         items += list(RasterDataSet.objects.all())
         items += list(CustomDataSet.objects.all())
-        return items
+
+        ordering = self.get_ordering()
+        if not ordering:
+            return items
+        # We can only really easily sort over one key
+        ordering = ordering[0]
+        if ordering.startswith("-"):
+            reverse = True
+            key = ordering[1:]
+        else:
+            reverse = False
+            key = ordering
+
+        return sorted(items, key=lambda item: getattr(item, key), reverse=reverse)
 
 
 class MapDetailView(

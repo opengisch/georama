@@ -5,25 +5,27 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container d-flex align-items-center mb-3">
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="text-muted">Sort by: </span>
-            {% for option in sort_options %}
-                <a class="btn btn-sm btn-{% if option.direction is None %}outline-{% endif %}primary" href="?page={{ page_number }}&per_page={{ per_page }}&sort={{ option.qs }}" title="Logout">
-                    {{ option.name }}
-                    {% if option.direction == "ascending" %}
-                        <i class="fa fa-arrow-up"></i>
-                    {% elif option.direction == "descending" %}
-                        <i class="fa fa-arrow-down"></i>
-                    {% else %}
-                        <i class="fa fa-sort"></i>
-                    {% endif %}
-                </a>
-            {% endfor %}
+    {% if sort_options %}
+        <div class="container d-flex align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="text-muted">Sort by: </span>
+                {% for option in sort_options %}
+                    <a class="btn btn-sm btn-{% if option.direction is None %}outline-{% endif %}primary" href="?page={{ page_number }}&per_page={{ per_page }}&sort={{ option.qs }}" title="Logout">
+                        {{ option.name }}
+                        {% if option.direction == "ascending" %}
+                            <i class="fa fa-arrow-up"></i>
+                        {% elif option.direction == "descending" %}
+                            <i class="fa fa-arrow-down"></i>
+                        {% else %}
+                            <i class="fa fa-sort"></i>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
         </div>
-    </div>
+    {% endif %}
     <div class="p-4 pb-0 overflow-auto flex-grow-1">
-        
+
         {% block list %}
             {% if object_list|length == 0 %}
                 <div class="fs-1 fw-bold text-center">
@@ -83,7 +85,7 @@
                                                         <i class="fa fa-eye"></i>
                                                     </a>
                                                 {% endif %}
-    
+
                                                 {% if model_perm_change %}
                                                     {% blocktranslate asvar title %}Edit item{% endblocktranslate %}
                                                     <a href="{% url view_name_update item.pk %}"
@@ -105,7 +107,7 @@
                                                         <i class="fa fa-lock"></i>
                                                     </a>
                                                 {% endif %}
-    
+
                                                 {% if model_perm_delete %}
                                                     {% blocktranslate asvar title %}Delete item{% endblocktranslate %}
                                                     <a href="{% url view_name_delete item.pk %}"
@@ -128,7 +130,7 @@
                 </div>
             {% endif %}
         {% endblock %}
-    
+
     </div>
 
 

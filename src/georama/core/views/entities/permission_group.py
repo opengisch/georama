@@ -7,7 +7,11 @@ class GeoramaGroupListView(GeoramaPrincipalListView):
     model = Group
     template_name = "core/group.html"
 
+    sortable_by = ("name",)
+
     def get_queryset(self):
-        return self.model.objects.exclude(
-            permissions__codename__icontains=str(self.kwargs.get("pk"))
+        return (
+            super()
+            .get_queryset()
+            .exclude(permissions__codename__icontains=str(self.kwargs.get("pk")))
         )
