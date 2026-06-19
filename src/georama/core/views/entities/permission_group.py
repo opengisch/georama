@@ -7,6 +7,7 @@ class GeoramaGroupListView(GeoramaPrincipalListView):
     model = Group
     template_name = "core/group.html"
 
+    ordering = ("name",)
     sortable_by = ("name",)
 
     def get_queryset(self):
