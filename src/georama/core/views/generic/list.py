@@ -76,7 +76,7 @@ class GeoramaListView(BreadcrumbMixin, ListView):
                     "qs": ",".join(new_ordering),
                 }
             )
-            logging.info(context["sort_options"])
+            logging.debug(context["sort_options"])
         context["per_page"] = self.handle_per_page()
         context["per_page_options"] = settings.LIST_PAGE_SIZES
 
