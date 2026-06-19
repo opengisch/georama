@@ -50,7 +50,6 @@ class GeoramaListView(BreadcrumbMixin, ListView):
         current_ordering = set(ordering[:1]) if (ordering := self.get_ordering()) else set()
         context["sort_options"] = []
         for field in self.sortable_by:
-            new_ordering = current_ordering.copy()
             if field in current_ordering:
                 direction = "ascending"
                 # Uncomment for multiple sorting options accepted in the UI
