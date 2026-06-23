@@ -1,0 +1,46 @@
+import uuid
+
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
+
+from georama.features.models.feature_layer import FeatureLayer
+from georama.integration.models.datasource import Field as DatasourceField
+
+
+class Field(models.Model):
+    class Meta:
+        verbose_name = _("field")
+        verbose_name_plural = _("fields")
+        unique_together = (
+            "feature_layer",
+            "datasource_field",
+        )
+
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the field.")
+    )
+    feature_layer = models.ForeignKey(
+        FeatureLayer,
+        related_name="fields",
+        related_query_name="field",
+        on_delete=models.CASCADE,
+    )
+    datasource_field = models.ForeignKey(
+        DatasourceField,
+        related_name="feature_layer_fields",
+        related_query_name="feature_layer_field",
+        on_delete=models.CASCADE,
+    )
+
+
+class FieldUserObjectPermission(UserObjectPermissionBase):
+    content_object = models.ForeignKey(
+        Field, on_delete=models.CASCADE, related_name="user_object_permissions"
+    )
+
+
+class FieldGroupObjectPermission(GroupObjectPermissionBase):
+    content_object = models.ForeignKey(
+        Field, on_delete=models.CASCADE, related_name="group_object_permissions"
+    )

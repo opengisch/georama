@@ -13,10 +13,10 @@ class TestAccess:
         "/integration/manage/",
         "/integration/manage/collections/",
         "/integration/manage/projects/",
-        "/integration/manage/vector_datasets/",
-        "/integration/manage/vector_dataset_fields/",
-        "/integration/manage/raster_datasets/",
-        "/integration/manage/custom_datasets/",
+        "/integration/manage/vector_datasources/",
+        "/integration/manage/vector_datasource_fields/",
+        "/integration/manage/raster_datasources/",
+        "/integration/manage/custom_datasources/",
     ]
 
     @pytest.mark.parametrize(
@@ -71,10 +71,10 @@ class TestAccess:
         [
             ("/integration/manage/collections/", Collection),
             ("/integration/manage/projects/", Project),
-            ("/integration/manage/vector_datasets/", Vector),
-            ("/integration/manage/vector_dataset_fields/", Field),
-            ("/integration/manage/raster_datasets/", Raster),
-            ("/integration/manage/custom_datasets/", Custom),
+            ("/integration/manage/vector_datasources/", Vector),
+            ("/integration/manage/vector_datasource_fields/", Field),
+            ("/integration/manage/raster_datasources/", Raster),
+            ("/integration/manage/custom_datasources/", Custom),
         ],
     )
     @pytest.mark.django_db

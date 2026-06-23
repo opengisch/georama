@@ -166,6 +166,7 @@ class Base(Configuration):
         "guardian",
         "georama.core.apps.CoreConfig",
         "georama.integration.apps.IntegrationConfig",
+        "georama.features.apps.FeaturesConfig",
         "allauth",
         "allauth.account",
         "allauth.socialaccount",

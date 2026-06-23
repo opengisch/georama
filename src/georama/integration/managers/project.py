@@ -10,4 +10,4 @@ class ProjectManager(OrganisationalManager):
         Returns:
             the filtered QuerySet
         """
-        return super().get_queryset().prefetch_related("datasets", "collection")
+        return super().get_queryset().prefetch_related("datasources", "collection")

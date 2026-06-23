@@ -13,3 +13,7 @@ wheels/
 
 # environment
 .env
+
+# TODO: Remove
+tests/resources
+!tests/resources/TestMandant

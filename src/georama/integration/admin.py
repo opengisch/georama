@@ -3,7 +3,7 @@ from django.contrib import admin
 from georama.core.common.admin import OrganisationalModelAdmin
 from georama.integration.models import Field
 from georama.integration.models.collection import Collection
-from georama.integration.models.dataset import Custom, Dataset, Raster, Vector
+from georama.integration.models.datasource import Custom, Datasource, Raster, Vector
 from georama.integration.models.project import Project
 
 
@@ -19,8 +19,8 @@ class ProjectAdmin(OrganisationalModelAdmin):
     prefetch_organisation_related = "collection__organisation"
 
 
-@admin.register(Dataset)
-class DatasetAdmin(OrganisationalModelAdmin):
+@admin.register(Datasource)
+class DatasourceAdmin(OrganisationalModelAdmin):
     list_display = ["name", "project__collection__organisation__name"]
     prefetch_organisation_related = "project__collection__organisation"
 
@@ -45,5 +45,5 @@ class VectorAdmin(OrganisationalModelAdmin):
 
 @admin.register(Field)
 class FieldAdmin(OrganisationalModelAdmin):
-    list_display = ["name", "dataset__project__collection__organisation__name"]
-    prefetch_organisation_related = "dataset__project__collection__organisation"
+    list_display = ["name", "datasource__project__collection__organisation__name"]
+    prefetch_organisation_related = "datasource__project__collection__organisation"

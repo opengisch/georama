@@ -7,11 +7,11 @@ from georama.core.common.querysets import OrganisationalQuerySet
 from georama.integration.api.permissions import ManageApiPermission
 from georama.integration.api.serializers import (
     CollectionSerializer,
-    CustomDatasetSerializer,
+    CustomDatasourceSerializer,
     FieldSerializer,
     ProjectSerializer,
-    RasterDatasetSerializer,
-    VectorDatasetSerializer,
+    RasterDatasourceSerializer,
+    VectorDatasourceSerializer,
 )
 from georama.integration.models import Collection, Custom, Field, Project, Raster, Vector
 
@@ -50,9 +50,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return queryset.filter(collection__organisation=self.request.georama_organisation)
 
 
-class VectorDatasetViewSet(viewsets.ModelViewSet):
+class VectorDatasourceViewSet(viewsets.ModelViewSet):
     queryset = Vector.objects.all()
-    serializer_class = VectorDatasetSerializer
+    serializer_class = VectorDatasourceSerializer
     permission_classes = [ManageApiPermission, DjangoModelPermissions]
     filter_backends = [
         filters.SearchFilter,
@@ -81,14 +81,14 @@ class FieldViewSet(viewsets.ModelViewSet):
     filterset_fields = ["name"]
 
     def filter_queryset(self, queryset: QuerySet):
-        return queryset.prefetch_related("dataset__project__collection__organisation").filter(
-            dataset__project__collection__organisation=self.request.georama_organisation
+        return queryset.prefetch_related("datasource__project__collection__organisation").filter(
+            datasource__project__collection__organisation=self.request.georama_organisation
         )
 
 
-class RasterDatasetViewSet(viewsets.ModelViewSet):
+class RasterDatasourceViewSet(viewsets.ModelViewSet):
     queryset = Raster.objects.all()
-    serializer_class = RasterDatasetSerializer
+    serializer_class = RasterDatasourceSerializer
     permission_classes = [ManageApiPermission, DjangoModelPermissions]
     filter_backends = [
         filters.SearchFilter,
@@ -105,9 +105,9 @@ class RasterDatasetViewSet(viewsets.ModelViewSet):
         ).all()
 
 
-class CustomDatasetViewSet(viewsets.ModelViewSet):
+class CustomDatasourceViewSet(viewsets.ModelViewSet):
     queryset = Custom.objects.all()
-    serializer_class = CustomDatasetSerializer
+    serializer_class = CustomDatasourceSerializer
     permission_classes = [ManageApiPermission, DjangoModelPermissions]
     filter_backends = [
         filters.SearchFilter,

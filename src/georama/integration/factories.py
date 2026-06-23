@@ -873,9 +873,9 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     collection = factory.SubFactory(CollectionFactory)
 
 
-class DatasetFactory(factory.django.DjangoModelFactory):
+class DatasourceFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.Dataset
+        model = models.Datasource
         django_get_or_create = ("qgis_layer_id", "project")
 
     qgis_layer_id = factory.Faker("bothify", text=f"{factory.Faker('word')}_????_#######")
@@ -891,7 +891,7 @@ class DatasetFactory(factory.django.DjangoModelFactory):
     project = factory.SubFactory(ProjectFactory)
 
 
-class VectorFactory(DatasetFactory):
+class VectorFactory(DatasourceFactory):
     class Meta:
         model = models.Vector
 
@@ -908,14 +908,14 @@ class VectorFactory(DatasetFactory):
         else:
             fields = []
             for _ in range(random.randint(0, 10)):
-                fields.append(FieldFactory(dataset=self))
+                fields.append(FieldFactory(datasource=self))
             self.fields.set(tuple(fields))
 
 
 class FieldFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Field
-        django_get_or_create = ("name", "dataset")
+        django_get_or_create = ("name", "datasource")
 
     name = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][0])
     type = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][1])
@@ -930,11 +930,11 @@ class FieldFactory(factory.django.DjangoModelFactory):
     comment = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][10])
 
 
-class RasterFactory(DatasetFactory):
+class RasterFactory(DatasourceFactory):
     class Meta:
         model = models.Raster
 
 
-class CustomFactory(DatasetFactory):
+class CustomFactory(DatasourceFactory):
     class Meta:
         model = models.Custom

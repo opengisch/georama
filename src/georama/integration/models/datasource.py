@@ -3,63 +3,65 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from georama.integration.managers.dataset import DatasetManager, VectorManager
+from georama.integration.managers.datasource import DatasourceManager, VectorManager
 from georama.integration.models.project import Project
 
 
-class Dataset(models.Model):
+class Datasource(models.Model):
     class Meta:
-        verbose_name = _("dataset")
-        verbose_name_plural = _("datasets")
+        verbose_name = _("datasource")
+        verbose_name_plural = _("datasources")
         unique_together = (
             "qgis_layer_id",
             "project",
         )
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the dataset.")
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the datasource.")
     )
     qgis_layer_id = models.CharField(
         max_length=1000, help_text=_("Layer identifier from the source QGIS project.")
     )
-    name = models.CharField(max_length=1000, help_text=_("Name of the dataset."))
+    name = models.CharField(max_length=1000, help_text=_("Name of the datasource."))
     bbox = models.CharField(
         max_length=1000,
-        help_text=_("Bounding box of the dataset in the source coordinate reference system."),
+        help_text=_("Bounding box of the datasource in the source coordinate reference system."),
     )
     bbox_wgs84 = models.CharField(
-        max_length=1000, help_text=_("Bounding box of the dataset transformed to WGS84.")
+        max_length=1000, help_text=_("Bounding box of the datasource transformed to WGS84.")
     )
     source = models.JSONField(
-        default=dict, help_text=_("Source configuration and connection metadata of the dataset.")
+        default=dict, help_text=_("Source configuration and connection metadata of the datasource.")
     )
     styles = models.JSONField(
-        default=dict, help_text=_("Rendered style definitions associated with this dataset.")
+        default=dict, help_text=_("Rendered style definitions associated with this datasource.")
     )
     driver = models.CharField(
-        max_length=50, help_text=_("Provider driver name used to access the dataset.")
+        max_length=50, help_text=_("Provider driver name used to access the datasource.")
     )
-    crs = models.JSONField(default=dict, help_text=_("Coordinate reference system of the dataset."))
+    crs = models.JSONField(
+        default=dict, help_text=_("Coordinate reference system of the datasource.")
+    )
     minimum_scale = models.FloatField(
-        null=True, help_text=_("Minimum scale at which the dataset is visible.")
+        null=True, help_text=_("Minimum scale at which the datasource is visible.")
     )
     maximum_scale = models.FloatField(
-        null=True, help_text=_("Maximum scale at which the dataset is visible.")
+        null=True, help_text=_("Maximum scale at which the datasource is visible.")
     )
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
-        related_name="datasets",
-        help_text=_("Project the dataset belongs to."),
+        related_name="datasources",
+        help_text=_("Project the datasource belongs to."),
     )
 
-    objects = DatasetManager()
+    objects = DatasourceManager()
 
     def __str__(self):
         return self.name
 
 
-class Vector(Dataset):
+class Vector(Datasource):
     class Meta:
         verbose_name = _("vector")
         verbose_name_plural = _("vectors")
@@ -68,10 +70,12 @@ class Vector(Dataset):
 
     geometry_type_simple = models.CharField(
         max_length=1000,
-        help_text=_("Simplified geometry type of the vector dataset (eg. point, line, polygon)."),
+        help_text=_(
+            "Simplified geometry type of the vector datasource (eg. point, line, polygon)."
+        ),
     )
     geometry_type_wkb = models.CharField(
-        max_length=1000, help_text=_("Geometry type of the vector dataset.")
+        max_length=1000, help_text=_("Geometry type of the vector datasource.")
     )
 
 
@@ -79,7 +83,7 @@ class Field(models.Model):
     class Meta:
         unique_together = (
             "name",
-            "dataset",
+            "datasource",
         )
         verbose_name = _("field")
         verbose_name_plural = _("fields")
@@ -88,13 +92,13 @@ class Field(models.Model):
         primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the field.")
     )
     name = models.CharField(
-        max_length=1000, help_text=_("Original field name from the source dataset.")
+        max_length=1000, help_text=_("Original field name from the source datasource.")
     )
     type = models.CharField(
-        max_length=1000, help_text=_("Original data type from the source dataset.")
+        max_length=1000, help_text=_("Original data type from the source datasource.")
     )
     is_primary_key = models.BooleanField(
-        default=False, help_text=_("Whether this field is the dataset primary key.")
+        default=False, help_text=_("Whether this field is the datasource primary key.")
     )
     type_wfs = models.CharField(max_length=1000, help_text=_("Field datatype exposed through WFS."))
     type_oapif = models.CharField(
@@ -110,10 +114,10 @@ class Field(models.Model):
     )
     length = models.IntegerField(null=True, help_text=_("...."))
     precision = models.IntegerField(null=True, help_text=_("Numeric precision."))
-    dataset = models.ForeignKey(
+    datasource = models.ForeignKey(
         Vector,
         on_delete=models.CASCADE,
-        help_text=_("Vector dataset this field belongs to."),
+        help_text=_("Vector datasource this field belongs to."),
         related_name="fields",
     )
 
@@ -121,13 +125,13 @@ class Field(models.Model):
         return f"{self.alias} ({self.name})"
 
 
-class Raster(Dataset):
+class Raster(Datasource):
     class Meta:
         verbose_name = _("raster")
         verbose_name_plural = _("rasters")
 
 
-class Custom(Dataset):
+class Custom(Datasource):
     class Meta:
         verbose_name = _("custom")
         verbose_name_plural = _("custom")

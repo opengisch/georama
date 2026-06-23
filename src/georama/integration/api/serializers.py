@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from georama.integration.models import Collection, Custom, Project, Raster, Vector
-from georama.integration.models.dataset import Field
+from georama.integration.models.datasource import Field
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -34,7 +34,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         return obj.collection.organisation_id
 
 
-class VectorDatasetSerializer(serializers.ModelSerializer):
+class VectorDatasourceSerializer(serializers.ModelSerializer):
     organisation_id = serializers.SerializerMethodField()
     collection_id = serializers.SerializerMethodField()
 
@@ -67,7 +67,7 @@ class VectorDatasetSerializer(serializers.ModelSerializer):
         return obj.project.collection_id
 
 
-class RasterDatasetSerializer(serializers.ModelSerializer):
+class RasterDatasourceSerializer(serializers.ModelSerializer):
     organisation_id = serializers.SerializerMethodField()
     collection_id = serializers.SerializerMethodField()
 
@@ -98,7 +98,7 @@ class RasterDatasetSerializer(serializers.ModelSerializer):
         return obj.project.collection_id
 
 
-class CustomDatasetSerializer(serializers.ModelSerializer):
+class CustomDatasourceSerializer(serializers.ModelSerializer):
     organisation_id = serializers.SerializerMethodField()
     collection_id = serializers.SerializerMethodField()
 
@@ -149,7 +149,7 @@ class FieldSerializer(serializers.ModelSerializer):
             "nullable",
             "length",
             "precision",
-            "dataset_id",
+            "datasource_id",
             "project_id",
             "organisation_id",
             "collection_id",
@@ -157,10 +157,10 @@ class FieldSerializer(serializers.ModelSerializer):
         extra_kwargs = {"id": {"read_only": True}}
 
     def get_organisation_id(self, obj):
-        return obj.dataset.project.collection.organisation_id
+        return obj.datasource.project.collection.organisation_id
 
     def get_collection_id(self, obj):
-        return obj.dataset.project.collection_id
+        return obj.datasource.project.collection_id
 
     def get_project_id(self, obj):
-        return obj.dataset.project_id
+        return obj.datasource.project_id

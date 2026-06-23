@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
-from unfold.admin import ModelAdmin
+from unfold.admin import ModelAdmin, TabularInline
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 
 from georama.core.models.fence import Fence
@@ -15,7 +15,7 @@ admin.site.unregister(Group)
 User = get_user_model()
 
 
-class MembershipInlineAdmin(admin.TabularInline):
+class MembershipInlineAdmin(TabularInline):
     model = Membership
 
 
