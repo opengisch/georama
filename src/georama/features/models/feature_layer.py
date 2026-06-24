@@ -1,6 +1,6 @@
 import uuid
 
-from django.db import models
+from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
 
@@ -25,6 +25,23 @@ class FeatureLayer(models.Model):
     )
 
     objects = FeatureLayerManager()
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            if self._state.adding:
+                from georama.features.models.field import Field
+
+                super().save(*args, **kwargs)
+                Field.objects.bulk_create(
+                    Field(
+                        feature_layer=self,
+                        datasource_field=datasource_field,
+                        name=datasource_field.name,
+                    )
+                    for datasource_field in self.datasource.fields.all()
+                )
+            else:
+                super().save(*args, **kwargs)
 
 
 class FeatureLayerUserObjectPermission(UserObjectPermissionBase):

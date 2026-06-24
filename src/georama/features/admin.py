@@ -16,25 +16,35 @@ class MetadataInlineAdmin(TabularInline):
     max_num = 1
     min_num = 1
     exclude = ["id"]
+    hide_title = True
 
 
 class FieldInlineAdmin(TabularInline):
     model = Field
     extra = 0
     exclude = ["id"]
+    fields = ("datasource_field", "name", "visible")
+    readonly_fields = ("datasource_field",)
+    hide_title = True
 
-    def get_formset(self, request, obj=None, **kwargs):
-        formset = super().get_formset(request, obj, **kwargs)
-        datasource_field = formset.form.base_fields.get("datasource_field")
+    def has_delete_permission(self, request, obj=None):
+        return False
 
-        if obj is None:
-            datasource_field.queryset = datasource_field.queryset.none()
-        else:
-            datasource_field.queryset = datasource_field.queryset.filter(datasource=obj.datasource)
-        return formset
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(FeatureLayer)
 class FeatureLayerAdmin(OrganisationalModelAdmin):
     prefetch_organisation_related = "datasource__project__collection__organisation"
-    inlines = [MetadataInlineAdmin, FieldInlineAdmin]
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is not None and obj.pk:
+            return (*super().get_readonly_fields(request, obj), "datasource")
+        return super().get_readonly_fields(request, obj)
+
+    def get_inlines(self, request, obj):
+        """Hook for specifying custom inlines."""
+        if obj and obj.pk:
+            return [MetadataInlineAdmin, FieldInlineAdmin]
+        return [MetadataInlineAdmin]
