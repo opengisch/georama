@@ -36,15 +36,16 @@ dev = [
     { include-group = "test" },
     "django-extensions>=4.1",
     "django-silk>=5.5.0",
+    "factory-boy>=3.3.3",
     "pre-commit",
 ]
 lint-format = [
     "ruff>=0.15.15",
 ]
 test = [
-    "factory-boy>=3.3.3",
     "pytest>=9.0.3",
     "pytest-django>=4.12.0",
+    "pytest-lazy-fixtures>=1.4.0",
 ]
 
 [tool.ruff]
@@ -68,7 +69,7 @@ extend-select = [
 fixable = ["ALL"]
 
 [tool.pytest.ini_options]
-addopts = "-vra --reuse-db --dc=Test"
+addopts = "-vra --dc=Test"
 DJANGO_SETTINGS_MODULE = "georama.settings"
 testpaths = [
     "tests",

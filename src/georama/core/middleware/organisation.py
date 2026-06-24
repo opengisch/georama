@@ -38,11 +38,14 @@ class OrganisationMiddleware:
                     logging.debug(f"Organisation not found in database. Domain: {subdomains}")
                     return HttpResponseNotFound(_("Not found"))
             logging.debug(f"Organisation offers public access: {public_access}")
-            if not public_access:
+            superuser = request.user.is_superuser if hasattr(request, "user") else False
+            logging.debug(f"Requesting user is superuser: {superuser}")
+
+            if not public_access and not superuser:
                 if request.user.is_authenticated:
                     if not any(
                         matched_organisation == membership.organisation
-                        for membership in request.user.memberships
+                        for membership in request.user.memberships.all()
                     ):
                         logging.debug("user has no membership of the requested organisation")
                         return HttpResponseForbidden(_("No Access"))

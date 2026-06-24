@@ -6,7 +6,7 @@ from georama.core.factories import (
     OrganisationFactory,
     UserFactory,
 )
-from georama.integration.factories import CollectionFactory
+from georama.integration.factories import CollectionFactory, ProjectFactory, VectorFactory
 
 
 @pytest.fixture
@@ -141,4 +141,19 @@ def collection_dedicated_organisation(organisation):
 
 @pytest.fixture
 def collections(collection_global_organisation, collection_dedicated_organisation):
-    yield [collection_dedicated_organisation, collection_global_organisation]
+    collections = [collection_dedicated_organisation, collection_global_organisation]
+    yield collections
+
+
+@pytest.fixture
+def project_global_organisation(collection_global_organisation):
+    project = ProjectFactory.create(collection=collection_global_organisation)
+    yield project
+    project.delete()
+
+
+@pytest.fixture
+def global_vector_dataset(project_global_organisation):
+    vector = VectorFactory.create(project=project_global_organisation)
+    yield vector
+    vector.delete()
