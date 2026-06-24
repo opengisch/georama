@@ -14,13 +14,12 @@ class OrganisationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if (
-            request.path_info
-            not in [
-                reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET),
-            ]
-            + settings.ORGANISATION_GLOBAL_PUBLIC_ACCESS_BYPASS_TARGETS
-        ):
+        if request.path_info not in [
+            reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET),
+        ] + [
+            reverse(view_name)
+            for view_name in settings.ORGANISATION_GLOBAL_PUBLIC_ACCESS_BYPASS_TARGETS
+        ]:
             # removing the maybe existing www part of the domain and getting rid of ports
             hostname = self.remove_www(request.get_host().split(":")[0])
             # deriving subdomains which distinguish the organisation
@@ -47,7 +46,7 @@ class OrganisationMiddleware:
                         matched_organisation == membership.organisation
                         for membership in request.user.memberships.all()
                     ):
-                        logging.debug("user has no membership of the requested organisation")
+                        logging.debug("User has no membership of the requested organisation")
                         return HttpResponseForbidden(_("No Access"))
                 else:
                     logging.debug(

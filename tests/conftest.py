@@ -52,6 +52,13 @@ def organisation_public_access():
 
 
 @pytest.fixture
+def organisation_non_public_access():
+    organisation = OrganisationFactory.create(public_access=False)
+    yield organisation
+    organisation.delete()
+
+
+@pytest.fixture
 def membership(organisation):
     membership = MembershipFactory.create(organisation=organisation)
     yield membership
@@ -68,6 +75,13 @@ def membership_public_organisation(organisation_public_access):
 @pytest.fixture
 def membership_global():
     membership = MembershipFactory.create(organisation=None)
+    yield membership
+    membership.delete()
+
+
+@pytest.fixture
+def membership_non_public_organisation(organisation_non_public_access):
+    membership = MembershipFactory.create(organisation=organisation_non_public_access)
     yield membership
     membership.delete()
 
@@ -115,6 +129,13 @@ def user(user_user_name, user_first_name, user_last_name, user_email, user_passw
 @pytest.fixture
 def user_with_membership_global(user, membership_global):
     user.memberships.add(membership_global)
+    user.save()
+    yield user
+
+
+@pytest.fixture
+def user_with_dedicated_membership_non_public(user, membership_non_public_organisation):
+    user.memberships.add(membership_non_public_organisation)
     user.save()
     yield user
 
