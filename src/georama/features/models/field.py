@@ -16,6 +16,10 @@ class Field(models.Model):
             "feature_layer",
             "datasource_field",
         )
+        unique_together = (
+            "feature_layer",
+            "name",
+        )
 
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the field.")
@@ -32,6 +36,8 @@ class Field(models.Model):
         related_query_name="feature_layer_field",
         on_delete=models.CASCADE,
     )
+    name = models.CharField(max_length=None)
+    visible = models.BooleanField(default=False)
 
 
 class FieldUserObjectPermission(UserObjectPermissionBase):

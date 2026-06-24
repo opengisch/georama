@@ -17,10 +17,9 @@ class FieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
         fields = [
-            "id",
-            "datasource_field",
+            "name",
+            "visible",
         ]
-        extra_kwargs = {"id": {"read_only": True}}
 
 
 class FeatureLayerSerializer(serializers.ModelSerializer):
@@ -32,6 +31,5 @@ class FeatureLayerSerializer(serializers.ModelSerializer):
             "id",
             "datasource",
             "metadata",
-            # "fields",
         ]
         extra_kwargs = {"id": {"read_only": True}}
