@@ -1,4 +1,5 @@
 import random
+import uuid
 
 import factory
 from faker import Faker
@@ -878,7 +879,7 @@ class DatasourceFactory(factory.django.DjangoModelFactory):
         model = models.Datasource
         django_get_or_create = ("qgis_layer_id", "project")
 
-    qgis_layer_id = factory.Faker("bothify", text=f"{factory.Faker('word')}_????_#######")
+    qgis_layer_id = factory.LazyAttribute(lambda a: f"{a.name.lower()}_{uuid.uuid4()}")
     name = factory.Faker("word")
     bbox = factory.LazyFunction(lambda: [float(x) for x in fake.latlng()])
     bbox_wgs84 = factory.LazyFunction(lambda: [float(x) for x in fake.latlng()])
