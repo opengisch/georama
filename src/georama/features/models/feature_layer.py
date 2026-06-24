@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
 
 from georama.features.managers.feature_layer import FeatureLayerManager
+from georama.features.models.field import Field
 from georama.integration.models.datasource import Vector
 
 
@@ -29,19 +30,20 @@ class FeatureLayer(models.Model):
     def save(self, *args, **kwargs):
         with transaction.atomic():
             if self._state.adding:
-                from georama.features.models.field import Field
-
                 super().save(*args, **kwargs)
-                Field.objects.bulk_create(
-                    Field(
-                        feature_layer=self,
-                        datasource_field=datasource_field,
-                        name=datasource_field.name,
-                    )
-                    for datasource_field in self.datasource.fields.all()
-                )
+                self.fields.bulk_create(self.datasource_related_fields())
             else:
                 super().save(*args, **kwargs)
+
+    def datasource_related_fields(self):
+        return (
+            Field(
+                feature_layer=self,
+                datasource_field=datasource_field,
+                name=datasource_field.name,
+            )
+            for datasource_field in self.datasource.fields.all()
+        )
 
 
 class FeatureLayerUserObjectPermission(UserObjectPermissionBase):

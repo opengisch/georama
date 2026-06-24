@@ -4,7 +4,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
 
-from georama.features.models.feature_layer import FeatureLayer
 from georama.integration.models.datasource import Field as DatasourceField
 
 
@@ -25,7 +24,7 @@ class Field(models.Model):
         primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the field.")
     )
     feature_layer = models.ForeignKey(
-        FeatureLayer,
+        "FeatureLayer",
         related_name="fields",
         related_query_name="field",
         on_delete=models.CASCADE,
