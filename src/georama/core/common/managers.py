@@ -10,6 +10,15 @@ class OrganisationalManager(models.Manager.from_queryset(OrganisationalQuerySet)
     of those.
     """
 
+    def get_queryset(self) -> OrganisationalQuerySet:
+        """Always prefetch bound fields to reduce queries.
+
+        Returns:
+            the filtered QuerySet
+        """
+        qs = super().get_queryset()
+        return qs.prefetch_related(qs.get_model_organisation_field())
+
     def organisation_objects(self, organisation: Organisation | None) -> OrganisationalQuerySet:
         """Filters for objects bound to passed organisation. Organisation `None`
         means the _global_ organisation.

@@ -1,10 +1,7 @@
-from django.db.models import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework import filters
 
-from georama.core.common.querysets import OrganisationalQuerySet
-from georama.integration.api.permissions import ManageApiPermission
+from georama.core.common.api import GeoramaModelPermissions, OrganisationalModelViewSet
 from georama.integration.api.serializers import (
     CollectionSerializer,
     CustomDatasourceSerializer,
@@ -16,10 +13,10 @@ from georama.integration.api.serializers import (
 from georama.integration.models import Collection, Custom, Field, Project, Raster, Vector
 
 
-class CollectionViewSet(viewsets.ModelViewSet):
+class CollectionViewSet(OrganisationalModelViewSet):
     serializer_class = CollectionSerializer
     queryset = Collection.objects.all()
-    permission_classes = [ManageApiPermission, DjangoModelPermissions]
+    permission_classes = [GeoramaModelPermissions]
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -29,14 +26,11 @@ class CollectionViewSet(viewsets.ModelViewSet):
     ordering_fields = ["name"]
     filterset_fields = ["name", "organisation__name"]
 
-    def filter_queryset(self, queryset: OrganisationalQuerySet):
-        return queryset.organisation_objects(self.request.georama_organisation)
 
-
-class ProjectViewSet(viewsets.ModelViewSet):
+class ProjectViewSet(OrganisationalModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [ManageApiPermission, DjangoModelPermissions]
+    permission_classes = [GeoramaModelPermissions]
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -46,14 +40,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
     ordering_fields = ["name"]
     filterset_fields = ["name", "collection__name"]
 
-    def filter_queryset(self, queryset: QuerySet):
-        return queryset.filter(collection__organisation=self.request.georama_organisation)
 
-
-class VectorDatasourceViewSet(viewsets.ModelViewSet):
+class VectorDatasourceViewSet(OrganisationalModelViewSet):
     queryset = Vector.objects.all()
     serializer_class = VectorDatasourceSerializer
-    permission_classes = [ManageApiPermission, DjangoModelPermissions]
+    permission_classes = [GeoramaModelPermissions]
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -63,14 +54,11 @@ class VectorDatasourceViewSet(viewsets.ModelViewSet):
     ordering_fields = ["name"]
     filterset_fields = ["name"]
 
-    def filter_queryset(self, queryset: QuerySet):
-        return queryset.filter(project__collection__organisation=self.request.georama_organisation)
 
-
-class FieldViewSet(viewsets.ModelViewSet):
+class FieldViewSet(OrganisationalModelViewSet):
     queryset = Field.objects.all()
     serializer_class = FieldSerializer
-    permission_classes = [ManageApiPermission, DjangoModelPermissions]
+    permission_classes = [GeoramaModelPermissions]
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -80,16 +68,11 @@ class FieldViewSet(viewsets.ModelViewSet):
     ordering_fields = ["name"]
     filterset_fields = ["name"]
 
-    def filter_queryset(self, queryset: QuerySet):
-        return queryset.prefetch_related("datasource__project__collection__organisation").filter(
-            datasource__project__collection__organisation=self.request.georama_organisation
-        )
 
-
-class RasterDatasourceViewSet(viewsets.ModelViewSet):
+class RasterDatasourceViewSet(OrganisationalModelViewSet):
     queryset = Raster.objects.all()
     serializer_class = RasterDatasourceSerializer
-    permission_classes = [ManageApiPermission, DjangoModelPermissions]
+    permission_classes = [GeoramaModelPermissions]
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -99,16 +82,11 @@ class RasterDatasourceViewSet(viewsets.ModelViewSet):
     ordering_fields = ["name"]
     filterset_fields = ["name"]
 
-    def filter_queryset(self, queryset: QuerySet):
-        return queryset.filter(
-            project__collection__organisation=self.request.georama_organisation
-        ).all()
 
-
-class CustomDatasourceViewSet(viewsets.ModelViewSet):
+class CustomDatasourceViewSet(OrganisationalModelViewSet):
     queryset = Custom.objects.all()
     serializer_class = CustomDatasourceSerializer
-    permission_classes = [ManageApiPermission, DjangoModelPermissions]
+    permission_classes = [GeoramaModelPermissions]
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -117,8 +95,3 @@ class CustomDatasourceViewSet(viewsets.ModelViewSet):
     search_fields = ["name"]
     ordering_fields = ["name"]
     filterset_fields = ["name"]
-
-    def filter_queryset(self, queryset: QuerySet):
-        return queryset.filter(
-            project__collection__organisation=self.request.georama_organisation
-        ).all()

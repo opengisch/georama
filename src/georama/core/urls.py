@@ -24,8 +24,8 @@ management_router.register(r"fences", FenceViewSet)
 management_router.register(r"memberships", MembershipViewSet)
 urlpatterns = [
     path("", Index.as_view(), name="index"),
-    path("login", auth.Login.as_view(), name="login"),
-    path("logout", auth.Logout.as_view(), name="logout"),
+    path("login/", auth.Login.as_view(), name="login"),
+    path("logout/", auth.Logout.as_view(), name="logout"),
     path("manage/", include(management_router.urls)),
     path(
         "manage/schema/",

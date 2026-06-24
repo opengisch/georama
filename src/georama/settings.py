@@ -360,6 +360,14 @@ class Base(Configuration):
         "URL_FORMAT_OVERRIDE": "f",
     }
 
+    SPECTACULAR_SETTINGS = {
+        "SERVE_PUBLIC": False,
+        # Function that returns a mocked request for view processing. For CLI usage
+        # original_request will be None.
+        # interface: request = build_mock_request(method, path, view, original_request, **kwargs)
+        "GET_MOCK_REQUEST": "georama.core.common.api.build_mock_request",
+    }
+
     LOGIN_REDIRECT_URL = "core:index"
 
     ###########################

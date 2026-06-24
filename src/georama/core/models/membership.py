@@ -9,6 +9,8 @@ from georama.core.models.user import GeoramaUser
 
 
 class Membership(models.Model):
+    ORGANISATION_FIELD_NAME = "organisation"
+
     class Meta:
         verbose_name = _("membership")
         verbose_name_plural = _("memberships")

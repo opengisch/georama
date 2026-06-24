@@ -8,6 +8,8 @@ from georama.integration.models.collection import Collection
 
 
 class Project(models.Model):
+    ORGANISATION_FIELD_NAME = "collection__organisation"
+
     class Meta:
         verbose_name = _("project")
         verbose_name_plural = _("projects")
@@ -21,12 +23,10 @@ class Project(models.Model):
     )
     name = models.CharField(max_length=1000, help_text=_("Name of the project."))
     qgis_version = models.CharField(
-        max_length=1000, blank=True,
-        help_text=_("QGIS version the project was created with.")
+        max_length=1000, blank=True, help_text=_("QGIS version the project was created with.")
     )
     hash = models.CharField(
-        max_length=20000, blank=True,
-        help_text=_("Hash used to detect changes in project content.")
+        max_length=20000, blank=True, help_text=_("Hash used to detect changes in project content.")
     )
     collection = models.ForeignKey(
         Collection,

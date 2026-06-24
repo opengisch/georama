@@ -8,6 +8,8 @@ from georama.integration.managers.collection import CollectionManager
 
 
 class Collection(models.Model):
+    ORGANISATION_FIELD_NAME = "organisation"
+
     class Meta:
         verbose_name = _("collection")
         verbose_name_plural = _("collections")
@@ -17,12 +19,9 @@ class Collection(models.Model):
         )
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4,
-        help_text=_("Identifier of the collection.")
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the collection.")
     )
-    name = models.CharField(
-        max_length=1000, help_text=_("Unique name of the collection.")
-    )
+    name = models.CharField(max_length=1000, help_text=_("Unique name of the collection."))
     organisation = models.ForeignKey(
         Organisation,
         null=True,

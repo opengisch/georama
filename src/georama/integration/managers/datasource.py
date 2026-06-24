@@ -17,9 +17,6 @@ class DatasourceManager(OrganisationalManager):
                 "vector",
                 "raster",
                 "custom",
-                "project",
-                "project__collection",
-                "project__collection__organisation",
             )
         )
 
@@ -31,10 +28,4 @@ class VectorManager(OrganisationalManager):
         Returns:
             the filtered QuerySet
         """
-        return (
-            super()
-            .get_queryset()
-            .prefetch_related(
-                "fields", "project", "project__collection", "project__collection__organisation"
-            )
-        )
+        return super().get_queryset().prefetch_related("fields")

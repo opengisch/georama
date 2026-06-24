@@ -4,11 +4,13 @@ from django.contrib.gis.db.models import MultiPolygonField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from georama.core.managers.fence import FenceManager
+from georama.core.common.managers import OrganisationalManager
 from georama.core.models.organisation import Organisation
 
 
 class Fence(models.Model):
+    ORGANISATION_FIELD_NAME = "organisation"
+
     class Meta:
         verbose_name = _("fence")
         verbose_name_plural = _("fences")
@@ -26,4 +28,4 @@ class Fence(models.Model):
         related_name="fences",
         help_text=_("Organisation the fence belongs to."),
     )
-    objects = FenceManager()
+    objects = OrganisationalManager()

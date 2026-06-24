@@ -3,11 +3,14 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from georama.core.common.managers import OrganisationalManager
 from georama.integration.managers.datasource import DatasourceManager, VectorManager
 from georama.integration.models.project import Project
 
 
 class Datasource(models.Model):
+    ORGANISATION_FIELD_NAME = "project__collection__organisation"
+
     class Meta:
         verbose_name = _("datasource")
         verbose_name_plural = _("datasources")
@@ -80,6 +83,8 @@ class Vector(Datasource):
 
 
 class Field(models.Model):
+    ORGANISATION_FIELD_NAME = "datasource__project__collection__organisation"
+
     class Meta:
         unique_together = (
             "name",
@@ -121,6 +126,8 @@ class Field(models.Model):
         related_name="fields",
     )
 
+    objects = OrganisationalManager()
+
     def __str__(self):
         return f"{self.alias} ({self.name})"
 
@@ -130,8 +137,12 @@ class Raster(Datasource):
         verbose_name = _("raster")
         verbose_name_plural = _("rasters")
 
+    objects = OrganisationalManager()
+
 
 class Custom(Datasource):
     class Meta:
         verbose_name = _("custom")
         verbose_name_plural = _("custom")
+
+    objects = OrganisationalManager()

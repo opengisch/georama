@@ -10,10 +10,11 @@ from georama.core.api.serializers import (
     PermissionSerializer,
     UserSerializer,
 )
+from georama.core.common.api import OrganisationalModelViewSet
 from georama.core.models import Fence, GeoramaUser, Membership, Organisation
 
 
-class MembershipViewSet(viewsets.ModelViewSet):
+class MembershipViewSet(OrganisationalModelViewSet):
     queryset = Membership.objects.all()
     permission_classes = [permissions.IsAdminUser]
     serializer_class = MembershipSerializer
@@ -27,7 +28,7 @@ class MembershipViewSet(viewsets.ModelViewSet):
     filterset_fields = []
 
 
-class FenceViewSet(viewsets.ModelViewSet):
+class FenceViewSet(OrganisationalModelViewSet):
     queryset = Fence.objects.all()
     permission_classes = [permissions.IsAdminUser]
     serializer_class = FenceSerializer

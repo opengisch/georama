@@ -1,3 +1,5 @@
+import random
+
 import factory
 from django.contrib.auth.models import Group
 
@@ -91,4 +93,4 @@ class MembershipFactory(factory.django.DjangoModelFactory):
         skip_postgeneration_save = True
 
     user = factory.SubFactory(UserFactory)
-    organisation = factory.SubFactory(OrganisationFactory)
+    organisation = factory.LazyAttribute(lambda obj: random.choice([None, OrganisationFactory()]))

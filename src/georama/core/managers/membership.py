@@ -9,4 +9,4 @@ class MembershipManager(OrganisationalManager):
         Returns:
             the filtered QuerySet
         """
-        return super().get_queryset().prefetch_related("user", "organisation")
+        return super().get_queryset().prefetch_related("user")

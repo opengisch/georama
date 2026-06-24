@@ -14,6 +14,7 @@ class OrganisationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        matched_organisation = None
         if request.path_info not in [
             reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET),
         ] + [
@@ -26,7 +27,6 @@ class OrganisationMiddleware:
             subdomains = self.derive_subdomain(hostname, settings.ORGANISATION_DOMAIN)
             if subdomains is None:
                 logging.debug("Request for global organisation")
-                matched_organisation = None
                 public_access = settings.ORGANISATION_GLOBAL_PUBLIC_ACCESS
             else:
                 try:
@@ -55,8 +55,8 @@ class OrganisationMiddleware:
                     )
                     return redirect(reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET))
 
-            request.georama_organisation = matched_organisation
-            logging.debug("Organisation middleware passed.")
+        request.georama_organisation = matched_organisation
+        logging.debug("Organisation middleware passed.")
 
         response = self.get_response(request)
 
