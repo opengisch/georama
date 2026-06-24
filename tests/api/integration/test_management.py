@@ -1,6 +1,7 @@
 import pytest
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -52,7 +53,9 @@ class TestCollection:
         collections,
     ):
         list_url = "/integration/manage/collections/"
-        user.user_permissions.set([api_perm(IntegrationPermission), view_perm(Collection)])
+        user.user_permissions.set(
+            [api_perm(IntegrationPermission), view_perm(Collection)],
+        )
         self.client.login(username=user_user_name, password=user_password)
         response = self.client.get(list_url, SERVER_NAME="localhost")
         assert response.status_code == status.HTTP_200_OK
@@ -91,10 +94,18 @@ class TestCollection:
         ## test global organisation
         response = self.client.get(list_url, SERVER_NAME="localhost")
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data["results"]) == Collection.objects.filter(organisation=None).count()
+        assert (
+            len(response.data["results"])
+            == Collection.objects.filter(
+                organisation=None,
+            ).count()
+        )
         assert all(item["organisation_id"] is None for item in response.data["results"])
         ## test dedicated organisation (testuser is only member of global organisation)
-        response = self.client.get(list_url, SERVER_NAME=f"{organisation.domain}.localhost")
+        response = self.client.get(
+            list_url,
+            SERVER_NAME=f"{organisation.domain}.localhost",
+        )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
         # admin is also allowed to see organisation based only
@@ -102,16 +113,57 @@ class TestCollection:
         ## test global organisation
         response = self.client.get(list_url, SERVER_NAME="localhost")
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data["results"]) == Collection.objects.filter(organisation=None).count()
+        assert (
+            len(response.data["results"])
+            == Collection.objects.filter(
+                organisation=None,
+            ).count()
+        )
         assert all(item["organisation_id"] is None for item in response.data["results"])
         ## test dedicated organisation
-        response = self.client.get(list_url, SERVER_NAME=f"{organisation.domain}.localhost")
+        response = self.client.get(
+            list_url,
+            SERVER_NAME=f"{organisation.domain}.localhost",
+        )
         assert response.status_code == status.HTTP_200_OK
         assert (
             len(response.data["results"])
             == Collection.objects.filter(organisation=organisation).count()
         )
         assert all(item["organisation_id"] == organisation.id for item in response.data["results"])
+
+    @pytest.mark.django_db
+    def test_detail_organisational_entry(
+        self,
+        user,
+        user_user_name,
+        user_password,
+        admin_user,
+        admin_user_name,
+        admin_password,
+        collection_global_organisation,
+        collection_dedicated_organisation,
+        collection_dedicated_public_organisation,
+        organisation_public_access,
+    ):
+        path = reverse(
+            "integration:collection-detail", kwargs={"pk": collection_global_organisation.id}
+        )
+        user.user_permissions.set([api_perm(IntegrationPermission)])
+        self.client.login(username=user_user_name, password=user_password)
+        ## test global organisation
+        response = self.client.get(path, SERVER_NAME="localhost")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["organisation_id"] is None
+        path = reverse(
+            "integration:collection-detail",
+            kwargs={"pk": collection_dedicated_public_organisation.id},
+        )
+        response = self.client.get(
+            path, SERVER_NAME=f"{organisation_public_access.domain}.localhost"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["organisation_id"] == organisation_public_access.id
 
 
 class TestApiRoot:

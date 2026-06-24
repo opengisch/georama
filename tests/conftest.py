@@ -161,6 +161,16 @@ def collection_dedicated_organisation(organisation):
 
 
 @pytest.fixture
+def collection_dedicated_public_organisation(organisation_public_access):
+    collection = CollectionFactory.create(
+        name="Rails",
+        organisation=organisation_public_access,
+    )
+    yield collection
+    collection.delete()
+
+
+@pytest.fixture
 def collections(collection_global_organisation, collection_dedicated_organisation):
     collections = [collection_dedicated_organisation, collection_global_organisation]
     yield collections
