@@ -6,6 +6,8 @@ from django.contrib.auth.models import Group
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 
+from georama.core.common.admin import OrganisationalModelAdmin
+from georama.core.common.request import GeoramaHttpRequest
 from georama.core.models.fence import Fence
 from georama.core.models.membership import Membership
 from georama.core.models.organisation import Organisation
@@ -27,6 +29,14 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
     change_password_form = AdminPasswordChangeForm
     inlines = [MembershipInlineAdmin]
 
+    def get_queryset(self, request: GeoramaHttpRequest):
+        return (
+            super()
+            .get_queryset(request)
+            .filter(memberships__organisation=request.georama_organisation)
+            .prefetch_related("memberships__organisation")
+        )
+
 
 @admin.register(Group)
 class DjangoGroupAdmin(BaseGroupAdmin, ModelAdmin):
@@ -34,7 +44,7 @@ class DjangoGroupAdmin(BaseGroupAdmin, ModelAdmin):
 
 
 @admin.register(Membership)
-class MembershipGroupAdmin(ModelAdmin):
+class MembershipAdmin(OrganisationalModelAdmin):
     search_fields = ("user__username", "organisation__name")
 
 
@@ -45,5 +55,5 @@ class OrganisationAdmin(ModelAdmin):
 
 
 @admin.register(Fence)
-class FenceAdmin(ModelAdmin):
+class FenceAdmin(OrganisationalModelAdmin):
     pass

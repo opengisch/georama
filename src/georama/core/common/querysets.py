@@ -10,15 +10,10 @@ class OrganisationalQuerySet(models.QuerySet):
         return self.model.ORGANISATION_FIELD_NAME
 
     def assemble_organisational_filter_field_name(self):
-        return f"{self.get_model_organisation_field()}__domain"
+        return f"{self.get_model_organisation_field()}"
 
     def organisation_objects(self, organisation: Organisation | None):
         filter_kwarg = self.assemble_organisational_filter_field_name()
-        if organisation is None:
-            filter_kwarg = f"{filter_kwarg}__isnull"
-            filter_value = True
-        else:
-            filter_value = organisation.domain
-        filter_kwargs = {filter_kwarg: filter_value}
+        filter_kwargs = {filter_kwarg: organisation}
         logging.debug(f"Applied organisational filter kwargs: {filter_kwargs}")
         return self.filter(**filter_kwargs)

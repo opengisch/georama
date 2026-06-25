@@ -1,22 +1,25 @@
 from unfold.admin import ModelAdmin
 
+from georama.core.common.querysets import OrganisationalQuerySet
+from georama.core.common.request import GeoramaHttpRequest
+
 
 class OrganisationalModelAdmin(ModelAdmin):
     """
-    Model admin which shows full content to admin users but content filtered by
-    organisation to staff users.
-
-    Attributes:
-        prefetch_organisation_related: The name of the organisation field. `organisation`
-            if there is a direct relation, if there is a tree like relation like
-            `organisation=>collection=>project` then the value should be:
-            `'organisation__collection__project'`
+    Model admin which uses organisational bound tables to filter automatically for
+    only organisations defined by the request.
     """
 
-    prefetch_organisation_related: str
+    def get_queryset(self, request: GeoramaHttpRequest):
+        """
+        The queryset is automatically filtered by the organisation.
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request).prefetch_related(self.prefetch_organisation_related)
-        if request.user.is_superuser:
-            return qs
-        return qs.filter(**{self.prefetch_organisation_related: request.georama_organisation})
+        Args:
+            request: The normal django.http.HttpRequest which is extended by the
+                georama.core.middleware.organisation.OrganisationMiddleware with the
+                georama_organisation attribute.
+        Returns:
+            The filtered queryset.
+        """
+        qs: OrganisationalQuerySet = super().get_queryset(request)
+        return qs.organisation_objects(request.georama_organisation)

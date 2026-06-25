@@ -2,6 +2,8 @@ from drf_spectacular.plumbing import build_mock_request as original_build_mock_r
 from rest_framework import viewsets
 from rest_framework.permissions import DjangoModelPermissions
 
+from georama.core.common.request import GeoramaDrfRequest
+
 
 class GeoramaModelPermissions(DjangoModelPermissions):
     """A permission which also checks view permission on read endpoints."""
@@ -27,5 +29,24 @@ def build_mock_request(method, path, view, original_request, **kwargs):
 
 
 class OrganisationalModelViewSet(viewsets.ModelViewSet):
+    """
+    A DRF ViewSet which uses organisational bound tables to filter automatically for
+    only organisations defined by the request.
+
+    Attributes:
+        request: The normal rest_framework.request.Request which is extended by the
+            georama.core.middleware.organisation.OrganisationMiddleware with the
+            georama_organisation attribute.
+    """
+
+    request: GeoramaDrfRequest
+
     def get_queryset(self):
-        return super().get_queryset().organisation_objects(self.request.georama_organisation)
+        """
+        The queryset is automatically filtered by the organisation.
+
+        Returns:
+            The filtered queryset.
+        """
+        qs = super().get_queryset()
+        return qs.organisation_objects(self.request.georama_organisation)
