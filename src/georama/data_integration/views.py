@@ -60,7 +60,7 @@ class QgisServerLightExporter(
             ExporterService().execute_export(folder_name, project_name)
         except RuntimeError as e:
             logging.error(e)
-            return HttpResponse("Ask the administer", status=500)
+            return HttpResponse("A runtime error was encountered during data integration. Please contact a system administrator.", status=500)
         next_url = request.GET.get("next")
         if next_url and url_has_allowed_host_and_scheme(
             next_url,
