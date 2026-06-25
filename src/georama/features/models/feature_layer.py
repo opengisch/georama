@@ -10,6 +10,8 @@ from georama.integration.models.datasource import Vector
 
 
 class FeatureLayer(models.Model):
+    ORGANISATION_FIELD_NAME = "datasource__project__collection__organisation"
+
     class Meta:
         verbose_name = _("feature layer")
         verbose_name_plural = _("feature layers")
@@ -31,7 +33,7 @@ class FeatureLayer(models.Model):
         with transaction.atomic():
             if self._state.adding:
                 super().save(*args, **kwargs)
-                self.fields.bulk_create(self.datasource_related_fields())
+                Field.objects.bulk_create(self.datasource_related_fields())
             else:
                 super().save(*args, **kwargs)
 

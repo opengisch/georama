@@ -1,19 +1,7 @@
 from django.db import models, transaction
 
-from georama.core.common.managers import OrganisationalManager as BaseOrganisationalManager
-from georama.core.common.querysets import OrganisationalQuerySet
-from georama.core.models.organisation import Organisation
-
-
-class OrganisationalManager(BaseOrganisationalManager):
-    def organisation_objects(self, organisation: Organisation | None) -> OrganisationalQuerySet:
-        if organisation is None:
-            return self.get_queryset().filter(
-                datasource__project__collection__organisation__domain__isnull=True
-            )
-        return self.get_queryset().filter(
-            datasource__project__collection__organisation__domain=organisation.domain
-        )
+from georama.core.common.managers import OrganisationalManager
+from georama.features.models.field import Field
 
 
 class FeatureLayerManager(OrganisationalManager):
@@ -35,9 +23,10 @@ class FeatureLayerManager(OrganisationalManager):
             )
         )
 
-    def bulk_create(self, objects, *args, **kwargs):
-
+    def bulk_create(self, *args, **kwargs):
         with transaction.atomic():
             feature_layers = super().bulk_create(*args, **kwargs)
-            for feature_layer in feature_layers:
-                feature_layer.fields.bulk_create(self.datasource_related_fields())
+            Field.objects.bulk_create(
+                field for layer in feature_layers for field in layer.datasource_related_fields()
+            )
+            return feature_layers
