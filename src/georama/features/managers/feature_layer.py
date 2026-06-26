@@ -17,9 +17,6 @@ class FeatureLayerManager(OrganisationalManager):
             .prefetch_related(
                 "metadata",
                 "datasource",
-                "datasource__project",
-                "datasource__project__collection",
-                "datasource__project__collection__organisation",
             )
         )
 
