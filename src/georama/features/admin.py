@@ -1,10 +1,15 @@
 import logging
 
 from django.contrib import admin
+from guardian.admin import GuardedModelAdminMixin
 from unfold.admin import TabularInline
 
 from georama.core.common.admin import OrganisationalModelAdmin
-from georama.features.models.feature_layer import FeatureLayer
+from georama.features.models.feature_layer import (
+    FeatureLayer,
+    FeatureLayerGroupObjectPermission,
+    FeatureLayerUserObjectPermission,
+)
 from georama.features.models.field import Field
 from georama.features.models.metadata import Metadata
 
@@ -35,7 +40,7 @@ class FieldInlineAdmin(TabularInline):
 
 
 @admin.register(FeatureLayer)
-class FeatureLayerAdmin(OrganisationalModelAdmin):
+class FeatureLayerAdmin(GuardedModelAdminMixin, OrganisationalModelAdmin):
     prefetch_organisation_related = "datasource__project__collection__organisation"
 
     def get_readonly_fields(self, request, obj=None):
@@ -48,3 +53,19 @@ class FeatureLayerAdmin(OrganisationalModelAdmin):
         if obj and obj.pk:
             return [MetadataInlineAdmin, FieldInlineAdmin]
         return [MetadataInlineAdmin]
+
+
+@admin.register(FeatureLayerUserObjectPermission)
+class FeatureLayerUserObjectPermissionAdmin(OrganisationalModelAdmin):
+    readonly_fields = ["time_created"]
+
+    def get_list_display(self, request):
+        return (*super().get_list_display(request), "time_created")
+
+
+@admin.register(FeatureLayerGroupObjectPermission)
+class FeatureLayerGroupObjectPermissionAdmin(OrganisationalModelAdmin):
+    readonly_fields = ["time_created"]
+
+    def get_list_display(self, request):
+        return (*super().get_list_display(request), "time_created")

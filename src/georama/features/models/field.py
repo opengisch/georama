@@ -2,7 +2,6 @@ import uuid
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
 
 from georama.integration.models.datasource import Field as DatasourceField
 
@@ -37,15 +36,3 @@ class Field(models.Model):
     )
     name = models.CharField(max_length=None)
     visible = models.BooleanField(default=False)
-
-
-class FieldUserObjectPermission(UserObjectPermissionBase):
-    content_object = models.ForeignKey(
-        Field, on_delete=models.CASCADE, related_name="user_object_permissions"
-    )
-
-
-class FieldGroupObjectPermission(GroupObjectPermissionBase):
-    content_object = models.ForeignKey(
-        Field, on_delete=models.CASCADE, related_name="group_object_permissions"
-    )

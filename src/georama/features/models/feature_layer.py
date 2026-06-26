@@ -2,8 +2,10 @@ import uuid
 
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
+from guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
 
+from georama.core.common.managers import OrganisationalManager
 from georama.features.managers.feature_layer import FeatureLayerManager
 from georama.features.models.field import Field
 from georama.integration.models.datasource import Vector
@@ -48,13 +50,27 @@ class FeatureLayer(models.Model):
         )
 
 
+class UserManager(UserObjectPermissionManager, OrganisationalManager): ...
+
+
+class GroupManager(GroupObjectPermissionManager, OrganisationalManager): ...
+
+
 class FeatureLayerUserObjectPermission(UserObjectPermissionBase):
+    ORGANISATION_FIELD_NAME = "content_object__datasource__project__collection__organisation"
     content_object = models.ForeignKey(
         FeatureLayer, on_delete=models.CASCADE, related_name="user_object_permissions"
     )
+    time_created = models.DateTimeField(auto_now_add=True)
+
+    objects = UserManager()
 
 
 class FeatureLayerGroupObjectPermission(GroupObjectPermissionBase):
+    ORGANISATION_FIELD_NAME = "content_object__datasource__project__collection__organisation"
     content_object = models.ForeignKey(
         FeatureLayer, on_delete=models.CASCADE, related_name="group_object_permissions"
     )
+    time_created = models.DateTimeField(auto_now_add=True)
+
+    objects = GroupManager()
