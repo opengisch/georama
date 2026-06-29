@@ -1,0 +1,82 @@
+{% extends 'core/drf/default/form.html' %}
+{% load i18n %}
+{% block list_actions %}
+
+    <!-- Layer actions -->
+
+    <div class="align-content-center">
+        <div class="btn-group" {% if protected %}disabled{% endif %} role="group"
+             aria-label="Layer actions">
+            {% blocktranslate asvar title %}Confirm{% endblocktranslate %}
+            <button
+                    type="button"
+                    onclick="confirm_delete()"
+                    class="btn btn-outline-danger"
+                    data-bs-toggle="tooltip"
+                    title="{{ title }}"
+                    aria-label="{{ title }}">
+                {{ title }}
+            </button>
+        </div>
+    </div>
+    {% csrf_token %}
+    <script>
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    </script>
+    <script>
+        async function confirm_delete() {
+            console.log("CONFIRM DELETE CALLED");
+            console.trace();
+
+            const response = await fetch(
+                "{% url view.url_name_destroy object.pk %}",
+                {
+                    redirect: 'follow',
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRFToken": csrftoken,
+                    }
+                }
+            );
+
+            if (response.ok) {
+                window.location.href = "{% url view.url_name_list %}";
+            } else {
+                console.error("Delete failed:", response.status);
+            }
+        }
+    </script>
+
+{% endblock %}
+
+{% block form_details %}
+
+    <!-- Column, scrollable -->
+
+    <div class="col h-100 px-4 overflow-auto">
+
+        <!-- Form content -->
+
+        {% if protected %}
+            <div class="alert alert-danger mt-3">
+                <strong>The project can't be deleted!</strong><br>
+                The following elements are protected:
+                <ul>
+                    {% for obj in protected %}
+                        <li>{{ obj }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <h5>Removing this Element has impact on the following content in
+                Georama:</h5>
+
+            <ul class="list-group">
+                {% include "core/drf/includes/includes/nested_delete.html" with objects=related_objects %}
+            </ul>
+        {% endif %}
+
+    </div>
+
+
+{% endblock %}

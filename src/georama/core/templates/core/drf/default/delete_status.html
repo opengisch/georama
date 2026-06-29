@@ -1,0 +1,51 @@
+{% extends 'core/drf/default/form.html' %}
+{% load i18n %}
+{% block list_actions %}
+
+    <!-- Layer actions -->
+
+    <div class="align-content-center">
+        <div class="btn-group" role="group"
+             aria-label="Layer actions">
+            {% blocktranslate asvar title %}Ok{% endblocktranslate %}
+            <button
+                    type="button"
+                    onclick="confirm_delete()"
+                    class="btn btn-outline-danger"
+                    data-bs-toggle="tooltip"
+                    title="{{ title }}"
+                    aria-label="{{ title }}">
+                {{ title }}
+            </button>
+        </div>
+    </div>
+    <script>
+        async function confirm_delete() {
+            window.location.href = "{% url view.url_name_list %}";
+        }
+    </script>
+
+{% endblock %}
+
+{% block form_details %}
+
+    <!-- Column, scrollable -->
+
+    <div class="col h-100 px-4 overflow-auto">
+
+        <!-- Form content -->
+
+        {% if status != expected_status %}
+            <div class="alert alert-danger" role="alert">
+                Deletion not succesful
+            </div>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                Sucessfully deleted
+            </div>
+        {% endif %}
+
+    </div>
+
+
+{% endblock %}

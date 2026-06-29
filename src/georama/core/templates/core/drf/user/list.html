@@ -1,0 +1,10 @@
+{% extends 'core/drf/default/list.html' %}
+{% load static i18n %}
+
+{% block search_include %}
+    {% include 'core/drf/default/includes/search_htmx.html' %}
+{% endblock %}
+
+{% block list_partial %}
+    {% include 'core/drf/user/partials/list.html' %}
+{% endblock %}

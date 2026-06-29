@@ -1,5 +1,6 @@
+from adrf import serializers
 from django.contrib.auth.models import Group, Permission
-from rest_framework import serializers
+from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 from georama.core.models import Fence, GeoramaUser, Membership, Organisation
@@ -18,7 +19,7 @@ class PermissionSerializer(serializers.ModelSerializer):
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    permissions = serializers.PrimaryKeyRelatedField(
+    permissions = PrimaryKeyRelatedField(
         many=True,
         queryset=Permission.objects.all(),
     )
@@ -34,15 +35,15 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    groups = serializers.PrimaryKeyRelatedField(
+    groups = PrimaryKeyRelatedField(
         many=True,
         queryset=Group.objects.all(),
     )
-    user_permissions = serializers.PrimaryKeyRelatedField(
+    user_permissions = PrimaryKeyRelatedField(
         many=True,
         queryset=Permission.objects.all(),
     )
-    memberships = serializers.PrimaryKeyRelatedField(
+    memberships = PrimaryKeyRelatedField(
         many=True,
         queryset=Membership.objects.all(),
     )
@@ -69,11 +70,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class OrganisationSerializer(serializers.ModelSerializer):
-    fences = serializers.PrimaryKeyRelatedField(
+    fences = PrimaryKeyRelatedField(
         many=True,
         queryset=Fence.objects.all(),
     )
-    memberships = serializers.PrimaryKeyRelatedField(
+    memberships = PrimaryKeyRelatedField(
         many=True,
         queryset=Membership.objects.all(),
     )

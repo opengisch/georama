@@ -1,0 +1,45 @@
+{% load i18n %}
+<form id="searchForm" class="d-flex">
+    <input id="searchInput" class="form-control me-2" name="search" type="search"
+           title="{{ search_fields_hint }}"
+           data-bs-toggle="tooltip"
+           placeholder={% trans 'Search term' %} aria-label={{ search_fields_hint }}
+           value="{{ search_term }}">
+    <button class="btn btn-outline-primary" type="submit">{% trans 'Search' %}</button>
+</form>
+<!--
+    Currently the search parameter stays in URL even if its empty. We may want to switch
+    to JS pure handling some day to handle that.
+-->
+<script>
+
+    const params = new URLSearchParams(window.location.search);
+    const search = params.get("{{ search_param }}");
+
+    if (search) {
+        document.getElementById("searchInput").value = search;
+    }
+    const input = document.getElementById("searchInput");
+    const form = document.getElementById("searchForm");
+
+    function submitSearch() {
+        const url = new URL(window.location);
+
+        if (input.value) {
+            url.searchParams.set("{{ search_param }}", input.value);
+        } else {
+            url.searchParams.delete("{{ search_param }}");
+        }
+
+        window.location.href = url.toString();
+    }
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        submitSearch();
+    });
+
+    input.addEventListener("search", () => {
+        submitSearch();
+    });
+</script>

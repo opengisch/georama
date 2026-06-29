@@ -10,7 +10,8 @@ from georama.core.api.serializers import (
     PermissionSerializer,
     UserSerializer,
 )
-from georama.core.common.api import OrganisationalModelViewSet
+from georama.core.common.api import GeoramaAsyncTemplateModelViewSet, OrganisationalModelViewSet
+from georama.core.forms.user import GeoramaUserForm
 from georama.core.models import Fence, GeoramaUser, Membership, Organisation
 
 
@@ -88,15 +89,19 @@ class GroupViewSet(viewsets.ModelViewSet):
     ]
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(GeoramaAsyncTemplateModelViewSet):
     queryset = GeoramaUser.objects.all()
     permission_classes = [permissions.IsAdminUser]
     serializer_class = UserSerializer
+    list_template_name = "core/drf/user/list.html"
+    partial_list_template_name = "core/drf/user/partials/list.html"
+    form = GeoramaUserForm
+
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
         DjangoFilterBackend,
     ]
-    search_fields = ["username"]
-    ordering_fields = ["username"]
+    search_fields = ["username", "first_name", "last_name"]
+    ordering_fields = ["username", "first_name", "last_name"]
     filterset_fields = ["username", "first_name", "last_name"]

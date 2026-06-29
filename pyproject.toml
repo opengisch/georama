@@ -16,12 +16,14 @@ dependencies = [
     "psycopg[pool]>=3.3.4",
     "django-unfold>=0.96.0",
     "uvicorn>=0.49.0",
-    "django-formset>=2.2.4",
     "django-extensions>=4.1",
     "djangorestframework>=3.17.1",
     "drf-spectacular[sidecar]>=0.29.0",
     "djangorestframework-gis>=1.2.1",
     "django-allauth[socialaccount]>=65.18.0",
+    "adrf>=0.1.13",
+    "django-crispy-forms>=2.6",
+    "crispy-bootstrap5>=2026.3",
 ]
 
 [project.scripts]

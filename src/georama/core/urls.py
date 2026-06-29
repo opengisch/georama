@@ -1,7 +1,7 @@
+from adrf import routers
 from django.urls import include, path
 
 from georama.core.api import views
-from georama.core.api.routers import GeoramaAdminRouter
 from georama.core.api.view_sets import (
     FenceViewSet,
     GroupViewSet,
@@ -15,7 +15,7 @@ from georama.core.views.index import Index
 
 app_name = "core"
 
-management_router = GeoramaAdminRouter()
+management_router = routers.SimpleRouter()
 management_router.register(r"users", UserViewSet)
 management_router.register(r"groups", GroupViewSet)
 management_router.register(r"permissions", PermissionViewSet)

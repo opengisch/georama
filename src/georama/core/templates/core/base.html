@@ -19,6 +19,7 @@
           href="{% static 'core/css/fontawesome.6.5.2.all.min.css' %}">
 
     <script src="{% static 'core/js/bootstrap.5.3.8.bundle.min.js' %}"></script>
+    <script src="{% static 'core/js/htmx.2.0.10.min.js' %}"></script>
 
     <title>Georama – Your Geospatial Data Hub</title>
 
@@ -81,10 +82,11 @@
                     <li class="nav-item align-items-center">
                         <div class="nav-link ps-0">
                             {% if user.is_authenticated %}
-                                <form method="post" action="{% url 'core:logout' %}" class="d-inline">
+                                <form method="post" action="{% url 'core:logout' %}"
+                                      class="d-inline">
                                     {% csrf_token %}
                                     <button type="submit" title="Logout"
-                                       class="btn btn-outline-secondary">
+                                            class="btn btn-outline-secondary">
                                         {{ user.username }}
                                         <i class="fa fa-arrow-right-from-bracket ps-1"></i>
                                     </button>

@@ -1,0 +1,64 @@
+<div class="d-flex mt-4">
+
+        <!-- Items per page -->
+
+        <div class="dropdown me-2">
+            <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+                {{ limit }}
+            </a>
+            <ul class="dropdown-menu">
+                {% for ppo in per_page_options %}
+                    {% if limit != ppo %}
+                        <li><a class="dropdown-item"
+                               href="{% querystring limit=ppo %}">{{ ppo }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        <nav aria-label="page navigation">
+            <ul class="pagination">
+
+                <!-- Page back -->
+
+                <li class="page-item ">
+                    {% if previous_url %}
+                        <a class="page-link" href="{{ previous_url }}">&laquo;</a>
+                    {% else %}
+                        <a class="page-link disabled" href="#" aria-disabled="true">&laquo;</a>
+                    {% endif %}
+                </li>
+
+                <!-- Page number -->
+
+                {% for page_link in page_links %}
+                    <li class="page-item">
+                        {% if page_link.is_break %}
+                            <a class="page-link disabled" href="#">&hellip;</a>
+                        {% else %}
+                            {% if page_link.is_active %}
+                                <a class="page-link active" aria-current="page"
+                                   href="#">{{ page_link.number }}</a>
+                            {% else %}
+                                <a class="page-link"
+                                   href="{{ page_link.url }}">{{ page_link.number }}</a>
+                            {% endif %}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+
+                <!-- Page forward -->
+
+                <li class="page-item">
+                    {% if next_url %}
+                        <a class="page-link" href="{{ next_url }}">&raquo;</a>
+                    {% else %}
+                        <a class="page-link disabled" href="#" aria-disabled="true">&raquo;</a>
+                    {% endif %}
+                </li>
+            </ul>
+        </nav>
+    </div>

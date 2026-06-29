@@ -7,6 +7,8 @@ LABEL org.opencontainers.image.title="Georama Base Image"
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y binutils libproj-dev gdal-bin gettext
 
+COPY --from=ghcr.io/astral-sh/uv:0.11.19 /uv /uvx /bin/
+
 FROM base AS dev
 
 ARG UID=1000
@@ -16,7 +18,6 @@ ARG GID=1000
 RUN groupadd --system --gid $GID nonroot \
  && useradd --system --gid $GID --uid $UID --create-home appuser
 
-COPY --from=ghcr.io/astral-sh/uv:0.11.19 /uv /uvx /bin/
 ARG STATIC_DIR="/georama/static"
 # we create a non project content static dir to avoid backfire
 #   of mounted content to the host

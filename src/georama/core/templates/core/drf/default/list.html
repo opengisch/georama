@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+{% load static i18n %}
+
+{% block list_actions %}
+{% endblock %}
+
+{% block content %}
+
+    {% block list_nav %}
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                {% if ordering_context %}
+                    {% block ordering_include %}
+                        {% include 'core/drf/default/includes/ordering.html' %}
+                    {% endblock %}
+                {% endif %}
+                {% if search_fields %}
+                    {% block search_include %}
+                        {% include 'core/drf/default/includes/search.html' %}
+                    {% endblock %}
+                {% endif %}
+            </div>
+        </nav>
+    {% endblock %}
+
+    <div id="list-partial" class="h-100 d-flex flex-column overflow-hidden">
+        {% block list_partial %}
+            {% include 'core/drf/default/partials/list.html' %}
+        {% endblock %}
+    </div>
+{% endblock %}

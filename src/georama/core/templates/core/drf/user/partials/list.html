@@ -1,0 +1,14 @@
+{% extends 'core/drf/default/partials/list.html' %}
+
+{% block list_item_title_and_name %}
+    <h4 class="mb-2">
+        {% block list_item_title %}
+            {{ item.first_name }} {{ item.last_name }}
+        {% endblock %}
+    </h4>
+    <div class="mb-1">
+        {% block list_item_name %}
+            {{ item.username }}
+        {% endblock %}
+    </div>
+{% endblock %}

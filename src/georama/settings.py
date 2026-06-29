@@ -162,7 +162,7 @@ class Base(Configuration):
         "drf_spectacular",
         "drf_spectacular_sidecar",
         "django_filters",
-        "formset",  # https://github.com/jrief/django-formset
+        "adrf",
         "guardian",
         "georama.core.apps.CoreConfig",
         "georama.integration.apps.IntegrationConfig",
@@ -171,6 +171,8 @@ class Base(Configuration):
         "allauth.account",
         "allauth.socialaccount",
         "allauth.socialaccount.providers.openid_connect",
+        "crispy_forms",
+        "crispy_bootstrap5",
     ]
 
     MIDDLEWARE = [
@@ -368,7 +370,14 @@ class Base(Configuration):
         "GET_MOCK_REQUEST": "georama.core.common.api.build_mock_request",
     }
 
-    LOGIN_REDIRECT_URL = "core:index"
+    ##############
+    # Crispy forms https://django-crispy-forms.readthedocs.io/en/latest/install.html#setting-static-files
+    ##############
+
+    CRISPY_ALLOWED_TEMPLATE_PACKS = (
+        "bootstrap5"  # https://github.com/django-crispy-forms/crispy-bootstrap5
+    )
+    CRISPY_TEMPLATE_PACK = "bootstrap5"
 
     ###########################
     # Georama specific settings
@@ -398,6 +407,20 @@ class Base(Configuration):
         environ_prefix=GEORAMA_ENV_PREFIX,
         separator=LIST_ENV_SEPARATOR,
     )
+
+    LIST_PAGE_SIZES = values.ListValue(
+        [
+            10,
+            25,
+            50,
+            100,
+            200,
+            500,
+        ],
+        separator=LIST_ENV_SEPARATOR,
+        environ_prefix=GEORAMA_ENV_PREFIX,
+    )
+    LIST_PAGE_SIZE_DEFAULT = values.IntegerValue(10, environ_prefix=GEORAMA_ENV_PREFIX)
 
 
 class Dev(Base):

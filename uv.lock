@@ -7,6 +7,20 @@ resolution-markers = [
 ]
 
 [[package]]
+name = "adrf"
+version = "0.1.13"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "async-property" },
+    { name = "django" },
+    { name = "djangorestframework" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8f/12/0ad45c9d1f61d85ae97b3261a6ad5500e552bd22e8897f390828c95f0790/adrf-0.1.13.tar.gz", hash = "sha256:769c1b1e9e2abb7f46c83bc066e672ce832e8debfdaa455a995b906c41e168b7", size = 19262, upload-time = "2026-06-24T05:06:03.756Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/53/cb/a1d0826cd96ae8bfe07aaa58b151f548bdf32f1db7df6e67e8bc469b827c/adrf-0.1.13-py3-none-any.whl", hash = "sha256:684c082725b68d41d776d5f03102177c74d15af29dd3f748d329efad152e7f5a", size = 22765, upload-time = "2026-06-24T05:06:02.318Z" },
+]
+
+[[package]]
 name = "argon2-cffi"
 version = "25.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -56,6 +70,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/63/40/f03da1264ae8f7cfdbf9146542e5e7e8100a4c66ab48e791df9a03d3f6c0/asgiref-3.11.1.tar.gz", hash = "sha256:5f184dc43b7e763efe848065441eac62229c9f7b0475f41f80e207a114eda4ce", size = 38550, upload-time = "2026-02-03T13:30:14.33Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5c/0a/a72d10ed65068e115044937873362e6e32fab1b7dce0046aeb224682c989/asgiref-3.11.1-py3-none-any.whl", hash = "sha256:e8667a091e69529631969fd45dc268fa79b99c92c5fcdda727757e52146ec133", size = 24345, upload-time = "2026-02-03T13:30:13.039Z" },
+]
+
+[[package]]
+name = "async-property"
+version = "0.2.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a7/12/900eb34b3af75c11b69d6b78b74ec0fd1ba489376eceb3785f787d1a0a1d/async_property-0.2.2.tar.gz", hash = "sha256:17d9bd6ca67e27915a75d92549df64b5c7174e9dc806b30a3934dc4ff0506380", size = 16523, upload-time = "2023-07-03T17:21:55.688Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/80/9f608d13b4b3afcebd1dd13baf9551c95fc424d6390e4b1cfd7b1810cd06/async_property-0.2.2-py2.py3-none-any.whl", hash = "sha256:8924d792b5843994537f8ed411165700b27b2bd966cefc4daeefc1253442a9d7", size = 9546, upload-time = "2023-07-03T17:21:54.293Z" },
 ]
 
 [[package]]
@@ -237,6 +260,19 @@ wheels = [
 ]
 
 [[package]]
+name = "crispy-bootstrap5"
+version = "2026.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "django-crispy-forms" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ab/e8/05e1170f6b8fbfe4098392bdca813c2094659853a438919234d4663009b1/crispy_bootstrap5-2026.3.tar.gz", hash = "sha256:e7f5adb36acfbb456444c46e82c436931c796c539e9c620be4fa9dc9c9d6679c", size = 23452, upload-time = "2026-03-01T10:08:00.459Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9d/2d/93f78072f203aa28d961add6a130b929b47f7aa3fef6905898b4bb9a637d/crispy_bootstrap5-2026.3-py3-none-any.whl", hash = "sha256:e0fff85c0503e9aed610a0ee31368e2191d340657f813669491c288c1c2e2dfa", size = 24770, upload-time = "2026-03-01T10:07:59.058Z" },
+]
+
+[[package]]
 name = "cryptography"
 version = "49.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -360,6 +396,18 @@ wheels = [
 ]
 
 [[package]]
+name = "django-crispy-forms"
+version = "2.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/73/42/c2cfb672493730b963ef377b103e29871c56348a215d0ae8cf362fe8ab1e/django_crispy_forms-2.6.tar.gz", hash = "sha256:4921a1087c6cd4f9fa3c139654c1de1c1c385f8bd6729aaee530bc0121ab4b93", size = 1097838, upload-time = "2026-03-01T09:03:37.138Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/96/e3/4c5915a732d6ab54da8871400852b67529518eedfb6b78ecf10bbccfcabb/django_crispy_forms-2.6-py3-none-any.whl", hash = "sha256:8ee0ae28b6b0ac41ff48a65944480c049fe8d1b0047086874fd7efabf4ec1374", size = 31479, upload-time = "2026-03-01T09:03:36.048Z" },
+]
+
+[[package]]
 name = "django-extensions"
 version = "4.1"
 source = { registry = "https://pypi.org/simple" }
@@ -381,18 +429,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/2c/e4/465d2699cd388c0005fb8d6ae6709f239917c6d8790ac35719676fffdcf3/django_filter-25.2.tar.gz", hash = "sha256:760e984a931f4468d096f5541787efb8998c61217b73006163bf2f9523fe8f23", size = 143818, upload-time = "2025-10-05T09:51:31.521Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c1/40/6a02495c5658beb1f31eb09952d8aa12ef3c2a66342331ce3a35f7132439/django_filter-25.2-py3-none-any.whl", hash = "sha256:9c0f8609057309bba611062fe1b720b4a873652541192d232dd28970383633e3", size = 94145, upload-time = "2025-10-05T09:51:29.728Z" },
-]
-
-[[package]]
-name = "django-formset"
-version = "2.2.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "django" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/bf/9b/73e42f140b938d22eda63a3b5078c8acad3cab9e45aa5c7f07d55963b767/django_formset-2.2.4.tar.gz", hash = "sha256:0eceb9424aad2a3723769a402f7ecc517378441e651f153ff1422304944749f0", size = 1012663, upload-time = "2026-03-30T21:27:14.574Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ad/36/18a36cf5274c0961c57cd453209e439b82ab0909906aad8d86ac1b249c9c/django_formset-2.2.4-py3-none-any.whl", hash = "sha256:3d3c647947d750f877cb3ebdf8c5cc64576f9593ba247f0fed3c096a02513ce2", size = 1338092, upload-time = "2026-03-30T21:27:12.905Z" },
 ]
 
 [[package]]
@@ -532,13 +568,15 @@ name = "georama"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "adrf" },
+    { name = "crispy-bootstrap5" },
     { name = "django", extra = ["argon2"] },
     { name = "django-allauth", extra = ["socialaccount"] },
     { name = "django-configurations" },
     { name = "django-cors-headers" },
+    { name = "django-crispy-forms" },
     { name = "django-extensions" },
     { name = "django-filter" },
-    { name = "django-formset" },
     { name = "django-guardian" },
     { name = "django-unfold" },
     { name = "djangorestframework" },
@@ -570,13 +608,15 @@ test = [
 
 [package.metadata]
 requires-dist = [
+    { name = "adrf", specifier = ">=0.1.13" },
+    { name = "crispy-bootstrap5", specifier = ">=2026.3" },
     { name = "django", extras = ["argon2"], specifier = ">=6.0.6" },
     { name = "django-allauth", extras = ["socialaccount"], specifier = ">=65.18.0" },
     { name = "django-configurations", specifier = ">=2.5.1" },
     { name = "django-cors-headers", specifier = ">=4.9.0" },
+    { name = "django-crispy-forms", specifier = ">=2.6" },
     { name = "django-extensions", specifier = ">=4.1" },
     { name = "django-filter", specifier = ">=25.2" },
-    { name = "django-formset", specifier = ">=2.2.4" },
     { name = "django-guardian", specifier = ">=3.3.1" },
     { name = "django-unfold", specifier = ">=0.96.0" },
     { name = "djangorestframework", specifier = ">=3.17.1" },
