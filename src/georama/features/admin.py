@@ -2,7 +2,7 @@ import logging
 
 from django.contrib import admin
 from guardian.admin import GuardedModelAdminMixin
-from unfold.admin import TabularInline
+from unfold.admin import ModelAdmin, TabularInline
 
 from georama.core.common.admin import OrganisationalModelAdmin
 from georama.features.models.feature_layer import (
@@ -14,14 +14,6 @@ from georama.features.models.field import Field
 from georama.features.models.metadata import Metadata
 
 logger = logging.getLogger(__name__)
-
-
-class MetadataInlineAdmin(TabularInline):
-    model = Metadata
-    max_num = 1
-    min_num = 1
-    exclude = ["id"]
-    hide_title = True
 
 
 class FieldInlineAdmin(TabularInline):
@@ -51,8 +43,8 @@ class FeatureLayerAdmin(GuardedModelAdminMixin, OrganisationalModelAdmin):
     def get_inlines(self, request, obj):
         """Hook for specifying custom inlines."""
         if obj and obj.pk:
-            return [MetadataInlineAdmin, FieldInlineAdmin]
-        return [MetadataInlineAdmin]
+            return [FieldInlineAdmin]
+        return []
 
 
 @admin.register(FeatureLayerUserObjectPermission)
@@ -69,3 +61,8 @@ class FeatureLayerGroupObjectPermissionAdmin(OrganisationalModelAdmin):
 
     def get_list_display(self, request):
         return (*super().get_list_display(request), "time_created")
+
+
+@admin.register(Metadata)
+class MetadataAdmin(ModelAdmin):
+    prefetch_organisation_related = "feature_layer__datasource__project__collection__organisation"

@@ -2,6 +2,7 @@ import os
 
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
+from django.db import transaction
 
 from georama.core.factories import AdminUserFactory, MembershipFactory, UserFactory
 from georama.core.models import GeoramaUser
@@ -12,6 +13,7 @@ from georama.core.models.organisation import Organisation
 class Command(BaseCommand):
     help = "Flushes db content of core app and adds a lot of demo content"
 
+    @transaction.atomic
     def handle(self, *args, **options):
         current_config = os.environ.get("DJANGO_CONFIGURATION")
 
