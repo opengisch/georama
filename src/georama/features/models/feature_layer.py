@@ -55,14 +55,16 @@ class FeatureLayer(models.Model):
                 super().save(*args, **kwargs)
 
     def datasource_related_fields(self):
-        return (
-            Field(
+        for datasource_field in self.datasource.fields.all():
+            yield Field(
                 feature_layer=self,
                 datasource_field=datasource_field,
                 name=datasource_field.name,
             )
-            for datasource_field in self.datasource.fields.all()
-        )
+
+    @property
+    def title(self):
+        return self.metadata.name
 
 
 class UserManager(UserObjectPermissionManager, OrganisationalManager): ...

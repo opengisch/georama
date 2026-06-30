@@ -2,6 +2,13 @@ import uuid
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from qgis_server_light.interface.common import BBox
+from qgis_server_light.interface.exporter.extract import (
+    Crs,
+    DataSource,
+)
+from xsdata.formats.dataclass.parsers import DictDecoder
+from xsdata.formats.dataclass.parsers.config import ParserConfig
 
 from georama.core.common.managers import OrganisationalManager
 from georama.integration.managers.datasource import DatasourceManager, VectorManager
@@ -62,6 +69,24 @@ class Datasource(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def get_parser_config(self):
+        return ParserConfig(fail_on_unknown_attributes=False, fail_on_unknown_properties=False)
+
+    @property
+    def source_to_qsl(self) -> DataSource:
+        # TODO: Implement an ENV Django app to manipulate datasources in a hookable way
+        datasource = DictDecoder(config=self.get_parser_config).decode(self.source, DataSource)
+        return datasource
+
+    @property
+    def crs_to_qsl(self) -> Crs:
+        return DictDecoder(config=self.get_parser_config).decode(self.crs, Crs)
+
+    @property
+    def bbox_to_list(self) -> list:
+        return BBox.from_string(self.bbox).to_list()
 
 
 class Vector(Datasource):

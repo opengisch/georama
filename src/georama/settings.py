@@ -421,6 +421,8 @@ class Base(Configuration):
         environ_prefix=GEORAMA_ENV_PREFIX,
     )
     LIST_PAGE_SIZE_DEFAULT = values.IntegerValue(10, environ_prefix=GEORAMA_ENV_PREFIX)
+    
+    DATA_INTEGRATION_ROOT = values.Value("./tests/resources/projects", environ_prefix="GEORAMA")
 
 
 class Dev(Base):

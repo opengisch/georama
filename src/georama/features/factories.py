@@ -12,7 +12,7 @@ class MetadataFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Metadata
 
-    title = factory.Faker("word")
+    name = factory.Faker("word")
     description = factory.Faker("word")
 
 

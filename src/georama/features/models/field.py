@@ -35,4 +35,4 @@ class Field(models.Model):
         on_delete=models.CASCADE,
     )
     name = models.CharField(max_length=None)
-    visible = models.BooleanField(default=False)
+    visible = models.BooleanField(default=True)

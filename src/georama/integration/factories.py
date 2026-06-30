@@ -903,7 +903,7 @@ class VectorFactory(DatasourceFactory):
     def fields(self, create, extracted, **kwargs):
         if not create:
             return
-        if extracted:
+        if extracted is not None:
             for field in extracted:
                 self.fields.add(field)
         else:
