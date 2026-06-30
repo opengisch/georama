@@ -7,9 +7,11 @@ class MetadataSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metadata
         fields = [
-            "default_items",
-            "max_items",
-            "on_exceed",
+            "name",
+            "description",
+            "license",
+            "fees",
+            "access_constraints",
         ]
 
 
@@ -30,6 +32,9 @@ class FeatureLayerSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "datasource",
+            "default_items",
+            "max_items",
+            "on_exceed",
             "metadata",
         ]
         extra_kwargs = {"id": {"read_only": True}}
