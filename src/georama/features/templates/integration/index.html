@@ -1,1 +1,12 @@
-<h1>Hello moto...</h1>
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_head %}
+    {{ block.super }}
+{% endblock %}
+
+{% block content %}
+    <h1>Hello moto...</h1>
+{% endblock %}
+{% block extra_js %}
+{% endblock %}
