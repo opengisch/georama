@@ -77,8 +77,22 @@ class Command(BaseCommand):
             type_oapif_format="int64",
             alias="Fid",
             comment="",
-            nullable=False,
+            nullable=True,
             length=None,
+            precision=None,
+            datasource=vector,
+        )
+        FieldFactory.create(
+            name="name",
+            type="String",
+            is_primary_key=False,
+            type_wfs="string",
+            type_oapif="string",
+            type_oapif_format="string",
+            alias="Name",
+            comment="",
+            nullable=False,
+            length=10,
             precision=None,
             datasource=vector,
         )

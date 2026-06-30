@@ -300,11 +300,11 @@ class PygeoapiServer(View):
         # TODO: make this configurable
         driver_lookup = {"SHP": "ESRI Shapefile", "GPKG": "GPKG", "GDB": "OpenFileGDB"}
 
-        # for OGR `geom` is the standard geometry column
-        geom_field = "geom"
+        # The geometry column name may differ, setting it to None works for all cases
+        geom_field = None
         geom_type = feature_layer.datasource.geometry_type_wkb
 
-        field_constraints = getDatasetFieldConstraints(features_properties, geom_field, geom_type)
+        field_constraints = getDatasetFieldConstraints(features_properties, geom_type)
 
         provider_definition = {
             "type": "feature",
@@ -347,7 +347,7 @@ class PygeoapiServer(View):
         geom_field = source.postgres.geometry_column
         geom_type = feature_layer.datasource.geometry_type_wkb
 
-        field_constraints = getDatasetFieldConstraints(features_properties, geom_field, geom_type)
+        field_constraints = getDatasetFieldConstraints(features_properties, geom_type)
 
         provider_definition = {
             "type": "feature",
@@ -434,15 +434,11 @@ class PygeoapiServer(View):
         return available_crs_list
 
 
-def getDatasetFieldConstraints(field_properties: list[Field], geom_field: str, geom_type: str):
+def getDatasetFieldConstraints(field_properties: list[Field], geom_type: str):
     field_constraints: dict[str, dict] = {}
 
     for properties in field_properties:
         field: DatasourceField = properties.datasource_field
-
-        # Handle geom separately
-        if properties.name == geom_field:
-            continue
 
         schema: dict[str, str | int | float | bool] = {
             "title": field.alias or properties.name,
