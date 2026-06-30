@@ -35,3 +35,8 @@ docker compose exec georama uv run manage create_dev_content_core
 ```shell
 docker compose exec georama uv run manage create_dev_content_integration
 ```
+
+# pygeoapi
+
+- oapif write only on postgis layers
+- ogr provider does not support layers without fields beside pk & geom
