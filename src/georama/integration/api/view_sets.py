@@ -27,7 +27,7 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
     ]
     search_fields = ["name"]
     ordering_fields = ["name"]
-    filterset_fields = ["name", "collection__name"]
+    filterset_fields = ["name"]
 
 
 class VectorDatasourceViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):

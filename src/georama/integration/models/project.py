@@ -40,4 +40,4 @@ class Project(models.Model):
     objects = ProjectManager()
 
     def __str__(self):
-        return f"{self.name} ({_('collection').title()}: {self.collection.name})"
+        return f"{self.name}"

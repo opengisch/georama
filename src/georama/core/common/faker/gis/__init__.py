@@ -1,12 +1,54 @@
 import random
+from collections.abc import Callable
+from dataclasses import dataclass
+from decimal import Decimal
+from typing import Any
 
+from faker import Faker
 from faker.providers import BaseProvider
-from pyproj import CRS
+from pyproj import CRS, Transformer
 from shapely import box
 from shapely.geometry import LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon
 
 localized = True
 default_locale = "de_CH"
+
+
+@dataclass
+class Field:
+    name: str
+    type: str
+    alias: str
+    nullable: bool
+    type_oapif: str
+    is_primary_key: bool
+    length: int | None
+    precision: int | None
+    type_oapif_format: str
+    type_wfs: str
+    comment: str
+    field_gen: Callable[[Faker], Any]
+
+
+@dataclass
+class Schema:
+    name: str
+    geom_gen: str
+    fields: list[Field]
+
+
+@dataclass
+class Dataset:
+    create_table_sql: str
+    insert_values_sql: str
+    selected_fields: list[Field]
+    table_name: str
+    geometry_field_name: str
+    amount: int
+    geometry_type_wkb: str
+    geometry_type_simple: str
+    name: str
+    epsg_id: int
 
 
 def get_epsg_bounds(epsg_code: int) -> tuple:
@@ -20,8 +62,13 @@ def get_epsg_bounds(epsg_code: int) -> tuple:
     try:
         crs = CRS.from_epsg(epsg_code)
         if crs.area_of_use is not None:
+            transformer = Transformer.from_crs("EPSG:4326", epsg_code, always_xy=True)
             bounds = crs.area_of_use.bounds
-            return bounds  # (west/minx, south/miny, east/maxx, north/maxy)
+            minx, miny, maxx, maxy = bounds
+            x1, y1 = transformer.transform(minx, miny)
+            x2, y2 = transformer.transform(maxx, maxy)
+            new_bounds = (min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2))
+            return new_bounds  # (west/minx, south/miny, east/maxx, north/maxy)
 
         # Fallback for C.R.S without area_of_use
         if crs.is_geographic:
@@ -55,9 +102,467 @@ class Provider(BaseProvider):
 
     epsg_code: int = 4326
 
+    schemas: list[Schema] = [
+        Schema(
+            "cities",
+            "point",
+            [
+                Field(
+                    "name",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda faker: faker.city(),
+                ),
+                Field(
+                    "visited",
+                    "Date",
+                    "Date of visit",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "date-time",
+                    "dateTime",
+                    "",
+                    lambda faker: faker.date(pattern="%Y-%m-%d"),
+                ),
+                Field(
+                    "distance",
+                    "DECIMAL",
+                    "Distance",
+                    False,
+                    "number",
+                    False,
+                    None,
+                    None,
+                    "double",
+                    "decimal",
+                    "",
+                    lambda locale: Decimal(
+                        f"{random.randint(0, 99999999)}.{random.randint(0, 99):02d}"
+                    ),
+                ),
+                Field(
+                    "video",
+                    "VARCHAR",
+                    "Video",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda faker: faker.file_path(depth=3, category="video"),
+                ),
+            ],
+        ),
+        Schema(
+            "rivers",
+            "linestring",
+            [
+                Field(
+                    "name",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda locale: f"{Faker().name()} river",
+                ),
+                Field(
+                    "flow_rate",
+                    "DECIMAL",
+                    "Flow Rate",
+                    False,
+                    "number",
+                    False,
+                    None,
+                    2,
+                    "double",
+                    "decimal",
+                    "",
+                    lambda locale: Decimal(
+                        f"{random.randint(0, 99999999)}.{random.randint(0, 99):02d}"
+                    ),
+                ),
+            ],
+        ),
+        Schema(
+            "poi",
+            "point",
+            [
+                Field(
+                    "name",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda faker: faker.word(),
+                ),
+                Field(
+                    "comment",
+                    "VARCHAR",
+                    "Comment",
+                    False,
+                    "string",
+                    False,
+                    500,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda faker: faker.text(max_nb_chars=random.randint(20, 500)),
+                ),
+                Field(
+                    "description",
+                    "VARCHAR",
+                    "Description",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda faker: faker.text(max_nb_chars=random.randint(20, 1000)),
+                ),
+            ],
+        ),
+        Schema(
+            "labels",
+            "point",
+            [
+                Field(
+                    "text",
+                    "VARCHAR",
+                    "Text",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda faker: faker.word(),
+                ),
+            ],
+        ),
+        Schema(
+            "streets",
+            "linestring",
+            [
+                Field(
+                    "name",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda faker: faker.street_name(),
+                ),
+                Field(
+                    "local_residents",
+                    "bigint",
+                    "Local Residents",
+                    False,
+                    "integer",
+                    False,
+                    None,
+                    None,
+                    "int64",
+                    "long",
+                    "",
+                    lambda faker: faker.random_int(),
+                ),
+            ],
+        ),
+        Schema(
+            "buildings",
+            "polygon",
+            [
+                Field(
+                    "levels",
+                    "bigint",
+                    "Local Residents",
+                    False,
+                    "integer",
+                    False,
+                    None,
+                    None,
+                    "int64",
+                    "long",
+                    "",
+                    lambda faker: faker.random_int(max=150),
+                ),
+            ],
+        ),
+        Schema(
+            "landcover",
+            "polygon",
+            [
+                Field(
+                    "name",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda locale: random.choice(["rock", "forest", "water", "desert"]),
+                ),
+            ],
+        ),
+        Schema(
+            "administrative_areas",
+            "multipolygon",
+            [
+                Field(
+                    "zip",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda faker: faker.zipcode(),
+                ),
+            ],
+        ),
+        Schema(
+            "land_parcels",
+            "multipolygon",
+            [
+                Field(
+                    "owner",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda faker: faker.name(),
+                ),
+            ],
+        ),
+        Schema(
+            "protected_zones",
+            "multipolygon",
+            [
+                Field(
+                    "name",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda locale: random.choice(
+                        ["nature", "silence", "industrie", "small buildings"]
+                    ),
+                ),
+            ],
+        ),
+        Schema(
+            "river_system",
+            "multilinestring",
+            [
+                Field(
+                    "name",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda locale: random.choice(
+                        [
+                            "deranged drainage pattern",
+                            "dendritic drainage pattern",
+                            "parallel drainage pattern",
+                            "radial drainage pattern",
+                            "rectangular drainage pattern",
+                            "trellis drainage pattern",
+                        ]
+                    ),
+                ),
+            ],
+        ),
+        Schema(
+            "utility_lines",
+            "multilinestring",
+            [
+                Field(
+                    "name",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda locale: random.choice(
+                        [
+                            "power line",
+                            "transmission line",
+                            "overhead power line",
+                            "underground power cable",
+                            "gas pipeline",
+                            "water pipeline",
+                            "water main",
+                            "sewer line",
+                            "stormwater pipeline",
+                            "district heating pipeline",
+                            "district cooling pipeline",
+                            "oil pipeline",
+                            "product pipeline",
+                            "telecommunication line",
+                            "fiber-optic cable",
+                            "telephone line",
+                            "cable television line",
+                        ]
+                    ),
+                ),
+            ],
+        ),
+        Schema(
+            "sampling_locations",
+            "multipoint",
+            [
+                Field(
+                    "name",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda locale: random.choice(
+                        [
+                            "water sampling site",
+                            "groundwater monitoring well",
+                            "stream gauging station",
+                            "river sampling station",
+                            "lake sampling station",
+                            "reservoir sampling station",
+                            "coastal sampling station",
+                            "marine sampling station",
+                            "soil sampling site",
+                            "sediment sampling site",
+                            "air quality monitoring station",
+                            "weather station",
+                            "meteorological station",
+                            "ecological monitoring site",
+                            "biodiversity monitoring site",
+                            "vegetation plot",
+                            "forest inventory plot",
+                            "geological sampling site",
+                            "mineral sampling site",
+                            "drill site",
+                            "borehole",
+                            "core sampling site",
+                            "test pit",
+                        ]
+                    ),
+                ),
+            ],
+        ),
+        Schema(
+            "observation_sites",
+            "multipoint",
+            [
+                Field(
+                    "name",
+                    "VARCHAR",
+                    "Name",
+                    False,
+                    "string",
+                    False,
+                    None,
+                    None,
+                    "",
+                    "string",
+                    "",
+                    lambda locale: random.choice(
+                        [
+                            "observation station",
+                            "monitoring station",
+                            "observation point",
+                            "observation tower",
+                            "lookout tower",
+                            "camera trap station",
+                            "hydrological observation station",
+                            "meteorological observation station",
+                            "air quality monitoring station",
+                            "seismic station",
+                            "geodetic station",
+                            "volcano observatory",
+                            "astronomical observatory",
+                        ]
+                    ),
+                ),
+            ],
+        ),
+    ]
+
     def __init__(self, generator):
         super().__init__(generator)
-
+        self.sub_faker = Faker()
         self._bounds = get_epsg_bounds(self.epsg_code)
         self._bbox = box(*self._bounds)
         self.west, self.south, self.east, self.north = self._bounds
@@ -127,14 +632,14 @@ class Provider(BaseProvider):
         point = Point(coord)
         return point
 
-    def linestring(self, min_points: int = 2, max_points: int = 200) -> LineString:
+    def linestring(self, min_points: int = 2, max_points: int = 25) -> LineString:
         """Generate a random valid LineString as WKB."""
         num_points = random.randint(max(2, min_points), max_points)
         coords = self._random_coordinates(num_points)
         line = LineString(coords)
         return line
 
-    def polygon(self, min_points: int = 4, max_points: int = 2000) -> Polygon:
+    def polygon(self, min_points: int = 4, max_points: int = 50) -> Polygon:
         """Generate a random valid Polygon as WKB."""
         polygon = self._generate_valid_polygon(min_points, max_points)
         return polygon
@@ -231,3 +736,138 @@ class Provider(BaseProvider):
 
     def bounds(self):
         return self._bounds
+
+    def vector_dataset(self, db_schema: str, min_records=10, max_records=50):
+        schema: Schema = random.choice(self.schemas)
+        fields: list[Field] = random.sample(schema.fields, random.randint(1, len(schema.fields)))
+        table_name = f"{schema.name}_{self.sub_faker.unique.word()}"
+        geometry_field_name = self.geometry_column_name()
+        create_sql = self._produce_create_sql(
+            fields, table_name, schema.geom_gen, db_schema, geometry_field_name
+        )
+        amount = random.randint(min_records, max_records)
+        insert_sql = self._produce_insert_sql(
+            fields, table_name, db_schema, schema.geom_gen, geometry_field_name, amount
+        )
+        return Dataset(
+            create_sql,
+            insert_sql,
+            fields,
+            table_name,
+            geometry_field_name,
+            amount,
+            schema.geom_gen,
+            self.geom_type_simple(schema.geom_gen),
+            schema.name,
+            self.epsg_code,
+        )
+
+    def geom_type_simple(self, geom_gen: str):
+        if geom_gen in ["point", "multipoint"]:
+            return "point"
+        elif geom_gen in ["linestring", "multilinestring"]:
+            return "line"
+        elif geom_gen in ["polygon", "multipolygon"]:
+            return "polygon"
+        else:
+            raise LookupError(f"Geomtry type not available for simplifiaciton: {geom_gen}")
+
+    def vector_datasets(self, db_schema: str, amount=5, min_records=10, max_records=50):
+        return [
+            self.vector_dataset(db_schema, min_records=min_records, max_records=max_records)
+            for _ in range(amount)
+        ]
+
+    def _produce_insert_sql(
+        self,
+        fields: list[Field],
+        table_name: str,
+        db_schema: str,
+        geom_gen: str,
+        geometry_field_name: str,
+        amount: int,
+    ):
+        field_names = [field.name for field in fields] + [geometry_field_name]
+        return f"""
+        INSERT INTO {db_schema}.{table_name} ({", ".join(field_names)})
+        VALUES
+        {",\n".join(self._produce_insert_sql_values(fields, geom_gen, amount))};
+        """
+
+    def _produce_insert_sql_values(self, fields: list[Field], geom_gen: str, amount: int):
+        return [self._produce_insert_sql_value(fields, geom_gen) for _ in range(amount)]
+
+    def _produce_insert_sql_value(self, fields: list[Field], geom_gen: str):
+        field_values = []
+
+        for field in fields:
+            if field.type.upper() in ["VARCHAR", "DATE"]:
+                field_values.append(f"'{field.field_gen(self.sub_faker)}'")
+            elif field.type.upper() in ["BIGINT", "DECIMAL"]:
+                field_values.append(f"{field.field_gen(self.sub_faker)}")
+            else:
+                raise LookupError(f"No matched type for {field}")
+        field_values.append(
+            f"ST_GeomFromWKB('\\x{getattr(self, geom_gen)().wkb.hex()}', {self.epsg_code})"
+        )
+        return f"({', '.join(field_values)})"
+
+    def _produce_create_sql(
+        self,
+        fields: list[Field],
+        table_name: str,
+        geom_type: str,
+        db_schema: str,
+        geometry_field_name: str,
+    ):
+        field_parts = [
+            self._produce_create_sql_pk_part(),
+            self._produce_create_sql_geom_part(geom_type, geometry_field_name),
+        ] + self._produce_create_sql_field_parts(fields)
+        return f"""
+        CREATE TABLE {db_schema}.{table_name} (
+            {", ".join(field_parts)}
+        );
+        """
+
+    def _produce_create_sql_pk_part(self):
+        return "id uuid DEFAULT gen_random_uuid() PRIMARY KEY"
+
+    def geometry_column_name(self):
+        return random.choice(["geom", "geometry", "the_geom", "g"])
+
+    def _produce_create_sql_geom_part(self, geometry_type: str, geometry_field_name: str):
+        return f"{geometry_field_name} geometry({geometry_type.upper()},{self.epsg_code})"
+
+    def _produce_create_sql_field_parts(self, fields: list[Field]) -> list[str]:
+        return [self._produce_create_sql_field_part(field) for field in fields]
+
+    def _produce_create_sql_field_part(self, field: Field) -> str:
+        if field.type.upper() == "VARCHAR":
+            return self._produce_create_sql_field_part_varchar(field)
+        elif field.type.upper() == "DATE":
+            return self._produce_create_sql_field_part_date(field)
+        elif field.type.upper() in ["BIGINT"]:
+            return self._produce_create_sql_field_part_int(field)
+        elif field.type.upper() == "DECIMAL":
+            return self._produce_create_sql_field_part_decimal(field)
+        else:
+            raise LookupError(f"No matched type for {field}")
+
+    def _produce_create_sql_field_part_varchar(self, field: Field) -> str:
+        field_def = f"{field.name} {field.type.upper()}"
+        if field.length:
+            field_def += f"({field.length})"
+        return field_def
+
+    def _produce_create_sql_field_part_date(self, field: Field) -> str:
+        return f"{field.name} {field.type.upper()}"
+
+    def _produce_create_sql_field_part_int(self, field: Field) -> str:
+        return f"{field.name} {field.type.upper()}"
+
+    def _produce_create_sql_field_part_decimal(self, field: Field) -> str:
+        field_def = f"{field.name} {field.type.upper()}"
+        if field.precision:
+            field_def += f"(10,{field.precision})"
+        return field_def
