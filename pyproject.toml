@@ -44,6 +44,8 @@ dev = [
     "django-silk>=5.5.0",
     "factory-boy>=3.3.3",
     "pre-commit",
+    "pyproj>=3.7.2",
+    "shapely>=2.1.2",
 ]
 lint-format = [
     "ruff>=0.15.15",

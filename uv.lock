@@ -682,10 +682,12 @@ dev = [
     { name = "django-silk" },
     { name = "factory-boy" },
     { name = "pre-commit" },
+    { name = "pyproj" },
     { name = "pytest" },
     { name = "pytest-django" },
     { name = "pytest-lazy-fixtures" },
     { name = "ruff" },
+    { name = "shapely" },
 ]
 lint-format = [
     { name = "ruff" },
@@ -726,10 +728,12 @@ dev = [
     { name = "django-silk", specifier = ">=5.5.0" },
     { name = "factory-boy", specifier = ">=3.3.3" },
     { name = "pre-commit" },
+    { name = "pyproj", specifier = ">=3.7.2" },
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-django", specifier = ">=4.12.0" },
     { name = "pytest-lazy-fixtures", specifier = ">=1.4.0" },
     { name = "ruff", specifier = ">=0.15.15" },
+    { name = "shapely", specifier = ">=2.1.2" },
 ]
 lint-format = [{ name = "ruff", specifier = ">=0.15.15" }]
 test = [
