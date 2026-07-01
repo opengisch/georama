@@ -2,7 +2,7 @@ from django.contrib import admin
 from unfold.admin import TabularInline
 
 from georama.core.common.admin import OrganisationalModelAdmin
-from georama.integration.models import Field
+from georama.integration.models import VectorField
 from georama.integration.models.collection import Collection
 from georama.integration.models.datasource import Custom, Datasource, Raster, Vector
 from georama.integration.models.project import Project
@@ -39,7 +39,7 @@ class RasterAdmin(OrganisationalModelAdmin):
 
 
 class FieldInlineAdmin(TabularInline):
-    model = Field
+    model = VectorField
     extra = 0
     exclude = ["id"]
     hide_title = True
@@ -52,7 +52,7 @@ class VectorAdmin(OrganisationalModelAdmin):
     inlines = [FieldInlineAdmin]
 
 
-@admin.register(Field)
+@admin.register(VectorField)
 class FieldAdmin(OrganisationalModelAdmin):
     list_display = ["name", "datasource__project__collection__organisation__name"]
     prefetch_organisation_related = "datasource__project__collection__organisation"

@@ -107,7 +107,7 @@ class Vector(Datasource):
     )
 
 
-class Field(models.Model):
+class VectorField(models.Model):
     ORGANISATION_FIELD_NAME = "datasource__project__collection__organisation"
 
     class Meta:

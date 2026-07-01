@@ -915,7 +915,7 @@ class VectorFactory(DatasourceFactory):
 
 class FieldFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.Field
+        model = models.VectorField
         django_get_or_create = ("name", "datasource")
 
     name = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][0])

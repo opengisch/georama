@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from georama.integration.models.datasource import Field as DatasourceField
+from georama.integration.models.datasource import VectorField as DatasourceField
 
 
 class Field(models.Model):

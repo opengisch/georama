@@ -14,7 +14,7 @@ from georama.integration.api.serializers import (
     RasterDatasourceSerializer,
     VectorDatasourceSerializer,
 )
-from georama.integration.models import Collection, Custom, Field, Project, Raster, Vector
+from georama.integration.models import Collection, Custom, Project, Raster, Vector, VectorField
 
 
 class CollectionViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):
@@ -60,7 +60,7 @@ class VectorDatasourceViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateMo
 
 
 class FieldViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):
-    queryset = Field.objects.all()
+    queryset = VectorField.objects.all()
     serializer_class = FieldSerializer
     permission_classes = [GeoramaModelPermissions]
     filter_backends = [

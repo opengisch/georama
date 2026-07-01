@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from georama.integration.models import Collection, Custom, Project, Raster, Vector
-from georama.integration.models.datasource import Field
+from georama.integration.models.datasource import VectorField
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -135,7 +135,7 @@ class FieldSerializer(serializers.ModelSerializer):
     project_id = serializers.SerializerMethodField()
 
     class Meta:
-        model = Field
+        model = VectorField
         fields = [
             "id",
             "name",

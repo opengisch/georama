@@ -15,7 +15,7 @@ from georama.features.apps import FeaturesConfig
 from georama.features.config_server import ServerConfig
 from georama.features.features_config import Config
 from georama.features.models import FeatureLayer, Field
-from georama.integration.models import Field as DatasourceField
+from georama.integration.models import VectorField as DatasourceField
 
 api = None
 
