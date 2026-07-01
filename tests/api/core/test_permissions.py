@@ -2,13 +2,13 @@ import pytest
 from rest_framework.test import APIRequestFactory
 
 from georama.core.common.api import GeoramaModelPermissions
-from georama.integration.models.collection import Collection
+from georama.integration.models.project import Project
 from tests.api.common import view_perm
 
 
-class CollectionMockView:
+class ProjectMockView:
     def get_queryset():
-        return Collection.objects.all()
+        return Project.objects.all()
 
 
 class TestGeoramaModelPermission:
@@ -22,12 +22,12 @@ class TestGeoramaModelPermission:
         ],
     )
     def test_user_with_view_perm(self, user, organisation, method):
-        user.user_permissions.add(view_perm(Collection))
+        user.user_permissions.add(view_perm(Project))
         factory = APIRequestFactory()
         request = getattr(factory, method)("")
         request.user = user
         request.georama_organisation = organisation
-        assert GeoramaModelPermissions().has_permission(request, CollectionMockView)
+        assert GeoramaModelPermissions().has_permission(request, ProjectMockView)
 
     @pytest.mark.django_db
     @pytest.mark.parametrize(
@@ -43,4 +43,4 @@ class TestGeoramaModelPermission:
         request = getattr(factory, method)("")
         request.user = user
         request.georama_organisation = organisation
-        assert not GeoramaModelPermissions().has_permission(request, CollectionMockView)
+        assert not GeoramaModelPermissions().has_permission(request, ProjectMockView)

@@ -13,7 +13,7 @@ from georama.integration.models.datasource import Vector
 
 
 class FeatureLayer(models.Model):
-    ORGANISATION_FIELD_NAME = "datasource__project__collection__organisation"
+    ORGANISATION_FIELD_NAME = "datasource__project__organisation"
 
     ON_EXCEED_CHOICES = (
         ("ERROR", "error"),
@@ -74,7 +74,7 @@ class GroupManager(GroupObjectPermissionManager, OrganisationalManager): ...
 
 
 class FeatureLayerUserObjectPermission(UserObjectPermissionBase):
-    ORGANISATION_FIELD_NAME = "content_object__datasource__project__collection__organisation"
+    ORGANISATION_FIELD_NAME = "content_object__datasource__project__organisation"
     content_object = models.ForeignKey(
         FeatureLayer, on_delete=models.CASCADE, related_name="user_object_permissions"
     )
@@ -84,7 +84,7 @@ class FeatureLayerUserObjectPermission(UserObjectPermissionBase):
 
 
 class FeatureLayerGroupObjectPermission(GroupObjectPermissionBase):
-    ORGANISATION_FIELD_NAME = "content_object__datasource__project__collection__organisation"
+    ORGANISATION_FIELD_NAME = "content_object__datasource__project__organisation"
     content_object = models.ForeignKey(
         FeatureLayer, on_delete=models.CASCADE, related_name="group_object_permissions"
     )

@@ -16,7 +16,7 @@ from georama.integration.models.project import Project
 
 
 class Datasource(models.Model):
-    ORGANISATION_FIELD_NAME = "project__collection__organisation"
+    ORGANISATION_FIELD_NAME = "project__organisation"
 
     class Meta:
         verbose_name = _("datasource")
@@ -108,7 +108,7 @@ class Vector(Datasource):
 
 
 class VectorField(models.Model):
-    ORGANISATION_FIELD_NAME = "datasource__project__collection__organisation"
+    ORGANISATION_FIELD_NAME = "datasource__project__organisation"
 
     class Meta:
         unique_together = (

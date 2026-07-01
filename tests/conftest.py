@@ -6,7 +6,7 @@ from georama.core.factories import (
     OrganisationFactory,
     UserFactory,
 )
-from georama.integration.factories import CollectionFactory, ProjectFactory, VectorFactory
+from georama.integration.factories import ProjectFactory, VectorFactory
 
 
 @pytest.fixture
@@ -141,44 +141,8 @@ def user_with_dedicated_membership_non_public(user, membership_non_public_organi
 
 
 @pytest.fixture
-def collection_global_organisation():
-    collection = CollectionFactory.create(
-        name="Streets",
-        organisation=None,
-    )
-    yield collection
-    collection.delete()
-
-
-@pytest.fixture
-def collection_dedicated_organisation(organisation):
-    collection = CollectionFactory.create(
-        name="Rails",
-        organisation=organisation,
-    )
-    yield collection
-    collection.delete()
-
-
-@pytest.fixture
-def collection_dedicated_public_organisation(organisation_public_access):
-    collection = CollectionFactory.create(
-        name="Rails",
-        organisation=organisation_public_access,
-    )
-    yield collection
-    collection.delete()
-
-
-@pytest.fixture
-def collections(collection_global_organisation, collection_dedicated_organisation):
-    collections = [collection_dedicated_organisation, collection_global_organisation]
-    yield collections
-
-
-@pytest.fixture
-def project_global_organisation(collection_global_organisation):
-    project = ProjectFactory.create(collection=collection_global_organisation)
+def project_global_organisation():
+    project = ProjectFactory.create(organisation=None)
     yield project
     project.delete()
 

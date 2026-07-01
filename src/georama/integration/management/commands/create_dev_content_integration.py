@@ -3,7 +3,6 @@ import os
 from django.core.management.base import BaseCommand
 
 from georama.integration.factories import CustomFactory, RasterFactory, VectorFactory
-from georama.integration.models import Collection
 
 
 class Command(BaseCommand):
@@ -15,7 +14,6 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE(f"Current Environment: {current_config}"))
         # We only allow this command to run when in dev environment
         if current_config == "Dev":
-            Collection.objects.all().delete()
             VectorFactory.create_batch(150)
             RasterFactory.create_batch(150)
             CustomFactory.create_batch(150)

@@ -6,7 +6,6 @@ from django.db import transaction
 
 from georama.features.factories import FeatureLayerFactory, MetadataFactory
 from georama.integration.factories import (
-    CollectionFactory,
     FieldFactory,
     ProjectFactory,
     VectorFactory,
@@ -62,10 +61,7 @@ class Command(BaseCommand):
             minimum_scale=100000000,
             geometry_type_simple="Point",
             geometry_type_wkb="Point",
-            project=ProjectFactory(
-                name="TestProject",
-                collection=CollectionFactory(name="TestMandant", organisation=None),
-            ),
+            project=ProjectFactory(name="TestProject", organisation=None),
             fields=[],
         )
         FieldFactory.create(

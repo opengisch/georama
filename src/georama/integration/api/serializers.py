@@ -1,18 +1,7 @@
 from rest_framework import serializers
 
-from georama.integration.models import Collection, Custom, Project, Raster, Vector
+from georama.integration.models import Custom, Project, Raster, Vector
 from georama.integration.models.datasource import VectorField
-
-
-class CollectionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Collection
-        fields = [
-            "id",
-            "name",
-            "organisation_id",
-        ]
-        extra_kwargs = {"id": {"read_only": True}}
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -25,18 +14,16 @@ class ProjectSerializer(serializers.ModelSerializer):
             "name",
             "qgis_version",
             "hash",
-            "collection_id",
             "organisation_id",
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
     def get_organisation_id(self, obj):
-        return obj.collection.organisation_id
+        return obj.organisation_id
 
 
 class VectorDatasourceSerializer(serializers.ModelSerializer):
     organisation_id = serializers.SerializerMethodField()
-    collection_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Vector
@@ -56,20 +43,15 @@ class VectorDatasourceSerializer(serializers.ModelSerializer):
             "geometry_type_wkb",
             "project_id",
             "organisation_id",
-            "collection_id",
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
     def get_organisation_id(self, obj):
-        return obj.project.collection.organisation_id
-
-    def get_collection_id(self, obj):
-        return obj.project.collection_id
+        return obj.project.organisation_id
 
 
 class RasterDatasourceSerializer(serializers.ModelSerializer):
     organisation_id = serializers.SerializerMethodField()
-    collection_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Raster
@@ -87,20 +69,15 @@ class RasterDatasourceSerializer(serializers.ModelSerializer):
             "maximum_scale",
             "project_id",
             "organisation_id",
-            "collection_id",
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
     def get_organisation_id(self, obj):
-        return obj.project.collection.organisation_id
-
-    def get_collection_id(self, obj):
-        return obj.project.collection_id
+        return obj.project.organisation_id
 
 
 class CustomDatasourceSerializer(serializers.ModelSerializer):
     organisation_id = serializers.SerializerMethodField()
-    collection_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Custom
@@ -118,20 +95,15 @@ class CustomDatasourceSerializer(serializers.ModelSerializer):
             "maximum_scale",
             "project_id",
             "organisation_id",
-            "collection_id",
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
     def get_organisation_id(self, obj):
-        return obj.project.collection.organisation_id
-
-    def get_collection_id(self, obj):
-        return obj.project.collection_id
+        return obj.project.organisation_id
 
 
 class FieldSerializer(serializers.ModelSerializer):
     organisation_id = serializers.SerializerMethodField()
-    collection_id = serializers.SerializerMethodField()
     project_id = serializers.SerializerMethodField()
 
     class Meta:
@@ -152,15 +124,11 @@ class FieldSerializer(serializers.ModelSerializer):
             "datasource_id",
             "project_id",
             "organisation_id",
-            "collection_id",
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
     def get_organisation_id(self, obj):
-        return obj.datasource.project.collection.organisation_id
-
-    def get_collection_id(self, obj):
-        return obj.datasource.project.collection_id
+        return obj.datasource.project.organisation_id
 
     def get_project_id(self, obj):
         return obj.datasource.project_id

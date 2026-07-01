@@ -7,28 +7,13 @@ from georama.core.common.api import (
     OrganisationalModelViewSet,
 )
 from georama.integration.api.serializers import (
-    CollectionSerializer,
     CustomDatasourceSerializer,
     FieldSerializer,
     ProjectSerializer,
     RasterDatasourceSerializer,
     VectorDatasourceSerializer,
 )
-from georama.integration.models import Collection, Custom, Project, Raster, Vector, VectorField
-
-
-class CollectionViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):
-    serializer_class = CollectionSerializer
-    queryset = Collection.objects.all()
-    permission_classes = [GeoramaModelPermissions]
-    filter_backends = [
-        filters.SearchFilter,
-        filters.OrderingFilter,
-        DjangoFilterBackend,
-    ]
-    search_fields = ["name"]
-    ordering_fields = ["name"]
-    filterset_fields = ["name", "organisation__name"]
+from georama.integration.models import Custom, Project, Raster, Vector, VectorField
 
 
 class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):

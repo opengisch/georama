@@ -23,7 +23,7 @@ class FeatureLayerViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return FeatureLayer.objects.filter(
-            datasource__project__collection__organisation=self.request.georama_organisation
+            datasource__project__organisation=self.request.georama_organisation
         )
 
     @action(detail=True, methods=["get", "post"])

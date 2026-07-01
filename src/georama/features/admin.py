@@ -33,7 +33,7 @@ class FieldInlineAdmin(TabularInline):
 
 @admin.register(FeatureLayer)
 class FeatureLayerAdmin(GuardedModelAdminMixin, OrganisationalModelAdmin):
-    prefetch_organisation_related = "datasource__project__collection__organisation"
+    prefetch_organisation_related = "datasource__project__organisation"
 
     def get_readonly_fields(self, request, obj=None):
         if obj is not None and obj.pk:
@@ -65,4 +65,4 @@ class FeatureLayerGroupObjectPermissionAdmin(OrganisationalModelAdmin):
 
 @admin.register(Metadata)
 class MetadataAdmin(ModelAdmin):
-    prefetch_organisation_related = "feature_layer__datasource__project__collection__organisation"
+    prefetch_organisation_related = "feature_layer__datasource__project__organisation"

@@ -854,24 +854,15 @@ GEOMETRY_TYPES = [
 ]
 
 
-class CollectionFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.Collection
-        django_get_or_create = ("name", "organisation")
-
-    name = factory.Faker("word")
-    organisation = factory.LazyFunction(lambda: random.choice([OrganisationFactory(), None]))
-
-
 class ProjectFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Project
-        django_get_or_create = ("name", "collection")
+        django_get_or_create = ("name", "organisation")
 
     name = factory.Faker("word")
     qgis_version = "Qgis 3.44"
     hash = factory.Faker("md5")
-    collection = factory.SubFactory(CollectionFactory)
+    organisation = factory.LazyFunction(lambda: random.choice([OrganisationFactory(), None]))
 
 
 class DatasourceFactory(factory.django.DjangoModelFactory):

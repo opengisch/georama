@@ -3,19 +3,19 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from georama.core.models.organisation import Organisation
 from georama.integration.managers.project import ProjectManager
-from georama.integration.models.collection import Collection
 
 
 class Project(models.Model):
-    ORGANISATION_FIELD_NAME = "collection__organisation"
+    ORGANISATION_FIELD_NAME = "organisation"
 
     class Meta:
         verbose_name = _("project")
         verbose_name_plural = _("projects")
         unique_together = (
             "name",
-            "collection",
+            "organisation",
         )
 
     id = models.UUIDField(
@@ -28,11 +28,13 @@ class Project(models.Model):
     hash = models.CharField(
         max_length=20000, blank=True, help_text=_("Hash used to detect changes in project content.")
     )
-    collection = models.ForeignKey(
-        Collection,
+    organisation = models.ForeignKey(
+        Organisation,
+        null=True,
+        blank=True,
         on_delete=models.CASCADE,
         related_name="projects",
-        help_text=_("Collection this project belongs to actually."),
+        help_text=_("Organisation this project belongs to."),
     )
 
     objects = ProjectManager()
