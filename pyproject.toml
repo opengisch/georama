@@ -28,6 +28,9 @@ dependencies = [
     "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
     "xsdata>=26.2",
     "gdal==3.10.3",
+    "sqlalchemy>=2.0.51",
+    "geoalchemy2>=0.20.0",
+    "psycopg2>=2.9.12",
 ]
 
 [project.scripts]

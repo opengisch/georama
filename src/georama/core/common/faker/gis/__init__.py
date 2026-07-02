@@ -51,7 +51,9 @@ class Dataset:
     epsg_id: int
 
 
-def get_epsg_bounds(epsg_code: int) -> tuple:
+def get_epsg_bounds(
+    epsg_code: int,
+) -> tuple[tuple[float, float, float, float], tuple[float, float, float, float]]:
     """
     Retrieve the bounding box (minx, miny, maxx, maxy) for an EPSG code.
     Works with both geographic (degrees) and projected (meters) CRS.
@@ -63,21 +65,21 @@ def get_epsg_bounds(epsg_code: int) -> tuple:
         crs = CRS.from_epsg(epsg_code)
         if crs.area_of_use is not None:
             transformer = Transformer.from_crs("EPSG:4326", epsg_code, always_xy=True)
-            bounds = crs.area_of_use.bounds
-            minx, miny, maxx, maxy = bounds
+            wgs84_bounds = crs.area_of_use.bounds
+            minx, miny, maxx, maxy = wgs84_bounds
             x1, y1 = transformer.transform(minx, miny)
             x2, y2 = transformer.transform(maxx, maxy)
             new_bounds = (min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2))
-            return new_bounds  # (west/minx, south/miny, east/maxx, north/maxy)
+            return new_bounds, wgs84_bounds  # (west/minx, south/miny, east/maxx, north/maxy)
 
         # Fallback for C.R.S without area_of_use
         if crs.is_geographic:
-            return (-180, -90, 180, 90)
+            return (-180, -90, 180, 90), (-180, -90, 180, 90)
         else:
             # For projected, try to infer reasonable bounds
-            return (0, 0, 1000000, 1000000)
+            return (0, 0, 1000000, 1000000), (-180, -90, 180, 90)
     except Exception:
-        return (-180, -90, 180, 90)
+        return (-180, -90, 180, 90), (-180, -90, 180, 90)
 
 
 class Provider(BaseProvider):
@@ -563,7 +565,7 @@ class Provider(BaseProvider):
     def __init__(self, generator):
         super().__init__(generator)
         self.sub_faker = Faker()
-        self._bounds = get_epsg_bounds(self.epsg_code)
+        self._bounds, self._bounds_wgs84 = get_epsg_bounds(self.epsg_code)
         self._bbox = box(*self._bounds)
         self.west, self.south, self.east, self.north = self._bounds
 
@@ -736,6 +738,9 @@ class Provider(BaseProvider):
 
     def bounds(self):
         return self._bounds
+
+    def bounds_wgs84(self):
+        return self._bounds_wgs84
 
     def vector_dataset(self, db_schema: str, min_records=10, max_records=50):
         schema: Schema = random.choice(self.schemas)

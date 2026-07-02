@@ -9,6 +9,7 @@ from guardian.shortcuts import assign_perm
 
 from georama.features.factories import FeatureLayerFactory
 from georama.features.models.feature_layer import FeatureLayer
+from georama.integration.models import Vector
 
 User = get_user_model()
 
@@ -28,8 +29,11 @@ class Command(BaseCommand):
             permissions = Permission.objects.filter(
                 content_type=ContentType.objects.get_for_model(FeatureLayer)
             )
-            feature_layers = FeatureLayerFactory.create_batch(100)
+
+            for vd in Vector.objects.all():
+                FeatureLayerFactory.create(datasource=vd)
             # Assign on average two permissions per user
+            feature_layers = FeatureLayer.objects.all()
             for _ in range(2 * len(users)):
                 user = random.choice(users)
                 feature_layer = random.choice(feature_layers)

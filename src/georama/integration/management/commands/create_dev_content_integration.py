@@ -9,6 +9,7 @@ from faker.utils.loading import find_available_providers
 
 from georama.core.common.faker.gis import Dataset
 from georama.integration.factories import CustomFactory, FieldFactory, RasterFactory, VectorFactory
+from georama.integration.models import Datasource, Vector, VectorField
 
 META_PROVIDERS_MODULES = [
     "georama.core.common.faker",
@@ -38,6 +39,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE(f"Current Environment: {current_config}"))
         # We only allow this command to run when in dev environment
         if current_config == "Dev":
+            # deleting old content
+            Datasource.objects.all().delete()
+            Vector.objects.all().delete()
+            VectorField.objects.all().delete()
+
             schema_name = "dummy"
             datasets: list[Dataset] = fake.vector_datasets(schema_name, amount=150)
             with self.get_psycopg_context as conn, conn.cursor() as cur:
@@ -61,9 +67,36 @@ class Command(BaseCommand):
                         "postgis_srid": dataset.epsg_id,
                     },
                     driver="postgres",
-                    source={},
+                    source={
+                        "ogr": None,
+                        "wfs": None,
+                        "wms": None,
+                        "xyz": None,
+                        "gdal": None,
+                        "wmts": None,
+                        "postgres": {
+                            "key": "id",
+                            "sql": None,
+                            "host": settings.DB_HOST,
+                            "port": settings.DB_PORT,
+                            "srid": f"{dataset.epsg_id}",
+                            "type": None,
+                            "table": dataset.table_name.lower(),
+                            "dbname": settings.DB_NAME,
+                            "schema": schema_name,
+                            "service": None,
+                            "sslmode": 0,
+                            "password": settings.DB_PW,
+                            "username": settings.DB_USER,
+                            "ssl_mode_text": "prefer",
+                            "geometry_column": dataset.geometry_field_name,
+                            "check_primary_key_unicity": None,
+                        },
+                        "vector_tile": None,
+                    },
                     styles={},
-                    bbox=list(fake.bounds()),
+                    bbox="{},{},{},{}".format(*fake.bounds()),
+                    bbox_wgs84="{},{},{},{}".format(*fake.bounds_wgs84()),
                     fields=[],
                 )
                 fields = []
