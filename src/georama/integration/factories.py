@@ -2,6 +2,7 @@ import random
 import uuid
 
 import factory
+from django.conf import settings
 from faker import Faker
 
 from georama.core.factories import OrganisationFactory
@@ -853,6 +854,8 @@ GEOMETRY_TYPES = [
     ("polygon", "multisurfacezm"),
 ]
 
+glob_org_folder = settings.DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER
+
 
 class ProjectFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -862,6 +865,12 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     name = factory.Faker("word")
     qgis_version = "Qgis 3.44"
     hash = factory.Faker("md5")
+    path = factory.LazyAttribute(
+        lambda a: (
+            f"{a.organisation.domain if a.organisation else glob_org_folder}/"
+            f"{a.name}.{random.choice(['qgs', 'qgz'])}"
+        )
+    )
     organisation = factory.LazyFunction(lambda: random.choice([OrganisationFactory(), None]))
 
 

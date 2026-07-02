@@ -80,21 +80,23 @@
                     </li>
                     <li class="nav-item align-items-center">
                         <div class="nav-link ps-0">
-                            {% if user.is_authenticated %}
-                                <form method="post" action="{% url 'core:logout' %}"
-                                      class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" title="Logout"
-                                            class="btn btn-outline-secondary">
-                                        {{ user.username }}
-                                        <i class="fa fa-arrow-right-from-bracket ps-1"></i>
-                                    </button>
-                                </form>
-                            {% else %}
-                                <a class="btn btn-outline-secondary"
-                                   href="{% url 'core:login' %}">Login</a>
+                            {% if request.path != '/login/' %}
+                                {% if user.is_authenticated %}
+                                    <form method="post" action="{% url 'core:logout' %}"
+                                          class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" title="Logout"
+                                                class="btn btn-outline-secondary">
+                                            {{ user.username }}
+                                            <i class="fa fa-arrow-right-from-bracket ps-1"></i>
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <a class="btn btn-outline-secondary"
+                                       href="{% url 'core:login' %}">Login</a>
+                                {% endif %}
+                                </div>
                             {% endif %}
-                        </div>
                     </li>
                 </ul>
             </div>
