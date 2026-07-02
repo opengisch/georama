@@ -22,6 +22,10 @@ class ProjectSerializer(serializers.ModelSerializer):
         return obj.organisation_id
 
 
+class FileSystemProjectSerializer(serializers.Serializer):
+    path = serializers.CharField()
+
+
 class VectorDatasourceSerializer(serializers.ModelSerializer):
     organisation_id = serializers.SerializerMethodField()
 

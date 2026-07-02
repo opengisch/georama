@@ -15,6 +15,6 @@ wheels/
 .env
 
 # TODO: Remove
-tests/resources/projects/*
-!tests/resources/projects/TestMandant/
-tests/resources/projects/TestMandant/TestProject.json
+tests/resources/projects/global/*
+!tests/resources/projects/global/TestMandant/
+tests/resources/projects/global/TestMandant/TestProject.json

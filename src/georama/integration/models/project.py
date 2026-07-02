@@ -22,6 +22,7 @@ class Project(models.Model):
         primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the project.")
     )
     name = models.CharField(max_length=1000, help_text=_("Name of the project."))
+    path = models.CharField(max_length=None, help_text=_("Path to the qgis project."), unique=True)
     qgis_version = models.CharField(
         max_length=1000, blank=True, help_text=_("QGIS version the project was created with.")
     )
