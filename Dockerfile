@@ -5,7 +5,7 @@ LABEL org.opencontainers.image.vendor="opengis.ch"
 LABEL org.opencontainers.image.title="Georama Base Image"
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y binutils libproj-dev gdal-bin libgdal-dev gettext
+RUN apt-get update && apt-get install -y binutils libproj-dev python3-gdal gettext
 
 COPY --from=ghcr.io/astral-sh/uv:0.11.19 /uv /uvx /bin/
 

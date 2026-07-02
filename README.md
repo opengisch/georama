@@ -40,3 +40,12 @@ docker compose exec georama uv run manage create_dev_content_integration
 
 - oapif write only on postgis layers
 - ogr provider does not support layers without fields beside pk & geom
+
+# Problems
+
+- we depend on GDAL, uv always just installs the newest package or the locked on,
+  however, this
+  rarely matches the exact version available installed in random systems, so we remove
+  it as a dep
+  from pyproject.toml and make it a dep assumed to be available in the system via (
+  python3-gdal, or similar)

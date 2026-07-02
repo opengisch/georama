@@ -4,6 +4,11 @@ jobs:
   lint-project:
     runs-on: ubuntu-latest
     steps:
+      - name: Install deps
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update && sudo apt-get install -y binutils libproj-dev python3-gdal gettext
       - uses: actions/checkout@v6
       - name: "Set up Python"
         uses: actions/setup-python@v6
@@ -14,6 +19,9 @@ jobs:
         with:
           enable-cache: true
       - name: Install the project
-        run: uv sync --locked --all-extras --dev
+        run: |
+          rm uv.lock
+          uv lock
+          uv sync --locked --all-extras --dev
       - name: Run Ruff
         run: uv run ruff check --output-format=github .
