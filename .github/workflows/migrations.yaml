@@ -24,9 +24,6 @@ jobs:
       - name: Start Docker composition
         run: |
           docker compose up -d
-      - name: Wait till Georama is ready
-        run: ./docker/dev.wait.georama.sh
-
       - name: Check migrations
         env:
           DJANGO_CONFIGURATION: Dev
