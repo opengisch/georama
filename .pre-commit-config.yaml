@@ -24,7 +24,7 @@ repos:
             src/georama/.*/migrations/.*
           )$
       - id: forgotten-migrations
-        name: Django migrations not applies
+        name: Django migrations not applied
         entry: docker compose exec -T georama uv run manage makemigrations
         language: system
         args: [ --check, --dry-run ]
