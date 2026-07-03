@@ -15,8 +15,8 @@ jobs:
       - name: Prepare Build Environment
         run: |
           cp .env.dev .env
-          echo "UID=$(id -u)" > .env
-          echo "GID=$(id -g)" > .env
+          echo "UID=$(id -u)" >> .env
+          echo "GID=$(id -g)" >> .env
           cat .env
       - name: Build Georama Image
         run: |
