@@ -5,33 +5,11 @@ on:
       - "*"
     tags:
       - v*
-env:
-  GEORAMA_DB_NAME: "test"
-  GEORAMA_DB_USER: "postgres"
-  GEORAMA_DB_PW: "test"
-  GEORAMA_DB_HOST: "localhost"
-  GEORAMA_DB_PORT: "5432"
-  GEORAMA_DB_OPTIONS: "{}"
-  UV_PROJECT_ENVIRONMENT: /usr/local/bin/
 jobs:
   test-migrations:
     name: Test Python
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    services:
-      georama-db:
-        image: postgis/postgis:17-3.5
-        env:
-          POSTGRES_DB: ${{ env.GEORAMA_DB_NAME }}
-          POSTGRES_USER: ${{ env.GEORAMA_DB_USER }}
-          POSTGRES_PASSWORD: ${{ env.GEORAMA_DB_PW }}
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
     steps:
       - uses: actions/checkout@v6
       - name: Prepare Build Environment

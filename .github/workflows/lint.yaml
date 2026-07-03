@@ -1,7 +1,5 @@
 name: Linting/Formatting
 on: push
-env:
-  UV_PYTHON: /usr/local/bin/python
 jobs:
   lint-project:
     runs-on: ubuntu-latest

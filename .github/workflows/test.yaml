@@ -5,13 +5,6 @@ on:
       - "*"
     tags:
       - v*
-env:
-  GEORAMA_DB_NAME: "test"
-  GEORAMA_DB_USER: "postgres"
-  GEORAMA_DB_PW: "test"
-  GEORAMA_DB_HOST: "localhost"
-  GEORAMA_DB_PORT: "5432"
-  GEORAMA_DB_OPTIONS: "{}"
 jobs:
   test-py:
     name: Test Python
