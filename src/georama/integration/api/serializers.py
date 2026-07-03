@@ -23,7 +23,8 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class FileSystemProjectSerializer(serializers.Serializer):
-    path = serializers.CharField()
+    project_path = serializers.CharField()
+    config_path = serializers.CharField()
 
 
 class VectorDatasourceSerializer(serializers.ModelSerializer):

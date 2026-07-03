@@ -17,4 +17,4 @@ wheels/
 # TODO: Remove
 tests/resources/projects/global/*
 !tests/resources/projects/global/TestMandant/
-tests/resources/projects/global/TestMandant/TestProject.json
+tests/resources/projects/global/TestMandant/TestProject.qgz.json

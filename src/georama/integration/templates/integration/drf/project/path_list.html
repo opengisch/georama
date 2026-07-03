@@ -1,0 +1,14 @@
+{% extends 'core/drf/default/list.html' %}
+{% load static i18n %}
+
+{% block list_actions %}
+
+{% endblock %}
+{% block ordering_include %}
+{% endblock %}
+{% block search_include %}
+{% endblock %}
+
+{% block list_partial %}
+    {% include 'integration/drf/project/partials/path_list.html' %}
+{% endblock %}
