@@ -89,9 +89,7 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
             Path(p) async for p in Project.objects.values_list("path", flat=True)
         }
         collection = QgisProjectCollection(organisation_folder)
-        filtered_file_list = collection.projects_filtered(
-            organisation_folder, existing_project_paths
-        )
+        filtered_file_list = collection.projects_filtered(existing_project_paths)
         pqs = await self.apaginate_queryset(filtered_file_list)
 
         if request.accepted_renderer.format == "html":
