@@ -27,9 +27,10 @@ jobs:
       - name: Prepare Build Environment
         run: |
           cp .env.dev .env
-          echo "${{ matrix.python-version }}" > .env
+          echo "PY_VERSION=${{ matrix.python-version }}" > .env
           echo "UID=$(id -u)" > .env
           echo "GID=$(id -g)" > .env
+          cat .env
       - name: Build Georama Image
         run: |
           docker compose build georama
