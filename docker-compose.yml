@@ -7,13 +7,15 @@ services:
       context: .
       dockerfile: Dockerfile
       target: dev
+      args:
+        PYTHON_VERSION: "${PY_VERSION:-3.12}"
     develop:
       watch:
         - action: rebuild
           path: uv.lock
         - action: rebuild
           path: Dockerfile
-    entrypoint: ["/app/docker/dev.entrypoint.sh"]
+    entrypoint: [ "/app/docker/dev.entrypoint.sh" ]
     ports:
       - "4242:4242"
     volumes:

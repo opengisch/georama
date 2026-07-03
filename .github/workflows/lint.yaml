@@ -1,25 +1,20 @@
 name: Linting/Formatting
 on: push
+env:
+  UV_PYTHON: /usr/local/bin/python
 jobs:
   lint-project:
     runs-on: ubuntu-latest
     steps:
-      - name: Install deps
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: |
-          sudo apt-get update && sudo apt-get install -y binutils libproj-dev python3-gdal gettext
       - uses: actions/checkout@v6
-      - name: "Set up Python"
-        uses: actions/setup-python@v6
-        with:
-          python-version-file: "pyproject.toml"
-      - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
-        with:
-          enable-cache: true
-      - name: Install the project
+      - name: Prepare Build Environment
         run: |
-          uv sync --locked --all-extras --dev
+          touch .env
+      - name: Build Georama Image
+        run: |
+          docker compose build georama
+      - name: Start Docker composition
+        run: |
+          docker compose up -d
       - name: Run Ruff
-        run: uv run ruff check --output-format=github .
+        run: docker compose exec georama uv run ruff check --output-format=github .

@@ -22,36 +22,16 @@ jobs:
         python-version:
           - '3.12'
           - '3.13'
-    services:
-      georama-db:
-        image: postgis/postgis:17-3.5
-        env:
-          POSTGRES_DB: ${{ env.GEORAMA_DB_NAME }}
-          POSTGRES_USER: ${{ env.GEORAMA_DB_USER }}
-          POSTGRES_PASSWORD: ${{ env.GEORAMA_DB_PW }}
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
     steps:
-      - name: Install deps
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: |
-          sudo apt-get update && sudo apt-get install -y binutils libproj-dev python3-gdal gettext
       - uses: actions/checkout@v6
-      - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
-        with:
-          enable-cache: true
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install the project
+      - name: Prepare Build Environment
         run: |
-          uv sync --locked --all-extras --dev
-
+          echo "${{ matrix.python-version }}" > .env
+      - name: Build Georama Image
+        run: |
+          docker compose build georama
+      - name: Start Docker composition
+        run: |
+          docker compose up -d
       - name: Run tests
-        run: uv run pytest
+        run: docker compose exec georama uv run pytest

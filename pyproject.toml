@@ -30,6 +30,7 @@ dependencies = [
     "sqlalchemy>=2.0.51",
     "geoalchemy2>=0.20.0",
     "psycopg2-binary>=2.9.12",
+    "gdal==3.10.3",
 ]
 
 [project.scripts]

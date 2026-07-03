@@ -644,6 +644,12 @@ wheels = [
 ]
 
 [[package]]
+name = "gdal"
+version = "3.10.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/06/f9/a9a9496c8dc558c4c16a0c53283501fe3098b26536d5f475d378c8ed3437/gdal-3.10.3.tar.gz", hash = "sha256:b5550650daeeae8e41091581d9aea7d75a9f15b0ebbeb8c96e37458fa02264cd", size = 838170, upload-time = "2025-04-07T09:57:20.729Z" }
+
+[[package]]
 name = "geoalchemy2"
 version = "0.20.0"
 source = { registry = "https://pypi.org/simple" }
@@ -675,6 +681,7 @@ dependencies = [
     { name = "djangorestframework" },
     { name = "djangorestframework-gis" },
     { name = "drf-spectacular", extra = ["sidecar"] },
+    { name = "gdal" },
     { name = "geoalchemy2" },
     { name = "psycopg", extra = ["pool"] },
     { name = "psycopg2-binary" },
@@ -723,6 +730,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.17.1" },
     { name = "djangorestframework-gis", specifier = ">=1.2.1" },
     { name = "drf-spectacular", extras = ["sidecar"], specifier = ">=0.29.0" },
+    { name = "gdal", specifier = "==3.10.3" },
     { name = "geoalchemy2", specifier = ">=0.20.0" },
     { name = "psycopg", extras = ["pool"], specifier = ">=3.3.4" },
     { name = "psycopg2-binary", specifier = ">=2.9.12" },
