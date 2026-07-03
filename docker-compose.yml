@@ -9,6 +9,8 @@ services:
       target: dev
       args:
         PYTHON_VERSION: "${PY_VERSION:-3.12}"
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
     develop:
       watch:
         - action: rebuild

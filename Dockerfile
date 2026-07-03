@@ -26,10 +26,10 @@ ARG STATIC_DIR="/georama/static"
 WORKDIR $STATIC_DIR
 WORKDIR /app
 
-RUN chown -R $GID:$UID /app
-RUN chown -R $GID:$UID $STATIC_DIR
+RUN chown -R $UID:$GID /app
+RUN chown -R $UID:$GID $STATIC_DIR
 RUN mkdir -p $UV_CACHE_DIR_RUN_TIME
-RUN chown -R $GID:$UID $UV_CACHE_DIR_RUN_TIME
+RUN chown -R $UID:$GID $UV_CACHE_DIR_RUN_TIME
 
 # https://docs.astral.sh/uv/reference/environment/#uv_python_cache_dir
 ENV UV_PYTHON_CACHE_DIR=/home/appuser/.cache/uv/python
