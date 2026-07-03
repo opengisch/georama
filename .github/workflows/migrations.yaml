@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Prepare Build Environment
         run: |
-          touch .env
+          cp .env.dev .env
       - name: Build Georama Image
         run: |
           docker compose build georama

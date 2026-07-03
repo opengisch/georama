@@ -26,6 +26,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Prepare Build Environment
         run: |
+          cp .env.dev .env
           echo "${{ matrix.python-version }}" > .env
       - name: Build Georama Image
         run: |
