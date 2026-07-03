@@ -28,6 +28,8 @@ jobs:
         run: |
           cp .env.dev .env
           echo "${{ matrix.python-version }}" > .env
+          echo "UID=$(id -u)" > .env
+          echo "GID=$(id -g)" > .env
       - name: Build Georama Image
         run: |
           docker compose build georama
