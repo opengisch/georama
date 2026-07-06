@@ -260,7 +260,7 @@ class Base(Configuration):
             "corsheaders.middleware.CorsMiddleware",
             "django.middleware.common.CommonMiddleware",
             "django.middleware.locale.LocaleMiddleware",
-            # "django.middleware.csrf.CsrfViewMiddleware",
+            "django.middleware.csrf.CsrfViewMiddleware",
             "django.contrib.auth.middleware.AuthenticationMiddleware",
             *get_authentication_methods_middlewares(self.GEORAMA_AUTHENTICATION_METHODS),
             "django.contrib.messages.middleware.MessageMiddleware",
@@ -357,7 +357,6 @@ class Base(Configuration):
         "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
         "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
         "django.contrib.auth.hashers.ScryptPasswordHasher",
-        "django.contrib.auth.hashers.MD5PasswordHasher",
     ]
 
     CORS_ALLOWED_ORIGINS = values.ListValue(
@@ -449,7 +448,11 @@ class Base(Configuration):
 
 
 class Dev(Base):
-    SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!"
+    # Insecure default for local development. Override via DJANGO_SECRET_KEY
+    # env var. Never rely on this default for anything reachable from the internet.
+    SECRET_KEY = values.Value(
+        "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!",
+    )
 
     DEBUG = values.BooleanValue(True, environ_prefix="GEORAMA")
 

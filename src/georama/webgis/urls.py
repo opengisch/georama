@@ -71,7 +71,7 @@ urlpatterns = [
     path("/maps", views.OgcServerWebgis.as_view(), name="ogc_entry"),
     path(
         "/publish_dataset_as/wms/<str:dataset_type>/<str:dataset_id>",
-        views.admin_publish_dataset_as_wms,
+        views.AdminPublishDatasetAsWms.as_view(),
         name="publish_dataset_as_wms",
     ),
     path(
