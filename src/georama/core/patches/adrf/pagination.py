@@ -6,6 +6,7 @@ be used for paginated responses.
 """
 
 from django.core.paginator import InvalidPage
+from django.db.models import QuerySet
 from rest_framework.exceptions import NotFound
 from rest_framework.pagination import CursorPagination as DRFCursorPagination
 from rest_framework.pagination import LimitOffsetPagination as DRFLimitOffsetPagination
@@ -62,7 +63,10 @@ class LimitOffsetPagination(DRFLimitOffsetPagination):
             self.display_page_controls = True
 
         if self.count == 0 or self.offset > self.count:
-            return queryset.none()
+            if isinstance(queryset, QuerySet):
+                return queryset.none()
+            else:
+                return []
         return queryset[self.offset : self.offset + self.limit]
 
 
