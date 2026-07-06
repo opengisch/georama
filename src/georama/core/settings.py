@@ -448,11 +448,9 @@ class Base(Configuration):
 
 
 class Dev(Base):
-    # Insecure default for local development. Override via DJANGO_SECRET_KEY
-    # env var. Never rely on this default for anything reachable from the internet.
-    SECRET_KEY = values.Value(
-        "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!",
-    )
+    # SECRET_KEY is inherited from Base as values.SecretValue() — DJANGO_SECRET_KEY
+    # must be set in the environment or the app will refuse to boot. See
+    # .env.dev.example for the expected variable.
 
     DEBUG = values.BooleanValue(True, environ_prefix="GEORAMA")
 
@@ -515,6 +513,10 @@ class Dev(Base):
 
 
 class Test(Base):
+    # Test config is only used by the pytest runner (DJANGO_CONFIGURATION=Test).
+    # It never runs in production. A hardcoded key here avoids forcing every
+    # developer to export DJANGO_SECRET_KEY before running tests; pytest does
+    # not automatically load .env.
     SECRET_KEY = "django-testing-secret-key"
 
     PASSWORD_HASHERS = [

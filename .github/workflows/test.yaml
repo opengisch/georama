@@ -23,6 +23,12 @@ jobs:
     name: Test Python
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    env:
+      # CI-only secret. Consumed by the Dev configuration when make targets that
+      # run manage.py (e.g. make check-migrations) fall back to
+      # DJANGO_CONFIGURATION=Dev. The Test configuration hardcodes its own key
+      # and ignores this value. Never reuse this string outside CI.
+      DJANGO_SECRET_KEY: ci-only-not-a-real-secret-do-not-reuse
     strategy:
       matrix:
         python-version:
