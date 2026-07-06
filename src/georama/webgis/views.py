@@ -577,22 +577,11 @@ def insert_internal_ogc_server(request: HttpRequest) -> WebGisOgcServer:
     return ogc_server
 
 
-def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):
-    """Deprecated shim retained for import compatibility.
-
-    Real handling now lives on :class:`AdminPublishDatasetAsWms`, which enforces
-    authentication and the ``publishedaslayerwms.add`` permission. Kept because
-    external code may still import this symbol; do not route new URLs to it.
-    """
-    return AdminPublishDatasetAsWms.as_view()(request, dataset_type=dataset_type, dataset_id=dataset_id)
-
-
 class AdminPublishDatasetAsWms(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
     """Publish a raster/vector/custom dataset as a WMS layer.
 
     Requires an authenticated user with add permission on
-    :class:`PublishedAsLayerWms`. Previously this endpoint was reachable
-    anonymously via ``webgis/publish_dataset_as/wms/<type>/<id>``.
+    :class:`PublishedAsLayerWms`.
     """
 
     model = PublishedAsLayerWms
