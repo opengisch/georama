@@ -88,6 +88,17 @@ class Datasource(models.Model):
     def bbox_to_list(self) -> list:
         return BBox.from_string(self.bbox).to_list()
 
+    @property
+    def icon(self):
+        if self.vector is not None:
+            return "fa fa-bezier-curve"
+        elif self.raster is not None:
+            return "fa fa-th"
+        elif self.custom is not None:
+            return "fa fa-asterisk"
+        else:
+            return "fa fa-question"
+
 
 class Vector(Datasource):
     class Meta:

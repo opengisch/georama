@@ -9,7 +9,7 @@ from faker.utils.loading import find_available_providers
 
 from georama.core.common.faker.gis import Dataset
 from georama.integration.factories import CustomFactory, FieldFactory, RasterFactory, VectorFactory
-from georama.integration.models import Datasource, Vector, VectorField
+from georama.integration.models import Datasource, Vector, VectorField, Project
 
 META_PROVIDERS_MODULES = [
     "georama.core.common.faker",
@@ -40,6 +40,7 @@ class Command(BaseCommand):
         # We only allow this command to run when in dev environment
         if current_config == "Dev":
             # deleting old content
+            Project.objects.all().delete()
             Datasource.objects.all().delete()
             Vector.objects.all().delete()
             VectorField.objects.all().delete()

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import random
 import uuid
 
@@ -860,15 +862,18 @@ glob_org_folder = settings.DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER
 class ProjectFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Project
-        django_get_or_create = ("name", "organisation")
+        django_get_or_create = ("organisation", "path")
 
-    name = factory.Faker("word")
+    name = factory.LazyAttribute(
+        lambda a: fake.word().capitalize()
+    )
     qgis_version = "Qgis 3.44"
     hash = factory.Faker("md5")
     path = factory.LazyAttribute(
-        lambda a: (
-            f"{a.organisation.domain if a.organisation else glob_org_folder}/"
-            f"{a.name}.{random.choice(['qgs', 'qgz'])}"
+        lambda a: fake.file_path(
+            depth=random.randint(0, 4),
+            absolute=False,
+            extension=['qgs', 'qgz']
         )
     )
     organisation = factory.LazyFunction(lambda: random.choice([OrganisationFactory(), None]))
