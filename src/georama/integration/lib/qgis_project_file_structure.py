@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import hashlib
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,7 +26,7 @@ class QgisProject:
 
     @property
     def project_path(self) -> Path:
-        return self.root_path / self.path
+        return self.integration_root / self.path
 
     @property
     def path_from_root(self) -> Path:
@@ -57,6 +59,19 @@ class QgisProject:
                 return hashlib.md5(cf.read()).hexdigest()
         return None
 
+    @property
+    def exists(self):
+        return self.project_path.exists()
+
+    @property
+    def modification_date(self):
+        if self.exists:
+            return datetime.fromtimestamp(
+                self.project_path.stat().st_mtime
+            )
+        else:
+            return None
+
 
 @dataclass
 class QgisProjectCollection:
@@ -74,7 +89,7 @@ class QgisProjectCollection:
         if path_filter is None:
             path_filter = set()
         return [
-            QgisProject(path=p, organisation=self.organisation)
+            QgisProject(path=p.relative_to(search_path), organisation=self.organisation)
             for p in search_path.rglob(self.glob_pattern)
-            if p not in path_filter
+            if p.relative_to(search_path) not in path_filter
         ]

@@ -3,6 +3,9 @@ from pathlib import Path
 import httpx
 from adrf.mixins import get_data
 from django.conf import settings
+from django.http import Http404
+from django.shortcuts import redirect
+from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
 from qgis_server_light.interface.exporter.api import ExportParameters
 from rest_framework import filters, status
@@ -38,10 +41,11 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
         filters.OrderingFilter,
         DjangoFilterBackend,
     ]
-    search_fields = ["name"]
-    ordering_fields = ["name"]
+    search_fields = ["name", "path"]
+    ordering_fields = ["name", "path"]
     filterset_fields = ["name"]
     list_path_template_name: str = "integration/drf/project/path_list.html"
+    show_template_name = "integration/drf/project/show.html"
 
     async def _get_model_permissions(self):
         """
@@ -81,12 +85,19 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
         if request.POST:
             project_path = request.data["path"]
             project_file = QgisProject(path=project_path, organisation=organisation_folder)  # noqa: F841
+            if not project_file.project_path.exists():
+                raise Http404(f"Project with path {project_file.project_path} not found")
             project = await Project.objects.acreate(  # noqa: F841
                 path=project_path, organisation=request.georama_organisation
             )
+            return redirect(reverse("integration:project-non-integrated"))
 
         existing_project_paths = {
-            Path(p) async for p in Project.objects.values_list("path", flat=True)
+            Path(p) async for p in Project.objects.organisation_objects(
+                organisation=request.georama_organisation
+            ).values_list(
+                "path", flat=True
+            )
         }
         collection = QgisProjectCollection(organisation_folder)
         filtered_file_list = collection.projects_filtered(existing_project_paths)
@@ -129,7 +140,7 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
             return Response(data, status=status.HTTP_200_OK)
 
 
-class VectorDatasourceViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):
+class VectorDatasourceViewSet(OrganisationalModelViewSet):
     queryset = Vector.objects.all()
     serializer_class = VectorDatasourceSerializer
     permission_classes = [GeoramaModelPermissions]
@@ -143,7 +154,7 @@ class VectorDatasourceViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateMo
     filterset_fields = ["name"]
 
 
-class FieldViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):
+class FieldViewSet(OrganisationalModelViewSet):
     queryset = VectorField.objects.all()
     serializer_class = FieldSerializer
     permission_classes = [GeoramaModelPermissions]
@@ -157,7 +168,7 @@ class FieldViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet)
     filterset_fields = ["name"]
 
 
-class RasterDatasourceViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):
+class RasterDatasourceViewSet(OrganisationalModelViewSet):
     queryset = Raster.objects.all()
     serializer_class = RasterDatasourceSerializer
     permission_classes = [GeoramaModelPermissions]
@@ -171,7 +182,7 @@ class RasterDatasourceViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateMo
     filterset_fields = ["name"]
 
 
-class CustomDatasourceViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):
+class CustomDatasourceViewSet(OrganisationalModelViewSet):
     queryset = Custom.objects.all()
     serializer_class = CustomDatasourceSerializer
     permission_classes = [GeoramaModelPermissions]

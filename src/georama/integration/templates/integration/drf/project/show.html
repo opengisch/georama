@@ -1,0 +1,93 @@
+{% extends 'core/drf/default/form.html' %}
+{% load static i18n model_extras %}
+
+{% block list_actions %}
+
+    <div class="btn-group" role="group" aria-label="Project actions">
+
+        {% if qgis_project.database_representation %}
+            {% blocktranslate asvar title%}Refresh QGIS project in Georama by loading it from disk{% endblocktranslate %}
+        {% else %}
+            {% blocktranslate asvar title%}Link QGIS project on disk in Georama{% endblocktranslate %}
+        {% endif %}
+        {% if perms.data_integration.edit_project or perms.data_integration.add_project %}
+            <a onclick="showWaitModalOverlay()"
+               href="#"
+               class="btn btn-outline-primary" role="button"
+               title="{{ title }}"
+               aria-label="{{ title }}"
+               data-bs-toggle="tooltip">
+                <i class="{% if qgis_project.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
+            </a>
+        {% endif %}
+
+        {% blocktranslate asvar title%}Remove QGIS project from Georama by unlinking it{% endblocktranslate %}
+        {% if perms.data_integration.delete_project %}
+            {% if qgis_project.database_representation %}
+                <a href="#"
+                   class="btn btn-outline-danger" role="button"
+                   title="{{ title }}"
+                   aria-label="{{ title }}"
+                   data-bs-toggle="tooltip">
+                    <i class="fa fa-unlink"></i>
+                </a>
+            {% else %}
+                <a href="#" class="btn btn-outline-danger disabled"
+                   disabled tabindex="-1" role="button" aria-disabled="true"
+                   title="{{ title }}"
+                   aria-label="{{ title }}"
+                   data-bs-toggle="tooltip">
+                    <i class="fa fa-unlink"></i>
+                </a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+
+{% block form_details %}
+
+    <!-- Left Column, scrollable -->
+
+    <div class="col h-100 px-4 overflow-auto">
+        <div class="mb-4" data-bs-toggle="tooltip"
+             title="QGIS version used to save the project">
+            <label class="form-text">Version</label>
+            <div>
+                {{ object.qgis_version|default_if_none:"unknown" }}</div>
+        </div>
+
+        <div class="mb-4" data-bs-toggle="tooltip"
+             title="Last time the QGIS project was changed on disk">
+            <label class="form-text">Modification date</label>
+            <div>{{object.modification_date|date:"r"}}</div>
+        </div>
+        {% if qgis_project.database_representation is not None %}
+        <div class="mb-4" data-bs-toggle="tooltip"
+             title="">
+            <label class="form-text">...</label>
+            <div>
+                ...</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right Column, scrollable -->
+
+    <div class="col h-100 px-4 overflow-auto">
+        <h4>Datasets</h4>
+        <ul class="list-group list-group-flush">
+            {% for ds in object.datasources_sorted_by_name %}
+                <li class="list-group-item d-flex align-items-center gap-2">
+                    <i class="{{ds.icon}} text-primary" style="width: 1.5em;"></i>
+                    <div class="me-auto">{{ ds.name }}</div>
+                    <div class="badge rounded-pill text-bg-primary">{{ ds.driver }}</div>
+                </li>
+            
+            {% endfor %}
+        
+        </ul>
+    </div>
+
+{% endblock %}
