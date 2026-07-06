@@ -5,7 +5,12 @@ LABEL org.opencontainers.image.vendor="opengis.ch"
 LABEL org.opencontainers.image.title="Georama Base Image"
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y binutils libproj-dev gdal-bin libgdal-dev gettext
+RUN apt-get update && apt-get install -y \
+    binutils \
+    libproj-dev \
+    gdal-bin \
+    libgdal-dev \
+    gettext
 
 COPY --from=ghcr.io/astral-sh/uv:0.11.19 /uv /uvx /bin/
 
@@ -15,6 +20,8 @@ ARG UID=1000
 ARG GID=1000
 ARG UV_CACHE_DIR_BUILD_TIME=/home/appuser/.cache/uv-build-time
 ARG UV_CACHE_DIR_RUN_TIME=/home/appuser/.cache/uv
+ARG QSL_SOURCE_DIR=/qsl
+ARG QSL_SOURCE_BRANCH=master
 
 # Setup a non-root user
 RUN groupadd --system --gid $GID nonroot \
@@ -26,10 +33,14 @@ ARG STATIC_DIR="/georama/static"
 WORKDIR $STATIC_DIR
 WORKDIR /app
 
+
+ADD --unpack https://github.com/opengisch/qgis-server-light/archive/refs/heads/$QSL_SOURCE_BRANCH.tar.gz $QSL_SOURCE_DIR
+
 RUN chown -R $UID:$GID /app
 RUN chown -R $UID:$GID $STATIC_DIR
 RUN mkdir -p $UV_CACHE_DIR_RUN_TIME
 RUN chown -R $UID:$GID $UV_CACHE_DIR_RUN_TIME
+RUN chown -R $UID:$GID $QSL_SOURCE_DIR
 
 # https://docs.astral.sh/uv/reference/environment/#uv_python_cache_dir
 ENV UV_PYTHON_CACHE_DIR=/home/appuser/.cache/uv/python

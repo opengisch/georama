@@ -25,7 +25,7 @@ dependencies = [
     "django-crispy-forms>=2.6",
     "crispy-bootstrap5>=2026.3",
     "pygeoapi==0.21.0",
-    "qgis_server_light @ git+https://github.com/opengisch/qgis-server-light.git@master",
+    "qgis_server_light[interface] @ git+https://github.com/opengisch/qgis-server-light.git@refactoring",
     "xsdata>=26.2",
     "sqlalchemy>=2.0.51",
     "geoalchemy2>=0.20.0",
@@ -50,6 +50,7 @@ dev = [
     "pre-commit",
     "pyproj>=3.7.2",
     "shapely>=2.1.2",
+    "qgis-server-light[interface]",
 ]
 lint-format = [
     "ruff>=0.15.15",
@@ -59,6 +60,9 @@ test = [
     "pytest-django>=4.12.0",
     "pytest-lazy-fixtures>=1.4.0",
 ]
+
+[tool.uv.sources]
+qgis-server-light = { path = "/qsl", editable = true }
 
 [tool.ruff]
 target-version = "py312"
