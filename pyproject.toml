@@ -32,6 +32,7 @@ dependencies = [
     "psycopg2-binary>=2.9.12",
     "gdal==3.10.3",
     "httpx>=0.28.1",
+    "redis==5.0.8",
 ]
 
 [project.scripts]

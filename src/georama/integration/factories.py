@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import random
 import uuid
 
@@ -864,16 +862,12 @@ class ProjectFactory(factory.django.DjangoModelFactory):
         model = models.Project
         django_get_or_create = ("organisation", "path")
 
-    name = factory.LazyAttribute(
-        lambda a: fake.word().capitalize()
-    )
+    name = factory.LazyAttribute(lambda a: fake.word().capitalize())
     qgis_version = "Qgis 3.44"
     hash = factory.Faker("md5")
     path = factory.LazyAttribute(
         lambda a: fake.file_path(
-            depth=random.randint(0, 4),
-            absolute=False,
-            extension=['qgs', 'qgz']
+            depth=random.randint(0, 4), absolute=False, extension=["qgs", "qgz"]
         )
     )
     organisation = factory.LazyFunction(lambda: random.choice([OrganisationFactory(), None]))
@@ -889,7 +883,7 @@ class DatasourceFactory(factory.django.DjangoModelFactory):
     bbox = factory.LazyFunction(lambda: [float(x) for x in fake.latlng()])
     bbox_wgs84 = factory.LazyFunction(lambda: [float(x) for x in fake.latlng()])
     source = {}
-    styles = {}
+    styles = []
     driver = factory.Iterator(["ogr", "gdal", "postgres"])
     crs = {}
     minimum_scale = factory.Faker("pyfloat", min_value=10.0, max_value=80000.0, positive=True)

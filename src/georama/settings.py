@@ -167,6 +167,7 @@ class Base(Configuration):
         "georama.core.apps.CoreConfig",
         "georama.integration.apps.IntegrationConfig",
         "georama.features.apps.FeaturesConfig",
+        "georama.maps.apps.MapsConfig",
         "allauth",
         "allauth.account",
         "allauth.socialaccount",
@@ -427,6 +428,10 @@ class Base(Configuration):
     )
 
     DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER = values.Value("global", environ_prefix="GEORAMA")
+
+    QSL_REDIS_URL = values.Value(environ_prefix="")
+
+    JOB_TIMEOUT = values.FloatValue(1000, environ_prefix="GEORAMA")
 
 
 class Dev(Base):

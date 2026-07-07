@@ -1,12 +1,12 @@
 import uuid
 
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from django.conf import settings
 from georama.core.models.organisation import Organisation
-from georama.integration.managers.project import ProjectManager
 from georama.integration.lib.qgis_project_file_structure import QgisProject
+from georama.integration.managers.project import ProjectManager
 
 
 class Project(models.Model):
@@ -47,7 +47,7 @@ class Project(models.Model):
 
     @property
     def datasources_sorted_by_name(self):
-        return self.datasources.order_by('name').all()
+        return self.datasources.order_by("name").all()
 
     @property
     def organisation_folder(self):

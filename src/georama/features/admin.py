@@ -1,7 +1,6 @@
 import logging
 
 from django.contrib import admin
-from guardian.admin import GuardedModelAdminMixin
 from unfold.admin import ModelAdmin, TabularInline
 
 from georama.core.common.admin import OrganisationalModelAdmin
@@ -32,7 +31,7 @@ class FieldInlineAdmin(TabularInline):
 
 
 @admin.register(FeatureLayer)
-class FeatureLayerAdmin(GuardedModelAdminMixin, OrganisationalModelAdmin):
+class FeatureLayerAdmin(OrganisationalModelAdmin):
     prefetch_organisation_related = "datasource__project__organisation"
 
     def get_readonly_fields(self, request, obj=None):

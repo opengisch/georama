@@ -1,0 +1,22 @@
+from enum import Enum
+
+__NAMESPACE__ = "http://www.opengis.net/gml"
+
+
+class AesheticCriteriaType(Enum):
+    """
+    Graph-specific styling property.
+    """
+
+    MIN_CROSSINGS = "MIN_CROSSINGS"
+    MIN_AREA = "MIN_AREA"
+    MIN_BENDS = "MIN_BENDS"
+    MAX_BENDS = "MAX_BENDS"
+    UNIFORM_BENDS = "UNIFORM_BENDS"
+    MIN_SLOPES = "MIN_SLOPES"
+    MIN_EDGE_LENGTH = "MIN_EDGE_LENGTH"
+    MAX_EDGE_LENGTH = "MAX_EDGE_LENGTH"
+    UNIFORM_EDGE_LENGTH = "UNIFORM_EDGE_LENGTH"
+    MAX_ANGULAR_RESOLUTION = "MAX_ANGULAR_RESOLUTION"
+    MIN_ASPECT_RATIO = "MIN_ASPECT_RATIO"
+    MAX_SYMMETRIES = "MAX_SYMMETRIES"

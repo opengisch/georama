@@ -1,4 +1,8 @@
+import json
+import logging
 import uuid
+from pathlib import Path
+from typing import Literal
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -6,7 +10,9 @@ from qgis_server_light.interface.common import BBox
 from qgis_server_light.interface.exporter.extract import (
     Crs,
     DataSource,
+    Style,
 )
+from qgis_server_light.interface.job.common.input import QslJobLayer
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 
@@ -44,7 +50,7 @@ class Datasource(models.Model):
         default=dict, help_text=_("Source configuration and connection metadata of the datasource.")
     )
     styles = models.JSONField(
-        default=dict, help_text=_("Rendered style definitions associated with this datasource.")
+        default=list, help_text=_("Rendered style definitions associated with this datasource.")
     )
     driver = models.CharField(
         max_length=50, help_text=_("Provider driver name used to access the datasource.")
@@ -89,15 +95,72 @@ class Datasource(models.Model):
         return BBox.from_string(self.bbox).to_list()
 
     @property
-    def icon(self):
-        if self.vector is not None:
-            return "fa fa-bezier-curve"
-        elif self.raster is not None:
-            return "fa fa-th"
-        elif self.custom is not None:
-            return "fa fa-asterisk"
+    def bbox_2d_string(self) -> str:
+        return BBox.from_string(self.bbox).to_2d_string()
+
+    def to_qsl_job_layer(self, style_name: str | None = None) -> QslJobLayer:
+        source_definition = self.source_to_qsl.definition
+        if style_name is not None:
+            style = self.get_style_by_name(style_name)
         else:
-            return "fa fa-question"
+            style = self.get_default_style()
+        return QslJobLayer(
+            id=self.qgis_layer_id,
+            name=self.name,
+            source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
+            driver=self.driver,
+            style=style,
+            remote=source_definition.remote,
+            folder_name=str(
+                Path(self.project.organisation_folder) / Path(self.project.path).parent
+            ),
+        )
+
+    def get_default_style(self) -> Style:
+        default_style_name = "default"
+        styles = self.styles_to_qsl
+        for style in styles:
+            if style.name == default_style_name:
+                return style
+        if len(styles) > 0:
+            first_style = styles[0]
+            logging.debug(
+                f"Requested style name for layer '{self.name}'"
+                f"was {default_style_name} "
+                f"but this is not in the available styles,"
+                f"we choose the first available style "
+                f"instead which is '{first_style.name}'"
+            )
+            return first_style
+        else:
+            logging.debug(f"No styles found for layer '{self.name}'")
+
+    @property
+    def styles_to_qsl(self) -> list[Style]:
+        return DictDecoder(config=self.get_parser_config).decode(self.styles, list[Style])
+
+    @property
+    def type(self) -> Literal["vector", "raster", "custom"]:
+        if self.vector is not None:
+            return "vector"
+        elif self.raster is not None:
+            return "raster"
+        elif self.custom is not None:
+            return "custom"
+        else:
+            raise LookupError("Datasource is stale")
+
+    @property
+    def icon(self):
+        match self.type:
+            case "vector":
+                return "fa fa-bezier-curve"
+            case "raster":
+                return "fa fa-th"
+            case "custom":
+                return "fa fa-asterisk"
+            case _:
+                return "fa fa-question"
 
 
 class Vector(Datasource):

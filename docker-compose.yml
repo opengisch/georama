@@ -44,6 +44,34 @@ services:
       interval: 0.1s
       timeout: 1s
       retries: 50
+
+  qsl-redis:
+    image: redis:8.6.2
+    ports:
+      - "1234:6379"
+
+  qsl:
+    image: opengisch/qgis-server-light-dev:latest
+    platform: "${GEORAMA_PG_PLATFORM:-linux/amd64}"
+    restart: unless-stopped
+    environment:
+      - "QSL_REDIS_URL=${QSL_REDIS_URL:?}"
+    volumes:
+      - "${GEORAMA_LOCAL_DATA:?}:/io/data:ro"
+    deploy:
+      replicas: 1
+
+  qsl-exporter:
+    image: opengisch/qgis-server-light-dev:latest
+    platform: "${GEORAMA_PG_PLATFORM:-linux/amd64}"
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    command:
+      - "serve-exporter-api-outbound"
+    volumes:
+      - "${GEORAMA_LOCAL_DATA:?}:/io/data"
+
 volumes:
   georama-venv:
   georama-static:

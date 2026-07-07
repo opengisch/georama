@@ -9,7 +9,7 @@ from faker.utils.loading import find_available_providers
 
 from georama.core.common.faker.gis import Dataset
 from georama.integration.factories import CustomFactory, FieldFactory, RasterFactory, VectorFactory
-from georama.integration.models import Datasource, Vector, VectorField, Project
+from georama.integration.models import Datasource, Project, Vector, VectorField
 
 META_PROVIDERS_MODULES = [
     "georama.core.common.faker",
@@ -95,7 +95,7 @@ class Command(BaseCommand):
                         },
                         "vector_tile": None,
                     },
-                    styles={},
+                    styles=[],
                     bbox="{},{},{},{}".format(*fake.bounds()),
                     bbox_wgs84="{},{},{},{}".format(*fake.bounds_wgs84()),
                     fields=[],

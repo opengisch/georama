@@ -25,6 +25,7 @@ urlpatterns = [
     path("", include("georama.core.urls")),
     path("integration/", include("georama.integration.urls")),
     path("features/", include("georama.features.urls")),
+    path("maps/", include("georama.maps.urls")),
     path("accounts/", include("allauth.urls")),
 ]
 
