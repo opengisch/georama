@@ -19,9 +19,10 @@ from django.conf import settings as AppSettings
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
+from django.views.generic import RedirectView
 
 from georama.core.apps import central_app_label
-from georama.core.views import auth, landing, settings
+from georama.core.views import landing, settings
 from georama.core.views.entities import permission_assign, permission_remove
 
 app_name = central_app_label
@@ -29,8 +30,8 @@ app_name = central_app_label
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path("", landing.GeoramaLanding.as_view(), name="landing"),
-    path("login", auth.Login.as_view(), name="login"),
-    path("logout", auth.Logout.as_view(), name="logout"),
+    path("login", RedirectView.as_view(url="/accounts/login/", permanent=False), name="login"),
+    path("logout", RedirectView.as_view(url="/accounts/logout/", permanent=False), name="logout"),
     path("settings", settings.Settings.as_view(), name="settings"),
     path(
         "core/assign_permission_to_user_or_group",
@@ -48,6 +49,7 @@ urlpatterns = [
     path("webgis", include("georama.webgis.urls")),
     path("qfield_link", include("georama.qfield_link.urls")),
     path("accounts/", include("allauth.urls")),
+    path("admin/login/", RedirectView.as_view(url="/accounts/login/", permanent=False)),
     path("admin/", admin.site.urls),
 ]
 

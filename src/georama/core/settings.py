@@ -201,6 +201,7 @@ class Base(Configuration):
         "georama.webgis.apps.WebgisConfig",
         "allauth",
         "allauth.account",
+        "allauth.mfa",
         "allauth.socialaccount",
         "allauth.socialaccount.providers.openid_connect",
         "adminsortable2",
@@ -211,7 +212,16 @@ class Base(Configuration):
     ]
     AUTHENTICATION_BACKENDS = [
         "django.contrib.auth.backends.ModelBackend",
+        "allauth.account.auth_backends.AuthenticationBackend",
     ]
+
+    MFA_SUPPORTED_TYPES = ["totp", "recovery_codes"]
+    MFA_TOTP_ISSUER = "Georama"
+    ACCOUNT_LOGIN_BY_CODE_ENABLED = False
+    ACCOUNT_RATE_LIMITS = {
+        "login": "5/m/ip",  # 5 attempts per minute per IP
+        "login_failed": "3/5m/ip,5/5m/key",  # 3 per 5min per IP, 5 per 5min per key
+    }
 
     GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
         ["DJANGO_CONTRIB_AUTH"],
@@ -260,7 +270,7 @@ class Base(Configuration):
             "corsheaders.middleware.CorsMiddleware",
             "django.middleware.common.CommonMiddleware",
             "django.middleware.locale.LocaleMiddleware",
-            # "django.middleware.csrf.CsrfViewMiddleware",
+            "django.middleware.csrf.CsrfViewMiddleware",
             "django.contrib.auth.middleware.AuthenticationMiddleware",
             *get_authentication_methods_middlewares(self.GEORAMA_AUTHENTICATION_METHODS),
             "django.contrib.messages.middleware.MessageMiddleware",
@@ -268,6 +278,7 @@ class Base(Configuration):
             # webgis
             "allauth.account.middleware.AccountMiddleware",
             "georama.core.auth.middleware.GeoGirafeAuthenticationMiddleware",
+            "georama.core.auth.mfa_enforcement.MFAEnforcementMiddleware",
         ]
 
     ROOT_URLCONF = "georama.core.urls"
@@ -328,6 +339,16 @@ class Base(Configuration):
         }
 
     QSL_REDIS_URL = values.Value("redis://localhost:1234", environ_prefix="")
+
+    @property
+    def CACHES(self):
+        return {
+            "default": {
+                "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                "LOCATION": self.QSL_REDIS_URL,
+            }
+        }
+
     JOB_TIMEOUT = values.FloatValue(1000, environ_prefix="GEORAMA")
     DATA_INTEGRATION_ROOT = values.Value(
         "./tests/resources/projects", environ_prefix="GEORAMA"
