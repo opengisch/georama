@@ -21,19 +21,54 @@ docker compose up --watch --remove-orphans
 ```
 
 ```shell
-docker compose exec georama uv run manage
+docker compose run --rm --entrypoint bash georama -c "uv run manage"
 ```
 
 ```shell
-docker compose exec georama uv run pytest
+docker compose run --rm --entrypoint bash georama -c "uv run pytest"
 ```
+### Create DEV content
+
+⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
+
+The following commands are bulk creation tools! They are intended to be used whenever
+you as a DEV need random and more or less functional content in Georama to try things.
+NOTE: FOR CONSISTENCY REASON THESE COMMANDS ARE ALL DELETING THE CONTENT OF THEIR RELATED
+TABLES BEFORE THEY INSERT THE RANDOM STUFF!
+
+⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
+
+#### Core content
+
+Create users, groups, admin user, memberships, organisations, assigns users randomly to
+organisations (memberships) and to groups.
+
+Adminuser: `admin/admin`
+
+User: `<username>:<username>`
 
 ```shell
-docker compose exec georama uv run manage create_dev_content_core
+docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_content_core"
 ```
+#### Integration content
+
+Creates projects, raster, custom and vector layers (with fields) and binds projects
+randomly to organisations which might exist.
+
+NOTE: Raster and Custom layers are non-functional random layers, Vector is PostGIS only!
+
+For each vector layer, a corresponding postgis table is created and populated with random data.
+The tables can be found in the georama db in the schema `dummy`.
 
 ```shell
-docker compose exec georama uv run manage create_dev_content_integration
+docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_content_integration"
+```
+#### Features content
+
+Randomly publishes vector layers assigns them to users or groups.
+
+```shell
+docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_content_features"
 ```
 
 # pygeoapi

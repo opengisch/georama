@@ -14,6 +14,9 @@ wheels/
 # environment
 .env
 
+# docker compose overwrites
+compose.override.yml
+
 # TODO: Remove
 tests/resources/projects/global/*
 !tests/resources/projects/global/TestMandant/

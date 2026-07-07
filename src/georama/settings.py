@@ -384,10 +384,16 @@ class Base(Configuration):
     # Georama specific settings
     ###########################
 
-    QGIS_EXPORTER_UNIFY_LAYER_NAMES_BY_GROUP = values.BooleanValue(
+    # QSL exporter settings
+    QSL_EXPORTER_UNIFY_LAYER_NAMES_BY_GROUP = values.BooleanValue(
         True, environ_prefix=GEORAMA_ENV_PREFIX
     )
+    QSL_EXPORTER_URL = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+
+    # GeoGirafe stuff
     WEBGISURL = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+
+    # Georama internal settings
     SITE_TITLE = values.Value("Georama", environ_prefix=GEORAMA_ENV_PREFIX)
 
     # the domain georama runs-this is be used for deriving the organisation

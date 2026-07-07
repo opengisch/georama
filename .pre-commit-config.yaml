@@ -3,10 +3,9 @@ repos:
     hooks:
       - id: ruff
         name: ruff
-        entry: docker compose exec -T georama uv run ruff check
+        entry: docker compose run --rm --entrypoint bash georama -c "uv run ruff check --fix"
         language: system
         types: [ python ]
-        args: [ --fix ]
         # unfortunately we need to redefine excludes
         exclude: |
           (?x)^(
@@ -15,7 +14,7 @@ repos:
           )$
       - id: ruff-format
         name: ruff-format
-        entry: docker compose exec -T georama uv run ruff format
+        entry: docker compose run --rm --entrypoint bash georama -c "uv run ruff format"
         language: system
         types: [ python ]
         exclude: |
@@ -25,8 +24,7 @@ repos:
           )$
       - id: forgotten-migrations
         name: Django migrations not applied
-        entry: docker compose exec -T georama uv run manage makemigrations
+        entry: docker compose run --rm --entrypoint bash georama -c "uv run manage makemigrations --check --dry-run"
         language: system
-        args: [ --check, --dry-run ]
         pass_filenames: false
         types: [ python ]

@@ -2,7 +2,10 @@ services:
   georama:
     env_file:
       - .env
-    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      - "GEORAMA_QSL_EXPORTER_URL=http://qsl-exporter:5000/export"
+      - "QSL_REDIS_URL=redis://qsl-redis:6379"
+    image: local/georama:dev
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,25 +14,29 @@ services:
         PYTHON_VERSION: "${PY_VERSION:-3.12}"
         UID: "${UID:-1000}"
         GID: "${GID:-1000}"
+        QSL_SOURCE_BRANCH: "${QSL_SOURCE_BRANCH:-master}"
     develop:
       watch:
         - action: rebuild
           path: uv.lock
         - action: rebuild
           path: Dockerfile
-    entrypoint: [ "/app/docker/dev.entrypoint.sh" ]
     ports:
       - "4242:4242"
+      - "4222:2222"
     volumes:
       - ./:/app
       - georama-venv:/.venv
       - georama-static:/georama/static
+      - ssh_host_keys:/etc/ssh
+      - ./docker/sshd_config.conf:/etc/ssh/sshd_config
     depends_on:
       georama-db:
         condition: service_healthy
-
+      qsl-redis:
+        condition: service_healthy
   georama-db:
-    platform: "${GEORAMA_PG_PLATFORM:-linux/amd64}"
+    platform: "linux/amd64"
     image: postgis/postgis:17-3.5
     volumes:
       - "georama-db:/var/lib/postgresql/data"
@@ -44,35 +51,46 @@ services:
       interval: 0.1s
       timeout: 1s
       retries: 50
-
   qsl-redis:
-    image: redis:8.6.2
-    ports:
-      - "1234:6379"
-
+    image: redis:8.8.0
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 0.5s
+      retries: 50
   qsl:
-    image: opengisch/qgis-server-light-dev:latest
-    platform: "${GEORAMA_PG_PLATFORM:-linux/amd64}"
+    platform: "linux/amd64"
     restart: unless-stopped
+    image: opengisch/qgis-server-light-dev:latest
+    env_file:
+      - .env
     environment:
-      - "QSL_REDIS_URL=${QSL_REDIS_URL:?}"
+      - "QSL_REDIS_URL=redis://qsl-redis:6379"
+      - "QSL_SVG_PATH=/io/svg"
+      - "QSL_DATA_ROOT=/io/data"
     volumes:
-      - "${GEORAMA_LOCAL_DATA:?}:/io/data:ro"
+      - "./tests/resources/projects:/io/data:ro"
     deploy:
       replicas: 1
-
+    depends_on:
+      qsl-redis:
+        condition: service_healthy
   qsl-exporter:
+    platform: "linux/amd64"
     image: opengisch/qgis-server-light-dev:latest
-    platform: "${GEORAMA_PG_PLATFORM:-linux/amd64}"
+    env_file:
+      - .env
+    environment:
+      - "QSL_DATA_ROOT=/io/data"
     restart: unless-stopped
     ports:
       - "5000:5000"
     command:
       - "serve-exporter-api-outbound"
     volumes:
-      - "${GEORAMA_LOCAL_DATA:?}:/io/data"
-
+      - "./tests/resources/projects:/io/data"
 volumes:
   georama-venv:
   georama-static:
   georama-db:
+  ssh_host_keys:

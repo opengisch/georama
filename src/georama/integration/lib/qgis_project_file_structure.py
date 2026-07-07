@@ -1,7 +1,6 @@
-from datetime import datetime
-
 import hashlib
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 from django.conf import settings
@@ -66,9 +65,7 @@ class QgisProject:
     @property
     def modification_date(self):
         if self.exists:
-            return datetime.fromtimestamp(
-                self.project_path.stat().st_mtime
-            )
+            return datetime.fromtimestamp(self.project_path.stat().st_mtime)
         else:
             return None
 

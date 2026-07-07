@@ -1,0 +1,55 @@
+services:
+  georama:
+    volumes:
+      - ${QSL_SOURCE_ROOT}:/qsl
+  qsl:
+    image: local/georama-qsl:dev
+    build:
+      context: ${QSL_SOURCE_ROOT}
+      dockerfile: Dockerfile
+      target: dev
+      args:
+        PYTHON_VERSION: "${PY_VERSION:-3.12}"
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    develop:
+      watch:
+        - action: rebuild
+          path: ${QSL_SOURCE_ROOT}/uv.lock
+        - action: rebuild
+          path: ${QSL_SOURCE_ROOT}/Dockerfile
+    volumes:
+      - ${QSL_SOURCE_ROOT}:/app
+      - ./tests/resources/projects:/io/data
+      - qsl-venv:/home/appuser/.venv
+      # this is the actual entrypoint, but it calls /bin/dev.start.sh
+      - ${QSL_SOURCE_ROOT}/docker/dev.entrypoint.sh:/bin/dev.entrypoint.sh
+      # we change name of the script as dev.entrypoint.sh expect it!
+      - ${QSL_SOURCE_ROOT}/docker/dev.start.worker.sh:/bin/dev.start.sh
+    entrypoint: [ "/bin/dev.entrypoint.sh" ]
+  qsl-exporter:
+    image: local/georama-qsl-exporter:dev
+    build:
+      context: ${QSL_SOURCE_ROOT}
+      dockerfile: Dockerfile
+      target: dev
+      args:
+        PYTHON_VERSION: "${PY_VERSION:-3.12}"
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    develop:
+      watch:
+        - action: rebuild
+          path: ${QSL_SOURCE_ROOT}/uv.lock
+        - action: rebuild
+          path: ${QSL_SOURCE_ROOT}/Dockerfile
+    volumes:
+      - ${QSL_SOURCE_ROOT}:/app
+      - ./tests/resources/projects:/io/data
+      - qsl-exporter-venv:/home/appuser/.venv
+      - ${QSL_SOURCE_ROOT}/docker/dev.start.exporter_api.sh:/bin/dev.start.sh
+    entrypoint: [ "/bin/dev.start.sh" ]
+    command: []
+volumes:
+  qsl-venv:
+  qsl-exporter-venv:

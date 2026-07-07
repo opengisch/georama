@@ -31,4 +31,4 @@ jobs:
         run: |
           docker compose up -d
       - name: Run tests
-        run: docker compose exec georama uv run pytest
+        run: docker compose run --rm --entrypoint bash georama -c "uv run pytest"

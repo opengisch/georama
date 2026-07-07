@@ -93,11 +93,10 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
             return redirect(reverse("integration:project-non-integrated"))
 
         existing_project_paths = {
-            Path(p) async for p in Project.objects.organisation_objects(
+            Path(p)
+            async for p in Project.objects.organisation_objects(
                 organisation=request.georama_organisation
-            ).values_list(
-                "path", flat=True
-            )
+            ).values_list("path", flat=True)
         }
         collection = QgisProjectCollection(organisation_folder)
         filtered_file_list = collection.projects_filtered(existing_project_paths)
