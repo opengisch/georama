@@ -2,6 +2,7 @@ import json
 import logging
 
 from django.conf import settings
+from django.contrib.auth import get_permission_codename
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.db import transaction
@@ -585,7 +586,14 @@ class AdminPublishDatasetAsWms(GeoramaLoginRequiredMixin, PermissionRequiredMixi
     """
 
     model = PublishedAsLayerWms
-    permission_required = model.perm_add()
+    # PublishedAsLayerWms does not currently inherit GeoramaPermissionMixin, so
+    # we build the Django auto-generated "add" permission string directly.
+    # This is equivalent to what .perm_add() on the mixin returns for the
+    # related PublishedAsWms model.
+    permission_required = (
+        f"{PublishedAsLayerWms._meta.app_label}."
+        f"{get_permission_codename('add', PublishedAsLayerWms._meta)}"
+    )
 
     def get(self, request: HttpRequest, dataset_type: str, dataset_id: str):
         allowed_dataset_types = ("raster", "vector", "custom")

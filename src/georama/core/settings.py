@@ -513,11 +513,9 @@ class Dev(Base):
 
 
 class Test(Base):
-    # Test config is only used by the pytest runner (DJANGO_CONFIGURATION=Test).
-    # It never runs in production. A hardcoded key here avoids forcing every
-    # developer to export DJANGO_SECRET_KEY before running tests; pytest does
-    # not automatically load .env.
-    SECRET_KEY = "django-testing-secret-key"
+    # SECRET_KEY is inherited from Base as values.SecretValue(). The pytest
+    # runner sets DJANGO_SECRET_KEY via the repo-root conftest.py before Django
+    # is configured; see that file for the rationale.
 
     PASSWORD_HASHERS = [
         "django.contrib.auth.hashers.MD5PasswordHasher",
