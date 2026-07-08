@@ -28,6 +28,8 @@ services:
       - ${QSL_SOURCE_ROOT}/docker/dev.entrypoint.sh:/bin/dev.entrypoint.sh
       # we change name of the script as dev.entrypoint.sh expect it!
       - ${QSL_SOURCE_ROOT}/docker/dev.start.worker.sh:/bin/dev.start.sh
+      - ssh_host_keys:/etc/ssh
+      - ./docker/sshd_config.conf:/etc/ssh/sshd_config
     entrypoint: [ "/bin/dev.entrypoint.sh" ]
   qsl-exporter:
     image: local/georama-qsl-exporter:dev

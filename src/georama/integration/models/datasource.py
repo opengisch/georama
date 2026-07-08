@@ -7,14 +7,15 @@ from typing import Literal
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.common import BBox
-from qgis_server_light.interface.exporter.extract import (
-    Crs,
-    DataSource,
-    Style,
-)
+from qgis_server_light.interface.exporter.extract import Crs, DataSource, Style
+from qgis_server_light.interface.exporter.extract import Custom as QslCustom
+from qgis_server_light.interface.exporter.extract import Field as QSlField
+from qgis_server_light.interface.exporter.extract import Raster as QslRaster
+from qgis_server_light.interface.exporter.extract import Vector as QslVector
 from qgis_server_light.interface.job.common.input import QslJobLayer
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
+from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.common.managers import OrganisationalManager
 from georama.integration.managers.datasource import DatasourceManager, VectorManager
@@ -162,6 +163,22 @@ class Datasource(models.Model):
             case _:
                 return "fa fa-question"
 
+    @staticmethod
+    async def set_common_values_from_qsl(
+        qsl_object: QslVector | QslRaster | QslCustom,
+        db_objct: "Vector|Raster|Custom",
+    ):
+        db_objct.name = qsl_object.title
+        db_objct.bbox = qsl_object.bbox.to_string()
+        db_objct.bbox_wgs84 = qsl_object.bbox_wgs84.to_string()
+        db_objct.styles = DictEncoder().encode(qsl_object.styles)
+        db_objct.driver = qsl_object.driver
+        db_objct.source = DictEncoder().encode(qsl_object.source)
+        db_objct.qgis_layer_id = qsl_object.id
+        db_objct.crs = DictEncoder().encode(qsl_object.crs)
+        db_objct.minimum_scale = qsl_object.minimum_scale
+        db_objct.maximum_scale = qsl_object.maximum_scale
+
 
 class Vector(Datasource):
     class Meta:
@@ -179,6 +196,11 @@ class Vector(Datasource):
     geometry_type_wkb = models.CharField(
         max_length=1000, help_text=_("Geometry type of the vector datasource.")
     )
+
+    async def set_values_from_qsl(self, qsl_object: QslVector):
+        await self.set_common_values_from_qsl(qsl_object, self)
+        self.geometry_type_simple = qsl_object.geometry_type_simple
+        self.geometry_type_wkb = qsl_object.geometry_type_wkb
 
 
 class VectorField(models.Model):
@@ -209,7 +231,9 @@ class VectorField(models.Model):
         max_length=1000, help_text=_("Field datatype exposed through OGC API Features.")
     )
     type_oapif_format = models.CharField(
-        max_length=1000, help_text=_("Output format for the OGC API Features field type.")
+        null=True,
+        max_length=1000,
+        help_text=_("Output format for the OGC API Features field type."),
     )
     alias = models.CharField(max_length=1000, help_text=_("Human-readable field label."))
     comment = models.CharField(max_length=1000, help_text=_("Comment or description of the field."))
@@ -230,6 +254,19 @@ class VectorField(models.Model):
     def __str__(self):
         return f"{self.alias} ({self.name})"
 
+    async def set_values_from_qsl(self, qsl_object: QSlField):
+        self.name = qsl_object.name
+        self.type = qsl_object.type
+        self.is_primary_key = qsl_object.is_primary_key
+        self.type_wfs = qsl_object.type_wfs
+        self.type_oapif = qsl_object.type_oapif
+        self.type_oapif_format = qsl_object.type_oapif_format
+        self.alias = qsl_object.alias
+        self.comment = qsl_object.comment
+        self.nullable = qsl_object.nullable
+        self.length = qsl_object.length
+        self.precision = qsl_object.precision
+
 
 class Raster(Datasource):
     class Meta:
@@ -238,6 +275,9 @@ class Raster(Datasource):
 
     objects = OrganisationalManager()
 
+    async def set_values_from_qsl(self, qsl_object: QslRaster):
+        await self.set_common_values_from_qsl(qsl_object, self)
+
 
 class Custom(Datasource):
     class Meta:
@@ -245,3 +285,6 @@ class Custom(Datasource):
         verbose_name_plural = _("custom")
 
     objects = OrganisationalManager()
+
+    async def set_values_from_qsl(self, qsl_object: QslCustom):
+        await self.set_common_values_from_qsl(qsl_object, self)

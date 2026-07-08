@@ -52,6 +52,7 @@ dev = [
     "pyproj>=3.7.2",
     "shapely>=2.1.2",
     "qgis-server-light[interface]",
+    "ty>=0.0.56",
 ]
 lint-format = [
     "ruff>=0.15.15",

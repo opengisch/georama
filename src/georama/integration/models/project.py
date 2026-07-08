@@ -1,7 +1,10 @@
 import uuid
+from datetime import datetime
+from pathlib import Path
 
 from django.conf import settings
 from django.db import models
+from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 
 from georama.core.models.organisation import Organisation
@@ -39,6 +42,9 @@ class Project(models.Model):
         related_name="projects",
         help_text=_("Organisation this project belongs to."),
     )
+    integrated_at = models.DateTimeField(
+        auto_now_add=True, help_text=_("The point in time when the project was created last time.")
+    )
 
     objects = ProjectManager()
 
@@ -46,15 +52,30 @@ class Project(models.Model):
         return f"{self.name}"
 
     @property
-    def datasources_sorted_by_name(self):
+    def datasources_sorted_by_name(self) -> QuerySet:
+        # TODO@integration: Check if this isn't actually an organisational Queryset
         return self.datasources.order_by("name").all()
 
     @property
-    def organisation_folder(self):
+    def organisation_folder(self) -> str:
         if self.organisation:
             return self.organisation.domain
         return settings.DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER
 
     @property
-    def modification_date(self):
-        return QgisProject(path=self.path, organisation=self.organisation_folder).modification_date
+    def qgis_project_file_modification_date(self) -> datetime | None:
+        return QgisProject(
+            path=Path(self.path), organisation=self.organisation_folder
+        ).modification_date
+
+    @property
+    def qgis_project_file_exists(self) -> bool:
+        return QgisProject(path=Path(self.path), organisation=self.organisation_folder).exists
+
+    @property
+    def up_to_date(self) -> bool:
+        """Checks if the corresponding"""
+        qp_fmd = self.qgis_project_file_modification_date
+        if qp_fmd is None:
+            return False
+        return self.integrated_at > qp_fmd

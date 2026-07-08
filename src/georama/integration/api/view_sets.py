@@ -1,17 +1,25 @@
+import logging
 from pathlib import Path
 
 import httpx
 from adrf.mixins import get_data
 from django.conf import settings
-from django.http import Http404
+from django.http import Http404, HttpResponseServerError
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from qgis_server_light.interface.exporter.api import ExportParameters
+from httpx._models import Response as HttpxResponse
+from qgis_server_light.interface.exporter.api import ExportParameters, ExportResult
+from qgis_server_light.interface.exporter.extract import Config
+from qgis_server_light.interface.exporter.extract import Custom as QslCustom
+from qgis_server_light.interface.exporter.extract import Raster as QslRaster
+from qgis_server_light.interface.exporter.extract import Vector as QslVector
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+from xsdata.formats.dataclass.parsers import DictDecoder, JsonParser
 from xsdata.formats.dataclass.serializers import JsonSerializer
 
 from georama.core.common.api import (
@@ -30,6 +38,7 @@ from georama.integration.api.serializers import (
 )
 from georama.integration.lib.qgis_project_file_structure import QgisProject, QgisProjectCollection
 from georama.integration.models import Custom, Project, Raster, Vector, VectorField
+from georama.integration.models.datasource import Datasource
 
 
 class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):
@@ -61,20 +70,109 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
         }
 
     @staticmethod
-    async def call_qsl_exporter(path: Path):
+    async def call_qsl_exporter(path: Path) -> HttpxResponse:
         url = settings.QSL_EXPORTER_URL
         async with httpx.AsyncClient() as client:
+            logging.debug(f"Sending export request to {url}")
             r = await client.post(
                 url,
-                data=JsonSerializer().render(
+                json=JsonSerializer().render(
                     ExportParameters(
-                        path,
+                        str(path),
                         output_format="json",
                     )
                 ),
                 headers={"Content-Type": "application/json"},
             )
             return r
+
+    @staticmethod
+    async def integrate_project(project_db: Project, project_json: Config):
+        project_json_datasets = (
+            project_json.datasets.vector
+            + project_json.datasets.raster
+            + project_json.datasets.custom
+        )
+        for layer in project_json_datasets:
+            if layer.is_spatial:
+                if isinstance(layer, QslVector):
+                    datasource_model = Vector
+                elif isinstance(layer, QslRaster):
+                    datasource_model = Raster
+                elif isinstance(layer, QslCustom):
+                    datasource_model = Custom
+                else:
+                    raise LookupError("Unexpected datasource type was passed")
+                # TODO@integration: filter also organisation
+                qs = datasource_model.objects.filter(qgis_layer_id=layer.id, project=project_db)
+                if await qs.aexists():
+                    logging.debug(
+                        f" Dataset was found and will be updated {layer.name}"
+                        f" (qgis-layer-id: {layer.id})"
+                    )
+                    datasource = qs.aget()
+                else:
+                    logging.debug(
+                        f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
+                    )
+                    datasource = datasource_model(qgis_layer_id=layer.id, project=project_db)
+                await datasource.set_values_from_qsl(layer)
+                await datasource.asave()
+                logging.debug(
+                    f" ✓ Dataset {layer.name} (qgis-layer-id: {layer.id})"
+                    f" was written to DB successfully."
+                )
+                if isinstance(datasource, Vector):
+                    logging.debug(" Handling of related fields.")
+                    layer: QslVector
+                    for qsl_field in layer.fields:
+                        field_qs = VectorField.objects.filter(
+                            name=qsl_field.name,
+                            datasource=datasource,
+                        )
+                        if not await field_qs.aexists():
+                            logging.debug(
+                                f"   New Field {qsl_field.name} "
+                                f"(type: {qsl_field.type}) will be added."
+                            )
+                            field = VectorField(
+                                datasource=datasource,
+                            )
+                        else:
+                            logging.debug(
+                                f"   Field {qsl_field.name} (type: {qsl_field.type})"
+                                f" was found and will be updated."
+                            )
+                            field: VectorField = field_qs.get()
+                        await field.set_values_from_qsl(qsl_field)
+                        await field.asave()
+                        logging.debug(
+                            f"   ✓ Field {field.name} (type: {field.type})"
+                            f" was written to DB successfully."
+                        )
+                    logging.debug("   Cleaning out old fields...")
+                    async for field_db in VectorField.objects.filter(datasource=datasource).all():
+                        field_match = layer.get_field_by_name(field_db.name)
+                        if field_match is None:
+                            logging.debug(
+                                f'    Deleting field "{field_db.name}" of vector '
+                                f"dataset {datasource.name}"
+                                f" since it was"
+                                " not in project config anymore"
+                            )
+                            await field_db.adelete()
+                    logging.debug("   ✓ Finished - Cleaning out old fields...")
+        logging.debug(" Cleaning out old datasources.")
+        async for datasource_db in Datasource.objects.filter(project=project_db).all():
+            dataset_match = project_json.datasets.find_dataset_by_id(datasource_db.qgis_layer_id)
+            if dataset_match is None:
+                logging.debug(
+                    f"    Deleting datasource {datasource_db.name} since it was not"
+                    f" in project config anymore"
+                )
+                await datasource_db.adelete()
+        logging.debug(" ✓ Finished - Cleaning out old datasources.")
+        return None
 
     @action(detail=False, methods=["get", "post"], url_path="non_integrated")
     async def non_integrated(self, request: GeoramaDrfRequest, *args, **kwargs):
@@ -87,9 +185,21 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
             project_file = QgisProject(path=project_path, organisation=organisation_folder)  # noqa: F841
             if not project_file.project_path.exists():
                 raise Http404(f"Project with path {project_file.project_path} not found")
-            project = await Project.objects.acreate(  # noqa: F841
+            response = await self.call_qsl_exporter(project_file.path_from_root)
+            if response.status_code != status.HTTP_200_OK:
+                msg = _("Communication with Exporter API was not successful STATUSCODE:")
+                return HttpResponseServerError(f"{msg} {response.status_code}")
+            else:
+                result = DictDecoder().decode(response.json(), ExportResult)
+            if not result.successful:
+                msg = result.content if settings.DEBUG else _("A problem occurred while exporting.")
+                return HttpResponseServerError(msg)
+            project_db, created = await Project.objects.aget_or_create(  # noqa: F841
                 path=project_path, organisation=request.georama_organisation
             )
+            await project_db.arefresh_from_db()
+            project_json = JsonParser().from_string(result.content, Config)
+            await self.integrate_project(project_db, project_json)
             return redirect(reverse("integration:project-non-integrated"))
 
         existing_project_paths = {
