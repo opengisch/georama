@@ -99,5 +99,5 @@ class Command(BaseCommand):
         WmsLayerFactory.create(
             id="09b56f4c-e0b7-432d-b99e-48a692d12ea4",
             datasource=vector,
-            metadata=MetadataFactory(name="TestWmsLayer"),
+            metadata=MetadataFactory(title="TestWmsLayer"),
         )

@@ -95,5 +95,5 @@ class Command(BaseCommand):
         FeatureLayerFactory.create(
             id="c42684cc-9731-453e-8faa-e9b400e69c1d",
             datasource=vector,
-            metadata=MetadataFactory(name="TestFeatureLayer"),
+            metadata=MetadataFactory(title="TestFeatureLayer"),
         )
