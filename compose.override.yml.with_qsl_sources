@@ -12,6 +12,8 @@ services:
         PYTHON_VERSION: "${PY_VERSION:-3.12}"
         UID: "${UID:-1000}"
         GID: "${GID:-1000}"
+    ports:
+      - "4223:2222"
     develop:
       watch:
         - action: rebuild
@@ -49,7 +51,7 @@ services:
       - qsl-exporter-venv:/home/appuser/.venv
       - ${QSL_SOURCE_ROOT}/docker/dev.start.exporter_api.sh:/bin/dev.start.sh
     entrypoint: [ "/bin/dev.start.sh" ]
-    command: []
+    command: [ ]
 volumes:
   qsl-venv:
   qsl-exporter-venv:
