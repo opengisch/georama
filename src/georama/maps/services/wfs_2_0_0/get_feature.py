@@ -142,7 +142,7 @@ class WfsGetFeature(WfsOperation):
         if layer_names:
             query = query.filter(id__in=layer_names)
         found_layers = query.all()
-        found_difference = set(layer_names) - {layer.metadata.name for layer in found_layers}
+        found_difference = set(layer_names) - {layer.name for layer in found_layers}
         if len(found_difference) > 0:
             raise AttributeError(
                 self.render_exception(f"Layer(s) not found: {list(found_difference)}")
@@ -150,9 +150,7 @@ class WfsGetFeature(WfsOperation):
         for wms_layer in found_layers:
             if "view_wmslayer" in get_perms(self.user, wms_layer) and wms_layer.queryable:
                 accessible_layers.append(wms_layer)
-        permission_difference = set(layer_names) - {
-            layer.metadata.name for layer in accessible_layers
-        }
+        permission_difference = set(layer_names) - {layer.name for layer in accessible_layers}
         if len(permission_difference) > 0:
             raise PermissionError(
                 self.render_exception(f"Layer(s) not permitted: {list(permission_difference)}")
@@ -387,7 +385,7 @@ class WfsGetFeature(WfsOperation):
             # layers (this includes permission check and existence check)
             accessible_datasets = []
             for layer in self.obtain_accessible_layers(self.sanitized_typenames(query.type_names)):
-                accessible_datasets.append(layer.vector_dataset.to_qsl_job_layer())
+                accessible_datasets.append(layer.datasource.to_qsl_job_layer())
             if query.filter:
                 if len(accessible_datasets) > 1:
                     # we dont allow that, since its not possible to create filter
@@ -791,6 +789,7 @@ class WfsGetFeature(WfsOperation):
                     ].srs_name
                 else:
                     srs = None
+                    # TODO@vvmruder: Patch this logic
                     for dataset in job.queries[feature_collection_index].datasets:
                         if dataset == feature_collection.name:
                             srs = dataset.crs.ogc_uri
