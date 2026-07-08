@@ -1,0 +1,12 @@
+{% load static i18n %}
+
+{% blocktranslate asvar title %}
+    Remove QGIS project from Georama by unlinking it
+{% endblocktranslate %}
+<a href="{% url view.url_name_delete_confirm project.pk %}"
+   class="btn btn-outline-danger" role="button"
+   title="{{ title }}"
+   aria-label="{{ title }}"
+   data-bs-toggle="tooltip">
+    <i class="fa fa-unlink"></i>
+</a>

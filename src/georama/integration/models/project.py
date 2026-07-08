@@ -16,8 +16,8 @@ class Project(models.Model):
     ORGANISATION_FIELD_NAME = "organisation"
 
     class Meta:
-        verbose_name = _("project")
-        verbose_name_plural = _("projects")
+        verbose_name = _("Project")
+        verbose_name_plural = _("Projects")
         unique_together = (
             "organisation",
             "path",
@@ -31,8 +31,12 @@ class Project(models.Model):
     qgis_version = models.CharField(
         max_length=1000, blank=True, help_text=_("QGIS version the project was created with.")
     )
-    hash = models.CharField(
-        max_length=20000, blank=True, help_text=_("Hash used to detect changes in project content.")
+    config = models.JSONField(
+        blank=True,
+        help_text=_(
+            "The JSON config representation of the QGIS Project which was created by "
+            "the QGIS-Server-Light exporter"
+        ),
     )
     organisation = models.ForeignKey(
         Organisation,
@@ -64,13 +68,11 @@ class Project(models.Model):
 
     @property
     def qgis_project_file_modification_date(self) -> datetime | None:
-        return QgisProject(
-            path=Path(self.path), organisation=self.organisation_folder
-        ).modification_date
+        return self.project_file.modification_date
 
     @property
     def qgis_project_file_exists(self) -> bool:
-        return QgisProject(path=Path(self.path), organisation=self.organisation_folder).exists
+        return self.project_file.exists
 
     @property
     def up_to_date(self) -> bool:
@@ -78,4 +80,8 @@ class Project(models.Model):
         qp_fmd = self.qgis_project_file_modification_date
         if qp_fmd is None:
             return False
-        return self.integrated_at > qp_fmd
+        return self.integrated_at.timestamp() > qp_fmd.timestamp()
+
+    @property
+    def project_file(self) -> QgisProject:
+        return QgisProject(path=Path(self.path), organisation=self.organisation_folder)

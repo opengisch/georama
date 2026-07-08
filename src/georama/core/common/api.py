@@ -1,6 +1,7 @@
 import json
 
 from adrf import viewsets
+from asgiref.sync import sync_to_async
 from django.apps import apps
 from django.conf import settings
 from django.contrib.admin.utils import NestedObjects
@@ -219,7 +220,7 @@ class GeoramaAsyncTemplateModelViewSet(viewsets.ModelViewSet):
         context = await self._prepare_single_context()
         using = djdb_router.db_for_write(self.queryset.model)
         collector = NestedObjects(using=using)
-        collector.collect([context["object"]])
+        await sync_to_async(collector.collect)([context["object"]])
         context["expected_status"] = status.HTTP_204_NO_CONTENT
         context["related_objects"] = collector.nested()
         context["protected"] = collector.protected
@@ -230,7 +231,7 @@ class GeoramaAsyncTemplateModelViewSet(viewsets.ModelViewSet):
         return self.url_name("adelete-confirm")
 
     async def adestroy(self, request, *args, **kwargs):
-        response = super().adestroy(request, *args, **kwargs)
+        response = await super().adestroy(request, *args, **kwargs)
         if request.accepted_renderer.format == "html":
             if response.status_code == status.HTTP_204_NO_CONTENT:
                 response = redirect(self.url_name_list)
@@ -245,7 +246,7 @@ class GeoramaAsyncTemplateModelViewSet(viewsets.ModelViewSet):
 
     @property
     def url_name_destroy(self):
-        return self.url_name("adestroy")
+        return self.url_name("detail")
 
     async def get_breadcrumbs(self):
         app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()

@@ -38,9 +38,9 @@ class TestQgisProjectFileStructure:
         self, orga_a_project_file, orga_b_project_file
     ):
         pc = QgisProjectCollection(orga_a_project_file.parent.name)
-        pl = pc.projects_filtered({orga_a_project_file})
+        pl = pc.projects_filtered({orga_a_project_file.relative_to(orga_a_project_file.parent)})
         assert len(pl) == 0
-        pl = pc.projects_filtered({orga_b_project_file})
+        pl = pc.projects_filtered({orga_b_project_file.relative_to(orga_b_project_file.parent)})
         assert len(pl) == 1
 
     def test_qgis_project_has_correct_root_path(self, orga_a_project_file):

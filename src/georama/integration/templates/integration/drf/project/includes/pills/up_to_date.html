@@ -1,0 +1,12 @@
+{% load i18n %}
+{% blocktranslate asvar title %}
+    The project in Georama is up to date with the QGIS Project
+    on
+    the filesystem
+{% endblocktranslate %}
+<span class="badge rounded-pill text-bg-primary"
+      data-bs-toggle="tooltip"
+      title="{{ title }}"
+      aria-label="{{ title }}">
+    up to date
+</span>

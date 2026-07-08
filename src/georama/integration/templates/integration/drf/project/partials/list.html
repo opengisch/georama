@@ -1,0 +1,30 @@
+{% extends 'core/drf/default/partials/list.html' %}
+{% load static i18n %}
+
+{% block list_item_pills %}
+    <div class="align-content-bottom">
+        {% include 'integration/drf/project/includes/pill.html' with project=item %}
+    </div>
+{% endblock %}
+{% block list_item_actions %}
+    <!-- We know already that the user can view the item-->
+    {% blocktranslate asvar title %}
+        Show item details
+    {% endblocktranslate %}
+    <a href="{% url view.url_name_show item.pk %}"
+       class="btn btn-outline-primary"
+       role="button"
+       title="{{ title }}"
+       aria-label="{{ title }}"
+       data-bs-toggle="tooltip">
+        <i class="fa fa-eye"></i>
+    </a>
+
+    {% if can_change %}
+        {% include "integration/drf/project/includes/buttons/link.html" with project_file=item.project_file %}
+    {% endif %}
+
+    {% if can_delete %}
+        {% include "integration/drf/project/includes/buttons/unlink.html" with project=item %}
+    {% endif %}
+{% endblock %}

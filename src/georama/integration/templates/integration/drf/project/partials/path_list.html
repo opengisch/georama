@@ -20,21 +20,7 @@
     </div>
 {% endblock %}
 {% block list_item_actions %}
-    {% blocktranslate asvar title %}
-        Integrate Project
-    {% endblocktranslate %}
-    <form action="" method="post">
-        {% csrf_token %}
-        <input name="path" value="{{ item.path_from_orga }}" hidden>
-        <button type="submit"
-                class="btn btn-outline-primary"
-                role="button"
-                title="{{ title }}"
-                aria-label="{{ title }}"
-                data-bs-toggle="tooltip">
-            <i class="fa fa-link"></i>
-        </button>
-    </form>
+    {% include 'integration/drf/project/includes/buttons/link.html' with project_file=item %}
 
 {% endblock %}
 {% block list_item_pills %}

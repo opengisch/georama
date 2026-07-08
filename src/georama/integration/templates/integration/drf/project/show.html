@@ -1,45 +1,18 @@
 {% extends 'core/drf/default/form.html' %}
-{% load static i18n model_extras %}
+{% load static i18n %}
 
 {% block list_actions %}
 
     <div class="btn-group" role="group" aria-label="Project actions">
 
-        {% if qgis_project.database_representation %}
-            {% blocktranslate asvar title%}Refresh QGIS project in Georama by loading it from disk{% endblocktranslate %}
-        {% else %}
-            {% blocktranslate asvar title%}Link QGIS project on disk in Georama{% endblocktranslate %}
-        {% endif %}
+
         {% if perms.data_integration.edit_project or perms.data_integration.add_project %}
-            <a onclick="showWaitModalOverlay()"
-               href="#"
-               class="btn btn-outline-primary" role="button"
-               title="{{ title }}"
-               aria-label="{{ title }}"
-               data-bs-toggle="tooltip">
-                <i class="{% if qgis_project.database_representation %}fa fa-rotate{% else %}fa fa-link{% endif %}"></i>
-            </a>
+            {% include "integration/drf/project/includes/buttons/link.html" with project_file=object.project_file %}
         {% endif %}
 
-        {% blocktranslate asvar title%}Remove QGIS project from Georama by unlinking it{% endblocktranslate %}
+
         {% if perms.data_integration.delete_project %}
-            {% if qgis_project.database_representation %}
-                <a href="#"
-                   class="btn btn-outline-danger" role="button"
-                   title="{{ title }}"
-                   aria-label="{{ title }}"
-                   data-bs-toggle="tooltip">
-                    <i class="fa fa-unlink"></i>
-                </a>
-            {% else %}
-                <a href="#" class="btn btn-outline-danger disabled"
-                   disabled tabindex="-1" role="button" aria-disabled="true"
-                   title="{{ title }}"
-                   aria-label="{{ title }}"
-                   data-bs-toggle="tooltip">
-                    <i class="fa fa-unlink"></i>
-                </a>
-            {% endif %}
+            {% include "integration/drf/project/includes/buttons/unlink.html" with project=object %}
         {% endif %}
     </div>
 
@@ -51,42 +24,58 @@
     <!-- Left Column, scrollable -->
 
     <div class="col h-100 px-4 overflow-auto">
+        {% blocktranslate asvar title %}
+            QGIS version used to save the project
+        {% endblocktranslate %}
         <div class="mb-4" data-bs-toggle="tooltip"
-             title="QGIS version used to save the project">
+             title="{{ title }}"
+             aria-label="{{ title }}">
             <label class="form-text">Version</label>
             <div>
                 {{ object.qgis_version|default_if_none:"unknown" }}</div>
         </div>
-
+        {% blocktranslate asvar title %}
+            Last time the QGIS project was changed on disk
+        {% endblocktranslate %}
         <div class="mb-4" data-bs-toggle="tooltip"
-             title="Last time the QGIS project was changed on disk">
-            <label class="form-text">Modification date</label>
-            <div>{{object.modification_date|date:"r"}}</div>
+             title="{{ title }}"
+             aria-label="{{ title }}">
+            <label class="form-text">{% trans 'Modification date' %}</label>
+            <div>{{ object.qgis_project_file_modification_date|date:"r" }}</div>
         </div>
-        {% if qgis_project.database_representation is not None %}
+        {% blocktranslate asvar title %}
+            Status information about the project
+        {% endblocktranslate %}
         <div class="mb-4" data-bs-toggle="tooltip"
-             title="">
-            <label class="form-text">...</label>
+             title="{{ title }}"
+             aria-label="{{ title }}">
+            <label class="form-text">{% trans 'Status' %}</label>
+
             <div>
-                ...</div>
+                {% include 'integration/drf/project/includes/pill.html' with project=object %}
+            </div>
         </div>
-        {% endif %}
     </div>
-
     <!-- Right Column, scrollable -->
 
     <div class="col h-100 px-4 overflow-auto">
-        <h4>Datasets</h4>
+        <h4>{% trans 'Datasources' %}</h4>
         <ul class="list-group list-group-flush">
             {% for ds in object.datasources_sorted_by_name %}
                 <li class="list-group-item d-flex align-items-center gap-2">
-                    <i class="{{ds.icon}} text-primary" style="width: 1.5em;"></i>
-                    <div class="me-auto">{{ ds.name }}</div>
+                    <i class="{{ ds.icon }} text-primary" style="width: 1.5em;"></i>
+                    <div
+                            class="me-auto"
+                            data-bs-toggle="tooltip"
+                            title="{{ ds.qgis_layer_id }}"
+                            aria-label="{{ ds.qgis_layer_id }}">
+                        {{ ds.name }}
+                    </div>
                     <div class="badge rounded-pill text-bg-primary">{{ ds.driver }}</div>
                 </li>
-            
+
             {% endfor %}
-        
+
         </ul>
     </div>
 

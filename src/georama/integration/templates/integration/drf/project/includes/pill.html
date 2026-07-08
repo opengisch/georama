@@ -1,0 +1,9 @@
+{% if project.qgis_project_file_exists %}
+    {% if project.up_to_date %}
+        {% include "integration/drf/project/includes/pills/up_to_date.html" %}
+    {% else %}
+        {% include "integration/drf/project/includes/pills/outdated.html" %}
+    {% endif %}
+{% else %}
+    {% include "integration/drf/project/includes/pills/stale.html" %}
+{% endif %}

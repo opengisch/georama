@@ -20,13 +20,14 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from xsdata.formats.dataclass.parsers import DictDecoder, JsonParser
-from xsdata.formats.dataclass.serializers import JsonSerializer
+from xsdata.formats.dataclass.serializers import DictEncoder, JsonSerializer
 
 from georama.core.common.api import (
     GeoramaAsyncTemplateModelViewSet,
     GeoramaModelPermissions,
     OrganisationalModelViewSet,
 )
+from georama.core.common.menu import Breadcrumb
 from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.api.serializers import (
     CustomDatasourceSerializer,
@@ -54,20 +55,8 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
     ordering_fields = ["name", "path"]
     filterset_fields = ["name"]
     list_path_template_name: str = "integration/drf/project/path_list.html"
+    list_template_name: str = "integration/drf/project/list.html"
     show_template_name = "integration/drf/project/show.html"
-
-    async def _get_model_permissions(self):
-        """
-        We do not want to allow this from the GUI, everything should be done through
-        the integration process (integrate non-integrated projects).
-        Returns:
-            The action lookup
-        """
-        return {
-            "can_add": False,
-            "can_change": False,
-            "can_delete": False,
-        }
 
     @staticmethod
     async def call_qsl_exporter(path: Path) -> HttpxResponse:
@@ -110,7 +99,7 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
                         f" Dataset was found and will be updated {layer.name}"
                         f" (qgis-layer-id: {layer.id})"
                     )
-                    datasource = qs.aget()
+                    datasource = await qs.aget()
                 else:
                     logging.debug(
                         f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
@@ -143,7 +132,7 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
                                 f"   Field {qsl_field.name} (type: {qsl_field.type})"
                                 f" was found and will be updated."
                             )
-                            field: VectorField = field_qs.get()
+                            field: VectorField = await field_qs.aget()
                         await field.set_values_from_qsl(qsl_field)
                         await field.asave()
                         logging.debug(
@@ -174,6 +163,20 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
         logging.debug(" ✓ Finished - Cleaning out old datasources.")
         return None
 
+    async def _prepare_many_context(self):
+        context = await super()._prepare_many_context()
+        context["breadcrumb_action_url"] = reverse(self.non_integrated_url_name)
+        context["breadcrumb_action_tooltip"] = _(
+            "Integrate projects from QGIS files available on disk"
+        )
+        context["breadcrumb_action_icon"] = "fa fa-circle-plus"
+        context["breadcrumb_action_title"] = _("QGIS Project")
+        return context
+
+    @property
+    def non_integrated_url_name(self):
+        return self.url_name("non-integrated")
+
     @action(detail=False, methods=["get", "post"], url_path="non_integrated")
     async def non_integrated(self, request: GeoramaDrfRequest, *args, **kwargs):
         organisation_folder = settings.DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER
@@ -194,11 +197,23 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
             if not result.successful:
                 msg = result.content if settings.DEBUG else _("A problem occurred while exporting.")
                 return HttpResponseServerError(msg)
-            project_db, created = await Project.objects.aget_or_create(  # noqa: F841
-                path=project_path, organisation=request.georama_organisation
-            )
-            await project_db.arefresh_from_db()
             project_json = JsonParser().from_string(result.content, Config)
+            qs = Project.objects.filter(
+                path=project_path,
+                organisation=request.georama_organisation,
+            )
+            if await qs.aexists():
+                project_db = await qs.aget()
+            else:
+                project_db = Project(
+                    path=project_path,
+                    organisation=request.georama_organisation,
+                )
+            project_db.config = DictEncoder().encode(project_json)
+            project_db.name = project_json.project.name
+            project_db.qgis_version = project_json.project.version
+            await project_db.asave()
+
             await self.integrate_project(project_db, project_json)
             return redirect(reverse("integration:project-non-integrated"))
 
@@ -213,7 +228,9 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
         pqs = await self.apaginate_queryset(filtered_file_list)
 
         if request.accepted_renderer.format == "html":
-            context = await self._prepare_many_context()
+            context = await super()._prepare_many_context()
+            context["breadcrumbs"][-1].view_name = self.reverse_action("list")
+            context["breadcrumbs"].append(Breadcrumb(_("Non integrated Projects")))
             context["organisation"] = organisation_folder
             context["object_list"] = pqs
             context["limit"] = self.paginator.limit
