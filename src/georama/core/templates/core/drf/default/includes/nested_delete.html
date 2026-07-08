@@ -2,7 +2,7 @@
     {% if obj|length > 0 %}
         <li class="list-group-item">
             <ul class="list-group list-group-flush ms-4 mt-2">
-                {% include "core/includes/nested_delete.html" with objects=obj %}
+                {% include "core/drf/default/includes/nested_delete.html" with objects=obj %}
             </ul>
         </li>
     {% else %}
