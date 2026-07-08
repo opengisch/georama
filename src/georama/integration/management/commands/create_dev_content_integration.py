@@ -95,7 +95,6 @@ class Command(BaseCommand):
                         },
                         "vector_tile": None,
                     },
-                    styles=[],
                     bbox="{},{},{},{}".format(*fake.bounds()),
                     bbox_wgs84="{},{},{},{}".format(*fake.bounds_wgs84()),
                     fields=[],

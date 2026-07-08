@@ -1,9 +1,13 @@
 import random
 import uuid
+import zlib
+from base64 import urlsafe_b64encode
 
 import factory
 from django.conf import settings
 from faker import Faker
+from qgis_server_light.interface.common import Style
+from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.factories import OrganisationFactory
 from georama.integration import models
@@ -854,6 +858,24 @@ GEOMETRY_TYPES = [
     ("polygon", "multisurfacezm"),
 ]
 
+STYLES = {
+    geometry_type: DictEncoder().encode(
+        [
+            Style(
+                name="default",
+                definition=urlsafe_b64encode(
+                    zlib.compress(
+                        (
+                            settings.BASE_DIR / f"tests/resources/styles/{geometry_type}.qml"
+                        ).read_bytes()
+                    )
+                ).decode(),
+            )
+        ]
+    )
+    for geometry_type in ["point", "line", "polygon"]
+}
+
 glob_org_folder = settings.DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER
 
 
@@ -897,6 +919,7 @@ class VectorFactory(DatasourceFactory):
 
     geometry_type_simple = factory.Sequence(lambda n: GEOMETRY_TYPES[n % len(GEOMETRY_TYPES)][0])
     geometry_type_wkb = factory.Sequence(lambda n: GEOMETRY_TYPES[n % len(GEOMETRY_TYPES)][1])
+    styles = factory.LazyAttribute(lambda self: STYLES[self.geometry_type_simple])
 
     @factory.post_generation
     def fields(self, create, extracted, **kwargs):
