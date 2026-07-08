@@ -38,12 +38,32 @@ class WmsLayerAbstract(models.Model):
         primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the wms layer.")
     )
 
-    extent_buffer = models.FloatField(default=0.0, null=False)
-    queryable = models.BooleanField(default=True, null=True, blank=True)
+    extent_buffer = models.FloatField(
+        default=0.0,
+        help_text=_("Extent buffer size of the layer"),
+    )
+    queryable = models.BooleanField(
+        default=True,
+        help_text=_("Whether GetFeature requests are allowed on this layer."),
+    )
 
-    extent = models.CharField(max_length=1000, null=True, blank=True)
-    extent_wgs84 = models.CharField(max_length=1000, null=True, blank=True)
-    preview = models.BinaryField(null=True, blank=True)
+    extent = models.CharField(
+        max_length=1000,
+        null=True,
+        blank=True,
+        help_text=_("Extent of the layer in its stored CRS."),
+    )
+    extent_wgs84 = models.CharField(
+        max_length=1000,
+        null=True,
+        blank=True,
+        help_text=_("Extent of the layer in WGS84 CRS."),
+    )
+    preview = models.BinaryField(
+        null=True,
+        blank=True,
+        help_text=_("Preview image of the layer."),
+    )
 
     preview_dimensions: tuple[int, int] = (250, 250)
     preview_dimensions_new_tab: tuple[int, int] = (1500, 1500)

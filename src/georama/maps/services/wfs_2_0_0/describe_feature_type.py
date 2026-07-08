@@ -15,6 +15,7 @@ from xsdata.models.xsd import (
 )
 
 from georama.integration.models import Vector
+from georama.integration.models.datasource import VectorField
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 
@@ -33,27 +34,27 @@ class WfsDescribeFeatureType(WfsOperation):
             datasource__vector__isnull=False
         )
 
-    def prepare_geometry_column(self, dataset: Vector):
-        if dataset.geometry_type_wkb in ["Point", "Point25D"]:
+    def prepare_geometry_column(self, datasource: Vector):
+        if datasource.geometry_type_wkb in ["Point", "Point25D"]:
             column_type = "gml:PointPropertyType"
-        elif dataset.geometry_type_wkb in ["LineString", "LineString25D"]:
+        elif datasource.geometry_type_wkb in ["LineString", "LineString25D"]:
             column_type = "gml:LineStringPropertyType"
-        elif dataset.geometry_type_wkb in ["Polygon", "Polygon25D"]:
+        elif datasource.geometry_type_wkb in ["Polygon", "Polygon25D"]:
             column_type = "gml:PolygonPropertyType"
-        elif dataset.geometry_type_wkb in ["MultiPoint", "MultiPoint25D"]:
+        elif datasource.geometry_type_wkb in ["MultiPoint", "MultiPoint25D"]:
             column_type = "gml:MultiPointPropertyType"
-        elif dataset.geometry_type_wkb in [
+        elif datasource.geometry_type_wkb in [
             "MultiCurve",
             "MultiLineString",
             "MultiLineString25D",
         ]:
             column_type = "gml:MultiCurvePropertyType"
-        elif dataset.geometry_type_wkb in ["MultiSurface", "MultiPolygon", "MultiPolygon25D"]:
+        elif datasource.geometry_type_wkb in ["MultiSurface", "MultiPolygon", "MultiPolygon25D"]:
             column_type = "gml:MultiSurfacePropertyType"
         else:
             logging.debug(
                 f"We casted to generic type since no match was"
-                f" available for type: '{dataset.geometry_type_wkb}'"
+                f" available for type: '{datasource.geometry_type_wkb}'"
             )
             column_type = "gml:GeometryPropertyType"
         return Element(
@@ -99,9 +100,9 @@ class WfsDescribeFeatureType(WfsOperation):
                         base="gml:AbstractFeatureType",
                         sequence=Sequence(
                             elements=[
-                                # we can directly go for the vector dataset here
+                                # we can directly go for the vector datasource here
                                 # since we checked it already
-                                self.prepare_geometry_column(layer.vector_dataset)
+                                self.prepare_geometry_column(layer.datasource.vector)
                             ]
                         ),
                     )
@@ -109,17 +110,18 @@ class WfsDescribeFeatureType(WfsOperation):
             )
             dft.complex_types.append(complex_type)
 
-            for column in layer.vector_dataset.fields.all():
+            for field in layer.datasource.vector.fields.all():
+                field: VectorField
                 el = Element(
-                    name=f"{column.name}",
+                    name=f"{field.name}",
                     # we do not prefix this with namespace, because http://www.w3.org/2001/XMLSchema
                     # is the default namespace
-                    type=column.type_wfs,
-                    min_occurs=0 if column.nullable else 1,
+                    type=field.type_wfs,
+                    min_occurs=0 if field.nullable else 1,
                     max_occurs=1,
-                    nillable=column.nullable,
+                    nillable=field.nullable,
                     # TODO: Find out how to set this!
-                    # alias=column.alias
+                    # alias=field.alias
                 )
                 complex_type.complex_content.extension.sequence.elements.append(el)
         return dft

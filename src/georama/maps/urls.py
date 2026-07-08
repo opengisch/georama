@@ -7,7 +7,7 @@ from georama.maps.views.ogc import OgcServer
 app_name = "maps"
 
 management_router = SimpleRouter()
-management_router.register(r"feature_layers", WmsLayerViewSet, basename="wmslayer")
+management_router.register(r"map_layers", WmsLayerViewSet, basename="maplayer")
 
 urlpatterns = [
     path("manage/", include(management_router.urls)),

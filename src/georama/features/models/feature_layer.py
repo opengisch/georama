@@ -34,15 +34,31 @@ class FeatureLayer(models.Model):
         on_delete=models.CASCADE,
         help_text=_("Datasource the feature layer points to."),
     )
-    default_items = models.IntegerField(default=10, null=True)
-    max_items = models.IntegerField(default=500, null=True)
+    default_items = models.IntegerField(
+        default=10,
+        null=True,
+        help_text=_("The default number of features that should be returned for the layer."),
+    )
+    max_items = models.IntegerField(
+        default=500,
+        null=True,
+        help_text=_("The maximum number of features that may be returned for the layer."),
+    )
     on_exceed = models.CharField(
-        default="ERROR", choices=ON_EXCEED_CHOICES, max_length=10, null=True
+        default="ERROR",
+        choices=ON_EXCEED_CHOICES,
+        max_length=10,
+        null=True,
+        help_text=_(
+            "Whether the server should return an error or cap the value when more than"
+            "max_items are requested"
+        ),
     )
     metadata = models.OneToOneField(
         Metadata,
         related_name="feature_layer",
         on_delete=models.CASCADE,
+        help_text=_("Metadata of the feature layer."),
     )
     objects = FeatureLayerManager()
 
@@ -64,7 +80,7 @@ class FeatureLayer(models.Model):
 
     @property
     def title(self):
-        return self.metadata.name
+        return self.metadata.title
 
 
 class UserManager(UserObjectPermissionManager, OrganisationalManager): ...

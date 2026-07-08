@@ -11,7 +11,7 @@ class BaseMetadata(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the metadata.")
     )
-    name = models.CharField(max_length=1000, null=True, default=None, blank=True)
+    title = models.CharField(max_length=1000, null=True, default=None, blank=True)
     description = models.TextField(null=True, default=None, blank=True)
     license = models.TextField(
         default="""

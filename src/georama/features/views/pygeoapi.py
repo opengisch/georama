@@ -391,7 +391,7 @@ class PygeoapiServer(View):
 
         return {
             "type": "collection",
-            "title": feature_layer.metadata.name,
+            "title": feature_layer.metadata.title,
             "description": feature_layer.metadata.description,
             # TODO: add keywords into models
             "keywords": [],

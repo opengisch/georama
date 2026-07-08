@@ -91,7 +91,7 @@ class WfsGetMetadata(OgcOperation):
                     rs_identifier=RsIdentifier(
                         code=CharacterStringPropertyType(
                             localised_character_string=LocalisedCharacterString(
-                                value=layer.bound_dataset.crs_to_qsl.auth_id
+                                value=layer.datasource.crs_to_qsl.auth_id
                             )
                         ),
                         code_space=CharacterStringPropertyType(
@@ -110,7 +110,7 @@ class WfsGetMetadata(OgcOperation):
     def create_layer_identification_info(
         self, layer: WmsLayer, language: str
     ) -> MdIdentificationPropertyType:
-        layer_bbox = BBox.from_string(layer.bound_dataset.bbox_wgs84)
+        layer_bbox = BBox.from_string(layer.datasource.bbox_wgs84)
         return MdIdentificationPropertyType(
             md_data_identification=MdDataIdentification(
                 id=layer.name,
@@ -174,7 +174,7 @@ class WfsGetMetadata(OgcOperation):
             f"{self.url}"
             f"{WmsLayerAdmin.create_wfs_url_params(found_layer, output_format='APPLICATION/GML+XML; VERSION=3.2')}"  # noqa: E501
         )
-        BBox.from_string(found_layer.bound_dataset.bbox_wgs84)
+        BBox.from_string(found_layer.datasource.bbox_wgs84)
         # TODO: Make that catched from configuration as we do for WMS already!
         config = Config().wfs_get_metadata_config(self.url)
         decoder = DictDecoder()
