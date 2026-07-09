@@ -14,3 +14,4 @@ class MapsConfig(GeoramaAbstractConfig):
     name = "georama.maps"
     menu_order: int = 10
     description = _("Share map layers.")
+    app_index_page = "maps:maplayer-list"

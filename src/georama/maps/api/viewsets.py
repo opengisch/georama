@@ -1,12 +1,17 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets
+from rest_framework import filters
 
-from georama.core.common.api import GeoramaModelPermissions
+from georama.core.common.api import (
+    GeoramaAsyncTemplateModelViewSet,
+    GeoramaModelPermissions,
+    OrganisationalModelViewSet,
+)
 from georama.maps.api.serializers import WmsLayerSerializer
 from georama.maps.models import WmsLayer
 
 
-class WmsLayerViewSet(viewsets.ModelViewSet):
+class WmsLayerViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):
+    queryset = WmsLayer.objects.all()
     serializer_class = WmsLayerSerializer
     permission_classes = [GeoramaModelPermissions]
     filter_backends = [
@@ -14,8 +19,3 @@ class WmsLayerViewSet(viewsets.ModelViewSet):
         filters.OrderingFilter,
         DjangoFilterBackend,
     ]
-
-    def get_queryset(self):
-        return WmsLayer.objects.filter(
-            datasource__project__organisation=self.request.georama_organisation
-        )

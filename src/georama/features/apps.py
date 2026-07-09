@@ -11,6 +11,7 @@ class FeaturesConfig(GeoramaAbstractConfig):
     name = "georama.features"
     menu_order: int = 10
     description = _("Share feature layers.")
+    app_index_page = "features:featurelayer-list"
 
 
 pygeoapi.plugin.PLUGINS["provider"]["OG_OGR"] = (

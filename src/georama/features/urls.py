@@ -11,7 +11,7 @@ management_router.register(r"feature_layers", FeatureLayerViewSet, basename="fea
 
 urlpatterns = [
     path("manage/", include(management_router.urls)),
-    path("", PygeoapiServer.as_view(action="landing"), name="index"),
+    path("", PygeoapiServer.as_view(action="landing"), name="landing"),
     path(
         "conformance",
         PygeoapiServer.as_view(action="conformance"),

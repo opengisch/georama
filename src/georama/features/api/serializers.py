@@ -7,7 +7,7 @@ class MetadataSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metadata
         fields = [
-            "name",
+            "title",
             "description",
             "license",
             "fees",
