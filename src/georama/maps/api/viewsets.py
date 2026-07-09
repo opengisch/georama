@@ -8,6 +8,7 @@ from georama.core.common.api import (
     OrganisationalModelViewSet,
 )
 from georama.maps.api.serializers import WmsLayerSerializer
+from georama.maps.forms.wms_layer import WmsLayerModelForm
 from georama.maps.models import WmsLayer
 
 
@@ -20,3 +21,4 @@ class WmsLayerViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewS
         filters.OrderingFilter,
         DjangoFilterBackend,
     ]
+    form = WmsLayerModelForm

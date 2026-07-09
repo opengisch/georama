@@ -1,15 +1,17 @@
+from adrf import routers
 from django.urls import include, path
-from rest_framework.routers import SimpleRouter
 
 from georama.features.api.viewsets import FeatureLayerViewSet
+from georama.features.views.index import Index
 from georama.features.views.pygeoapi import PygeoapiServer
 
 app_name = "features"
 
-management_router = SimpleRouter()
+management_router = routers.SimpleRouter()
 management_router.register(r"feature_layers", FeatureLayerViewSet, basename="featurelayer")
 
 urlpatterns = [
+    path("", Index.as_view(), name="index"),
     path("manage/", include(management_router.urls)),
     path("", PygeoapiServer.as_view(action="landing"), name="landing"),
     path(

@@ -14,6 +14,7 @@ from georama.features.api.serializers import (
     FeatureLayerSerializer,
     FieldSerializer,
 )
+from georama.features.forms.feature_layer import FeatureLayerModelForm
 from georama.features.models import FeatureLayer
 
 
@@ -26,6 +27,7 @@ class FeatureLayerViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelV
         filters.OrderingFilter,
         DjangoFilterBackend,
     ]
+    form = FeatureLayerModelForm
 
     @action(detail=True, methods=["get", "post"])
     def fields(self, request: Request, pk: str):
