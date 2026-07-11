@@ -13,7 +13,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import copy
 from pathlib import Path
 
-from configurations import Configuration, values
+from configurations import Configuration
+from configurations import values
 from corsheaders.defaults import default_headers
 from django.utils.translation import gettext_lazy as _
 
@@ -168,6 +169,7 @@ class Base(Configuration):
         "georama.integration.apps.IntegrationConfig",
         "georama.features.apps.FeaturesConfig",
         "georama.maps.apps.MapsConfig",
+        "georama.webgis.apps.WebGisConfig",
         "allauth",
         "allauth.account",
         "allauth.socialaccount",
@@ -240,6 +242,7 @@ class Base(Configuration):
                     "django.contrib.auth.context_processors.auth",
                     "django.contrib.messages.context_processors.messages",
                     "georama.core.context_processors.menu_items",
+                    "georama.core.context_processors.site_title",
                 ],
             },
         },
@@ -401,7 +404,9 @@ class Base(Configuration):
     # e.g. sub.example.com or sub.sub.example.com
     ORGANISATION_DOMAIN = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
     # Allow public access on the global application or not
-    ORGANISATION_GLOBAL_PUBLIC_ACCESS = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+    ORGANISATION_GLOBAL_PUBLIC_ACCESS = values.BooleanValue(
+        True, environ_prefix=GEORAMA_ENV_PREFIX
+    )
     # view name which should be used to redirect to, when someone tries to
     # access nonpublic organisation unauthenticated
     ORGANISATION_NOT_AUTHENTICATED_TARGET = values.Value(
@@ -433,7 +438,9 @@ class Base(Configuration):
         BASE_DIR / "tests/resources/projects", environ_prefix="GEORAMA"
     )
 
-    DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER = values.Value("global", environ_prefix="GEORAMA")
+    DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER = values.Value(
+        "global", environ_prefix="GEORAMA"
+    )
 
     QSL_REDIS_URL = values.Value(environ_prefix="")
 

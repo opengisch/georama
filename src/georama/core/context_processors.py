@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from georama.core.common.menu import MENU_ITEMS
 
 
@@ -11,3 +13,9 @@ def menu_items(request):
         else:
             permitted_menu_items.append(item)
     return {"menu_items": permitted_menu_items}
+
+
+def site_title(request):
+    return {
+        "site_title": settings.SITE_TITLE
+    }
