@@ -1,6 +1,9 @@
 from rest_framework import serializers
 
-from georama.integration.models import Custom, Project, Raster, Vector
+from georama.integration.models import Custom
+from georama.integration.models import Project
+from georama.integration.models import Raster
+from georama.integration.models import Vector
 from georama.integration.models.datasource import VectorField
 
 
@@ -13,7 +16,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "qgis_version",
-            "hash",
+            "path",
             "organisation_id",
         ]
         extra_kwargs = {"id": {"read_only": True}}
