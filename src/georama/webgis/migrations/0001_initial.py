@@ -2,7 +2,6 @@
 
 import django.db.models.deletion
 import uuid
-from django.conf import settings
 from django.db import migrations, models
 
 
@@ -11,9 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('auth', '0012_alter_user_first_name_max_length'),
         ('integration', '0001_initial'),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
@@ -33,6 +30,25 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name='Theme',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('public', models.BooleanField(default=False)),
+                ('ordering', models.IntegerField()),
+                ('location', models.JSONField(null=True)),
+                ('zoom', models.IntegerField(null=True)),
+                ('theme_json', models.JSONField()),
+                ('metadata', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='themes', to='webgis.metadata')),
+                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='themes', to='integration.project')),
+            ],
+            options={
+                'verbose_name': 'Theme',
+                'verbose_name_plural': 'Themes',
+                'ordering': ['ordering'],
+                'permissions': [('can_manage_object_permissions', 'Can manage object permissions')],
+            },
+        ),
+        migrations.CreateModel(
             name='WmsLayer',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, help_text='Identifier of the wms layer.', primary_key=True, serialize=False)),
@@ -42,40 +58,12 @@ class Migration(migrations.Migration):
                 ('extent', models.CharField(blank=True, help_text='Extent of the layer in its stored CRS.', max_length=1000, null=True)),
                 ('extent_wgs84', models.CharField(blank=True, help_text='Extent of the layer in WGS84 CRS.', max_length=1000, null=True)),
                 ('preview', models.BinaryField(blank=True, help_text='Preview image of the layer.', null=True)),
-                ('datasource', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='wms_layers', related_query_name='wms_layers', to='integration.datasource')),
-                ('metadata', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='wms_layer', to='maps.metadata')),
+                ('datasource', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='webgis_wms_layers', to='integration.datasource')),
+                ('metadata', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='webgis_wms_layers', to='webgis.metadata')),
             ],
             options={
-                'verbose_name': 'wms layer',
-                'verbose_name_plural': 'wms layers',
-            },
-        ),
-        migrations.CreateModel(
-            name='WmsLayerGroupObjectPermission',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('time_created', models.DateTimeField(auto_now_add=True)),
-                ('content_object', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_object_permissions', to='maps.wmslayer')),
-                ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='auth.group')),
-                ('permission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='auth.permission')),
-            ],
-            options={
-                'abstract': False,
-                'unique_together': {('group', 'permission', 'content_object')},
-            },
-        ),
-        migrations.CreateModel(
-            name='WmsLayerUserObjectPermission',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('time_created', models.DateTimeField(auto_now_add=True)),
-                ('content_object', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_object_permissions', to='maps.wmslayer')),
-                ('permission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='auth.permission')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'abstract': False,
-                'unique_together': {('user', 'permission', 'content_object')},
+                'verbose_name': 'WMS Layer',
+                'verbose_name_plural': 'WMS Layers',
             },
         ),
     ]

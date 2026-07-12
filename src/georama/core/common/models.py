@@ -11,8 +11,11 @@ class BaseMetadata(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the metadata.")
     )
-    title = models.CharField(max_length=1000, null=True, default=None, blank=True)
-    description = models.TextField(null=True, default=None, blank=True)
+    title = models.CharField(
+        max_length=1000, default="", blank=True,
+        help_text=_("The verbose title of the connected item.")
+    )
+    description = models.TextField(default="", blank=True)
     license = models.TextField(
         default="""
     This dataset is made available under the Open Database
