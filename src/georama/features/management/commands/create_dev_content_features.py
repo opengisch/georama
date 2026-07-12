@@ -2,7 +2,8 @@ import os
 import random
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import ContentType, Permission
+from django.contrib.auth.models import ContentType
+from django.contrib.auth.models import Permission
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from guardian.shortcuts import assign_perm
@@ -34,13 +35,15 @@ class Command(BaseCommand):
                 FeatureLayerFactory.create(datasource=vd)
             # Assign on average two permissions per user
             feature_layers = FeatureLayer.objects.all()
-            for _ in range(2 * len(users)):
+            for _ in range(len(permissions) * len(users)):
                 user = random.choice(users)
                 feature_layer = random.choice(feature_layers)
                 permission = random.choice(permissions)
                 assign_perm(permission, user, feature_layer)
 
-            self.stdout.write(self.style.SUCCESS("Successfully created development content."))
+            self.stdout.write(
+                self.style.SUCCESS("Successfully created development content.")
+            )
         else:
             self.stdout.write(
                 self.style.ERROR("This command can be used only in Dev environments!")
