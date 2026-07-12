@@ -1,16 +1,15 @@
 from adrf import routers
-from django.urls import include, path
+from django.urls import include
+from django.urls import path
 
-from georama.core.api import views
-from georama.core.api.view_sets import (
-    FenceViewSet,
-    GroupViewSet,
-    MembershipViewSet,
-    OrganisationViewSet,
-    PermissionViewSet,
-    UserViewSet,
-)
+from georama.core.api.view_sets import FenceViewSet
+from georama.core.api.view_sets import GroupViewSet
+from georama.core.api.view_sets import MembershipViewSet
+from georama.core.api.view_sets import OrganisationViewSet
+from georama.core.api.view_sets import PermissionViewSet
+from georama.core.api.view_sets import UserViewSet
 from georama.core.views import auth
+from georama.core.views import schema
 from georama.core.views.index import Index
 
 app_name = "core"
@@ -29,17 +28,17 @@ urlpatterns = [
     path("manage/", include(management_router.urls)),
     path(
         "manage/schema/",
-        views.GeoramaAdminSchemaView.as_view(urlconf=management_router.urls),
+        schema.GeoramaAdminSchemaView.as_view(urlconf=management_router.urls),
         name="schema",
     ),
     path(
         "manage/schema/swagger-ui/",
-        views.GeoramaAdminSwaggerView.as_view(url_name="core:schema"),
+        schema.GeoramaAdminSwaggerView.as_view(url_name="core:schema"),
         name="swagger",
     ),
     path(
         "manage/schema/redoc/",
-        views.GeoramaAdminRedocView.as_view(url_name="core:schema"),
+        schema.GeoramaAdminRedocView.as_view(url_name="core:schema"),
         name="redoc",
     ),
 ]
