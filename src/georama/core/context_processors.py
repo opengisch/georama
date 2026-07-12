@@ -16,6 +16,4 @@ def menu_items(request):
 
 
 def site_title(request):
-    return {
-        "site_title": settings.SITE_TITLE
-    }
+    return {"site_title": settings.SITE_TITLE}
