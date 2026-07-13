@@ -11,10 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Update Docker
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker.io
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - uses: actions/checkout@v6
       - name: Prepare Build Environment
         run: |
