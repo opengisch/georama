@@ -1,46 +1,51 @@
 import logging
 from pathlib import Path
 
-import httpx
 from adrf.mixins import get_data
 from django.apps import apps
 from django.conf import settings
-from django.http import Http404, HttpResponseServerError
+from django.http import Http404
+from django.http import HttpResponseServerError
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from httpx._models import Response as HttpxResponse
-from qgis_server_light.interface.exporter.api import ExportParameters, ExportResult
+from qgis_server_light.interface.exporter.api import ExportResult
 from qgis_server_light.interface.exporter.extract import Config
 from qgis_server_light.interface.exporter.extract import Custom as QslCustom
 from qgis_server_light.interface.exporter.extract import Raster as QslRaster
 from qgis_server_light.interface.exporter.extract import Vector as QslVector
-from rest_framework import filters, status
+from rest_framework import filters
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from xsdata.formats.dataclass.parsers import DictDecoder, JsonParser
-from xsdata.formats.dataclass.serializers import DictEncoder, JsonSerializer
+from xsdata.formats.dataclass.parsers import DictDecoder
+from xsdata.formats.dataclass.parsers import JsonParser
+from xsdata.formats.dataclass.serializers import DictEncoder
 
-from georama.core.common.api import (
-    GeoramaManagerViewSet,
-    GeoramaModelPermissions,
-    OrganisationalModelViewSet,
-)
-from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
+from georama.core.common.api import GeoramaManagerViewSet
+from georama.core.common.api import GeoramaModelPermissions
+from georama.core.common.api import OrganisationalModelViewSet
+from georama.core.common.menu import ActionType
+from georama.core.common.menu import Breadcrumb
+from georama.core.common.menu import BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
-from georama.integration.api.serializers import (
-    CustomDatasourceSerializer,
-    DatasourceSerializer,
-    FieldSerializer,
-    FileSystemProjectSerializer,
-    ProjectSerializer,
-    RasterDatasourceSerializer,
-    VectorDatasourceSerializer,
-)
-from georama.integration.lib.qgis_project_file_structure import QgisProject, QgisProjectCollection
-from georama.integration.models import Custom, Project, Raster, Vector, VectorField
+from georama.integration.api.serializers import CustomDatasourceSerializer
+from georama.integration.api.serializers import DatasourceSerializer
+from georama.integration.api.serializers import FieldSerializer
+from georama.integration.api.serializers import FileSystemProjectSerializer
+from georama.integration.api.serializers import ProjectSerializer
+from georama.integration.api.serializers import RasterDatasourceSerializer
+from georama.integration.api.serializers import VectorDatasourceSerializer
+from georama.integration.lib.qgis_project_file_structure import QgisProject
+from georama.integration.lib.qgis_project_file_structure import QgisProjectCollection
+from georama.integration.models import Custom
+from georama.integration.models import Project
+from georama.integration.models import Raster
+from georama.integration.models import Vector
+from georama.integration.models import VectorField
 from georama.integration.models.datasource import Datasource
+from georama.maps.adapter.qsl import call_qsl_exporter
 
 
 class ManageProjectViewSet(GeoramaManagerViewSet):
@@ -85,24 +90,6 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
         return context
 
     @staticmethod
-    async def call_qsl_exporter(path: Path) -> HttpxResponse:
-        url = settings.QSL_EXPORTER_URL
-        async with httpx.AsyncClient() as client:
-            logging.debug(f"Sending export request to {url}")
-            r = await client.post(
-                url,
-                json=JsonSerializer().render(
-                    ExportParameters(
-                        str(path),
-                        output_format="json",
-                    )
-                ),
-                headers={"Content-Type": "application/json"},
-                timeout=None,
-            )
-            return r
-
-    @staticmethod
     async def integrate_project(project_db: Project, project_json: Config):
         project_json_datasets = (
             project_json.datasets.vector
@@ -121,7 +108,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                     raise LookupError("Unexpected datasource type was passed")
                 # We don't need to filter for organisation here again, since the project_db
                 # is bound to it already.
-                qs = datasource_model.objects.filter(qgis_layer_id=layer.id, project=project_db)
+                qs = datasource_model.objects.filter(
+                    qgis_layer_id=layer.id, project=project_db
+                )
                 if await qs.aexists():
                     logging.debug(
                         f" Dataset was found and will be updated {layer.name}"
@@ -132,7 +121,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                     logging.debug(
                         f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
                     )
-                    datasource = datasource_model(qgis_layer_id=layer.id, project=project_db)
+                    datasource = datasource_model(
+                        qgis_layer_id=layer.id, project=project_db
+                    )
                 await datasource.set_values_from_qsl(layer)
                 await datasource.asave()
                 logging.debug(
@@ -168,7 +159,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                             f" was written to DB successfully."
                         )
                     logging.debug("   Cleaning out old fields...")
-                    async for field_db in VectorField.objects.filter(datasource=datasource).all():
+                    async for field_db in VectorField.objects.filter(
+                        datasource=datasource
+                    ).all():
                         field_match = layer.get_field_by_name(field_db.name)
                         if field_match is None:
                             logging.debug(
@@ -181,7 +174,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                     logging.debug("   ✓ Finished - Cleaning out old fields...")
         logging.debug(" Cleaning out old datasources.")
         async for datasource_db in Datasource.objects.filter(project=project_db).all():
-            dataset_match = project_json.datasets.find_dataset_by_id(datasource_db.qgis_layer_id)
+            dataset_match = project_json.datasets.find_dataset_by_id(
+                datasource_db.qgis_layer_id
+            )
             if dataset_match is None:
                 logging.debug(
                     f"    Deleting datasource {datasource_db.name} since it was not"
@@ -203,17 +198,25 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
 
         if request.POST:
             project_path = request.data["path"]
-            project_file = QgisProject(path=project_path, organisation=organisation_folder)  # noqa: F841
+            project_file = QgisProject(
+                path=project_path, organisation=organisation_folder
+            )  # noqa: F841
             if not project_file.project_path.exists():
-                raise Http404(f"Project with path {project_file.project_path} not found")
-            response = await self.call_qsl_exporter(project_file.path_from_root)
+                raise Http404(
+                    f"Project with path {project_file.project_path} not found"
+                )
+            response = await call_qsl_exporter(project_file.path_from_root)
             if response.status_code != status.HTTP_200_OK:
-                msg = _("Communication with Exporter API was not successful STATUSCODE:")
+                msg = _(
+                    "Communication with Exporter API was not successful STATUSCODE:"
+                )
                 return HttpResponseServerError(f"{msg} {response.status_code}")
             else:
                 result = DictDecoder().decode(response.json(), ExportResult)
             if not result.successful:
-                msg = result.content if settings.DEBUG else _("A problem occurred while exporting.")
+                msg = result.content if settings.DEBUG else _(
+                    "A problem occurred while exporting."
+                )
                 return HttpResponseServerError(msg)
             project_json = JsonParser().from_string(result.content, Config)
             qs = Project.objects.filter(
