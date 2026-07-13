@@ -1,0 +1,13 @@
+{% extends 'core/drf/default/partials/list_body.html' %}
+{% load i18n %}
+{% block list_item_pills_additional %}
+    {% include "integration/drf/datasource/includes/pills/driver.html" with datasource=item.datasource %}
+    {% blocktranslate asvar type_tooltip %}
+        The datasource type this item is based on
+    {% endblocktranslate %}
+    <i data-bs-toggle="tooltip"
+       title="{{ type_tooltip }}: {{ item.datasource.type }}"
+       aria-label="{{ type_tooltip }}: {{ item.datasource.type }}"
+       class="{{ item.datasource.icon }} text-primary"
+       style="width: 1.5em;"></i>
+{% endblock %}

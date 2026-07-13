@@ -31,6 +31,7 @@ class ManageWmsLayerViewSet(GeoramaManagerViewSet):
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
     form = WmsLayerModelForm
+    list_body_partial_template_name = "maps/drf/wms_layer/partials/list_body.html"
 
     @property
     async def bread_crumb_action_context(self):
@@ -41,6 +42,7 @@ class ManageWmsLayerViewSet(GeoramaManagerViewSet):
             on the theme model and is permitted to view projects.
         """
         context = {}
+
         perm_checker = GeoramaModelPermissions()
         # post is the DRF method which is used for add/create a new object
         local_perms = perm_checker.get_required_permissions("POST", self.queryset.model)

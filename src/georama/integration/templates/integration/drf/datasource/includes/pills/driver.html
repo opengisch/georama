@@ -1,1 +1,10 @@
-<div class="badge rounded-pill text-bg-primary">{{ datasource.driver }}</div>
+{% load i18n %}
+{% blocktranslate asvar driver_tooltip %}
+    Underlying datasource driver this item is based on
+{% endblocktranslate %}
+<span data-bs-toggle="tooltip"
+      title="{{ driver_tooltip }}"
+      aria-label="{{ driver_tooltip }}"
+      class="badge rounded-pill text-bg-primary">
+    {{ datasource.driver }}
+</span>
