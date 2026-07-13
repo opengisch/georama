@@ -52,7 +52,7 @@ class WfsGetCapabilities(WfsOperation):
             bbox = BBox.from_string(wms_layer.extent_wgs84)
             wfs_capabilities.feature_type_list.feature_type.append(
                 self.create_feature_type(
-                    f"{self.own_namespace}:{wms_layer.name}",
+                    f"{self.own_namespace}:{wms_layer.identifier}",
                     wms_layer.metadata.title,
                     wms_layer.datasource.crs_to_qsl.ogc_uri,
                     bbox,

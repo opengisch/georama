@@ -110,7 +110,7 @@ class WmsGetCapabilities(WmsOperation):
             extent = BBox.from_string(wms_layer.extent)
             extent_wgs84 = BBox.from_string(wms_layer.extent_wgs84)
             layer = self.create_layer(
-                wms_layer.name,
+                wms_layer.identifier,
                 wms_layer.metadata.title,
                 wms_layer.metadata.description,
                 wms_layer.datasource.crs_to_qsl.auth_id,

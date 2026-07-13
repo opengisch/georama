@@ -7,7 +7,6 @@ from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 
-from georama.maps.admin import WmsLayerAdmin
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses import (
     CharacterStringPropertyType,
     CiCitation,
@@ -37,13 +36,15 @@ from georama.maps.services import OgcOperation
 
 
 class WfsGetMetadata(OgcOperation):
+    model: WmsLayer
+
     @property
     def allowed_formats(self) -> list[str]:
         return ["TEXT/XML", "APPLICATION/JSON"]
 
     def obtain_accessible_layers(self, layer_names: list[str] | None = None) -> list[WmsLayer]:
         return get_objects_for_user(self.user, ["view_wmslayer"], self.model).filter(
-            datasource__vector__isnull=False, name=layer_names[0]
+            datasource__vector__isnull=False, id=layer_names[0]
         )
 
     def create_layer_distributioninfo_info(
@@ -113,16 +114,20 @@ class WfsGetMetadata(OgcOperation):
         layer_bbox = BBox.from_string(layer.datasource.bbox_wgs84)
         return MdIdentificationPropertyType(
             md_data_identification=MdDataIdentification(
-                id=layer.name,
+                id=layer.identifier,
                 citation=CiCitationPropertyType(
                     ci_citation=CiCitation(
                         title=CharacterStringPropertyType(
-                            localised_character_string=LocalisedCharacterString(value=layer.title)
+                            localised_character_string=LocalisedCharacterString(
+                                value=layer.metadata.title
+                            )
                         )
                     )
                 ),
                 abstract=CharacterStringPropertyType(
-                    localised_character_string=LocalisedCharacterString(value=layer.description)
+                    localised_character_string=LocalisedCharacterString(
+                        value=layer.metadata.description
+                    )
                 ),
                 language=[
                     CharacterStringPropertyType(
@@ -161,6 +166,16 @@ class WfsGetMetadata(OgcOperation):
             localised_character_string=LocalisedCharacterString(value=layer_name)
         )
 
+    @staticmethod
+    def clean_layername(layername: str) -> str:
+        namespace_separator = ":"
+        layername_parts = layername.split(namespace_separator)
+        if len(layername_parts) == 2:
+            return layername_parts[1]
+        elif len(layername_parts) == 1:
+            return layername_parts[0]
+        raise LookupError(f"Layername had unexpected format: {layername}")
+
     def get_metadata(self, layer_name: str, language: str) -> MdMetadata:
         """
         Attibutes:
@@ -168,18 +183,19 @@ class WfsGetMetadata(OgcOperation):
             language: in the form `en-US`
             layer_geometry_type: `complex`|`composite`|`curve`|`point`|`solid`|`surface`
         """
-        found_layer = self.obtain_accessible_layers([layer_name])[0]
-        wms_link_png = f"{self.url}{WmsLayerAdmin.create_wms_url_params(found_layer)}"
+        found_layer = self.obtain_accessible_layers([self.clean_layername(layer_name)])[0]
+        wms_link_png = f"{self.url}{found_layer.create_wms_url_params}"
         wfs_link_gml3 = (
             f"{self.url}"
-            f"{WmsLayerAdmin.create_wfs_url_params(found_layer, output_format='APPLICATION/GML+XML; VERSION=3.2')}"  # noqa: E501
+            f"{found_layer.create_wfs_url_params(output_format='APPLICATION/GML+XML; VERSION=3.2')}"
+            # noqa: E501
         )
         BBox.from_string(found_layer.datasource.bbox_wgs84)
         # TODO: Make that catched from configuration as we do for WMS already!
         config = Config().wfs_get_metadata_config(self.url)
         decoder = DictDecoder()
         metadata = decoder.decode(config, MdMetadata)
-        metadata.file_identifier = self.create_file_identification_info(found_layer.name)
+        metadata.file_identifier = self.create_file_identification_info(found_layer.identifier)
         metadata.identification_info = [
             self.create_layer_identification_info(found_layer, language)
         ]
@@ -187,7 +203,7 @@ class WfsGetMetadata(OgcOperation):
         metadata.distribution_info.md_distribution.transfer_options[
             0
         ].md_digital_transfer_options.on_line = self.create_layer_distributioninfo_info(
-            found_layer.name, wms_link_png, wfs_link_gml3
+            found_layer.identifier, wms_link_png, wfs_link_gml3
         )
         return metadata
 

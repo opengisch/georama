@@ -72,6 +72,10 @@ class WmsLayerAbstract(models.Model):
     crs_transform_to_wgs84 = None
 
     @property
+    def identifier(self):
+        return str(self.id)
+
+    @property
     def get_raster_datasource(self) -> Raster:
         raise NotImplementedError()
 
@@ -105,7 +109,7 @@ class WmsLayerAbstract(models.Model):
             SERVICE=ServiceType.wms.value,
             REQUEST=RequestType.get_map.value,
             VERSION=Version.v_1_3_0.value,
-            LAYERS=",".join([self.name]),
+            LAYERS=",".join([self.identifier]),
             BBOX=BBox.from_string(self.extent).to_string(),
             CRS=self.get_datasource.crs_to_qsl.auth_id,
             WIDTH=self.preview_dimensions_new_tab[0],
@@ -127,15 +131,14 @@ class WmsLayerAbstract(models.Model):
                 url_params[field.name] = field_value
         return urlencode(url_params)
 
-    @property
     def create_wfs_url_params(self, output_format: str = "text/xml") -> str:
+        from georama.maps.services.wfs_2_0_0 import WfsOperation
+
         url_params = {
             "SERVICE": "WFS",
             "REQUEST": "GetFeature",
             "VERSION": "2.0.0",
-            # TODO PI: Can't use WfsOperation, circular reference
-            # "TYPENAMES": f"{WfsOperation.own_namespace}:{self.name}",
-            "TYPENAMES": f"georama:{self.name}",
+            "TYPENAMES": f"{WfsOperation.own_namespace}:{self.identifier}",
             "SRSNAME": self.get_datasource.crs_to_qsl.ogc_urn,
             "OUTPUTFORMAT": output_format,
         }
@@ -167,7 +170,7 @@ class WmsLayerAbstract(models.Model):
     @property
     def endpoint_url_wfs(self):
         url = reverse(f"{self._meta.app_label}:maps_ogc_entry")
-        return f"{url}?{self.create_wfs_url_params}"
+        return f"{url}?{self.create_wfs_url_params()}"
 
     @property
     def endpoint_url(self):

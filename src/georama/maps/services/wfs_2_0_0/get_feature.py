@@ -36,10 +36,7 @@ from django.db.models import Model
 from guardian.shortcuts import get_perms
 from qgis_server_light.interface.job.common.input import OgcFilterFES20
 from qgis_server_light.interface.job.common.output import JobResult
-from qgis_server_light.interface.job.feature.input import (
-    FeatureQuery,
-    QslJobParameterFeature,
-)
+from qgis_server_light.interface.job.feature.input import FeatureQuery, QslJobParameterFeature
 from qgis_server_light.interface.job.feature.output import QueryCollection
 from xsdata.formats.converter import Converter, converter
 from xsdata.formats.dataclass.parsers import JsonParser, XmlParser
@@ -142,7 +139,7 @@ class WfsGetFeature(WfsOperation):
         if layer_names:
             query = query.filter(id__in=layer_names)
         found_layers = query.all()
-        found_difference = set(layer_names) - {layer.name for layer in found_layers}
+        found_difference = set(layer_names) - {layer.identifier for layer in found_layers}
         if len(found_difference) > 0:
             raise AttributeError(
                 self.render_exception(f"Layer(s) not found: {list(found_difference)}")
@@ -150,7 +147,7 @@ class WfsGetFeature(WfsOperation):
         for wms_layer in found_layers:
             if "view_wmslayer" in get_perms(self.user, wms_layer) and wms_layer.queryable:
                 accessible_layers.append(wms_layer)
-        permission_difference = set(layer_names) - {layer.name for layer in accessible_layers}
+        permission_difference = set(layer_names) - {layer.identifier for layer in accessible_layers}
         if len(permission_difference) > 0:
             raise PermissionError(
                 self.render_exception(f"Layer(s) not permitted: {list(permission_difference)}")
@@ -790,7 +787,7 @@ class WfsGetFeature(WfsOperation):
                 else:
                     srs = None
                     # TODO@vvmruder: Patch this logic
-                    for dataset in job.queries[feature_collection_index].datasets:
+                    for dataset in job.queries[feature_collection_index].layers:
                         if dataset == feature_collection.name:
                             srs = dataset.crs.ogc_uri
                             break
