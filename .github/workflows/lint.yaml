@@ -4,6 +4,10 @@ jobs:
   lint-project:
     runs-on: ubuntu-latest
     steps:
+      - name: Update Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io
       - uses: actions/checkout@v6
       - name: Prepare Build Environment
         run: |
