@@ -11,9 +11,6 @@
        class="{{ item.datasource.icon }} text-primary"
        style="width: 1.5em;"></i>
 {% endblock %}
-{% block list_item_name %}
-    {{ item.id }}
-{% endblock %}
 {% block list_item_actions_additional %}
     {% include 'maps/drf/wms_layer/includes/buttons/generate_preview.html' with layer=item %}
 {% endblock %}

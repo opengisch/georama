@@ -103,6 +103,7 @@ class WmsLayerViewSet(GeoramaObjPermViewSetReadOnly):
         filters.OrderingFilter,
         DjangoFilterBackend,
     ]
+    list_body_partial_template_name: str = "maps/drf/wms_layer/partials/list_body.html"
     search_fields = ["metadata__title"]
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
