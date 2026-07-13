@@ -19,6 +19,7 @@ jobs:
           cp .env.dev .env
           echo "UID=$(id -u)" >> .env
           echo "GID=$(id -g)" >> .env
+          echo "QSL_SOURCE_BRANCH=master" >> .env
           cat .env
       - name: Build Georama Image
         run: |

@@ -25,6 +25,7 @@ jobs:
           echo "PY_VERSION=${{ matrix.python-version }}" >> .env
           echo "UID=$(id -u)" >> .env
           echo "GID=$(id -g)" >> .env
+          echo "QSL_SOURCE_BRANCH=master" >> .env
           cat .env
       - name: Build Georama Image
         run: |
