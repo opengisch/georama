@@ -6,6 +6,7 @@ services:
       - "GEORAMA_QSL_EXPORTER_URL=http://qsl-exporter:5000/export"
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
     image: local/georama:dev
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
@@ -37,6 +38,7 @@ services:
         condition: service_healthy
   georama-db:
     platform: "linux/amd64"
+    restart: unless-stopped
     image: postgis/postgis:17-3.5
     volumes:
       - "georama-db:/var/lib/postgresql/data"
@@ -77,12 +79,12 @@ services:
         condition: service_healthy
   qsl-exporter:
     platform: "linux/amd64"
+    restart: unless-stopped
     image: opengisch/qgis-server-light-dev:latest
     env_file:
       - .env
     environment:
       - "QSL_DATA_ROOT=/io/data"
-    restart: unless-stopped
     ports:
       - "5000:5000"
     command:

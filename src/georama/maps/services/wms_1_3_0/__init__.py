@@ -14,14 +14,14 @@ class WmsOperation(OgcOperation):
         accessible_layers = {}
 
         found_layers = self.model.objects.filter(id__in=layer_names)
-        found_difference = set(layer_names) - {wms_layer.name for wms_layer in found_layers}
+        found_difference = set(layer_names) - {wms_layer.identifier for wms_layer in found_layers}
 
         if len(found_difference) > 0:
             raise PermissionError(f"Layer(s) not found: {list(found_difference)}")
 
         for wms_layer in found_layers:
             if "view_wmslayer" in get_perms(self.user, wms_layer):
-                accessible_layers[wms_layer.name] = wms_layer
+                accessible_layers[wms_layer.identifier] = wms_layer
 
         permission_difference = set(layer_names) - set(accessible_layers)
         if len(permission_difference) > 0:
