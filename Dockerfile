@@ -44,6 +44,7 @@ ARG STATIC_DIR="/georama/static"
 WORKDIR $STATIC_DIR
 WORKDIR /app
 
+# dockerfile-utils: ignore
 ADD --unpack https://github.com/opengisch/qgis-server-light/archive/refs/heads/$QSL_SOURCE_BRANCH.tar.gz $QSL_SOURCE_DIR
 RUN mv $QSL_SOURCE_DIR/qgis-server-light-$QSL_SOURCE_BRANCH/* $QSL_SOURCE_DIR
 RUN chown -R $UID:$GID /app \
