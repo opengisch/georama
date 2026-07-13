@@ -1,0 +1,77 @@
+{% extends 'core/base.html' %}
+{% load static i18n model_extras %}
+
+{% block list_actions %}
+
+    <!-- Layer actions -->
+
+    <div class="align-content-center">
+        <div class="btn-group" role="group" aria-label="Layer actions">
+            {% if can_change %}
+                {% blocktranslate asvar title %}Edit instance{% endblocktranslate %}
+                <a href="{% url view.url_name_retrieve object.pk %}"
+                   class="btn btn-outline-primary" role="button"
+                   data-bs-toggle="tooltip"
+                   title="{{ title }}"
+                   aria-label="{{ title }}">
+                    <i class="fa fa-pen"></i>
+                </a>
+            {% endif %}
+
+            {% blocktranslate asvar title %}Edit Fieldvisibility{% endblocktranslate %}
+            <a href="{% url view.url_name_fields object.pk %}"
+               class="btn btn-outline-primary" role="button"
+               data-bs-toggle="tooltip"
+               title="{{ title }}"
+               aria-label="{{ title }}">
+                <i class="fa fa-list"></i>
+            </a>
+
+            {% if can_delete %}
+                {% blocktranslate asvar title %}Delete item{% endblocktranslate %}
+                <a href="{% url view.url_name_delete_confirm object.pk %}"
+                   class="btn btn-outline-danger" role="button"
+                   data-bs-toggle="tooltip"
+                   title="{{ title }}"
+                   aria-label="{{ title }}">
+                    <i class="fa fa-trash-alt"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <!-- Non-scrollable form parent container -->
+
+    <div class="container h-100 pt-4 overflow-hidden">
+
+        <div class="row h-100">
+
+            <!-- Column(s), scrollable -->
+
+            <div class="col h-100 px-4 overflow-auto">
+
+                <!-- Form content -->
+
+                {% block detail_content %}
+                    {% field_name_and_value object as fields %}
+                    {% for name, help_text, value in fields %}
+
+                        <div class="mb-4" data-bs-toggle="tooltip"
+                             title="{{ help_text }}">
+                            <label class="form-text">{{ name|capfirst }}</label>
+                            <div>{{ value }}</div>
+                        </div>
+                    {% endfor %}
+                {% endblock %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}

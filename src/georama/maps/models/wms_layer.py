@@ -38,6 +38,8 @@ class WmsLayerAbstract(models.Model):
         primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the wms layer.")
     )
 
+    public = models.BooleanField(default=False)
+
     extent_buffer = models.FloatField(
         default=0.0,
         help_text=_("Extent buffer size of the layer"),
@@ -258,13 +260,15 @@ class WmsLayerAbstract(models.Model):
 class WmsLayer(WmsLayerAbstract):
     ORGANISATION_FIELD_NAME = "datasource__project__organisation"
 
-    @property
-    def name(self) -> str:
-        return str(self.id)
-
     class Meta:
         verbose_name = _("wms layer")
         verbose_name_plural = _("wms layers")
+        permissions = [
+            # permission which is used on the model
+            ("manage_object_permissions", "Can manage object permissions"),
+            # permission which is used for the object permission evaluation on the published themes
+            ("view_published_wms_layer", "Can view published WMS Layer"),
+        ]
 
     datasource = models.ForeignKey(
         Datasource,
@@ -280,6 +284,9 @@ class WmsLayer(WmsLayerAbstract):
     )
 
     objects = WmsLayerManager()
+
+    def __str__(self):
+        return self.metadata.title
 
     @property
     def get_datasource(self) -> Datasource:

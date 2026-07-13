@@ -1,13 +1,11 @@
 {% load i18n %}
-<form id="searchForm" class="d-flex">
-    <input id="searchInput" class="form-control me-2" name="search" type="search"
-           title="{{ search_fields_hint }}"
-           data-bs-toggle="tooltip"
-           placeholder={% trans 'Search term' %} aria-label={{ search_fields_hint }}
-           value="{{ search_term }}"
-           hx-get=""
-           hx-trigger="keyup changed, search"
-           hx-target="#list-partial"
-           hx-vals="js:{search: this.value, f: 'p-html'}"
-    >
-</form>
+
+<input id="searchInput" class="form-control me-2" name="search" type="search"
+       title="{{ search_fields_hint }}"
+       data-bs-toggle="tooltip"
+       placeholder={% trans 'Search term' %} aria-label={{ search_fields_hint }}
+       value="{{ request.GET.search }}"
+       hx-get="{{ request.path }}"
+       hx-trigger="keyup changed, search"
+       hx-target="#list_body_partial"
+>

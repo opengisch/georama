@@ -14,6 +14,9 @@
         {% if perms.data_integration.delete_project %}
             {% include "integration/drf/project/includes/buttons/unlink.html" with project=object %}
         {% endif %}
+        {% for action in remote_actions %}
+            {% include 'core/drf/default/includes/buttons/remote_action.html' with action=action pk=object.pk %}
+        {% endfor %}
     </div>
 
 {% endblock %}
@@ -33,6 +36,15 @@
             <label class="form-text">Version</label>
             <div>
                 {{ object.qgis_version|default_if_none:"unknown" }}</div>
+        </div>
+        {% blocktranslate asvar title %}
+            Path of the file on file system
+        {% endblocktranslate %}
+        <div class="mb-4" data-bs-toggle="tooltip"
+             title="{{ title }}"
+             aria-label="{{ title }}">
+            <label class="form-text">{% trans 'Path' %}</label>
+            <div>{{ object.project_file.path_from_orga }}</div>
         </div>
         {% blocktranslate asvar title %}
             Last time the QGIS project was changed on disk
@@ -71,7 +83,7 @@
                             aria-label="{{ ds.qgis_layer_id }}">
                         {{ ds.name }}
                     </div>
-                    <div class="badge rounded-pill text-bg-primary">{{ ds.driver }}</div>
+                    {% include "integration/drf/datasource/includes/pills/driver.html" with datasource=ds %}
                 </li>
 
             {% endfor %}

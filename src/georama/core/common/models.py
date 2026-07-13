@@ -12,8 +12,10 @@ class BaseMetadata(models.Model):
         primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the metadata.")
     )
     title = models.CharField(
-        max_length=1000, default="", blank=True,
-        help_text=_("The verbose title of the connected item.")
+        max_length=1000,
+        default="",
+        blank=True,
+        help_text=_("The verbose title of the connected item."),
     )
     description = models.TextField(default="", blank=True)
     license = models.TextField(

@@ -97,3 +97,5 @@ docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_c
   it as a dep
   from pyproject.toml and make it a dep assumed to be available in the system via (
   python3-gdal, or similar)
+- Inheritance of templates not working for django
+  partials: https://code.djangoproject.com/ticket/37038

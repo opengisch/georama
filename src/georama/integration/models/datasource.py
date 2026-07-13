@@ -142,14 +142,13 @@ class Datasource(models.Model):
 
     @property
     def type(self) -> Literal["vector", "raster", "custom"]:
-        if self.vector is not None:
-            return "vector"
-        elif self.raster is not None:
-            return "raster"
-        elif self.custom is not None:
-            return "custom"
-        else:
-            raise LookupError("Datasource is stale")
+        for name in ["vector", "raster", "custom"]:
+            try:
+                getattr(self, name)
+                return name
+            except Exception as _:
+                pass
+        raise LookupError("Datasource is stale")
 
     @property
     def icon(self):

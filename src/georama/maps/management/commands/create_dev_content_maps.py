@@ -2,8 +2,7 @@ import os
 import random
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import ContentType
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import ContentType, Permission
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from guardian.shortcuts import assign_perm
@@ -41,9 +40,7 @@ class Command(BaseCommand):
                 permission = random.choice(permissions)
                 assign_perm(permission, user, wms_layer)
 
-            self.stdout.write(
-                self.style.SUCCESS("Successfully created development content.")
-            )
+            self.stdout.write(self.style.SUCCESS("Successfully created development content."))
         else:
             self.stdout.write(
                 self.style.ERROR("This command can be used only in Dev environments!")

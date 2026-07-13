@@ -1,11 +1,26 @@
-{% extends 'core/drf/default/partials/list.html' %}
+{% extends 'core/drf/default/partials/list_body.html' %}
 {% load static i18n %}
-
 {% block list_item_pills %}
     <div class="align-content-bottom">
         {% include 'integration/drf/project/includes/pill.html' with project=item %}
     </div>
 {% endblock %}
+
+{% block list_item_image %}
+    <img alt="{% trans 'Logo' %}"
+         class="rounded img-thumbnail preview-image"
+         src="{% static 'integration/images/qgis.png' %}"
+    />
+{% endblock %}
+
+{% block list_item_title %}
+    {{ item.name }}
+{% endblock %}
+
+{% block list_item_name %}
+    {{ item.path }}
+{% endblock %}
+
 {% block list_item_actions %}
     <!-- We know already that the user can view the item-->
     {% blocktranslate asvar title %}
@@ -27,4 +42,7 @@
     {% if can_delete %}
         {% include "integration/drf/project/includes/buttons/unlink.html" with project=item %}
     {% endif %}
+    {% for action in remote_actions %}
+        {% include 'core/drf/default/includes/buttons/remote_action.html' with action=action pk=item.pk %}
+    {% endfor %}
 {% endblock %}

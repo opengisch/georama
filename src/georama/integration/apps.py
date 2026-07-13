@@ -12,10 +12,15 @@ class IntegrationConfig(GeoramaAbstractConfig):
     name = "georama.integration"
     menu_order: int = 10
     description = _("Integrate your QGIS projects.")
-    app_index_page = "integration:project-list"
+    app_index_page = "integration:manager-project-list"
 
     def app_permissions(self):
-        return ["integration.view_collection"]
+        return [
+            "integration.view_project",
+            "integration.add_project",
+            "integration.change_project",
+            "integration.delete_project",
+        ]
 
     def ready(self):
         super().ready()

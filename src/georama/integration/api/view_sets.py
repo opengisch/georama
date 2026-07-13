@@ -3,6 +3,7 @@ from pathlib import Path
 
 import httpx
 from adrf.mixins import get_data
+from django.apps import apps
 from django.conf import settings
 from django.http import Http404, HttpResponseServerError
 from django.shortcuts import redirect
@@ -17,20 +18,20 @@ from qgis_server_light.interface.exporter.extract import Raster as QslRaster
 from qgis_server_light.interface.exporter.extract import Vector as QslVector
 from rest_framework import filters, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from xsdata.formats.dataclass.parsers import DictDecoder, JsonParser
 from xsdata.formats.dataclass.serializers import DictEncoder, JsonSerializer
 
 from georama.core.common.api import (
-    GeoramaAsyncTemplateModelViewSet,
+    GeoramaManagerViewSet,
     GeoramaModelPermissions,
     OrganisationalModelViewSet,
 )
-from georama.core.common.menu import Breadcrumb
+from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.api.serializers import (
     CustomDatasourceSerializer,
+    DatasourceSerializer,
     FieldSerializer,
     FileSystemProjectSerializer,
     ProjectSerializer,
@@ -42,10 +43,9 @@ from georama.integration.models import Custom, Project, Raster, Vector, VectorFi
 from georama.integration.models.datasource import Datasource
 
 
-class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSet):
+class ManageProjectViewSet(GeoramaManagerViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [IsAdminUser, GeoramaModelPermissions]
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -54,9 +54,35 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
     search_fields = ["name", "path"]
     ordering_fields = ["name", "path"]
     filterset_fields = ["name"]
-    list_path_template_name: str = "integration/drf/project/path_list.html"
-    list_template_name: str = "integration/drf/project/list.html"
+    list_body_path_partial_template_name: str = (
+        "integration/drf/project/partials/list_body_path.html"
+    )
+    list_body_partial_template_name: str = "integration/drf/project/partials/list_body.html"
     show_template_name = "integration/drf/project/show.html"
+
+    @property
+    async def bread_crumb_action_context(self):
+        """Prepares the breadcrumb action to add a project.
+
+        Returns:
+            The context with an action to add a new project in case the user has either
+            add, delete or change permission or is admin user.
+        """
+        context = {}
+        model_perms = await self._get_model_permissions()
+        url_action_target = reverse(self.non_integrated_url_name)
+        if (
+            any(model_perms.values()) or self.request.user.is_superuser
+        ) and self.request.path != url_action_target:
+            context["breadcrumb_action"] = BreadcrumbAction(
+                url=url_action_target,
+                tooltip=_("Integrate projects from QGIS files available on disk"),
+                hint=_("Select a project to integrate it into Georama"),
+                title=_("QGIS Project"),
+                type=ActionType.LINKED,
+                icon="fa fa-circle-plus",
+            )
+        return context
 
     @staticmethod
     async def call_qsl_exporter(path: Path) -> HttpxResponse:
@@ -72,6 +98,7 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
                     )
                 ),
                 headers={"Content-Type": "application/json"},
+                timeout=None,
             )
             return r
 
@@ -92,7 +119,8 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
                     datasource_model = Custom
                 else:
                     raise LookupError("Unexpected datasource type was passed")
-                # TODO@integration: filter also organisation
+                # We don't need to filter for organisation here again, since the project_db
+                # is bound to it already.
                 qs = datasource_model.objects.filter(qgis_layer_id=layer.id, project=project_db)
                 if await qs.aexists():
                     logging.debug(
@@ -163,16 +191,6 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
         logging.debug(" ✓ Finished - Cleaning out old datasources.")
         return None
 
-    async def _prepare_many_context(self):
-        context = await super()._prepare_many_context()
-        context["breadcrumb_action_url"] = reverse(self.non_integrated_url_name)
-        context["breadcrumb_action_tooltip"] = _(
-            "Integrate projects from QGIS files available on disk"
-        )
-        context["breadcrumb_action_icon"] = "fa fa-circle-plus"
-        context["breadcrumb_action_title"] = _("QGIS Project")
-        return context
-
     @property
     def non_integrated_url_name(self):
         return self.url_name("non-integrated")
@@ -215,7 +233,7 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
             await project_db.asave()
 
             await self.integrate_project(project_db, project_json)
-            return redirect(reverse("integration:project-non-integrated"))
+            return redirect(reverse("integration:manager-project-non-integrated"))
 
         existing_project_paths = {
             Path(p)
@@ -234,10 +252,10 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
             context["organisation"] = organisation_folder
             context["object_list"] = pqs
             context["limit"] = self.paginator.limit
+            context["list_body_partial"] = self.list_body_path_partial_template_name
             context.update(await self._get_model_permissions())
             context.update(self.paginator.get_html_context())
-
-            return Response(context, template_name=self.list_path_template_name)
+            return Response(context, template_name=self.list_template_name)
         else:
             if pqs is not None:
                 serializer = FileSystemProjectSerializer(
@@ -265,11 +283,38 @@ class ProjectViewSet(OrganisationalModelViewSet, GeoramaAsyncTemplateModelViewSe
             data = await get_data(serializer)
             return Response(data, status=status.HTTP_200_OK)
 
+    async def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()
+        return [
+            Breadcrumb(app_menu.title),
+            Breadcrumb(self.queryset.model._meta.verbose_name_plural),
+        ]
 
-class VectorDatasourceViewSet(OrganisationalModelViewSet):
+
+class ManageDatasourceViewSet(GeoramaManagerViewSet):
+    queryset = Datasource.objects.all()
+    serializer_class = DatasourceSerializer
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend,
+    ]
+    search_fields = ["name"]
+    ordering_fields = ["name"]
+    filterset_fields = ["name"]
+    list_body_partial_template_name: str = "integration/drf/datasource/partials/list_body.html"
+
+    async def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()
+        return [
+            Breadcrumb(app_menu.title),
+            Breadcrumb(self.queryset.model._meta.verbose_name_plural),
+        ]
+
+
+class ManageVectorDatasourceViewSet(GeoramaManagerViewSet):
     queryset = Vector.objects.all()
     serializer_class = VectorDatasourceSerializer
-    permission_classes = [GeoramaModelPermissions]
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -279,8 +324,15 @@ class VectorDatasourceViewSet(OrganisationalModelViewSet):
     ordering_fields = ["name"]
     filterset_fields = ["name"]
 
+    async def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()
+        return [
+            Breadcrumb(app_menu.title),
+            Breadcrumb(self.queryset.model._meta.verbose_name_plural),
+        ]
 
-class FieldViewSet(OrganisationalModelViewSet):
+
+class ManageFieldViewSet(OrganisationalModelViewSet):
     queryset = VectorField.objects.all()
     serializer_class = FieldSerializer
     permission_classes = [GeoramaModelPermissions]
@@ -294,7 +346,7 @@ class FieldViewSet(OrganisationalModelViewSet):
     filterset_fields = ["name"]
 
 
-class RasterDatasourceViewSet(OrganisationalModelViewSet):
+class ManageRasterDatasourceViewSet(OrganisationalModelViewSet):
     queryset = Raster.objects.all()
     serializer_class = RasterDatasourceSerializer
     permission_classes = [GeoramaModelPermissions]
@@ -308,7 +360,7 @@ class RasterDatasourceViewSet(OrganisationalModelViewSet):
     filterset_fields = ["name"]
 
 
-class CustomDatasourceViewSet(OrganisationalModelViewSet):
+class ManageCustomDatasourceViewSet(OrganisationalModelViewSet):
     queryset = Custom.objects.all()
     serializer_class = CustomDatasourceSerializer
     permission_classes = [GeoramaModelPermissions]

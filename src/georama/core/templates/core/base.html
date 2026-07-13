@@ -117,7 +117,8 @@
                         <!-- breadcrumbs -->
 
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Home</a>
+                            <li class="breadcrumb-item"><a href="/"><i
+                                    class="fa fa-home"></i></a>
                             </li>
                             {% for breadcrumb in breadcrumbs %}
                                 <li class="breadcrumb-item {% if breadcrumbs|last %}active" aria-current="page{% endif %}">
@@ -131,24 +132,12 @@
 
                             <!-- Button as last element of breadcrumbs -->
 
-                            {% if breadcrumb_action_url %}
-                                <li class="breadcrumb-item breadcrumb-action">
-                                    <a
-                                            href="{{ breadcrumb_action_url }}"
-                                            class="btn btn-outline-primary"
-                                            role="button"
-                                            data-bs-toggle="tooltip"
-                                            title="{{ breadcrumb_action_tooltip }}"
-                                            aria-label="{{ breadcrumb_action_tooltip }}"
-                                    >
-                                        {% if breadcrumb_action_icon %}
-                                            <i class="{{ breadcrumb_action_icon }}"></i>
-                                            <span class="ps-1">{{ breadcrumb_action_title }}</span>
-                                        {% else %}
-                                            {{ breadcrumb_action_title }}
-                                        {% endif %}
-                                    </a>
-                                </li>
+                            {% if breadcrumb_action %}
+                                {% if breadcrumb_action.type == 'embedded' %}
+                                    {% include 'core/drf/default/includes/buttons/breadcumb_action_htmx.html' %}
+                                {% else %}
+                                    {% include 'core/drf/default/includes/buttons/breadcumb_action.html' %}
+                                {% endif %}
                             {% endif %}
 
                         </ol>

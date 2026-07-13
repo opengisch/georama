@@ -1,0 +1,18 @@
+{% extends 'core/drf/default/partials/list_body.html' %}
+{% load static i18n %}
+{% block list_item_pills %}
+    <div class="d-flex align-items-center">
+        {% include "integration/drf/datasource/includes/pills/driver.html" with datasource=item %}
+    </div>
+
+{% endblock %}
+
+{% block list_item_image %}
+    <i class="{{ item.icon }} text-primary" style="width: 1.5em;"></i>
+{% endblock %}
+
+{% block list_item_actions %}
+    {% for action in remote_actions %}
+        {% include 'core/drf/default/includes/buttons/remote_action.html' with action=action pk=item.pk %}
+    {% endfor %}
+{% endblock %}

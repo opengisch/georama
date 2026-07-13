@@ -1,6 +1,7 @@
 import json
+import logging
 
-from adrf import viewsets
+from adrf import mixins, viewsets
 from asgiref.sync import sync_to_async
 from django.apps import apps
 from django.conf import settings
@@ -11,12 +12,14 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from drf_spectacular.plumbing import build_mock_request as original_build_mock_request
+from guardian.shortcuts import get_objects_for_user
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import AllowAny, DjangoModelPermissions
 from rest_framework.response import Response
 
-from georama.core.common.menu import Breadcrumb
+from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
+from georama.core.common.remote_actions import RemoteAction, get_remote_action
 from georama.core.common.request import GeoramaDrfRequest
 from georama.core.patches.adrf import pagination
 
@@ -46,39 +49,63 @@ def build_mock_request(method, path, view, original_request, **kwargs):
     return request
 
 
-class GeoramaPartialsRenderer(renderers.TemplateHTMLRenderer):
-    media_type = "text/html"
-    format = "p-html"
+class GeoramaOrganisationalMixin:
+    """Mixin class to add organisational filtering to viewsets"""
+
+    request: GeoramaDrfRequest
+
+    def get_queryset(self):
+        """
+        The queryset is automatically filtered by the organisation.
+
+        Returns:
+            The filtered queryset.
+        """
+        qs = super().get_queryset()
+        return qs.organisation_objects(self.request.georama_organisation)
 
 
-class GeoramaAsyncTemplateModelViewSet(viewsets.ModelViewSet):
+class GeoramaTemplateViewSetReadOnly(
+    viewsets.ReadOnlyModelViewSet,
+):
+    """ """
+
     pagination_class = pagination.LimitOffsetPagination
     renderer_classes = [
         renderers.TemplateHTMLRenderer,
         renderers.JSONRenderer,
         renderers.BrowsableAPIRenderer,
-        GeoramaPartialsRenderer,
     ]
     list_template_name: str = "core/drf/default/list.html"
-    partial_list_template_name: str = "core/drf/default/partials/list.html"
-    form_template_name: str = "core/drf/default/form.html"
-    form: ModelForm
+    list_partial_template_name: str = "core/drf/default/partials/list.html"
+    list_body_partial_template_name: str = "core/drf/default/partials/list_body.html"
     show_template_name: str = "core/drf/default/detail.html"
-    delete_template_name: str = "core/drf/default/delete_preview.html"
 
-    def url_name(self, action):
+    def url_name(self, action_name: str, manager: bool = False) -> str:
+        """Creates a qualified view name of an action. Qualified means,
+        it contains the app name too.
+
+        We are aware that DRF offers a mechanism to
+        [reverse actions](https://www.django-rest-framework.org/api-guide/viewsets/#reversing-action-urls).
+        However, this does not include our manager pattern, and it does not work reliably.
+
+        Args:
+            action_name: The name of the action the string should be constructed for. For
+                information about actions see the
+                [restframework docs](https://www.django-rest-framework.org/api-guide/routers/#simplerouter)
+            manager: Switch to create the manager version of the action instead.
+        Returns:
+            The constructed view name.
         """
-        Reverse the action for the given `url_name`.
-        """
-        url_name = f"{self.basename}-{action}"
-        url_name = self.queryset.model._meta.app_label + ":" + url_name
-        return url_name
+        name_parts = [self.basename]
+        if manager:
+            name_parts.append("manager")
+        name_parts.append(action_name)
+        view_name = "-".join(name_parts)
+        view_name_qualified = f"{self.queryset.model._meta.app_label}:{view_name}"
+        return view_name_qualified
 
-    @property
-    def url_name_list(self):
-        return self.url_name("list")
-
-    async def _prepare_many_context(self):
+    async def _prepare_many_context(self) -> dict:
         search_fields = getattr(self, "search_fields", [])
         context = {
             "per_page_options": settings.LIST_PAGE_SIZES,
@@ -89,12 +116,56 @@ class GeoramaAsyncTemplateModelViewSet(viewsets.ModelViewSet):
             "ordering_param": filters.OrderingFilter.ordering_param,
             "breadcrumbs": await self.get_breadcrumbs(),
             "view": self,
+            "model_name_verbose": self.queryset.model._meta.verbose_name,
+            "list_partial": self.list_partial_template_name,
+            "list_body_partial": self.list_body_partial_template_name,
         }
+        context.update(await self.bread_crumb_action_context)
         return context
 
+    @property
+    async def bread_crumb_action_context(self):
+        """
+        We leve it to the baseclass here to point to a specific action if needed.
+
+        Returns:
+            Empty action context. So no button will be shown by default.
+        """
+        return {}
+
+    async def _prepare_single_context(self):
+        instance = await self.aget_object()
+        breadcrumbs = await self.get_breadcrumbs()
+        breadcrumbs[-1].view_name = self.reverse_action("list")
+        breadcrumbs += [Breadcrumb(str(instance))]
+        context = {
+            "object": instance,
+            "view": self,
+            "breadcrumbs": breadcrumbs,
+        }
+        context.update(await self._get_model_permissions())
+        return context
+
+    async def _get_model_permissions(self) -> dict:
+        """Since this is readonly, no permissions for editing
+        is granted at all.
+
+        Returns:
+            The permission dict, granting no editing at all.
+        """
+        return {
+            "can_add": False,
+            "can_change": False,
+            "can_delete": False,
+        }
+
+    @property
+    def url_name_list(self):
+        return self.url_name("list")
+
     async def alist(self, request, *args, **kwargs):
-        if request.accepted_renderer.format in ["html", "p-html"]:
-            qs = self.filter_queryset(self.get_queryset())
+        if request.accepted_renderer.format in ["html"]:
+            qs = await self.afilter_queryset(self.get_queryset())
             context = await self._prepare_many_context()
             ordering = filters.OrderingFilter()
             ordering_current_direction = ordering.get_ordering(request, qs, self) or []
@@ -119,34 +190,127 @@ class GeoramaAsyncTemplateModelViewSet(viewsets.ModelViewSet):
             context["ordering_context_json"] = json.dumps(ordering_context)
             context.update(await self._get_model_permissions())
             context.update(self.paginator.get_html_context())
-            if request.accepted_renderer.format == "html":
-                return Response(context, template_name=self.list_template_name)
+            logging.error(request.META)
+            if request.META.get("HTTP_HX_REQUEST") == "true":
+                return Response(context, template_name=context[request.META.get("HTTP_HX_TARGET")])
             else:
-                return Response(context, template_name=self.partial_list_template_name)
+                return Response(context, template_name=self.list_template_name)
         else:
             return await super().alist(request, *args, **kwargs)
 
-    async def _get_model_permissions(self):
-        user = self.request.user
-        opts = self.queryset.model._meta
-        return {
-            "can_add": user.has_perm(f"{opts.app_label}.add_{opts.model_name}"),
-            "can_change": user.has_perm(f"{opts.app_label}.change_{opts.model_name}"),
-            "can_delete": user.has_perm(f"{opts.app_label}.delete_{opts.model_name}"),
-        }
+    @property
+    def url_name_show(self):
+        return self.url_name("ashow")
+
+    @action(
+        detail=True,
+        methods=["get"],
+        name="Show instance read only",
+        renderer_classes=[renderers.TemplateHTMLRenderer],
+    )
+    async def ashow(self, request, *args, **kwargs):
+        """Shows a read only representation of the detail."""
+        context = await self._prepare_single_context()
+        return Response(context, template_name=self.show_template_name)
+
+    async def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()
+        return [
+            Breadcrumb(app_menu.title),
+            Breadcrumb(self.queryset.model._meta.verbose_name_plural),
+        ]
+
+
+class GeoramaTemplateViewSet(
+    GeoramaTemplateViewSetReadOnly,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+):
+    """A viewset which offers writable actions in addition to the read-only variant it
+    inherits from.
+
+    Attributes:
+        form_template_name: The path of the template which is used to render the form for
+            update, create actions.
+        form: The form which is used to be rendered in the `form_template_name`. This
+            has no default and must be set.
+        delete_template_name: The path of the template which use used to render the delete
+            preview. This is an intermediate step to let the user confirm the delete action.
+
+    """
+
+    form_template_name: str = "core/drf/default/form.html"
+    form: ModelForm
+    delete_template_name: str = "core/drf/default/delete_preview.html"
+
+    def bound_remote_actions(self) -> list[RemoteAction]:
+        """Gets the registered remote actions for the model of this viewset.
+
+        In addition,
+        it checks if it was a remote request (a request which came from another app via
+        HTMX) and filters to have the remote actions for this app only.
+
+        In addition, it filters the actions to the ones the requesting user has access
+        to.
+
+        Returns:
+             The remote actions filtered by the before mentioned criteria.
+        """
+        remote_actions = get_remote_action(self.queryset.model)
+        if self.request.META.get("GR-Src"):
+            # call came from another app, we filter for only the fitting ones:
+            remote_actions = [
+                ra for ra in remote_actions if ra.name == self.request.resolver_match.app_name
+            ]
+        remote_actions = [
+            ra
+            for ra in remote_actions
+            if any(self.request.user.has_perm(perm) for perm in ra.permissions)
+        ]
+        return remote_actions
+
+    async def _prepare_many_context(self) -> dict:
+        context = await super()._prepare_many_context()
+        context.update(
+            {
+                "remote_actions": self.bound_remote_actions(),
+            }
+        )
+        return context
 
     async def _prepare_single_context(self):
-        instance = await self.aget_object()
-        breadcrumbs = await self.get_breadcrumbs()
-        breadcrumbs[-1].view_name = self.reverse_action("list")
-        breadcrumbs += [Breadcrumb(str(instance))]
-        context = {
-            "object": instance,
-            "view": self,
-            "breadcrumbs": breadcrumbs,
-        }
-        context.update(await self._get_model_permissions())
+        context = await super()._prepare_single_context()
+        context.update(
+            {
+                "remote_actions": self.bound_remote_actions(),
+            }
+        )
         return context
+
+    async def _get_model_permissions(self):
+        """We are calculating the permissions based on the DRF permission class.
+
+        Returns:
+            The permission dict, containing the information about the users edit
+            permissions on the model of this viewset.
+        """
+        perm_checker = GeoramaModelPermissions()
+        return {
+            "can_add": await self.request.user.ahas_perms(
+                perm_checker.get_required_permissions("POST", self.queryset.model)
+            ),
+            "can_change": await self.request.user.ahas_perms(
+                perm_checker.get_required_permissions("PATCH", self.queryset.model)
+            ),
+            "can_delete": await self.request.user.ahas_perms(
+                perm_checker.get_required_permissions("DELETE", self.queryset.model)
+            ),
+        }
+
+    @property
+    def url_name_retrieve(self):
+        return self.url_name("detail")
 
     async def aretrieve(self, request: GeoramaDrfRequest, *args, **kwargs):
         """Handles the standard retrieve of a model view
@@ -160,8 +324,8 @@ class GeoramaAsyncTemplateModelViewSet(viewsets.ModelViewSet):
             return await super().aretrieve(request, *args, **kwargs)
 
     @property
-    def url_name_retrieve(self):
-        return self.url_name("detail")
+    def url_name_update(self):
+        return self.url_name("aform-update")
 
     @action(
         detail=True,
@@ -172,22 +336,7 @@ class GeoramaAsyncTemplateModelViewSet(viewsets.ModelViewSet):
     async def aform_update(self, request, *args, **kwargs):
         await self.aupdate(request, *args, **kwargs)
         instance = await self.aget_object()
-        return redirect(reverse("core:georamauser-detail", kwargs={"pk": instance.pk}))
-
-    @action(
-        detail=True,
-        methods=["get"],
-        name="Show instance read only",
-        renderer_classes=[renderers.TemplateHTMLRenderer],
-    )
-    async def ashow(self, request, *args, **kwargs):
-        """Shows a read only representation of the detail."""
-        context = await self._prepare_single_context()
-        return Response(context, template_name=self.show_template_name)
-
-    @property
-    def url_name_show(self):
-        return self.url_name("ashow")
+        return redirect(reverse(self.url_name_retrieve, kwargs={"pk": instance.pk}))
 
     @action(
         detail=False,
@@ -230,6 +379,10 @@ class GeoramaAsyncTemplateModelViewSet(viewsets.ModelViewSet):
     def url_name_delete_confirm(self):
         return self.url_name("adelete-confirm")
 
+    @property
+    def url_name_destroy(self):
+        return self.url_name("detail")
+
     async def adestroy(self, request, *args, **kwargs):
         response = await super().adestroy(request, *args, **kwargs)
         if request.accepted_renderer.format == "html":
@@ -244,19 +397,79 @@ class GeoramaAsyncTemplateModelViewSet(viewsets.ModelViewSet):
         else:
             return response
 
+
+class GeoramaManageableMixin:
+    """This mixin adds a dedicated breadcrumb action to viewsets which should offer
+    a manager sidecar api. Convention of the basename of the manager is:
+        `manager-<model_name>`
+    So for the model Theme it would be:
+    `manager-theme`
+    """
+
     @property
-    def url_name_destroy(self):
-        return self.url_name("detail")
+    async def bread_crumb_action_context(self):
+        """This adds an action button to the breadcrumbs to link to the management view,
+        if the user has the permissions to look at it.
 
-    async def get_breadcrumbs(self):
-        app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()
-        return [
-            Breadcrumb(app_menu.title, reverse(f"{self.queryset.model._meta.app_label}:index")),
-            Breadcrumb(self.queryset.model._meta.verbose_name_plural),
-        ]
+        We check if the user has the permission to see actually the button.
+
+        Returns:
+            The context with the button settings.
+        """
+        context = {}
+        perm_checker = GeoramaModelPermissions()
+        if await sync_to_async(perm_checker.has_permission)(self.request, self):
+            context["breadcrumb_action"] = BreadcrumbAction(
+                url=reverse(self.url_name("list", manager=True)),
+                tooltip=f"{_('Switch to the management GUI of .')} {
+                    self.queryset.model._meta.verbose_name
+                }",
+                hint=_("Manage items on this list."),
+                title=_("Manage"),
+                type=ActionType.LINKED,
+                icon="fa fa-wrench",
+            )
+        return context
 
 
-class OrganisationalModelViewSet(viewsets.ModelViewSet):
+class GeoramaObjPermMixin:
+    """This mixin ensures filtering for object permissions. The permissions
+    have to be configured.
+
+    Attributes:
+        required_obj_perms: The list of permission codenames which should be checked. This
+            permissions must be different from the standard model permissions
+            (view, add, change, delete) of Django. Because there is a fundamental
+            difference if a user can add/delete/change/view e.g a FeatureLayer-Object and
+            if a user can add/delete/change/view elements on a FeatureLayer-Object.
+            The first are the permissions necessary for handling things on the Georama
+            internal DB and the others are the permissions to handle things in the configured
+            underlying datasource.
+    """
+
+    required_obj_perms: list[str]
+
+    async def afilter_queryset(self, queryset):
+        """Additionally to the filters applied we always filter for the
+        object permissions configured on the class level.
+
+        Returns:
+            The queryset filtered for all objects by object permission the requesting user
+            has combined by those which are public.
+        """
+        queryset = await super().afilter_queryset(queryset)
+        if self.request.user.is_superuser:
+            return queryset
+        if self.request.user.is_authenticated:
+            qs = await sync_to_async(get_objects_for_user, thread_sensitive=True)(
+                self.request.user, self.required_obj_perms, klass=queryset, any_perm=True
+            ) | queryset.filter(public=True)
+        else:
+            qs = queryset.filter(public=True)
+        return qs
+
+
+class OrganisationalModelViewSet(GeoramaOrganisationalMixin, viewsets.ModelViewSet):
     """
     A DRF ViewSet which uses organisational bound tables to filter automatically for
     only organisations defined by the request.
@@ -267,14 +480,64 @@ class OrganisationalModelViewSet(viewsets.ModelViewSet):
             georama_organisation attribute.
     """
 
-    request: GeoramaDrfRequest
+    pass
 
-    def get_queryset(self):
-        """
-        The queryset is automatically filtered by the organisation.
 
-        Returns:
-            The filtered queryset.
-        """
-        qs = super().get_queryset()
-        return qs.organisation_objects(self.request.georama_organisation)
+class GeoramaObjPermViewSetReadOnly(
+    GeoramaObjPermMixin,
+    GeoramaManageableMixin,
+    GeoramaOrganisationalMixin,
+    GeoramaTemplateViewSetReadOnly,
+):
+    """This viewset offers a read-only variant which is filtered for object
+    permissions on the configured permissions. The content is filtered based on objects
+    only! Since we have objects which can be `public` we generally allow anyone to access
+    the endpoints.
+
+    Attributes:
+        permission_classes: The only allowed permission class here is `AllowAny` to allow
+            access to anyone.
+    """
+
+    permission_classes = [AllowAny]
+
+
+class GeoramaObjPermViewSet(
+    GeoramaObjPermMixin, GeoramaManageableMixin, GeoramaOrganisationalMixin, GeoramaTemplateViewSet
+):
+    """This viewset offers a full CRUD variant which is filtered for object
+    permissions on the configured permissions. The content is filtered based on objects
+    only! Since we have objects which can be `public` we generally allow anyone to access
+    the endpoints. All sensible not-safe endpoints (CRUD) are checked specifically.
+
+    Attributes:
+        permission_classes: The only allowed permission class here is `AllowAny` to allow
+            readonly access to anyone.
+    """
+
+    permission_classes = [AllowAny]
+
+
+class GeoramaManagerViewSet(GeoramaOrganisationalMixin, GeoramaTemplateViewSet):
+    """This viewset is meant to be used when permissions are based on the model itself.
+    meaning the normal behaviour Django and DRF offer. It is explicitly not ment to be used
+    for object permissions. It is prepared to be used as a management GUI/API for a model.
+
+    Attributes:
+        permission_classes: This view should only have one
+            permission class - `GeoramaModelPermissions` this permission class is used
+            to check for permissions on different places of the viewset.
+    """
+
+    permission_classes = [GeoramaModelPermissions]
+
+    async def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()
+        return [
+            Breadcrumb(app_menu.title),
+            Breadcrumb(
+                self.queryset.model._meta.verbose_name_plural,
+                reverse(self.url_name_list.replace("manager-", "")),
+            ),
+            Breadcrumb(_("Manage")),
+        ]

@@ -6,6 +6,9 @@ from django.conf import settings
 from django.db import models
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
+from qgis_server_light.interface.exporter.extract import Config
+from xsdata.formats.dataclass.parsers import DictDecoder
+from xsdata.formats.dataclass.parsers.config import ParserConfig
 
 from georama.core.models.organisation import Organisation
 from georama.integration.lib.qgis_project_file_structure import QgisProject
@@ -54,6 +57,11 @@ class Project(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+    @property
+    def config_as_dataclass(self):
+        decoder_config = ParserConfig(fail_on_unknown_properties=False)
+        return DictDecoder(decoder_config).decode(self.config, Config)
 
     @property
     def datasources_sorted_by_name(self) -> QuerySet:

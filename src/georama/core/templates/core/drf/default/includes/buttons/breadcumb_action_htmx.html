@@ -1,0 +1,39 @@
+{% load i18n %}
+<li class="breadcrumb-item breadcrumb-action">
+    <span data-bs-toggle="modal" data-bs-target="#remoteActionModal">
+        <button type="button" class="btn btn-primary"
+                hx-target="#list_partial" hx-get="{{ breadcrumb_action.url }}"
+                hx-trigger="click"
+                hx-headers='{"GR-Src": {{ request.resolver_match.app_name }}'
+                data-bs-toggle="tooltip"
+                title="{{ breadcrumb_action.tooltip }}"
+                aria-label="{{ breadcrumb_action.tooltip }}">
+        {% if breadcrumb_action.icon %}
+            <i class="{{ breadcrumb_action.icon }}"></i>
+            <span class="ps-1">{{ breadcrumb_action.title }}</span>
+        {% else %}
+            {{ breadcrumb_action.title }}
+        {% endif %}
+    </button>
+    </span>
+
+    <!-- Modal -->
+    <div class="modal fade" id="remoteActionModal" tabindex="-1"
+         aria-labelledby="remoteActionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="height:90vh;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="remoteActionModalLabel">
+                        {{ breadcrumb_action.hint }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex flex-column overflow-hidden">
+                    <div class="flex-grow-1 d-flex flex-column overflow-hidden"
+                         id="list_partial"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</li>

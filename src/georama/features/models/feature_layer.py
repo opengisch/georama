@@ -23,10 +23,23 @@ class FeatureLayer(models.Model):
     class Meta:
         verbose_name = _("feature layer")
         verbose_name_plural = _("feature layers")
+        permissions = [
+            # permission which is used on the model
+            ("manage_object_permissions", "Can manage object permissions"),
+            # permission which is used for the object permission evaluation on
+            # the published feature layer
+            ("view_objects_on_published_layer", "Can view items on published layer"),
+            ("create_objects_on_published_layer", "Can create items on published layer"),
+            ("delete_objects_on_published_layer", "Can delete items on published layer"),
+            ("update_objects_on_published_layer", "Can update items on published layer"),
+        ]
 
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the feature layer.")
     )
+
+    public = models.BooleanField(default=False)
+
     datasource = models.ForeignKey(
         Vector,
         related_name="feature_layers",

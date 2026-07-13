@@ -1,41 +1,33 @@
 from adrf import routers
 from django.urls import include, path
 
-from georama.integration.api import views
 from georama.integration.api.view_sets import (
-    CustomDatasourceViewSet,
-    FieldViewSet,
-    ProjectViewSet,
-    RasterDatasourceViewSet,
-    VectorDatasourceViewSet,
+    ManageCustomDatasourceViewSet,
+    ManageDatasourceViewSet,
+    ManageFieldViewSet,
+    ManageProjectViewSet,
+    ManageRasterDatasourceViewSet,
+    ManageVectorDatasourceViewSet,
 )
-from georama.integration.views.index import Index
 
 app_name = "integration"
 
 management_router = routers.SimpleRouter()
-management_router.register(r"projects", ProjectViewSet, basename="project")
-management_router.register(r"vector_datasources", VectorDatasourceViewSet, basename="vector")
-management_router.register(r"vector_datasource_fields", FieldViewSet, basename="field")
-management_router.register(r"raster_datasources", RasterDatasourceViewSet, basename="raster")
-management_router.register(r"custom_datasources", CustomDatasourceViewSet, basename="custom")
+management_router.register(r"projects", ManageProjectViewSet, basename="manager-project")
+management_router.register(r"datasources", ManageDatasourceViewSet, basename="manager-datasource")
+management_router.register(
+    r"vector_datasources", ManageVectorDatasourceViewSet, basename="manager-vector"
+)
+management_router.register(
+    r"vector_datasource_fields", ManageFieldViewSet, basename="manager-field"
+)
+management_router.register(
+    r"raster_datasources", ManageRasterDatasourceViewSet, basename="manager-raster"
+)
+management_router.register(
+    r"custom_datasources", ManageCustomDatasourceViewSet, basename="manager-custom"
+)
 
 urlpatterns = [
-    path("", Index.as_view(), name="index"),
     path("manage/", include(management_router.urls)),
-    path(
-        "manage/schema/",
-        views.GeoramaAdminSchemaView.as_view(urlconf=management_router.urls),
-        name="schema",
-    ),
-    path(
-        "manage/schema/swagger-ui/",
-        views.GeoramaAdminSwaggerView.as_view(url_name="integration:schema"),
-        name="swagger",
-    ),
-    path(
-        "manage/schema/redoc/",
-        views.GeoramaAdminRedocView.as_view(url_name="integration:schema"),
-        name="redoc",
-    ),
 ]

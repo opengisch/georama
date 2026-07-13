@@ -1,15 +1,15 @@
 from adrf import routers
-from django.urls import include
-from django.urls import path
+from django.urls import include, path
 
-from georama.core.api.view_sets import FenceViewSet
-from georama.core.api.view_sets import GroupViewSet
-from georama.core.api.view_sets import MembershipViewSet
-from georama.core.api.view_sets import OrganisationViewSet
-from georama.core.api.view_sets import PermissionViewSet
-from georama.core.api.view_sets import UserViewSet
-from georama.core.views import auth
-from georama.core.views import schema
+from georama.core.api.view_sets import (
+    FenceViewSet,
+    GroupViewSet,
+    MembershipViewSet,
+    OrganisationViewSet,
+    PermissionViewSet,
+    UserViewSet,
+)
+from georama.core.views import auth, schema
 from georama.core.views.index import Index
 
 app_name = "core"

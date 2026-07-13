@@ -1,0 +1,124 @@
+{% load static i18n %}
+<div class="p-4 pb-0 overflow-auto flex-grow-1">
+    {% block list %}
+        {% if object_list|length == 0 %}
+            <div class="fs-1 fw-bold text-center">
+                No items in this list
+            </div>
+        {% else %}
+            <div class="list-group">
+                {% for item in object_list %}
+                    {% block change_list_item %}
+                        <div class="list-group-item list-group-item-action p-4">
+                            <div class="d-flex w-100 justify-content-between">
+                                <div class="me-3 flex-shrink-0">
+                                    {% block list_item_image %}
+                                        <img alt="{% trans 'Logo' %}"
+                                             class="rounded img-thumbnail preview-image"
+                                             src="{% static 'core/images/main_plain.svg' %}"
+                                        />
+                                    {% endblock %}
+                                </div>
+                                <div class="d-flex flex-column flex-grow-1 justify-content-around">
+                                    {% block list_item_title_and_name %}
+                                        <h4 class="mb-2">
+                                            {% block list_item_title %}
+                                                {{ item.metadata.title }}
+                                            {% endblock %}
+                                        </h4>
+                                        <div class="mb-1">
+                                            {% block list_item_name %}
+                                                {{ item.name }}
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                    {% block list_item_pills %}
+                                        <div class="align-content-bottom">
+                                            {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}
+                                                The item is publicly
+                                                available:
+                                                {{ val }}{% endblocktranslate %}
+                                            <span class="badge rounded-pill {% if item.public == True %}text-bg-primary{% else %}text-bg-light{% endif %}"
+                                                  data-bs-toggle="tooltip"
+                                                  title="{{ title }}"
+                                                  aria-label="{{ title }}">
+                                                public</span>
+                                            {% block list_item_pills_additional %}
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                                <div class="align-content-center ms-auto">
+                                    <div class="btn-group mr-2"
+                                         role="group"
+                                         aria-label="Feature actions">
+                                        {% block list_item_actions %}
+                                            {% if breadcrumb_action and breadcrumb_action.type == 'embedded' %}
+                                                {% if view.url_name_show %}
+                                                    <!-- We know already that the user can view the item-->
+                                                    {% blocktranslate asvar title %}
+                                                        Show item
+                                                        details
+                                                    {% endblocktranslate %}
+                                                    <a href="{% url view.url_name_show item.pk %}"
+                                                       class="btn btn-outline-primary"
+                                                       role="button"
+                                                       title="{{ title }}"
+                                                       aria-label="{{ title }}"
+                                                       data-bs-toggle="tooltip">
+                                                        <i class="fa fa-eye"></i>
+                                                    </a>
+                                                {% endif %}
+
+                                                {% if can_change %}
+                                                    {% blocktranslate asvar title %}
+                                                        Edit
+                                                        item
+                                                    {% endblocktranslate %}
+                                                    <a href="{% url view.url_name_retrieve item.pk %}"
+                                                       class="btn btn-outline-primary"
+                                                       role="button"
+                                                       title="{{ title }}"
+                                                       aria-label="{{ title }}"
+                                                       data-bs-toggle="tooltip">
+                                                        <i class="fa fa-pen"></i>
+
+                                                    </a>
+                                                {% endif %}
+
+                                                {% if can_delete %}
+                                                    {% blocktranslate asvar title %}
+                                                        Delete item
+                                                    {% endblocktranslate %}
+                                                    <a href="{% url view.url_name_delete_confirm item.pk %}"
+                                                       class="btn btn-outline-danger"
+                                                       role="button"
+                                                       data-bs-toggle="tooltip"
+                                                       title="{{ title }}"
+                                                       aria-label="{{ title }}">
+                                                        <i class="fa fa-trash-alt"></i>
+                                                    </a>
+                                                {% endif %}
+                                            {% endif %}
+                                            {% for action in remote_actions %}
+                                                {% include 'core/drf/default/includes/buttons/remote_action.html' with action=action pk=item.pk %}
+                                            {% endfor %}
+                                        {% endblock %}
+                                        {% block list_item_actions_additional %}
+
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endblock %}
+</div>
+
+
+{% block pagination %}
+    {% include "core/drf/default/includes/pagination_htmx.html" %}
+{% endblock %}

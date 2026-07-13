@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from adrf import serializers
 
 from georama.features.models import FeatureLayer, Field, Metadata
 
@@ -7,12 +7,14 @@ class MetadataSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metadata
         fields = [
+            "id",
             "title",
             "description",
             "license",
             "fees",
             "access_constraints",
         ]
+        extra_kwargs = {"id": {"read_only": True}}
 
 
 class FieldSerializer(serializers.ModelSerializer):

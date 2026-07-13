@@ -1,0 +1,24 @@
+{% comment %}
+action: georama.core.common.remote_actions.RemoteAction
+item: the primary key which the form should be sent to
+{% endcomment %}
+<form id="{{ action.name }}-{{ pk }}"
+      action="{{ action.target }}"
+      method="post">
+    {% csrf_token %}
+    <input id="{{ pk }}" name="pk"
+           value="{{ pk }}"
+           hidden>
+</form>
+<button form="{{ action.name }}-{{ pk }}"
+        type="submit"
+        class="btn btn-outline-primary"
+        role="button"
+        title="{{ action.help_text }}"
+        aria-label="{{ action.help_text }}"
+        data-bs-toggle="tooltip">
+    {% if action.icon_classes %}
+        <i class="{{ action.icon_classes }}"></i>
+    {% endif %}
+    {{ action.name }}
+</button>

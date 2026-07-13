@@ -1,22 +1,18 @@
-from django.contrib.auth.models import Group
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group, Permission
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-from rest_framework import permissions
-from rest_framework import viewsets
+from rest_framework import filters, permissions, viewsets
 
-from georama.core.api.serializers import FenceSerializer
-from georama.core.api.serializers import GroupSerializer
-from georama.core.api.serializers import MembershipSerializer
-from georama.core.api.serializers import OrganisationSerializer
-from georama.core.api.serializers import PermissionSerializer
-from georama.core.api.serializers import UserSerializer
+from georama.core.api.serializers import (
+    FenceSerializer,
+    GroupSerializer,
+    MembershipSerializer,
+    OrganisationSerializer,
+    PermissionSerializer,
+    UserSerializer,
+)
 from georama.core.common.api import OrganisationalModelViewSet
 from georama.core.forms.user import GeoramaUserForm
-from georama.core.models import Fence
-from georama.core.models import GeoramaUser
-from georama.core.models import Membership
-from georama.core.models import Organisation
+from georama.core.models import Fence, GeoramaUser, Membership, Organisation
 
 
 class MembershipViewSet(OrganisationalModelViewSet):

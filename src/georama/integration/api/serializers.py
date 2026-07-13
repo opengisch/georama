@@ -1,9 +1,6 @@
 from rest_framework import serializers
 
-from georama.integration.models import Custom
-from georama.integration.models import Project
-from georama.integration.models import Raster
-from georama.integration.models import Vector
+from georama.integration.models import Custom, Datasource, Project, Raster, Vector
 from georama.integration.models.datasource import VectorField
 
 
@@ -28,6 +25,32 @@ class ProjectSerializer(serializers.ModelSerializer):
 class FileSystemProjectSerializer(serializers.Serializer):
     project_path = serializers.CharField()
     config_path = serializers.CharField()
+
+
+class DatasourceSerializer(serializers.ModelSerializer):
+    organisation_id = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Datasource
+        fields = [
+            "id",
+            "qgis_layer_id",
+            "name",
+            "bbox",
+            "bbox_wgs84",
+            "source",
+            "styles",
+            "driver",
+            "crs",
+            "minimum_scale",
+            "maximum_scale",
+            "project_id",
+            "organisation_id",
+        ]
+        extra_kwargs = {"id": {"read_only": True}}
+
+    def get_organisation_id(self, obj):
+        return obj.project.organisation_id
 
 
 class VectorDatasourceSerializer(serializers.ModelSerializer):

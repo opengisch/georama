@@ -1,5 +1,14 @@
-{% extends 'core/drf/default/partials/list.html' %}
+{% extends 'core/drf/default/partials/list_body.html' %}
 {% load static i18n %}
+
+{% block list_actions %}
+
+{% endblock %}
+{% block ordering_include %}
+{% endblock %}
+{% block search_include %}
+{% endblock %}
+
 
 {% block list_item_image %}
     <img alt="{% trans 'Logo' %}"
@@ -21,7 +30,6 @@
 {% endblock %}
 {% block list_item_actions %}
     {% include 'integration/drf/project/includes/buttons/link.html' with project_file=item %}
-
 {% endblock %}
 {% block list_item_pills %}
     <div class="align-content-bottom">

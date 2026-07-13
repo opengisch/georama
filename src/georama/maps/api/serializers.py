@@ -7,12 +7,14 @@ class MetadataSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metadata
         fields = [
-            "name",
+            "id",
+            "title",
             "description",
             "license",
             "fees",
             "access_constraints",
         ]
+        extra_kwargs = {"id": {"read_only": True}}
 
 
 class WmsLayerSerializer(serializers.ModelSerializer):

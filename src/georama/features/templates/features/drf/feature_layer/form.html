@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+{% load static i18n model_extras %}
+
+{% block list_actions %}
+
+    <!-- Layer actions -->
+
+    <div class="align-content-center">
+        <div class="btn-group" role="group" aria-label="Layer actions">
+            {% blocktranslate asvar title %}Save changes{% endblocktranslate %}
+            <button type="submit" form="{{ object.pk }}"
+                    class="btn btn-outline-primary" role="button"
+                    data-bs-toggle="tooltip"
+                    title="{{ title }}"
+                    aria-label="{{ title }}">
+                <i class="fa fa-save"></i>
+            </button>
+
+            {% if perm_delete %}
+                {% blocktranslate asvar title %}Delete item{% endblocktranslate %}
+                <a href="{% url view object.pk %}"
+                   class="btn btn-outline-danger" role="button"
+                   data-bs-toggle="tooltip"
+                   title="{{ title }}"
+                   aria-label="{{ title }}">
+                    <i class="fa fa-trash-alt"></i>
+                </a>
+            {% endif %}
+
+            {% blocktranslate asvar title %}Edit Fieldvisibility{% endblocktranslate %}
+            <a href="{% url view.url_name_fields object.pk %}"
+               class="btn btn-outline-primary" role="button"
+               data-bs-toggle="tooltip"
+               title="{{ title }}"
+               aria-label="{{ title }}">
+                <i class="fa fa-list"></i>
+            </a>
+
+            {% if perm_manage_permission %}
+                {% blocktranslate asvar title %}Edit permissions{% endblocktranslate %}
+                <a href="{% url permission_view_name object.pk %}"
+                   class="btn btn-outline-primary" role="button"
+                   data-bs-toggle="tooltip"
+                   title="{{ title }}"
+                   aria-label="{{ title }}">
+                    <i class="fa fa-lock"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <!-- Non-scrollable form parent container -->
+
+    <div class="container h-100 pt-4 overflow-hidden">
+
+        <div class="row h-100">
+
+            {% block form_details %}
+
+                <!-- Column(s), scrollable -->
+
+                <div class="col h-100 px-4 overflow-auto">
+
+                    <!-- Form content -->
+
+                    {% load crispy_forms_tags %}
+                    <form id="{{ object.pk }}"
+                          action="{% url view.url_name_update object.pk %}"
+                          method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                    </form>
+
+                </div>
+
+            {% endblock %}
+
+        </div>
+
+    </div>
+
+{% endblock %}
