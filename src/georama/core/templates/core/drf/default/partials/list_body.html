@@ -53,52 +53,50 @@
                                          role="group"
                                          aria-label="Feature actions">
                                         {% block list_item_actions %}
-                                            {% if breadcrumb_action and breadcrumb_action.type == 'embedded' %}
-                                                {% if view.url_name_show %}
-                                                    <!-- We know already that the user can view the item-->
-                                                    {% blocktranslate asvar title %}
-                                                        Show item
-                                                        details
-                                                    {% endblocktranslate %}
-                                                    <a href="{% url view.url_name_show item.pk %}"
-                                                       class="btn btn-outline-primary"
-                                                       role="button"
-                                                       title="{{ title }}"
-                                                       aria-label="{{ title }}"
-                                                       data-bs-toggle="tooltip">
-                                                        <i class="fa fa-eye"></i>
-                                                    </a>
-                                                {% endif %}
+                                            {% if view.url_name_show %}
+                                                <!-- We know already that the user can view the item-->
+                                                {% blocktranslate asvar title %}
+                                                    Show item
+                                                    details
+                                                {% endblocktranslate %}
+                                                <a href="{% url view.url_name_show item.pk %}"
+                                                   class="btn btn-outline-primary"
+                                                   role="button"
+                                                   title="{{ title }}"
+                                                   aria-label="{{ title }}"
+                                                   data-bs-toggle="tooltip">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                            {% endif %}
 
-                                                {% if can_change %}
-                                                    {% blocktranslate asvar title %}
-                                                        Edit
-                                                        item
-                                                    {% endblocktranslate %}
-                                                    <a href="{% url view.url_name_retrieve item.pk %}"
-                                                       class="btn btn-outline-primary"
-                                                       role="button"
-                                                       title="{{ title }}"
-                                                       aria-label="{{ title }}"
-                                                       data-bs-toggle="tooltip">
-                                                        <i class="fa fa-pen"></i>
+                                            {% if can_change %}
+                                                {% blocktranslate asvar title %}
+                                                    Edit
+                                                    item
+                                                {% endblocktranslate %}
+                                                <a href="{% url view.url_name_retrieve item.pk %}"
+                                                   class="btn btn-outline-primary"
+                                                   role="button"
+                                                   title="{{ title }}"
+                                                   aria-label="{{ title }}"
+                                                   data-bs-toggle="tooltip">
+                                                    <i class="fa fa-pen"></i>
 
-                                                    </a>
-                                                {% endif %}
+                                                </a>
+                                            {% endif %}
 
-                                                {% if can_delete %}
-                                                    {% blocktranslate asvar title %}
-                                                        Delete item
-                                                    {% endblocktranslate %}
-                                                    <a href="{% url view.url_name_delete_confirm item.pk %}"
-                                                       class="btn btn-outline-danger"
-                                                       role="button"
-                                                       data-bs-toggle="tooltip"
-                                                       title="{{ title }}"
-                                                       aria-label="{{ title }}">
-                                                        <i class="fa fa-trash-alt"></i>
-                                                    </a>
-                                                {% endif %}
+                                            {% if can_delete %}
+                                                {% blocktranslate asvar title %}
+                                                    Delete item
+                                                {% endblocktranslate %}
+                                                <a href="{% url view.url_name_delete_confirm item.pk %}"
+                                                   class="btn btn-outline-danger"
+                                                   role="button"
+                                                   data-bs-toggle="tooltip"
+                                                   title="{{ title }}"
+                                                   aria-label="{{ title }}">
+                                                    <i class="fa fa-trash-alt"></i>
+                                                </a>
                                             {% endif %}
                                             {% for action in remote_actions %}
                                                 {% include 'core/drf/default/includes/buttons/remote_action.html' with action=action pk=item.pk %}

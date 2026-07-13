@@ -34,6 +34,7 @@ class ManageWmsLayerViewSet(GeoramaManagerViewSet):
     filterset_fields = []
     form = WmsLayerModelForm
     list_body_partial_template_name = "maps/drf/wms_layer/partials/list_body.html"
+    show_template_name = "maps/drf/wms_layer/detail.html"
 
     @property
     async def bread_crumb_action_context(self):
@@ -104,6 +105,7 @@ class WmsLayerViewSet(GeoramaObjPermViewSetReadOnly):
         DjangoFilterBackend,
     ]
     list_body_partial_template_name: str = "maps/drf/wms_layer/partials/list_body.html"
+    show_template_name = "maps/drf/wms_layer/detail.html"
     search_fields = ["metadata__title"]
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
