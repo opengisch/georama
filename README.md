@@ -11,6 +11,20 @@ Tools used:
 
 they are provided in the container runtime, no need to have them locally
 
+## DEV with the stack
+
+Service georama exposes an ssh server on localhost:4222 which can be used for remote
+development.
+
+Credentials: `appuser:secret`
+
+The interpreter is located in the container under: `/home/appuser/.venv/bin/python`
+
+It might be uses also directly with in-container-dev capabilities of your IDE.
+
+The composition is synced with your local user (GID/UID) to ensure, created files in the
+container have the right permissions also outside the container.
+
 ## Commands
 
 ```shell
