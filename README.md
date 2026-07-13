@@ -2,18 +2,22 @@
 
 ## Prerequisites
 
+Tools used:
+
 - `uv` https://docs.astral.sh/uv/
 - `docker` + `docker compose` https://docs.docker.com/engine/install/
 - `git` https://git-scm.com/install/
 - `pre-commit` https://pre-commit.com/#installation
 
+they are provided in the container runtime, no need to have them locally
+
 ## Commands
 
 ```shell
 # Add a new dependency for georama
-uv add <package-name>
+docker compose run --rm --entrypoint bash georama -c "uv add <package-name>"
 # Add a new dev dependency for georama
-uv add --group dev <package-name>
+docker compose run --rm --entrypoint bash georama -c "uv add --group dev <package-name>"
 ```
 
 ```shell
@@ -82,6 +86,21 @@ Randomly publishes vector datasources as WMS and assigns them to users or groups
 
 ```shell
 docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_content_maps"
+```
+
+#### WebGis content
+
+Randomly publishes Projects as WebGis Themes. Be aware, that only the automatic vector
+datasources
+are working currently. Raster and Custom are generated but have no working
+content/source definition
+yet.
+
+Also, the themes_json is empty currently and so a bound GeoGirafe instance won't work
+currently.
+
+```shell
+docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_content_webgis"
 ```
 
 # pygeoapi
