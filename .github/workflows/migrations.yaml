@@ -7,7 +7,7 @@ on:
       - v*
 jobs:
   test-migrations:
-    name: Test Python
+    name: Test no migrations were left behind
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
