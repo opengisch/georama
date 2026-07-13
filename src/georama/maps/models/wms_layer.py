@@ -3,8 +3,8 @@ import logging
 import uuid
 from dataclasses import fields
 
-from asgiref.sync import sync_to_async
 from django.db import models
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
@@ -12,11 +12,9 @@ from guardian.managers import GroupObjectPermissionManager, UserObjectPermission
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
 from osgeo import osr as osgeo_osr
 from qgis_server_light.interface.common import BBox
-from qgis_server_light.interface.job.render.input import QslJobParameterRender
 
 from georama.core.common.managers import OrganisationalManager
-from georama.integration.models import Custom, Datasource, Raster, Vector
-from georama.maps.apps import qsl_redis_queue
+from georama.integration.models import Datasource
 from georama.maps.interfaces.georama.requests import (
     GetMapRequestParams,
     RequestType,
@@ -24,7 +22,6 @@ from georama.maps.interfaces.georama.requests import (
     Version,
 )
 from georama.maps.managers.wms_layer import WmsLayerManager
-from georama.maps.maps_config import Config
 from georama.maps.models.metadata import Metadata
 
 LOGGER = logging.getLogger(__name__)
@@ -76,29 +73,17 @@ class WmsLayerAbstract(models.Model):
         return str(self.id)
 
     @property
-    def get_raster_datasource(self) -> Raster:
-        raise NotImplementedError()
-
-    @property
-    def get_vector_datasource(self) -> Vector:
-        raise NotImplementedError()
-
-    @property
-    def get_custom_datasource(self) -> Custom:
-        raise NotImplementedError()
-
-    @property
     def get_datasource(self) -> Datasource:
         raise NotImplementedError()
 
     @property
-    def create_preview(self) -> bool:
-        return True
+    def queryable_type(self) -> bool:
+        return self.get_datasource.type in ["vector"]
 
     @property
     def is_queryable(self):
         # Currently we do allow querying on Vectordatasources only
-        if isinstance(self.get_datasource, Vector):
+        if self.queryable_type:
             return self.queryable
         else:
             return False
@@ -176,7 +161,7 @@ class WmsLayerAbstract(models.Model):
     def endpoint_url(self):
         return self.endpoint_url_wms
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def _prepare_save(self):
         datasource = self.get_datasource
         if not self.extent:
             self.extent = datasource.bbox_2d_string
@@ -184,11 +169,9 @@ class WmsLayerAbstract(models.Model):
             # we do not handle layers which have no CRS definition!
             bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
             self.extent_wgs84 = bbox_wgs84.to_2d_string()
-            # TODO@maps: add back
-            # if self.create_preview:
-            #     # Generate layer preview image
-            #     generate_preview_image_sync = async_to_sync(self.generate_preview_image)
-            #     self.preview = generate_preview_image_sync()
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self._prepare_save()
 
         super().save(
             force_insert=force_insert,
@@ -197,31 +180,22 @@ class WmsLayerAbstract(models.Model):
             update_fields=update_fields,
         )
 
-    async def generate_preview_image(self) -> bytes | None:
-        # We have to call the following @properties a bit awkward because
-        # they contain sync django orm actions
-        datasource = await sync_to_async(lambda: self.get_datasource)()
-        qsl_job_layer = await sync_to_async(lambda: datasource.to_qsl_job_layer())()
-        # this way we always set a style, or it will fail if list has no styles
-        # we could make that configurable in admin gui easily
-        get_map_job = QslJobParameterRender(
-            bbox=BBox.from_string(self.extent),
-            crs=datasource.crs_to_qsl.auth_id,
-            width=self.preview_dimensions[0],
-            height=self.preview_dimensions[1],
-            dpi=72,
-            format="image/png",
-            layers=[qsl_job_layer],
+    async def asave(
+        self,
+        *,
+        force_insert=False,
+        force_update=False,
+        using=None,
+        update_fields=None,
+    ):
+        self._prepare_save()
+
+        await super().asave(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
         )
-        try:
-            result_tuple = await qsl_redis_queue.post(get_map_job, Config().job_timeout)
-            result, _ = result_tuple
-            return result.data
-        except ValueError as e:
-            LOGGER.error(f"Error while generating preview image: {e}")
-        except PermissionError as e:
-            LOGGER.error(f"Permission error while generating preview image: {e}")
-        return None
 
     def _to_wgs84_extent(self, bbox: BBox) -> BBox:
         if not self.crs_transform_to_wgs84:
@@ -245,11 +219,17 @@ class WmsLayerAbstract(models.Model):
         return spatial_ref
 
     @property
-    def preview_as_base64(self):
+    def preview_image(self):
+        """Encodes a preview image.
+
+        Returns:
+            The data encoded preview image or the absolute path to the static fallback
+            image.
+        """
         if self.preview is not None:
             return f"data:image/png;base64,{base64.b64encode(self.preview).decode()}"
         else:
-            return None
+            return static("core/images/main_plain.svg")
 
     @property
     def preview_width(self):
@@ -294,18 +274,6 @@ class WmsLayer(WmsLayerAbstract):
     @property
     def get_datasource(self) -> Datasource:
         return self.datasource
-
-    @property
-    def get_raster_datasource(self) -> Raster:
-        return self.datasource.raster
-
-    @property
-    def get_vector_datasource(self) -> Vector:
-        return self.datasource.vector
-
-    @property
-    def get_custom_datasource(self) -> Custom:
-        return self.datasource.custom
 
     def get_absolute_url(self):
         return reverse(f"{self._meta.app_label}:layer-detail", kwargs={"pk": self.pk})

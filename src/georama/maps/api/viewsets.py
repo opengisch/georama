@@ -3,8 +3,9 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from rest_framework import filters, status
 from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from georama.core.common.api import (
     GeoramaManagerViewSet,
@@ -14,6 +15,7 @@ from georama.core.common.api import (
 from georama.core.common.menu import ActionType, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.models import Datasource
+from georama.maps.adapter.qsl import generate_preview_image
 from georama.maps.api.serializers import WmsLayerSerializer
 from georama.maps.forms.wms_layer import WmsLayerModelForm
 from georama.maps.models import Metadata, WmsLayer
@@ -73,6 +75,21 @@ class ManageWmsLayerViewSet(GeoramaManagerViewSet):
         fl = WmsLayer(datasource=ds, metadata=md)
         await sync_to_async(fl.save)()
         return redirect(reverse(self.url_name_list))
+
+    def url_name_generate_preview_image(self):
+        return self.url_name("generate_preview_image")
+
+    @action(detail=True, methods=["post"], url_name="generate_preview_image")
+    async def generate_preview_image(self, request: GeoramaDrfRequest, *args, **kwargs):
+        wms_layer: WmsLayer = await self.aget_object()
+        image: bytes = await generate_preview_image(wms_layer)
+        wms_layer.preview = image
+        await wms_layer.asave()
+        return Response(
+            data={"item": wms_layer},
+            template_name="maps/drf/wms_layer/partials/preview.html",
+            status=status.HTTP_200_OK,
+        )
 
 
 class WmsLayerViewSet(GeoramaObjPermViewSetReadOnly):
