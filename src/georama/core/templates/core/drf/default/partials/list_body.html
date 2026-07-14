@@ -10,17 +10,21 @@
                 {% for item in object_list %}
                     {% block change_list_item %}
                         <div class="list-group-item list-group-item-action p-4">
+
                             <div class="d-flex w-100 justify-content-between">
+
                                 <div class="me-3 flex-shrink-0">
                                     {% block list_item_image %}
                                         <img alt="{% trans 'Logo' %}"
                                              class="rounded img-thumbnail preview-image"
                                              src="{% static 'core/images/main_plain.svg' %}"
                                         />
+
                                     {% endblock %}
                                 </div>
                                 <div class="d-flex flex-column flex-grow-1 justify-content-around">
                                     {% block list_item_title_and_name %}
+
                                         <h4 class="mb-2">
                                             {% block list_item_title %}
                                                 {{ item.metadata.title }}
@@ -28,7 +32,7 @@
                                         </h4>
                                         <div class="mb-1">
                                             {% block list_item_name %}
-                                                {{ item.id }}
+
                                             {% endblock %}
                                         </div>
                                     {% endblock %}
@@ -108,6 +112,11 @@
                                     </div>
                                 </div>
                             </div>
+                            <small class="text-muted">
+                                {% block list_item_footnote %}
+                                    Id: {{ item.id }}
+                                {% endblock %}
+                            </small>
                         </div>
                     {% endblock %}
                 {% endfor %}
