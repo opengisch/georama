@@ -82,13 +82,22 @@ class ManageWmsLayerViewSet(GeoramaManagerViewSet):
     )
     @action(detail=False, methods=["post"], url_path="publish_from_datasource")
     async def publish_from_datasource(self, request: GeoramaDrfRequest, *args, **kwargs):
-        qs = Datasource.objects.organisation_objects(request.georama_organisation)
-        ds = await qs.aget(id=request.data["pk"])
-        md = Metadata(title=ds.name)
-        await md.asave()
-        fl = WmsLayer(datasource=ds, metadata=md)
-        await sync_to_async(fl.save)()
-        return redirect(reverse(self.url_name_list))
+        perms = await self._get_model_permissions()
+        if perms["can_add"]:
+            pfdi = PublishFromDatasourceInput(data=request.data)
+            pfdi.is_valid()
+            qs = Datasource.objects.organisation_objects(request.georama_organisation)
+            ds: Datasource = await qs.aget(id=pfdi.validated_data["pk"])
+            md = Metadata(title=ds.name)
+            await md.asave()
+            fl = WmsLayer(datasource=ds, metadata=md, extent=ds.bbox, extent_wgs84=ds.bbox_wgs84)
+            if pfdi.validated_data["create_preview"]:
+                image: bytes = await generate_preview_image(fl)
+                fl.preview = image
+            await sync_to_async(fl.save)()
+            return redirect(reverse(self.url_name_list))
+        else:
+            raise PermissionDenied()
 
     def url_name_generate_preview_image(self):
         return self.url_name("generate_preview_image")

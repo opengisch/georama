@@ -60,3 +60,11 @@ class PublishFromDatasourceInput(serializers.Serializer):
         required=True,
         help_text=_("UUIDs (primary key) of the datasource the layer should be published from."),
     )
+    create_preview = serializers.BooleanField(
+        default=True,
+        required=False,
+        help_text=_(
+            "Switch to enable/disable the automatic generation "
+            "of the preview image in the moment of publishing."
+        ),
+    )
