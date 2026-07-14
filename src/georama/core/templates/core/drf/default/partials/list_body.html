@@ -38,15 +38,7 @@
                                     {% endblock %}
                                     {% block list_item_pills %}
                                         <div class="align-content-bottom">
-                                            {% blocktranslate asvar title with val=item.public|yesno:"yes,no,unknown" %}
-                                                The item is publicly
-                                                available:
-                                                {{ val }}{% endblocktranslate %}
-                                            <span class="badge rounded-pill {% if item.public == True %}text-bg-primary{% else %}text-bg-light{% endif %}"
-                                                  data-bs-toggle="tooltip"
-                                                  title="{{ title }}"
-                                                  aria-label="{{ title }}">
-                                                public</span>
+                                            {% include "core/drf/default/includes/pills/public.html" %}
                                             {% block list_item_pills_additional %}
                                             {% endblock %}
                                         </div>
