@@ -288,7 +288,7 @@ class GeoramaTemplateViewSet(
         )
         return context
 
-    async def _get_model_permissions(self):
+    async def _get_model_permissions(self) -> dict[str, bool]:
         """We are calculating the permissions based on the DRF permission class.
 
         Returns:
