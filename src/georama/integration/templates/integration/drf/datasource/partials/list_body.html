@@ -7,6 +7,13 @@
 
 {% endblock %}
 
+{% block list_item_title %}
+    {{ item.name }}
+{% endblock %}
+{% block list_item_name %}
+    Project: {{ item.project.name }} ({{ item.project.path }})
+{% endblock %}
+
 {% block list_item_image %}
     <i class="{{ item.icon }} text-primary" style="width: 1.5em;"></i>
 {% endblock %}
