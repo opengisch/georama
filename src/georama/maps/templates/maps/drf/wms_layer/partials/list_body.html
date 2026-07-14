@@ -2,14 +2,8 @@
 {% load i18n %}
 {% block list_item_pills_additional %}
     {% include "integration/drf/datasource/includes/pills/driver.html" with datasource=item.datasource %}
-    {% blocktranslate asvar type_tooltip %}
-        The datasource type this item is based on
-    {% endblocktranslate %}
-    <i data-bs-toggle="tooltip"
-       title="{{ type_tooltip }}: {{ item.datasource.type }}"
-       aria-label="{{ type_tooltip }}: {{ item.datasource.type }}"
-       class="{{ item.datasource.icon }} text-primary"
-       style="width: 1.5em;"></i>
+    {% include "maps/drf/wms_layer/includes/pills/type.html" with layer=item %}
+    {% include "maps/drf/wms_layer/includes/pills/queryable.html" with layer=item %}
 {% endblock %}
 {% block list_item_actions_additional %}
     {% include 'maps/drf/wms_layer/includes/buttons/generate_preview.html' with layer=item %}
