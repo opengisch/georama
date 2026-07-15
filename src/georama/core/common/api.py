@@ -1,5 +1,4 @@
 import json
-import logging
 
 from adrf import mixins, viewsets
 from asgiref.sync import sync_to_async
@@ -190,7 +189,6 @@ class GeoramaTemplateViewSetReadOnly(
             context["ordering_context_json"] = json.dumps(ordering_context)
             context.update(await self._get_model_permissions())
             context.update(self.paginator.get_html_context())
-            logging.error(request.META)
             if request.META.get("HTTP_HX_REQUEST") == "true":
                 return Response(context, template_name=context[request.META.get("HTTP_HX_TARGET")])
             else:
@@ -449,15 +447,7 @@ class GeoramaObjPermMixin:
 
     required_obj_perms: list[str]
 
-    async def afilter_queryset(self, queryset):
-        """Additionally to the filters applied we always filter for the
-        object permissions configured on the class level.
-
-        Returns:
-            The queryset filtered for all objects by object permission the requesting user
-            has combined by those which are public.
-        """
-        queryset = await super().afilter_queryset(queryset)
+    async def public_or_object_permission(self, queryset):
         if self.request.user.is_superuser:
             return queryset
         if self.request.user.is_authenticated:
@@ -467,6 +457,17 @@ class GeoramaObjPermMixin:
         else:
             qs = queryset.filter(public=True)
         return qs
+
+    async def afilter_queryset(self, queryset):
+        """Additionally to the filters applied we always filter for the
+        object permissions configured on the class level.
+
+        Returns:
+            The queryset filtered for all objects by object permission the requesting user
+            has combined by those which are public.
+        """
+        queryset = await super().afilter_queryset(queryset)
+        return await self.public_or_object_permission(queryset)
 
 
 class OrganisationalModelViewSet(GeoramaOrganisationalMixin, viewsets.ModelViewSet):
