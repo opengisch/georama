@@ -65,7 +65,6 @@ class Project(models.Model):
 
     @property
     def datasources_sorted_by_name(self) -> QuerySet:
-        # TODO@integration: Check if this isn't actually an organisational Queryset
         return self.datasources.order_by("name").all()
 
     @property
