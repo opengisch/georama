@@ -1,4 +1,3 @@
-from asgiref.sync import sync_to_async
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -94,7 +93,7 @@ class ManageWmsLayerViewSet(GeoramaManagerViewSet):
             if pfdi.validated_data["create_preview"]:
                 image: bytes = await generate_preview_image(fl)
                 fl.preview = image
-            await sync_to_async(fl.save)()
+            await fl.asave()
             return redirect(reverse(self.url_name_list))
         else:
             raise PermissionDenied()
