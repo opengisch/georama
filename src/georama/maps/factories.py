@@ -26,5 +26,6 @@ class WmsLayerFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ("datasource",)
 
     public = factory.Iterator([True, False])
+    queryable = factory.Iterator([True, False])
     metadata = factory.SubFactory(MetadataFactory)
     datasource = factory.SubFactory(VectorFactory)
