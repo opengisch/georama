@@ -97,7 +97,7 @@ class WfsGetFeature(WfsOperation):
             "": "http://www.opengis.net/wfs/2.0",
             "xsi": "http://www.w3.org/2001/XMLSchema-instance",
             "gml": "http://www.opengis.net/gml/3.2",
-            self.own_namespace: "https://www.opengis.ch/georama",
+            self.own_namespace: self.own_namespace_domain,
         }
         self.geometry_types = {
             "point": [1, 1001, 2001, 3001],
@@ -720,7 +720,7 @@ class WfsGetFeature(WfsOperation):
         )
 
         class GeoramaMeta:
-            namespace = "https://www.opengis.ch/georama"
+            namespace = self.own_namespace_domain
 
         for feature_collection_index, feature_collection in enumerate(
             qsl_query_collection.feature_collections
@@ -809,7 +809,7 @@ class WfsGetFeature(WfsOperation):
                 ignore_default_attributes=True,
                 schema_location=" ".join(
                     [
-                        "https://www.opengis.ch/georama",
+                        self.own_namespace_domain,
                         f"{self.url}SERVICE=WFS&VERSION=2.0.0&REQUEST=DescribeFeatureType&TYPENAME={','.join(requested_typenames)}",
                         "http://www.opengis.net/wfs/2.0",
                         "http://schemas.opengis.net/wfs/2.0/wfs.xsd",

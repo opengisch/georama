@@ -10,6 +10,7 @@ from georama.maps.services import OgcOperation
 
 class WfsOperation(OgcOperation):
     own_namespace = "georama"
+    own_namespace_domain = "https://www.opengis.ch/georama"
 
     @staticmethod
     def create_exception(message: str) -> ExceptionReport:

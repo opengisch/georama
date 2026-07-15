@@ -80,7 +80,7 @@ class WfsDescribeFeatureType(WfsOperation):
                     namespace="http://www.opengis.net/gml/3.2",
                 )
             ],
-            target_namespace="https://www.opengis.ch/georama",
+            target_namespace=self.own_namespace_domain,
             element_form_default=FormType.QUALIFIED,
             version="0.1",
         )
@@ -140,7 +140,7 @@ class WfsDescribeFeatureType(WfsOperation):
                 "fes": "http://www.opengis.net/fes/2.0",
                 "ows": "http://www.opengis.net/ows/1.1",
                 "xsi": "http://www.w3.org/2001/XMLSchema-instance",
-                "georama": "https://www.opengis.ch/georama",
+                self.own_namespace: self.own_namespace_domain,
                 "gml": "http://www.opengis.net/gml/3.2",
                 # make this the default namespace, to avoid confusion in xml responses
                 "": "http://www.w3.org/2001/XMLSchema",
