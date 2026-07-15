@@ -9,6 +9,7 @@ from xsdata.exceptions import ParserError
 from xsdata.formats.dataclass.parsers import DictDecoder, XmlParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 
+from georama.core.common.request import GeoramaHttpRequest
 from georama.maps.apps import MapsConfig, qsl_redis_queue
 from georama.maps.exception.job import JobExecutionError, UnexpectedBehaviourError
 from georama.maps.interfaces.georama.requests import GetMapRequestParams
@@ -29,7 +30,7 @@ class OgcServer(View):
     model = WmsLayer
     appname = MapsConfig.get_simple_appname()
 
-    def wms_130_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
+    def wms_130_capabilities(self, request: GeoramaHttpRequest, params: dict) -> HttpResponse:
         """
         Handling the wms 1.3.0 capabilities.
 
@@ -42,7 +43,11 @@ class OgcServer(View):
         """
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WmsGetCapabilities(
-            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+            self.appname,
+            f"{request.build_absolute_uri('.')}?",
+            request.user,
+            self.model,
+            request.georama_organisation,
         )
         if requested_format not in operation.allowed_formats:
             return HttpResponse(
@@ -64,10 +69,14 @@ class OgcServer(View):
                 content_type="application/json",
             )
 
-    def wfs_200_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
+    def wfs_200_capabilities(self, request: GeoramaHttpRequest, params: dict) -> HttpResponse:
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetCapabilities(
-            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+            self.appname,
+            f"{request.build_absolute_uri('.')}?",
+            request.user,
+            self.model,
+            request.georama_organisation,
         )
 
         if requested_format not in operation.allowed_formats:
@@ -95,7 +104,7 @@ class OgcServer(View):
         language = "en-US"
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetMetadata(
-            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+            self.appname, f"{request.build_absolute_uri('.')}?", request.user, self.model
         )
         if requested_layer:
             if requested_format not in operation.allowed_formats:
@@ -124,7 +133,9 @@ class OgcServer(View):
                 content_type="text/xml",
             )
 
-    def wfs_200_describefeaturetype(self, request: HttpRequest, params: dict) -> HttpResponse:
+    def wfs_200_describefeaturetype(
+        self, request: GeoramaHttpRequest, params: dict
+    ) -> HttpResponse:
         # refering spec document `TYPENAME` is a comma separated
         # list of *layers* which should be described
         # it is an optional query parameter
@@ -133,7 +144,11 @@ class OgcServer(View):
             requested_layer = requested_layer.split(",")
         requested_format = params.get("OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2").upper()
         operation = WfsDescribeFeatureType(
-            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+            self.appname,
+            f"{request.build_absolute_uri('.')}?",
+            request.user,
+            self.model,
+            request.georama_organisation,
         )
         content, content_type, success = operation.render(
             requested_format, operation.describe_feature_type(requested_layer)
@@ -150,9 +165,13 @@ class OgcServer(View):
                 content_type=content_type,
             )
 
-    async def wfs_200_getfeature(self, request: HttpRequest, params: dict) -> HttpResponse:
+    async def wfs_200_getfeature(self, request: GeoramaHttpRequest, params: dict) -> HttpResponse:
         operation = WfsGetFeature(
-            self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+            self.appname,
+            f"{request.build_absolute_uri('.')}?",
+            request.user,
+            self.model,
+            request.georama_organisation,
         )
         get_feature_parameter = operation.query_parameters_to_get_feature_request(params)
 
@@ -223,7 +242,7 @@ class OgcServer(View):
         else:
             raise UnexpectedBehaviourError(job_id=result.id)
 
-    async def get(self, request: HttpRequest, *args, **kwargs):
+    async def get(self, request: GeoramaHttpRequest, *args, **kwargs):
         params = self.sanitize_query_parameters(request.GET.dict())
 
         if "REQUEST" not in params:
@@ -257,9 +276,10 @@ class OgcServer(View):
                 service_params = DictDecoder(parser_config).decode(params, GetMapRequestParams)
                 operation = WmsGetMap(
                     self.appname,
-                    f"{request.build_absolute_uri('ows')}?",
+                    f"{request.build_absolute_uri('.')}?",
                     request.user,
                     self.model,
+                    request.georama_organisation,
                 )
                 try:
                     job = await sync_to_async(operation.prepare_job_content, thread_sensitive=True)(
@@ -313,10 +333,14 @@ class OgcServer(View):
         else:
             return HttpResponse("Only WMS|WFS Service is available", 400)
 
-    async def post(self, request: HttpRequest, *args, **kwargs):
+    async def post(self, request: GeoramaHttpRequest, *args, **kwargs):
         try:
             operation = WfsGetFeature(
-                self.appname, f"{request.build_absolute_uri('ows')}?", request.user, self.model
+                self.appname,
+                f"{request.build_absolute_uri('.')}?",
+                request.user,
+                self.model,
+                request.georama_organisation,
             )
             try:
                 get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature200)

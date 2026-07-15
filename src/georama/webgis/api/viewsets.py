@@ -23,6 +23,7 @@ from georama.webgis.api.serializers import ThemeSerializer
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     OgcServer as GGOgcServer,
 )
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import OgcServers
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     ThemesJson as GGThemesJson,
@@ -159,14 +160,18 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
     async def geogirafe(self, request: GeoramaDrfRequest, *args, **kwargs):
         qs = await self.public_or_object_permission(self.get_queryset())
 
-        themes_json = GGThemesJson(ogc_servers=[self.georama_ogc_server(request)], themes=[])
+        themes_json = GGThemesJson(
+            ogc_servers=OgcServers(georama_webgis=self.georama_ogc_server(request)), themes=[]
+        )
 
         async for theme in qs.all():
             # this is necessary, since the automatically generated demo data has no valid json
             if theme.theme_json != {}:
+                gg_theme = CustomDictDecoder().decode(theme.theme_json, GGTheme)
+                gg_theme.icon = request.build_absolute_uri(gg_theme.icon)
                 themes_json.themes.append(
                     # NOTE: We use a special extended encoder here, not the default XSData variant!
-                    CustomDictDecoder().decode(theme.theme_json, GGTheme)
+                    gg_theme
                 )
 
         return Response(data=DictEncoder().encode(themes_json), status=status.HTTP_200_OK)

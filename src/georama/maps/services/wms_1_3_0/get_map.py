@@ -4,6 +4,7 @@ from qgis_server_light.interface.common import BBox
 from qgis_server_light.interface.job.common.input import OgcFilter110
 from qgis_server_light.interface.job.render.input import QslJobParameterRender
 
+from georama.core.models import Organisation
 from georama.maps.interfaces.georama.requests import GetMapRequestParams
 from georama.maps.services.wms_1_3_0 import WmsOperation
 
@@ -11,8 +12,8 @@ from georama.maps.services.wms_1_3_0 import WmsOperation
 class WmsGetMap(WmsOperation):
     default_style_name = "default"
 
-    def __init__(self, appname: str, url: str, user, model):
-        super().__init__(appname, url, user, model)
+    def __init__(self, appname: str, url: str, user, model, organisation: Organisation):
+        super().__init__(appname, url, user, model, organisation)
 
     def prepare_job_content(self, service_params: GetMapRequestParams) -> QslJobParameterRender:
         # we pass the requested layers to filter DB objects

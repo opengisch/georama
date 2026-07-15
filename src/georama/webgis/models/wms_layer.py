@@ -21,6 +21,13 @@ class WmsLayer(WmsLayerAbstract):
     class Meta:
         verbose_name = _("WMS Layer")
         verbose_name_plural = _("WMS Layers")
+        permissions = [
+            # permissions of WMS layers bound to themes are handled by the theme permission
+            # automatically, so they don't need to be managed
+            # ("manage_object_permissions", "Can manage object permissions"),
+            # permission which is used for the object permission evaluation on the published themes
+            ("view_published_layer", "Can view published layer"),
+        ]
 
     datasource = models.ForeignKey(
         Datasource,
