@@ -14,6 +14,9 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
 
 
 class CustomDictDecoder(DictDecoder):
+    """A custom decoder to solve the ambiguity of children at a theme/layergroup, this
+    can't be solved automatically, so a lookup is implemented here."""
+
     def bind_best_dataclass(self, data: dict, classes: Iterable[type[T]]) -> T:
         """Bind the input data to all the given classes and return best match.
 
@@ -42,7 +45,6 @@ class CustomDictDecoder(DictDecoder):
                 return decoder.bind_dataclass(data, WmsLayer)
             elif data["type"] == "WMTS":
                 return decoder.bind_dataclass(data, WmtsLayer)
-        print(data)
         for clazz in classes:
             if not self.context.class_type.is_model(clazz):
                 continue

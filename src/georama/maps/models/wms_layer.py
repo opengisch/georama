@@ -63,6 +63,14 @@ class WmsLayerAbstract(models.Model):
         blank=True,
         help_text=_("Preview image of the layer."),
     )
+    min_resolution_hint = models.FloatField(
+        default=0.0,
+        help_text=_("Below this resolution the layer won't be drawn."),
+    )
+    max_resolution_hint = models.FloatField(
+        default=999999999.0,
+        help_text=_("Above this scale the layer won't be drawn."),
+    )
 
     preview_dimensions: tuple[int, int] = (250, 250)
     preview_dimensions_new_tab: tuple[int, int] = (1500, 1500)

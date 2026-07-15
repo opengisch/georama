@@ -66,13 +66,13 @@ class SnappingConfig:
 
 @dataclass
 class MetaData(AbstractSchema):
-    copyable: bool | None = field(default=False, metadata={"type": "Element", "required": False})
-    directedFilterAttributes: list[str] | None = field(
-        default=None, metadata={"type": "Element", "required": False}
+    copyable: bool = field(default=False, metadata={"type": "Element", "required": False})
+    directedFilterAttributes: list[str] = field(
+        default_factory=list, metadata={"type": "Element", "required": False}
     )
     disclaimer: str | None = field(default=None, metadata={"type": "Element", "required": False})
-    enumeratedAttributes: list[str] | None = field(
-        default=None, metadata={"type": "Element", "required": False}
+    enumeratedAttributes: list[str] = field(
+        default_factory=list, metadata={"type": "Element", "required": False}
     )
     exclusiveGroup: bool | None = field(
         default=False, metadata={"type": "Element", "required": False}
@@ -81,15 +81,11 @@ class MetaData(AbstractSchema):
     identifierAttributeField: str | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
-    isChecked: bool | None = field(default=False, metadata={"type": "Element", "required": False})
-    isExpanded: bool | None = field(default=False, metadata={"type": "Element", "required": False})
-    printNativeAngle: bool | None = field(
-        default=True, metadata={"type": "Element", "required": False}
-    )
-    isLegendExpanded: bool | None = field(
-        default=False, metadata={"type": "Element", "required": False}
-    )
-    legend: bool | None = field(default=False, metadata={"type": "Element", "required": False})
+    isChecked: bool = field(default=False, metadata={"type": "Element", "required": False})
+    isExpanded: bool = field(default=False, metadata={"type": "Element", "required": False})
+    printNativeAngle: bool = field(default=True, metadata={"type": "Element", "required": False})
+    isLegendExpanded: bool = field(default=False, metadata={"type": "Element", "required": False})
+    legend: bool = field(default=False, metadata={"type": "Element", "required": False})
     legendImage: str | None = field(default=None, metadata={"type": "Element", "required": False})
     # TODO:
     # hiDPILegendImages
@@ -147,7 +143,6 @@ class Time:
 class WmsLayer:
     id: str = field(metadata={"type": "Element", "required": True})
     name: str = field(metadata={"type": "Element", "required": True})
-    # TODO: This has to be modeled differntly because its to ambiguous
     metadata: MetaData = field(metadata={"type": "Element", "required": True})
     type: str = field(metadata={"type": "Element", "required": True})
     layers: str = field(metadata={"type": "Element", "required": True})
@@ -173,7 +168,6 @@ class WmtsLayer:
     layer: str = field(metadata={"type": "Element", "required": True})
     type: str = field(metadata={"type": "Element", "required": True})
     imageType: str = field(metadata={"type": "Element", "required": True})
-    # TODO: This has to be modeled differntly because its to ambiguous
     metadata: MetaData = field(metadata={"type": "Element", "required": True})
     style: str = field(default=None, metadata={"type": "Element", "required": False})
     matrix_set: str = field(default=None, metadata={"type": "Element", "required": False})
@@ -188,7 +182,6 @@ class WmtsLayer:
 class LayerGroup:
     id: int | str = field(metadata={"type": "Element", "required": True})
     name: str = field(metadata={"type": "Element", "required": True})
-    # TODO: This has to be modeled differntly because its to ambiguous
     metadata: MetaData = field(metadata={"type": "Element", "required": True})
     mixed: bool | None = field(default=False, metadata={"type": "Element", "required": False})
     children: list[Union["LayerGroup", WmsLayer, WmtsLayer]] = field(
@@ -212,7 +205,7 @@ class Theme(AbstractSchema):
     name: str = field(metadata={"type": "Element", "required": True})
     icon: str = field(metadata={"type": "Element", "required": True})
     metadata: MetaData = field(metadata={"type": "Element", "required": True})
-    children: list[LayerGroup] = field(
+    children: list[Union["LayerGroup", WmsLayer, WmtsLayer]] = field(
         default_factory=list, metadata={"type": "Element", "required": True}
     )
     zoom: int | None = field(default=None)
@@ -263,13 +256,6 @@ class Theme(AbstractSchema):
         layer_list: list[WmtsLayer | WmsLayer] = []
         self.separate_groups_and_layers(self.children, layer_list)
         return UniqueLayers(elements=layer_list)
-
-
-@dataclass
-class Themes:
-    themes: list[Theme] = field(
-        default_factory=list, metadata={"type": "Element", "required": False}
-    )
 
 
 @dataclass

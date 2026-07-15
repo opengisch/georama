@@ -2,6 +2,7 @@ from adrf.routers import DefaultRouter, SimpleRouter
 from django.urls import include, path
 
 from georama.webgis.api.viewsets import ManageThemeViewSet, ThemeViewSet
+from georama.webgis.views.ogc import OgcServerWebGis
 
 app_name = "webgis"
 
@@ -14,4 +15,5 @@ router.register(r"themes", ThemeViewSet, basename="theme")
 urlpatterns = [
     path("", include(router.urls)),
     path("manage/", include(management_router.urls)),
+    path("ows/", OgcServerWebGis.as_view(), name="ows_entry"),
 ]

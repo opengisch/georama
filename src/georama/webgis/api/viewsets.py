@@ -1,10 +1,13 @@
 from django.apps import apps
+from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
+from rest_framework.response import Response
+from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.common.api import (
     GeoramaManagerViewSet,
@@ -14,8 +17,18 @@ from georama.core.common.api import (
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.models import Project
+from georama.maps.services.wfs_2_0_0 import WfsOperation
+from georama.webgis.adapters.qsl import WmsLayerIndex, theme_json_from_project_config
 from georama.webgis.api.serializers import ThemeSerializer
-from georama.webgis.models import Metadata, Theme
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    OgcServer as GGOgcServer,
+)
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    ThemesJson as GGThemesJson,
+)
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.parsers import CustomDictDecoder
+from georama.webgis.models import Metadata, Theme, WmsLayer
 
 
 class ManageThemeViewSet(GeoramaManagerViewSet):
@@ -61,9 +74,10 @@ class ManageThemeViewSet(GeoramaManagerViewSet):
         return context
 
     @staticmethod
-    async def transfer_to_theme(project: Project):
-        highest_theme = Theme.objects.order_by("ordering").last()
+    async def transfer_to_theme(project: Project) -> Theme:
+        highest_theme = await Theme.objects.order_by("ordering").alast()
         metadata = Metadata(title=project.name)
+        await metadata.asave()
 
         theme = Theme(
             project=project,
@@ -75,6 +89,7 @@ class ManageThemeViewSet(GeoramaManagerViewSet):
             theme_json={},
         )
         await theme.asave()
+        return theme
 
     @property
     def publish_from_project_url_name(self):
@@ -83,7 +98,27 @@ class ManageThemeViewSet(GeoramaManagerViewSet):
     @action(detail=False, methods=["post"], url_path="publish_from_project")
     async def publish_from_project(self, request: GeoramaDrfRequest, *args, **kwargs):
         qs = Project.objects.organisation_objects(request.georama_organisation)
-        project = qs.aget(id=request.data["pk"])  # noqa: F841
+        project = await qs.aget(id=request.data["pk"])
+        wms_layer_index: WmsLayerIndex = {}
+        theme = await self.transfer_to_theme(project)
+        async for ds in project.datasources.all():
+            wl = WmsLayer(
+                datasource=ds,
+                extent=ds.bbox,
+                extent_wgs84=ds.bbox_wgs84,
+                metadata=Metadata(title=ds.name),
+                theme=theme,
+            )
+            wms_layer_index[ds.qgis_layer_id] = wl
+        await Metadata.objects.abulk_create(
+            [wms_layer.metadata for wms_layer in wms_layer_index.values()]
+        )
+        await WmsLayer.objects.abulk_create(wms_layer_index.values())
+        gg_theme = await theme_json_from_project_config(
+            str(theme.id), theme.icon_default, project.config_as_dataclass, wms_layer_index
+        )
+        theme.theme_json = DictEncoder().encode(gg_theme)
+        await theme.asave()
         return redirect(reverse(self.url_name_list))
 
 
@@ -106,3 +141,32 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
             Breadcrumb(app_menu.title),
             Breadcrumb(self.queryset.model._meta.verbose_name_plural),
         ]
+
+    def georama_ogc_server(self, request: GeoramaDrfRequest) -> GGOgcServer:
+        return GGOgcServer(
+            url=request.build_absolute_uri(reverse("webgis:ows_entry")),
+            urlWfs=request.build_absolute_uri(reverse("webgis:ows_entry")),
+            type=settings.WEBGIS_OGC_SERVER_NAME,
+            credential=False,
+            imageType="image/png",
+            isSingleTile=False,
+            name=settings.WEBGIS_OGC_SERVER_NAME,
+            namespace=WfsOperation.own_namespace_domain,
+            wfsSupport=True,
+        )
+
+    @action(detail=False, methods=["GET"], renderer_classes=[renderers.JSONRenderer])
+    async def geogirafe(self, request: GeoramaDrfRequest, *args, **kwargs):
+        qs = await self.public_or_object_permission(self.get_queryset())
+
+        themes_json = GGThemesJson(ogc_servers=[self.georama_ogc_server(request)], themes=[])
+
+        async for theme in qs.all():
+            # this is necessary, since the automatically generated demo data has no valid json
+            if theme.theme_json != {}:
+                themes_json.themes.append(
+                    # NOTE: We use a special extended encoder here, not the default XSData variant!
+                    CustomDictDecoder().decode(theme.theme_json, GGTheme)
+                )
+
+        return Response(data=DictEncoder().encode(themes_json), status=status.HTTP_200_OK)

@@ -432,14 +432,20 @@ class Base(Configuration):
     LIST_PAGE_SIZE_DEFAULT = values.IntegerValue(10, environ_prefix=GEORAMA_ENV_PREFIX)
 
     DATA_INTEGRATION_ROOT = values.PathValue(
-        BASE_DIR / "tests/resources/projects", environ_prefix="GEORAMA"
+        BASE_DIR / "tests/resources/projects", environ_prefix=GEORAMA_ENV_PREFIX
     )
 
-    DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER = values.Value("global", environ_prefix="GEORAMA")
+    DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER = values.Value(
+        "global", environ_prefix=GEORAMA_ENV_PREFIX
+    )
 
     QSL_REDIS_URL = values.Value(environ_prefix="")
 
-    JOB_TIMEOUT = values.FloatValue(1000, environ_prefix="GEORAMA")
+    JOB_TIMEOUT = values.FloatValue(1000, environ_prefix=GEORAMA_ENV_PREFIX)
+
+    # The name which identifies the OGC server of Georama for the webgis app
+    # it's the name which will be used in the themes.json response for GeoGirafe
+    WEBGIS_OGC_SERVER_NAME = values.Value("georama.webgis", environ_prefix=GEORAMA_ENV_PREFIX)
 
 
 class Dev(Base):

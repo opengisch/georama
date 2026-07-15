@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -5,6 +6,11 @@ from django.utils.translation import gettext as _
 from georama.integration.models import Custom, Raster, Vector
 from georama.integration.models.datasource import Datasource
 from georama.maps.models.wms_layer import WmsLayerAbstract
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    LayerSettings as GGLayerSettings,
+)
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import MetaData as GGMetadata
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import WmsLayer as GGWmsLayer
 from georama.webgis.managers.wms_layer import WmsLayerManager
 from georama.webgis.models.metadata import Metadata
 
@@ -53,3 +59,30 @@ class WmsLayer(WmsLayerAbstract):
 
     def get_absolute_url(self):
         return reverse(f"{self._meta.app_label}:layer-detail", kwargs={"pk": self.pk})
+
+    @property
+    def as_gg_wms_layer(self):
+        return GGWmsLayer(
+            id=self.identifier,
+            name=self.metadata.title,
+            metadata=GGMetadata(),
+            type="WMS",
+            layers=self.identifier,
+            imageType="image/png",
+            minResolutionHint=self.min_resolution_hint,
+            maxResolutionHint=self.max_resolution_hint,
+            childLayers=[
+                GGLayerSettings(
+                    name=self.metadata.title,
+                    minResolutionHint=self.min_resolution_hint,
+                    maxResolutionHint=self.max_resolution_hint,
+                    queryable=bool(self.is_queryable),
+                )
+            ],
+            ogcServer=settings.WEBGIS_OGC_SERVER_NAME,
+            dimensions=None,
+            editable=False,
+            style="default",
+            time=None,
+            path=None,
+        )

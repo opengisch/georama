@@ -1,5 +1,6 @@
 import uuid
 
+from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.db import models
 from django.templatetags.static import static
@@ -7,19 +8,13 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
-from qgis_server_light.interface.common import BBox
-from qgis_server_light.interface.exporter.extract import Config, DataSet, TreeGroup
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.common.managers import OrganisationalManager
-from georama.integration.models import Datasource, Project
+from georama.integration.models import Project
 from georama.maps.apps import central_app_label
-from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
-    LayerGroup as GGLayerGroup,
-)
-from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import MetaData as GGMetaData
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
 from georama.webgis.managers.theme import ThemeManager
 from georama.webgis.models.metadata import Metadata
@@ -73,16 +68,21 @@ class Theme(models.Model):
     def set_from_dataclass(self, theme: GGTheme):
         self.theme_json = DictEncoder().encode(theme)
 
-    def assign_theme_public_to_all_theme_layers(self):
-        WmsLayer.objects.filter(theme=self).update(public=self.public)
+    async def assign_theme_public_to_all_theme_layers(self):
+        await WmsLayer.objects.filter(theme=self).aupdate(public=self.public)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        if self.metadata.title is None:
-            self.metadata.title = self.project.name
-
-        self.assign_theme_public_to_all_theme_layers()
-
+        async_to_sync(self.assign_theme_public_to_all_theme_layers)()
         super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
+
+    async def asave(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        await self.assign_theme_public_to_all_theme_layers()
+        await super().asave(
             force_insert=force_insert,
             force_update=force_update,
             using=using,
@@ -97,53 +97,6 @@ class Theme(models.Model):
         return (
             f"{settings.WEBGISURL}?themes={self.metadata.title}&map_zoom="
             f"{self.zoom}&map_x={self.location[0]}&map_y={self.location[1]}"
-        )
-
-    @staticmethod
-    def extend_bbox(bbox: BBox, bbox_extension: BBox):
-        if bbox_extension.x_min < bbox.x_min or bbox.x_min == 0:
-            bbox.x_min = bbox_extension.x_min
-        if bbox_extension.y_min < bbox.y_min or bbox.y_min == 0:
-            bbox.y_min = bbox_extension.y_min
-        if bbox_extension.x_max > bbox.x_max or bbox.x_max == 0:
-            bbox.x_max = bbox_extension.x_max
-        if bbox_extension.y_max > bbox.y_max or bbox.y_max == 0:
-            bbox.y_max = bbox_extension.y_max
-
-    @staticmethod
-    def handle_dataset(
-        dataset: DataSet, config: Config, gg_children: list[GGLayerGroup], bbox: BBox
-    ):
-        db = Datasource()  # noqa: F841
-        if dataset.bbox is not None:
-            Theme.extend_bbox(bbox, dataset.bbox)
-
-    @staticmethod
-    def unwrap_group(group: TreeGroup, config: Config, gg_children: list[GGLayerGroup], bbox: BBox):
-        for child in group.children:
-            tree_match = config.tree.find_by_name(child)
-            if tree_match:
-                # its a group again
-                Theme.unwrap_group(tree_match, config, gg_children, bbox)
-            else:
-                ds = config.datasets.find_dataset_by_id(child)
-                if ds:
-                    Theme.handle_dataset(ds, config, gg_children, bbox)
-                else:
-                    raise LookupError(f"Dataset with id {child} was not found in config!")
-
-    def theme_json_from_project_config(self):
-        project_config = self.project.config_as_dataclass
-        bbox = BBox(0.0, 0.0, 0.0, 0.0)
-        children = []
-        Theme.unwrap_group(project_config.tree.root, project_config, children, bbox)
-        theme_json = GGTheme(  # noqa: F841
-            id=self.id,
-            name=project_config.project.name,
-            icon=self.icon_default,
-            metadata=GGMetaData(),
-            children=[],
-            zoom=4,
         )
 
 
