@@ -129,6 +129,8 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
 
             permission_name, permission_action = action_map[action_name]
             found_users = []
+
+            # TODO: some validation ?
             async for user in User.objects.filter(id__in=users):
                 found_users.append(str(user.id))
                 await sync_to_async(permission_action)(permission_name, user, layer)
@@ -151,9 +153,12 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
             .annotate(permission_codenames=ArrayAgg("permission__codename"))
             .order_by("user_id")
         )
+        # TODO: improve performance by collecting the codenames in a set instead of a list
+
         pqs = await self.apaginate_queryset(qs)
         serializer = FeatureLayerUserObjectPermissionSerializer(pqs, many=True)
         data = await get_data(serializer)
+
         if request.accepted_renderer.format == "html":
             context = await self._prepare_single_context()
             context["object_list"] = data

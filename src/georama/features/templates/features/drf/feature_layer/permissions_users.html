@@ -8,17 +8,20 @@
                 <h3 class="mb-3">{% trans "User Permissions" %}</h3>
 
 
-                <form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="mb-4">
+                <form method="post" id="bulk-action-form" action="{% url view.url_name_permissions_users object.pk %}">
                     {% csrf_token %}
+                </form>
+
+                <div class="mb-4">
                     <div class="toolbar mb-4">
                         <div class="d-flex gap-2 align-items-center">
                             <label for="bulk-action" class="form-label m-0">{% trans "Bulk action" %}</label>
-                            <select id="bulk-action" name="action" class="form-select" style="max-width: 260px;">
+                            <select id="bulk-action" name="action" form="bulk-action-form" class="form-select" style="max-width: 260px;">
                                 {% for action_value, action_label in action_choices %}
                                     <option value="{{ action_value }}">{{ action_label }}</option>
                                 {% endfor %}
                             </select>
-                            <button type="submit" class="btn btn-outline-primary">
+                            <button type="submit" form="bulk-action-form" class="btn btn-outline-primary">
                                 {% trans "Apply to selected users" %}
                             </button>
                         </div>
@@ -60,6 +63,7 @@
                                             <input
                                                     class="form-check-input me-3"
                                                     type="checkbox"
+                                                    form="bulk-action-form"
                                                     name="users"
                                                     value="{{ row.user }}"
                                                     id="bulk-user-{{ forloop.counter }}"
@@ -121,7 +125,7 @@
                             {% endfor %}
                         </div>
                     {% endif %}
-                </form>
+                </div>
             </div>
         </div>
     </div>
