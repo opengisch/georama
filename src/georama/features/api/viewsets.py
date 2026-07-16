@@ -1,9 +1,12 @@
 from adrf.mixins import get_data
 from asgiref.sync import sync_to_async
+from django.contrib.auth import get_user_model
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
+from guardian.shortcuts import assign_perm, remove_perm
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -15,11 +18,21 @@ from georama.core.common.api import (
 )
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
-from georama.features.api.serializers import FeatureLayerSerializer, FieldSerializer
+from georama.features.api.serializers import (
+    FeatureLayerSerializer,
+    FeatureLayerUserObjectPermissionSerializer,
+    FeatureLayerUserPermissionBulkActionSerializer,
+    FieldSerializer,
+)
 from georama.features.forms.feature_layer import FeatureLayerModelForm
 from georama.features.forms.field import FieldFormSet
 from georama.features.models import FeatureLayer, Field, Metadata
+from georama.features.models.feature_layer import (
+    FeatureLayerUserObjectPermission,
+)
 from georama.integration.models import Vector
+
+User = get_user_model()
 
 
 class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
@@ -81,6 +94,81 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
     @property
     def url_name_fields(self):
         return self.url_name("fields")
+
+    @property
+    def url_name_permissions_users(self):
+        return self.url_name("permissions-users")
+
+    @action(detail=True, methods=["get", "post"], url_path="permissions/users")
+    async def permissions_users(self, request: GeoramaDrfRequest, pk: str):
+        if request.method == "POST":
+            action_map = {
+                "allow_view": ("features.view_objects_on_published_layer", assign_perm),
+                "allow_create": ("features.create_objects_on_published_layer", assign_perm),
+                "allow_delete": ("features.delete_objects_on_published_layer", assign_perm),
+                "allow_update": ("features.update_objects_on_published_layer", assign_perm),
+                "prevent_view": ("features.view_objects_on_published_layer", remove_perm),
+                "prevent_create": ("features.create_objects_on_published_layer", remove_perm),
+                "prevent_delete": ("features.delete_objects_on_published_layer", remove_perm),
+                "prevent_update": ("features.update_objects_on_published_layer", remove_perm),
+            }
+
+            payload_serializer = FeatureLayerUserPermissionBulkActionSerializer(data=request.data)
+            if not payload_serializer.is_valid():
+                # TODO: handle html
+                # if request.accepted_renderer.format == "html":
+                #     return redirect(
+                #         reverse(self.url_name_permissions_users, kwargs={"pk": pk})
+                #     )
+                return Response(payload_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            action_name = payload_serializer.validated_data["action"]
+            users = payload_serializer.validated_data["users"]
+
+            layer = await self.aget_object()
+
+            permission_name, permission_action = action_map[action_name]
+            found_users = []
+            async for user in User.objects.filter(id__in=users):
+                found_users.append(str(user.id))
+                await sync_to_async(permission_action)(permission_name, user, layer)
+
+            if request.accepted_renderer.format == "html":
+                return redirect(reverse(self.url_name_permissions_users, kwargs={"pk": pk}))
+
+            return Response(
+                {
+                    "detail": "Permissions assigned.",
+                    "action": action_name,
+                    "users": found_users,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        qs = (
+            FeatureLayerUserObjectPermission.objects.filter(content_object_id=pk)
+            .values("user_id")
+            .annotate(permission_codenames=ArrayAgg("permission__codename"))
+            .order_by("user_id")
+        )
+        pqs = await self.apaginate_queryset(qs)
+        serializer = FeatureLayerUserObjectPermissionSerializer(pqs, many=True)
+        data = await get_data(serializer)
+        if request.accepted_renderer.format == "html":
+            context = await self._prepare_single_context()
+            context["object_list"] = data
+            context["limit"] = self.paginator.limit
+            context.update(self.paginator.get_html_context())
+            context["breadcrumbs"].append(Breadcrumb("Permissions"))
+            context["action_choices"] = list(
+                FeatureLayerUserPermissionBulkActionSerializer().fields["action"].choices.items()
+            )
+            return Response(
+                context,
+                template_name="features/drf/feature_layer/permissions_users.html",
+            )
+        else:
+            return await self.get_apaginated_response(data)
 
     @action(detail=True, methods=["get", "post"])
     async def fields(self, request: GeoramaDrfRequest, pk: str):

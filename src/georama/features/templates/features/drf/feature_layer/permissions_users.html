@@ -1,0 +1,109 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+
+{% block content %}
+	<div class="container h-100 pt-4 overflow-hidden">
+		<div class="row h-100">
+			<div class="col h-100 px-4 overflow-auto">
+				<h3 class="mb-3">{% trans "User Permissions" %}</h3>
+
+				<form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="mb-4">
+					{% csrf_token %}
+					<div class="d-flex gap-2 align-items-center">
+						<label for="bulk-action" class="form-label m-0">{% trans "Bulk action" %}</label>
+						<select id="bulk-action" name="action" class="form-select" style="max-width: 260px;">
+							{% for action_value, action_label in action_choices %}
+								<option value="{{ action_value }}">{{ action_label }}</option>
+							{% endfor %}
+						</select>
+						<button type="submit" class="btn btn-outline-primary">
+							{% trans "Apply to selected users" %}
+						</button>
+					</div>
+
+					<div class="table-responsive mt-3">
+						<table class="table table-sm table-striped align-middle">
+							<thead>
+							<tr>
+								<th>{% trans "User" %}</th>
+								<th>{% trans "Can View" %}</th>
+								<th>{% trans "Can Create" %}</th>
+								<th>{% trans "Can Delete" %}</th>
+								<th>{% trans "Can Update" %}</th>
+							</tr>
+							</thead>
+							<tbody>
+							{% for row in object_list %}
+								<tr>
+									<td>
+										<div class="form-check">
+											<input
+												class="form-check-input"
+												type="checkbox"
+												name="users"
+												value="{{ row.user }}"
+												id="bulk-user-{{ forloop.counter }}"
+											>
+											<label class="form-check-label" for="bulk-user-{{ forloop.counter }}">
+												{{ row.user }}
+											</label>
+										</div>
+									</td>
+
+									<td>
+										<form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
+											{% csrf_token %}
+											<input type="hidden" name="action" value="{% if row.can_view %}prevent_view{% else %}allow_view{% endif %}">
+											<input type="hidden" name="users" value="{{ row.user }}">
+											<button type="submit" class="btn btn-sm {% if row.can_view %}btn-success{% else %}btn-outline-secondary{% endif %}">
+												{% if row.can_view %}true{% else %}false{% endif %}
+											</button>
+										</form>
+									</td>
+
+									<td>
+										<form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
+											{% csrf_token %}
+											<input type="hidden" name="action" value="{% if row.can_create %}prevent_create{% else %}allow_create{% endif %}">
+											<input type="hidden" name="users" value="{{ row.user }}">
+											<button type="submit" class="btn btn-sm {% if row.can_create %}btn-success{% else %}btn-outline-secondary{% endif %}">
+												{% if row.can_create %}true{% else %}false{% endif %}
+											</button>
+										</form>
+									</td>
+
+									<td>
+										<form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
+											{% csrf_token %}
+											<input type="hidden" name="action" value="{% if row.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
+											<input type="hidden" name="users" value="{{ row.user }}">
+											<button type="submit" class="btn btn-sm {% if row.can_delete %}btn-success{% else %}btn-outline-secondary{% endif %}">
+												{% if row.can_delete %}true{% else %}false{% endif %}
+											</button>
+										</form>
+									</td>
+
+									<td>
+										<form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
+											{% csrf_token %}
+											<input type="hidden" name="action" value="{% if row.can_update %}prevent_update{% else %}allow_update{% endif %}">
+											<input type="hidden" name="users" value="{{ row.user }}">
+											<button type="submit" class="btn btn-sm {% if row.can_update %}btn-success{% else %}btn-outline-secondary{% endif %}">
+												{% if row.can_update %}true{% else %}false{% endif %}
+											</button>
+										</form>
+									</td>
+								</tr>
+							{% empty %}
+								<tr>
+									<td colspan="5" class="text-muted">{% trans "No user permissions found." %}</td>
+								</tr>
+							{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+{% endblock %}
