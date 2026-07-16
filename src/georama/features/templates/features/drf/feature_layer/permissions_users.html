@@ -1,109 +1,150 @@
 {% extends 'core/base.html' %}
-{% load i18n %}
+{% load static i18n %}
 
 {% block content %}
-	<div class="container h-100 pt-4 overflow-hidden">
-		<div class="row h-100">
-			<div class="col h-100 px-4 overflow-auto">
-				<h3 class="mb-3">{% trans "User Permissions" %}</h3>
+    <div class="container h-100 pt-4 overflow-hidden">
+        <div class="row h-100">
+            <div class="col h-100 px-4 overflow-auto">
+                <h3 class="mb-3">{% trans "User Permissions" %}</h3>
 
-				<form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="mb-4">
-					{% csrf_token %}
-					<div class="d-flex gap-2 align-items-center">
-						<label for="bulk-action" class="form-label m-0">{% trans "Bulk action" %}</label>
-						<select id="bulk-action" name="action" class="form-select" style="max-width: 260px;">
-							{% for action_value, action_label in action_choices %}
-								<option value="{{ action_value }}">{{ action_label }}</option>
-							{% endfor %}
-						</select>
-						<button type="submit" class="btn btn-outline-primary">
-							{% trans "Apply to selected users" %}
-						</button>
-					</div>
 
-					<div class="table-responsive mt-3">
-						<table class="table table-sm table-striped align-middle">
-							<thead>
-							<tr>
-								<th>{% trans "User" %}</th>
-								<th>{% trans "Can View" %}</th>
-								<th>{% trans "Can Create" %}</th>
-								<th>{% trans "Can Delete" %}</th>
-								<th>{% trans "Can Update" %}</th>
-							</tr>
-							</thead>
-							<tbody>
-							{% for row in object_list %}
-								<tr>
-									<td>
-										<div class="form-check">
-											<input
-												class="form-check-input"
-												type="checkbox"
-												name="users"
-												value="{{ row.user }}"
-												id="bulk-user-{{ forloop.counter }}"
-											>
-											<label class="form-check-label" for="bulk-user-{{ forloop.counter }}">
-												{{ row.user }}
-											</label>
-										</div>
-									</td>
+                <form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="mb-4">
+                    {% csrf_token %}
+                    <div class="toolbar mb-4">
+                        <div class="d-flex gap-2 align-items-center">
+                            <label for="bulk-action" class="form-label m-0">{% trans "Bulk action" %}</label>
+                            <select id="bulk-action" name="action" class="form-select" style="max-width: 260px;">
+                                {% for action_value, action_label in action_choices %}
+                                    <option value="{{ action_value }}">{{ action_label }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-outline-primary">
+                                {% trans "Apply to selected users" %}
+                            </button>
+                        </div>
+                    </div>
 
-									<td>
-										<form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
-											{% csrf_token %}
-											<input type="hidden" name="action" value="{% if row.can_view %}prevent_view{% else %}allow_view{% endif %}">
-											<input type="hidden" name="users" value="{{ row.user }}">
-											<button type="submit" class="btn btn-sm {% if row.can_view %}btn-success{% else %}btn-outline-secondary{% endif %}">
-												{% if row.can_view %}true{% else %}false{% endif %}
-											</button>
-										</form>
-									</td>
+                    {% if object_list|length == 0 %}
+                        <div class="fs-1 fw-bold text-center">
+                            {% trans "No items in this list" %}
+                        </div>
+                    
+                    {% else %}
+                        <div class="permission-list">
+        
+                            <div class="row p-2 border-bottom text-muted">
+                                <div class="col-6">
+                                    <input
+                                            class="form-check-input me-3"
+                                            type="checkbox"
+                                            name="select"
+                                            value=""
+                                            aria-label="{% trans "Select all" %}"
+                                            id="bulk-select-all"
+                                            onchange="select_all()"
+                                    >
+                                    <span>Name</span>
+                                </div>
+                                <div class="col-6 d-flex justify-content-between">
+                                    <div class="flex-fill text-center">{% trans "View" %}</div>
+                                    <div class="flex-fill text-center">{% trans "Create" %}</div>
+                                    <div class="flex-fill text-center">{% trans "Update" %}</div>
+                                    <div class="flex-fill text-center">{% trans "Delete" %}</div>
+                                </div>
+                            </div>
+        
+                            {% for row in object_list %}
+                                <div class="row p-2 align-items-center">
+                                    <div class="col-6 d-flex">
+                                        <div class="form-check">
+                                            <input
+                                                    class="form-check-input me-3"
+                                                    type="checkbox"
+                                                    name="users"
+                                                    value="{{ row.user }}"
+                                                    id="bulk-user-{{ forloop.counter }}"
+                                            >
+                                            <i class="fa fa-user text-muted me-1"></i>
+                                            <label class="form-check-label" for="bulk-user-{{ forloop.counter }}">
+                                                {{ row.user }}
+                                            </label>
+                                        </div>
+                                    </div>
+            
+                                    <div class="col-6 d-flex justify-content-between">
+            
+                                        <div class="m-auto">
+                                            <form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="{% if row.can_view %}prevent_view{% else %}allow_view{% endif %}">
+                                                <input type="hidden" name="users" value="{{ row.user }}">
+                                                <button type="submit" class="btn text-center">
+                                                    <i class="fa fa-eye {% if row.can_view %} text-primary {% else %} text-muted {% endif %}"></i>
+                                                </button>
+                                            </form>
+                                        </div>
 
-									<td>
-										<form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
-											{% csrf_token %}
-											<input type="hidden" name="action" value="{% if row.can_create %}prevent_create{% else %}allow_create{% endif %}">
-											<input type="hidden" name="users" value="{{ row.user }}">
-											<button type="submit" class="btn btn-sm {% if row.can_create %}btn-success{% else %}btn-outline-secondary{% endif %}">
-												{% if row.can_create %}true{% else %}false{% endif %}
-											</button>
-										</form>
-									</td>
+                                        <div class="m-auto">
+                                            <form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="{% if row.can_create %}prevent_create{% else %}allow_create{% endif %}">
+                                                <input type="hidden" name="users" value="{{ row.user }}">
+                                                <button type="submit" class="btn text-center">
+                                                    <i class="fa fa-circle-plus {% if row.can_create %} text-primary {% else %} text-muted {% endif %}"></i>
+                                                </button>
+                                            </form>
+                                        </div>
 
-									<td>
-										<form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
-											{% csrf_token %}
-											<input type="hidden" name="action" value="{% if row.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
-											<input type="hidden" name="users" value="{{ row.user }}">
-											<button type="submit" class="btn btn-sm {% if row.can_delete %}btn-success{% else %}btn-outline-secondary{% endif %}">
-												{% if row.can_delete %}true{% else %}false{% endif %}
-											</button>
-										</form>
-									</td>
+                                        <div class="m-auto">
+                                            <form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="{% if row.can_update %}prevent_update{% else %}allow_update{% endif %}">
+                                                <input type="hidden" name="users" value="{{ row.user }}">
+                                                <button type="submit" class="btn text-center">
+                                                    <i class="fa fa-pencil {% if row.can_update %} text-primary {% else %} text-muted {% endif %}"></i>
+                                                </button>
+                                            </form>
+                                        </div>
 
-									<td>
-										<form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
-											{% csrf_token %}
-											<input type="hidden" name="action" value="{% if row.can_update %}prevent_update{% else %}allow_update{% endif %}">
-											<input type="hidden" name="users" value="{{ row.user }}">
-											<button type="submit" class="btn btn-sm {% if row.can_update %}btn-success{% else %}btn-outline-secondary{% endif %}">
-												{% if row.can_update %}true{% else %}false{% endif %}
-											</button>
-										</form>
-									</td>
-								</tr>
-							{% empty %}
-								<tr>
-									<td colspan="5" class="text-muted">{% trans "No user permissions found." %}</td>
-								</tr>
-							{% endfor %}
-							</tbody>
-						</table>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
+                                        <div class="m-auto">
+                                            <form method="post" action="{% url view.url_name_permissions_users object.pk %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="{% if row.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
+                                                <input type="hidden" name="users" value="{{ row.user }}">
+                                                <button type="submit" class="btn text-center">
+                                                    <i class="fa fa-circle-xmark {% if row.can_delete %} text-primary {% else %} text-muted {% endif %}"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    {% block pagination %}
+        {% include "core/drf/default/includes/pagination_htmx.html" %}
+    {% endblock %}
+
+
+
+
+    <script>
+        /**
+         * Toggle the selection state of all rows of the permission list
+         */
+        function select_all() {
+            const selectAllCheckbox = document.getElementById('bulk-select-all');
+            const userCheckboxes = document.querySelectorAll('input[type="checkbox"][name="users"]');
+            userCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+    </script>
+
 {% endblock %}
