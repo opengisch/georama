@@ -1,5 +1,5 @@
 body {
-    scroll-padding-top: var(--navbar-offset)
+    scroll-padding-top: var(--navbar-offset);
 }
 
 #content {
@@ -11,12 +11,12 @@ body {
 
 .top-wave {
     top: -90px;
-    background-image: url("../images/wave-top.svg")
+    background-image: url("../images/wave-top.svg");
 }
 
 .bottom-wave {
     bottom: 0;
-    background-image: url("../images/wave-bottom.svg")
+    background-image: url("../images/wave-bottom.svg");
 }
 
 
@@ -136,69 +136,6 @@ Navbar
     }
 }
 
-/*
-Data Integration Gauge
- */
-
-.clickable {
-    cursor: pointer;
-}
-.gauge-container {
-    --gauge-green: var(--georama-green);
-    --gauge-orange: #ed7f2c;
-    --gauge-gray-light: #b0b0b0;
-    --gauge-gray-dark: var(--georama-gray);
-    --gauge-height: 180px;
-    --gauge-padding: 10px;
-
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-}
-
-/* Creating the semi-circular ring */
-.gauge-ring {
-    width: var(--gauge-height);
-    height: var(--gauge-height);
-    margin-top: var(--gauge-padding);
-    border-radius: 50%;
-    mask: radial-gradient(transparent 62%, black 63%);
-    -webkit-mask: radial-gradient(transparent 62%, black 63%);
-}
-
-.gauge-center {
-    position: absolute;
-    top: calc(var(--gauge-padding) + var(--gauge-height) / 5);
-    display: flex;
-    flex-direction: column;
-}
-
-.main-number {
-    font-size: 3.5rem;
-    font-weight: bold;
-    color: var(--gauge-green);
-    line-height: 1;
-}
-
-.stat-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.1rem;
-}
-
-.stat-num {
-    font-size: 1.8rem;
-    font-weight: bold;
-    min-width: 2rem;
-    text-align: right;
-}
-
-.orange { color: var(--gauge-orange); }
-.gray { color: var(--gauge-gray-light); }
-
 
 /*
 Change List and detail forms
@@ -225,28 +162,6 @@ Change List and detail forms
 
 #breadcrumb-container {
     height: var(--breadcrumb-height);
-}
-
-#form-header-sticky {
-    max-height: 100px;
-    position: relative;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 1.5rem 0;
-}
-
-
-/*
-Published Item Index Cards
- */
-
-.item-card-body {
-    display: flex;
-    flex-direction: column;
-}
-.card-meta {
-    margin-top: auto;
 }
 
 
