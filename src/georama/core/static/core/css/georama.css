@@ -164,7 +164,15 @@ Change List and detail forms
     height: var(--breadcrumb-height);
 }
 
-
+.icon-btn {
+    border: none;
+}
+.icon-btn:disabled {
+    border: none;
+}
+.icon-btn:hover:not(:disabled) {
+    background-color: var(--georama-border-color);
+}
 
 /*
 CTA Click to action elements on frontpage
