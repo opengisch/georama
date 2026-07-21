@@ -2,6 +2,7 @@ from adrf.mixins import get_data
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import F
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -150,7 +151,10 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
         qs = (
             FeatureLayerUserObjectPermission.objects.filter(content_object_id=pk)
             .values("user_id")
-            .annotate(permission_codenames=ArrayAgg("permission__codename"))
+            .annotate(
+                    permission_codenames=ArrayAgg("permission__codename"),
+                    username=F("user__username"),
+                    time_created=F("time_created"))
             .order_by("user_id")
         )
         # TODO: improve performance by collecting the codenames in a set instead of a list

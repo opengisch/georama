@@ -65,7 +65,9 @@ class BasePermissionSerializer(serializers.Serializer):
 
 
 class FeatureLayerUserObjectPermissionSerializer(BasePermissionSerializer):
-    user = serializers.UUIDField(source="user_id")
+    user_id = serializers.UUIDField()
+    username = serializers.CharField()
+    time_created = serializers.DateTimeField()
 
 
 class FeatureLayerGroupObjectPermissionSerializer(serializers.Serializer):
