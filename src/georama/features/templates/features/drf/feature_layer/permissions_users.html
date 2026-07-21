@@ -37,7 +37,7 @@
         
                             <div class="row p-2 border-bottom text-muted">
                                 <div class="col-6 d-flex">
-                                    <div>
+                                    <div class="flex-fill">
                                         <input
                                                 class="form-check-input me-3"
                                                 type="checkbox"
@@ -48,6 +48,9 @@
                                                 onchange="select_all()"
                                         >
                                         <span>{% trans "Name" %}</span>
+                                    </div>
+                                    <div class="flex-fill text-center">
+                                        <span>{% trans "Time created" %}</span>
                                     </div>
                                 </div>
                                 <div class="col-6 d-flex">
@@ -62,7 +65,7 @@
                             {% for row in object_list %}
                                 <div class="row p-2 align-items-center">
                                     <div class="col-6 d-flex">
-                                        <div class="form-check">
+                                        <div class="form-check flex-fill">
                                             <input
                                                     class="form-check-input me-3"
                                                     type="checkbox"
@@ -75,6 +78,9 @@
                                             <label class="form-check-label" for="bulk-user-{{ forloop.counter }}">
                                                 {{ row.username }}
                                             </label>
+                                        </div>
+                                        <div class="flex-fill text-center" title="{{ row.time_created_formatted }}">
+                                            {{ row.time_created_since }}
                                         </div>
                                     </div>
             

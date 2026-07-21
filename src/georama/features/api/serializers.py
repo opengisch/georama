@@ -1,5 +1,8 @@
 from adrf import serializers
 from django.contrib.auth import get_user_model
+from django.utils.formats import date_format
+from django.utils.timesince import timesince
+from django.utils.translation import gettext_lazy as _
 
 from georama.features.models import FeatureLayer, Field, Metadata
 
@@ -68,6 +71,16 @@ class FeatureLayerUserObjectPermissionSerializer(BasePermissionSerializer):
     user_id = serializers.UUIDField()
     username = serializers.CharField()
     time_created = serializers.DateTimeField()
+    time_created_formatted = serializers.SerializerMethodField()
+    time_created_since = serializers.SerializerMethodField()
+    
+    @staticmethod
+    async def get_time_created_formatted(obj):
+        return date_format(obj['time_created'], format="DATETIME_FORMAT")
+    
+    @staticmethod
+    async def get_time_created_since(obj):
+        return _("{} ago").format(timesince(obj['time_created']))
 
 
 class FeatureLayerGroupObjectPermissionSerializer(serializers.Serializer):
