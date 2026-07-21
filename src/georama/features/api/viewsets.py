@@ -5,6 +5,7 @@ from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.fields import ArrayField
 from django.db.models import CharField, Min, Q, Value
 from django.db.models.functions import Coalesce
+from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -101,6 +102,11 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
 
     @action(detail=True, methods=["get", "post"], url_path="permissions/users")
     async def permissions_users(self, request: GeoramaDrfRequest, pk: str):
+        try:
+            layer = await self.get_queryset().aget(pk=pk)
+        except FeatureLayer.DoesNotExist as exc:
+            raise Http404 from exc
+
         if request.method == "POST":
             action_map = {
                 "grant": (
@@ -163,8 +169,6 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
             action_name = payload_serializer.validated_data["action"]
             users = payload_serializer.validated_data["users"]
 
-            layer = await self.aget_object()
-
             permission_action, permission_names = action_map[action_name]
             found_users = []
 
@@ -216,6 +220,12 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
             ),
         ).order_by("username")
 
+        search_param = "username"
+        search_term = request.query_params.get("username", "")
+
+        if search_term:
+            qs = qs.filter(username__icontains=search_term)
+
         # TODO: improve performance by collecting the codenames in a set instead of a list
 
         pqs = await self.apaginate_queryset(qs)
@@ -224,10 +234,16 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
 
         if request.accepted_renderer.format == "html":
             context = await self._prepare_single_context()
+            context.update(await self._get_model_permissions())
+            context["search_term"] = search_term
+            context["search_param"] = search_param
+            context["search_fields_hint"] = _("searchable fields: username")
             context["object_list"] = data
             context["limit"] = self.paginator.limit
             context.update(self.paginator.get_html_context())
+            context["breadcrumbs"][-1].view_name = self.reverse_action("detail", [pk])
             context["breadcrumbs"].append(Breadcrumb("Permissions"))
+            context["breadcrumbs"].append(Breadcrumb("Users"))
             context["action_choices"] = list(
                 FeatureLayerUserPermissionBulkActionSerializer().fields["action"].choices.items()
             )
