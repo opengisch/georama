@@ -55,6 +55,7 @@
                                     <div class="flex-fill text-center">{% trans "Create" %}</div>
                                     <div class="flex-fill text-center">{% trans "Update" %}</div>
                                     <div class="flex-fill text-center">{% trans "Delete" %}</div>
+                                    <div class="flex-fill text-center"></div>
                                 </div>
                             </div>
         
@@ -80,14 +81,9 @@
                                     <div class="col-6 d-flex justify-content-between">
             
                                         <div class="m-auto">
-                                            <form method="post" action="{% url view.url_name_permissions_users object.pk %}">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="action" value="{% if row.can_view %}prevent_view{% else %}allow_view{% endif %}">
-                                                <input type="hidden" name="users" value="{{ row.user }}">
-                                                <button type="submit" class="btn icon-btn text-center disabled" disabled>
-                                                    <i class="fa fa-eye {% if row.can_view %} text-primary {% else %} text-muted {% endif %}"></i>
-                                                </button>
-                                            </form>
+                                            <button type="submit" class="btn icon-btn text-center disabled" disabled>
+                                                <i class="fa fa-eye {% if row.can_view %} text-primary {% else %} text-muted {% endif %}"></i>
+                                            </button>
                                         </div>
 
                                         <div class="m-auto">
@@ -119,6 +115,17 @@
                                                 <input type="hidden" name="users" value="{{ row.user }}">
                                                 <button type="submit" class="btn icon-btn text-center">
                                                     <i class="fa fa-circle-xmark {% if row.can_delete %} text-primary {% else %} text-muted {% endif %}"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        <div class="m-auto">
+                                            <form method="post" action="{% url view.url_name_permissions_users object.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="revoke">
+                                                <input type="hidden" name="users" value="{{ row.user }}">
+                                                <button type="submit" class="btn btn-outline-danger text-center">
+                                                    <i class="fa fa-trash "></i>
                                                 </button>
                                             </form>
                                         </div>

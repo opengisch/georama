@@ -75,11 +75,10 @@ class FeatureLayerGroupObjectPermissionSerializer(serializers.Serializer):
 class PermissionBulkActionSerializer(serializers.Serializer):
     action = serializers.ChoiceField(
         choices=[
-            "allow_view",
+            "revoke",
             "allow_create",
             "allow_delete",
             "allow_update",
-            "prevent_view",
             "prevent_create",
             "prevent_delete",
             "prevent_update",

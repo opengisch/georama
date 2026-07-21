@@ -103,14 +103,21 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
     async def permissions_users(self, request: GeoramaDrfRequest, pk: str):
         if request.method == "POST":
             action_map = {
-                "allow_view": ("features.view_objects_on_published_layer", assign_perm),
-                "allow_create": ("features.create_objects_on_published_layer", assign_perm),
-                "allow_delete": ("features.delete_objects_on_published_layer", assign_perm),
-                "allow_update": ("features.update_objects_on_published_layer", assign_perm),
-                "prevent_view": ("features.view_objects_on_published_layer", remove_perm),
-                "prevent_create": ("features.create_objects_on_published_layer", remove_perm),
-                "prevent_delete": ("features.delete_objects_on_published_layer", remove_perm),
-                "prevent_update": ("features.update_objects_on_published_layer", remove_perm),
+                "allow_create": (["features.create_objects_on_published_layer"], assign_perm),
+                "allow_delete": (["features.delete_objects_on_published_layer"], assign_perm),
+                "allow_update": (["features.update_objects_on_published_layer"], assign_perm),
+                "prevent_create": (["features.create_objects_on_published_layer"], remove_perm),
+                "prevent_delete": (["features.delete_objects_on_published_layer"], remove_perm),
+                "prevent_update": (["features.update_objects_on_published_layer"], remove_perm),
+                "revoke": (
+                    [
+                        "features.view_objects_on_published_layer",
+                        "features.create_objects_on_published_layer",
+                        "features.delete_objects_on_published_layer",
+                        "features.update_objects_on_published_layer",
+                    ],
+                    remove_perm,
+                ),
             }
 
             payload_serializer = FeatureLayerUserPermissionBulkActionSerializer(data=request.data)
@@ -127,13 +134,15 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
 
             layer = await self.aget_object()
 
-            permission_name, permission_action = action_map[action_name]
+            permission_names, permission_action = action_map[action_name]
+            permission_action = sync_to_async(permission_action)
             found_users = []
 
             # TODO: some validation ?
             async for user in User.objects.filter(id__in=users):
                 found_users.append(str(user.id))
-                await sync_to_async(permission_action)(permission_name, user, layer)
+                for permission_name in permission_names:
+                    await permission_action(permission_name, user, layer)
 
             if request.accepted_renderer.format == "html":
                 return redirect(reverse(self.url_name_permissions_users, kwargs={"pk": pk}))
@@ -148,7 +157,15 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
             )
 
         qs = (
-            FeatureLayerUserObjectPermission.objects.filter(content_object_id=pk)
+            FeatureLayerUserObjectPermission.objects.filter(
+                content_object_id=pk,
+                permission__codename__in=[
+                    "view_objects_on_published_layer",
+                    "create_objects_on_published_layer",
+                    "delete_objects_on_published_layer",
+                    "update_objects_on_published_layer",
+                ],
+            )
             .values("user_id")
             .annotate(permission_codenames=ArrayAgg("permission__codename"))
             .order_by("user_id")
