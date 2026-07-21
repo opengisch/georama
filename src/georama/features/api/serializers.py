@@ -53,34 +53,36 @@ class BasePermissionSerializer(serializers.Serializer):
     can_create = serializers.SerializerMethodField()
     can_delete = serializers.SerializerMethodField()
     can_update = serializers.SerializerMethodField()
+    time_created = serializers.DateTimeField(read_only=True, allow_null=True)
+    time_created_formatted = serializers.SerializerMethodField()
+    time_created_since = serializers.SerializerMethodField()
 
     async def get_can_view(self, obj):
-        return "view_objects_on_published_layer" in obj["permission_codenames"]
+        return "view_objects_on_published_layer" in obj.permission_codenames
 
     async def get_can_create(self, obj):
-        return "create_objects_on_published_layer" in obj["permission_codenames"]
+        return "create_objects_on_published_layer" in obj.permission_codenames
 
     async def get_can_delete(self, obj):
-        return "delete_objects_on_published_layer" in obj["permission_codenames"]
+        return "delete_objects_on_published_layer" in obj.permission_codenames
 
     async def get_can_update(self, obj):
-        return "update_objects_on_published_layer" in obj["permission_codenames"]
+        return "update_objects_on_published_layer" in obj.permission_codenames
+
+    @staticmethod
+    async def get_time_created_formatted(obj):
+        if t := obj.permission_time_created:
+            return date_format(t, format="DATETIME_FORMAT")
+
+    @staticmethod
+    async def get_time_created_since(obj):
+        if t := obj.permission_time_created:
+            return _("{} ago").format(timesince(t))
 
 
 class FeatureLayerUserObjectPermissionSerializer(BasePermissionSerializer):
-    user_id = serializers.UUIDField()
-    username = serializers.CharField()
-    time_created = serializers.DateTimeField()
-    time_created_formatted = serializers.SerializerMethodField()
-    time_created_since = serializers.SerializerMethodField()
-    
-    @staticmethod
-    async def get_time_created_formatted(obj):
-        return date_format(obj['time_created'], format="DATETIME_FORMAT")
-    
-    @staticmethod
-    async def get_time_created_since(obj):
-        return _("{} ago").format(timesince(obj['time_created']))
+    user_id = serializers.UUIDField(source="id", read_only=True)
+    username = serializers.CharField(read_only=True)
 
 
 class FeatureLayerGroupObjectPermissionSerializer(serializers.Serializer):
@@ -90,13 +92,14 @@ class FeatureLayerGroupObjectPermissionSerializer(serializers.Serializer):
 class PermissionBulkActionSerializer(serializers.Serializer):
     action = serializers.ChoiceField(
         choices=[
+            "grant",
             "revoke",
             "allow_create",
-            "allow_delete",
             "allow_update",
+            "allow_delete",
             "prevent_create",
-            "prevent_delete",
             "prevent_update",
+            "prevent_delete",
         ]
     )
 

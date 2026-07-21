@@ -2,7 +2,9 @@ from adrf.mixins import get_data
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import F
+from django.contrib.postgres.fields import ArrayField
+from django.db.models import CharField, Min, Q, Value
+from django.db.models.functions import Coalesce
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -28,9 +30,6 @@ from georama.features.api.serializers import (
 from georama.features.forms.feature_layer import FeatureLayerModelForm
 from georama.features.forms.field import FieldFormSet
 from georama.features.models import FeatureLayer, Field, Metadata
-from georama.features.models.feature_layer import (
-    FeatureLayerUserObjectPermission,
-)
 from georama.integration.models import Vector
 
 User = get_user_model()
@@ -104,20 +103,51 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
     async def permissions_users(self, request: GeoramaDrfRequest, pk: str):
         if request.method == "POST":
             action_map = {
-                "allow_create": (["features.create_objects_on_published_layer"], assign_perm),
-                "allow_delete": (["features.delete_objects_on_published_layer"], assign_perm),
-                "allow_update": (["features.update_objects_on_published_layer"], assign_perm),
-                "prevent_create": (["features.create_objects_on_published_layer"], remove_perm),
-                "prevent_delete": (["features.delete_objects_on_published_layer"], remove_perm),
-                "prevent_update": (["features.update_objects_on_published_layer"], remove_perm),
+                "grant": (
+                    sync_to_async(assign_perm),
+                    ["features.view_objects_on_published_layer"],
+                ),
+                "allow_create": (
+                    sync_to_async(assign_perm),
+                    [
+                        "features.view_objects_on_published_layer",
+                        "features.create_objects_on_published_layer",
+                    ],
+                ),
+                "allow_update": (
+                    sync_to_async(assign_perm),
+                    [
+                        "features.view_objects_on_published_layer",
+                        "features.update_objects_on_published_layer",
+                    ],
+                ),
+                "allow_delete": (
+                    sync_to_async(assign_perm),
+                    [
+                        "features.view_objects_on_published_layer",
+                        "features.delete_objects_on_published_layer",
+                    ],
+                ),
+                "prevent_create": (
+                    sync_to_async(remove_perm),
+                    ["features.create_objects_on_published_layer"],
+                ),
+                "prevent_update": (
+                    sync_to_async(remove_perm),
+                    ["features.update_objects_on_published_layer"],
+                ),
+                "prevent_delete": (
+                    sync_to_async(remove_perm),
+                    ["features.delete_objects_on_published_layer"],
+                ),
                 "revoke": (
+                    sync_to_async(remove_perm),
                     [
                         "features.view_objects_on_published_layer",
                         "features.create_objects_on_published_layer",
                         "features.delete_objects_on_published_layer",
                         "features.update_objects_on_published_layer",
                     ],
-                    remove_perm,
                 ),
             }
 
@@ -135,8 +165,7 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
 
             layer = await self.aget_object()
 
-            permission_names, permission_action = action_map[action_name]
-            permission_action = sync_to_async(permission_action)
+            permission_action, permission_names = action_map[action_name]
             found_users = []
 
             # TODO: some validation ?
@@ -157,23 +186,36 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
                 status=status.HTTP_200_OK,
             )
 
-        qs = (
-            FeatureLayerUserObjectPermission.objects.filter(
-                content_object_id=pk,
-                permission__codename__in=[
-                    "view_objects_on_published_layer",
-                    "create_objects_on_published_layer",
-                    "delete_objects_on_published_layer",
-                    "update_objects_on_published_layer",
-                ],
-            )
-            .values("user_id")
-            .annotate(
-                    permission_codenames=ArrayAgg("permission__codename"),
-                    username=F("user__username"),
-                    time_created=F("time_created"))
-            .order_by("user_id")
-        )
+        qs = User.objects.annotate(
+            permission_codenames=Coalesce(
+                ArrayAgg(
+                    "featurelayeruserobjectpermission__permission__codename",
+                    filter=Q(
+                        featurelayeruserobjectpermission__content_object_id=pk,
+                        featurelayeruserobjectpermission__permission__codename__in=[
+                            "view_objects_on_published_layer",
+                            "create_objects_on_published_layer",
+                            "delete_objects_on_published_layer",
+                            "update_objects_on_published_layer",
+                        ],
+                    ),
+                ),
+                Value([], output_field=ArrayField(CharField())),
+            ),
+            permission_time_created=Min(
+                "featurelayeruserobjectpermission__time_created",
+                filter=Q(
+                    featurelayeruserobjectpermission__content_object_id=pk,
+                    featurelayeruserobjectpermission__permission__codename__in=[
+                        "view_objects_on_published_layer",
+                        "create_objects_on_published_layer",
+                        "delete_objects_on_published_layer",
+                        "update_objects_on_published_layer",
+                    ],
+                ),
+            ),
+        ).order_by("username")
+
         # TODO: improve performance by collecting the codenames in a set instead of a list
 
         pqs = await self.apaginate_queryset(qs)
