@@ -73,11 +73,13 @@ class BasePermissionSerializer(serializers.Serializer):
     async def get_time_created_formatted(obj):
         if t := obj.permission_time_created:
             return date_format(t, format="DATETIME_FORMAT")
+        return ""
 
     @staticmethod
     async def get_time_created_since(obj):
         if t := obj.permission_time_created:
             return _("{} ago").format(timesince(t))
+        return ""
 
 
 class FeatureLayerUserObjectPermissionSerializer(BasePermissionSerializer):
