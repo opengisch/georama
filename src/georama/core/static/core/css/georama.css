@@ -164,6 +164,12 @@ Change List and detail forms
     height: var(--breadcrumb-height);
 }
 
+
+.striped-row:nth-child(even) {
+    background-color: var(--bs-tertiary-bg);
+}
+
+
 /*
 Icon buttons for permission pages
  */
@@ -171,6 +177,7 @@ Icon buttons for permission pages
 .btn-icon {
     border: none;
 }
+
 .btn-icon:disabled {
     border: none;
 }
