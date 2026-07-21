@@ -53,7 +53,7 @@
                                 </div>
                                 
                                 <div class="col-2">
-                                    <span>{% trans "Time created" %}</span>
+                                    <span>{% trans "Time granted" %}</span>
                                 </div>
 
                                 <div class="col-1 text-center">{% trans "View" %}</div>
@@ -85,14 +85,14 @@
                                         </label>
                                     </div>
                                 
-                                    <div class="col-2" title="{{ row.time_created_formatted }}">
+                                    <div class="col-2 text-muted small" title="{{ row.time_created_formatted }}">
                                         {{ row.time_created_since }}
                                     </div>
             
                                     <div class="col-1 text-center">
                                         {% if row.can_view %}
-                                            <button type="submit" class="btn btn-icon text-center disabled" disabled>
-                                                <i class="fa fa-eye {% if row.can_view %} text-primary {% else %} text-muted {% endif %}"></i>
+                                            <button type="submit" class="btn btn-outline-primary btn-permission disabled" disabled>
+                                                <i class="fa fa-eye"></i>
                                             </button>
                                         {% endif %}
                                     </div>
@@ -103,8 +103,8 @@
                                                 {% csrf_token %}
                                                 <input type="hidden" name="action" value="{% if row.can_create %}prevent_create{% else %}allow_create{% endif %}">
                                                 <input type="hidden" name="users" value="{{ row.user_id }}">
-                                                <button type="submit" class="btn btn-icon text-center">
-                                                    <i class="fa fa-circle-plus {% if not row.can_view %} text-primary {% else %} text-muted {% endif %}"></i>
+                                                <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_create %} inactive {% endif %}">
+                                                    <i class="fa fa-circle-plus"></i>
                                                 </button>
                                             </form>
                                         {% endif %}
@@ -116,8 +116,8 @@
                                                 {% csrf_token %}
                                                 <input type="hidden" name="action" value="{% if row.can_update %}prevent_update{% else %}allow_update{% endif %}">
                                                 <input type="hidden" name="users" value="{{ row.user_id }}">
-                                                <button type="submit" class="btn btn-icon text-center">
-                                                    <i class="fa fa-pencil {% if row.can_update %} text-primary {% else %} text-muted {% endif %}"></i>
+                                                <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_update %} inactive {% endif %}">
+                                                    <i class="fa fa-pencil"></i>
                                                 </button>
                                             </form>
                                         {% endif %}
@@ -129,8 +129,8 @@
                                                 {% csrf_token %}
                                                 <input type="hidden" name="action" value="{% if row.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
                                                 <input type="hidden" name="users" value="{{ row.user_id }}">
-                                                <button type="submit" class="btn btn-icon text-center">
-                                                    <i class="fa fa-circle-xmark {% if row.can_delete %} text-primary {% else %} text-muted {% endif %}"></i>
+                                                <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_delete %} inactive {% endif %}">
+                                                    <i class="fa fa-circle-xmark"></i>
                                                 </button>
                                             </form>
                                         {% endif %}
@@ -142,7 +142,7 @@
                                             <input type="hidden" name="action" value="{% if row.can_view %}revoke{% else %}grant{% endif %}">
                                             <input type="hidden" name="users" value="{{ row.user_id }}">
                                             {% if row.can_view %} 
-                                                <button type="submit" class="btn btn-icon btn-outline-danger text-center">
+                                                <button type="submit" class="btn btn-outline-danger btn-permission">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
                                             {% else %}

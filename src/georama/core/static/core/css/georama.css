@@ -174,17 +174,18 @@ Change List and detail forms
 Icon buttons for permission pages
  */
 
-.btn-icon {
+.btn-permission {
+    border: none;
+    font-size: 1.15rem;
+    padding: 0.2rem 1rem;
+}
+
+.btn-permission:disabled {
     border: none;
 }
 
-.btn-icon:disabled {
-    border: none;
-}
-
-.btn-icon:hover:not(:disabled) {
-    background-color: var(--georama-border-color);
-    color: var(--bs-btn-color);
+.btn-permission.inactive:not(:hover) {
+    color: var(--bs-secondary-color);
 }
 
 /*
