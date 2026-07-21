@@ -1,5 +1,6 @@
 from adrf.mixins import get_data
 from asgiref.sync import sync_to_async
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.fields import ArrayField
@@ -241,6 +242,7 @@ class ManageFeatureLayerViewSet(GeoramaManagerViewSet):
             context["object_list"] = data
             context["limit"] = self.paginator.limit
             context.update(self.paginator.get_html_context())
+            context["per_page_options"] = settings.LIST_PAGE_SIZES
             context["breadcrumbs"][-1].view_name = self.reverse_action("detail", [pk])
             context["breadcrumbs"].append(Breadcrumb("Permissions"))
             context["breadcrumbs"].append(Breadcrumb("Users"))
