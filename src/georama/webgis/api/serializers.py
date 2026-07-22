@@ -1,5 +1,11 @@
-from rest_framework import serializers
+from adrf import serializers
 
+from georama.core.common.serializers import (
+    GroupObjectPermissionSerializer,
+    GroupPermissionBulkActionSerializer,
+    UserObjectPermissionSerializer,
+    UserPermissionBulkActionSerializer,
+)
 from georama.webgis.models import Theme
 from georama.webgis.models.metadata import Metadata
 from georama.webgis.models.wms_layer import WmsLayer
@@ -47,3 +53,37 @@ class WmsLayerSerializer(serializers.ModelSerializer):
             "metadata",
         ]
         extra_kwargs = {"id": {"read_only": True}}
+
+
+class ThemePermissionSerializer(serializers.Serializer):
+    can_view = serializers.SerializerMethodField()
+
+    async def get_can_view(self, obj):
+        return Theme.VIEW_PERMISSION in obj.permission_codenames
+
+
+class ThemeUserObjectPermissionSerializer(
+    UserObjectPermissionSerializer,
+    ThemePermissionSerializer,
+): ...
+
+
+class ThemeGroupObjectPermissionSerializer(
+    GroupObjectPermissionSerializer,
+    ThemePermissionSerializer,
+): ...
+
+
+class ThemePermissionBulkActionSerializer(serializers.Serializer):
+    action = serializers.ChoiceField(choices=list(Theme.ACTION_MAP.keys()))
+
+
+class ThemeUserPermissionBulkActionSerializer(
+    ThemePermissionBulkActionSerializer,
+    UserPermissionBulkActionSerializer,
+): ...
+
+
+class ThemeGroupPermissionBulkActionSerializer(
+    ThemePermissionBulkActionSerializer, GroupPermissionBulkActionSerializer
+): ...

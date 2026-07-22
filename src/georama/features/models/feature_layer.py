@@ -20,6 +20,23 @@ class FeatureLayer(models.Model):
         ("THROTTLE", "throttle"),
     )
 
+    VIEW_PERMISSION = "view_objects_on_published_layer"
+    CREATE_PERMISSION = "create_objects_on_published_layer"
+    UPDATE_PERMISSION = "update_objects_on_published_layer"
+    DELETE_PERMISSION = "delete_objects_on_published_layer"
+    ALL_PERMISSIONS = [VIEW_PERMISSION, CREATE_PERMISSION, UPDATE_PERMISSION, DELETE_PERMISSION]
+
+    ACTION_MAP = {
+        "grant": (True, [VIEW_PERMISSION]),
+        "allow_create": (True, [VIEW_PERMISSION, CREATE_PERMISSION]),
+        "allow_update": (True, [VIEW_PERMISSION, UPDATE_PERMISSION]),
+        "allow_delete": (True, [VIEW_PERMISSION, DELETE_PERMISSION]),
+        "prevent_create": (False, [CREATE_PERMISSION]),
+        "prevent_update": (False, [UPDATE_PERMISSION]),
+        "prevent_delete": (False, [DELETE_PERMISSION]),
+        "revoke": (False, ALL_PERMISSIONS),
+    }
+
     class Meta:
         verbose_name = _("feature layer")
         verbose_name_plural = _("feature layers")

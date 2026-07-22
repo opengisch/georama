@@ -1,17 +1,23 @@
 import json
 
 from adrf import mixins, viewsets
+from adrf.mixins import get_data
 from asgiref.sync import sync_to_async
 from django.apps import apps
 from django.conf import settings
 from django.contrib.admin.utils import NestedObjects
+from django.contrib.auth import get_user_model
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.contrib.postgres.fields import ArrayField
 from django.db import router as djdb_router
+from django.db.models import CharField, Min, Q, Value
+from django.db.models.functions import Coalesce
 from django.forms import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from drf_spectacular.plumbing import build_mock_request as original_build_mock_request
-from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import assign_perm, get_objects_for_user, remove_perm
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, DjangoModelPermissions
@@ -20,7 +26,15 @@ from rest_framework.response import Response
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.remote_actions import RemoteAction, get_remote_action
 from georama.core.common.request import GeoramaDrfRequest
+from georama.core.common.serializers import (
+    GroupObjectPermissionSerializer,
+    GroupPermissionBulkActionSerializer,
+    UserObjectPermissionSerializer,
+    UserPermissionBulkActionSerializer,
+)
 from georama.core.patches.adrf import pagination
+
+User = get_user_model()
 
 
 class GeoramaModelPermissions(DjangoModelPermissions):
@@ -156,6 +170,7 @@ class GeoramaTemplateViewSetReadOnly(
             "can_add": False,
             "can_change": False,
             "can_delete": False,
+            "can_manage_permissions": False,
         }
 
     @property
@@ -303,6 +318,9 @@ class GeoramaTemplateViewSet(
             ),
             "can_delete": await self.request.user.ahas_perms(
                 perm_checker.get_required_permissions("DELETE", self.queryset.model)
+            ),
+            "can_manage_permissions": self.request.user.has_perm(
+                f"{self.queryset.model._meta.app_label}.manage_object_permissions"
             ),
         }
 
@@ -542,3 +560,136 @@ class GeoramaManagerViewSet(GeoramaOrganisationalMixin, GeoramaTemplateViewSet):
             ),
             Breadcrumb(_("Manage")),
         ]
+
+
+class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
+    """This viewset is meant to be used when permissions are based on the model itself.
+    meaning the normal behaviour Django and DRF offer. It is explicitly not ment to be used
+    for object permissions. It is prepared to be used as a management GUI/API for a model.
+
+    Attributes:
+        permission_classes: This view should only have one
+            permission class - `GeoramaModelPermissions` this permission class is used
+            to check for permissions on different places of the viewset.
+    """
+
+    user_permissions_template_name: str = "core/drf/default/user_permissions.html"
+    group_permissions_template_name: str = "core/drf/default/group_permissions.html"
+
+    user_permissions_serializer_class = UserObjectPermissionSerializer
+    group_permissions_serializer_class = GroupObjectPermissionSerializer
+    user_permissions_bulk_action_serializer_class = UserPermissionBulkActionSerializer
+    group_permissions_bulk_action_serializer_class = GroupPermissionBulkActionSerializer
+
+    @property
+    def url_name_user_permissions(self):
+        return self.url_name("user-permissions")
+
+    @property
+    def url_name_group_permissions(self):
+        return self.url_name("group-permissions")
+
+    @action(detail=True, methods=["get", "post"], url_path="permissions/users")
+    async def user_permissions(self, request: GeoramaDrfRequest, pk: str):
+        context = await self._prepare_single_context()
+
+        if request.method == "POST":
+            action_map = self.queryset.model.ACTION_MAP
+
+            payload_serializer = self.user_permissions_bulk_action_serializer_class(
+                data=request.data
+            )
+            if not payload_serializer.is_valid():
+                # TODO: handle html
+                return Response(payload_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            action_name = payload_serializer.validated_data["action"]
+            users = payload_serializer.validated_data["users"]
+
+            add, permission_names = action_map[action_name]
+            permission_action = sync_to_async(assign_perm) if add else sync_to_async(remove_perm)
+            found_users = []
+
+            # TODO: some validation ?
+            async for user in User.objects.filter(id__in=users):
+                found_users.append(str(user.id))
+                for permission_name in permission_names:
+                    full_permission = f"{self.queryset.model._meta.app_label}.{permission_name}"
+                    await permission_action(full_permission, user, context["object"])
+
+            if request.accepted_renderer.format == "html":
+                return redirect(reverse(self.url_name_user_permissions, kwargs={"pk": pk}))
+
+            return Response(
+                {
+                    "detail": "Permissions assigned.",
+                    "action": action_name,
+                    "users": found_users,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        user_perm_model = self.queryset.model.user_object_permissions.rel.related_model
+        user_perm_model_name = user_perm_model._meta.model_name
+
+        permissions_filter = Q(
+            **{
+                f"{user_perm_model_name}__content_object_id": pk,
+                f"{user_perm_model_name}__permission__codename__in": [
+                    *self.queryset.model.ALL_PERMISSIONS
+                ],
+            },
+        )
+        qs = User.objects.annotate(
+            permission_codenames=Coalesce(
+                ArrayAgg(
+                    f"{user_perm_model_name}__permission__codename",
+                    filter=permissions_filter,
+                ),
+                Value([], output_field=ArrayField(CharField())),
+            ),
+            permission_time_created=Min(
+                f"{user_perm_model_name}__time_created",
+                filter=permissions_filter,
+            ),
+        ).order_by("username")
+
+        search_param = "username"
+        search_term = request.query_params.get("username", "")
+
+        if search_term:
+            qs = qs.filter(username__icontains=search_term)
+
+        # TODO: improve performance by collecting the codenames in a set instead of a list
+
+        pqs = await self.apaginate_queryset(qs)
+        serializer = self.user_permissions_serializer_class(pqs, many=True)
+        data = await get_data(serializer)
+
+        if request.accepted_renderer.format == "html":
+            context.update(await self._get_model_permissions())
+            context["search_term"] = search_term
+            context["search_param"] = search_param
+            context["search_fields_hint"] = _("searchable fields: username")
+            context["object_list"] = data
+            context["limit"] = self.paginator.limit
+            context.update(self.paginator.get_html_context())
+            context["per_page_options"] = settings.LIST_PAGE_SIZES
+            context["breadcrumbs"][-1].view_name = self.reverse_action("detail", [pk])
+            context["breadcrumbs"].append(Breadcrumb("Permissions"))
+            context["breadcrumbs"].append(Breadcrumb("Users"))
+            context["action_choices"] = list(
+                self.user_permissions_bulk_action_serializer_class()
+                .fields["action"]
+                .choices.items()
+            )
+            return Response(
+                context,
+                template_name=self.user_permissions_template_name,
+            )
+        else:
+            return await self.get_apaginated_response(data)
+
+    @action(detail=True, methods=["get", "post"], url_path="permissions/groups")
+    async def group_permissions(self, request: GeoramaDrfRequest, pk: str):
+        raise NotImplementedError()

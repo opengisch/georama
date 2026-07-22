@@ -251,6 +251,14 @@ class WmsLayerAbstract(models.Model):
 class WmsLayer(WmsLayerAbstract):
     ORGANISATION_FIELD_NAME = "datasource__project__organisation"
 
+    VIEW_PERMISSION = "view_published_wms_layer"
+    ALL_PERMISSIONS = [VIEW_PERMISSION]
+
+    ACTION_MAP = {
+        "grant": (True, [VIEW_PERMISSION]),
+        "revoke": (False, ALL_PERMISSIONS),
+    }
+
     class Meta:
         verbose_name = _("wms layer")
         verbose_name_plural = _("wms layers")

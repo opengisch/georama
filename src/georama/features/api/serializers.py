@@ -1,9 +1,12 @@
 from adrf import serializers
 from django.contrib.auth import get_user_model
-from django.utils.formats import date_format
-from django.utils.timesince import timesince
-from django.utils.translation import gettext_lazy as _
 
+from georama.core.common.serializers import (
+    GroupObjectPermissionSerializer,
+    GroupPermissionBulkActionSerializer,
+    UserObjectPermissionSerializer,
+    UserPermissionBulkActionSerializer,
+)
 from georama.features.models import FeatureLayer, Field, Metadata
 
 User = get_user_model()
@@ -48,83 +51,47 @@ class FeatureLayerSerializer(serializers.ModelSerializer):
         extra_kwargs = {"id": {"read_only": True}}
 
 
-class BasePermissionSerializer(serializers.Serializer):
+class FeatureLayerPermissionSerializer(serializers.Serializer):
     can_view = serializers.SerializerMethodField()
     can_create = serializers.SerializerMethodField()
     can_delete = serializers.SerializerMethodField()
     can_update = serializers.SerializerMethodField()
-    time_created = serializers.DateTimeField(read_only=True, allow_null=True)
-    time_created_formatted = serializers.SerializerMethodField()
-    time_created_since = serializers.SerializerMethodField()
 
     async def get_can_view(self, obj):
-        return "view_objects_on_published_layer" in obj.permission_codenames
+        return FeatureLayer.VIEW_PERMISSION in obj.permission_codenames
 
     async def get_can_create(self, obj):
-        return "create_objects_on_published_layer" in obj.permission_codenames
-
-    async def get_can_delete(self, obj):
-        return "delete_objects_on_published_layer" in obj.permission_codenames
+        return FeatureLayer.CREATE_PERMISSION in obj.permission_codenames
 
     async def get_can_update(self, obj):
-        return "update_objects_on_published_layer" in obj.permission_codenames
+        return FeatureLayer.UPDATE_PERMISSION in obj.permission_codenames
 
-    @staticmethod
-    async def get_time_created_formatted(obj):
-        if t := obj.permission_time_created:
-            return date_format(t, format="DATETIME_FORMAT")
-        return ""
-
-    @staticmethod
-    async def get_time_created_since(obj):
-        if t := obj.permission_time_created:
-            return _("{} ago").format(timesince(t))
-        return ""
+    async def get_can_delete(self, obj):
+        return FeatureLayer.DELETE_PERMISSION in obj.permission_codenames
 
 
-class FeatureLayerUserObjectPermissionSerializer(BasePermissionSerializer):
-    user_id = serializers.UUIDField(source="id", read_only=True)
-    username = serializers.CharField(read_only=True)
+class FeatureLayerUserObjectPermissionSerializer(
+    UserObjectPermissionSerializer,
+    FeatureLayerPermissionSerializer,
+): ...
 
 
-class FeatureLayerGroupObjectPermissionSerializer(serializers.Serializer):
-    group = serializers.UUIDField(source="group_id")
+class FeatureLayerGroupObjectPermissionSerializer(
+    GroupObjectPermissionSerializer,
+    FeatureLayerPermissionSerializer,
+): ...
 
 
-class PermissionBulkActionSerializer(serializers.Serializer):
-    action = serializers.ChoiceField(
-        choices=[
-            "grant",
-            "revoke",
-            "allow_create",
-            "allow_update",
-            "allow_delete",
-            "prevent_create",
-            "prevent_update",
-            "prevent_delete",
-        ]
-    )
+class FeatureLayerPermissionBulkActionSerializer(serializers.Serializer):
+    action = serializers.ChoiceField(choices=list(FeatureLayer.ACTION_MAP.keys()))
 
 
-class FeatureLayerUserPermissionBulkActionSerializer(PermissionBulkActionSerializer):
-    users = serializers.ListField(
-        child=serializers.UUIDField(),
-        allow_empty=False,
-    )
-    # users = serializers.PrimaryKeyRelatedField(
-    #     many=True,
-    #     queryset=User.objects.all(),
-    #     allow_empty=False,
-    # )
+class FeatureLayerUserPermissionBulkActionSerializer(
+    FeatureLayerPermissionBulkActionSerializer,
+    UserPermissionBulkActionSerializer,
+): ...
 
 
-class FeatureLayerGroupPermissionBulkActionSerializer(PermissionBulkActionSerializer):
-    groups = serializers.ListField(
-        child=serializers.UUIDField(),
-        allow_empty=False,
-    )
-    # groups = serializers.PrimaryKeyRelatedField(
-    #     many=True,
-    #     queryset=Group.objects.all(),
-    #     allow_empty=False,
-    # )
+class FeatureLayerGroupPermissionBulkActionSerializer(
+    FeatureLayerPermissionBulkActionSerializer, GroupPermissionBulkActionSerializer
+): ...

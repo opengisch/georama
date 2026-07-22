@@ -18,6 +18,17 @@
                 </a>
             {% endif %}
 
+            {% if can_manage_permissions %}
+                {% blocktranslate asvar title %}Edit permissions{% endblocktranslate %}
+                <a href="{% url view.url_name_user_permissions object.pk %}"
+                   class="btn btn-outline-primary" role="button"
+                   data-bs-toggle="tooltip"
+                   title="{{ title }}"
+                   aria-label="{{ title }}">
+                    <i class="fa fa-lock"></i>
+                </a>
+            {% endif %}
+
             {% if can_delete %}
                 {% blocktranslate asvar title %}Delete item{% endblocktranslate %}
                 <a href="{% url view.url_name_delete_confirm object.pk %}"

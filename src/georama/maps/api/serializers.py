@@ -1,6 +1,12 @@
+from adrf import serializers
 from django.utils.translation import gettext as _
-from rest_framework import serializers
 
+from georama.core.common.serializers import (
+    GroupObjectPermissionSerializer,
+    GroupPermissionBulkActionSerializer,
+    UserObjectPermissionSerializer,
+    UserPermissionBulkActionSerializer,
+)
 from georama.maps.models import Metadata, WmsLayer
 
 
@@ -68,3 +74,37 @@ class PublishFromDatasourceInput(serializers.Serializer):
             "of the preview image in the moment of publishing."
         ),
     )
+
+
+class WmsLayerPermissionSerializer(serializers.Serializer):
+    can_view = serializers.SerializerMethodField()
+
+    async def get_can_view(self, obj):
+        return WmsLayer.VIEW_PERMISSION in obj.permission_codenames
+
+
+class WmsLayerUserObjectPermissionSerializer(
+    UserObjectPermissionSerializer,
+    WmsLayerPermissionSerializer,
+): ...
+
+
+class WmsLayerGroupObjectPermissionSerializer(
+    GroupObjectPermissionSerializer,
+    WmsLayerPermissionSerializer,
+): ...
+
+
+class WmsLayerPermissionBulkActionSerializer(serializers.Serializer):
+    action = serializers.ChoiceField(choices=list(WmsLayer.ACTION_MAP.keys()))
+
+
+class WmsLayerUserPermissionBulkActionSerializer(
+    WmsLayerPermissionBulkActionSerializer,
+    UserPermissionBulkActionSerializer,
+): ...
+
+
+class WmsLayerGroupPermissionBulkActionSerializer(
+    WmsLayerPermissionBulkActionSerializer, GroupPermissionBulkActionSerializer
+): ...

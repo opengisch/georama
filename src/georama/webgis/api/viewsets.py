@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.common.api import (
-    GeoramaManagerViewSet,
+    GeoramaManagerWithPermissionsViewSet,
     GeoramaModelPermissions,
     GeoramaObjPermViewSetReadOnly,
 )
@@ -19,7 +19,13 @@ from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.models import Project
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 from georama.webgis.adapters.qsl import WmsLayerIndex, theme_json_from_project_config
-from georama.webgis.api.serializers import ThemeSerializer
+from georama.webgis.api.serializers import (
+    ThemeGroupObjectPermissionSerializer,
+    ThemeGroupPermissionBulkActionSerializer,
+    ThemeSerializer,
+    ThemeUserObjectPermissionSerializer,
+    ThemeUserPermissionBulkActionSerializer,
+)
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     OgcServer as GGOgcServer,
 )
@@ -32,7 +38,7 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.parsers import CustomD
 from georama.webgis.models import Metadata, Theme, WmsLayer
 
 
-class ManageThemeViewSet(GeoramaManagerViewSet):
+class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
     queryset = Theme.objects.all()
     serializer_class = ThemeSerializer
     filter_backends = [
@@ -43,6 +49,11 @@ class ManageThemeViewSet(GeoramaManagerViewSet):
     search_fields = ["metadata__title"]
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
+
+    user_permissions_serializer_class = ThemeUserObjectPermissionSerializer
+    group_permissions_serializer_class = ThemeGroupObjectPermissionSerializer
+    user_permissions_bulk_action_serializer_class = ThemeUserPermissionBulkActionSerializer
+    group_permissions_bulk_action_serializer_class = ThemeGroupPermissionBulkActionSerializer
 
     @property
     async def bread_crumb_action_context(self):

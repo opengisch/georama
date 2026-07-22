@@ -9,7 +9,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from georama.core.common.api import (
-    GeoramaManagerViewSet,
+    GeoramaManagerWithPermissionsViewSet,
     GeoramaModelPermissions,
     GeoramaObjPermViewSetReadOnly,
 )
@@ -22,13 +22,17 @@ from georama.maps.api.serializers import (
     PreviewGeneratorInput,
     PreviewGeneratorResult,
     PublishFromDatasourceInput,
+    WmsLayerGroupObjectPermissionSerializer,
+    WmsLayerGroupPermissionBulkActionSerializer,
     WmsLayerSerializer,
+    WmsLayerUserObjectPermissionSerializer,
+    WmsLayerUserPermissionBulkActionSerializer,
 )
 from georama.maps.forms.wms_layer import WmsLayerModelForm
 from georama.maps.models import Metadata, WmsLayer
 
 
-class ManageWmsLayerViewSet(GeoramaManagerViewSet):
+class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
     queryset = WmsLayer.objects.all()
     serializer_class = WmsLayerSerializer
     filter_backends = [
@@ -42,6 +46,11 @@ class ManageWmsLayerViewSet(GeoramaManagerViewSet):
     form = WmsLayerModelForm
     list_body_partial_template_name = "maps/drf/wms_layer/partials/list_body.html"
     show_template_name = "maps/drf/wms_layer/detail.html"
+
+    user_permissions_serializer_class = WmsLayerUserObjectPermissionSerializer
+    group_permissions_serializer_class = WmsLayerGroupObjectPermissionSerializer
+    user_permissions_bulk_action_serializer_class = WmsLayerUserPermissionBulkActionSerializer
+    group_permissions_bulk_action_serializer_class = WmsLayerGroupPermissionBulkActionSerializer
 
     @property
     async def bread_crumb_action_context(self):

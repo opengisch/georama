@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from adrf import serializers
 
 from georama.integration.models import Custom, Datasource, Project, Raster, Vector
 from georama.integration.models.datasource import VectorField
