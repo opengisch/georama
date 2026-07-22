@@ -652,7 +652,14 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
                 f"{user_perm_model_name}__time_created",
                 filter=permissions_filter,
             ),
-        ).order_by("username")
+        )
+
+        sort_by_latest_param = "sort_by_latest"
+        sort_by_latest = sort_by_latest_param in request.query_params
+        if sort_by_latest:
+            qs = qs.order_by("permission_time_created", "username")
+        else:
+            qs = qs.order_by("username")
 
         search_param = "username"
         search_term = request.query_params.get("username", "")
