@@ -4,14 +4,14 @@
     --bs-secondary: var(--georama-yellow);
     --bs-success: var(--georama-green);
     --bs-warning: var(#ed7f2c);
-    --bs-light: #e8e9e3;
+    --bs-light: #d2d3cc;
     --bs-dark: #464744;
     
     --bs-primary-rgb: var(--georama-green-rgb);
     --bs-secondary-rgb: var(--georama-yellow-rgb);
     --bs-success-rgb: var(--georama-green-rgb);
     --bs-warning-rgb: 237, 127, 44;
-    --bs-light-rgb: 232, 233, 227;
+    --bs-light-rgb: 210, 211, 204;
     --bs-dark-rgb: 70, 71, 68;
     
     --bs-primary-text-emphasis: var(--georama-green-dark);
@@ -48,8 +48,8 @@
 }
 
 [data-bs-theme=dark] {
-    --bs-light: #909289;
-    --bs-light-rgb: 144, 146, 137;
+    --bs-light: #4b4c48;
+    --bs-light-rgb: 75, 76, 72;
     --bs-dark: #1a1b18;
     --bs-dark-rgb: 26, 27, 24;
     

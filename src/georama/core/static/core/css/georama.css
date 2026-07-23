@@ -190,7 +190,7 @@ Icon buttons for permission pages
 }
 
 .btn-permission.inactive:not(:hover) {
-    color: var(--bs-secondary-color);
+    color: var(--bs-light);
 }
 
 /*
