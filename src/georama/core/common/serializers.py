@@ -30,9 +30,9 @@ class UserObjectPermissionSerializer(BasePermissionSerializer):
     entity_name = serializers.CharField(source="username", read_only=True)
 
 
-class GroupObjectPermissionSerializer(serializers.Serializer):
-    entity_id = serializers.UUIDField(source="id")
-    entity_name = serializers.UUIDField(source="name")
+class GroupObjectPermissionSerializer(BasePermissionSerializer):
+    entity_id = serializers.UUIDField(source="id", read_only=True)
+    entity_name = serializers.CharField(source="name", read_only=True)
 
 
 class BasePermissionBulkActionSerializer(serializers.Serializer):
