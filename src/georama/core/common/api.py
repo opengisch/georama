@@ -654,25 +654,25 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             ),
         )
 
-        sort_by_latest = request.query_params.get("sort_by_latest", 0) != 0
+        sort_by_latest = request.query_params.get("sort_by_latest", 0)
         if sort_by_latest:
             qs = qs.order_by("permission_time_created", "username")
         else:
             qs = qs.order_by("username")
 
-        filter_can_view = request.query_params.get("filter_can_view", 0) != 0
+        filter_can_view = request.query_params.get("filter_can_view", 0)
         if filter_can_view:
             qs = qs.filter(can_view=True)
 
-        filter_can_create = request.query_params.get("filter_can_create", 0) != 0
+        filter_can_create = request.query_params.get("filter_can_create", 0)
         if filter_can_create:
             qs = qs.filter(can_create=True)
 
-        filter_can_update = request.query_params.get("filter_can_update", 0) != 0
+        filter_can_update = request.query_params.get("filter_can_update", 0)
         if filter_can_update:
             qs = qs.filter(can_update=True)
 
-        filter_can_delete = request.query_params.get("filter_can_delete", 0) != 0
+        filter_can_delete = request.query_params.get("filter_can_delete", 0)
         if filter_can_delete:
             qs = qs.filter(can_delete=True)
 
@@ -785,25 +785,25 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             ),
         )
 
-        sort_by_latest = request.query_params.get("sort_by_latest", 0) != 0
+        sort_by_latest = request.query_params.get("sort_by_latest", 0)
         if sort_by_latest:
             qs = qs.order_by("permission_time_created", "name")
         else:
             qs = qs.order_by("name")
 
-        filter_can_view = request.query_params.get("filter_can_view", 0) != 0
+        filter_can_view = request.query_params.get("filter_can_view", 0)
         if filter_can_view:
             qs = qs.filter(can_view=True)
 
-        filter_can_create = request.query_params.get("filter_can_create", 0) != 0
+        filter_can_create = request.query_params.get("filter_can_create", 0)
         if filter_can_create:
             qs = qs.filter(can_create=True)
 
-        filter_can_update = request.query_params.get("filter_can_update", 0) != 0
+        filter_can_update = request.query_params.get("filter_can_update", 0)
         if filter_can_update:
             qs = qs.filter(can_update=True)
 
-        filter_can_delete = request.query_params.get("filter_can_delete", 0) != 0
+        filter_can_delete = request.query_params.get("filter_can_delete", 0)
         if filter_can_delete:
             qs = qs.filter(can_delete=True)
 
