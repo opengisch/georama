@@ -693,10 +693,11 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
 
         if request.accepted_renderer.format == "html":
             context.update(await self._get_model_permissions())
+            context["permissions_url_name"] = self.url_name_user_permissions
+            context["permissions_entity_field"] = "users"
             context["search_term"] = search_term
             context["search_param"] = search_param
-            context["search_fields_hint"] = _("searchable fields: username")
-            context["filter_entities"] = "users"
+            context["search_fields_hint"] = _("searchable fields: user name")
             context["filter_can_view"] = filter_can_view
             context["filter_can_create"] = filter_can_create
             context["filter_can_update"] = filter_can_update
@@ -751,7 +752,11 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
                     await permission_action(full_permission, group, context["object"])
 
             if request.accepted_renderer.format == "html":
-                return redirect(reverse(self.url_name_group_permissions, kwargs={"pk": pk}))
+                target_url = reverse(self.url_name_group_permissions, kwargs={"pk": pk})
+                query_string = request.GET.urlencode()
+                if query_string:
+                    target_url = f"{target_url}?{query_string}"
+                return redirect(target_url)
 
             return Response(
                 {
@@ -825,10 +830,11 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
 
         if request.accepted_renderer.format == "html":
             context.update(await self._get_model_permissions())
+            context["permissions_url_name"] = self.url_name_group_permissions
+            context["permissions_entity_field"] = "groups"
             context["search_term"] = search_term
             context["search_param"] = search_param
-            context["search_fields_hint"] = _("searchable fields: name")
-            context["filter_entities"] = "groups"
+            context["search_fields_hint"] = _("searchable fields: group name")
             context["filter_can_view"] = filter_can_view
             context["filter_can_create"] = filter_can_create
             context["filter_can_update"] = filter_can_update

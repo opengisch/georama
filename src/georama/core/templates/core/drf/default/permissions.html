@@ -5,7 +5,7 @@
     <div class="h-100 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height:0">
 
         <form method="post" id="bulk-action-form"
-              action="{% url view.url_name_user_permissions object.pk %}{% querystring %}">
+              action="{% url permissions_url_name object.pk %}{% querystring %}">
             {% csrf_token %}
         </form>
 
@@ -17,7 +17,7 @@
             
                 {% blocktranslate asvar title %}Show group list{% endblocktranslate %}
                 <a href="{% url view.url_name_group_permissions object.pk %}{% querystring %}"
-                   class="btn btn-outline-primary {% if filter_entities == "groups" %} active {% endif %}"
+                   class="btn btn-outline-primary {% if permissions_entity_field == "groups" %} active {% endif %}"
                    role="button"
                    data-bs-toggle="tooltip"
                    title="{{ title }}"
@@ -28,7 +28,7 @@
 
                 {% blocktranslate asvar title %}Show user list{% endblocktranslate %}
                 <a href="{% url view.url_name_user_permissions object.pk %}{% querystring %}"
-                   class="btn btn-outline-primary {% if filter_entities == "users" %} active {% endif %}"
+                   class="btn btn-outline-primary {% if permissions_entity_field == "users" %} active {% endif %}"
                    role="button"
                    data-bs-toggle="tooltip"
                    title="{{ title }}"
@@ -41,7 +41,7 @@
             <!-- Latest filter -->
             <div>
                 {% blocktranslate asvar title %}Sort permission list by latest granted permissions{% endblocktranslate %}
-                <a href="{% url view.url_name_user_permissions object.pk %}{% if sort_by_latest == '1' %}{% querystring sort_by_latest=None %}{% else %}{% querystring sort_by_latest='1' %}{% endif %}"
+                <a href="{% url permissions_url_name object.pk %}{% if sort_by_latest == '1' %}{% querystring sort_by_latest=None %}{% else %}{% querystring sort_by_latest='1' %}{% endif %}"
                    class="btn btn-outline-primary {% if sort_by_latest == '1' %} active {% endif %}"
                    role="button"
                    data-bs-toggle="tooltip"
@@ -60,7 +60,7 @@
                     {% endfor %}
                 </select>
                 <button type="submit" form="bulk-action-form" class="btn btn-outline-primary">
-                    {% trans "Apply to selected users" %}
+                    {% trans "Apply to selected entries" %}
                 </button>
             </div>
         </div>
@@ -89,7 +89,7 @@
     
                 <div class="col-1 text-center d-flex align-items-center">
                     {% blocktranslate asvar title %}Filter entries with view permission{% endblocktranslate %}
-                    <a href="{% url view.url_name_user_permissions object.pk %}{% if filter_can_view == '1' %}{% querystring filter_can_view=None %}{% else %}{% querystring filter_can_view='1' %}{% endif %}"
+                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_view == '1' %}{% querystring filter_can_view=None %}{% else %}{% querystring filter_can_view='1' %}{% endif %}"
                        class="btn btn-outline-primary btn-permission in-header {% if filter_can_view != "1" %} inactive {% endif %}"
                        role="button" data-bs-toggle="tooltip"
                        title="{{ title }}" aria-label="{{ title }}">
@@ -100,7 +100,7 @@
 
                 <div class="col-1 text-center d-flex align-items-center">
                     {% blocktranslate asvar title %}Filter entries with create permission{% endblocktranslate %}
-                    <a href="{% url view.url_name_user_permissions object.pk %}{% if filter_can_create == '1' %}{% querystring filter_can_create=None %}{% else %}{% querystring filter_can_create='1' %}{% endif %}"
+                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_create == '1' %}{% querystring filter_can_create=None %}{% else %}{% querystring filter_can_create='1' %}{% endif %}"
                        class="btn btn-outline-primary btn-permission in-header {% if filter_can_create != "1" %} inactive {% endif %}"
                        role="button" data-bs-toggle="tooltip"
                        title="{{ title }}" aria-label="{{ title }}">
@@ -110,7 +110,7 @@
                 
                 <div class="col-1 text-center d-flex align-items-center">
                     {% blocktranslate asvar title %}Filter entries with update permission{% endblocktranslate %}
-                    <a href="{% url view.url_name_user_permissions object.pk %}{% if filter_can_update == '1' %}{% querystring filter_can_update=None %}{% else %}{% querystring filter_can_update='1' %}{% endif %}"
+                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_update == '1' %}{% querystring filter_can_update=None %}{% else %}{% querystring filter_can_update='1' %}{% endif %}"
                        class="btn btn-outline-primary btn-permission in-header {% if filter_can_update != "1" %} inactive {% endif %}"
                        role="button" data-bs-toggle="tooltip"
                        title="{{ title }}" aria-label="{{ title }}">
@@ -120,7 +120,7 @@
                 
                 <div class="col-1 text-center d-flex align-items-center">
                     {% blocktranslate asvar title %}Filter entries with delete permission{% endblocktranslate %}
-                    <a href="{% url view.url_name_user_permissions object.pk %}{% if filter_can_delete == '1' %}{% querystring filter_can_delete=None %}{% else %}{% querystring filter_can_delete='1' %}{% endif %}"
+                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_delete == '1' %}{% querystring filter_can_delete=None %}{% else %}{% querystring filter_can_delete='1' %}{% endif %}"
                        class="btn btn-outline-primary btn-permission in-header {% if filter_can_delete != "1" %} inactive {% endif %}"
                        role="button" data-bs-toggle="tooltip"
                        title="{{ title }}" aria-label="{{ title }}">
@@ -150,13 +150,13 @@
                                 class="form-check-input me-3"
                                 type="checkbox"
                                 form="bulk-action-form"
-                                name="users"
-                                value="{{ row.user_id }}"
+                                name="{{ permissions_entity_field }}"
+                                value="{{ row.entity_id }}"
                                 id="bulk-user-{{ forloop.counter }}"
                         >
                         <i class="fa fa-user text-muted me-1"></i>
                         <label class="form-check-label" for="bulk-user-{{ forloop.counter }}">
-                            {{ row.username }}
+                            {{ row.entity_name }}
                         </label>
                     </div>
                 
@@ -174,10 +174,10 @@
     
                     <div class="col-1 text-center">
                         {% if row.can_view %}
-                            <form method="post" action="{% url view.url_name_user_permissions object.pk %}{% querystring %}">
+                            <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_create %}prevent_create{% else %}allow_create{% endif %}">
-                                <input type="hidden" name="users" value="{{ row.user_id }}">
+                                <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
                                 <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_create %} inactive {% endif %}">
                                     <i class="fa fa-circle-plus"></i>
                                 </button>
@@ -187,10 +187,10 @@
     
                     <div class="col-1 text-center">
                         {% if row.can_view %}
-                            <form method="post" action="{% url view.url_name_user_permissions object.pk %}{% querystring %}">
+                            <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_update %}prevent_update{% else %}allow_update{% endif %}">
-                                <input type="hidden" name="users" value="{{ row.user_id }}">
+                                <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
                                 <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_update %} inactive {% endif %}">
                                     <i class="fa fa-pencil"></i>
                                 </button>
@@ -200,10 +200,10 @@
     
                     <div class="col-1 text-center">
                         {% if row.can_view %}
-                            <form method="post" action="{% url view.url_name_user_permissions object.pk %}{% querystring %}">
+                            <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
-                                <input type="hidden" name="users" value="{{ row.user_id }}">
+                                <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
                                 <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_delete %} inactive {% endif %}">
                                     <i class="fa fa-circle-xmark"></i>
                                 </button>
@@ -212,10 +212,10 @@
                     </div>
     
                     <div class="col-2 text-center">
-                        <form method="post" action="{% url view.url_name_user_permissions object.pk %}{% querystring %}">
+                        <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="{% if row.can_view %}revoke{% else %}grant{% endif %}">
-                            <input type="hidden" name="users" value="{{ row.user_id }}">
+                            <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
                             {% if row.can_view %} 
                                 <button type="submit" class="btn btn-outline-danger btn-permission">
                                     <i class="fa fa-trash"></i>
@@ -246,9 +246,10 @@
          * Toggle the selection state of all rows of the permission list
          */
         function select_all() {
+            const entityField = "{{ permissions_entity_field|escapejs }}";
             const selectAllCheckbox = document.getElementById('bulk-select-all');
-            const userCheckboxes = document.querySelectorAll('input[type="checkbox"][name="users"]');
-            userCheckboxes.forEach(checkbox => {
+            const entityCheckboxes = document.querySelectorAll(`input[type="checkbox"][name="${entityField}"]`);
+            entityCheckboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
         }
