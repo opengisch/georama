@@ -48,6 +48,6 @@ class UserPermissionBulkActionSerializer(BasePermissionBulkActionSerializer):
 
 class GroupPermissionBulkActionSerializer(BasePermissionBulkActionSerializer):
     groups = serializers.ListField(
-        child=serializers.UUIDField(),
+        child=serializers.IntegerField(),
         allow_empty=False,
     )

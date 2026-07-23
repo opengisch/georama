@@ -56,10 +56,7 @@ class WmsLayerSerializer(serializers.ModelSerializer):
 
 
 class ThemePermissionSerializer(serializers.Serializer):
-    can_view = serializers.SerializerMethodField()
-
-    async def get_can_view(self, obj):
-        return Theme.VIEW_PERMISSION in obj.permission_codenames
+    can_view = serializers.BooleanField()
 
 
 class ThemeUserObjectPermissionSerializer(

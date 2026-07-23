@@ -52,22 +52,10 @@ class FeatureLayerSerializer(serializers.ModelSerializer):
 
 
 class FeatureLayerPermissionSerializer(serializers.Serializer):
-    can_view = serializers.SerializerMethodField()
-    can_create = serializers.SerializerMethodField()
-    can_delete = serializers.SerializerMethodField()
-    can_update = serializers.SerializerMethodField()
-
-    async def get_can_view(self, obj):
-        return FeatureLayer.VIEW_PERMISSION in obj.permission_codenames
-
-    async def get_can_create(self, obj):
-        return FeatureLayer.CREATE_PERMISSION in obj.permission_codenames
-
-    async def get_can_update(self, obj):
-        return FeatureLayer.UPDATE_PERMISSION in obj.permission_codenames
-
-    async def get_can_delete(self, obj):
-        return FeatureLayer.DELETE_PERMISSION in obj.permission_codenames
+    can_view = serializers.BooleanField()
+    can_create = serializers.BooleanField()
+    can_delete = serializers.BooleanField()
+    can_update = serializers.BooleanField()
 
 
 class FeatureLayerUserObjectPermissionSerializer(

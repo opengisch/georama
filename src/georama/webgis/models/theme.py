@@ -24,12 +24,13 @@ from georama.webgis.models.wms_layer import WmsLayer
 class Theme(models.Model):
     ORGANISATION_FIELD_NAME = "project__organisation"
 
-    VIEW_PERMISSION = "view_published_theme"
-    ALL_PERMISSIONS = [VIEW_PERMISSION]
+    PERMISSIONS = {
+        "can_view": "view_published_theme",
+    }
 
     ACTION_MAP = {
-        "grant": (True, [VIEW_PERMISSION]),
-        "revoke": (False, ALL_PERMISSIONS),
+        "grant": (True, [PERMISSIONS["can_view"]]),
+        "revoke": (False, list(PERMISSIONS.values())),
     }
 
     class Meta:

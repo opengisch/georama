@@ -77,10 +77,7 @@ class PublishFromDatasourceInput(serializers.Serializer):
 
 
 class WmsLayerPermissionSerializer(serializers.Serializer):
-    can_view = serializers.SerializerMethodField()
-
-    async def get_can_view(self, obj):
-        return WmsLayer.VIEW_PERMISSION in obj.permission_codenames
+    can_view = serializers.BooleanField()
 
 
 class WmsLayerUserObjectPermissionSerializer(

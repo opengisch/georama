@@ -20,21 +20,22 @@ class FeatureLayer(models.Model):
         ("THROTTLE", "throttle"),
     )
 
-    VIEW_PERMISSION = "view_objects_on_published_layer"
-    CREATE_PERMISSION = "create_objects_on_published_layer"
-    UPDATE_PERMISSION = "update_objects_on_published_layer"
-    DELETE_PERMISSION = "delete_objects_on_published_layer"
-    ALL_PERMISSIONS = [VIEW_PERMISSION, CREATE_PERMISSION, UPDATE_PERMISSION, DELETE_PERMISSION]
+    PERMISSIONS = {
+        "can_view": "view_objects_on_published_layer",
+        "can_create": "create_objects_on_published_layer",
+        "can_update": "update_objects_on_published_layer",
+        "can_delete": "delete_objects_on_published_layer",
+    }
 
     ACTION_MAP = {
-        "grant": (True, [VIEW_PERMISSION]),
-        "allow_create": (True, [VIEW_PERMISSION, CREATE_PERMISSION]),
-        "allow_update": (True, [VIEW_PERMISSION, UPDATE_PERMISSION]),
-        "allow_delete": (True, [VIEW_PERMISSION, DELETE_PERMISSION]),
-        "prevent_create": (False, [CREATE_PERMISSION]),
-        "prevent_update": (False, [UPDATE_PERMISSION]),
-        "prevent_delete": (False, [DELETE_PERMISSION]),
-        "revoke": (False, ALL_PERMISSIONS),
+        "grant": (True, [PERMISSIONS["can_view"]]),
+        "allow_create": (True, [PERMISSIONS["can_view"], PERMISSIONS["can_create"]]),
+        "allow_update": (True, [PERMISSIONS["can_view"], PERMISSIONS["can_update"]]),
+        "allow_delete": (True, [PERMISSIONS["can_view"], PERMISSIONS["can_delete"]]),
+        "prevent_create": (False, [PERMISSIONS["can_create"]]),
+        "prevent_update": (False, [PERMISSIONS["can_update"]]),
+        "prevent_delete": (False, [PERMISSIONS["can_delete"]]),
+        "revoke": (False, list(PERMISSIONS.values())),
     }
 
     class Meta:

@@ -7,11 +7,9 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.admin.utils import NestedObjects
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.aggregates import ArrayAgg
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.auth.models import Group
 from django.db import router as djdb_router
-from django.db.models import CharField, Min, Q, Value
-from django.db.models.functions import Coalesce
+from django.db.models import Exists, Min, OuterRef, Q
 from django.forms import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -632,25 +630,27 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         user_perm_model = self.queryset.model.user_object_permissions.rel.related_model
         user_perm_model_name = user_perm_model._meta.model_name
 
-        permissions_filter = Q(
-            **{
-                f"{user_perm_model_name}__content_object_id": pk,
-                f"{user_perm_model_name}__permission__codename__in": [
-                    *self.queryset.model.ALL_PERMISSIONS
-                ],
-            },
-        )
         qs = User.objects.annotate(
-            permission_codenames=Coalesce(
-                ArrayAgg(
-                    f"{user_perm_model_name}__permission__codename",
-                    filter=permissions_filter,
-                ),
-                Value([], output_field=ArrayField(CharField())),
-            ),
+            **{
+                permission: Exists(
+                    user_perm_model.objects.filter(
+                        user_id=OuterRef("pk"),
+                        content_object_id=pk,
+                        permission__codename=codename,
+                    )
+                )
+                for permission, codename in self.queryset.model.PERMISSIONS.items()
+            },
             permission_time_created=Min(
                 f"{user_perm_model_name}__time_created",
-                filter=permissions_filter,
+                filter=Q(
+                    **{
+                        f"{user_perm_model_name}__content_object_id": pk,
+                        f"{user_perm_model_name}__permission__codename__in": list(
+                            self.queryset.model.PERMISSIONS.values()
+                        ),
+                    },
+                ),
             ),
         )
 
@@ -699,4 +699,111 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
 
     @action(detail=True, methods=["get", "post"], url_path="permissions/groups")
     async def group_permissions(self, request: GeoramaDrfRequest, pk: str):
-        raise NotImplementedError()
+        context = await self._prepare_single_context()
+
+        if request.method == "POST":
+            action_map = self.queryset.model.ACTION_MAP
+
+            payload_serializer = self.group_permissions_bulk_action_serializer_class(
+                data=request.data
+            )
+            if not payload_serializer.is_valid():
+                raise Exception(payload_serializer.errors)
+                # TODO: handle html
+                return Response(payload_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            action_name = payload_serializer.validated_data["action"]
+            groups = payload_serializer.validated_data["groups"]
+
+            add, permission_names = action_map[action_name]
+            permission_action = sync_to_async(assign_perm) if add else sync_to_async(remove_perm)
+            found_groups = []
+
+            # TODO: some validation ?
+            async for group in Group.objects.filter(id__in=groups):
+                found_groups.append(str(group.id))
+                for permission_name in permission_names:
+                    full_permission = f"{self.queryset.model._meta.app_label}.{permission_name}"
+                    await permission_action(full_permission, group, context["object"])
+
+            if request.accepted_renderer.format == "html":
+                return redirect(reverse(self.url_name_group_permissions, kwargs={"pk": pk}))
+
+            return Response(
+                {
+                    "detail": "Permissions assigned.",
+                    "action": action_name,
+                    "groups": found_groups,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        group_perm_model = self.queryset.model.group_object_permissions.rel.related_model
+        group_perm_model_name = group_perm_model._meta.model_name
+
+        qs = Group.objects.annotate(
+            **{
+                permission: Exists(
+                    group_perm_model.objects.filter(
+                        group_id=OuterRef("pk"),
+                        content_object_id=pk,
+                        permission__codename=codename,
+                    )
+                )
+                for permission, codename in self.queryset.model.PERMISSIONS.items()
+            },
+            permission_time_created=Min(
+                f"{group_perm_model_name}__time_created",
+                filter=Q(
+                    **{
+                        f"{group_perm_model_name}__content_object_id": pk,
+                        f"{group_perm_model_name}__permission__codename__in": list(
+                            self.queryset.model.PERMISSIONS.values()
+                        ),
+                    },
+                ),
+            ),
+        )
+
+        sort_by_latest_param = "sort_by_latest"
+        sort_by_latest = sort_by_latest_param in request.query_params
+        if sort_by_latest:
+            qs = qs.order_by("permission_time_created", "name")
+        else:
+            qs = qs.order_by("name")
+
+        search_param = "name"
+        search_term = request.query_params.get("name", "")
+
+        if search_term:
+            qs = qs.filter(name__icontains=search_term)
+
+        # TODO: improve performance by collecting the codenames in a set instead of a list
+
+        pqs = await self.apaginate_queryset(qs)
+        serializer = self.group_permissions_serializer_class(pqs, many=True)
+        data = await get_data(serializer)
+
+        if request.accepted_renderer.format == "html":
+            context.update(await self._get_model_permissions())
+            context["search_term"] = search_term
+            context["search_param"] = search_param
+            context["search_fields_hint"] = _("searchable fields: name")
+            context["object_list"] = data
+            context["limit"] = self.paginator.limit
+            context.update(self.paginator.get_html_context())
+            context["per_page_options"] = settings.LIST_PAGE_SIZES
+            context["breadcrumbs"][-1].view_name = self.reverse_action("detail", [pk])
+            context["breadcrumbs"].append(Breadcrumb("Permissions"))
+            context["breadcrumbs"].append(Breadcrumb("Groups"))
+            context["action_choices"] = list(
+                self.group_permissions_bulk_action_serializer_class()
+                .fields["action"]
+                .choices.items()
+            )
+            return Response(
+                context,
+                template_name=self.group_permissions_template_name,
+            )
+        else:
+            return await self.get_apaginated_response(data)
