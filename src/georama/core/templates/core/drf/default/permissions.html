@@ -114,45 +114,56 @@
                 </div>
     
                 <div class="col-1 text-center d-flex align-items-center">
-                    {% blocktranslate asvar title %}Filter entries with view permission{% endblocktranslate %}
-                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_view %}{% querystring filter_can_view=None %}{% else %}{% querystring filter_can_view='1' %}{% endif %}"
-                       class="btn btn-outline-primary btn-permission in-header {% if not filter_can_view %} inactive {% endif %}"
-                       role="button" data-bs-toggle="tooltip"
-                       title="{{ title }}" aria-label="{{ title }}">
-                        <i class="fa fa-filter"></i>
-                    </a>
-                    {% trans "View" %}
+                    {% if 'can_view' in available_permissions %}
+                        {% blocktranslate asvar title %}Filter entries with view permission{% endblocktranslate %}
+                        <a href="{% url permissions_url_name object.pk %}{% if filter_can_view %}{% querystring filter_can_view=None %}{% else %}{% querystring filter_can_view='1' %}{% endif %}"
+                           class="btn btn-outline-primary btn-permission in-header {% if not filter_can_view %} inactive {% endif %}"
+                           role="button" data-bs-toggle="tooltip"
+                           title="{{ title }}" aria-label="{{ title }}">
+                            <i class="fa fa-filter"></i>
+                        </a>
+                        {% trans "View" %}
+                    {% endif %}
                 </div>
 
                 <div class="col-1 text-center d-flex align-items-center">
-                    {% blocktranslate asvar title %}Filter entries with create permission{% endblocktranslate %}
-                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_create %}{% querystring filter_can_create=None %}{% else %}{% querystring filter_can_create='1' %}{% endif %}"
-                       class="btn btn-outline-primary btn-permission in-header {% if not filter_can_create %} inactive {% endif %}"
-                       role="button" data-bs-toggle="tooltip"
-                       title="{{ title }}" aria-label="{{ title }}">
-                        <i class="fa fa-filter"></i>
-                    </a>
-                    {% trans "Create" %}</div>
+                    {% if 'can_create' in available_permissions %}
+                        {% blocktranslate asvar title %}Filter entries with create permission{% endblocktranslate %}
+                        <a href="{% url permissions_url_name object.pk %}{% if filter_can_create %}{% querystring filter_can_create=None %}{% else %}{% querystring filter_can_create='1' %}{% endif %}"
+                           class="btn btn-outline-primary btn-permission in-header {% if not filter_can_create %} inactive {% endif %}"
+                           role="button" data-bs-toggle="tooltip"
+                           title="{{ title }}" aria-label="{{ title }}">
+                            <i class="fa fa-filter"></i>
+                        </a>
+                        {% trans "Create" %}
+                    {% endif %}
+                </div>
                 
                 <div class="col-1 text-center d-flex align-items-center">
-                    {% blocktranslate asvar title %}Filter entries with update permission{% endblocktranslate %}
-                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_update %}{% querystring filter_can_update=None %}{% else %}{% querystring filter_can_update='1' %}{% endif %}"
-                       class="btn btn-outline-primary btn-permission in-header {% if not filter_can_update %} inactive {% endif %}"
-                       role="button" data-bs-toggle="tooltip"
-                       title="{{ title }}" aria-label="{{ title }}">
-                        <i class="fa fa-filter"></i>
-                    </a>
-                    {% trans "Update" %}</div>
+                    {% if 'can_update' in available_permissions %}
+                        {% blocktranslate asvar title %}Filter entries with update permission{% endblocktranslate %}
+                        <a href="{% url permissions_url_name object.pk %}{% if filter_can_update %}{% querystring filter_can_update=None %}{% else %}{% querystring filter_can_update='1' %}{% endif %}"
+                           class="btn btn-outline-primary btn-permission in-header {% if not filter_can_update %} inactive {% endif %}"
+                           role="button" data-bs-toggle="tooltip"
+                           title="{{ title }}" aria-label="{{ title }}">
+                            <i class="fa fa-filter"></i>
+                        </a>
+                        {% trans "Update" %}
+                    {% endif %}
+                </div>
                 
                 <div class="col-1 text-center d-flex align-items-center">
-                    {% blocktranslate asvar title %}Filter entries with delete permission{% endblocktranslate %}
-                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_delete %}{% querystring filter_can_delete=None %}{% else %}{% querystring filter_can_delete='1' %}{% endif %}"
-                       class="btn btn-outline-primary btn-permission in-header {% if not filter_can_delete %} inactive {% endif %}"
-                       role="button" data-bs-toggle="tooltip"
-                       title="{{ title }}" aria-label="{{ title }}">
-                        <i class="fa fa-filter"></i>
-                    </a>
-                    {% trans "Delete" %}</div>
+                    {% if 'can_delete' in available_permissions %}
+                        {% blocktranslate asvar title %}Filter entries with delete permission{% endblocktranslate %}
+                        <a href="{% url permissions_url_name object.pk %}{% if filter_can_delete %}{% querystring filter_can_delete=None %}{% else %}{% querystring filter_can_delete='1' %}{% endif %}"
+                           class="btn btn-outline-primary btn-permission in-header {% if not filter_can_delete %} inactive {% endif %}"
+                           role="button" data-bs-toggle="tooltip"
+                           title="{{ title }}" aria-label="{{ title }}">
+                            <i class="fa fa-filter"></i>
+                        </a>
+                        {% trans "Delete" %}
+                    {% endif %}
+                </div>
                 
                 <div class="col-2"></div>
     
@@ -197,7 +208,7 @@
                     {% endif %}
     
                     <div class="col-1 text-center">
-                        {% if row.can_view %}
+                        {% if row.can_view and 'can_view' in available_permissions %}
                             <button type="submit" class="btn btn-outline-primary btn-permission disabled" disabled>
                                 <i class="fa fa-eye"></i>
                             </button>
@@ -205,7 +216,7 @@
                     </div>
     
                     <div class="col-1 text-center">
-                        {% if row.can_view %}
+                        {% if row.can_view and 'can_create' in available_permissions %}
                             <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_create %}prevent_create{% else %}allow_create{% endif %}">
@@ -218,7 +229,7 @@
                     </div>
     
                     <div class="col-1 text-center">
-                        {% if row.can_view %}
+                        {% if row.can_view and 'can_update' in available_permissions  %}
                             <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_update %}prevent_update{% else %}allow_update{% endif %}">
@@ -229,9 +240,9 @@
                             </form>
                         {% endif %}
                     </div>
-    
+
                     <div class="col-1 text-center">
-                        {% if row.can_view %}
+                        {% if row.can_view and 'can_delete' in available_permissions  %}
                             <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
@@ -242,7 +253,7 @@
                             </form>
                         {% endif %}
                     </div>
-    
+
                     <div class="col-2 text-center">
                         <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
                             {% csrf_token %}

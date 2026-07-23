@@ -695,6 +695,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             context.update(await self._get_model_permissions())
             context["permissions_url_name"] = self.url_name_user_permissions
             context["permissions_entity_field"] = "users"
+            context["available_permissions"] = self.queryset.model.PERMISSIONS.keys()
             context["search_term"] = search_term
             context["search_param"] = search_param
             context["search_fields_hint"] = _("searchable fields: user name")
@@ -832,6 +833,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             context.update(await self._get_model_permissions())
             context["permissions_url_name"] = self.url_name_group_permissions
             context["permissions_entity_field"] = "groups"
+            context["available_permissions"] = self.queryset.model.PERMISSIONS.keys()
             context["search_term"] = search_term
             context["search_param"] = search_param
             context["search_fields_hint"] = _("searchable fields: group name")
