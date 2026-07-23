@@ -74,7 +74,7 @@
                                         class="form-check-input ms-0 me-2"
                                         type="radio"
                                         id="bulk-action-{{ forloop.counter }}"
-                                        name="actions"
+                                        name="action"
                                         value="{{ action_value }}"
                                         form="bulk-action-form"
                                 >
@@ -297,6 +297,8 @@
                 bulkActionContainer.classList.add('d-none');
             }
         }
+
+        toggleBulkActionVisibility()
     </script>
 
 {% endblock %}
