@@ -615,7 +615,11 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
                     await permission_action(full_permission, user, context["object"])
 
             if request.accepted_renderer.format == "html":
-                return redirect(reverse(self.url_name_user_permissions, kwargs={"pk": pk}))
+                target_url = reverse(self.url_name_user_permissions, kwargs={"pk": pk})
+                query_string = request.GET.urlencode()
+                if query_string:
+                    target_url = f"{target_url}?{query_string}"
+                return redirect(target_url)
 
             return Response(
                 {

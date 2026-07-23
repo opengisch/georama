@@ -5,7 +5,7 @@
     <div class="h-100 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height:0">
 
         <form method="post" id="bulk-action-form"
-              action="{% url view.url_name_user_permissions object.pk %}">
+              action="{% url view.url_name_user_permissions object.pk %}{% querystring %}">
             {% csrf_token %}
         </form>
 
@@ -174,7 +174,7 @@
     
                     <div class="col-1 text-center">
                         {% if row.can_view %}
-                            <form method="post" action="{% url view.url_name_user_permissions object.pk %}">
+                            <form method="post" action="{% url view.url_name_user_permissions object.pk %}{% querystring %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_create %}prevent_create{% else %}allow_create{% endif %}">
                                 <input type="hidden" name="users" value="{{ row.user_id }}">
@@ -187,7 +187,7 @@
     
                     <div class="col-1 text-center">
                         {% if row.can_view %}
-                            <form method="post" action="{% url view.url_name_user_permissions object.pk %}">
+                            <form method="post" action="{% url view.url_name_user_permissions object.pk %}{% querystring %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_update %}prevent_update{% else %}allow_update{% endif %}">
                                 <input type="hidden" name="users" value="{{ row.user_id }}">
