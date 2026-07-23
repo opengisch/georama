@@ -654,21 +654,26 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             ),
         )
 
-        if "sort_by_latest" in request.query_params:
+        sort_by_latest = request.query_params.get("sort_by_latest", 0) != 0
+        if sort_by_latest:
             qs = qs.order_by("permission_time_created", "username")
         else:
             qs = qs.order_by("username")
 
-        if "filter_can_view" in request.query_params:
+        filter_can_view = request.query_params.get("filter_can_view", 0) != 0
+        if filter_can_view:
             qs = qs.filter(can_view=True)
 
-        if "filter_can_create" in request.query_params:
+        filter_can_create = request.query_params.get("filter_can_create", 0) != 0
+        if filter_can_create:
             qs = qs.filter(can_create=True)
 
-        if "filter_can_update" in request.query_params:
+        filter_can_update = request.query_params.get("filter_can_update", 0) != 0
+        if filter_can_update:
             qs = qs.filter(can_update=True)
 
-        if "filter_can_delete" in request.query_params:
+        filter_can_delete = request.query_params.get("filter_can_delete", 0) != 0
+        if filter_can_delete:
             qs = qs.filter(can_delete=True)
 
         search_param = "username"
@@ -688,6 +693,11 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             context["search_term"] = search_term
             context["search_param"] = search_param
             context["search_fields_hint"] = _("searchable fields: username")
+            context["filter_can_view"] = filter_can_view
+            context["filter_can_create"] = filter_can_create
+            context["filter_can_update"] = filter_can_update
+            context["filter_can_delete"] = filter_can_delete
+            context["sort_by_latest"] = sort_by_latest
             context["object_list"] = data
             context["limit"] = self.paginator.limit
             context.update(self.paginator.get_html_context())
@@ -775,21 +785,26 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             ),
         )
 
-        if "sort_by_latest" in request.query_params:
+        sort_by_latest = request.query_params.get("sort_by_latest", 0) != 0
+        if sort_by_latest:
             qs = qs.order_by("permission_time_created", "name")
         else:
             qs = qs.order_by("name")
 
-        if "filter_can_view" in request.query_params:
+        filter_can_view = request.query_params.get("filter_can_view", 0) != 0
+        if filter_can_view:
             qs = qs.filter(can_view=True)
 
-        if "filter_can_create" in request.query_params:
+        filter_can_create = request.query_params.get("filter_can_create", 0) != 0
+        if filter_can_create:
             qs = qs.filter(can_create=True)
 
-        if "filter_can_update" in request.query_params:
+        filter_can_update = request.query_params.get("filter_can_update", 0) != 0
+        if filter_can_update:
             qs = qs.filter(can_update=True)
 
-        if "filter_can_delete" in request.query_params:
+        filter_can_delete = request.query_params.get("filter_can_delete", 0) != 0
+        if filter_can_delete:
             qs = qs.filter(can_delete=True)
 
         search_param = "name"
@@ -809,6 +824,11 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             context["search_term"] = search_term
             context["search_param"] = search_param
             context["search_fields_hint"] = _("searchable fields: name")
+            context["filter_can_view"] = filter_can_view
+            context["filter_can_create"] = filter_can_create
+            context["filter_can_update"] = filter_can_update
+            context["filter_can_delete"] = filter_can_delete
+            context["sort_by_latest"] = sort_by_latest
             context["object_list"] = data
             context["limit"] = self.paginator.limit
             context.update(self.paginator.get_html_context())
