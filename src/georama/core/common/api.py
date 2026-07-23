@@ -571,8 +571,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             to check for permissions on different places of the viewset.
     """
 
-    user_permissions_template_name: str = "core/drf/default/user_permissions.html"
-    group_permissions_template_name: str = "core/drf/default/group_permissions.html"
+    permissions_template_name: str = "core/drf/default/user_permissions.html"
 
     user_permissions_serializer_class = UserObjectPermissionSerializer
     group_permissions_serializer_class = GroupObjectPermissionSerializer
@@ -693,6 +692,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             context["search_term"] = search_term
             context["search_param"] = search_param
             context["search_fields_hint"] = _("searchable fields: username")
+            context["filter_entities"] = "users"
             context["filter_can_view"] = filter_can_view
             context["filter_can_create"] = filter_can_create
             context["filter_can_update"] = filter_can_update
@@ -712,7 +712,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             )
             return Response(
                 context,
-                template_name=self.user_permissions_template_name,
+                template_name=self.permissions_template_name,
             )
         else:
             return await self.get_apaginated_response(data)
@@ -824,6 +824,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             context["search_term"] = search_term
             context["search_param"] = search_param
             context["search_fields_hint"] = _("searchable fields: name")
+            context["filter_entities"] = "groups"
             context["filter_can_view"] = filter_can_view
             context["filter_can_create"] = filter_can_create
             context["filter_can_update"] = filter_can_update
@@ -843,7 +844,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             )
             return Response(
                 context,
-                template_name=self.group_permissions_template_name,
+                template_name=self.permissions_template_name,
             )
         else:
             return await self.get_apaginated_response(data)

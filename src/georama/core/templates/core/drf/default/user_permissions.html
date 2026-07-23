@@ -3,13 +3,49 @@
 
 {% block content %}
     <div class="h-100 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height:0">
-    
-        <form method="post" id="bulk-action-form" action="{% url view.url_name_user_permissions object.pk %}">
+
+        <form method="get" id="search-filter-form"
+              action="{% url view.url_name_user_permissions object.pk %}">
+        </form>
+
+        <form method="post" id="bulk-action-form"
+              action="{% url view.url_name_user_permissions object.pk %}">
             {% csrf_token %}
         </form>
 
-        <div class="mb-5">
-            <div class="d-flex gap-2 align-items-center">
+        <!-- Toolbar -->
+        <div class="mb-5 d-flex gap-4">
+        
+            <!-- Entity filters -->
+            <div class="d-flex gap-2">
+                <button type="submit" form="search-filter-form" 
+                        formaction="{% url view.url_name_group_permissions object.pk %}" 
+                        class="btn btn-outline-primary {% if filter_entities == "groups" %} active {% endif %}">
+                    <i class="fa fa-filter"></i>
+                    {% trans "groups" %}
+                </button>
+    
+                <button type="submit" form="search-filter-form"
+                        formaction="{% url view.url_name_user_permissions object.pk %}"
+                        class="btn btn-outline-primary {% if filter_entities == "users" %} active {% endif %}">
+                    <i class="fa fa-filter"></i>
+                    {% trans "users" %}
+                </button>
+            </div>
+
+            <!-- Latest filter -->
+            <div>
+                <input type="hidden" form="search-filter-form"
+                       name="sort_by_latest"
+                       value="{% if sort_by_latest == "1" %}0{% else %}1{% endif %}">
+                <button type="submit" form="search-filter-form"
+                        class="btn btn-outline-primary {% if sort_by_latest == "1" %} active {% endif %}">
+                    {% trans "sort by latest" %}
+                </button>
+            </div>
+
+            <!-- Bulk operations -->
+            <div class="d-flex flex-grow-1 gap-2 align-items-center">
                 <label for="bulk-action" class="form-label m-0">{% trans "Bulk action" %}</label>
                 <select id="bulk-action" name="action" form="bulk-action-form" class="form-select" style="max-width: 260px;">
                     {% for action_value, action_label in action_choices %}
@@ -25,10 +61,9 @@
         <div class="row m-0 overflow-auto">
     
             <!-- Header -->
-    
             <div class="row p-2 border-bottom text-muted sticky-top bg-body">
                 
-                <div class="col-4">
+                <div class="col-4 align-content-center">
                     <input
                             class="form-check-input me-3"
                             type="checkbox"
@@ -41,31 +76,45 @@
                     <span>{% trans "Name" %}</span>
                 </div>
                 
-                <div class="col-2">
+                <div class="col-2 align-content-center">
                     <span>{% trans "Time granted" %}</span>
                 </div>
     
-                <div class="col-1 text-center">{% trans "View" %}</div>
-                <div class="col-1 text-center">{% trans "Create" %}</div>
-                <div class="col-1 text-center">{% trans "Update" %}</div>
-                <div class="col-1 text-center">{% trans "Delete" %}</div>
-                <div class="col-2 text-center"></div>
+                <div class="col-1 text-center d-flex align-items-center">
+                    {% trans "View" %}
+                </div>
+                
+                <div class="col-1 text-center d-flex align-items-center">
+                    <input type="hidden" name="filter_can_create"
+                           form="search-filter-form"
+                           value="{% if filter_can_create == "1" %}0{% else %}1{% endif %}">
+                    <button type="submit" form="search-filter-form"
+                            class="btn btn-outline-primary btn-permission-header {% if filter_can_create == "0" %} inactive {% endif %}">
+                        <i class="fa fa-filter"></i>
+                    </button>
+                    {% trans "Create" %}</div>
+                
+                <div class="col-1 text-center d-flex align-items-center">
+                    {% trans "Update" %}</div>
+                
+                <div class="col-1 text-center d-flex align-items-center">
+                    {% trans "Delete" %}</div>
+                
+                <div class="col-2"></div>
     
             </div>
     
     
             {% if object_list|length == 0 %}
-                <div class="fs-1 fw-bold text-center">
+                <div class="fs-4 text-center p-4">
                     {% trans "No items in this list" %}
                 </div>
             {% endif %}
-        
     
 
             {% for row in object_list %}
                 
                 <!-- Row -->
-                
                 <div class="row striped-row p-2 align-items-center">
                     
                     <div class="col-4">
