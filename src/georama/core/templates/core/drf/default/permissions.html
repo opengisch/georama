@@ -15,7 +15,7 @@
             <!-- Entity filters -->
             <div class="d-flex gap-2">
             
-                {% blocktranslate asvar title %}Show group list{% endblocktranslate %}
+                {% blocktranslate asvar title %}Show list of group permissions{% endblocktranslate %}
                 <a href="{% url view.url_name_group_permissions object.pk %}{% querystring %}"
                    class="btn btn-outline-primary {% if permissions_entity_field == "groups" %} active {% endif %}"
                    role="button"
@@ -26,7 +26,7 @@
                     {% trans "groups" %}
                 </a>
 
-                {% blocktranslate asvar title %}Show user list{% endblocktranslate %}
+                {% blocktranslate asvar title %}Show list of user permissions{% endblocktranslate %}
                 <a href="{% url view.url_name_user_permissions object.pk %}{% querystring %}"
                    class="btn btn-outline-primary {% if permissions_entity_field == "users" %} active {% endif %}"
                    role="button"
@@ -47,21 +47,47 @@
                    data-bs-toggle="tooltip"
                    title="{{ title }}"
                    aria-label="{{ title }}">
+                    <i class="fa fa-clock"></i>
                     {% trans "sort by latest" %}
                 </a>
             </div>
 
             <!-- Bulk operations -->
-            <div class="d-flex flex-grow-1 gap-2 align-items-center">
-                <label for="bulk-action" class="form-label m-0">{% trans "Bulk action" %}</label>
-                <select id="bulk-action" name="action" form="bulk-action-form" class="form-select" style="max-width: 260px;">
-                    {% for action_value, action_label in action_choices %}
-                        <option value="{{ action_value }}">{{ action_label }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit" form="bulk-action-form" class="btn btn-outline-primary">
-                    {% trans "Apply to selected entries" %}
-                </button>
+            <div id="bulk-action-container" class="d-flex flex-grow-1 gap-2 align-items-center d-none">
+                <div class="dropdown">
+                    <button
+                            class="btn btn-outline-primary dropdown-toggle"
+                            type="button"
+                            id="bulk-action-dropdown"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside"
+                            aria-expanded="false"
+                    >
+                        <i class="fa fa-list"></i>
+                        {% trans "Select bulk action" %}
+                    </button>
+
+                    <div class="dropdown-menu p-3" aria-labelledby="bulk-action-dropdown" style="z-index: 1050;">
+                        {% for action_value, action_label in action_choices %}
+                            <div class="dropdown-item form-check form-check-inline">
+                                <input
+                                        class="form-check-input ms-0 me-2"
+                                        type="radio"
+                                        id="bulk-action-{{ forloop.counter }}"
+                                        name="actions"
+                                        value="{{ action_value }}"
+                                        form="bulk-action-form"
+                                >
+                                <label class="form-check-label" for="bulk-action-{{ forloop.counter }}">
+                                    {%  trans action_label %}
+                                </label>
+                            </div>
+                        {% endfor %}
+                        <button type="submit" form="bulk-action-form" class="btn btn-outline-primary mt-2 text-nowrap">
+                            {% trans "Apply to selected entries" %}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -153,6 +179,7 @@
                                 name="{{ permissions_entity_field }}"
                                 value="{{ row.entity_id }}"
                                 id="bulk-user-{{ forloop.counter }}"
+                                onclick="toggleBulkActionVisibility()"
                         >
                         <i class="fa fa-user text-muted me-1"></i>
                         <label class="form-check-label" for="bulk-user-{{ forloop.counter }}">
@@ -257,6 +284,18 @@
             entityCheckboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
+            toggleBulkActionVisibility();
+        }
+        
+        function toggleBulkActionVisibility() {
+            const entityField = "{{ permissions_entity_field|escapejs }}";
+            const checkedEntityCheckboxes = document.querySelectorAll(`input[type="checkbox"][name="${entityField}"]:checked`);
+            const bulkActionContainer = document.getElementById('bulk-action-container');
+            if (Array.from(checkedEntityCheckboxes).length > 0) {
+                bulkActionContainer.classList.remove('d-none');
+            } else {
+                bulkActionContainer.classList.add('d-none');
+            }
         }
     </script>
 
