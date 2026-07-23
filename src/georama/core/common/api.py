@@ -588,9 +588,6 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
 
     @action(detail=True, methods=["get", "post"], url_path="permissions/users")
     async def user_permissions(self, request: GeoramaDrfRequest, pk: str):
-        # import pydevd_pycharm
-        # pydevd_pycharm.settrace("172.17.0.1", port=4246, stdout_to_server=True, stderr_to_server=True)
-        
         context = await self._prepare_single_context()
 
         if request.method == "POST":

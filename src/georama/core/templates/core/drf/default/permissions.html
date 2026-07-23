@@ -4,10 +4,6 @@
 {% block content %}
     <div class="h-100 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height:0">
 
-        <form method="get" id="search-filter-form"
-              action="{% url view.url_name_user_permissions object.pk %}">
-        </form>
-
         <form method="post" id="bulk-action-form"
               action="{% url view.url_name_user_permissions object.pk %}">
             {% csrf_token %}
@@ -18,30 +14,41 @@
         
             <!-- Entity filters -->
             <div class="d-flex gap-2">
-                <button type="submit" form="search-filter-form" 
-                        formaction="{% url view.url_name_group_permissions object.pk %}" 
-                        class="btn btn-outline-primary {% if filter_entities == "groups" %} active {% endif %}">
+            
+                {% blocktranslate asvar title %}Show group list{% endblocktranslate %}
+                <a href="{% url view.url_name_group_permissions object.pk %}{% querystring %}"
+                   class="btn btn-outline-primary {% if filter_entities == "groups" %} active {% endif %}"
+                   role="button"
+                   data-bs-toggle="tooltip"
+                   title="{{ title }}"
+                   aria-label="{{ title }}">
                     <i class="fa fa-filter"></i>
                     {% trans "groups" %}
-                </button>
-    
-                <button type="submit" form="search-filter-form"
-                        formaction="{% url view.url_name_user_permissions object.pk %}"
-                        class="btn btn-outline-primary {% if filter_entities == "users" %} active {% endif %}">
+                </a>
+
+                {% blocktranslate asvar title %}Show user list{% endblocktranslate %}
+                <a href="{% url view.url_name_user_permissions object.pk %}{% querystring %}"
+                   class="btn btn-outline-primary {% if filter_entities == "users" %} active {% endif %}"
+                   role="button"
+                   data-bs-toggle="tooltip"
+                   title="{{ title }}"
+                   aria-label="{{ title }}">
                     <i class="fa fa-filter"></i>
                     {% trans "users" %}
-                </button>
+                </a>
             </div>
 
             <!-- Latest filter -->
             <div>
-                <input type="hidden" form="search-filter-form"
-                       name="sort_by_latest"
-                       value="{% if sort_by_latest == "1" %}0{% else %}1{% endif %}">
-                <button type="submit" form="search-filter-form"
-                        class="btn btn-outline-primary {% if sort_by_latest == "1" %} active {% endif %}">
+                {% blocktranslate asvar title %}Sort permission list by latest granted permissions{% endblocktranslate %}
+                <a href="{% url view.url_name_user_permissions object.pk %}{% if sort_by_latest == '1' %}{% querystring sort_by_latest=None %}{% else %}{% querystring sort_by_latest='1' %}{% endif %}"
+                   class="btn btn-outline-primary {% if sort_by_latest == '1' %} active {% endif %}"
+                   role="button"
+                   data-bs-toggle="tooltip"
+                   title="{{ title }}"
+                   aria-label="{{ title }}">
                     {% trans "sort by latest" %}
-                </button>
+                </a>
             </div>
 
             <!-- Bulk operations -->
@@ -81,23 +88,44 @@
                 </div>
     
                 <div class="col-1 text-center d-flex align-items-center">
+                    {% blocktranslate asvar title %}Filter entries with view permission{% endblocktranslate %}
+                    <a href="{% url view.url_name_user_permissions object.pk %}{% if filter_can_view == '1' %}{% querystring filter_can_view=None %}{% else %}{% querystring filter_can_view='1' %}{% endif %}"
+                       class="btn btn-outline-primary btn-permission in-header {% if filter_can_view != "1" %} inactive {% endif %}"
+                       role="button" data-bs-toggle="tooltip"
+                       title="{{ title }}" aria-label="{{ title }}">
+                        <i class="fa fa-filter"></i>
+                    </a>
                     {% trans "View" %}
                 </div>
-                
+
                 <div class="col-1 text-center d-flex align-items-center">
-                    <input type="hidden" name="filter_can_create"
-                           form="search-filter-form"
-                           value="{% if filter_can_create == "1" %}0{% else %}1{% endif %}">
-                    <button type="submit" form="search-filter-form"
-                            class="btn btn-outline-primary btn-permission-header {% if filter_can_create == "0" %} inactive {% endif %}">
+                    {% blocktranslate asvar title %}Filter entries with create permission{% endblocktranslate %}
+                    <a href="{% url view.url_name_user_permissions object.pk %}{% if filter_can_create == '1' %}{% querystring filter_can_create=None %}{% else %}{% querystring filter_can_create='1' %}{% endif %}"
+                       class="btn btn-outline-primary btn-permission in-header {% if filter_can_create != "1" %} inactive {% endif %}"
+                       role="button" data-bs-toggle="tooltip"
+                       title="{{ title }}" aria-label="{{ title }}">
                         <i class="fa fa-filter"></i>
-                    </button>
+                    </a>
                     {% trans "Create" %}</div>
                 
                 <div class="col-1 text-center d-flex align-items-center">
+                    {% blocktranslate asvar title %}Filter entries with update permission{% endblocktranslate %}
+                    <a href="{% url view.url_name_user_permissions object.pk %}{% if filter_can_update == '1' %}{% querystring filter_can_update=None %}{% else %}{% querystring filter_can_update='1' %}{% endif %}"
+                       class="btn btn-outline-primary btn-permission in-header {% if filter_can_update != "1" %} inactive {% endif %}"
+                       role="button" data-bs-toggle="tooltip"
+                       title="{{ title }}" aria-label="{{ title }}">
+                        <i class="fa fa-filter"></i>
+                    </a>
                     {% trans "Update" %}</div>
                 
                 <div class="col-1 text-center d-flex align-items-center">
+                    {% blocktranslate asvar title %}Filter entries with delete permission{% endblocktranslate %}
+                    <a href="{% url view.url_name_user_permissions object.pk %}{% if filter_can_delete == '1' %}{% querystring filter_can_delete=None %}{% else %}{% querystring filter_can_delete='1' %}{% endif %}"
+                       class="btn btn-outline-primary btn-permission in-header {% if filter_can_delete != "1" %} inactive {% endif %}"
+                       role="button" data-bs-toggle="tooltip"
+                       title="{{ title }}" aria-label="{{ title }}">
+                        <i class="fa fa-filter"></i>
+                    </a>
                     {% trans "Delete" %}</div>
                 
                 <div class="col-2"></div>
@@ -172,7 +200,7 @@
     
                     <div class="col-1 text-center">
                         {% if row.can_view %}
-                            <form method="post" action="{% url view.url_name_user_permissions object.pk %}">
+                            <form method="post" action="{% url view.url_name_user_permissions object.pk %}{% querystring %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
                                 <input type="hidden" name="users" value="{{ row.user_id }}">
@@ -184,7 +212,7 @@
                     </div>
     
                     <div class="col-2 text-center">
-                        <form method="post" action="{% url view.url_name_user_permissions object.pk %}">
+                        <form method="post" action="{% url view.url_name_user_permissions object.pk %}{% querystring %}">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="{% if row.can_view %}revoke{% else %}grant{% endif %}">
                             <input type="hidden" name="users" value="{{ row.user_id }}">

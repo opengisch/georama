@@ -174,15 +174,15 @@ Change List and detail forms
 Icon buttons for permission pages
  */
 
-.btn-permission-header {
-    border: none;
-    padding: 0.2rem 0.4rem;
-}
-
 .btn-permission {
     border: none;
     font-size: 1.15rem;
     padding: 0.2rem 1rem;
+}
+
+.btn-permission.in-header {
+    font-size: 1rem;
+    padding: 0.2rem 0.4rem;
 }
 
 .btn-permission:disabled {
