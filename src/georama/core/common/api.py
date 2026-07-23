@@ -657,26 +657,26 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             ),
         )
 
-        sort_by_latest = request.query_params.get("sort_by_latest", 0)
-        if sort_by_latest == "1":
+        sort_by_latest = "sort_by_latest" in request.query_params
+        if sort_by_latest:
             qs = qs.order_by("permission_time_created", "username")
         else:
             qs = qs.order_by("username")
 
-        filter_can_view = request.query_params.get("filter_can_view", 0)
-        if filter_can_view == "1":
+        filter_can_view = "filter_can_view" in request.query_params
+        if filter_can_view:
             qs = qs.filter(can_view=True)
 
-        filter_can_create = request.query_params.get("filter_can_create", 0)
-        if filter_can_create == "1":
+        filter_can_create = "filter_can_create" in request.query_params
+        if filter_can_create:
             qs = qs.filter(can_create=True)
 
-        filter_can_update = request.query_params.get("filter_can_update", 0)
-        if filter_can_update == "1":
+        filter_can_update = "filter_can_update" in request.query_params
+        if filter_can_update:
             qs = qs.filter(can_update=True)
 
-        filter_can_delete = request.query_params.get("filter_can_delete", 0)
-        if filter_can_delete == "1":
+        filter_can_delete = "filter_can_delete" in request.query_params
+        if filter_can_delete:
             qs = qs.filter(can_delete=True)
 
         search_param = "username"
@@ -794,25 +794,25 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             ),
         )
 
-        sort_by_latest = request.query_params.get("sort_by_latest", 0)
+        sort_by_latest = "sort_by_latest" in request.query_params
         if sort_by_latest:
             qs = qs.order_by("permission_time_created", "name")
         else:
             qs = qs.order_by("name")
 
-        filter_can_view = request.query_params.get("filter_can_view", 0)
+        filter_can_view = "filter_can_view" in request.query_params
         if filter_can_view:
             qs = qs.filter(can_view=True)
 
-        filter_can_create = request.query_params.get("filter_can_create", 0)
+        filter_can_create = "filter_can_create" in request.query_params
         if filter_can_create:
             qs = qs.filter(can_create=True)
 
-        filter_can_update = request.query_params.get("filter_can_update", 0)
+        filter_can_update = "filter_can_update" in request.query_params
         if filter_can_update:
             qs = qs.filter(can_update=True)
 
-        filter_can_delete = request.query_params.get("filter_can_delete", 0)
+        filter_can_delete = "filter_can_delete" in request.query_params
         if filter_can_delete:
             qs = qs.filter(can_delete=True)
 

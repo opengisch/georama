@@ -41,8 +41,8 @@
             <!-- Latest filter -->
             <div>
                 {% blocktranslate asvar title %}Sort permission list by latest granted permissions{% endblocktranslate %}
-                <a href="{% url permissions_url_name object.pk %}{% if sort_by_latest == '1' %}{% querystring sort_by_latest=None %}{% else %}{% querystring sort_by_latest='1' %}{% endif %}"
-                   class="btn btn-outline-primary {% if sort_by_latest == '1' %} active {% endif %}"
+                <a href="{% url permissions_url_name object.pk %}{% if sort_by_latest %}{% querystring sort_by_latest=None %}{% else %}{% querystring sort_by_latest='1' %}{% endif %}"
+                   class="btn btn-outline-primary {% if sort_by_latest %} active {% endif %}"
                    role="button"
                    data-bs-toggle="tooltip"
                    title="{{ title }}"
@@ -89,8 +89,8 @@
     
                 <div class="col-1 text-center d-flex align-items-center">
                     {% blocktranslate asvar title %}Filter entries with view permission{% endblocktranslate %}
-                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_view == '1' %}{% querystring filter_can_view=None %}{% else %}{% querystring filter_can_view='1' %}{% endif %}"
-                       class="btn btn-outline-primary btn-permission in-header {% if filter_can_view != "1" %} inactive {% endif %}"
+                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_view %}{% querystring filter_can_view=None %}{% else %}{% querystring filter_can_view='1' %}{% endif %}"
+                       class="btn btn-outline-primary btn-permission in-header {% if not filter_can_view %} inactive {% endif %}"
                        role="button" data-bs-toggle="tooltip"
                        title="{{ title }}" aria-label="{{ title }}">
                         <i class="fa fa-filter"></i>
@@ -100,8 +100,8 @@
 
                 <div class="col-1 text-center d-flex align-items-center">
                     {% blocktranslate asvar title %}Filter entries with create permission{% endblocktranslate %}
-                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_create == '1' %}{% querystring filter_can_create=None %}{% else %}{% querystring filter_can_create='1' %}{% endif %}"
-                       class="btn btn-outline-primary btn-permission in-header {% if filter_can_create != "1" %} inactive {% endif %}"
+                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_create %}{% querystring filter_can_create=None %}{% else %}{% querystring filter_can_create='1' %}{% endif %}"
+                       class="btn btn-outline-primary btn-permission in-header {% if not filter_can_create %} inactive {% endif %}"
                        role="button" data-bs-toggle="tooltip"
                        title="{{ title }}" aria-label="{{ title }}">
                         <i class="fa fa-filter"></i>
@@ -110,8 +110,8 @@
                 
                 <div class="col-1 text-center d-flex align-items-center">
                     {% blocktranslate asvar title %}Filter entries with update permission{% endblocktranslate %}
-                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_update == '1' %}{% querystring filter_can_update=None %}{% else %}{% querystring filter_can_update='1' %}{% endif %}"
-                       class="btn btn-outline-primary btn-permission in-header {% if filter_can_update != "1" %} inactive {% endif %}"
+                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_update %}{% querystring filter_can_update=None %}{% else %}{% querystring filter_can_update='1' %}{% endif %}"
+                       class="btn btn-outline-primary btn-permission in-header {% if not filter_can_update %} inactive {% endif %}"
                        role="button" data-bs-toggle="tooltip"
                        title="{{ title }}" aria-label="{{ title }}">
                         <i class="fa fa-filter"></i>
@@ -120,8 +120,8 @@
                 
                 <div class="col-1 text-center d-flex align-items-center">
                     {% blocktranslate asvar title %}Filter entries with delete permission{% endblocktranslate %}
-                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_delete == '1' %}{% querystring filter_can_delete=None %}{% else %}{% querystring filter_can_delete='1' %}{% endif %}"
-                       class="btn btn-outline-primary btn-permission in-header {% if filter_can_delete != "1" %} inactive {% endif %}"
+                    <a href="{% url permissions_url_name object.pk %}{% if filter_can_delete %}{% querystring filter_can_delete=None %}{% else %}{% querystring filter_can_delete='1' %}{% endif %}"
+                       class="btn btn-outline-primary btn-permission in-header {% if not filter_can_delete %} inactive {% endif %}"
                        role="button" data-bs-toggle="tooltip"
                        title="{{ title }}" aria-label="{{ title }}">
                         <i class="fa fa-filter"></i>
@@ -160,9 +160,14 @@
                         </label>
                     </div>
                 
-                    <div class="col-2 text-muted small" title="{{ row.time_created_formatted }}">
-                        {{ row.time_created_since }}
-                    </div>
+                    
+                    {% if row.permission_time_created %}
+                        <div class="col-2 text-muted small" title="{{ row.permission_time_created|date:'DATETIME_FORMAT'|default_if_none:'' }}">
+                            {{ row.permission_time_created|timesince }} {% trans "ago" %}
+                        </div>
+                    {% else %}
+                        <div class="col-2 text-muted small"> - </div>
+                    {% endif %}
     
                     <div class="col-1 text-center">
                         {% if row.can_view %}
