@@ -588,6 +588,9 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
 
     @action(detail=True, methods=["get", "post"], url_path="permissions/users")
     async def user_permissions(self, request: GeoramaDrfRequest, pk: str):
+        # import pydevd_pycharm
+        # pydevd_pycharm.settrace("172.17.0.1", port=4246, stdout_to_server=True, stderr_to_server=True)
+        
         context = await self._prepare_single_context()
 
         if request.method == "POST":
@@ -654,25 +657,25 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         )
 
         sort_by_latest = request.query_params.get("sort_by_latest", 0)
-        if sort_by_latest:
+        if sort_by_latest == "1":
             qs = qs.order_by("permission_time_created", "username")
         else:
             qs = qs.order_by("username")
 
         filter_can_view = request.query_params.get("filter_can_view", 0)
-        if filter_can_view:
+        if filter_can_view == "1":
             qs = qs.filter(can_view=True)
 
         filter_can_create = request.query_params.get("filter_can_create", 0)
-        if filter_can_create:
+        if filter_can_create == "1":
             qs = qs.filter(can_create=True)
 
         filter_can_update = request.query_params.get("filter_can_update", 0)
-        if filter_can_update:
+        if filter_can_update == "1":
             qs = qs.filter(can_update=True)
 
         filter_can_delete = request.query_params.get("filter_can_delete", 0)
-        if filter_can_delete:
+        if filter_can_delete == "1":
             qs = qs.filter(can_delete=True)
 
         search_param = "username"
