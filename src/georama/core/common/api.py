@@ -571,7 +571,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             to check for permissions on different places of the viewset.
     """
 
-    permissions_template_name: str = "core/drf/default/user_permissions.html"
+    permissions_template_name: str = "core/drf/default/permissions.html"
 
     user_permissions_serializer_class = UserObjectPermissionSerializer
     group_permissions_serializer_class = GroupObjectPermissionSerializer
