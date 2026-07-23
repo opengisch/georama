@@ -163,7 +163,7 @@
                     
                     {% if row.permission_time_created %}
                         <div class="col-2 text-muted small" title="{{ row.permission_time_created|date:'DATETIME_FORMAT'|default_if_none:'' }}">
-                            {{ row.permission_time_created|timesince }} {% trans "ago" %}
+                            {{ row.permission_time_created|timesince }} ago
                         </div>
                     {% else %}
                         <div class="col-2 text-muted small"> - </div>
