@@ -654,12 +654,22 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             ),
         )
 
-        sort_by_latest_param = "sort_by_latest"
-        sort_by_latest = sort_by_latest_param in request.query_params
-        if sort_by_latest:
+        if "sort_by_latest" in request.query_params:
             qs = qs.order_by("permission_time_created", "username")
         else:
             qs = qs.order_by("username")
+
+        if "filter_can_view" in request.query_params:
+            qs = qs.filter(can_view=True)
+
+        if "filter_can_create" in request.query_params:
+            qs = qs.filter(can_create=True)
+
+        if "filter_can_update" in request.query_params:
+            qs = qs.filter(can_update=True)
+
+        if "filter_can_delete" in request.query_params:
+            qs = qs.filter(can_delete=True)
 
         search_param = "username"
         search_term = request.query_params.get("username", "")
@@ -765,12 +775,22 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             ),
         )
 
-        sort_by_latest_param = "sort_by_latest"
-        sort_by_latest = sort_by_latest_param in request.query_params
-        if sort_by_latest:
+        if "sort_by_latest" in request.query_params:
             qs = qs.order_by("permission_time_created", "name")
         else:
             qs = qs.order_by("name")
+
+        if "filter_can_view" in request.query_params:
+            qs = qs.filter(can_view=True)
+
+        if "filter_can_create" in request.query_params:
+            qs = qs.filter(can_create=True)
+
+        if "filter_can_update" in request.query_params:
+            qs = qs.filter(can_update=True)
+
+        if "filter_can_delete" in request.query_params:
+            qs = qs.filter(can_delete=True)
 
         search_param = "name"
         search_term = request.query_params.get("name", "")
