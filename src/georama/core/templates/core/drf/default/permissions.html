@@ -2,7 +2,7 @@
 {% load static i18n %}
 
 {% block content %}
-    <div class="h-100 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height:0">
+    <div class="h-100 d-flex flex-column flex-grow-1" style="min-height:0">
 
         <form method="post" id="bulk-action-form"
               action="{% url permissions_url_name object.pk %}{% querystring %}">
@@ -11,6 +11,12 @@
 
         <!-- Toolbar -->
         <nav class="navbar navbar-expand gap-4 flex-wrap">
+
+            <!-- Search -->
+            <div class="nav-item">
+                {% include 'core/drf/default/includes/search.html' %}
+            </div>
+            
         
             <!-- Entity filters -->
             <div class="nav-item d-flex gap-2 align-items-center">
