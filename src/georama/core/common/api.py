@@ -187,12 +187,17 @@ class GeoramaTemplateViewSetReadOnly(
                 field = o.removeprefix("-")
                 ordering_context[field] = {
                     "name": field,
+                    "label": field.split('_')[-1],
                     "direction": direction,
                 }
             # this is how the filters.OrderingFilter does it too
             for field in getattr(self, "ordering_fields", []):
                 if field not in ordering_context:
-                    ordering_context[field] = {"name": field, "direction": None}
+                    ordering_context[field] = {
+                        "name": field,
+                        "label": field.split('_')[-1],
+                        "direction": None
+                    }
             pqs = await self.apaginate_queryset(qs)
             context["object_list"] = pqs
             context["limit"] = self.paginator.limit

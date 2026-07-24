@@ -52,8 +52,7 @@
                                             {% if view.url_name_show %}
                                                 <!-- We know already that the user can view the item-->
                                                 {% blocktranslate asvar title %}
-                                                    Show item
-                                                    details
+                                                    Show item details
                                                 {% endblocktranslate %}
                                                 <a href="{% url view.url_name_show item.pk %}"
                                                    class="btn btn-outline-primary"
@@ -76,7 +75,6 @@
                                                    aria-label="{{ title }}"
                                                    data-bs-toggle="tooltip">
                                                     <i class="fa fa-pen"></i>
-
                                                 </a>
                                             {% endif %}
 

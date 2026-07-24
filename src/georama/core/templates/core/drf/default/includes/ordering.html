@@ -1,4 +1,6 @@
-<div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+{% load i18n %}
+<div class="d-flex align-items-center gap-2">
+    <span class="text-muted">{% trans "sort by" %}</span>
     {% for field in ordering_context %}
         <button class="btn btn-outline-primary btn-sm" type="button"
                 data-name="{{ field.name }}" data-sort="{{ field.direction }}"
@@ -10,7 +12,7 @@
             {% else %}
                 <i class="fa fa-sort"></i>
             {% endif %}
-            {{ field.name }}
+            {% trans field.label %}
         </button>
     {% endfor %}
 </div>

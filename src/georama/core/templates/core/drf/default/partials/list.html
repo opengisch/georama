@@ -1,24 +1,24 @@
 {% load static i18n %}
 {% block list_nav %}
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <form id="filter-form" class="d-flex nav-item" hx-boost="true"
-                  method="get"
-                  action="{{ request.path }}"
-                  hx-target="#list_body_partial"
-                  hx-push-url="{% if breadcrumb_action and breadcrumb_action.type == 'linked' %}true{% else %}false{% endif %}">
-                {% if ordering_context %}
-                    {% block ordering_include %}
-                        {% include 'core/drf/default/includes/ordering.html' %}
-                    {% endblock %}
-                {% endif %}
-                {% if search_fields %}
-                    {% block search_include %}
-                        {% include 'core/drf/default/includes/search_htmx.html' %}
-                    {% endblock %}
-                {% endif %}
-            </form>
-        </div>
+    <nav class="navbar navbar-expand gap-4 flex-wrap">
+        {% if search_fields %}
+            <div class="nav-item">
+                {% block search_include %}
+                    {% include 'core/drf/default/includes/search_htmx.html' %}
+                {% endblock %}
+            </div>
+        {% endif %}
+        <form id="filter-form" class="nav-item d-flex" hx-boost="true"
+              method="get"
+              action="{{ request.path }}"
+              hx-target="#list_body_partial"
+              hx-push-url="{% if breadcrumb_action and breadcrumb_action.type == 'linked' %}true{% else %}false{% endif %}">
+            {% if ordering_context %}
+                {% block ordering_include %}
+                    {% include 'core/drf/default/includes/ordering.html' %}
+                {% endblock %}
+            {% endif %}
+        </form>
     </nav>
 {% endblock %}
 
