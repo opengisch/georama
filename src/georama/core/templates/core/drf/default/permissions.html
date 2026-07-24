@@ -10,10 +10,12 @@
         </form>
 
         <!-- Toolbar -->
-        <div class="mb-5 d-flex gap-4 flex-wrap">
-
+        <nav class="navbar navbar-expand gap-4 flex-wrap">
+        
             <!-- Entity filters -->
-            <div class="d-flex gap-2">
+            <div class="nav-item d-flex gap-2 align-items-center">
+                <span class="text-muted d-none d-lg-block">{%  trans "filter by" %}</span>
+            
                 {% blocktranslate asvar title %}Show list of group permissions{% endblocktranslate %}
                 <a href="{% url view.url_name_group_permissions object.pk %}{% querystring %}"
                    class="btn btn-outline-primary {% if permissions_entity_field == "groups" %} active {% endif %}"
@@ -38,7 +40,9 @@
             </div>
 
             <!-- Latest filter -->
-            <div>
+            <div class="nav-item d-flex gap-2 align-items-center">
+                <span class="text-muted d-none d-lg-block">{%  trans "sort by" %}</span>
+            
                 {% blocktranslate asvar title %}Sort permission list by latest granted permissions{% endblocktranslate %}
                 <a href="{% url permissions_url_name object.pk %}{% if sort_by_latest %}{% querystring sort_by_latest=None %}{% else %}{% querystring sort_by_latest='1' %}{% endif %}"
                    class="btn btn-outline-primary {% if sort_by_latest %} active {% endif %}"
@@ -46,13 +50,13 @@
                    data-bs-toggle="tooltip"
                    title="{{ title }}"
                    aria-label="{{ title }}">
-                    <i class="fa fa-clock"></i>
-                    {% trans "sort by time granted" %}
+                    <i class="fa fa-sort"></i>
+                    {% trans "time granted" %}
                 </a>
             </div>
 
             <!-- Bulk operations -->
-            <div id="bulk-action-container" class="d-flex flex-grow-1 gap-2 align-items-center d-none">
+            <div id="bulk-action-container" class="nav-item d-flex gap-2 align-items-center d-none">
                 <div class="dropdown">
                     <button
                             class="btn btn-outline-primary dropdown-toggle"
@@ -90,9 +94,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </nav>
 
-        <div class="row m-0 overflow-auto">
+        <div class="row m-0 overflow-auto mt-4">
     
             <!-- Header -->
             <div class="row p-2 border-bottom text-muted sticky-top bg-body">
