@@ -78,8 +78,10 @@
                                         value="{{ action_value }}"
                                         form="bulk-action-form"
                                 >
-                                <label class="form-check-label" for="bulk-action-{{ forloop.counter }}">
-                                    {%  trans action_label %}
+                                <label class="form-check-label w-100"
+                                       for="bulk-action-{{ forloop.counter }}">
+                                        {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission=action_label apply_color=True%}
+                                    <span class="ps-1">{%  trans action_label %}</span>
                                 </label>
                             </div>
                         {% endfor %}
@@ -210,7 +212,7 @@
                     <div class="col-1 text-center">
                         {% if row.can_view and 'can_view' in available_permissions %}
                             <button type="submit" class="btn btn-outline-primary btn-permission disabled" disabled>
-                                <i class="fa fa-eye"></i>
+                                {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="view" %}
                             </button>
                         {% endif %}
                     </div>
@@ -222,7 +224,7 @@
                                 <input type="hidden" name="action" value="{% if row.can_create %}prevent_create{% else %}allow_create{% endif %}">
                                 <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
                                 <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_create %} inactive {% endif %}">
-                                    <i class="fa fa-circle-plus"></i>
+                                    {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="create" %}
                                 </button>
                             </form>
                         {% endif %}
@@ -235,7 +237,7 @@
                                 <input type="hidden" name="action" value="{% if row.can_update %}prevent_update{% else %}allow_update{% endif %}">
                                 <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
                                 <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_update %} inactive {% endif %}">
-                                    <i class="fa fa-pencil"></i>
+                                    {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="update" %}
                                 </button>
                             </form>
                         {% endif %}
@@ -248,7 +250,7 @@
                                 <input type="hidden" name="action" value="{% if row.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
                                 <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
                                 <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_delete %} inactive {% endif %}">
-                                    <i class="fa fa-circle-xmark"></i>
+                                    {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="delete" %}
                                 </button>
                             </form>
                         {% endif %}
