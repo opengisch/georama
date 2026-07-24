@@ -112,6 +112,9 @@ class FeatureLayer(models.Model):
     @property
     def title(self):
         return self.metadata.title
+    
+    def __str__(self):
+        return self.metadata.title
 
 
 class UserManager(UserObjectPermissionManager, OrganisationalManager): ...
