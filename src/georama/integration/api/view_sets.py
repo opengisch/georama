@@ -82,6 +82,16 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 icon="fa fa-circle-plus",
             )
         return context
+    
+    async def _get_model_permissions(self) -> dict:
+        """
+        Returns a dictionary of permissions.
+        Projects do not have object permissions, so set this permission to False.
+        """
+        # TODO PI: Is this a valid way to deactivate the permission button for integration?
+        permissions = await super()._get_model_permissions()
+        permissions["can_manage_permissions"] = False
+        return permissions
 
     @staticmethod
     async def integrate_project(project_db: Project, project_json: Config):
