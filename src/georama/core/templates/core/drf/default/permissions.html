@@ -10,7 +10,7 @@
         </form>
 
         <!-- Toolbar -->
-        <div class="mb-5 d-flex gap-4">
+        <div class="mb-5 d-flex gap-4 flex-wrap">
         
             <!-- Entity filters -->
             <div class="d-flex gap-2">
@@ -48,7 +48,7 @@
                    title="{{ title }}"
                    aria-label="{{ title }}">
                     <i class="fa fa-clock"></i>
-                    {% trans "sort by latest" %}
+                    {% trans "sort by time granted" %}
                 </a>
             </div>
 
@@ -98,7 +98,7 @@
             <!-- Header -->
             <div class="row p-2 border-bottom text-muted sticky-top bg-body">
                 
-                <div class="col-4 align-content-center">
+                <div class="col align-content-center">
                     <input
                             class="form-check-input me-3"
                             type="checkbox"
@@ -111,7 +111,7 @@
                     <span>{% trans "Name" %}</span>
                 </div>
                 
-                <div class="col-2 align-content-center">
+                <div class="col-2 d-none d-lg-flex align-content-center">
                     <span>{% trans "Time granted" %}</span>
                 </div>
     
@@ -124,7 +124,7 @@
                            title="{{ title }}" aria-label="{{ title }}">
                             <i class="fa fa-filter"></i>
                         </a>
-                        {% trans "View" %}
+                        <span class="d-none d-lg-block">{% trans "View" %}</span>
                     {% endif %}
                 </div>
 
@@ -137,7 +137,7 @@
                            title="{{ title }}" aria-label="{{ title }}">
                             <i class="fa fa-filter"></i>
                         </a>
-                        {% trans "Create" %}
+                        <span class="d-none d-lg-block">{% trans "Create" %}</span>
                     {% endif %}
                 </div>
                 
@@ -150,7 +150,7 @@
                            title="{{ title }}" aria-label="{{ title }}">
                             <i class="fa fa-filter"></i>
                         </a>
-                        {% trans "Update" %}
+                        <span class="d-none d-lg-block">{% trans "Update" %}</span>
                     {% endif %}
                 </div>
                 
@@ -163,7 +163,7 @@
                            title="{{ title }}" aria-label="{{ title }}">
                             <i class="fa fa-filter"></i>
                         </a>
-                        {% trans "Delete" %}
+                        <span class="d-none d-lg-block">{% trans "Delete" %}</span>
                     {% endif %}
                 </div>
                 
@@ -184,7 +184,7 @@
                 <!-- Row -->
                 <div class="row striped-row p-2 align-items-center">
                     
-                    <div class="col-4">
+                    <div class="col">
                         <input
                                 class="form-check-input me-3"
                                 type="checkbox"
@@ -202,16 +202,16 @@
                 
                     
                     {% if row.permission_time_created %}
-                        <div class="col-2 text-muted small" title="{{ row.permission_time_created|date:'DATETIME_FORMAT'|default_if_none:'' }}">
+                        <div class="col-2 d-none d-lg-flex text-muted small" title="{{ row.permission_time_created|date:'DATETIME_FORMAT'|default_if_none:'' }}">
                             {% blocktranslate with t=row.permission_time_created|timesince %}{{ t }} ago{% endblocktranslate %}
                         </div>
                     {% else %}
-                        <div class="col-2 text-muted small"> - </div>
+                        <div class="col-2 text-muted small d-none d-lg-flex"> - </div>
                     {% endif %}
     
                     <div class="col-1 text-center">
                         {% if row.can_view and 'can_view' in available_permissions %}
-                            <button type="submit" class="btn btn-outline-primary btn-permission disabled" disabled>
+                            <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission disabled" disabled>
                                 {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="view" %}
                             </button>
                         {% endif %}
@@ -223,7 +223,7 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_create %}prevent_create{% else %}allow_create{% endif %}">
                                 <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
-                                <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_create %} inactive {% endif %}">
+                                <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission {% if not row.can_create %} inactive {% endif %}">
                                     {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="create" %}
                                 </button>
                             </form>
@@ -236,7 +236,7 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_update %}prevent_update{% else %}allow_update{% endif %}">
                                 <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
-                                <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_update %} inactive {% endif %}">
+                                <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission {% if not row.can_update %} inactive {% endif %}">
                                     {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="update" %}
                                 </button>
                             </form>
@@ -249,7 +249,7 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
                                 <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
-                                <button type="submit" class="btn btn-outline-primary btn-permission {% if not row.can_delete %} inactive {% endif %}">
+                                <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission {% if not row.can_delete %} inactive {% endif %}">
                                     {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="delete" %}
                                 </button>
                             </form>
@@ -267,7 +267,9 @@
                                 </button>
                             {% else %}
                                 <button type="submit" class="btn btn-outline-primary btn-sm">
-                                    {% trans "grant" %}
+                                    <!-- Icon: Show on mobile only -->
+                                    <i class="d-block d-lg-none fa fa-eye"></i>
+                                    <span class="d-none d-lg-flex text-nowrap">{% trans "grant access" %}</span>
                                 </button> 
                             {% endif %}
                         </form>
