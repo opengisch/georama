@@ -11,10 +11,9 @@
 
         <!-- Toolbar -->
         <div class="mb-5 d-flex gap-4 flex-wrap">
-        
+
             <!-- Entity filters -->
             <div class="d-flex gap-2">
-            
                 {% blocktranslate asvar title %}Show list of group permissions{% endblocktranslate %}
                 <a href="{% url view.url_name_group_permissions object.pk %}{% querystring %}"
                    class="btn btn-outline-primary {% if permissions_entity_field == "groups" %} active {% endif %}"

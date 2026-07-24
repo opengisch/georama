@@ -663,29 +663,39 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         else:
             qs = qs.order_by("username")
 
-        filter_can_view = "filter_can_view" in request.query_params
+        filter_can_view = (
+            "can_view" in self.queryset.model.PERMISSIONS
+            and "filter_can_view" in request.query_params
+        )
         if filter_can_view:
             qs = qs.filter(can_view=True)
 
-        filter_can_create = "filter_can_create" in request.query_params
+        filter_can_create = (
+            "can_create" in self.queryset.model.PERMISSIONS
+            and "filter_can_create" in request.query_params
+        )
         if filter_can_create:
             qs = qs.filter(can_create=True)
 
-        filter_can_update = "filter_can_update" in request.query_params
+        filter_can_update = (
+            "can_update" in self.queryset.model.PERMISSIONS
+            and "filter_can_update" in request.query_params
+        )
         if filter_can_update:
             qs = qs.filter(can_update=True)
 
-        filter_can_delete = "filter_can_delete" in request.query_params
+        filter_can_delete = (
+            "can_delete" in self.queryset.model.PERMISSIONS
+            and "filter_can_delete" in request.query_params
+        )
         if filter_can_delete:
             qs = qs.filter(can_delete=True)
 
-        search_param = "username"
-        search_term = request.query_params.get("username", "")
+        search_param = "filter_name"
+        search_term = request.query_params.get(search_param, "")
 
         if search_term:
             qs = qs.filter(username__icontains=search_term)
-
-        # TODO: improve performance by collecting the codenames in a set instead of a list
 
         pqs = await self.apaginate_queryset(qs)
         serializer = self.user_permissions_serializer_class(pqs, many=True)
@@ -801,29 +811,39 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         else:
             qs = qs.order_by("name")
 
-        filter_can_view = "filter_can_view" in request.query_params
+        filter_can_view = (
+            "can_view" in self.queryset.model.PERMISSIONS
+            and "filter_can_view" in request.query_params
+        )
         if filter_can_view:
             qs = qs.filter(can_view=True)
 
-        filter_can_create = "filter_can_create" in request.query_params
+        filter_can_create = (
+            "can_create" in self.queryset.model.PERMISSIONS
+            and "filter_can_create" in request.query_params
+        )
         if filter_can_create:
             qs = qs.filter(can_create=True)
 
-        filter_can_update = "filter_can_update" in request.query_params
+        filter_can_update = (
+            "can_update" in self.queryset.model.PERMISSIONS
+            and "filter_can_update" in request.query_params
+        )
         if filter_can_update:
             qs = qs.filter(can_update=True)
 
-        filter_can_delete = "filter_can_delete" in request.query_params
+        filter_can_delete = (
+            "can_delete" in self.queryset.model.PERMISSIONS
+            and "filter_can_delete" in request.query_params
+        )
         if filter_can_delete:
             qs = qs.filter(can_delete=True)
 
-        search_param = "name"
-        search_term = request.query_params.get("name", "")
+        search_param = "filter_name"
+        search_term = request.query_params.get(search_param, "")
 
         if search_term:
             qs = qs.filter(name__icontains=search_term)
-
-        # TODO: improve performance by collecting the codenames in a set instead of a list
 
         pqs = await self.apaginate_queryset(qs)
         serializer = self.group_permissions_serializer_class(pqs, many=True)

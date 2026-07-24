@@ -1,10 +1,10 @@
 {% load i18n %}
 
-<input id="searchInput" class="form-control me-2" name="search" type="search"
+<input id="searchInput" class="form-control me-2" name="{{ search_param }}" type="search"
        title="{{ search_fields_hint }}"
        data-bs-toggle="tooltip"
        placeholder={% trans 'Search term' %} aria-label={{ search_fields_hint }}
-       value="{{ request.GET.search }}"
+       value="{{ search_term }}"
        hx-get="{{ request.path }}"
        hx-trigger="keyup changed, search"
        hx-target="#list_body_partial"
