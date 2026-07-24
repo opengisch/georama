@@ -123,56 +123,59 @@
                 <div class="col-2 d-none d-lg-flex align-content-center">
                     <span>{% trans "Time granted" %}</span>
                 </div>
-    
-                <div class="col-1 text-center d-flex align-items-center">
+                
+                <!-- Permission column headers -->
+                <div class="col-4 d-flex">
                     {% if 'can_view' in available_permissions %}
-                        {% blocktranslate asvar title %}Filter entries with view permission{% endblocktranslate %}
-                        <a href="{% url permissions_url_name object.pk %}{% if filter_can_view %}{% querystring filter_can_view=None %}{% else %}{% querystring filter_can_view='1' %}{% endif %}"
-                           class="btn btn-outline-primary btn-permission in-header {% if not filter_can_view %} inactive {% endif %}"
-                           role="button" data-bs-toggle="tooltip"
-                           title="{{ title }}" aria-label="{{ title }}">
-                            <i class="fa fa-filter"></i>
-                        </a>
-                        <span class="d-none d-lg-block">{% trans "View" %}</span>
+                        <div class="d-flex flex-grow-1 justify-content-center align-items-center">
+                            {% blocktranslate asvar title %}Filter entries with view permission{% endblocktranslate %}
+                            <a href="{% url permissions_url_name object.pk %}{% if filter_can_view %}{% querystring filter_can_view=None %}{% else %}{% querystring filter_can_view='1' %}{% endif %}"
+                               class="btn btn-outline-primary btn-permission in-header {% if not filter_can_view %} inactive {% endif %}"
+                               role="button" data-bs-toggle="tooltip"
+                               title="{{ title }}" aria-label="{{ title }}">
+                                <i class="fa fa-filter"></i>
+                            </a>
+                            <span class="d-none d-lg-block">{% trans "View" %}</span>
+                        </div>
                     {% endif %}
-                </div>
 
-                <div class="col-1 text-center d-flex align-items-center">
                     {% if 'can_create' in available_permissions %}
-                        {% blocktranslate asvar title %}Filter entries with create permission{% endblocktranslate %}
-                        <a href="{% url permissions_url_name object.pk %}{% if filter_can_create %}{% querystring filter_can_create=None %}{% else %}{% querystring filter_can_create='1' %}{% endif %}"
-                           class="btn btn-outline-primary btn-permission in-header {% if not filter_can_create %} inactive {% endif %}"
-                           role="button" data-bs-toggle="tooltip"
-                           title="{{ title }}" aria-label="{{ title }}">
-                            <i class="fa fa-filter"></i>
-                        </a>
-                        <span class="d-none d-lg-block">{% trans "Create" %}</span>
+                        <div class="d-flex flex-grow-1 justify-content-center align-items-center">
+                            {% blocktranslate asvar title %}Filter entries with create permission{% endblocktranslate %}
+                            <a href="{% url permissions_url_name object.pk %}{% if filter_can_create %}{% querystring filter_can_create=None %}{% else %}{% querystring filter_can_create='1' %}{% endif %}"
+                               class="btn btn-outline-primary btn-permission in-header {% if not filter_can_create %} inactive {% endif %}"
+                               role="button" data-bs-toggle="tooltip"
+                               title="{{ title }}" aria-label="{{ title }}">
+                                <i class="fa fa-filter"></i>
+                            </a>
+                            <span class="d-none d-lg-block">{% trans "Create" %}</span>
+                        </div>
                     {% endif %}
-                </div>
                 
-                <div class="col-1 text-center d-flex align-items-center">
                     {% if 'can_update' in available_permissions %}
-                        {% blocktranslate asvar title %}Filter entries with update permission{% endblocktranslate %}
-                        <a href="{% url permissions_url_name object.pk %}{% if filter_can_update %}{% querystring filter_can_update=None %}{% else %}{% querystring filter_can_update='1' %}{% endif %}"
-                           class="btn btn-outline-primary btn-permission in-header {% if not filter_can_update %} inactive {% endif %}"
-                           role="button" data-bs-toggle="tooltip"
-                           title="{{ title }}" aria-label="{{ title }}">
-                            <i class="fa fa-filter"></i>
-                        </a>
-                        <span class="d-none d-lg-block">{% trans "Update" %}</span>
+                        <div class="d-flex flex-grow-1 justify-content-center align-items-center">
+                            {% blocktranslate asvar title %}Filter entries with update permission{% endblocktranslate %}
+                            <a href="{% url permissions_url_name object.pk %}{% if filter_can_update %}{% querystring filter_can_update=None %}{% else %}{% querystring filter_can_update='1' %}{% endif %}"
+                               class="btn btn-outline-primary btn-permission in-header {% if not filter_can_update %} inactive {% endif %}"
+                               role="button" data-bs-toggle="tooltip"
+                               title="{{ title }}" aria-label="{{ title }}">
+                                <i class="fa fa-filter"></i>
+                            </a>
+                            <span class="d-none d-lg-block">{% trans "Update" %}</span>
+                        </div>
                     {% endif %}
-                </div>
-                
-                <div class="col-1 text-center d-flex align-items-center">
+
                     {% if 'can_delete' in available_permissions %}
-                        {% blocktranslate asvar title %}Filter entries with delete permission{% endblocktranslate %}
-                        <a href="{% url permissions_url_name object.pk %}{% if filter_can_delete %}{% querystring filter_can_delete=None %}{% else %}{% querystring filter_can_delete='1' %}{% endif %}"
-                           class="btn btn-outline-primary btn-permission in-header {% if not filter_can_delete %} inactive {% endif %}"
-                           role="button" data-bs-toggle="tooltip"
-                           title="{{ title }}" aria-label="{{ title }}">
-                            <i class="fa fa-filter"></i>
-                        </a>
-                        <span class="d-none d-lg-block">{% trans "Delete" %}</span>
+                        <div class="d-flex flex-grow-1 justify-content-center align-items-center">
+                            {% blocktranslate asvar title %}Filter entries with delete permission{% endblocktranslate %}
+                            <a href="{% url permissions_url_name object.pk %}{% if filter_can_delete %}{% querystring filter_can_delete=None %}{% else %}{% querystring filter_can_delete='1' %}{% endif %}"
+                               class="btn btn-outline-primary btn-permission in-header {% if not filter_can_delete %} inactive {% endif %}"
+                               role="button" data-bs-toggle="tooltip"
+                               title="{{ title }}" aria-label="{{ title }}">
+                                <i class="fa fa-filter"></i>
+                            </a>
+                            <span class="d-none d-lg-block">{% trans "Delete" %}</span>
+                        </div>
                     {% endif %}
                 </div>
                 
@@ -211,57 +214,69 @@
                 
                     
                     {% if row.permission_time_created %}
-                        <div class="col-2 d-none d-lg-flex text-muted small" title="{{ row.permission_time_created|date:'DATETIME_FORMAT'|default_if_none:'' }}">
+                        <div class="col-2 d-none d-lg-block text-muted small text-truncate"
+                             title="{{ row.permission_time_created|date:'DATETIME_FORMAT'|default_if_none:'' }}">
                             {% blocktranslate with t=row.permission_time_created|timesince %}{{ t }} ago{% endblocktranslate %}
                         </div>
                     {% else %}
-                        <div class="col-2 text-muted small d-none d-lg-flex"> - </div>
+                        <div class="col-2 text-muted small d-none d-lg-block"> - </div>
                     {% endif %}
-    
-                    <div class="col-1 text-center">
+                    
+                    <!-- Permission columns -->
+                    <div class="col-4 d-flex">
                         {% if row.can_view and 'can_view' in available_permissions %}
-                            <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission disabled" disabled>
-                                {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="view" %}
-                            </button>
-                        {% endif %}
-                    </div>
-    
-                    <div class="col-1 text-center">
-                        {% if row.can_view and 'can_create' in available_permissions %}
-                            <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="{% if row.can_create %}prevent_create{% else %}allow_create{% endif %}">
-                                <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
-                                <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission {% if not row.can_create %} inactive {% endif %}">
-                                    {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="create" %}
+                            <div class="flex-grow-1 text-center">
+                                <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission disabled" disabled>
+                                    {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="view" %}
                                 </button>
-                            </form>
+                            </div>
                         {% endif %}
-                    </div>
-    
-                    <div class="col-1 text-center">
-                        {% if row.can_view and 'can_update' in available_permissions  %}
-                            <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="{% if row.can_update %}prevent_update{% else %}allow_update{% endif %}">
-                                <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
-                                <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission {% if not row.can_update %} inactive {% endif %}">
-                                    {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="update" %}
-                                </button>
-                            </form>
-                        {% endif %}
-                    </div>
 
-                    <div class="col-1 text-center">
-                        {% if row.can_view and 'can_delete' in available_permissions  %}
-                            <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="{% if row.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
-                                <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
-                                <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission {% if not row.can_delete %} inactive {% endif %}">
-                                    {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="delete" %}
-                                </button>
-                            </form>
+
+                        {% if row.can_view and 'can_create' in available_permissions %}
+                            <div class="flex-grow-1 text-center">
+                                <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="{% if row.can_create %}prevent_create{% else %}allow_create{% endif %}">
+                                    <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
+                                    {% blocktranslate asvar title %}Toggle create permission{% endblocktranslate %}
+                                    <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission {% if not row.can_create %} inactive {% endif %}"
+                                            data-bs-toggle="tooltip" title="{{ title }}" aria-label="{{ title }}">
+                                        {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="create" %}
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+
+
+                        {% if row.can_view and 'can_update' in available_permissions %}
+                            <div class="flex-grow-1 text-center">
+                                <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="{% if row.can_update %}prevent_update{% else %}allow_update{% endif %}">
+                                    <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
+                                    {% blocktranslate asvar title %}Toggle update permission{% endblocktranslate %}
+                                    <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission {% if not row.can_update %} inactive {% endif %}"
+                                            data-bs-toggle="tooltip" title="{{ title }}" aria-label="{{ title }}">
+                                        {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="update" %}
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+
+                        {% if row.can_view and 'can_delete' in available_permissions  %}    
+                            <div class="flex-grow-1 text-center">
+                                <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="{% if row.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
+                                    <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
+                                    {% blocktranslate asvar title %}Toggle delete permission{% endblocktranslate %}
+                                    <button type="submit" class="p-1 px-lg-3 btn btn-outline-primary btn-permission {% if not row.can_delete %} inactive {% endif %}"
+                                            data-bs-toggle="tooltip" title="{{ title }}" aria-label="{{ title }}">
+                                        {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="delete" %}
+                                    </button>
+                                </form>
+                            </div>
                         {% endif %}
                     </div>
 
@@ -270,14 +285,18 @@
                             {% csrf_token %}
                             <input type="hidden" name="action" value="{% if row.can_view %}revoke{% else %}grant{% endif %}">
                             <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
-                            {% if row.can_view %} 
-                                <button type="submit" class="btn btn-outline-danger btn-permission">
+                            {% if row.can_view %}
+                                {% blocktranslate asvar title %}Revoke all permissions{% endblocktranslate %}
+                                <button type="submit" class="btn btn-outline-danger btn-permission"
+                                        data-bs-toggle="tooltip" title="{{ title }}" aria-label="{{ title }}">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             {% else %}
-                                <button type="submit" class="btn btn-outline-primary btn-sm">
+                                {% blocktranslate asvar title %}Grant access by adding view permission{% endblocktranslate %}
+                                <button type="submit" class="btn btn-outline-primary btn-sm"
+                                        data-bs-toggle="tooltip" title="{{ title }}" aria-label="{{ title }}">
                                     <!-- Icon: Show on mobile only -->
-                                    <i class="d-block d-lg-none fa fa-eye"></i>
+                                    <i class="d-block d-lg-none fa fa-eye py-1 px-2"></i>
                                     <span class="d-none d-lg-flex text-nowrap">{% trans "grant access" %}</span>
                                 </button> 
                             {% endif %}
