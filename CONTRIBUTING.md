@@ -31,7 +31,7 @@ Early dialogue helps everyone: it ensures we're not stepping on each other's fee
 
 Georama's mission is to be a **strong, robust core platform for geospatial data publication workflows**, simple enough for anyone, powerful enough for complex enterprise needs.
 
-We have a longer-term vision of supporting additional features and functionalities through **plugins and extensions**, but we're not there yet architecturally. For now, we are laser-focused on doing one thing really well: geospatial data publication. This means we will prioritize contributions that strengthen the core, including bug fixes, stability improvements, and features that are central to the publication workflow.
+We have a longer-term vision of supporting additional features and functionalities through **extensions**, but we're not there yet architecturally. For now, we are laser-focused on doing one thing really well: geospatial data publication. This means we will prioritize contributions that strengthen the core, including bug fixes, stability improvements, and features that are central to the publication workflow.
 
 If you have an idea that feels more like an add-on or a niche use case, don't be discouraged. Start a discussion! It may well be the perfect candidate for a future plugin.
 
