@@ -71,7 +71,7 @@ class FeatureLayerGroupObjectPermissionSerializer(
 
 
 class FeatureLayerPermissionBulkActionSerializer(serializers.Serializer):
-    action = serializers.ChoiceField(choices=list(FeatureLayer.ACTION_MAP.keys()))
+    action = serializers.ChoiceField(choices=[(key, value[2]) for key, value in FeatureLayer.ACTION_MAP.items()])
 
 
 class FeatureLayerUserPermissionBulkActionSerializer(

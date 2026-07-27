@@ -28,14 +28,14 @@ class FeatureLayer(models.Model):
     }
 
     ACTION_MAP = {
-        "grant": (True, [PERMISSIONS["can_view"]]),
-        "allow_create": (True, [PERMISSIONS["can_view"], PERMISSIONS["can_create"]]),
-        "allow_update": (True, [PERMISSIONS["can_view"], PERMISSIONS["can_update"]]),
-        "allow_delete": (True, [PERMISSIONS["can_view"], PERMISSIONS["can_delete"]]),
-        "prevent_create": (False, [PERMISSIONS["can_create"]]),
-        "prevent_update": (False, [PERMISSIONS["can_update"]]),
-        "prevent_delete": (False, [PERMISSIONS["can_delete"]]),
-        "revoke": (False, list(PERMISSIONS.values())),
+        "grant": (True, [PERMISSIONS["can_view"]], "grant access"),
+        "allow_create": (True, [PERMISSIONS["can_view"], PERMISSIONS["can_create"]], "allow create"),
+        "allow_update": (True, [PERMISSIONS["can_view"], PERMISSIONS["can_update"]], "allow update"),
+        "allow_delete": (True, [PERMISSIONS["can_view"], PERMISSIONS["can_delete"]], "allow delete"),
+        "prevent_create": (False, [PERMISSIONS["can_create"]], "prevent create"),
+        "prevent_update": (False, [PERMISSIONS["can_update"]], "prevent update"),
+        "prevent_delete": (False, [PERMISSIONS["can_delete"]], "prevent delete"),
+        "revoke": (False, list(PERMISSIONS.values()), "revoke all"),
     }
 
     class Meta:

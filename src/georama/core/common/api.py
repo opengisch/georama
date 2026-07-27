@@ -608,7 +608,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             action_name = payload_serializer.validated_data["action"]
             users = payload_serializer.validated_data["users"]
 
-            add, permission_names = action_map[action_name]
+            add, permission_names, _action_label = action_map[action_name]
             permission_action = sync_to_async(assign_perm) if add else sync_to_async(remove_perm)
             found_users = []
 
@@ -756,7 +756,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             action_name = payload_serializer.validated_data["action"]
             groups = payload_serializer.validated_data["groups"]
 
-            add, permission_names = action_map[action_name]
+            add, permission_names, _action_label = action_map[action_name]
             permission_action = sync_to_async(assign_perm) if add else sync_to_async(remove_perm)
             found_groups = []
 

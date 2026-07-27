@@ -29,8 +29,8 @@ class Theme(models.Model):
     }
 
     ACTION_MAP = {
-        "grant": (True, [PERMISSIONS["can_view"]]),
-        "revoke": (False, list(PERMISSIONS.values())),
+        "grant": (True, [PERMISSIONS["can_view"]], "grant access"),
+        "revoke": (False, list(PERMISSIONS.values()), "revoke all"),
     }
 
     class Meta:

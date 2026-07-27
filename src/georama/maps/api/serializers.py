@@ -93,7 +93,7 @@ class WmsLayerGroupObjectPermissionSerializer(
 
 
 class WmsLayerPermissionBulkActionSerializer(serializers.Serializer):
-    action = serializers.ChoiceField(choices=list(WmsLayer.ACTION_MAP.keys()))
+    action = serializers.ChoiceField(choices=[(key, value[2]) for key, value in WmsLayer.ACTION_MAP.items()])
 
 
 class WmsLayerUserPermissionBulkActionSerializer(

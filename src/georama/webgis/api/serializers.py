@@ -72,7 +72,7 @@ class ThemeGroupObjectPermissionSerializer(
 
 
 class ThemePermissionBulkActionSerializer(serializers.Serializer):
-    action = serializers.ChoiceField(choices=list(Theme.ACTION_MAP.keys()))
+    action = serializers.ChoiceField(choices=[(key, value[2]) for key, value in Theme.ACTION_MAP.items()])
 
 
 class ThemeUserPermissionBulkActionSerializer(
