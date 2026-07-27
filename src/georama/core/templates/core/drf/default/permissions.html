@@ -45,22 +45,6 @@
                 </a>
             </div>
 
-            <!-- Latest filter -->
-            <div class="nav-item d-flex gap-2 align-items-center">
-                <span class="text-muted d-none d-lg-block">{%  trans "sort by" %}</span>
-            
-                {% blocktranslate asvar title %}Sort permission list by latest granted permissions{% endblocktranslate %}
-                <a href="{% url permissions_url_name object.pk %}{% if sort_by_latest %}{% querystring sort_by_latest=None %}{% else %}{% querystring sort_by_latest='1' %}{% endif %}"
-                   class="btn btn-outline-primary {% if sort_by_latest %} active {% endif %}"
-                   role="button"
-                   data-bs-toggle="tooltip"
-                   title="{{ title }}"
-                   aria-label="{{ title }}">
-                    <i class="fa fa-sort"></i>
-                    {% trans "time granted" %}
-                </a>
-            </div>
-
             <!-- Bulk operations -->
             <div id="bulk-action-container" class="nav-item d-flex gap-2 align-items-center d-none">
                 <div class="dropdown">
@@ -119,9 +103,17 @@
                     >
                     <span>{% trans "Name" %}</span>
                 </div>
-                
-                <div class="col-2 d-none d-lg-flex align-content-center">
-                    <span>{% trans "Time granted" %}</span>
+
+                <!-- Time granted -->
+                <div class="col-2 d-lg-flex align-items-center">
+                    {% blocktranslate asvar title %}Sort by the time access was granted{% endblocktranslate %}
+                    <a href="{% url permissions_url_name object.pk %}{% if sort_by_latest %}{% querystring sort_by_latest=None %}{% else %}{% querystring sort_by_latest='1' %}{% endif %}"
+                       class="btn btn-outline-primary btn-permission in-header {% if not sort_by_latest %} inactive {% endif %}"
+                       role="button" data-bs-toggle="tooltip"
+                       title="{{ title }}" aria-label="{{ title }}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    <span class="d-none d-lg-block">{% trans "Time granted" %}</span>
                 </div>
                 
                 <!-- Permission column headers -->
@@ -195,7 +187,8 @@
                 
                 <!-- Row -->
                 <div class="row striped-row p-2 align-items-center">
-                    
+
+                    <!-- User / group name and selector -->
                     <div class="col">
                         <input
                                 class="form-check-input me-3"
@@ -211,8 +204,8 @@
                             {{ row.entity_name }}
                         </label>
                     </div>
-                
-                    
+
+                    <!-- Time granted -->
                     {% if row.permission_time_created %}
                         <div class="col-2 d-none d-lg-block text-muted small text-truncate"
                              title="{{ row.permission_time_created|date:'DATETIME_FORMAT'|default_if_none:'' }}">
