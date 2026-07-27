@@ -158,7 +158,7 @@ Before submitting, please check:
 - [ ] All tests pass locally
 - [ ] I've updated the documentation where relevant
 - [ ] My PR is focused and doesn't bundle multiple unrelated changes
-- [ ] I've discussed this change with the team (via issue or discussion)
+- [ ] I've discussed this change with the team (via issue or discussion) and added a link in the PR description
 
 ---
 
