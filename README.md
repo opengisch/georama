@@ -100,6 +100,10 @@ Before investing time in a new feature or fix, please get in touch first, either
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
 
+## License
+
+See [LICENSE]([url](https://github.com/opengisch/georama/tree/community_guidelines?tab=License-1-ov-file)) — temporary terms, permanent open-source license planned for early 2027
+
 ## About OPENGIS.ch
 
 Georama is built and maintained by [OPENGIS.ch](https://opengis.ch), a Swiss company specializing in open-source geospatial software. We are also the team behind [QField](https://qfield.org) and [QFieldCloud](https://qfield.cloud). We believe open standards and open software are the foundation of a healthy geospatial ecosystem.
