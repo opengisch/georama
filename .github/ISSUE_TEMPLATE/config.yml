@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💡 Ideas and open-ended discussions
+    url: https://github.com/opengisch/georama/discussions
+    about: Not sure if it's a bug or a feature? Start a discussion here first!
