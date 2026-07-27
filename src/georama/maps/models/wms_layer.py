@@ -257,7 +257,7 @@ class WmsLayer(WmsLayerAbstract):
 
     ACTION_MAP = {
         "grant": (True, [PERMISSIONS["can_view"]], "grant access"),
-        "revoke": (False, list(PERMISSIONS.values()), "revoke all"),
+        "revoke": (False, list(PERMISSIONS.values()), "revoke access"),
     }
 
     class Meta:
