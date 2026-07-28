@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import router as djdb_router
 from django.db.models import Exists, Min, OuterRef, Q
+from django.db.models.functions import JSONObject
 from django.forms import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -187,7 +188,7 @@ class GeoramaTemplateViewSetReadOnly(
                 field = o.removeprefix("-")
                 ordering_context[field] = {
                     "name": field,
-                    "label": field.split('_')[-1],
+                    "label": field.split("_")[-1],
                     "direction": direction,
                 }
             # this is how the filters.OrderingFilter does it too
@@ -195,8 +196,8 @@ class GeoramaTemplateViewSetReadOnly(
                 if field not in ordering_context:
                     ordering_context[field] = {
                         "name": field,
-                        "label": field.split('_')[-1],
-                        "direction": None
+                        "label": field.split("_")[-1],
+                        "direction": None,
                     }
             pqs = await self.apaginate_queryset(qs)
             context["object_list"] = pqs
@@ -636,20 +637,35 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
                 status=status.HTTP_200_OK,
             )
 
+        group_perm_model = self.queryset.model.group_object_permissions.rel.related_model
         user_perm_model = self.queryset.model.user_object_permissions.rel.related_model
         user_perm_model_name = user_perm_model._meta.model_name
 
         qs = User.objects.annotate(
-            **{
-                permission: Exists(
-                    user_perm_model.objects.filter(
-                        user_id=OuterRef("pk"),
-                        content_object_id=pk,
-                        permission__codename=codename,
+            entity_permissions=JSONObject(
+                **{
+                    permission: Exists(
+                        user_perm_model.objects.filter(
+                            user_id=OuterRef("pk"),
+                            content_object_id=pk,
+                            permission__codename=codename,
+                        )
                     )
-                )
-                for permission, codename in self.queryset.model.PERMISSIONS.items()
-            },
+                    for permission, codename in self.queryset.model.PERMISSIONS.items()
+                }
+            ),
+            inherited_permissions=JSONObject(
+                **{
+                    permission: Exists(
+                        group_perm_model.objects.filter(
+                            group__user=OuterRef("pk"),
+                            content_object_id=pk,
+                            permission__codename=codename,
+                        )
+                    )
+                    for permission, codename in self.queryset.model.PERMISSIONS.items()
+                }
+            ),
             permission_time_created=Min(
                 f"{user_perm_model_name}__time_created",
                 filter=Q(
@@ -791,16 +807,18 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         group_perm_model_name = group_perm_model._meta.model_name
 
         qs = Group.objects.annotate(
-            **{
-                permission: Exists(
-                    group_perm_model.objects.filter(
-                        group_id=OuterRef("pk"),
-                        content_object_id=pk,
-                        permission__codename=codename,
+            entity_permissions=JSONObject(
+                **{
+                    permission: Exists(
+                        group_perm_model.objects.filter(
+                            group_id=OuterRef("pk"),
+                            content_object_id=pk,
+                            permission__codename=codename,
+                        )
                     )
-                )
-                for permission, codename in self.queryset.model.PERMISSIONS.items()
-            },
+                    for permission, codename in self.queryset.model.PERMISSIONS.items()
+                }
+            ),
             permission_time_created=Min(
                 f"{group_perm_model_name}__time_created",
                 filter=Q(

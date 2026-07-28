@@ -82,7 +82,7 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 icon="fa fa-circle-plus",
             )
         return context
-    
+
     async def _get_model_permissions(self) -> dict:
         """
         Returns a dictionary of permissions.

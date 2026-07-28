@@ -59,20 +59,19 @@ class ThemePermissionSerializer(serializers.Serializer):
     can_view = serializers.BooleanField()
 
 
-class ThemeUserObjectPermissionSerializer(
-    UserObjectPermissionSerializer,
-    ThemePermissionSerializer,
-): ...
+class ThemeUserObjectPermissionSerializer(UserObjectPermissionSerializer):
+    entity_permissions = ThemePermissionSerializer()
+    inherited_permissions = ThemePermissionSerializer()
 
 
-class ThemeGroupObjectPermissionSerializer(
-    GroupObjectPermissionSerializer,
-    ThemePermissionSerializer,
-): ...
+class ThemeGroupObjectPermissionSerializer(GroupObjectPermissionSerializer):
+    entity_permissions = ThemePermissionSerializer()
 
 
 class ThemePermissionBulkActionSerializer(serializers.Serializer):
-    action = serializers.ChoiceField(choices=[(key, value[2]) for key, value in Theme.ACTION_MAP.items()])
+    action = serializers.ChoiceField(
+        choices=[(key, value[2]) for key, value in Theme.ACTION_MAP.items()]
+    )
 
 
 class ThemeUserPermissionBulkActionSerializer(

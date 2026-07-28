@@ -58,20 +58,19 @@ class FeatureLayerPermissionSerializer(serializers.Serializer):
     can_update = serializers.BooleanField()
 
 
-class FeatureLayerUserObjectPermissionSerializer(
-    UserObjectPermissionSerializer,
-    FeatureLayerPermissionSerializer,
-): ...
+class FeatureLayerUserObjectPermissionSerializer(UserObjectPermissionSerializer):
+    entity_permissions = FeatureLayerPermissionSerializer()
+    inherited_permissions = FeatureLayerPermissionSerializer()
 
 
-class FeatureLayerGroupObjectPermissionSerializer(
-    GroupObjectPermissionSerializer,
-    FeatureLayerPermissionSerializer,
-): ...
+class FeatureLayerGroupObjectPermissionSerializer(GroupObjectPermissionSerializer):
+    entity_permissions = FeatureLayerPermissionSerializer()
 
 
 class FeatureLayerPermissionBulkActionSerializer(serializers.Serializer):
-    action = serializers.ChoiceField(choices=[(key, value[2]) for key, value in FeatureLayer.ACTION_MAP.items()])
+    action = serializers.ChoiceField(
+        choices=[(key, value[2]) for key, value in FeatureLayer.ACTION_MAP.items()]
+    )
 
 
 class FeatureLayerUserPermissionBulkActionSerializer(

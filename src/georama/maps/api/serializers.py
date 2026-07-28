@@ -80,20 +80,19 @@ class WmsLayerPermissionSerializer(serializers.Serializer):
     can_view = serializers.BooleanField()
 
 
-class WmsLayerUserObjectPermissionSerializer(
-    UserObjectPermissionSerializer,
-    WmsLayerPermissionSerializer,
-): ...
+class WmsLayerUserObjectPermissionSerializer(UserObjectPermissionSerializer):
+    entity_permissions = WmsLayerPermissionSerializer()
+    inherited_permissions = WmsLayerPermissionSerializer()
 
 
-class WmsLayerGroupObjectPermissionSerializer(
-    GroupObjectPermissionSerializer,
-    WmsLayerPermissionSerializer,
-): ...
+class WmsLayerGroupObjectPermissionSerializer(GroupObjectPermissionSerializer):
+    entity_permissions = WmsLayerPermissionSerializer()
 
 
 class WmsLayerPermissionBulkActionSerializer(serializers.Serializer):
-    action = serializers.ChoiceField(choices=[(key, value[2]) for key, value in WmsLayer.ACTION_MAP.items()])
+    action = serializers.ChoiceField(
+        choices=[(key, value[2]) for key, value in WmsLayer.ACTION_MAP.items()]
+    )
 
 
 class WmsLayerUserPermissionBulkActionSerializer(
