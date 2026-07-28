@@ -82,7 +82,7 @@
                                                 {% blocktranslate asvar title %}
                                                     Edit item permissions
                                                 {% endblocktranslate %}
-                                                <a href="{% url view.url_name_group_permissions item.pk %}"
+                                                <a href="{% url view.url_name_permissions item.pk %}?entity=groups"
                                                    class="btn btn-outline-primary"
                                                    role="button"
                                                    title="{{ title }}"

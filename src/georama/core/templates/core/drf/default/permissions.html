@@ -35,7 +35,7 @@
                 <span class="text-muted d-none d-lg-block">{%  trans "filter by" %}</span>
             
                 {% blocktranslate asvar title %}Show list of group permissions{% endblocktranslate %}
-                <a href="{% url view.url_name_group_permissions object.pk %}{% querystring offset=None %}"
+                     <a href="{% url permissions_url_name object.pk %}{% querystring entity='groups' offset=None %}"
                    class="btn btn-outline-primary {% if permissions_entity_field == "groups" %} active {% endif %}"
                    role="button"
                    data-bs-toggle="tooltip"
@@ -46,7 +46,7 @@
                 </a>
 
                 {% blocktranslate asvar title %}Show list of user permissions{% endblocktranslate %}
-                <a href="{% url view.url_name_user_permissions object.pk %}{% querystring %}"
+                     <a href="{% url permissions_url_name object.pk %}{% querystring entity='users' offset=None %}"
                    class="btn btn-outline-primary {% if permissions_entity_field == "users" %} active {% endif %}"
                    role="button"
                    data-bs-toggle="tooltip"
@@ -92,6 +92,7 @@
                         {% endfor %}
                         <button type="submit" form="bulk-action-form" class="btn btn-outline-primary mt-2 text-nowrap"
                             onclick="bootstrap.Dropdown.getOrCreateInstance(this.closest('.dropdown').querySelector('[data-bs-toggle=dropdown]')).hide()">
+                        <button type="submit" form="bulk-action-form" class="btn btn-outline-primary mt-2 text-nowrap">
                             {% trans "Apply to selected entries" %}
                         </button>
                     </div>

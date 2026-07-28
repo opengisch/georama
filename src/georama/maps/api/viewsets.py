@@ -22,11 +22,9 @@ from georama.maps.api.serializers import (
     PreviewGeneratorInput,
     PreviewGeneratorResult,
     PublishFromDatasourceInput,
-    WmsLayerGroupObjectPermissionSerializer,
-    WmsLayerGroupPermissionBulkActionSerializer,
+    WmsLayerObjectPermissionSerializer,
+    WmsLayerPermissionActionSerializer,
     WmsLayerSerializer,
-    WmsLayerUserObjectPermissionSerializer,
-    WmsLayerUserPermissionBulkActionSerializer,
 )
 from georama.maps.forms.wms_layer import WmsLayerModelForm
 from georama.maps.models import Metadata, WmsLayer
@@ -47,10 +45,8 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
     list_body_partial_template_name = "maps/drf/wms_layer/partials/list_body.html"
     show_template_name = "maps/drf/wms_layer/detail.html"
 
-    user_permissions_serializer_class = WmsLayerUserObjectPermissionSerializer
-    group_permissions_serializer_class = WmsLayerGroupObjectPermissionSerializer
-    user_permissions_bulk_action_serializer_class = WmsLayerUserPermissionBulkActionSerializer
-    group_permissions_bulk_action_serializer_class = WmsLayerGroupPermissionBulkActionSerializer
+    permissions_serializer_class = WmsLayerObjectPermissionSerializer
+    permissions_action_serializer_class = WmsLayerPermissionActionSerializer
 
     @property
     async def bread_crumb_action_context(self):

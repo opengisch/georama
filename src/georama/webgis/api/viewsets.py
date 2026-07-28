@@ -20,11 +20,9 @@ from georama.integration.models import Project
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 from georama.webgis.adapters.qsl import WmsLayerIndex, theme_json_from_project_config
 from georama.webgis.api.serializers import (
-    ThemeGroupObjectPermissionSerializer,
-    ThemeGroupPermissionBulkActionSerializer,
+    ThemeObjectPermissionSerializer,
+    ThemePermissionActionSerializer,
     ThemeSerializer,
-    ThemeUserObjectPermissionSerializer,
-    ThemeUserPermissionBulkActionSerializer,
 )
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     OgcServer as GGOgcServer,
@@ -50,10 +48,8 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
 
-    user_permissions_serializer_class = ThemeUserObjectPermissionSerializer
-    group_permissions_serializer_class = ThemeGroupObjectPermissionSerializer
-    user_permissions_bulk_action_serializer_class = ThemeUserPermissionBulkActionSerializer
-    group_permissions_bulk_action_serializer_class = ThemeGroupPermissionBulkActionSerializer
+    permissions_serializer_class = ThemeObjectPermissionSerializer
+    permissions_action_serializer_class = ThemePermissionActionSerializer
 
     @property
     async def bread_crumb_action_context(self):

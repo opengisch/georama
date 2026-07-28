@@ -18,7 +18,7 @@
 
             {% if can_manage_permission %}
                 {% blocktranslate asvar title %}Edit permissions{% endblocktranslate %}
-                <a href="{% url view.url_name_group_permissions object.pk %}"
+                     <a href="{% url view.url_name_permissions object.pk %}?entity=groups"
                    class="btn btn-outline-primary" role="button"
                    data-bs-toggle="tooltip"
                    title="{{ title }}"

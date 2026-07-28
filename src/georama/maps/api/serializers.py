@@ -2,10 +2,7 @@ from adrf import serializers
 from django.utils.translation import gettext as _
 
 from georama.core.common.serializers import (
-    GroupObjectPermissionSerializer,
-    GroupPermissionBulkActionSerializer,
-    UserObjectPermissionSerializer,
-    UserPermissionBulkActionSerializer,
+    PermissionActionSerializer,
 )
 from georama.maps.models import Metadata, WmsLayer
 
@@ -80,27 +77,12 @@ class WmsLayerPermissionSerializer(serializers.Serializer):
     can_view = serializers.BooleanField()
 
 
-class WmsLayerUserObjectPermissionSerializer(UserObjectPermissionSerializer):
+class WmsLayerObjectPermissionSerializer(serializers.Serializer):
     entity_permissions = WmsLayerPermissionSerializer()
-    inherited_permissions = WmsLayerPermissionSerializer()
+    inherited_permissions = WmsLayerPermissionSerializer(default=None)
 
 
-class WmsLayerGroupObjectPermissionSerializer(GroupObjectPermissionSerializer):
-    entity_permissions = WmsLayerPermissionSerializer()
-
-
-class WmsLayerPermissionBulkActionSerializer(serializers.Serializer):
+class WmsLayerPermissionActionSerializer(PermissionActionSerializer):
     action = serializers.ChoiceField(
         choices=[(key, value[2]) for key, value in WmsLayer.ACTION_MAP.items()]
     )
-
-
-class WmsLayerUserPermissionBulkActionSerializer(
-    WmsLayerPermissionBulkActionSerializer,
-    UserPermissionBulkActionSerializer,
-): ...
-
-
-class WmsLayerGroupPermissionBulkActionSerializer(
-    WmsLayerPermissionBulkActionSerializer, GroupPermissionBulkActionSerializer
-): ...

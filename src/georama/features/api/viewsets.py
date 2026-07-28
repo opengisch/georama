@@ -17,11 +17,9 @@ from georama.core.common.api import (
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.features.api.serializers import (
-    FeatureLayerGroupObjectPermissionSerializer,
-    FeatureLayerGroupPermissionBulkActionSerializer,
+    FeatureLayerObjectPermissionSerializer,
+    FeatureLayerPermissionActionSerializer,
     FeatureLayerSerializer,
-    FeatureLayerUserObjectPermissionSerializer,
-    FeatureLayerUserPermissionBulkActionSerializer,
     FieldSerializer,
 )
 from georama.features.forms.feature_layer import FeatureLayerModelForm
@@ -48,10 +46,8 @@ class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
     show_template_name = "features/drf/feature_layer/detail.html"
     form_template_name: str = "features/drf/feature_layer/form.html"
 
-    user_permissions_serializer_class = FeatureLayerUserObjectPermissionSerializer
-    group_permissions_serializer_class = FeatureLayerGroupObjectPermissionSerializer
-    user_permissions_bulk_action_serializer_class = FeatureLayerUserPermissionBulkActionSerializer
-    group_permissions_bulk_action_serializer_class = FeatureLayerGroupPermissionBulkActionSerializer
+    permissions_serializer_class = FeatureLayerObjectPermissionSerializer
+    permissions_action_serializer_class = FeatureLayerPermissionActionSerializer
 
     @property
     async def bread_crumb_action_context(self):

@@ -2,10 +2,8 @@ from adrf import serializers
 from django.contrib.auth import get_user_model
 
 from georama.core.common.serializers import (
-    GroupObjectPermissionSerializer,
-    GroupPermissionBulkActionSerializer,
-    UserObjectPermissionSerializer,
-    UserPermissionBulkActionSerializer,
+    ObjectPermissionSerializer,
+    PermissionActionSerializer,
 )
 from georama.features.models import FeatureLayer, Field, Metadata
 
@@ -58,27 +56,12 @@ class FeatureLayerPermissionSerializer(serializers.Serializer):
     can_update = serializers.BooleanField()
 
 
-class FeatureLayerUserObjectPermissionSerializer(UserObjectPermissionSerializer):
+class FeatureLayerObjectPermissionSerializer(ObjectPermissionSerializer):
     entity_permissions = FeatureLayerPermissionSerializer()
     inherited_permissions = FeatureLayerPermissionSerializer()
 
 
-class FeatureLayerGroupObjectPermissionSerializer(GroupObjectPermissionSerializer):
-    entity_permissions = FeatureLayerPermissionSerializer()
-
-
-class FeatureLayerPermissionBulkActionSerializer(serializers.Serializer):
+class FeatureLayerPermissionActionSerializer(PermissionActionSerializer):
     action = serializers.ChoiceField(
         choices=[(key, value[2]) for key, value in FeatureLayer.ACTION_MAP.items()]
     )
-
-
-class FeatureLayerUserPermissionBulkActionSerializer(
-    FeatureLayerPermissionBulkActionSerializer,
-    UserPermissionBulkActionSerializer,
-): ...
-
-
-class FeatureLayerGroupPermissionBulkActionSerializer(
-    FeatureLayerPermissionBulkActionSerializer, GroupPermissionBulkActionSerializer
-): ...
