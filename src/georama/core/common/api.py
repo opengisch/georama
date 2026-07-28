@@ -593,6 +593,29 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
     def url_name_group_permissions(self):
         return self.url_name("group-permissions")
 
+    def _permission_exist(self, perm_model, entity_id, codename, pk):
+        return Exists(
+            perm_model.objects.filter(
+                **{entity_id: OuterRef("pk")},
+                content_object_id=pk,
+                permission__codename=codename,
+            )
+        )
+
+    def _permission_time_created(self, perm_model, pk):
+        perm_model_name = perm_model._meta.model_name
+        return Min(
+            f"{perm_model_name}__time_created",
+            filter=Q(
+                **{
+                    f"{perm_model_name}__content_object_id": pk,
+                    f"{perm_model_name}__permission__codename__in": list(
+                        self.queryset.model.PERMISSIONS.values()
+                    ),
+                },
+            ),
+        )
+
     @action(detail=True, methods=["get", "post"], url_path="permissions/users")
     async def user_permissions(self, request: GeoramaDrfRequest, pk: str):
         context = await self._prepare_single_context()
@@ -639,44 +662,23 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
 
         group_perm_model = self.queryset.model.group_object_permissions.rel.related_model
         user_perm_model = self.queryset.model.user_object_permissions.rel.related_model
-        user_perm_model_name = user_perm_model._meta.model_name
 
         qs = User.objects.annotate(
             entity_permissions=JSONObject(
                 **{
-                    permission: Exists(
-                        user_perm_model.objects.filter(
-                            user_id=OuterRef("pk"),
-                            content_object_id=pk,
-                            permission__codename=codename,
-                        )
-                    )
+                    permission: self._permission_exist(user_perm_model, "user_id", codename, pk)
                     for permission, codename in self.queryset.model.PERMISSIONS.items()
                 }
             ),
             inherited_permissions=JSONObject(
                 **{
-                    permission: Exists(
-                        group_perm_model.objects.filter(
-                            group__user=OuterRef("pk"),
-                            content_object_id=pk,
-                            permission__codename=codename,
-                        )
+                    permission: self._permission_exist(
+                        group_perm_model, "group__user", codename, pk
                     )
                     for permission, codename in self.queryset.model.PERMISSIONS.items()
                 }
             ),
-            permission_time_created=Min(
-                f"{user_perm_model_name}__time_created",
-                filter=Q(
-                    **{
-                        f"{user_perm_model_name}__content_object_id": pk,
-                        f"{user_perm_model_name}__permission__codename__in": list(
-                            self.queryset.model.PERMISSIONS.values()
-                        ),
-                    },
-                ),
-            ),
+            permission_time_created=self._permission_time_created(user_perm_model, pk),
         )
 
         sort_by_latest = "sort_by_latest" in request.query_params
@@ -685,33 +687,19 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         else:
             qs = qs.order_by("username")
 
-        filter_can_view = (
-            "can_view" in self.queryset.model.PERMISSIONS
-            and "filter_can_view" in request.query_params
+        permission_filters = {
+            permission: True
+            for permission in self.queryset.model.PERMISSIONS
+            if f"filter_{permission}" in request.query_params
+        }
+        qs = qs.filter(
+            *(
+                self._permission_exist(
+                    user_perm_model, "user_id", self.queryset.model.PERMISSIONS[filter], pk
+                )
+                for filter in permission_filters
+            )
         )
-        if filter_can_view:
-            qs = qs.filter(can_view=True)
-
-        filter_can_create = (
-            "can_create" in self.queryset.model.PERMISSIONS
-            and "filter_can_create" in request.query_params
-        )
-        if filter_can_create:
-            qs = qs.filter(can_create=True)
-
-        filter_can_update = (
-            "can_update" in self.queryset.model.PERMISSIONS
-            and "filter_can_update" in request.query_params
-        )
-        if filter_can_update:
-            qs = qs.filter(can_update=True)
-
-        filter_can_delete = (
-            "can_delete" in self.queryset.model.PERMISSIONS
-            and "filter_can_delete" in request.query_params
-        )
-        if filter_can_delete:
-            qs = qs.filter(can_delete=True)
 
         search_param = "filter_name"
         search_term = request.query_params.get(search_param, "")
@@ -731,10 +719,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             context["search_term"] = search_term
             context["search_param"] = search_param
             context["search_fields_hint"] = _("searchable fields: user name")
-            context["filter_can_view"] = filter_can_view
-            context["filter_can_create"] = filter_can_create
-            context["filter_can_update"] = filter_can_update
-            context["filter_can_delete"] = filter_can_delete
+            context["permission_filters"] = permission_filters
             context["sort_by_latest"] = sort_by_latest
             context["object_list"] = data
             context["limit"] = self.paginator.limit
@@ -748,12 +733,12 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
                 .fields["action"]
                 .choices.items()
             )
-            
+
             if request.META.get("HTTP_HX_REQUEST") == "true":
                 template_name = self.permissions_list_template_name
             else:
                 template_name = self.permissions_template_name
-            
+
             return Response(context, template_name=template_name)
         else:
             return await self.get_apaginated_response(data)
@@ -804,32 +789,15 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             )
 
         group_perm_model = self.queryset.model.group_object_permissions.rel.related_model
-        group_perm_model_name = group_perm_model._meta.model_name
 
         qs = Group.objects.annotate(
             entity_permissions=JSONObject(
                 **{
-                    permission: Exists(
-                        group_perm_model.objects.filter(
-                            group_id=OuterRef("pk"),
-                            content_object_id=pk,
-                            permission__codename=codename,
-                        )
-                    )
+                    permission: self._permission_exist(group_perm_model, "group_id", codename, pk)
                     for permission, codename in self.queryset.model.PERMISSIONS.items()
                 }
             ),
-            permission_time_created=Min(
-                f"{group_perm_model_name}__time_created",
-                filter=Q(
-                    **{
-                        f"{group_perm_model_name}__content_object_id": pk,
-                        f"{group_perm_model_name}__permission__codename__in": list(
-                            self.queryset.model.PERMISSIONS.values()
-                        ),
-                    },
-                ),
-            ),
+            permission_time_created=self._permission_time_created(group_perm_model, pk),
         )
 
         sort_by_latest = "sort_by_latest" in request.query_params
@@ -838,33 +806,19 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         else:
             qs = qs.order_by("name")
 
-        filter_can_view = (
-            "can_view" in self.queryset.model.PERMISSIONS
-            and "filter_can_view" in request.query_params
+        permission_filters = {
+            permission: True
+            for permission in self.queryset.model.PERMISSIONS
+            if f"filter_{permission}" in request.query_params
+        }
+        qs = qs.filter(
+            *(
+                self._permission_exist(
+                    group_perm_model, "group_id", self.queryset.model.PERMISSIONS[filter], pk
+                )
+                for filter in permission_filters
+            )
         )
-        if filter_can_view:
-            qs = qs.filter(can_view=True)
-
-        filter_can_create = (
-            "can_create" in self.queryset.model.PERMISSIONS
-            and "filter_can_create" in request.query_params
-        )
-        if filter_can_create:
-            qs = qs.filter(can_create=True)
-
-        filter_can_update = (
-            "can_update" in self.queryset.model.PERMISSIONS
-            and "filter_can_update" in request.query_params
-        )
-        if filter_can_update:
-            qs = qs.filter(can_update=True)
-
-        filter_can_delete = (
-            "can_delete" in self.queryset.model.PERMISSIONS
-            and "filter_can_delete" in request.query_params
-        )
-        if filter_can_delete:
-            qs = qs.filter(can_delete=True)
 
         search_param = "filter_name"
         search_term = request.query_params.get(search_param, "")
@@ -884,10 +838,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             context["search_term"] = search_term
             context["search_param"] = search_param
             context["search_fields_hint"] = _("searchable fields: group name")
-            context["filter_can_view"] = filter_can_view
-            context["filter_can_create"] = filter_can_create
-            context["filter_can_update"] = filter_can_update
-            context["filter_can_delete"] = filter_can_delete
+            context["permission_filters"] = permission_filters
             context["sort_by_latest"] = sort_by_latest
             context["object_list"] = data
             context["limit"] = self.paginator.limit

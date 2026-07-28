@@ -121,8 +121,8 @@
                     {% if 'can_view' in available_permissions %}
                         <div class="d-flex flex-grow-1 justify-content-center align-items-center">
                             {% blocktranslate asvar title %}Filter entries with view permission{% endblocktranslate %}
-                            <a href="{% url permissions_url_name object.pk %}{% if filter_can_view %}{% querystring filter_can_view=None %}{% else %}{% querystring filter_can_view='1' %}{% endif %}"
-                               class="btn btn-outline-primary btn-permission in-header {% if not filter_can_view %} inactive {% endif %}"
+                            <a href="{% url permissions_url_name object.pk %}{% if permission_filters.can_view %}{% querystring filter_can_view=None %}{% else %}{% querystring filter_can_view='1' %}{% endif %}"
+                               class="btn btn-outline-primary btn-permission in-header {% if not permission_filters.can_view %} inactive {% endif %}"
                                role="button" data-bs-toggle="tooltip"
                                title="{{ title }}" aria-label="{{ title }}">
                                 <i class="fa fa-filter"></i>
@@ -134,8 +134,8 @@
                     {% if 'can_create' in available_permissions %}
                         <div class="d-flex flex-grow-1 justify-content-center align-items-center">
                             {% blocktranslate asvar title %}Filter entries with create permission{% endblocktranslate %}
-                            <a href="{% url permissions_url_name object.pk %}{% if filter_can_create %}{% querystring filter_can_create=None %}{% else %}{% querystring filter_can_create='1' %}{% endif %}"
-                               class="btn btn-outline-primary btn-permission in-header {% if not filter_can_create %} inactive {% endif %}"
+                            <a href="{% url permissions_url_name object.pk %}{% if permission_filters.can_create %}{% querystring filter_can_create=None %}{% else %}{% querystring filter_can_create='1' %}{% endif %}"
+                               class="btn btn-outline-primary btn-permission in-header {% if not permission_filters.can_create %} inactive {% endif %}"
                                role="button" data-bs-toggle="tooltip"
                                title="{{ title }}" aria-label="{{ title }}">
                                 <i class="fa fa-filter"></i>
@@ -147,8 +147,8 @@
                     {% if 'can_update' in available_permissions %}
                         <div class="d-flex flex-grow-1 justify-content-center align-items-center">
                             {% blocktranslate asvar title %}Filter entries with update permission{% endblocktranslate %}
-                            <a href="{% url permissions_url_name object.pk %}{% if filter_can_update %}{% querystring filter_can_update=None %}{% else %}{% querystring filter_can_update='1' %}{% endif %}"
-                               class="btn btn-outline-primary btn-permission in-header {% if not filter_can_update %} inactive {% endif %}"
+                            <a href="{% url permissions_url_name object.pk %}{% if permission_filters.can_update %}{% querystring filter_can_update=None %}{% else %}{% querystring filter_can_update='1' %}{% endif %}"
+                               class="btn btn-outline-primary btn-permission in-header {% if not permission_filters.can_update %} inactive {% endif %}"
                                role="button" data-bs-toggle="tooltip"
                                title="{{ title }}" aria-label="{{ title }}">
                                 <i class="fa fa-filter"></i>
@@ -160,8 +160,8 @@
                     {% if 'can_delete' in available_permissions %}
                         <div class="d-flex flex-grow-1 justify-content-center align-items-center">
                             {% blocktranslate asvar title %}Filter entries with delete permission{% endblocktranslate %}
-                            <a href="{% url permissions_url_name object.pk %}{% if filter_can_delete %}{% querystring filter_can_delete=None %}{% else %}{% querystring filter_can_delete='1' %}{% endif %}"
-                               class="btn btn-outline-primary btn-permission in-header {% if not filter_can_delete %} inactive {% endif %}"
+                            <a href="{% url permissions_url_name object.pk %}{% if permission_filters.can_delete %}{% querystring filter_can_delete=None %}{% else %}{% querystring filter_can_delete='1' %}{% endif %}"
+                               class="btn btn-outline-primary btn-permission in-header {% if not permission_filters.can_delete %} inactive {% endif %}"
                                role="button" data-bs-toggle="tooltip"
                                title="{{ title }}" aria-label="{{ title }}">
                                 <i class="fa fa-filter"></i>
