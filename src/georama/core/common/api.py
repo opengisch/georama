@@ -578,7 +578,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
     """
 
     permissions_template_name: str = "core/drf/default/permissions.html"
-    permissions_list_template_name: str = "core/drf/default/permissions_list.html"
+    permissions_list_template_name: str = "core/drf/default/includes/permissions_list_htmx.html"
 
     user_permissions_serializer_class = UserObjectPermissionSerializer
     group_permissions_serializer_class = GroupObjectPermissionSerializer
@@ -852,9 +852,11 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
                 .fields["action"]
                 .choices.items()
             )
-            return Response(
-                context,
-                template_name=self.permissions_template_name,
-            )
+            if request.META.get("HTTP_HX_REQUEST") == "true":
+                template_name = self.permissions_list_template_name
+            else:
+                template_name = self.permissions_template_name
+
+            return Response(context, template_name=template_name)
         else:
             return await self.get_apaginated_response(data)
