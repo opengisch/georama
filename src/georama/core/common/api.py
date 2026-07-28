@@ -728,6 +728,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             context["breadcrumbs"][-1].view_name = self.reverse_action("detail", [pk])
             context["breadcrumbs"].append(Breadcrumb("Permissions"))
             context["breadcrumbs"].append(Breadcrumb("Users"))
+            context["btn_grant_access"] = _("override access")
             context["action_choices"] = list(
                 self.user_permissions_bulk_action_serializer_class()
                 .fields["action"]
@@ -847,6 +848,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             context["breadcrumbs"][-1].view_name = self.reverse_action("detail", [pk])
             context["breadcrumbs"].append(Breadcrumb("Permissions"))
             context["breadcrumbs"].append(Breadcrumb("Groups"))
+            context["btn_grant_access"] = _("grant access")
             context["action_choices"] = list(
                 self.group_permissions_bulk_action_serializer_class()
                 .fields["action"]

@@ -193,6 +193,10 @@ Icon buttons for permission pages
     color: var(--bs-light);
 }
 
+.btn-permission.inherited {
+    color: var(--georama-inherited-permission);
+}
+
 /*
 CTA Click to action elements on frontpage
  */
