@@ -5,7 +5,10 @@
     <div class="h-100 d-flex flex-column flex-grow-1" style="min-height:0">
 
         <form method="post" id="bulk-action-form"
-              action="{% url permissions_url_name object.pk %}{% querystring %}">
+              action="{% url permissions_url_name object.pk %}{% querystring %}"
+              hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
+              hx-target="#permissions-list"
+              hx-swap="innerHTML">
             {% csrf_token %}
         </form>
 
@@ -13,10 +16,19 @@
         <nav class="navbar navbar-expand gap-4 flex-wrap">
 
             <!-- Search -->
-            <div class="nav-item">
-                {% include 'core/drf/default/includes/search.html' %}
+            <div class="nav-item d-flex">
+                <input id="searchInput" class="form-control me-2" 
+                       name="{{ search_param }}" type="search"
+                       title="{{ search_fields_hint }}"
+                       data-bs-toggle="tooltip"
+                       placeholder={% trans 'Search term' %} aria-label={{ search_fields_hint }}
+                       value="{{ search_term }}"
+                       hx-get="{{ request.path }}{% querystring %}"
+                       hx-trigger="keyup changed, search"
+                       hx-target="#permissions-list"
+                       hx-swap="innerHTML"
+                >
             </div>
-            
         
             <!-- Entity filters -->
             <div class="nav-item d-flex gap-2 align-items-center">
@@ -78,7 +90,8 @@
                                 </label>
                             </div>
                         {% endfor %}
-                        <button type="submit" form="bulk-action-form" class="btn btn-outline-primary mt-2 text-nowrap">
+                        <button type="submit" form="bulk-action-form" class="btn btn-outline-primary mt-2 text-nowrap"
+                            onclick="bootstrap.Dropdown.getOrCreateInstance(this.closest('.dropdown').querySelector('[data-bs-toggle=dropdown]')).hide()">
                             {% trans "Apply to selected entries" %}
                         </button>
                     </div>

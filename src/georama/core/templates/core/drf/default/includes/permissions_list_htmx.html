@@ -1,7 +1,10 @@
 {% load static i18n %}
 
 <!-- List header -->
-<div class="row p-2 border-bottom text-muted sticky-top bg-body">
+<div class="row p-2 border-bottom text-muted sticky-top bg-body"
+     hx-boost="true"
+     hx-target="#permissions-list"
+     hx-push-url="true">
 
     <div class="col align-content-center">
         <input
@@ -140,7 +143,11 @@
 
             {% if row.entity_permissions.can_view and 'can_create' in available_permissions %}
                 <div class="flex-grow-1 text-center">
-                    <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
+                    <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}"
+                          action="{% url permissions_url_name object.pk %}{% querystring %}"
+                          hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
+                          hx-target="#permissions-list"
+                          hx-swap="innerHTML">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="{% if row.entity_permissions.can_create %}prevent_create{% else %}allow_create{% endif %}">
                         <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
@@ -156,7 +163,11 @@
 
             {% if row.entity_permissions.can_view and 'can_update' in available_permissions %}
                 <div class="flex-grow-1 text-center">
-                    <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
+                    <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}"
+                          action="{% url permissions_url_name object.pk %}{% querystring %}"
+                          hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
+                          hx-target="#permissions-list"
+                          hx-swap="innerHTML">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="{% if row.entity_permissions.can_update %}prevent_update{% else %}allow_update{% endif %}">
                         <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
@@ -171,7 +182,11 @@
 
             {% if row.entity_permissions.can_view and 'can_delete' in available_permissions  %}
                 <div class="flex-grow-1 text-center">
-                    <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
+                    <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}"
+                          action="{% url permissions_url_name object.pk %}{% querystring %}"
+                          hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
+                          hx-target="#permissions-list"
+                          hx-swap="innerHTML">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="{% if row.entity_permissions.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
                         <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
@@ -186,7 +201,11 @@
         </div>
 
         <div class="col-2 text-center">
-            <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}">
+            <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}"
+                  action="{% url permissions_url_name object.pk %}{% querystring %}"
+                  hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
+                  hx-target="#permissions-list"
+                  hx-swap="innerHTML">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="{% if row.entity_permissions.can_view %}revoke{% else %}grant{% endif %}">
                 <input type="hidden" name="{{ permissions_entity_field }}" value="{{ row.entity_id }}">
