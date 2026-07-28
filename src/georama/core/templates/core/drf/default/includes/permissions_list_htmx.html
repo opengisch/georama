@@ -143,7 +143,7 @@
 
             {% if row.entity_permissions.can_view and 'can_create' in available_permissions %}
                 <div class="flex-grow-1 text-center">
-                    <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}"
+                    <form method="post"
                           action="{% url permissions_url_name object.pk %}{% querystring %}"
                           hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
                           hx-target="#permissions-list"
@@ -163,7 +163,7 @@
 
             {% if row.entity_permissions.can_view and 'can_update' in available_permissions %}
                 <div class="flex-grow-1 text-center">
-                    <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}"
+                    <form method="post"
                           action="{% url permissions_url_name object.pk %}{% querystring %}"
                           hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
                           hx-target="#permissions-list"
@@ -182,7 +182,7 @@
 
             {% if row.entity_permissions.can_view and 'can_delete' in available_permissions  %}
                 <div class="flex-grow-1 text-center">
-                    <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}"
+                    <form method="post"
                           action="{% url permissions_url_name object.pk %}{% querystring %}"
                           hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
                           hx-target="#permissions-list"
@@ -201,7 +201,7 @@
         </div>
 
         <div class="col-2 text-center">
-            <form method="post" action="{% url permissions_url_name object.pk %}{% querystring %}"
+            <form method="post"
                   action="{% url permissions_url_name object.pk %}{% querystring %}"
                   hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
                   hx-target="#permissions-list"
