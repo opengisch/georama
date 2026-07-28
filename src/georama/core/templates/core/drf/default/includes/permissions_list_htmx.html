@@ -205,8 +205,8 @@
             {% endif %}
         </div>
 
-        <div class="col-2 text-center">
-            <form method="post"
+        <div class="col-2 text-center d-flex">
+            <form method="post" class="flex-grow-1"
                   action="{% url permissions_url_name object.pk %}{% querystring %}"
                   hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
                   hx-target="#permissions-list"
@@ -230,7 +230,29 @@
                     </button>
                 {% endif %}
             </form>
+
+
+            {% if permissions_entity_field == "users" %}
+                {% blocktranslate asvar title %}Toggle list of inherited group permissions{% endblocktranslate %}
+                <button class="btn btn-outline-primary btn-sm p-1 border-0"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#inherited-permissions-{{ row.entity_id }}"
+                        aria-expanded="false"
+                        aria-controls="inherited-permissions-{{ row.entity_id }}"
+                        title="{{ title }}" aria-label="{{ title }}"
+                        onclick="this.querySelector('i').classList.toggle('fa-angle-down'); this.querySelector('i').classList.toggle('fa-angle-up');">
+                    <i class="fa fa-angle-down"></i>
+                </button>
+            {% endif %}
         </div>
 
+
+        {% if permissions_entity_field == "users" %}
+            <div id="inherited-permissions-{{ row.entity_id }}" class="collapse px-0">
+                <div class="col">
+                    {% include "core/drf/default/includes/permissions_inherited_htmx.html" with inherited=row.inherited_permissions %}
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endfor %}

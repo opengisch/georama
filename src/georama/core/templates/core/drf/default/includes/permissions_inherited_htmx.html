@@ -1,0 +1,26 @@
+{% load static i18n %}
+
+
+<!-- List of inherited permissions -->
+    
+{#{% for parent_permission in inherited %}#}
+    
+    <div class="row p-2 align-items-center">
+        <div class="col d-flex align-items-center ms-5">
+            <i class="fa fa-users text-muted me-2"></i>
+            <div class="text-muted">
+                {{ parent_permission.entity_name }}
+            </div>
+        </div>
+        
+        <div class="col-2 d-none d-lg-block"></div>
+        
+        <!-- Permission columns -->
+        <div class="col-4 d-flex">
+            {% include "core/drf/default/includes/permissions_icon_set_readonly.html" with readonly_permission=parent_permission.entity_permissions %}
+        </div>
+        
+        <div class="col-2"></div>
+    </div>
+
+{#{% endfor %}#}

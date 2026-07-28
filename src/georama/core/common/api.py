@@ -579,6 +579,9 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
 
     permissions_template_name: str = "core/drf/default/permissions.html"
     permissions_list_template_name: str = "core/drf/default/includes/permissions_list_htmx.html"
+    permissions_inherited_template_name: str = (
+        "core/drf/default/includes/permissions_inherited_htmx.html"
+    )
 
     user_permissions_serializer_class = UserObjectPermissionSerializer
     group_permissions_serializer_class = GroupObjectPermissionSerializer
