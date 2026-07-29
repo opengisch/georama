@@ -830,6 +830,10 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         if search_term:
             qs = qs.filter(name__icontains=search_term)
 
+        user_filter = request.query_params.get("filter_user", "")
+        if user_filter:
+            qs = qs.filter(user__pk=user_filter)
+
         pqs = await self.apaginate_queryset(qs)
         serializer = self.group_permissions_serializer_class(pqs, many=True)
         data = await get_data(serializer)
