@@ -805,10 +805,6 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         else:
             raise Exception("Must provide valid entity (users or groups)")
 
-        user_filter = request.query_params.get("filter_user", "")
-        if user_filter:
-            qs = qs.filter(user__pk=user_filter)
-
         pqs = await self.apaginate_queryset(qs)
         serializer = self.permissions_serializer_class(pqs, many=True)
         data = await get_data(serializer)
