@@ -703,6 +703,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         sort_by_latest: bool,
         permission_filters: dict,
         filter_name: str,
+        filter_user: bool,
         entity_field: str,
         search_fields_hint: str,
     ) -> dict:
@@ -716,6 +717,8 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         context["permission_filters"] = permission_filters
         context["sort_by_latest"] = sort_by_latest
         context["object_list"] = data
+        if filter_user:
+            context["parent_permissions"] = data
         context["limit"] = self.paginator.limit
         context.update(self.paginator.get_html_context())
         context["per_page_options"] = settings.LIST_PAGE_SIZES
@@ -817,6 +820,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
                 sort_by_latest,
                 permission_filters,
                 filter_name,
+                filter_user,
                 entity_field,
                 search_fields_hint,
             )

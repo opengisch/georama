@@ -1,9 +1,16 @@
 {% load static i18n %}
 
 
-<!-- List of inherited permissions -->
-    
-{#{% for parent_permission in inherited %}#}
+<!-- List of parent permissions -->
+
+{% if parent_permissions != null and parent_permissions|length == 0 %}
+    <div class="text-center p-2 text-muted small">
+        {% trans "User does not belong to a group" %}
+    </div>
+{% endif %}
+
+
+{% for parent_permission in parent_permissions %}
     
     <div class="row p-2 align-items-center">
         <div class="col d-flex align-items-center ms-5">
@@ -23,4 +30,5 @@
         <div class="col-2"></div>
     </div>
 
-{#{% endfor %}#}
+{% endfor %}
+

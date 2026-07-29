@@ -234,25 +234,29 @@
 
             {% if permissions_entity_field == "users" %}
                 {% blocktranslate asvar title %}Toggle list of inherited group permissions{% endblocktranslate %}
-                <button class="btn btn-outline-primary btn-sm p-1 border-0"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#inherited-permissions-{{ row.entity_id }}"
-                        aria-expanded="false"
-                        aria-controls="inherited-permissions-{{ row.entity_id }}"
-                        title="{{ title }}" aria-label="{{ title }}"
-                        onclick="this.querySelector('i').classList.toggle('fa-angle-down'); this.querySelector('i').classList.toggle('fa-angle-up');">
-                    <i class="fa fa-angle-down"></i>
-                </button>
+                <form method="get"
+                      action="{% url permissions_url_name object.pk %}?entity=groups&filter_user={{ row.entity_id }}"
+                      hx-get="{% url permissions_url_name object.pk %}?entity=groups&filter_user={{ row.entity_id }}"
+                      hx-target="#inherited-permissions-{{ row.entity_id }}"
+                      hx-swap="innerHTML">
+                    <button type="submit"
+                            class="btn btn-outline-primary btn-sm p-1 border-0"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#inherited-permissions-{{ row.entity_id }}-collapse"
+                            aria-expanded="false"
+                            aria-controls="inherited-permissions-{{ row.entity_id }}-collapse"
+                            title="{{ title }}" aria-label="{{ title }}"
+                            onclick="this.querySelector('i').classList.toggle('fa-angle-down'); this.querySelector('i').classList.toggle('fa-angle-up');">
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                </form>
             {% endif %}
         </div>
-
-
-        {% if permissions_entity_field == "users" %}
-            <div id="inherited-permissions-{{ row.entity_id }}" class="collapse px-0">
-                <div class="col">
-                    {% include "core/drf/default/includes/permissions_inherited_htmx.html" with inherited=row.inherited_permissions %}
-                </div>
+    
+        <div id="inherited-permissions-{{ row.entity_id }}-collapse" class="collapse px-0">
+            <div id="inherited-permissions-{{ row.entity_id }}" class="col">
+                {% include "core/drf/default/includes/permissions_inherited_htmx.html" %}
             </div>
-        {% endif %}
+        </div>
     </div>
 {% endfor %}
