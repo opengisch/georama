@@ -826,7 +826,10 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             )
 
             if request.META.get("HTTP_HX_REQUEST") == "true":
-                template_name = self.permissions_list_template_name
+                if request.META.get("HTTP_HX_TARGET", "").startswith("inherited-permissions-"):
+                    template_name = self.permissions_inherited_template_name
+                else:
+                    template_name = self.permissions_list_template_name
             else:
                 template_name = self.permissions_template_name
 
