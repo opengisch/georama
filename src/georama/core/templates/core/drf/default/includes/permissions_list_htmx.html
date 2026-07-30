@@ -239,32 +239,35 @@
                 {% endif %}
             </form>
 
-
             {% if permissions_entity_field == "users" %}
                 {% blocktranslate asvar title %}Toggle list of inherited group permissions{% endblocktranslate %}
-                <form method="get"
-                      action="{% url permissions_url_name object.pk %}?entity=groups&filter_user={{ row.entity_id }}"
-                      hx-get="{% url permissions_url_name object.pk %}?entity=groups&filter_user={{ row.entity_id }}"
-                      hx-target="#inherited-permissions-{{ row.entity_id }}"
-                      hx-swap="innerHTML">
-                    <button type="submit"
-                            class="btn btn-outline-primary btn-sm p-1 border-0"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#inherited-permissions-{{ row.entity_id }}-collapse"
-                            aria-expanded="false"
-                            aria-controls="inherited-permissions-{{ row.entity_id }}-collapse"
-                            title="{{ title }}" aria-label="{{ title }}"
-                            onclick="this.querySelector('i').classList.toggle('fa-angle-down'); this.querySelector('i').classList.toggle('fa-angle-up');">
-                        <i class="fa fa-angle-down"></i>
-                    </button>
-                </form>
+                <button class="btn btn-outline-primary btn-sm p-1 border-0"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#inherited-permissions-{{ row.entity_id }}"
+                        aria-expanded="false"
+                        aria-controls="inherited-permissions-{{ row.entity_id }}"
+                        title="{{ title }}" aria-label="{{ title }}"
+                        onclick="document.getElementById('inherited-toggle-icon-{{ row.entity_id }}').classList.toggle('fa-angle-down'); document.getElementById('inherited-toggle-icon-{{ row.entity_id }}').classList.toggle('fa-angle-up');">
+                    <span class="fa-stack" style="width: 1em; height: 1em; line-height: 1em;">
+                        <i id="inherited-toggle-icon-{{ row.entity_id }}" class="fa fa-angle-down fa-stack-1x"></i>
+                        <span id="inherited-spinner-{{ row.entity_id }}" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" style="width: 1em; height: 1em;"></span>
+                    </span>
+                </button>
             {% endif %}
         </div>
-    
-        <div id="inherited-permissions-{{ row.entity_id }}-collapse" class="collapse px-0">
-            <div id="inherited-permissions-{{ row.entity_id }}" class="col">
-                {% include "core/drf/default/includes/permissions_inherited_htmx.html" %}
+
+        {% if permissions_entity_field == "users" %}
+            <div id="inherited-permissions-{{ row.entity_id }}"
+                 class="collapse px-0"
+                 hx-get="{% url permissions_url_name object.pk %}{% querystring entity='groups' filter_user=row.entity_id filter_name=None offset=None %}"
+                 hx-trigger="show.bs.collapse once"
+                 hx-target="#inherited-permissions-{{ row.entity_id }}-content"
+                 hx-swap="innerHTML"
+                 hx-on::before-request="document.getElementById('inherited-toggle-icon-{{ row.entity_id }}').classList.add('d-none'); document.getElementById('inherited-spinner-{{ row.entity_id }}').classList.remove('d-none')"
+                 hx-on::after-request="document.getElementById('inherited-spinner-{{ row.entity_id }}').classList.add('d-none'); document.getElementById('inherited-toggle-icon-{{ row.entity_id }}').classList.remove('d-none')">
+                <div id="inherited-permissions-{{ row.entity_id }}-content" class="col">
+                </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 {% endfor %}

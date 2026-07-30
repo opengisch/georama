@@ -748,14 +748,14 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             found_users = []
             found_groups = []
 
-            # TODO: some validation ?
+            # Should we do some validation here (or in the serializers) ?
             async for user in User.objects.filter(id__in=users):
                 found_users.append(str(user.id))
                 for permission_name in permission_names:
                     full_permission = f"{self.queryset.model._meta.app_label}.{permission_name}"
                     await permission_action(full_permission, user, context["object"])
 
-            # TODO: some validation ?
+            # Should we do some validation here (or in the serializers) ?
             async for group in Group.objects.filter(id__in=groups):
                 found_groups.append(str(group.id))
                 for permission_name in permission_names:
