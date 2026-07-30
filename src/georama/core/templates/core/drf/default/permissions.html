@@ -123,10 +123,10 @@
             entityCheckboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
-            toggleBulkActionVisibility();
+            toggle_bulk_action_visibility();
         }
         
-        function toggleBulkActionVisibility() {
+        function toggle_bulk_action_visibility() {
             const entityField = "{{ permissions_entity_field|escapejs }}";
             const checkedEntityCheckboxes = document.querySelectorAll(`input[type="checkbox"][name="${entityField}"]:checked`);
             const bulkActionContainer = document.getElementById('bulk-action-container');
@@ -137,7 +137,8 @@
             }
         }
 
-        toggleBulkActionVisibility()
+        toggle_bulk_action_visibility();
+        
     </script>
 
 {% endblock %}

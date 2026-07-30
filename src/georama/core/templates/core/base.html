@@ -198,7 +198,20 @@
 <script>
     // Init bootstrap tooltips
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+    // Cleanup any tooltips before an htmx request to prevent them from being orphaned
+    document.body.addEventListener("htmx:beforeSwap", () => {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+            bootstrap.Tooltip.getInstance(el)?.dispose();
+        });
+    });
+    // Recreate all tooltips after the htmx request
+    document.body.addEventListener("htmx:afterSwap", () => {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+            bootstrap.Tooltip.getOrCreateInstance(el);
+        });
+    });
 
 </script>
 
