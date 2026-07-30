@@ -13,7 +13,7 @@
         </form>
 
         <!-- Toolbar -->
-        <nav class="navbar navbar-expand gap-4 flex-wrap">
+        <nav class="navbar navbar-expand gap-4 flex-wrap me-3">
 
             <!-- Search -->
             <div class="nav-item d-flex">
@@ -42,7 +42,7 @@
                    title="{{ title }}"
                    aria-label="{{ title }}">
                     <i class="fa fa-filter"></i>
-                    {% trans "groups" %}
+                    {% trans "Groups" %}
                 </a>
 
                 {% blocktranslate asvar title %}Show list of user permissions{% endblocktranslate %}
@@ -53,7 +53,7 @@
                    title="{{ title }}"
                    aria-label="{{ title }}">
                     <i class="fa fa-filter"></i>
-                    {% trans "users" %}
+                    {% trans "Users" %}
                 </a>
             </div>
 
@@ -97,6 +97,15 @@
                     </div>
                 </div>
             </div>
+
+            {% if permissions_entity_field == "users" %}
+                <div class="d-flex align-items-center ms-auto">
+                    <a class="btn btn-outline-primary btn-permission inherited disabled px-1" disabled>
+                        {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="view" %}
+                    </a>
+                    <div class="text-muted small">= {% trans "Permission inherited from group" %}</div>
+                </div>
+            {% endif %}
         </nav>
 
         <div id="permissions-list" class="row m-0 overflow-auto mt-4">
