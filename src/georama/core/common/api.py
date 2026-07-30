@@ -5,6 +5,7 @@ from adrf.mixins import get_data
 from asgiref.sync import sync_to_async
 from django.apps import apps
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.admin.utils import NestedObjects
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -588,6 +589,13 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
     def url_name_permissions(self):
         return self.url_name("permissions")
 
+    def _redirect(self, request, pk):
+        target_url = reverse(self.url_name_permissions, kwargs={"pk": pk})
+        query_string = request.GET.urlencode()
+        if query_string:
+            target_url = f"{target_url}?{query_string}"
+        return redirect(target_url)
+
     def _permission_exist(self, perm_model, entity_id, codename, pk):
         return Exists(
             perm_model.objects.filter(
@@ -729,6 +737,13 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
 
     @action(detail=True, methods=["get", "post"], url_path="permissions")
     async def permissions(self, request: GeoramaDrfRequest, pk: str):
+
+        # import pydevd_pycharm
+        #
+        # pydevd_pycharm.settrace(
+        #     "172.17.0.1", port=4246, stdout_to_server=True, stderr_to_server=True
+        # )
+
         context = await self._prepare_single_context()
 
         if request.method == "POST":
@@ -736,8 +751,8 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
 
             payload_serializer = self.permissions_action_serializer_class(data=request.data)
             if not payload_serializer.is_valid():
-                # TODO: handle html
-                return Response(payload_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                messages.error(request, payload_serializer.errors)
+                return self._redirect(request, pk)
 
             action_name = payload_serializer.validated_data["action"]
             users = payload_serializer.validated_data["users"]
@@ -763,11 +778,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
                     await permission_action(full_permission, group, context["object"])
 
             if request.accepted_renderer.format == "html":
-                target_url = reverse(self.url_name_permissions, kwargs={"pk": pk})
-                query_string = request.GET.urlencode()
-                if query_string:
-                    target_url = f"{target_url}?{query_string}"
-                return redirect(target_url)
+                return self._redirect(request, pk)
 
             return Response(
                 {
