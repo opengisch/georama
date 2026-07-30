@@ -221,12 +221,20 @@
                         <i class="fa fa-trash"></i>
                     </button>
                 {% else %}
-                    {% blocktranslate asvar title %}Grant access by adding view permission{% endblocktranslate %}
+                    {% if permissions_entity_field == "users" %}
+                        {% blocktranslate asvar title %}Override access by adding view permission{% endblocktranslate %}
+                        {% blocktranslate asvar textcontent %}Override{% endblocktranslate %}
+                    {% else %}
+                        {% blocktranslate asvar title %}Grant access by adding view permission{% endblocktranslate %}
+                        {% blocktranslate asvar textcontent %}Grant{% endblocktranslate %}
+                    {% endif %}
                     <button type="submit" class="btn btn-outline-primary btn-sm"
                             data-bs-toggle="tooltip" title="{{ title }}" aria-label="{{ title }}">
                         <!-- Icon: Show on mobile only -->
                         <i class="d-block d-lg-none fa fa-eye py-1 px-2"></i>
-                        <span class="d-none d-lg-flex text-nowrap">{{ btn_grant_access }}</span>
+                        <span class="d-none d-lg-flex text-nowrap">
+                            {{ textcontent }}
+                        </span>
                     </button>
                 {% endif %}
             </form>

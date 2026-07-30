@@ -3,20 +3,21 @@
 
 <!-- List of parent permissions -->
 
-{% if parent_permissions != null and parent_permissions|length == 0 %}
+{% if object_list != null and object_list|length == 0 %}
     <div class="text-center p-2 text-muted small">
         {% trans "User does not belong to a group" %}
     </div>
 {% endif %}
 
 
-{% for parent_permission in parent_permissions %}
+{% for inherited_permission in object_list %}
     
-    <div class="row p-2 align-items-center">
-        <div class="col d-flex align-items-center ms-5">
-            <i class="fa fa-users text-muted me-2"></i>
+    <div class="row px-2 pt-2 align-items-center">
+        <div class="col d-flex align-items-center">
+            <div class="ms-4"></div>
+            <i class="fa fa-users text-muted ms-3 me-2"></i>
             <div class="text-muted">
-                {{ parent_permission.entity_name }}
+                {{ inherited_permission.entity_name }}
             </div>
         </div>
         
