@@ -7,7 +7,7 @@
         <form method="post" id="bulk-action-form"
               action="{% url permissions_url_name object.pk %}{% querystring %}"
               hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
-              hx-target="#permissions-list"
+              hx-target="#list_body_partial"
               hx-swap="innerHTML">
             {% csrf_token %}
         </form>
@@ -20,7 +20,7 @@
                 
                 <form id="list-search-form"
                       hx-get="{% url permissions_url_name object.pk %}{% querystring %}"
-                      hx-target="#permissions-list"
+                      hx-target="#list_body_partial"
                       hx-push-url="true"
                       hx-swap="innerHTML"
                       hx-trigger="keyup changed from:#searchInput, search from:#searchInput">
@@ -111,18 +111,12 @@
                 </div>
             {% endif %}
         </nav>
-
-        <div id="permissions-list" class="row m-0 overflow-auto mt-4">
+    
+        <div id="list_body_partial" class="h-100 d-flex flex-column overflow-hidden">
             {% include "core/drf/default/includes/permissions_list_htmx.html" %}
         </div>
     </div>
-
-
-    {% block pagination %}
-        {% include "core/drf/default/includes/pagination.html" %}
-    {% endblock %}
-
-
+    
 
 
     <script>

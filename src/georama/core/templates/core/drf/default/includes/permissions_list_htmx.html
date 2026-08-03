@@ -3,10 +3,12 @@
 
 {% block htmx_content %}
     
+    <div  class="d-flex flex-column flex-grow-1 row m-0 overflow-auto mt-4">
+    
     <!-- List header -->
     <div class="row p-2 border-bottom text-muted sticky-top bg-body"
          hx-boost="true"
-         hx-target="#permissions-list"
+         hx-target="#list_body_partial"
          hx-push-url="true">
 
         {# Save current list filters in hidden input fields so the search form includes them when triggering a search #}
@@ -157,7 +159,7 @@
                             <form method="post"
                                   action="{% url permissions_url_name object.pk %}{% querystring %}"
                                   hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
-                                  hx-target="#permissions-list"
+                                  hx-target="#list_body_partial"
                                   hx-swap="innerHTML">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.entity_permissions.can_create %}prevent_create{% else %}allow_create{% endif %}">
@@ -177,7 +179,7 @@
                             <form method="post"
                                   action="{% url permissions_url_name object.pk %}{% querystring %}"
                                   hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
-                                  hx-target="#permissions-list"
+                                  hx-target="#list_body_partial"
                                   hx-swap="innerHTML">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.entity_permissions.can_update %}prevent_update{% else %}allow_update{% endif %}">
@@ -196,7 +198,7 @@
                             <form method="post"
                                   action="{% url permissions_url_name object.pk %}{% querystring %}"
                                   hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
-                                  hx-target="#permissions-list"
+                                  hx-target="#list_body_partial"
                                   hx-swap="innerHTML">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="{% if row.entity_permissions.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
@@ -219,7 +221,7 @@
                 <form method="post" class="flex-grow-1"
                       action="{% url permissions_url_name object.pk %}{% querystring %}"
                       hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
-                      hx-target="#permissions-list"
+                      hx-target="#list_body_partial"
                       hx-swap="innerHTML">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="{% if row.entity_permissions.can_view %}revoke{% else %}grant{% endif %}">
@@ -281,5 +283,13 @@
             {% endif %}
         </div>
     {% endfor %}
+    </div>
+
+
+
+    {% block pagination %}
+        {% include "core/drf/default/includes/pagination_htmx.html" %}
+    {% endblock %}
+
 
 {% endblock %}
