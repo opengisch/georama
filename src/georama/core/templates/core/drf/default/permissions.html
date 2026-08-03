@@ -17,25 +17,29 @@
 
             <!-- Search -->
             <div class="nav-item d-flex">
-                <input id="searchInput" class="form-control me-2" 
-                       name="{{ search_param }}" type="search"
-                       title="{{ search_fields_hint }}"
-                       data-bs-toggle="tooltip"
-                       placeholder={% trans 'Search term' %} aria-label={{ search_fields_hint }}
-                       value="{{ search_term }}"
-                       hx-get="{{ request.path }}{% querystring %}"
-                       hx-trigger="keyup changed, search"
-                       hx-target="#permissions-list"
-                       hx-swap="innerHTML"
-                >
+                
+                <form id="list-search-form"
+                      hx-get="{% url permissions_url_name object.pk %}{% querystring %}"
+                      hx-target="#permissions-list"
+                      hx-push-url="true"
+                      hx-swap="innerHTML"
+                      hx-trigger="keyup changed from:#searchInput, search from:#searchInput">
+                    
+                    <input id="searchInput" class="form-control me-2" 
+                           name="{{ search_param }}" type="search"
+                           title="{{ search_fields_hint }}"
+                           data-bs-toggle="tooltip"
+                           placeholder={% trans 'Search term' %} aria-label={{ search_fields_hint }}
+                           value="{{ search_term }}">
+                </form>
             </div>
         
             <!-- Entity filters -->
             <div class="nav-item d-flex gap-2 align-items-center">
                 <span class="text-muted d-none d-lg-block">{%  trans "filter by" %}</span>
-            
+
                 {% blocktranslate asvar title %}Show list of group permissions{% endblocktranslate %}
-                     <a href="{% url permissions_url_name object.pk %}{% querystring entity='groups' offset=None %}"
+                <a href="{% url permissions_url_name object.pk %}{% querystring entity='groups' offset=None %}"
                    class="btn btn-outline-primary {% if permissions_entity_field == "groups" %} active {% endif %}"
                    role="button"
                    data-bs-toggle="tooltip"
@@ -46,7 +50,7 @@
                 </a>
 
                 {% blocktranslate asvar title %}Show list of user permissions{% endblocktranslate %}
-                     <a href="{% url permissions_url_name object.pk %}{% querystring entity='users' offset=None %}"
+                <a href="{% url permissions_url_name object.pk %}{% querystring entity='users' offset=None %}"
                    class="btn btn-outline-primary {% if permissions_entity_field == "users" %} active {% endif %}"
                    role="button"
                    data-bs-toggle="tooltip"

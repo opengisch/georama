@@ -596,7 +596,8 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             target_url = f"{target_url}?{query_string}"
         return redirect(target_url)
 
-    def _permission_exist(self, perm_model, entity_id, codename, pk):
+    @staticmethod
+    def _permission_exist(perm_model, entity_id, codename, pk):
         return Exists(
             perm_model.objects.filter(
                 **{entity_id: OuterRef("pk")},

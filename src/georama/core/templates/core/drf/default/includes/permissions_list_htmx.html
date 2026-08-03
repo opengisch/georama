@@ -8,6 +8,13 @@
          hx-boost="true"
          hx-target="#permissions-list"
          hx-push-url="true">
+
+        {# Save current list filters in hidden input fields so the search form includes them when triggering a search #}
+        {% for key, value in request.GET.items %}
+            {% if key != search_param and value != "" %}
+                <input form="list-search-form" type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+        {% endfor %}
     
         <div class="col align-content-center">
             <input
