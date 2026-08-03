@@ -12,7 +12,12 @@
             {% for ppo in per_page_options %}
                 {% if limit != ppo %}
                     <li><a class="dropdown-item"
-                           href="{% querystring limit=ppo %}">{{ ppo }}</a>
+                           hx-trigger="click"
+                           hx-get="{% querystring limit=ppo %}"
+                           hx-target="#list_body_partial"
+                           hx-push-url="{% if breadcrumb_action and breadcrumb_action.type == 'linked' %}true{% else %}false{% endif %}">
+                        {{ ppo }}
+                    </a>
                     </li>
                 {% endif %}
             {% endfor %}
