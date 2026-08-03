@@ -68,7 +68,7 @@ class Theme(models.Model):
         return static("webgis/images/georama-logo-geogirafe.svg")
 
     def __str__(self):
-        return f"{self.metadata.title} ({self.id})"
+        return self.metadata.title
 
     def as_dataclass(self) -> GGTheme:
         config = ParserConfig(fail_on_unknown_properties=False)
