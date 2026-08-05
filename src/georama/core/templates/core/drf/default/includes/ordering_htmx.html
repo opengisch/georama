@@ -1,0 +1,26 @@
+{% load i18n %}
+
+<div id="ordering"
+     class="d-flex align-items-center gap-2 nav-item"
+     {% if oob == "true" %}hx-swap-oob="true"{% endif %}>
+
+    <span class="text-muted">{% trans "sort by" %}</span>
+    
+    {% for field in ordering_context %}
+        <a class="btn btn-outline-primary btn-sm"
+           type="button"
+           hx-get="{{ field.url }}"
+           hx-target="#list_body_partial"
+           hx-swap="innerHTML"
+           hx-push-url="true">
+            {% if field.direction == "ascending" %}
+                <i class="fa fa-sort-desc"></i>
+            {% elif field.direction == "descending" %}
+                <i class="fa fa-sort-asc"></i>
+            {% else %}
+                <i class="fa fa-sort"></i>
+            {% endif %}
+            {% trans field.label %}
+        </a>
+    {% endfor %}
+</div>

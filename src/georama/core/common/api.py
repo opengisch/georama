@@ -1,5 +1,3 @@
-import json
-
 from adrf import mixins, viewsets
 from adrf.mixins import get_data
 from asgiref.sync import sync_to_async
@@ -13,6 +11,7 @@ from django.db import router as djdb_router
 from django.db.models import Exists, F, JSONField, Min, OuterRef, Q, Value
 from django.db.models.functions import JSONObject
 from django.forms import ModelForm
+from django.http.request import QueryDict
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -123,7 +122,16 @@ class GeoramaTemplateViewSetReadOnly(
             # this is how the filters.SearchFilter does it too
             "search_fields": search_fields,
             "search_param": filters.SearchFilter.search_param,
-            "search_fields_hint": _(f"searchable fields: {', '.join(search_fields)}"),
+            "search_fields_hint": _(
+                f"searchable fields: {
+                    ', '.join(
+                        [
+                            self._prettify_field_name(field_name, True)
+                            for field_name in search_fields
+                        ]
+                    )
+                }"
+            ),
             "ordering_param": filters.OrderingFilter.ordering_param,
             "breadcrumbs": await self.get_breadcrumbs(),
             "view": self,
@@ -175,38 +183,73 @@ class GeoramaTemplateViewSetReadOnly(
     def url_name_list(self):
         return self.url_name("list")
 
+    @staticmethod
+    def _prettify_field_name(field_name: str, shorten: bool = False) -> str:
+        if shorten:
+            return field_name.split("_")[-1]
+        return field_name.replace("__", " ").replace("_", " ")
+
+    @staticmethod
+    def _toggle_ordering(current_ordering: list[str], field: str) -> list[str]:
+        ordering = current_ordering.copy()
+        if field in ordering:
+            ordering.remove(field)
+            ordering.insert(0, f"-{field}")
+        elif f"-{field}" in ordering:
+            ordering.remove(f"-{field}")
+        else:
+            ordering.insert(0, field)
+        return ordering
+
+    def build_ordering_context(self, request, queryset, ordering_filter: filters.OrderingFilter):
+        """Builds the template context for rendering ordering buttons."""
+        current_ordering = ordering_filter.get_ordering(request, queryset, self) or []
+        query_params = request.GET.copy()
+        ordering_fields = getattr(self, "ordering_fields", [])
+        ordering_fields.sort()
+        ordering_context = []
+
+        for ordering_field in ordering_fields:
+            if ordering_field in current_ordering:
+                direction = "ascending"
+            elif f"-{ordering_field}" in current_ordering:
+                direction = "descending"
+            else:
+                direction = None
+
+            params: QueryDict = query_params.copy()
+            next_ordering = self._toggle_ordering(current_ordering, ordering_field)
+
+            if next_ordering:
+                params[ordering_filter.ordering_param] = ",".join(next_ordering)
+            else:
+                params.pop(ordering_filter.ordering_param, None)
+
+            ordering_context.append(
+                {
+                    "name": ordering_field,
+                    "label": self._prettify_field_name(ordering_field, True),
+                    "direction": direction,
+                    "url": f"?{params.urlencode()}",
+                }
+            )
+        return ordering_context
+
     async def alist(self, request, *args, **kwargs):
         if request.accepted_renderer.format in ["html"]:
             qs = await self.afilter_queryset(self.get_queryset())
             context = await self._prepare_many_context()
-            ordering = filters.OrderingFilter()
-            ordering_current_direction = ordering.get_ordering(request, qs, self) or []
-            ordering_context = {}
-            for o in ordering_current_direction:
-                direction = "descending" if o.startswith("-") else "ascending"
-                field = o.removeprefix("-")
-                ordering_context[field] = {
-                    "name": field,
-                    "label": field.split("_")[-1],
-                    "direction": direction,
-                }
-            # this is how the filters.OrderingFilter does it too
-            for field in getattr(self, "ordering_fields", []):
-                if field not in ordering_context:
-                    ordering_context[field] = {
-                        "name": field,
-                        "label": field.split("_")[-1],
-                        "direction": None,
-                    }
             pqs = await self.apaginate_queryset(qs)
             context["object_list"] = pqs
             context["limit"] = self.paginator.limit
-            ordering_context_list = [v for _, v in ordering_context.items()]
-            ordering_context_list.sort(key=lambda d: d["name"])
-            context["ordering_context"] = ordering_context_list
-            context["ordering_context_json"] = json.dumps(ordering_context)
+            context["ordering_context"] = self.build_ordering_context(
+                request=request,
+                queryset=qs,
+                ordering_filter=filters.OrderingFilter(),
+            )
             context.update(await self._get_model_permissions())
             context.update(self.paginator.get_html_context())
+
             if request.META.get("HTTP_HX_REQUEST") == "true":
                 return Response(context, template_name=context[request.META.get("HTTP_HX_TARGET")])
             else:
