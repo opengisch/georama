@@ -251,7 +251,7 @@ class GeoramaTemplateViewSetReadOnly(
             context.update(self.paginator.get_html_context())
 
             if request.META.get("HTTP_HX_REQUEST") == "true":
-                return Response(context, template_name=context[request.META.get("HTTP_HX_TARGET")])
+                return Response(context, template_name=self.list_partial_template_name)
             else:
                 return Response(context, template_name=self.list_template_name)
         else:

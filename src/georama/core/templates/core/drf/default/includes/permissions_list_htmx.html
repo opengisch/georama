@@ -11,7 +11,13 @@
             <!-- Search -->
             <div class="nav-item d-flex">
                 
-                <form id="list-search-form">
+                <form id="list-search-form"
+                      hx-get="{% url permissions_url_name object.pk %}{% querystring filter_name=None offset=None %}"
+                      hx-target="#list_body_partial"
+                      hx-push-url="true"
+                      hx-swap="innerHTML"
+                      hx-sync="this:replace"
+                      hx-trigger="keyup[key!='Enter'] changed delay:200ms from:#searchInput, submit">
     
                     <input id="searchInput" class="form-control me-2"
                            name="{{ search_param }}" type="search"
@@ -19,13 +25,7 @@
                            data-bs-toggle="tooltip"
                            placeholder={% trans 'Search term' %} aria-label={{ search_fields_hint }}
                            value="{{ search_term }}"
-                           hx-get="{% url permissions_url_name object.pk %}{% querystring filter_name=None offset=None %}"
-                           hx-target="#list_body_partial"
-                           hx-push-url="true"
-                           hx-swap="innerHTML"
-                           hx-trigger="keyup changed delay:200ms, search, submit"
-                           hx-preserve="true"
-                           hx-sync="this:replace">
+                           hx-preserve="true">
                 </form>
             </div>
     
