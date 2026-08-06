@@ -164,7 +164,7 @@ class GeoramaTemplateViewSetReadOnly(
         context.update(await self._get_model_permissions())
         return context
 
-    async def _get_model_permissions(self) -> dict:
+    async def _get_model_permissions(self) -> dict[str, bool]:
         """Since this is readonly, no permissions for editing
         is granted at all.
 
@@ -365,9 +365,7 @@ class GeoramaTemplateViewSet(
             "can_delete": await self.request.user.ahas_perms(
                 perm_checker.get_required_permissions("DELETE", self.queryset.model)
             ),
-            "can_manage_permissions": self.request.user.has_perm(
-                f"{self.queryset.model._meta.app_label}.manage_object_permissions"
-            ),
+            "can_manage_permissions": False,
         }
 
     @property
@@ -627,6 +625,20 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
 
     permissions_serializer_class = ObjectPermissionSerializer
     permissions_action_serializer_class = PermissionActionSerializer
+
+    async def _get_model_permissions(self) -> dict[str, bool]:
+        """We are calculating the permissions based on the DRF permission class.
+
+        Returns:
+            The permission dict, containing the information about the users edit
+            permissions on the model of this viewset.
+        """
+        return {
+            **(await super()._get_model_permissions()),
+            "can_manage_permissions": await self.request.user.ahas_perms(
+                [f"{self.queryset.model._meta.app_label}.manage_object_permissions"]
+            ),
+        }
 
     @property
     def url_name_permissions(self):
