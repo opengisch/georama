@@ -2,9 +2,10 @@
 <li class="breadcrumb-item breadcrumb-action">
     <span data-bs-toggle="modal" data-bs-target="#remoteActionModal">
         <button type="button" class="btn btn-primary"
-                hx-target="#list_partial" hx-get="{{ breadcrumb_action.url }}"
+                hx-target="#list_partial_modal" hx-get="{{ breadcrumb_action.url }}"
                 hx-trigger="click"
-                hx-headers='{"GR-Src": {{ request.resolver_match.app_name }}'
+                hx-headers='{"GR-Src": "{{ request.resolver_match.app_name }}"}'
+                hx-push-url="false"
                 data-bs-toggle="tooltip"
                 title="{{ breadcrumb_action.tooltip }}"
                 aria-label="{{ breadcrumb_action.tooltip }}">
@@ -31,7 +32,7 @@
                 </div>
                 <div class="modal-body d-flex flex-column overflow-hidden">
                     <div class="flex-grow-1 d-flex flex-column overflow-hidden"
-                         id="list_partial"></div>
+                         id="list_partial_modal"></div>
                 </div>
             </div>
         </div>

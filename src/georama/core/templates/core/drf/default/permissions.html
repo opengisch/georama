@@ -3,39 +3,8 @@
 
 {% block content %}
     
-    <div id="list_body_partial" class="h-100 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height:0">
-        {% include "core/drf/default/includes/permissions_list_htmx.html" %}
+    <div id="list_partial{% if is_modal %}_modal{% endif %}" class="h-100 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height:0">
+        {% include permissions_list %}
     </div>
-    
-
-
-    <script>
-        /**
-         * Toggle the selection state of all rows of the permission list
-         */
-        function select_all() {
-            const entityField = "{{ permissions_entity_field|escapejs }}";
-            const selectAllCheckbox = document.getElementById('bulk-select-all');
-            const entityCheckboxes = document.querySelectorAll(`input[type="checkbox"][name="${entityField}"]`);
-            entityCheckboxes.forEach(checkbox => {
-                checkbox.checked = selectAllCheckbox.checked;
-            });
-            toggle_bulk_action_visibility();
-        }
-        
-        function toggle_bulk_action_visibility() {
-            const entityField = "{{ permissions_entity_field|escapejs }}";
-            const checkedEntityCheckboxes = document.querySelectorAll(`input[type="checkbox"][name="${entityField}"]:checked`);
-            const bulkActionContainer = document.getElementById('bulk-action-container');
-            if (Array.from(checkedEntityCheckboxes).length > 0) {
-                bulkActionContainer.classList.remove('d-none');
-            } else {
-                bulkActionContainer.classList.add('d-none');
-            }
-        }
-
-        toggle_bulk_action_visibility();
-        
-    </script>
 
 {% endblock %}

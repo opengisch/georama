@@ -1,4 +1,4 @@
-<div id="pagination" class="d-flex mt-4" 
+<div id="pagination{% if is_modal %}_modal{% endif %}" class="d-flex mt-4" 
      {% if oob == "true" %}hx-swap-oob="true"{% endif %}>
 
     <!-- Items per page -->
@@ -14,9 +14,9 @@
                 {% if limit != ppo %}
                     <li><a class="dropdown-item"
                            hx-trigger="click"
-                           hx-get="{% querystring limit=ppo %}"
-                           hx-target="#list_body_partial"
-                           hx-push-url="{% if breadcrumb_action and breadcrumb_action.type == 'linked' %}true{% else %}false{% endif %}">
+                           hx-get="{{ request.path }}{% querystring limit=ppo %}"
+                           hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
+                           hx-push-url="{% if is_modal %}false{% else %}true{% endif %}">
                         {{ ppo }}
                     </a>
                     </li>
@@ -36,8 +36,8 @@
                        style="cursor: pointer"
                        hx-trigger="click"
                        hx-get="{{ previous_url }}"
-                       hx-target="#list_body_partial"
-                       hx-push-url="{% if breadcrumb_action and breadcrumb_action.type == 'linked' %}true{% else %}false{% endif %}">&laquo;</a>
+                       hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
+                       hx-push-url="{% if is_modal %}false{% else %}true{% endif %}">&laquo;</a>
                 {% else %}
                     <a class="page-link disabled" href="#"
                        aria-disabled="true">&laquo;</a>
@@ -60,8 +60,8 @@
                                style="cursor: pointer"
                                hx-trigger="click"
                                hx-get="{{ page_link.url }}"
-                               hx-target="#list_body_partial"
-                               hx-push-url="{% if breadcrumb_action and breadcrumb_action.type == 'linked' %}true{% else %}false{% endif %}"
+                               hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
+                               hx-push-url="{% if is_modal %}false{% else %}true{% endif %}"
                             >{{ page_link.number }}</a>
                         {% endif %}
                     {% endif %}
@@ -77,8 +77,8 @@
                             style="cursor: pointer"
                             hx-trigger="click"
                             hx-get="{{ next_url }}"
-                            hx-target="#list_body_partial"
-                            hx-push-url="{% if breadcrumb_action and breadcrumb_action.type == 'linked' %}true{% else %}false{% endif %}">
+                            hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
+                            hx-push-url="{% if is_modal %}false{% else %}true{% endif %}">
                         &raquo;
                     </a>
                 {% else %}

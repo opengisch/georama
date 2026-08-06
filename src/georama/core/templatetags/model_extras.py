@@ -24,3 +24,14 @@ def field_name_and_value(obj):
     for field in obj._meta.fields:
         result.append([field.verbose_name, field.help_text, getattr(obj, field.name)])
     return result
+
+
+@register.simple_tag(takes_context=True)
+def querystring_remove(context, *keys):
+    params = context["request"].GET.copy()
+    for key in keys:
+        params.pop(key, None)
+
+    if params:
+        return "?" + params.urlencode()
+    return ""

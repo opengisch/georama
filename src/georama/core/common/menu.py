@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from enum import StrEnum
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 
 @dataclass
@@ -73,3 +74,22 @@ class BreadcrumbAction:
     title: str
     type: ActionType
     icon: str | None = field(default=None)
+
+    def __post_init__(self):
+        if self.type == ActionType.EMBEDDED:
+            # Adding a query parameter to the action URL so following requests in the
+            #  embedded view do not change the URL.
+            parsed = urlparse(self.url)
+            query_params = parse_qs(parsed.query)
+            query_params["is_modal"] = ["1"]
+            new_query = urlencode(query_params, doseq=True)
+            self.url = urlunparse(
+                (
+                    parsed.scheme,
+                    parsed.netloc,
+                    parsed.path,
+                    parsed.params,
+                    new_query,
+                    parsed.fragment,
+                )
+            )

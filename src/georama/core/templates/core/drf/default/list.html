@@ -6,31 +6,8 @@
 
 {% block content %}
     
-    {% block list_nav %}
-        <nav class="navbar navbar-expand gap-4 flex-wrap">
-
-            {% if search_fields %}
-                {% block search_include %}
-                    {% include "core/drf/default/includes/search_htmx.html" %}
-                {% endblock %}
-            {% endif %}
-
-            {% if ordering_context %}
-                {% block ordering_include %}
-                    {% include "core/drf/default/includes/ordering_htmx.html" %}
-                {% endblock %}
-            {% endif %}
-
-        </nav>
-    {% endblock %}
-
-
-    <div id="list_body_partial" class="h-100 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height:0">
-        {% include list_body_partial %}
+    <div id="list_partial{% if is_modal %}_modal{% endif %}" class="h-100 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height:0">
+        {% include list_partial %}
     </div>
-
-    {% block pagination %}
-        {% include "core/drf/default/includes/pagination_htmx.html" %}
-    {% endblock %}
     
 {% endblock %}

@@ -10,30 +10,14 @@
     
             <!-- Search -->
             <div class="nav-item d-flex">
-                
-                <form id="list-search-form"
-                      hx-get="{% url permissions_url_name object.pk %}{% querystring filter_name=None offset=None %}"
-                      hx-target="#list_body_partial"
-                      hx-push-url="true"
-                      hx-swap="innerHTML"
-                      hx-sync="this:replace"
-                      hx-trigger="keyup[key!='Enter'] changed delay:200ms from:#searchInput, submit">
-    
-                    <input id="searchInput" class="form-control me-2"
-                           name="{{ search_param }}" type="search"
-                           title="{{ search_fields_hint }}"
-                           data-bs-toggle="tooltip"
-                           placeholder={% trans 'Search term' %} aria-label={{ search_fields_hint }}
-                           value="{{ search_term }}"
-                           hx-preserve="true">
-                </form>
+                {% include "core/drf/default/includes/search_htmx.html" %}
             </div>
     
             <!-- Entity filters -->
             <div class="nav-item d-flex gap-2 align-items-center"
                  hx-boost="true"
-                 hx-target="#list_body_partial"
-                 hx-push-url="true">
+                 hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
+                 hx-push-url="{% if is_modal %}false{% else %}true{% endif %}">
                 <span class="text-muted d-none d-lg-block">{%  trans "filter by" %}</span>
 
                 <a href="{% url permissions_url_name object.pk %}{% querystring entity='groups' offset=None %}"
@@ -59,12 +43,12 @@
             </div>
     
             <!-- Bulk operations -->
-            <div id="bulk-action-container" class="nav-item d-flex gap-2 align-items-center d-none">
+            <div id="bulk-action-container" class="nav-item d-flex gap-2 align-items-center">
             
                 <form method="post" id="bulk-action-form"
                       action="{% url permissions_url_name object.pk %}{% querystring %}"
                       hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
-                      hx-target="#list_body_partial"
+                      hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
                       hx-swap="innerHTML">
                     {% csrf_token %}
                 </form>
@@ -126,8 +110,8 @@
             <!-- List header -->
             <div class="row p-2 border-bottom text-muted sticky-top bg-body"
                  hx-boost="true"
-                 hx-target="#list_body_partial"
-                 hx-push-url="true">
+                 hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
+                 hx-push-url="{% if is_modal %}false{% else %}true{% endif %}">
             
                 <div class="col align-content-center">
                     <input
@@ -234,12 +218,12 @@
                                 form="bulk-action-form"
                                 name="{{ permissions_entity_field }}"
                                 value="{{ row.entity_id }}"
-                                id="bulk-user-{{ forloop.counter }}"
+                                id="bulk-user-{{ row.entity_id }}"
                                 onclick="toggle_bulk_action_visibility()"
                                 hx-preserve="true"
                         >
                         <i class="fa fa-user text-muted me-1"></i>
-                        <label class="form-check-label" for="bulk-user-{{ forloop.counter }}">
+                        <label class="form-check-label" for="bulk-user-{{ row.entity_id }}">
                             {{ row.entity_name }}
                         </label>
                     </div>
@@ -271,7 +255,7 @@
                                     <form method="post"
                                           action="{% url permissions_url_name object.pk %}{% querystring %}"
                                           hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
-                                          hx-target="#list_body_partial"
+                                          hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
                                           hx-swap="innerHTML">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="{% if row.entity_permissions.can_create %}prevent_create{% else %}allow_create{% endif %}">
@@ -291,7 +275,7 @@
                                     <form method="post"
                                           action="{% url permissions_url_name object.pk %}{% querystring %}"
                                           hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
-                                          hx-target="#list_body_partial"
+                                          hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
                                           hx-swap="innerHTML">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="{% if row.entity_permissions.can_update %}prevent_update{% else %}allow_update{% endif %}">
@@ -310,7 +294,7 @@
                                     <form method="post"
                                           action="{% url permissions_url_name object.pk %}{% querystring %}"
                                           hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
-                                          hx-target="#list_body_partial"
+                                          hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
                                           hx-swap="innerHTML">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="{% if row.entity_permissions.can_delete %}prevent_delete{% else %}allow_delete{% endif %}">
@@ -335,7 +319,7 @@
                         <form method="post" class="flex-grow-1"
                               action="{% url permissions_url_name object.pk %}{% querystring %}"
                               hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
-                              hx-target="#list_body_partial"
+                              hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
                               hx-swap="innerHTML">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="{% if row.entity_permissions.can_view %}revoke{% else %}grant{% endif %}">
@@ -391,6 +375,7 @@
                              hx-trigger="show.bs.collapse once"
                              hx-target="#inherited-permissions-{{ row.entity_id }}-content"
                              hx-swap="innerHTML"
+                             hx-push-url="false"
                              hx-on::before-request="document.getElementById('inherited-toggle-icon-{{ row.entity_id }}').classList.add('d-none'); document.getElementById('inherited-spinner-{{ row.entity_id }}').classList.remove('d-none')"
                              hx-on::after-request="document.getElementById('inherited-spinner-{{ row.entity_id }}').classList.add('d-none'); document.getElementById('inherited-toggle-icon-{{ row.entity_id }}').classList.remove('d-none')">
                             
@@ -407,5 +392,34 @@
         {% include "core/drf/default/includes/pagination_htmx.html" %}
     {% endblock %}
 
+
+    <script>
+        /**
+         * Toggle the selection state of all rows of the permission list
+         */
+        function select_all() {
+            const entityField = "{{ permissions_entity_field|escapejs }}";
+            const selectAllCheckbox = document.getElementById('bulk-select-all');
+            const entityCheckboxes = document.querySelectorAll(`input[type="checkbox"][name="${entityField}"]`);
+            entityCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            toggle_bulk_action_visibility();
+        }
+
+        function toggle_bulk_action_visibility() {
+            const entityField = "{{ permissions_entity_field|escapejs }}";
+            const checkedEntityCheckboxes = document.querySelectorAll(`input[type="checkbox"][name="${entityField}"]:checked`);
+            const bulkActionContainer = document.getElementById('bulk-action-container');
+            if (Array.from(checkedEntityCheckboxes).length > 0) {
+                bulkActionContainer.classList.remove('d-none');
+            } else {
+                bulkActionContainer.classList.add('d-none');
+            }
+        }
+
+        toggle_bulk_action_visibility();
+
+    </script>
 
 {% endblock %}

@@ -117,27 +117,26 @@ class GeoramaTemplateViewSetReadOnly(
 
     async def _prepare_many_context(self) -> dict:
         search_fields = getattr(self, "search_fields", [])
+        search_fields_hint = f"{_('searchable fields')}: {
+            ', '.join(
+                [_(self._prettify_field_name(field_name, True)) for field_name in search_fields]
+            )
+        }"
+
         context = {
             "per_page_options": settings.LIST_PAGE_SIZES,
             # this is how the filters.SearchFilter does it too
             "search_fields": search_fields,
             "search_param": filters.SearchFilter.search_param,
-            "search_fields_hint": _(
-                f"searchable fields: {
-                    ', '.join(
-                        [
-                            self._prettify_field_name(field_name, True)
-                            for field_name in search_fields
-                        ]
-                    )
-                }"
-            ),
+            "search_term": self.request.query_params.get(filters.SearchFilter.search_param, ""),
+            "search_fields_hint": search_fields_hint,
             "ordering_param": filters.OrderingFilter.ordering_param,
             "breadcrumbs": await self.get_breadcrumbs(),
             "view": self,
             "model_name_verbose": self.queryset.model._meta.verbose_name,
             "list_partial": self.list_partial_template_name,
             "list_body_partial": self.list_body_partial_template_name,
+            "is_modal": self.request.query_params.get("is_modal"),
         }
         context.update(await self.bread_crumb_action_context)
         return context
@@ -230,7 +229,7 @@ class GeoramaTemplateViewSetReadOnly(
                     "name": ordering_field,
                     "label": self._prettify_field_name(ordering_field, True),
                     "direction": direction,
-                    "url": f"?{params.urlencode()}",
+                    "url": f"{request.path}?{params.urlencode()}",
                 }
             )
         return ordering_context
@@ -251,9 +250,10 @@ class GeoramaTemplateViewSetReadOnly(
             context.update(self.paginator.get_html_context())
 
             if request.META.get("HTTP_HX_REQUEST") == "true":
-                return Response(context, template_name=self.list_partial_template_name)
+                template = self.list_partial_template_name
             else:
-                return Response(context, template_name=self.list_template_name)
+                template = self.list_template_name
+            return Response(context, template_name=template)
         else:
             return await super().alist(request, *args, **kwargs)
 
@@ -773,6 +773,8 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         context["per_page_options"] = settings.LIST_PAGE_SIZES
         context["breadcrumbs"][-1].view_name = self.reverse_action("detail", [pk])
         context["breadcrumbs"].append(Breadcrumb("Permissions"))
+        context["permissions_list"] = self.permissions_list_template_name
+        context["is_modal"] = self.request.query_params.get("is_modal")
 
         context["action_choices"] = list(
             self.permissions_action_serializer_class().fields["action"].choices.items()
@@ -870,12 +872,12 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
 
             if request.META.get("HTTP_HX_REQUEST") == "true":
                 if request.META.get("HTTP_HX_TARGET", "").startswith("inherited-permissions-"):
-                    template_name = self.permissions_inherited_template_name
+                    template = self.permissions_inherited_template_name
                 else:
-                    template_name = self.permissions_list_template_name
+                    template = self.permissions_list_template_name
             else:
-                template_name = self.permissions_template_name
+                template = self.permissions_template_name
 
-            return Response(context, template_name=template_name)
+            return Response(context, template_name=template)
 
         return await self.get_apaginated_response(data)
