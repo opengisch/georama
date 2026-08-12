@@ -102,7 +102,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
 
 ## License
 
-See [LICENSE](https://github.com/opengisch/georama/tree/community_guidelines?tab=License-1-ov-file) — temporary terms, permanent open-source license planned for early 2027
+See [LICENSE](LICENSE) — temporary terms, permanent open-source license planned for early 2027
 
 ## About OPENGIS.ch
 
