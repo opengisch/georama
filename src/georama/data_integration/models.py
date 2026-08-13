@@ -6,9 +6,15 @@ from dataclasses import fields
 from django.db import models
 from django.utils.translation import gettext as _
 from qgis_server_light.interface.common import BBox
-from qgis_server_light.interface.exporter.extract import Crs, Custom, DataSource
+from qgis_server_light.interface.exporter.extract import (
+    Crs,
+    Custom,
+    DataSource,
+    Raster,
+    Style,
+    Vector,
+)
 from qgis_server_light.interface.exporter.extract import Field as QslField
-from qgis_server_light.interface.exporter.extract import Raster, Style, Vector
 from qgis_server_light.interface.job.common.input import QslJobLayer
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
@@ -19,7 +25,6 @@ log = logging.getLogger(__name__)
 
 
 class Mandant(models.Model):
-
     class Meta:
         verbose_name = _("Mandant")
         verbose_name_plural = _("Mandants")
@@ -32,7 +37,6 @@ class Mandant(models.Model):
 
 
 class Project(GeoramaPermissionMixin, models.Model):
-
     class Meta:
         unique_together = (
             "name",
@@ -123,7 +127,7 @@ class DataSet(models.Model):
             style = self.get_default_style()
         return QslJobLayer(
             id=self.qgis_layer_id,
-            name=self.name,
+            name=self.title,
             source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
             driver=self.driver,
             style=style,

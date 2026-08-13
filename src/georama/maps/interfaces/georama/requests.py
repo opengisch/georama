@@ -35,6 +35,7 @@ class ServiceType(Enum):
 class RequestType(Enum):
     get_map = "GETMAP"
     get_feature_info = "GETFEATUREINFO"
+    get_legend_graphic = "GETLEGENDGRAPHIC"
     get_legend = "GETLEGEND"
 
 
@@ -137,3 +138,56 @@ class AbstractGetMapRequestParams(AbstractRequestParams):
 class GetMapRequestParams(AbstractGetMapRequestParams):
     MAP_RESOLUTION: Optional[int] = None
     FORMAT_OPTIONS: Optional[str] = None
+
+
+@dataclass
+class GetLegendGraphicRequestParams(AbstractRequestParams):
+    _default_style_name = "default"
+    LAYERS: Optional[str] = field(default=None, metadata={"type": "Element"})
+    STYLES: Optional[str] = field(default=None, metadata={"type": "Element"})
+    FORMAT: Optional[str] = field(default="image/png", metadata={"type": "Element"})
+    WIDTH: Optional[int] = field(default=None, metadata={"type": "Element"})
+    HEIGHT: Optional[int] = field(default=None, metadata={"type": "Element"})
+    DPI: Optional[int] = field(default=None, metadata={"type": "Element"})
+    FORMAT_OPTIONS: Optional[str] = field(default=None, metadata={"type": "Element"})
+    LAYERTITLE: Optional[bool] = field(default=None, metadata={"type": "Element"})
+    SCALE: Optional[float] = field(default=None, metadata={"type": "Element"})
+
+    @property
+    def layer_list(self) -> List[str]:
+        return self.LAYERS.split(",")
+
+    @property
+    def style_list(self) -> List[str]:
+        if self.STYLES:
+            logging.debug("There were styles in the request. Processing them further...")
+            style_list = self.STYLES.split(",")
+            self.validate_normalisation(style_list)
+            logging.debug(f"Old list of styles was: {style_list}")
+            style_list = self.apply_default_style(style_list)
+            logging.debug(f"New list of styles is: {style_list}")
+            return style_list
+        else:
+            logging.debug(
+                "No styles were passed to the request, so we apply the default styles to all layers"
+            )
+            return [self._default_style_name] * len(self.layer_list)
+
+    def apply_default_style(self, style_list: List[str]) -> List[str]:
+        for index, style in enumerate(style_list):
+            if style == "":
+                style_list[index] = self._default_style_name
+        return style_list
+
+    def validate_normalisation(self, compare_list: List[str]):
+        if len(compare_list) != len(self.layer_list):
+            logging.debug(
+                "Length of layer list has to be same as compared list. That"
+                f" is not the case: layer_list ({len(self.layer_list)}) != {len(compare_list)})"
+                f"{self.layer_list} - {compare_list}"
+                "We stop here."
+            )
+            raise ValueError(
+                "Each passed layer needs a corresponding element in style or filter"
+                "(comma separated lists need to be of same length)."
+            )

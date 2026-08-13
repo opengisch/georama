@@ -229,8 +229,8 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     """
 
     class Meta:  # noqa: F811
-        verbose_name = f'WMS {_("Layer")}'
-        verbose_name_plural = f'WMS {_("Layers")}'
+        verbose_name = f"WMS {_('Layer')}"
+        verbose_name_plural = f"WMS {_('Layers')}"
 
     published_as_type = f"{central_app_label}wmslayer"
     # TODO: This means we currently can add a layer only once into the
@@ -306,12 +306,14 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
         config = ParserConfig(
             fail_on_unknown_properties=False, fail_on_unknown_attributes=False
         )
-        metadata = None
         if self.metadata:
             metadata = DictDecoder(config).decode(self.metadata, MetaData)
-        dimensions = None
+        else:
+            metadata = MetaData(legend=True, isLegendExpanded=True)
         if self.dimensions:
             dimensions = DictDecoder(config).decode(self.dimensions, Dimensions)
+        else:
+            dimensions = None
         return WmsLayer(
             id=str(self.themes_json_uuid),
             name=self.name,
@@ -348,8 +350,8 @@ class PublishedAsLayerWmts(Layer):
     """
 
     class Meta:  # noqa: F811
-        verbose_name = f'WMTS {_("Layer")}'
-        verbose_name_plural = f'WMTS {_("Layers")}'
+        verbose_name = f"WMTS {_('Layer')}"
+        verbose_name_plural = f"WMTS {_('Layers')}"
 
     published_as_type = f"{central_app_label}wmtslayer"
     layer_group = models.OneToOneField(
