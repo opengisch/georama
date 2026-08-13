@@ -6,6 +6,7 @@ from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
+from django.views.generic import FormView
 from qgis_server_light.interface.dispatcher.common import Status
 from qgis_server_light.interface.exporter.extract import Custom, Raster, Vector
 from qgis_server_light.interface.job.common.output import JobResult
@@ -29,8 +30,12 @@ from georama.core.views.generic.mixins import (
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import MapsConfig, central_app_label, qsl_redis_queue
 from georama.maps.exception.job import JobExecutionError, UnexpectedBehaviourError
+from georama.maps.interfaces.ech271.eCH0271_1 import eCH0271
 from georama.maps.interfaces.georama.requests import GetMapRequestParams
 from georama.maps.interfaces.ogc.wfs_2_0_0 import GetFeature as GetFeature200
+from georama.maps.lib.forms.dataclass import (
+    generate_forms,
+)
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0.describe_feature_type import WfsDescribeFeatureType
@@ -562,3 +567,23 @@ class GroupListView(GeoramaLoginRequiredMixin, PermissionRequiredMixin, GeoramaG
     model_entity = PublishedAsWms
     permission_required = model_entity.perm_manage_permissions()
     entity_name = "layer"
+
+
+class EchMetaData(FormView):
+    template_name = "maps/metadata/change.html"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ech_content_cache = generate_forms(eCH0271.CHE_MD_DataIdentification)
+
+    def get_form_class(self, form_class=None):
+        return self.ech_content_cache.main_form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        formsets = []
+        for k, v in self.ech_content_cache.form_set_cache.items():
+            formsets.append(v(prefix=k))
+        context["formsets"] = formsets
+        context["cache"] = self.ech_content_cache
+        return context

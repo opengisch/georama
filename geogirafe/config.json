@@ -68,7 +68,7 @@
     "issuer": {
       "url": "http://localhost:7080/realms/ninjas",
       "clientId": "georama-oidc",
-      "audience": ["localhost"],
+      "audience": ["georama-oidc"],
       "audienceExcludedPaths": ["^/static/", "^/tiles/"],
       "scope": "openid profile email",
       "checkSessionOnLoad": true,

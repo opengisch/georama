@@ -57,4 +57,9 @@ urlpatterns = [
         views.GroupListView.as_view(),
         name="layer-permission-group-list",
     ),
+    path(
+        "/layer/metadata/test",
+        views.EchMetaData.as_view(),
+        name="layer-metadata-test",
+    ),
 ]
