@@ -37,7 +37,7 @@ class Base(Configuration):
     # SECURITY WARNING: don't run with debug turned on in production!
     DEBUG = values.BooleanValue(False, environ_prefix="GEORAMA")
 
-    WEBGISURL = values.Value(environ_prefix="GEORAMA")
+    WEBGISURL = values.Value("https://localhost:9309", environ_prefix="GEORAMA")
     SITE_TITLE = values.Value("demo.georama.io", environ_prefix="GEORAMA")
 
     LOGGING = {

@@ -6,9 +6,15 @@ from dataclasses import fields
 from django.db import models
 from django.utils.translation import gettext as _
 from qgis_server_light.interface.common import BBox
-from qgis_server_light.interface.exporter.extract import Crs, Custom, DataSource
+from qgis_server_light.interface.exporter.extract import (
+    Crs,
+    Custom,
+    DataSource,
+    Raster,
+    Style,
+    Vector,
+)
 from qgis_server_light.interface.exporter.extract import Field as QslField
-from qgis_server_light.interface.exporter.extract import Raster, Style, Vector
 from qgis_server_light.interface.job.common.input import QslJobLayer
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig

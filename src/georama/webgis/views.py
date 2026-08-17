@@ -4,9 +4,10 @@ import logging
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
-from django.db import transaction
-from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
+from django.db import IntegrityError, transaction
+from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, JsonResponse
 from django.shortcuts import redirect, render
+from django.utils.crypto import get_random_string
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 from qgis_server_light.interface.common import BBox
@@ -46,7 +47,12 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     Theme,
     ThemesJson,
 )
-from georama.webgis.models import LayerGroupMp, PublishedAsLayerWms, PublishedAsTheme
+from georama.webgis.models import (
+    LayerGroupMp,
+    PublishedAsLayerWms,
+    PublishedAsTheme,
+    UrlShortener,
+)
 from georama.webgis.models import OgcServer as WebGisOgcServer
 
 
@@ -616,3 +622,33 @@ def translation_json(request: HttpRequest):
     return HttpResponse(
         json.dumps(translation, indent=2), status=200, content_type="application/json"
     )
+
+
+class UrlShortenerCreate(View):
+    def post(self, request: HttpRequest):
+        url = request.POST.get("url", "").strip()
+        if not url:
+            return JsonResponse({"error": "Missing URL."}, status=400)
+
+        if not url.startswith(settings.WEBGISURL):
+            return JsonResponse({"error": "Invalid URL."}, status=400)
+
+        while True:
+            try:
+                short = UrlShortener.objects.create(id=get_random_string(length=6), url=url)
+                break
+            except IntegrityError:
+                continue
+
+        short_url = request.build_absolute_uri(f"/webgis/short/get/{short.id}")
+        return JsonResponse({"short_url": short_url}, status=201)
+
+
+class UrlShortenerRetrieve(View):
+    def get(self, _request: HttpRequest, id: str):
+        try:
+            short = UrlShortener.objects.get(id=id)
+        except UrlShortener.DoesNotExist:
+            return JsonResponse({"error": "Not found."}, status=404)
+
+        return JsonResponse({"long_url": short.url}, status=200)

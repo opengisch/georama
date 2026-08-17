@@ -79,4 +79,8 @@ urlpatterns = [
         views.translation_json,
         name="translation_json",
     ),
+    path(
+        "/short/get/<str:id>", views.UrlShortenerRetrieve.as_view(), name="get_shortened_url"
+    ),
+    path("/short/create", views.UrlShortenerCreate.as_view(), name="shorten_url"),
 ]
