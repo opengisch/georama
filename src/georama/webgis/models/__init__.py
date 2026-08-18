@@ -1,3 +1,4 @@
+from georama.webgis.models.short import UrlShortener
 from georama.webgis.models.themes import (
     Interface,
     Layer,
@@ -16,4 +17,5 @@ __all__ = [
     "PublishedAsLayerWms",
     "PublishedAsLayerWmts",
     "PublishedAsTheme",
+    "UrlShortener",
 ]
