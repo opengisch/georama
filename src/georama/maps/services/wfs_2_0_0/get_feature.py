@@ -386,7 +386,6 @@ class WfsGetFeature(WfsOperation):
         """
         qsl_feature_queries = []
         for query in get_feature_parameter.stored_query_or_query:
-
             # based on the sanitized list of requested layer names we fetch then
             # the definitions of these
             # layers (this includes permission check and existence check)
@@ -464,7 +463,6 @@ class WfsGetFeature(WfsOperation):
 
         is_multipoint = geometry_type in self.geometry_types["multipoint"]
         if geometry_type in self.geometry_types["point"] or is_multipoint:
-
             # POINT or MULTIPOINT
             # ==================================================================
 
@@ -507,7 +505,6 @@ class WfsGetFeature(WfsOperation):
             points = [None] * number_of_wkb_points
 
             for i in range(number_of_wkb_points):
-
                 # Parsing single point
                 # -------------------------------------------
 
@@ -589,7 +586,6 @@ class WfsGetFeature(WfsOperation):
             lines = [None] * number_of_wkb_lines
 
             for i in range(number_of_wkb_lines):
-
                 # Parsing single LineString
                 # -------------------------------------------
 
@@ -675,7 +671,6 @@ class WfsGetFeature(WfsOperation):
             polygons = [None] * number_of_wkb_polygons
 
             for i in range(number_of_wkb_polygons):
-
                 # Parsing single Polygon
                 # -------------------------------------------
 
@@ -844,9 +839,7 @@ class WfsGetFeature(WfsOperation):
 
     @staticmethod
     def render_json(feature_collection: FeatureCollection) -> str:
-        serializer = JsonSerializer(
-            SerializerConfig(ignore_default_attributes=True, pretty_print=True)
-        )
+        serializer = JsonSerializer(SerializerConfig(ignore_default_attributes=True, indent=2))
         return serializer.render(feature_collection)
 
     def render(

@@ -29,7 +29,10 @@ from georama.core.views.generic.mixins import (
 from georama.data_integration.models import CustomDataSet, RasterDataSet, VectorDataSet
 from georama.maps.apps import MapsConfig, central_app_label, qsl_redis_queue
 from georama.maps.exception.job import JobExecutionError, UnexpectedBehaviourError
-from georama.maps.interfaces.georama.requests import GetMapRequestParams
+from georama.maps.interfaces.georama.requests import (
+    GetLegendGraphicRequestParams,
+    GetMapRequestParams,
+)
 from georama.maps.interfaces.ogc.wfs_2_0_0 import GetFeature as GetFeature200
 from georama.maps.maps_config import Config
 from georama.maps.models import PublishedAsWms
@@ -38,6 +41,7 @@ from georama.maps.services.wfs_2_0_0.get_capabilities import WfsGetCapabilities
 from georama.maps.services.wfs_2_0_0.get_feature import WfsGetFeature
 from georama.maps.services.wfs_2_0_0.get_metadata import WfsGetMetadata
 from georama.maps.services.wms_1_3_0.get_capabilities import WmsGetCapabilities
+from georama.maps.services.wms_1_3_0.get_legend_graphic import WmsGetLegendGraphic
 from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
 
 log = logging.getLogger(__name__)
@@ -220,6 +224,7 @@ class OgcServer(View):
                 or key.upper() == "ALIASES"
                 or key.upper() == "FILTER"
                 or key.upper() == "LAYER"
+                or key.upper() == "STYLE"
             ):
                 params[str(key).upper()] = str(parameters[key])
             else:
@@ -306,6 +311,29 @@ class OgcServer(View):
                 )
                 service_params = DictDecoder(parser_config).decode(params, GetMapRequestParams)
                 operation = WmsGetMap(
+                    self.appname,
+                    f"{request.build_absolute_uri('ows')}?",
+                    request.user,
+                    self.model,
+                )
+                try:
+                    job = await sync_to_async(
+                        operation.prepare_job_content, thread_sensitive=True
+                    )(service_params)
+                    logging.debug(job)
+                except ValueError as e:
+                    return HttpResponse(e, status=400, content_type="text/plain")
+                except PermissionError as e:
+                    return HttpResponse(e, status=403, content_type="text/plain")
+
+            elif params["REQUEST"] in ["GETLEGENDGRAPHIC", "GETLEGEND"]:
+                parser_config = ParserConfig(
+                    fail_on_unknown_properties=False, fail_on_unknown_attributes=False
+                )
+                service_params = DictDecoder(parser_config).decode(
+                    params, GetLegendGraphicRequestParams
+                )
+                operation = WmsGetLegendGraphic(
                     self.appname,
                     f"{request.build_absolute_uri('ows')}?",
                     request.user,

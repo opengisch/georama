@@ -25,7 +25,6 @@ log = logging.getLogger(__name__)
 
 
 class Mandant(models.Model):
-
     class Meta:
         verbose_name = _("Mandant")
         verbose_name_plural = _("Mandants")
@@ -38,7 +37,6 @@ class Mandant(models.Model):
 
 
 class Project(GeoramaPermissionMixin, models.Model):
-
     class Meta:
         unique_together = (
             "name",
@@ -129,7 +127,7 @@ class DataSet(models.Model):
             style = self.get_default_style()
         return QslJobLayer(
             id=self.qgis_layer_id,
-            name=self.name,
+            name=self.title,
             source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
             driver=self.driver,
             style=style,
