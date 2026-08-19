@@ -85,6 +85,7 @@ $(CHECK_REQUIREMENTS): $(PIP_REQUIREMENTS)
 	touch $@
 
 $(SYSTEM_REQUIREMENTS): $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools gdal==$(GDAL_VERSION)
 	$(VENV_BIN)/$(PIP_COMMAND) install .[system]
 	touch $@
 
