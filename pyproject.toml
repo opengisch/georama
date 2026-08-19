@@ -127,7 +127,7 @@ optional-dependencies.docs = [
     "mkdocstrings-python==1.16.2",
     "mkdocs-literate-nav==0.6.1",
     "mkdocs-autorefs==1.4.0",
-    "pymdown-extensions==10.5",
+    "pymdown-extensions==11.0.1",
     "mkdocs-click==0.8.1",
     "griffe==1.2.0"
 ]
