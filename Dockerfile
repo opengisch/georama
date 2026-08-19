@@ -1,7 +1,9 @@
 FROM ubuntu:24.04 AS base
 
 USER 0
-RUN apt-get update && \
+RUN --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt \
+    apt-get update && \
     apt-get install -y \
       python3-venv \
       python3-dev \
