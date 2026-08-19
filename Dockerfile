@@ -43,3 +43,32 @@ ENV PYTHONUNBUFFERED=1
 ENTRYPOINT ["/usr/bin/tini", "--", "make"]
 
 CMD ["serve-dev-outbound"]
+
+#########################
+#  PROD
+#########################
+FROM base AS prod
+
+LABEL org.opengisch.author="Clemens Rudert <clemens@opengis.ch>"
+LABEL org.opengisch.image.title="georama"
+# TODO: USER should not be root for prod
+USER 0
+
+WORKDIR /opt/georama/
+ADD setup.py .
+ADD pyproject.toml .
+ADD Makefile .
+
+ENV VENV_PATH=/opt/georama/venv
+
+WORKDIR /app
+
+COPY ./ .
+
+RUN VENV_PATH=${VENV_PATH} make install
+
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["/usr/bin/tini", "--", "make"]
+
+CMD ["serve-outbound"]
