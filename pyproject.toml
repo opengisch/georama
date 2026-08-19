@@ -57,7 +57,7 @@ dependencies = [
     "geoalchemy2",
     "gdal",
     # django stuff
-    "django[argon2]==5.2.14",
+    "django[argon2]==5.2.16",
     "django-jazzmin==3.0.4",
     "django-configurations==2.5.1",
     "xsdata[lxml]==26.2",
