@@ -59,14 +59,14 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ github.head_ref }}
+          tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}
 
       - name: Delete PR Image
         if: github.event.action == 'closed'
         run: |
-          echo "Deleting GHCR image for PR branch ${{ github.head_ref }}"
-          # Löschen über GitHub API
+          echo "Deleting GHCR image for PR branch ${{ github.head_ref }} (docker image pr-${{ github.event.pull_request.number }})"
+          # Delete via GitHub API
           curl -s -X DELETE \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            https://ghcr.io/v2/${{ github.repository }}/manifests/${{ github.head_ref }} || true
+            https://ghcr.io/v2/${{ github.repository }}/manifests/pr-${{ github.event.pull_request.number }} || true
