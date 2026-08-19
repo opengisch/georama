@@ -7,6 +7,7 @@ DEV_XSD_REQUIREMENTS = $(VENV_PATH)/.dev-xsd-requirements-timestamp
 DOC_REQUIREMENTS = $(VENV_PATH)/.doc-requirements-timestamp
 TEST_REQUIREMENTS = $(VENV_PATH)/.test-requirements-timestamp
 CHECK_REQUIREMENTS = $(VENV_PATH)/.check-requirements-timestamp
+SYSTEM_REQUIREMENTS = $(VENV_PATH)/.system-requirements-timestamp
 LOCAL_QGIS_SERVER_LIGHT_REQUIREMENTS = $(VENV_PATH)/.local-qsl-requirements-timestamp
 VENV_BIN = $(VENV_PATH)/bin
 PIP_COMMAND = pip3
@@ -83,6 +84,10 @@ $(CHECK_REQUIREMENTS): $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/$(PIP_COMMAND) install .[check]
 	touch $@
 
+$(SYSTEM_REQUIREMENTS): $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/$(PIP_COMMAND) install .[system]
+	touch $@
+
 $(LOCAL_QGIS_SERVER_LIGHT_REQUIREMENTS): $(DEV_REQUIREMENTS)
 	$(if $(LOCAL_QGIS_SERVER_LIGHT_PATH),,$(error LOCAL_QGIS_SERVER_LIGHT_PATH has to be defined))
 	$(VENV_BIN)/$(PIP_COMMAND) install -e file://$(LOCAL_QGIS_SERVER_LIGHT_PATH)\#qgis_server_light --config-settings editable_mode=compat
@@ -107,6 +112,12 @@ install-test: $(TEST_REQUIREMENTS)
 
 .PHONY: install-dev
 install-dev: $(DEV_REQUIREMENTS)
+
+.PHONY: install-system
+install-system: $(SYSTEM_REQUIREMENTS)
+
+.PHONY: install-dev-system
+install-dev-system: $(DEV_REQUIREMENTS) $(SYSTEM_REQUIREMENTS)
 
 .PHONY: install-dev-xsd
 install-dev-xsd: $(DEV_XSD_REQUIREMENTS)

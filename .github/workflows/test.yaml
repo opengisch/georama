@@ -44,6 +44,8 @@ jobs:
         run: docker compose up -d --wait georama-db qsl-exporter
       - name: Set up test environment
         run: make install-test
+      - name: Install system libs
+        run: make install-system
       - name: Run migration checks
         run: make check-migrations
       - name: Run tests for Python ${{ matrix.python-version }}
