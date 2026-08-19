@@ -6,15 +6,13 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     apt-get install -y \
       python3-venv \
-      python3-dev \
+      python3-gdal \
+      python3-psycopg2 \
       unixodbc \
       odbc-mdbtools \
       gdal-bin \
-      libgdal-dev \
-      libpq-dev \
-      build-essential \
-      make \
       git \
+      make \
       curl \
       tini
 

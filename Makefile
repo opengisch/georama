@@ -54,9 +54,6 @@ BUILD_ENV += \
 
 $(VENV_REQUIREMENTS):
 	$(PYTHON_PATH) -m venv $(VENV_PATH)
-	# we directly install gdal here into the venv since it is relying on the system gdal version
-	# and this information we can only fetch in a simple way in a shell like context
-	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools gdal==$(GDAL_VERSION)
 	touch $@
 
 $(EDITABLE_GEORAMA_PATH):
