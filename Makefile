@@ -233,6 +233,26 @@ serve-dev-outbound: $(DEV_REQUIREMENTS)
 		--port 4242 \
 		--reload georama.core.asgi:application
 
+.PHONY: serve
+serve: $(PIP_REQUIREMENTS)
+	DJANGO_SETTINGS_MODULE=georama.core.settings \
+	DJANGO_CONFIGURATION=Prod \
+	$(VENV_BIN)/gunicorn \
+		--workers $${GEORAMA_GUNICORN_WORKERS:-4} \
+		--worker-class uvicorn.workers.UvicornWorker \
+		--bind 127.0.0.1:4242 \
+		georama.core.asgi:application
+
+.PHONY: serve-outbound
+serve-outbound: $(PIP_REQUIREMENTS)
+	DJANGO_SETTINGS_MODULE=georama.core.settings \
+	DJANGO_CONFIGURATION=Prod \
+	$(VENV_BIN)/gunicorn \
+		--workers $${GEORAMA_GUNICORN_WORKERS:-4} \
+		--worker-class uvicorn.workers.UvicornWorker \
+		--bind 0.0.0.0:4242 \
+		georama.core.asgi:application
+
 MANAGE_ACTION="shell_plus"
 .PHONY: manage
 manage: $(PIP_REQUIREMENTS)
