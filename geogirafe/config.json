@@ -23,7 +23,7 @@
     "opacityBasemaps": []
   },
   "treeview": {
-    "hideLegendWhenLayerIsDeactivated": false,
+    "hideLegendWhenLayerIsDeactivated": true,
     "defaultIconSize": {
       "width": "21",
       "height": "16"

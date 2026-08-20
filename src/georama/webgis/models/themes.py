@@ -184,6 +184,8 @@ class LayerGroupMp(MP_Node):
     ogc_server = models.CharField(max_length=2048, default=None, null=True)
     dimensions = models.JSONField(default=None, null=True)
     path = models.TextField(max_length=2048, unique=True)
+    is_checked = models.BooleanField(default=False)
+    is_expanded = models.BooleanField(default=False)
     node_order_by = ["name"]
 
     def __str__(self):
@@ -191,9 +193,7 @@ class LayerGroupMp(MP_Node):
 
     def as_dataclass(self) -> LayerGroup:
         config = ParserConfig(fail_on_unknown_properties=False)
-        metadata = None
-        if self.metadata:
-            metadata = DictDecoder(config).decode(self.metadata, MetaData)
+        metadata = MetaData(isExpanded=self.is_expanded)
         dimensions = None
         if self.dimensions:
             dimensions = DictDecoder(config).decode(self.dimensions, Dimensions)
@@ -215,6 +215,7 @@ class Layer(PublishedAs):
     themes_json_uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
     metadata = models.JSONField(default=None, null=True, blank=True)
     dimensions = models.JSONField(default=None, null=True, blank=True)
+    is_checked = models.BooleanField(default=False)
 
     class Meta:  # noqa: F811
         abstract = True
@@ -306,10 +307,7 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
         config = ParserConfig(
             fail_on_unknown_properties=False, fail_on_unknown_attributes=False
         )
-        if self.metadata:
-            metadata = DictDecoder(config).decode(self.metadata, MetaData)
-        else:
-            metadata = MetaData(legend=True, isLegendExpanded=True)
+        metadata = MetaData(legend=True, isLegendExpanded=True, isChecked=self.is_checked)
         if self.dimensions:
             dimensions = DictDecoder(config).decode(self.dimensions, Dimensions)
         else:
@@ -375,9 +373,7 @@ class PublishedAsLayerWmts(Layer):
             fail_on_unknown_properties=False, fail_on_unknown_attributes=False
         )
         source = DictDecoder(config).decode(self.dataset.source, DataSource).wmts
-        metadata = None
-        if self.metadata:
-            metadata = DictDecoder(config).decode(self.metadata, MetaData)
+        metadata = MetaData(isChecked=self.is_checked)
         dimensions = None
         if self.dimensions:
             dimensions = DictDecoder(config).decode(self.dimensions, Dimensions)
