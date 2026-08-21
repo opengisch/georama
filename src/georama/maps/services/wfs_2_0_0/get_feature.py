@@ -823,9 +823,7 @@ class WfsGetFeature(WfsOperation):
 
     @staticmethod
     def render_json(feature_collection: FeatureCollection) -> str:
-        serializer = JsonSerializer(
-            SerializerConfig(ignore_default_attributes=True, pretty_print=True)
-        )
+        serializer = JsonSerializer(SerializerConfig(ignore_default_attributes=True, indent=2))
         return serializer.render(feature_collection)
 
     def render(

@@ -10,8 +10,11 @@ from georama.maps.interfaces.ogc.wms_1_3_0.capabilities.capabilities_1_3_0 impor
     BoundingBox,
     Crs,
     ExGeographicBoundingBox,
+    Format,
     Layer,
+    LegendUrl,
     Name,
+    OnlineResource,
     Style,
     Title,
     WmsCapabilities,
@@ -89,7 +92,19 @@ class WmsGetCapabilities(WmsOperation):
             ],
             # TODO: We can obtain information about available styles from passed QML
             style=[
-                Style(name=Name(style_name), title=Title(style_name.title()))
+                Style(
+                    name=Name(style_name),
+                    title=Title(style_name.title()),
+                    legend_url=[
+                        LegendUrl(
+                            format=Format("image/png"),
+                            online_resource=OnlineResource(
+                                href="?SERVICE=WMS&REQUEST=GETLEGENDGRAPHIC&VERSION=1.3.0&"
+                                f"LAYERS={name}&STYLES={style_name}&FORMAT=image%2Fpng",
+                            ),
+                        )
+                    ],
+                )
                 for style_name in styles
             ],
         )

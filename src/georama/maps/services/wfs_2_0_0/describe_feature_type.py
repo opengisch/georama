@@ -149,9 +149,7 @@ class WfsDescribeFeatureType(WfsOperation):
 
     @staticmethod
     def render_json(described_feature_type) -> str:
-        serializer = JsonSerializer(
-            SerializerConfig(ignore_default_attributes=True, pretty_print=True)
-        )
+        serializer = JsonSerializer(SerializerConfig(ignore_default_attributes=True, indent=2))
         return serializer.render(described_feature_type)
 
     def render(

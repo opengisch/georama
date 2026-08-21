@@ -72,7 +72,7 @@ class WmsLayer(WmsLayerAbstract):
         return GGWmsLayer(
             id=self.identifier,
             name=self.metadata.title,
-            metadata=GGMetadata(),
+            metadata=GGMetadata(legend=True, isLegendExpanded=True),
             type="WMS",
             layers=self.identifier,
             imageType="image/png",
