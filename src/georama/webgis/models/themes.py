@@ -303,23 +303,75 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     def get_custom_dataset(self) -> CustomDataSet:
         return self.custom_dataset
 
-    def as_dataclass(self, geogirafe_config: ThemesJson) -> WmsLayer:
+    def get_or_create_ogc_server(
+        self,
+        geogirafe_config: ThemesJson,
+        source_url: str,
+        image_type: str,
+    ) -> str:
+        server_name = f"{source_url}#{image_type}"
+        if geogirafe_config.get_ogc_server_by_name(server_name) is None:
+            geogirafe_config.ogc_servers.append(
+                dataclasses.OgcServer(
+                    name=server_name,
+                    url=source_url,
+                    type="external.wms",
+                    credential=False,
+                    imageType=image_type,
+                    wfsSupport=False,
+                    isSingleTile=False,
+                    namespace="external",
+                )
+            )
+        return server_name
+
+    def as_dataclass(self, geogirafe_config: ThemesJson) -> WmsLayer | WmtsLayer:
         config = ParserConfig(
             fail_on_unknown_properties=False, fail_on_unknown_attributes=False
         )
-        metadata = MetaData(legend=True, isLegendExpanded=True, isChecked=self.is_checked)
         if self.dimensions:
             dimensions = DictDecoder(config).decode(self.dimensions, Dimensions)
         else:
             dimensions = None
+
+        source = self.bound_dataset.source_to_qsl
+
+        # Ideally, we should also retrieve the legend directly from source when possible
+        if source.wmts and source.wmts.url:
+            return WmtsLayer(
+                id=str(self.themes_json_uuid),
+                name=self.name,
+                url=source.wmts.url,
+                layer=source.wmts.layers,
+                type="WMTS",
+                imageType=source.wmts.format,
+                metadata=MetaData(isChecked=self.is_checked),
+                style="default",
+                matrix_set=source.wmts.tile_matrix_set,
+                dimensions=dimensions,
+                editable=False,
+                path="",
+            )
+        elif source.wms and source.wms.url:
+            image_type = source.wms.format
+            layer_name = source.wms.layers
+            ogc_server = self.get_or_create_ogc_server(
+                geogirafe_config,
+                source.wms.url,
+                image_type,
+            )
+        else:
+            image_type = geogirafe_config.get_ogc_server_by_name(self.ogc_server).imageType
+            layer_name = self.name
+            ogc_server = self.ogc_server
+
         return WmsLayer(
             id=str(self.themes_json_uuid),
             name=self.name,
-            # TODO: Fix layers, it has to written to the datasource
-            layers=self.name,
+            layers=layer_name,
             type="WMS",
-            imageType=geogirafe_config.get_ogc_server_by_name(self.ogc_server).imageType,
-            metadata=metadata,
+            imageType=image_type,
+            metadata=MetaData(legend=True, isLegendExpanded=True, isChecked=self.is_checked),
             # TODO: Fix that, its not stored correctly
             style="default",
             # TODO: fix that
@@ -329,7 +381,7 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
             path="",
             minResolutionHint=self.min_resolution_hint,
             maxResolutionHint=self.max_resolution_hint,
-            ogcServer=self.ogc_server,
+            ogcServer=ogc_server,
             childLayers=[
                 LayerSettings(
                     name=self.name,
