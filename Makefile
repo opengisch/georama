@@ -7,6 +7,7 @@ DEV_XSD_REQUIREMENTS = $(VENV_PATH)/.dev-xsd-requirements-timestamp
 DOC_REQUIREMENTS = $(VENV_PATH)/.doc-requirements-timestamp
 TEST_REQUIREMENTS = $(VENV_PATH)/.test-requirements-timestamp
 CHECK_REQUIREMENTS = $(VENV_PATH)/.check-requirements-timestamp
+SYSTEM_REQUIREMENTS = $(VENV_PATH)/.system-requirements-timestamp
 LOCAL_QGIS_SERVER_LIGHT_REQUIREMENTS = $(VENV_PATH)/.local-qsl-requirements-timestamp
 VENV_BIN = $(VENV_PATH)/bin
 PIP_COMMAND = pip3
@@ -54,9 +55,6 @@ BUILD_ENV += \
 
 $(VENV_REQUIREMENTS):
 	$(PYTHON_PATH) -m venv $(VENV_PATH)
-	# we directly install gdal here into the venv since it is relying on the system gdal version
-	# and this information we can only fetch in a simple way in a shell like context
-	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools gdal==$(GDAL_VERSION)
 	touch $@
 
 $(EDITABLE_GEORAMA_PATH):
@@ -86,6 +84,11 @@ $(CHECK_REQUIREMENTS): $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/$(PIP_COMMAND) install .[check]
 	touch $@
 
+$(SYSTEM_REQUIREMENTS): $(PIP_REQUIREMENTS)
+	$(VENV_BIN)/$(PIP_COMMAND) install --upgrade pip wheel setuptools gdal==$(GDAL_VERSION)
+	$(VENV_BIN)/$(PIP_COMMAND) install .[system]
+	touch $@
+
 $(LOCAL_QGIS_SERVER_LIGHT_REQUIREMENTS): $(DEV_REQUIREMENTS)
 	$(if $(LOCAL_QGIS_SERVER_LIGHT_PATH),,$(error LOCAL_QGIS_SERVER_LIGHT_PATH has to be defined))
 	$(VENV_BIN)/$(PIP_COMMAND) install -e file://$(LOCAL_QGIS_SERVER_LIGHT_PATH)\#qgis_server_light --config-settings editable_mode=compat
@@ -110,6 +113,12 @@ install-test: $(TEST_REQUIREMENTS)
 
 .PHONY: install-dev
 install-dev: $(DEV_REQUIREMENTS)
+
+.PHONY: install-system
+install-system: $(SYSTEM_REQUIREMENTS)
+
+.PHONY: install-dev-system
+install-dev-system: $(DEV_REQUIREMENTS) $(SYSTEM_REQUIREMENTS)
 
 .PHONY: install-dev-xsd
 install-dev-xsd: $(DEV_XSD_REQUIREMENTS)
@@ -232,6 +241,26 @@ serve-dev-outbound: $(DEV_REQUIREMENTS)
 		--host 0.0.0.0 \
 		--port 4242 \
 		--reload georama.core.asgi:application
+
+.PHONY: serve
+serve: $(PIP_REQUIREMENTS)
+	DJANGO_SETTINGS_MODULE=georama.core.settings \
+	DJANGO_CONFIGURATION=Prod \
+	$(VENV_BIN)/gunicorn \
+		--workers $${GEORAMA_GUNICORN_WORKERS:-4} \
+		--worker-class uvicorn.workers.UvicornWorker \
+		--bind 127.0.0.1:4242 \
+		georama.core.asgi:application
+
+.PHONY: serve-outbound
+serve-outbound: $(PIP_REQUIREMENTS)
+	DJANGO_SETTINGS_MODULE=georama.core.settings \
+	DJANGO_CONFIGURATION=Prod \
+	$(VENV_BIN)/gunicorn \
+		--workers $${GEORAMA_GUNICORN_WORKERS:-4} \
+		--worker-class uvicorn.workers.UvicornWorker \
+		--bind 0.0.0.0:4242 \
+		georama.core.asgi:application
 
 MANAGE_ACTION="shell_plus"
 .PHONY: manage

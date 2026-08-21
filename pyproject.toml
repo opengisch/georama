@@ -52,10 +52,7 @@ dependencies = [
     "click==8.3.3",
     # pygeoapi and its friends
     "pygeoapi==0.21.0",
-    "psycopg2",
-    "psycopg[binary,pool]",
     "geoalchemy2",
-    "gdal",
     # django stuff
     "django[argon2]==5.2.16",
     "django-jazzmin==3.0.4",
@@ -79,6 +76,14 @@ dependencies = [
     "gunicorn==26.0.0",
     # qfield_link deps
     "qfieldcloud-sdk==0.15.0"
+]
+
+optional-dependencies.system =[
+    # If the system doesn't ship any python bindings for gdal or psycopg which are
+    # compatible with the python interpreter in use, this optional deps can be installed,
+    # assuming that compiler and development libs for libpq and libgdal are present on the system
+    "gdal",
+    "psycopg[binary,pool]",
 ]
 
 # DEV: deps

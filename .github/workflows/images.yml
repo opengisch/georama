@@ -10,9 +10,16 @@ on:
     types: [opened, synchronize, closed]
 
 jobs:
-  docker-image-latest-dev:
+  docker-image-latest:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    strategy:
+      matrix:
+        include:
+          - target: dev
+            label: latest-dev
+          - target: prod
+            label: latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -27,14 +34,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build release
+      - name: Build release (${{ matrix.target }})
         uses: docker/build-push-action@v7
         with:
           context: .
           push: true
-          target: dev
+          target: ${{ matrix.target }}
           cache-from: type=local,src=cache
-          tags: ghcr.io/${{ github.repository }}:latest-dev
+          tags: ghcr.io/${{ github.repository }}:${{ matrix.label }}
 
   ghcr-pr-image:
     runs-on: ubuntu-latest
