@@ -65,6 +65,15 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
+          push: false
+          load: true
+          tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}
+
+      - name: Push release (${{ matrix.target }})
+        continue-on-error: true
+        uses: docker/build-push-action@v7
+        with:
+          context: .
           push: true
           tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}
 
