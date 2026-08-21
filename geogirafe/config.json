@@ -40,8 +40,9 @@
     "url": "https://empty"
   },
   "share": {
-    "service": "",
-    "createUrl": "https://empty"
+    "service": "geogirafe",
+    "getUrl": "http://localhost:4242/webgis/short/get",
+    "createUrl": "http://localhost:4242/webgis/short/create"
   },
   "projections": {
     "EPSG:3857": "W-M",

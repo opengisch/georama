@@ -393,7 +393,7 @@ class Base(Configuration):
     QSL_EXPORTER_URL = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
 
     # GeoGirafe stuff
-    WEBGISURL = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    WEBGISURL = values.Value("https://localhost:9309", environ_prefix=GEORAMA_ENV_PREFIX)
 
     # Georama internal settings
     SITE_TITLE = values.Value("Georama", environ_prefix=GEORAMA_ENV_PREFIX)
