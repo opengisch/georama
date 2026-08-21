@@ -95,3 +95,6 @@ class TestMapsViews:
         layer = xp(layers, "./w:Layer")
         assert xp(layer, "./w:Title/text()") == "TestPointLayer"
         assert xp(layer, "./w:CRS/text()") == ["EPSG:4326", "CRS:84"]
+        assert xp(layer, "./w:Style/w:LegendURL/w:Format/text()") == "image/png"
+        legend_href = xp(layer, "./w:Style/w:LegendURL/w:OnlineResource/@x:href")
+        assert legend_href == "?SERVICE=WMS&REQUEST=GETLEGENDGRAPHIC&VERSION=1.3.0&LAYERS=TestPointLayer_e7b906c8_9404_4393_b05e_e72af3eb976b&STYLES=default&FORMAT=image%2Fpng"
