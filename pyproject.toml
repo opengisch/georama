@@ -104,7 +104,7 @@ optional-dependencies.dev_xsd =[
 # Test: packages imported in test code and packages required for the "test runner"
 optional-dependencies.test = [
     "pytest-django",
-    "pytest==8.0.0",
+    "pytest==9.0.3",
     "pytest-cov[toml]==5.0.0",
     "pytest-explicit==1.0.1",
     "pytest-xdist==3.5.0",
