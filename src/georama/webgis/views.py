@@ -109,6 +109,10 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                 # TODO: Improve regarding GMF possibilities!
                 db_node.title = group_match.title
                 db_node.metadata = {}
+                # is_checked reflects the QGIS project state but will be overriden
+                # in the themes.json generation because Geogirafe behaves differently
+                db_node.is_checked = group_match.is_checked
+                db_node.is_expanded = group_match.is_expanded
                 db_node.mixed = False
                 db_node.ogc_server = current_ogc_server
                 db_node.dimensions = {}
@@ -141,8 +145,8 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         title=dataset.title,
                         raster_dataset=dataset,
                         layer_group=db_node,
-                        dimensions={},
                         public=True,
+                        is_checked=raster_match.is_checked,
                     ).save()
                 elif vector_match:
                     query = VectorDataSet.objects.filter(project=project, qgis_layer_id=child)
@@ -160,6 +164,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         vector_dataset=dataset,
                         layer_group=db_node,
                         dimensions={},
+                        is_checked=vector_match.is_checked,
                         public=True,
                     ).save()
                 elif custom_match:
@@ -176,6 +181,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         custom_dataset=dataset,
                         layer_group=db_node,
                         dimensions={},
+                        is_checked=custom_match.is_checked,
                         public=True,
                     ).save()
                 else:
@@ -190,7 +196,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                     name=project_db.name,
                     title=project_db.title,
                     project=project_db,
-                    metadata={"isLegendExpanded": True, "legend": False},
+                    metadata={},
                     ordering=highest_theme.ordering + 1 if highest_theme else 1,
                     zoom=4,
                 )
