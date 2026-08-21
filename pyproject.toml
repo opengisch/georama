@@ -83,7 +83,6 @@ optional-dependencies.system =[
     # compatible with the python interpreter in use, this optional deps can be installed,
     # assuming that compiler and development libs for libpq and libgdal are present on the system
     "gdal",
-    "psycopg2",
     "psycopg[binary,pool]",
 ]
 

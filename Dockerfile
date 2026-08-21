@@ -7,7 +7,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get install -y \
       python3-venv \
       python3-gdal \
-      python3-psycopg2 \
+      python3-psycopg \
       unixodbc \
       odbc-mdbtools \
       gdal-bin \
