@@ -36,7 +36,7 @@ WORKDIR /app
 
 COPY ./ .
 
-RUN VENV_PATH=${VENV_PATH} make install-dev
+RUN VENV_PATH=${VENV_PATH} VENV_OPTIONS=--system-site-packages make install-dev
 
 ENV PYTHONUNBUFFERED=1
 
@@ -65,7 +65,7 @@ WORKDIR /app
 
 COPY ./ .
 
-RUN VENV_PATH=${VENV_PATH} make install
+RUN VENV_PATH=${VENV_PATH} VENV_OPTIONS=--system-site-packages make install
 
 ENV PYTHONUNBUFFERED=1
 

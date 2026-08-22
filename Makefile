@@ -1,5 +1,6 @@
 
 VENV_PATH ?= .venv
+VENV_OPTIONS ?=
 VENV_REQUIREMENTS = $(VENV_PATH)/.timestamp
 PIP_REQUIREMENTS = $(VENV_PATH)/.requirements-timestamp
 DEV_REQUIREMENTS = $(VENV_PATH)/.dev-requirements-timestamp
@@ -54,7 +55,7 @@ BUILD_ENV += \
 # *******************
 
 $(VENV_REQUIREMENTS):
-	$(PYTHON_PATH) -m venv $(VENV_PATH)
+	$(PYTHON_PATH) -m venv $(VENV_OPTIONS) $(VENV_PATH)
 	touch $@
 
 $(EDITABLE_GEORAMA_PATH):
