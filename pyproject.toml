@@ -50,6 +50,7 @@ classifiers = [
 dependencies = [
     # cli tooling
     "click==8.3.3",
+    "psycopg[binary,pool]",
     # pygeoapi and its friends
     "pygeoapi==0.21.0",
     "geoalchemy2",
@@ -83,7 +84,6 @@ optional-dependencies.system =[
     # compatible with the python interpreter in use, this optional deps can be installed,
     # assuming that compiler and development libs for libpq and libgdal are present on the system
     "gdal",
-    "psycopg[binary,pool]",
 ]
 
 # DEV: deps
