@@ -256,6 +256,7 @@ class Base(Configuration):
     def MIDDLEWARE(self):
         return [
             "django.middleware.security.SecurityMiddleware",
+            "whitenoise.middleware.WhiteNoiseMiddleware",
             "django.contrib.sessions.middleware.SessionMiddleware",
             "corsheaders.middleware.CorsMiddleware",
             "django.middleware.common.CommonMiddleware",
@@ -410,7 +411,7 @@ class Base(Configuration):
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-    STATIC_URL = "static/"
+    STATIC_URL = "/static/"
     STATIC_ROOT = values.Value(BASE_DIR / ".static", environ_prefix="GEORAMA")
 
     # Default primary key field type

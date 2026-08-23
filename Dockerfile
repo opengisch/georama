@@ -65,6 +65,7 @@ WORKDIR /app
 COPY ./ .
 
 RUN VENV_PATH=${VENV_PATH} VENV_OPTIONS=--system-site-packages make install
+RUN VENV_PATH=${VENV_PATH} make collectstatic
 
 ENV PYTHONUNBUFFERED=1
 

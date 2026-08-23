@@ -66,6 +66,7 @@ dependencies = [
     "django-crispy-forms",
     "crispy-bootstrap5",
     "uvicorn==0.44.0",
+    "whitenoise==6.11.0",
     # deps for webgis
     "django-allauth[socialaccount]==65.16.1",
     "django-cors-headers==4.9.0",
