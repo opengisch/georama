@@ -25,7 +25,7 @@ class IntegrationConfig(GeoramaAbstractConfig):
     def ready(self):
         super().ready()
         global_folder_name = settings.DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER
-        global_folder_path = Path(settings.DATA_INTEGRATION_ROOT / global_folder_name)
+        global_folder_path = Path(settings.DATA_INTEGRATION_ROOT) / global_folder_name
         if not global_folder_path.exists():
             logging.info("Global organisation data integration folder created")
             global_folder_path.mkdir()
