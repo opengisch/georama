@@ -7,8 +7,10 @@ from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
@@ -38,6 +40,13 @@ api = None
 
 
 class PygeoapiServer(View):
+    """OGC API - Features endpoint.
+
+    Exempt from CSRF because it is consumed by external OGC API clients that
+    authenticate per-collection via Django's session or basic-auth middleware
+    and cannot be expected to send a CSRF token.
+    """
+
     action = None
     model = PublishedAsOgcApiFeatures
 
@@ -50,6 +59,7 @@ class PygeoapiServer(View):
         patterns = []
         return (patterns, central_app_label)
 
+    @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         handler = getattr(self, f"{self.action}", None)
 

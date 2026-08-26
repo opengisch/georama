@@ -4,8 +4,10 @@ from asgiref.sync import sync_to_async
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
+from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from qgis_server_light.interface.dispatcher.common import Status
 from qgis_server_light.interface.exporter.extract import Custom, Raster, Vector
 from qgis_server_light.interface.job.common.output import JobResult
@@ -48,8 +50,19 @@ log = logging.getLogger(__name__)
 
 
 class OgcServer(View):
+    """OGC WMS/WFS endpoint.
+
+    Exempt from CSRF because it is consumed by external OGC clients that
+    authenticate per-layer via Django's session or basic-auth middleware and
+    cannot be expected to send a CSRF token.
+    """
+
     model = PublishedAsWms
     appname = MapsConfig.get_simple_appname()
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def wms_130_capabilities(self, request: HttpRequest, params: dict) -> HttpResponse:
         """

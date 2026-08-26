@@ -2,6 +2,7 @@ import json
 import logging
 
 from django.conf import settings
+from django.contrib.auth import get_permission_codename
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
@@ -589,32 +590,46 @@ def insert_internal_ogc_server(request: HttpRequest) -> WebGisOgcServer:
     return ogc_server
 
 
-def admin_publish_dataset_as_wms(request: HttpRequest, dataset_type: str, dataset_id: str):
+class AdminPublishDatasetAsWms(GeoramaLoginRequiredMixin, PermissionRequiredMixin, View):
+    """Publish a raster/vector/custom dataset as a WMS layer.
+
+    Requires an authenticated user with add permission on
+    :class:`PublishedAsLayerWms`.
     """
-    helper function to hide actual connection in the database but make publishing straight
-    forward.
-    """
-    allowed_dataset_types = ["raster", "vector", "custom"]
-    ogc_server = insert_internal_ogc_server(request)
-    if dataset_type not in allowed_dataset_types:
-        return HttpResponseNotFound()
-    if dataset_type == "raster":
-        published_as_wms = PublishedAsLayerWms(
-            raster_dataset=RasterDataSet.objects.filter(id=dataset_id)[0]
-        )
-    elif dataset_type == "vector":
-        published_as_wms = PublishedAsLayerWms(
-            vector_dataset=VectorDataSet.objects.filter(id=dataset_id)[0]
-        )
-    elif dataset_type == "custom":
-        published_as_wms = PublishedAsLayerWms(
-            custom_dataset=CustomDataSet.objects.filter(id=dataset_id)[0]
-        )
-    else:
-        return HttpResponseNotFound()
-    published_as_wms.ogc_server = ogc_server.name
-    published_as_wms.save()
-    return redirect("admin:webgis_publishedaslayerwms_changelist")
+
+    model = PublishedAsLayerWms
+    # PublishedAsLayerWms does not currently inherit GeoramaPermissionMixin, so
+    # we build the Django auto-generated "add" permission string directly.
+    # This is equivalent to what .perm_add() on the mixin returns for the
+    # related PublishedAsWms model.
+    permission_required = (
+        f"{PublishedAsLayerWms._meta.app_label}."
+        f"{get_permission_codename('add', PublishedAsLayerWms._meta)}"
+    )
+
+    def get(self, request: HttpRequest, dataset_type: str, dataset_id: str):
+        allowed_dataset_types = ("raster", "vector", "custom")
+        if dataset_type not in allowed_dataset_types:
+            return HttpResponseNotFound()
+
+        ogc_server = insert_internal_ogc_server(request)
+
+        if dataset_type == "raster":
+            published_as_wms = self.model(
+                raster_dataset=RasterDataSet.objects.filter(id=dataset_id)[0]
+            )
+        elif dataset_type == "vector":
+            published_as_wms = self.model(
+                vector_dataset=VectorDataSet.objects.filter(id=dataset_id)[0]
+            )
+        else:  # custom
+            published_as_wms = self.model(
+                custom_dataset=CustomDataSet.objects.filter(id=dataset_id)[0]
+            )
+
+        published_as_wms.ogc_server = ogc_server.name
+        published_as_wms.save()
+        return redirect("admin:webgis_publishedaslayerwms_changelist")
 
 
 def translation_json(request: HttpRequest):

@@ -261,7 +261,7 @@ class Base(Configuration):
             "corsheaders.middleware.CorsMiddleware",
             "django.middleware.common.CommonMiddleware",
             "django.middleware.locale.LocaleMiddleware",
-            # "django.middleware.csrf.CsrfViewMiddleware",
+            "django.middleware.csrf.CsrfViewMiddleware",
             "django.contrib.auth.middleware.AuthenticationMiddleware",
             *get_authentication_methods_middlewares(self.GEORAMA_AUTHENTICATION_METHODS),
             "django.contrib.messages.middleware.MessageMiddleware",
@@ -358,7 +358,6 @@ class Base(Configuration):
         "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
         "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
         "django.contrib.auth.hashers.ScryptPasswordHasher",
-        "django.contrib.auth.hashers.MD5PasswordHasher",
     ]
 
     CORS_ALLOWED_ORIGINS = values.ListValue(
@@ -450,7 +449,9 @@ class Base(Configuration):
 
 
 class Dev(Base):
-    SECRET_KEY = "django-insecure-n*xqzi(i)c&4cl52a_3+^mr19o+om6u)&d(cuz1ibrvm*t)9s!"
+    # SECRET_KEY is inherited from Base as values.SecretValue() — DJANGO_SECRET_KEY
+    # must be set in the environment or the app will refuse to boot. See
+    # .env.dev.example for the expected variable.
 
     DEBUG = values.BooleanValue(True, environ_prefix="GEORAMA")
 
@@ -513,7 +514,9 @@ class Dev(Base):
 
 
 class Test(Base):
-    SECRET_KEY = "django-testing-secret-key"
+    # SECRET_KEY is inherited from Base as values.SecretValue(). The pytest
+    # runner sets DJANGO_SECRET_KEY via the repo-root conftest.py before Django
+    # is configured; see that file for the rationale.
 
     PASSWORD_HASHERS = [
         "django.contrib.auth.hashers.MD5PasswordHasher",
