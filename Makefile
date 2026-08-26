@@ -270,6 +270,8 @@ manage: $(PIP_REQUIREMENTS)
 
 .PHONY: migrate
 collectstatic: $(PIP_REQUIREMENTS)
+    # compare https://github.com/Koed00/django-q/issues/743
+    DJANGO_SECRET_KEY="$${DJANGO_SECRET_KEY:-notimportant}" \
 	$(VENV_BIN)/python src/georama/manage.py \
 	collectstatic
 
