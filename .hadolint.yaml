@@ -1,0 +1,7 @@
+# Keep linting enabled while allowing current intentional Dockerfile choices.
+ignored:
+  - DL3008  # TODO: apt packages are not pinned in this project
+  - DL3009  # TODO: apt lists are intentionally not removed in current image flow
+  - DL3015  # TODO: apt-get install without --no-install-recommends is accepted
+  - DL4006  # TODO: pipeline usage in RUN is currently accepted
+  - SC2086  # TODO: unquoted expansions are currently accepted in this Dockerfile
