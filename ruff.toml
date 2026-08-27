@@ -1,0 +1,33 @@
+target-version = "py312"
+
+[lint]
+extend-select = [
+    "I",        # isort
+    "B006",     # Mutable argument default
+    "BLE001",   # Checks for except clauses that catch all exceptions, see https://docs.astral.sh/ruff/rules/blind-except/
+    "UP035",    # Checks for uses of deprecated imports based on the minimum supported Python version, see https://docs.astral.sh/ruff/rules/deprecated-import/
+    "TID252",   # Bans relative imports, requires absolute imports, see https://docs.astral.sh/ruff/rules/relative-imports/
+]
+
+ignore = [
+    "RUF012",   # TODO: Mutable default value for class attribute
+    "LOG015",   # TODO: `debug()` call on root logger
+    "PLC0206",  # TODO: Extracting value from dictionary without calling `.items()`
+    "DTZ005",   # TODO: `datetime.datetime.now()` called without a `tz` argument
+    "DTZ006",   # TODO: `datetime.datetime.fromtimestamp()` called without a `tz` argument
+    "FLY002",   # TODO: Consider f-string instead of string join
+    "TRY401",   # TODO: Redundant exception object included in `logging.exception` call
+    "BLE001",   # TODO: Do not catch blind exception: `Exception`
+    "S110",     # TODO: `try`-`except`-`pass` detected, consider logging the exception
+    "TRY002",   # TODO: Create your own exception
+    "PIE794",   # TODO: Class field `unique_together` is defined multiple times
+    "RUF059",   # TODO: Unpacked variable `on_exceed_key` is never used
+    "S112",     # TODO: `try`-`except`-`continue` detected, consider logging the exception
+    "D419",     # TODO: Docstring is empty
+]
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[lint.mccabe]
+max-complexity = 30
