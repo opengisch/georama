@@ -27,7 +27,7 @@ class AbstractGeneralParameterValuePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    parameter_value: Optional[ParameterValue1] = field(
+    parameter_value: ParameterValue1 | None = field(
         default=None,
         metadata={
             "name": "ParameterValue",
@@ -89,7 +89,7 @@ class ParameterValueGroupType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    values_of_group: Optional[ValuesOfGroup] = field(
+    values_of_group: ValuesOfGroup | None = field(
         default=None,
         metadata={
             "name": "valuesOfGroup",
@@ -97,7 +97,7 @@ class ParameterValueGroupType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    group: Optional[Group] = field(
+    group: Group | None = field(
         default=None,
         metadata={
             "type": "Element",

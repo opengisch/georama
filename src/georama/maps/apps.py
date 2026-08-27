@@ -18,7 +18,10 @@ class MapsConfig(GeoramaAbstractConfig):
     app_index_page = "maps:maplayer-list"
 
     def ready(self):
-        from georama.core.common.remote_actions import RemoteAction, register_remote_action
+        from georama.core.common.remote_actions import (
+            RemoteAction,
+            register_remote_action,
+        )
         from georama.integration.models.datasource import Datasource
 
         super().ready()

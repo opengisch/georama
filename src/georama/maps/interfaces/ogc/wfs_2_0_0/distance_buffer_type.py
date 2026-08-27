@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.function_type import Function
 from georama.maps.interfaces.ogc.wfs_2_0_0.literal import Literal
@@ -12,7 +11,7 @@ __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 
 @dataclass
 class DistanceBufferType(SpatialOpsType):
-    choice: list[Union[Literal, Function, ValueReference, object]] = field(
+    choice: list[Literal | Function | ValueReference | object] = field(
         default_factory=list,
         metadata={
             "type": "Elements",
@@ -45,7 +44,7 @@ class DistanceBufferType(SpatialOpsType):
             "max_occurs": 2,
         },
     )
-    distance: Optional[MeasureType] = field(
+    distance: MeasureType | None = field(
         default=None,
         metadata={
             "name": "Distance",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 
@@ -39,7 +38,7 @@ class ExceptionType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    exception_code: Optional[str] = field(
+    exception_code: str | None = field(
         default=None,
         metadata={
             "name": "exceptionCode",
@@ -47,7 +46,7 @@ class ExceptionType:
             "required": True,
         },
     )
-    locator: Optional[str] = field(
+    locator: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

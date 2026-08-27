@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_crstype import GeocentricCrs
 from georama.maps.interfaces.opengis.gml_3_2_1.actuate_type import ActuateType
@@ -17,7 +16,7 @@ class GeocentricCrspropertyType:
     class Meta:
         name = "GeocentricCRSPropertyType"
 
-    geocentric_crs: Optional[GeocentricCrs] = field(
+    geocentric_crs: GeocentricCrs | None = field(
         default=None,
         metadata={
             "name": "GeocentricCRS",
@@ -34,22 +33,14 @@ class GeocentricCrspropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -57,28 +48,36 @@ class GeocentricCrspropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -86,7 +85,7 @@ class GeocentricCrspropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

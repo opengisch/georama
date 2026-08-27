@@ -32,7 +32,9 @@ class Project(models.Model):
     name = models.CharField(max_length=1000, help_text=_("Name of the project."))
     path = models.CharField(max_length=None, help_text=_("Path to the qgis project."))
     qgis_version = models.CharField(
-        max_length=1000, blank=True, help_text=_("QGIS version the project was created with.")
+        max_length=1000,
+        blank=True,
+        help_text=_("QGIS version the project was created with."),
     )
     config = models.JSONField(
         blank=True,
@@ -50,7 +52,8 @@ class Project(models.Model):
         help_text=_("Organisation this project belongs to."),
     )
     integrated_at = models.DateTimeField(
-        auto_now_add=True, help_text=_("The point in time when the project was created last time.")
+        auto_now_add=True,
+        help_text=_("The point in time when the project was created last time."),
     )
 
     objects = ProjectManager()

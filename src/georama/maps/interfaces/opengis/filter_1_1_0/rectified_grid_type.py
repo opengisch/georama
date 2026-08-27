@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.grid_type import GridType
 from georama.maps.interfaces.opengis.filter_1_1_0.point_property_type import (
@@ -16,7 +15,7 @@ class RectifiedGridType(GridType):
     A rectified grid has an origin and vectors that define its post locations.
     """
 
-    origin: Optional[PointPropertyType] = field(
+    origin: PointPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

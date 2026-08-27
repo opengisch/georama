@@ -18,7 +18,7 @@ class AbstractSchema:
         # dataclass_fields = fields(self)
         # django_model_instance_kwargs = {}
         # for field_name in dataclass_fields:
-        #     django_model_instance_kwargs[self.field_mapping[field_name]] = getattr(self, field_name)  # noqa: E501
+        #     django_model_instance_kwargs[self.field_mapping[field_name]] = getattr(self, field_name)
         # return self.django_model_class(
         #     **django_model_instance_kwargs
         # )
@@ -28,9 +28,15 @@ class AbstractSchema:
 class Attribute(AbstractSchema):
     name: str = field(default=None, metadata={"type": "Element", "required": False})
     type: str = field(default=None, metadata={"type": "Element", "required": False})
-    namespace: str = field(default=None, metadata={"type": "Element", "required": False})
-    minOccurs: str = field(default=None, metadata={"type": "Element", "required": False})
-    maxOccurs: str = field(default=None, metadata={"type": "Element", "required": False})
+    namespace: str = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+    minOccurs: str = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+    maxOccurs: str = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
 
 
 @dataclass
@@ -67,47 +73,81 @@ class SnappingConfig:
 
 @dataclass
 class MetaData(AbstractSchema):
-    copyable: bool = field(default=False, metadata={"type": "Element", "required": False})
+    copyable: bool = field(
+        default=False, metadata={"type": "Element", "required": False}
+    )
     directedFilterAttributes: list[str] = field(
         default_factory=list, metadata={"type": "Element", "required": False}
     )
-    disclaimer: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    disclaimer: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
     enumeratedAttributes: list[str] = field(
         default_factory=list, metadata={"type": "Element", "required": False}
     )
     exclusiveGroup: bool | None = field(
         default=False, metadata={"type": "Element", "required": False}
     )
-    iconUrl: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    iconUrl: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
     identifierAttributeField: str | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
-    isChecked: bool = field(default=False, metadata={"type": "Element", "required": False})
-    isExpanded: bool = field(default=False, metadata={"type": "Element", "required": False})
-    printNativeAngle: bool = field(default=True, metadata={"type": "Element", "required": False})
-    isLegendExpanded: bool = field(default=False, metadata={"type": "Element", "required": False})
+    isChecked: bool = field(
+        default=False, metadata={"type": "Element", "required": False}
+    )
+    isExpanded: bool = field(
+        default=False, metadata={"type": "Element", "required": False}
+    )
+    printNativeAngle: bool = field(
+        default=True, metadata={"type": "Element", "required": False}
+    )
+    isLegendExpanded: bool = field(
+        default=False, metadata={"type": "Element", "required": False}
+    )
     legend: bool = field(default=False, metadata={"type": "Element", "required": False})
-    legendImage: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    legendImage: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
     # TODO:
     # hiDPILegendImages
-    legendRule: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    legendRule: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
     maxResolution: int | float | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
-    metadataUrl: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    metadataUrl: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
     minResolution: float | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
-    ogcServer: str | None = field(default=None, metadata={"type": "Element", "required": False})
-    opacity: float | None = field(default=None, metadata={"type": "Element", "required": False})
-    printLayers: str | None = field(default=None, metadata={"type": "Element", "required": False})
-    queryLayers: str | None = field(default=None, metadata={"type": "Element", "required": False})
-    thumbnail: str | None = field(default=None, metadata={"type": "Element", "required": False})
-    timeAttribute: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    ogcServer: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+    opacity: float | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+    printLayers: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+    queryLayers: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+    thumbnail: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+    timeAttribute: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
     snappingConfig: SnappingConfig | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
-    wmsLayers: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    wmsLayers: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
     # TODO:
     # customOpenLayersOptions
 
@@ -129,15 +169,23 @@ class Dimensions:
 class Time:
     minValue: str = field(default=None, metadata={"type": "Element", "required": True})
     maxValue: str = field(default=None, metadata={"type": "Element", "required": True})
-    values: list[str] = field(default_factory=list, metadata={"type": "Element", "required": True})
+    values: list[str] = field(
+        default_factory=list, metadata={"type": "Element", "required": True}
+    )
     # TODO: make enumeration day|month|year|second
-    resolution: str = field(default=None, metadata={"type": "Element", "required": True})
+    resolution: str = field(
+        default=None, metadata={"type": "Element", "required": True}
+    )
     # TODO: make enumeration range|value|disabled
     mode: str = field(default=None, metadata={"type": "Element", "required": True})
     # TODO: make enumeration slider|datepicker
     widget: str = field(default=None, metadata={"type": "Element", "required": True})
-    minDefValue: str | None = field(default=None, metadata={"type": "Element", "required": True})
-    maxDefValue: str | None = field(default=None, metadata={"type": "Element", "required": True})
+    minDefValue: str | None = field(
+        default=None, metadata={"type": "Element", "required": True}
+    )
+    maxDefValue: str | None = field(
+        default=None, metadata={"type": "Element", "required": True}
+    )
 
 
 @dataclass
@@ -150,15 +198,25 @@ class WmsLayer:
     imageType: str = field(metadata={"type": "Element", "required": True})
     minResolutionHint: float = field(metadata={"type": "Element", "required": True})
     maxResolutionHint: float = field(metadata={"type": "Element", "required": True})
-    childLayers: list[LayerSettings] = field(metadata={"type": "Element", "required": True})
-    ogcServer: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    childLayers: list[LayerSettings] = field(
+        metadata={"type": "Element", "required": True}
+    )
+    ogcServer: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
     dimensions: Dimensions | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
-    editable: bool | None = field(default=None, metadata={"type": "Element", "required": False})
+    editable: bool | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
     style: str = field(default=None, metadata={"type": "Element", "required": False})
-    time: Time | None = field(default=None, metadata={"type": "Element", "required": False})
-    path: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    time: Time | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+    path: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
 
 
 @dataclass
@@ -171,12 +229,18 @@ class WmtsLayer:
     imageType: str = field(metadata={"type": "Element", "required": True})
     metadata: MetaData = field(metadata={"type": "Element", "required": True})
     style: str = field(default=None, metadata={"type": "Element", "required": False})
-    matrix_set: str = field(default=None, metadata={"type": "Element", "required": False})
+    matrix_set: str = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
     dimensions: Dimensions | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
-    editable: bool | None = field(default=None, metadata={"type": "Element", "required": False})
-    path: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    editable: bool | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+    path: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
 
 
 @dataclass
@@ -184,20 +248,28 @@ class LayerGroup:
     id: int | str = field(metadata={"type": "Element", "required": True})
     name: str = field(metadata={"type": "Element", "required": True})
     metadata: MetaData = field(metadata={"type": "Element", "required": True})
-    mixed: bool | None = field(default=False, metadata={"type": "Element", "required": False})
+    mixed: bool | None = field(
+        default=False, metadata={"type": "Element", "required": False}
+    )
     children: list[Union["LayerGroup", WmsLayer, WmtsLayer]] = field(
         default_factory=list, metadata={"type": "Element", "required": False}
     )
-    ogcServer: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    ogcServer: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
     dimensions: Dimensions | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
-    path: str | None = field(default=None, metadata={"type": "Element", "required": False})
+    path: str | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
 
 
 @dataclass
 class UniqueLayers:
-    elements: list[WmsLayer | WmtsLayer] = field(metadata={"type": "Element", "required": True})
+    elements: list[WmsLayer | WmtsLayer] = field(
+        metadata={"type": "Element", "required": True}
+    )
 
 
 @dataclass
@@ -233,7 +305,9 @@ class Theme(AbstractSchema):
                 if hasattr(child, "ogcServer"):
                     if child.ogcServer is not None:
                         current_ogc_server = child.ogcServer
-                        logging.debug(f"set current_ogc_server bygroup: {current_ogc_server}")
+                        logging.debug(
+                            f"set current_ogc_server bygroup: {current_ogc_server}"
+                        )
                     else:
                         logging.debug(
                             "New nested group but we leave ogc server becauseit was not redefined"
@@ -261,7 +335,9 @@ class Theme(AbstractSchema):
 
 @dataclass
 class OgcServers:
-    georama_webgis: OgcServer = field(metadata={"name": settings.WEBGIS_OGC_SERVER_NAME})
+    georama_webgis: OgcServer = field(
+        metadata={"name": settings.WEBGIS_OGC_SERVER_NAME}
+    )
 
 
 @dataclass

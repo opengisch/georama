@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional
 
 from georama.maps.interfaces.ogc.wms_1_3_0.capabilities.xlink import (
     ActuateType,
@@ -77,7 +76,7 @@ class BoundingBox:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    crs: Optional[str] = field(
+    crs: str | None = field(
         default=None,
         metadata={
             "name": "CRS",
@@ -85,41 +84,41 @@ class BoundingBox:
             "required": True,
         },
     )
-    minx: Optional[float] = field(
+    minx: float | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "required": True,
         },
     )
-    miny: Optional[float] = field(
+    miny: float | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "required": True,
         },
     )
-    maxx: Optional[float] = field(
+    maxx: float | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "required": True,
         },
     )
-    maxy: Optional[float] = field(
+    maxy: float | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "required": True,
         },
     )
-    resx: Optional[float] = field(
+    resx: float | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    resy: Optional[float] = field(
+    resy: float | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -265,48 +264,48 @@ class Dimension:
             "required": True,
         },
     )
-    name: Optional[str] = field(
+    name: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "required": True,
         },
     )
-    units: Optional[str] = field(
+    units: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "required": True,
         },
     )
-    unit_symbol: Optional[str] = field(
+    unit_symbol: str | None = field(
         default=None,
         metadata={
             "name": "unitSymbol",
             "type": "Attribute",
         },
     )
-    default: Optional[str] = field(
+    default: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    multiple_values: Optional[bool] = field(
+    multiple_values: bool | None = field(
         default=None,
         metadata={
             "name": "multipleValues",
             "type": "Attribute",
         },
     )
-    nearest_value: Optional[bool] = field(
+    nearest_value: bool | None = field(
         default=None,
         metadata={
             "name": "nearestValue",
             "type": "Attribute",
         },
     )
-    current: Optional[bool] = field(
+    current: bool | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -325,7 +324,7 @@ class ExGeographicBoundingBox:
         name = "EX_GeographicBoundingBox"
         namespace = "http://www.opengis.net/wms"
 
-    west_bound_longitude: Optional[float] = field(
+    west_bound_longitude: float | None = field(
         default=None,
         metadata={
             "name": "westBoundLongitude",
@@ -335,7 +334,7 @@ class ExGeographicBoundingBox:
             "max_inclusive": 180.0,
         },
     )
-    east_bound_longitude: Optional[float] = field(
+    east_bound_longitude: float | None = field(
         default=None,
         metadata={
             "name": "eastBoundLongitude",
@@ -345,7 +344,7 @@ class ExGeographicBoundingBox:
             "max_inclusive": 180.0,
         },
     )
-    south_bound_latitude: Optional[float] = field(
+    south_bound_latitude: float | None = field(
         default=None,
         metadata={
             "name": "southBoundLatitude",
@@ -355,7 +354,7 @@ class ExGeographicBoundingBox:
             "max_inclusive": 90.0,
         },
     )
-    north_bound_latitude: Optional[float] = field(
+    north_bound_latitude: float | None = field(
         default=None,
         metadata={
             "name": "northBoundLatitude",
@@ -408,7 +407,7 @@ class Identifier:
             "required": True,
         },
     )
-    authority: Optional[str] = field(
+    authority: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -432,7 +431,7 @@ class Keyword:
             "required": True,
         },
     )
-    vocabulary: Optional[str] = field(
+    vocabulary: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -445,7 +444,7 @@ class LayerLimit:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    value: Optional[int] = field(
+    value: int | None = field(
         default=None,
         metadata={
             "required": True,
@@ -458,7 +457,7 @@ class MaxHeight:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    value: Optional[int] = field(
+    value: int | None = field(
         default=None,
         metadata={
             "required": True,
@@ -475,7 +474,7 @@ class MaxScaleDenominator:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    value: Optional[float] = field(
+    value: float | None = field(
         default=None,
         metadata={
             "required": True,
@@ -488,7 +487,7 @@ class MaxWidth:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    value: Optional[int] = field(
+    value: int | None = field(
         default=None,
         metadata={
             "required": True,
@@ -505,7 +504,7 @@ class MinScaleDenominator:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    value: Optional[float] = field(
+    value: float | None = field(
         default=None,
         metadata={
             "required": True,
@@ -594,7 +593,7 @@ class ContactAddress:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    address_type: Optional[AddressType] = field(
+    address_type: AddressType | None = field(
         default=None,
         metadata={
             "name": "AddressType",
@@ -602,7 +601,7 @@ class ContactAddress:
             "required": True,
         },
     )
-    address: Optional[Address] = field(
+    address: Address | None = field(
         default=None,
         metadata={
             "name": "Address",
@@ -610,7 +609,7 @@ class ContactAddress:
             "required": True,
         },
     )
-    city: Optional[City] = field(
+    city: City | None = field(
         default=None,
         metadata={
             "name": "City",
@@ -618,7 +617,7 @@ class ContactAddress:
             "required": True,
         },
     )
-    state_or_province: Optional[StateOrProvince] = field(
+    state_or_province: StateOrProvince | None = field(
         default=None,
         metadata={
             "name": "StateOrProvince",
@@ -626,7 +625,7 @@ class ContactAddress:
             "required": True,
         },
     )
-    post_code: Optional[PostCode] = field(
+    post_code: PostCode | None = field(
         default=None,
         metadata={
             "name": "PostCode",
@@ -634,7 +633,7 @@ class ContactAddress:
             "required": True,
         },
     )
-    country: Optional[Country] = field(
+    country: Country | None = field(
         default=None,
         metadata={
             "name": "Country",
@@ -649,7 +648,7 @@ class ContactPersonPrimary:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    contact_person: Optional[ContactPerson] = field(
+    contact_person: ContactPerson | None = field(
         default=None,
         metadata={
             "name": "ContactPerson",
@@ -657,7 +656,7 @@ class ContactPersonPrimary:
             "required": True,
         },
     )
-    contact_organization: Optional[ContactOrganization] = field(
+    contact_organization: ContactOrganization | None = field(
         default=None,
         metadata={
             "name": "ContactOrganization",
@@ -676,7 +675,7 @@ class Exception:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    format: List[Format] = field(
+    format: list[Format] = field(
         default_factory=list,
         metadata={
             "name": "Format",
@@ -695,7 +694,7 @@ class KeywordList:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    keyword: List[Keyword] = field(
+    keyword: list[Keyword] = field(
         default_factory=list,
         metadata={
             "name": "Keyword",
@@ -724,22 +723,14 @@ class OnlineResource:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -747,21 +738,29 @@ class OnlineResource:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -786,7 +785,7 @@ class AuthorityUrl:
         name = "AuthorityURL"
         namespace = "http://www.opengis.net/wms"
 
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -794,7 +793,7 @@ class AuthorityUrl:
             "required": True,
         },
     )
-    name: Optional[str] = field(
+    name: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -812,42 +811,42 @@ class ContactInformation:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    contact_person_primary: Optional[ContactPersonPrimary] = field(
+    contact_person_primary: ContactPersonPrimary | None = field(
         default=None,
         metadata={
             "name": "ContactPersonPrimary",
             "type": "Element",
         },
     )
-    contact_position: Optional[ContactPosition] = field(
+    contact_position: ContactPosition | None = field(
         default=None,
         metadata={
             "name": "ContactPosition",
             "type": "Element",
         },
     )
-    contact_address: Optional[ContactAddress] = field(
+    contact_address: ContactAddress | None = field(
         default=None,
         metadata={
             "name": "ContactAddress",
             "type": "Element",
         },
     )
-    contact_voice_telephone: Optional[ContactVoiceTelephone] = field(
+    contact_voice_telephone: ContactVoiceTelephone | None = field(
         default=None,
         metadata={
             "name": "ContactVoiceTelephone",
             "type": "Element",
         },
     )
-    contact_facsimile_telephone: Optional[ContactFacsimileTelephone] = field(
+    contact_facsimile_telephone: ContactFacsimileTelephone | None = field(
         default=None,
         metadata={
             "name": "ContactFacsimileTelephone",
             "type": "Element",
         },
     )
-    contact_electronic_mail_address: Optional[ContactElectronicMailAddress] = field(
+    contact_electronic_mail_address: ContactElectronicMailAddress | None = field(
         default=None,
         metadata={
             "name": "ContactElectronicMailAddress",
@@ -867,7 +866,7 @@ class DataUrl:
         name = "DataURL"
         namespace = "http://www.opengis.net/wms"
 
-    format: Optional[Format] = field(
+    format: Format | None = field(
         default=None,
         metadata={
             "name": "Format",
@@ -875,7 +874,7 @@ class DataUrl:
             "required": True,
         },
     )
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -896,7 +895,7 @@ class FeatureListUrl:
         name = "FeatureListURL"
         namespace = "http://www.opengis.net/wms"
 
-    format: Optional[Format] = field(
+    format: Format | None = field(
         default=None,
         metadata={
             "name": "Format",
@@ -904,7 +903,7 @@ class FeatureListUrl:
             "required": True,
         },
     )
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -923,7 +922,7 @@ class Get:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -947,7 +946,7 @@ class LegendUrl:
         name = "LegendURL"
         namespace = "http://www.opengis.net/wms"
 
-    format: Optional[Format] = field(
+    format: Format | None = field(
         default=None,
         metadata={
             "name": "Format",
@@ -955,7 +954,7 @@ class LegendUrl:
             "required": True,
         },
     )
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -963,13 +962,13 @@ class LegendUrl:
             "required": True,
         },
     )
-    width: Optional[int] = field(
+    width: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    height: Optional[int] = field(
+    height: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -983,7 +982,7 @@ class LogoUrl:
         name = "LogoURL"
         namespace = "http://www.opengis.net/wms"
 
-    format: Optional[Format] = field(
+    format: Format | None = field(
         default=None,
         metadata={
             "name": "Format",
@@ -991,7 +990,7 @@ class LogoUrl:
             "required": True,
         },
     )
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -999,13 +998,13 @@ class LogoUrl:
             "required": True,
         },
     )
-    width: Optional[int] = field(
+    width: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    height: Optional[int] = field(
+    height: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -1027,7 +1026,7 @@ class MetadataUrl:
         name = "MetadataURL"
         namespace = "http://www.opengis.net/wms"
 
-    format: Optional[Format] = field(
+    format: Format | None = field(
         default=None,
         metadata={
             "name": "Format",
@@ -1035,7 +1034,7 @@ class MetadataUrl:
             "required": True,
         },
     )
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -1043,7 +1042,7 @@ class MetadataUrl:
             "required": True,
         },
     )
-    type_value: Optional[str] = field(
+    type_value: str | None = field(
         default=None,
         metadata={
             "name": "type",
@@ -1062,7 +1061,7 @@ class Post:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -1082,7 +1081,7 @@ class StyleSheetUrl:
         name = "StyleSheetURL"
         namespace = "http://www.opengis.net/wms"
 
-    format: Optional[Format] = field(
+    format: Format | None = field(
         default=None,
         metadata={
             "name": "Format",
@@ -1090,7 +1089,7 @@ class StyleSheetUrl:
             "required": True,
         },
     )
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -1116,7 +1115,7 @@ class StyleUrl:
         name = "StyleURL"
         namespace = "http://www.opengis.net/wms"
 
-    format: Optional[Format] = field(
+    format: Format | None = field(
         default=None,
         metadata={
             "name": "Format",
@@ -1124,7 +1123,7 @@ class StyleUrl:
             "required": True,
         },
     )
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -1149,21 +1148,21 @@ class Attribution:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    title: Optional[Title] = field(
+    title: Title | None = field(
         default=None,
         metadata={
             "name": "Title",
             "type": "Element",
         },
     )
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
             "type": "Element",
         },
     )
-    logo_url: Optional[LogoUrl] = field(
+    logo_url: LogoUrl | None = field(
         default=None,
         metadata={
             "name": "LogoURL",
@@ -1183,7 +1182,7 @@ class Http:
         name = "HTTP"
         namespace = "http://www.opengis.net/wms"
 
-    get: Optional[Get] = field(
+    get: Get | None = field(
         default=None,
         metadata={
             "name": "Get",
@@ -1191,7 +1190,7 @@ class Http:
             "required": True,
         },
     )
-    post: Optional[Post] = field(
+    post: Post | None = field(
         default=None,
         metadata={
             "name": "Post",
@@ -1209,7 +1208,7 @@ class Service:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    name: Optional[ServiceName] = field(
+    name: ServiceName | None = field(
         default=None,
         metadata={
             "name": "Name",
@@ -1217,7 +1216,7 @@ class Service:
             "required": True,
         },
     )
-    title: Optional[Title] = field(
+    title: Title | None = field(
         default=None,
         metadata={
             "name": "Title",
@@ -1225,21 +1224,21 @@ class Service:
             "required": True,
         },
     )
-    abstract: Optional[Abstract] = field(
+    abstract: Abstract | None = field(
         default=None,
         metadata={
             "name": "Abstract",
             "type": "Element",
         },
     )
-    keyword_list: Optional[KeywordList] = field(
+    keyword_list: KeywordList | None = field(
         default=None,
         metadata={
             "name": "KeywordList",
             "type": "Element",
         },
     )
-    online_resource: Optional[OnlineResource] = field(
+    online_resource: OnlineResource | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -1247,42 +1246,42 @@ class Service:
             "required": True,
         },
     )
-    contact_information: Optional[ContactInformation] = field(
+    contact_information: ContactInformation | None = field(
         default=None,
         metadata={
             "name": "ContactInformation",
             "type": "Element",
         },
     )
-    fees: Optional[Fees] = field(
+    fees: Fees | None = field(
         default=None,
         metadata={
             "name": "Fees",
             "type": "Element",
         },
     )
-    access_constraints: Optional[AccessConstraints] = field(
+    access_constraints: AccessConstraints | None = field(
         default=None,
         metadata={
             "name": "AccessConstraints",
             "type": "Element",
         },
     )
-    layer_limit: Optional[LayerLimit] = field(
+    layer_limit: LayerLimit | None = field(
         default=None,
         metadata={
             "name": "LayerLimit",
             "type": "Element",
         },
     )
-    max_width: Optional[MaxWidth] = field(
+    max_width: MaxWidth | None = field(
         default=None,
         metadata={
             "name": "MaxWidth",
             "type": "Element",
         },
     )
-    max_height: Optional[MaxHeight] = field(
+    max_height: MaxHeight | None = field(
         default=None,
         metadata={
             "name": "MaxHeight",
@@ -1302,7 +1301,7 @@ class Style:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    name: Optional[Name] = field(
+    name: Name | None = field(
         default=None,
         metadata={
             "name": "Name",
@@ -1310,7 +1309,7 @@ class Style:
             "required": True,
         },
     )
-    title: Optional[Title] = field(
+    title: Title | None = field(
         default=None,
         metadata={
             "name": "Title",
@@ -1318,28 +1317,28 @@ class Style:
             "required": True,
         },
     )
-    abstract: Optional[Abstract] = field(
+    abstract: Abstract | None = field(
         default=None,
         metadata={
             "name": "Abstract",
             "type": "Element",
         },
     )
-    legend_url: List[LegendUrl] = field(
+    legend_url: list[LegendUrl] = field(
         default_factory=list,
         metadata={
             "name": "LegendURL",
             "type": "Element",
         },
     )
-    style_sheet_url: Optional[StyleSheetUrl] = field(
+    style_sheet_url: StyleSheetUrl | None = field(
         default=None,
         metadata={
             "name": "StyleSheetURL",
             "type": "Element",
         },
     )
-    style_url: Optional[StyleUrl] = field(
+    style_url: StyleUrl | None = field(
         default=None,
         metadata={
             "name": "StyleURL",
@@ -1359,7 +1358,7 @@ class Dcptype:
         name = "DCPType"
         namespace = "http://www.opengis.net/wms"
 
-    http: Optional[Http] = field(
+    http: Http | None = field(
         default=None,
         metadata={
             "name": "HTTP",
@@ -1378,14 +1377,14 @@ class Layer:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    name: Optional[Name] = field(
+    name: Name | None = field(
         default=None,
         metadata={
             "name": "Name",
             "type": "Element",
         },
     )
-    title: Optional[Title] = field(
+    title: Title | None = field(
         default=None,
         metadata={
             "name": "Title",
@@ -1393,112 +1392,112 @@ class Layer:
             "required": True,
         },
     )
-    abstract: Optional[Abstract] = field(
+    abstract: Abstract | None = field(
         default=None,
         metadata={
             "name": "Abstract",
             "type": "Element",
         },
     )
-    keyword_list: Optional[KeywordList] = field(
+    keyword_list: KeywordList | None = field(
         default=None,
         metadata={
             "name": "KeywordList",
             "type": "Element",
         },
     )
-    crs: List[Crs] = field(
+    crs: list[Crs] = field(
         default_factory=list,
         metadata={
             "name": "CRS",
             "type": "Element",
         },
     )
-    ex_geographic_bounding_box: Optional[ExGeographicBoundingBox] = field(
+    ex_geographic_bounding_box: ExGeographicBoundingBox | None = field(
         default=None,
         metadata={
             "name": "EX_GeographicBoundingBox",
             "type": "Element",
         },
     )
-    bounding_box: List[BoundingBox] = field(
+    bounding_box: list[BoundingBox] = field(
         default_factory=list,
         metadata={
             "name": "BoundingBox",
             "type": "Element",
         },
     )
-    dimension: List[Dimension] = field(
+    dimension: list[Dimension] = field(
         default_factory=list,
         metadata={
             "name": "Dimension",
             "type": "Element",
         },
     )
-    attribution: Optional[Attribution] = field(
+    attribution: Attribution | None = field(
         default=None,
         metadata={
             "name": "Attribution",
             "type": "Element",
         },
     )
-    authority_url: List[AuthorityUrl] = field(
+    authority_url: list[AuthorityUrl] = field(
         default_factory=list,
         metadata={
             "name": "AuthorityURL",
             "type": "Element",
         },
     )
-    identifier: List[Identifier] = field(
+    identifier: list[Identifier] = field(
         default_factory=list,
         metadata={
             "name": "Identifier",
             "type": "Element",
         },
     )
-    metadata_url: List[MetadataUrl] = field(
+    metadata_url: list[MetadataUrl] = field(
         default_factory=list,
         metadata={
             "name": "MetadataURL",
             "type": "Element",
         },
     )
-    data_url: List[DataUrl] = field(
+    data_url: list[DataUrl] = field(
         default_factory=list,
         metadata={
             "name": "DataURL",
             "type": "Element",
         },
     )
-    feature_list_url: List[FeatureListUrl] = field(
+    feature_list_url: list[FeatureListUrl] = field(
         default_factory=list,
         metadata={
             "name": "FeatureListURL",
             "type": "Element",
         },
     )
-    style: List[Style] = field(
+    style: list[Style] = field(
         default_factory=list,
         metadata={
             "name": "Style",
             "type": "Element",
         },
     )
-    min_scale_denominator: Optional[MinScaleDenominator] = field(
+    min_scale_denominator: MinScaleDenominator | None = field(
         default=None,
         metadata={
             "name": "MinScaleDenominator",
             "type": "Element",
         },
     )
-    max_scale_denominator: Optional[MaxScaleDenominator] = field(
+    max_scale_denominator: MaxScaleDenominator | None = field(
         default=None,
         metadata={
             "name": "MaxScaleDenominator",
             "type": "Element",
         },
     )
-    layer: List["Layer"] = field(
+    layer: list["Layer"] = field(
         default_factory=list,
         metadata={
             "name": "Layer",
@@ -1511,7 +1510,7 @@ class Layer:
             "type": "Attribute",
         },
     )
-    cascaded: Optional[int] = field(
+    cascaded: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -1530,14 +1529,14 @@ class Layer:
             "type": "Attribute",
         },
     )
-    fixed_width: Optional[int] = field(
+    fixed_width: int | None = field(
         default=None,
         metadata={
             "name": "fixedWidth",
             "type": "Attribute",
         },
     )
-    fixed_height: Optional[int] = field(
+    fixed_height: int | None = field(
         default=None,
         metadata={
             "name": "fixedHeight",
@@ -1553,7 +1552,7 @@ class OperationType:
     the online resource.
     """
 
-    format: List[Format] = field(
+    format: list[Format] = field(
         default_factory=list,
         metadata={
             "name": "Format",
@@ -1562,7 +1561,7 @@ class OperationType:
             "min_occurs": 1,
         },
     )
-    dcptype: List[Dcptype] = field(
+    dcptype: list[Dcptype] = field(
         default_factory=list,
         metadata={
             "name": "DCPType",
@@ -1607,7 +1606,7 @@ class Request:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    get_capabilities: Optional[GetCapabilities] = field(
+    get_capabilities: GetCapabilities | None = field(
         default=None,
         metadata={
             "name": "GetCapabilities",
@@ -1615,7 +1614,7 @@ class Request:
             "required": True,
         },
     )
-    get_map: Optional[GetMap] = field(
+    get_map: GetMap | None = field(
         default=None,
         metadata={
             "name": "GetMap",
@@ -1623,7 +1622,7 @@ class Request:
             "required": True,
         },
     )
-    get_feature_info: Optional[GetFeatureInfo] = field(
+    get_feature_info: GetFeatureInfo | None = field(
         default=None,
         metadata={
             "name": "GetFeatureInfo",
@@ -1644,7 +1643,7 @@ class Capability:
     class Meta:
         namespace = "http://www.opengis.net/wms"
 
-    request: Optional[Request] = field(
+    request: Request | None = field(
         default=None,
         metadata={
             "name": "Request",
@@ -1652,7 +1651,7 @@ class Capability:
             "required": True,
         },
     )
-    exception: Optional[Exception] = field(
+    exception: Exception | None = field(
         default=None,
         metadata={
             "name": "Exception",
@@ -1660,7 +1659,7 @@ class Capability:
             "required": True,
         },
     )
-    layer: Optional[Layer] = field(
+    layer: Layer | None = field(
         default=None,
         metadata={
             "name": "Layer",
@@ -1680,7 +1679,7 @@ class WmsCapabilities:
         name = "WMS_Capabilities"
         namespace = "http://www.opengis.net/wms"
 
-    service: Optional[Service] = field(
+    service: Service | None = field(
         default=None,
         metadata={
             "name": "Service",
@@ -1688,7 +1687,7 @@ class WmsCapabilities:
             "required": True,
         },
     )
-    capability: Optional[Capability] = field(
+    capability: Capability | None = field(
         default=None,
         metadata={
             "name": "Capability",
@@ -1703,7 +1702,7 @@ class WmsCapabilities:
             "type": "Attribute",
         },
     )
-    update_sequence: Optional[str] = field(
+    update_sequence: str | None = field(
         default=None,
         metadata={
             "name": "updateSequence",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -39,7 +38,7 @@ class CubicSplineType(AbstractCurveSegmentType):
     :ivar degree: The degree for a cubic spline is "3".
     """
 
-    choice: list[Union[Pos, PointProperty, PointRep, PosList, Coordinates]] = field(
+    choice: list[Pos | PointProperty | PointRep | PosList | Coordinates] = field(
         default_factory=list,
         metadata={
             "type": "Elements",
@@ -72,7 +71,7 @@ class CubicSplineType(AbstractCurveSegmentType):
             ),
         },
     )
-    vector_at_start: Optional[VectorType] = field(
+    vector_at_start: VectorType | None = field(
         default=None,
         metadata={
             "name": "vectorAtStart",
@@ -81,7 +80,7 @@ class CubicSplineType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    vector_at_end: Optional[VectorType] = field(
+    vector_at_end: VectorType | None = field(
         default=None,
         metadata={
             "name": "vectorAtEnd",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.polygon import Polygon
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.polyhedral_surface import (
@@ -27,7 +26,7 @@ class SurfaceArrayPropertyType:
     supported.
     """
 
-    composite_surface: List[CompositeSurface] = field(
+    composite_surface: list[CompositeSurface] = field(
         default_factory=list,
         metadata={
             "name": "CompositeSurface",
@@ -36,7 +35,7 @@ class SurfaceArrayPropertyType:
             "sequence": 1,
         },
     )
-    orientable_surface: List[OrientableSurface] = field(
+    orientable_surface: list[OrientableSurface] = field(
         default_factory=list,
         metadata={
             "name": "OrientableSurface",
@@ -45,7 +44,7 @@ class SurfaceArrayPropertyType:
             "sequence": 1,
         },
     )
-    tin: List[Tin] = field(
+    tin: list[Tin] = field(
         default_factory=list,
         metadata={
             "name": "Tin",
@@ -54,7 +53,7 @@ class SurfaceArrayPropertyType:
             "sequence": 1,
         },
     )
-    triangulated_surface: List[TriangulatedSurface] = field(
+    triangulated_surface: list[TriangulatedSurface] = field(
         default_factory=list,
         metadata={
             "name": "TriangulatedSurface",
@@ -63,7 +62,7 @@ class SurfaceArrayPropertyType:
             "sequence": 1,
         },
     )
-    polyhedral_surface: List[PolyhedralSurface] = field(
+    polyhedral_surface: list[PolyhedralSurface] = field(
         default_factory=list,
         metadata={
             "name": "PolyhedralSurface",
@@ -72,7 +71,7 @@ class SurfaceArrayPropertyType:
             "sequence": 1,
         },
     )
-    surface: List[Surface] = field(
+    surface: list[Surface] = field(
         default_factory=list,
         metadata={
             "name": "Surface",
@@ -81,7 +80,7 @@ class SurfaceArrayPropertyType:
             "sequence": 1,
         },
     )
-    polygon: List[Polygon] = field(
+    polygon: list[Polygon] = field(
         default_factory=list,
         metadata={
             "name": "Polygon",

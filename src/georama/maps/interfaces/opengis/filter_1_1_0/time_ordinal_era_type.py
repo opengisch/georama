@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_time_primitive_type import (
     RelatedTimeType,
@@ -59,7 +58,7 @@ class TimeOrdinalEraType(DefinitionType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    start: Optional[TimeNodePropertyType] = field(
+    start: TimeNodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -67,7 +66,7 @@ class TimeOrdinalEraType(DefinitionType):
             "required": True,
         },
     )
-    end: Optional[TimeNodePropertyType] = field(
+    end: TimeNodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -75,7 +74,7 @@ class TimeOrdinalEraType(DefinitionType):
             "required": True,
         },
     )
-    extent: Optional[TimePeriodPropertyType] = field(
+    extent: TimePeriodPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -89,7 +88,7 @@ class TimeOrdinalEraType(DefinitionType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    group: Optional[ReferenceType] = field(
+    group: ReferenceType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -106,7 +105,7 @@ class TimeOrdinalEra(TimeOrdinalEraType):
 
 @dataclass
 class TimeOrdinalEraPropertyType:
-    time_ordinal_era: Optional[TimeOrdinalEra] = field(
+    time_ordinal_era: TimeOrdinalEra | None = field(
         default=None,
         metadata={
             "name": "TimeOrdinalEra",
@@ -123,22 +122,14 @@ class TimeOrdinalEraPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -146,28 +137,36 @@ class TimeOrdinalEraPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

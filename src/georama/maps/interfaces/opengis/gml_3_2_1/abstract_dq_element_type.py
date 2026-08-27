@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -37,7 +36,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    measure_identification: Optional[MdIdentifierPropertyType] = field(
+    measure_identification: MdIdentifierPropertyType | None = field(
         default=None,
         metadata={
             "name": "measureIdentification",
@@ -45,7 +44,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    measure_description: Optional[CharacterStringPropertyType] = field(
+    measure_description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "measureDescription",
@@ -53,7 +52,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    evaluation_method_type: Optional[DqEvaluationMethodTypeCodePropertyType] = field(
+    evaluation_method_type: DqEvaluationMethodTypeCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "evaluationMethodType",
@@ -61,7 +60,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    evaluation_method_description: Optional[CharacterStringPropertyType] = field(
+    evaluation_method_description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "evaluationMethodDescription",
@@ -69,7 +68,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    evaluation_procedure: Optional[CiCitationPropertyType] = field(
+    evaluation_procedure: CiCitationPropertyType | None = field(
         default=None,
         metadata={
             "name": "evaluationProcedure",

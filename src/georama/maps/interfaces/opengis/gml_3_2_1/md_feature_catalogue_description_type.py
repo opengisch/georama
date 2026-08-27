@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_md_content_information_type import (
     AbstractMdContentInformationType,
@@ -29,7 +28,7 @@ class MdFeatureCatalogueDescriptionType(AbstractMdContentInformationType):
     class Meta:
         name = "MD_FeatureCatalogueDescription_Type"
 
-    compliance_code: Optional[BooleanPropertyType2] = field(
+    compliance_code: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "complianceCode",
@@ -44,7 +43,7 @@ class MdFeatureCatalogueDescriptionType(AbstractMdContentInformationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    included_with_dataset: Optional[BooleanPropertyType2] = field(
+    included_with_dataset: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "includedWithDataset",

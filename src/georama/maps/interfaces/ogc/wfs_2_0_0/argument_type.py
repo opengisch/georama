@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 from xml.etree.ElementTree import QName
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.metadata import Metadata
@@ -9,7 +8,7 @@ __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 
 @dataclass
 class ArgumentType:
-    metadata: Optional[Metadata] = field(
+    metadata: Metadata | None = field(
         default=None,
         metadata={
             "name": "Metadata",
@@ -17,7 +16,7 @@ class ArgumentType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    type_value: Optional[QName] = field(
+    type_value: QName | None = field(
         default=None,
         metadata={
             "name": "Type",
@@ -26,7 +25,7 @@ class ArgumentType:
             "required": True,
         },
     )
-    name: Optional[str] = field(
+    name: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

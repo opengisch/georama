@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from xsdata.models.datatype import XmlDateTime
 
@@ -16,7 +15,7 @@ class Origin:
         name = "origin"
         namespace = "http://www.opengis.net/gml"
 
-    value: Optional[XmlDateTime] = field(
+    value: XmlDateTime | None = field(
         default=None,
         metadata={
             "required": True,

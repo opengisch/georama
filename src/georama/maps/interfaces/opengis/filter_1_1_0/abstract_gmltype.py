@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.coordinate_operation_name import (
     CoordinateOperationName,
@@ -42,7 +41,7 @@ class AbstractGmltype:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    description: Optional[Description] = field(
+    description: Description | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -50,18 +49,16 @@ class AbstractGmltype:
         },
     )
     choice: list[
-        Union[
-            GroupName,
-            ParameterName,
-            MethodName,
-            CoordinateOperationName,
-            EllipsoidName,
-            MeridianName,
-            DatumName,
-            CsName,
-            SrsName,
-            Name,
-        ]
+        GroupName
+        | ParameterName
+        | MethodName
+        | CoordinateOperationName
+        | EllipsoidName
+        | MeridianName
+        | DatumName
+        | CsName
+        | SrsName
+        | Name
     ] = field(
         default_factory=list,
         metadata={
@@ -120,7 +117,7 @@ class AbstractGmltype:
             ),
         },
     )
-    id: Optional[str] = field(
+    id: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

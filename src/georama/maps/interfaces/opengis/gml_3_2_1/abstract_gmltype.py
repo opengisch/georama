@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.description import Description
 from georama.maps.interfaces.opengis.gml_3_2_1.description_reference import (
@@ -27,14 +26,14 @@ class AbstractGmltype:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    description: Optional[Description] = field(
+    description: Description | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    description_reference: Optional[DescriptionReference] = field(
+    description_reference: DescriptionReference | None = field(
         default=None,
         metadata={
             "name": "descriptionReference",
@@ -42,7 +41,7 @@ class AbstractGmltype:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    identifier: Optional[Identifier] = field(
+    identifier: Identifier | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -56,7 +55,7 @@ class AbstractGmltype:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    id: Optional[str] = field(
+    id: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

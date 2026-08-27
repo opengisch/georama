@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_md_content_information_type import (
     AbstractMdContentInformationType,
@@ -29,7 +28,7 @@ class MdFeatureCatalogueDescriptionType(AbstractMdContentInformationType):
     class Meta:
         name = "MD_FeatureCatalogueDescription_Type"
 
-    compliance_code: Optional[BooleanPropertyType2] = field(
+    compliance_code: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "complianceCode",
@@ -37,14 +36,14 @@ class MdFeatureCatalogueDescriptionType(AbstractMdContentInformationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    language: List[CharacterStringPropertyType] = field(
+    language: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    included_with_dataset: Optional[BooleanPropertyType2] = field(
+    included_with_dataset: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "includedWithDataset",
@@ -53,7 +52,7 @@ class MdFeatureCatalogueDescriptionType(AbstractMdContentInformationType):
             "required": True,
         },
     )
-    feature_types: List[GenericNamePropertyType] = field(
+    feature_types: list[GenericNamePropertyType] = field(
         default_factory=list,
         metadata={
             "name": "featureTypes",
@@ -61,7 +60,7 @@ class MdFeatureCatalogueDescriptionType(AbstractMdContentInformationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    feature_catalogue_citation: List[CiCitationPropertyType] = field(
+    feature_catalogue_citation: list[CiCitationPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "featureCatalogueCitation",

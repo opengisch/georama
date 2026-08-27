@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.character_string_property_type import (
     CharacterStringPropertyType,
@@ -25,7 +24,7 @@ class PtLocaleContainerType:
     class Meta:
         name = "PT_LocaleContainer_Type"
 
-    description: Optional[CharacterStringPropertyType] = field(
+    description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -33,7 +32,7 @@ class PtLocaleContainerType:
             "required": True,
         },
     )
-    locale: Optional[PtLocalePropertyType] = field(
+    locale: PtLocalePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

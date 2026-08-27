@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_time_primitive_type import (
     TimeInstantPropertyType,
@@ -24,7 +23,7 @@ class TimeCoordinateSystemType(AbstractTimeReferenceSystemType):
     terms of a single time interval.
     """
 
-    origin_position_or_origin: Optional[Union[TimePositionType, TimeInstantPropertyType]] = (
+    origin_position_or_origin: TimePositionType | TimeInstantPropertyType | None = (
         field(
             default=None,
             metadata={
@@ -44,7 +43,7 @@ class TimeCoordinateSystemType(AbstractTimeReferenceSystemType):
             },
         )
     )
-    interval: Optional[TimeIntervalLengthType] = field(
+    interval: TimeIntervalLengthType | None = field(
         default=None,
         metadata={
             "type": "Element",

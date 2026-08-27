@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.ci_presentation_form_code import (
     CiPresentationFormCode,
@@ -16,7 +15,7 @@ class CiPresentationFormCodePropertyType:
     class Meta:
         name = "CI_PresentationFormCode_PropertyType"
 
-    ci_presentation_form_code: Optional[CiPresentationFormCode] = field(
+    ci_presentation_form_code: CiPresentationFormCode | None = field(
         default=None,
         metadata={
             "name": "CI_PresentationFormCode",
@@ -24,7 +23,7 @@ class CiPresentationFormCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

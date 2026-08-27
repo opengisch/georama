@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_crstype import (
     AbstractCoordinateOperationType,
@@ -36,7 +36,7 @@ class CoordinateOperationPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    transformation: Optional[Transformation] = field(
+    transformation: Transformation | None = field(
         default=None,
         metadata={
             "name": "Transformation",
@@ -44,7 +44,7 @@ class CoordinateOperationPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    conversion: Optional[Conversion1] = field(
+    conversion: Conversion1 | None = field(
         default=None,
         metadata={
             "name": "Conversion",
@@ -69,22 +69,14 @@ class CoordinateOperationPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -92,28 +84,36 @@ class CoordinateOperationPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -121,7 +121,7 @@ class CoordinateOperationPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -200,7 +200,7 @@ class ConcatenatedOperationType(AbstractCoordinateOperationType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",
@@ -220,7 +220,7 @@ class PassThroughOperationType(AbstractCoordinateOperationType):
             "min_occurs": 1,
         },
     )
-    uses_operation: Optional[UsesOperation] = field(
+    uses_operation: UsesOperation | None = field(
         default=None,
         metadata={
             "name": "usesOperation",
@@ -228,7 +228,7 @@ class PassThroughOperationType(AbstractCoordinateOperationType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    uses_single_operation: Optional[UsesSingleOperation] = field(
+    uses_single_operation: UsesSingleOperation | None = field(
         default=None,
         metadata={
             "name": "usesSingleOperation",
@@ -236,7 +236,7 @@ class PassThroughOperationType(AbstractCoordinateOperationType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    coord_operation: Optional[CoordOperation] = field(
+    coord_operation: CoordOperation | None = field(
         default=None,
         metadata={
             "name": "coordOperation",
@@ -244,7 +244,7 @@ class PassThroughOperationType(AbstractCoordinateOperationType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.greenwich_longitude import (
     GreenwichLongitude,
@@ -34,14 +33,14 @@ class PrimeMeridianType(PrimeMeridianBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    remarks: Optional[Remarks] = field(
+    remarks: Remarks | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    greenwich_longitude: Optional[GreenwichLongitude] = field(
+    greenwich_longitude: GreenwichLongitude | None = field(
         default=None,
         metadata={
             "name": "greenwichLongitude",

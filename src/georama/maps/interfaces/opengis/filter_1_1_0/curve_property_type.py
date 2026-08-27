@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import ForwardRef, Optional, Union
+from typing import ForwardRef, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -51,33 +51,35 @@ class CurvePropertyType:
     neither both nor none.
     """
 
-    choice: Optional[Union["OrientableCurve", "Curve", "CompositeCurve", LineString]] = field(
-        default=None,
-        metadata={
-            "type": "Elements",
-            "choices": (
-                {
-                    "name": "OrientableCurve",
-                    "type": ForwardRef("OrientableCurve"),
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "Curve",
-                    "type": ForwardRef("Curve"),
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "CompositeCurve",
-                    "type": ForwardRef("CompositeCurve"),
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "LineString",
-                    "type": LineString,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-            ),
-        },
+    choice: Union["OrientableCurve", "Curve", "CompositeCurve", LineString] | None = (
+        field(
+            default=None,
+            metadata={
+                "type": "Elements",
+                "choices": (
+                    {
+                        "name": "OrientableCurve",
+                        "type": ForwardRef("OrientableCurve"),
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "Curve",
+                        "type": ForwardRef("Curve"),
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "CompositeCurve",
+                        "type": ForwardRef("CompositeCurve"),
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "LineString",
+                        "type": LineString,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                ),
+            },
+        )
     )
     type_value: TypeType = field(
         init=False,
@@ -88,22 +90,14 @@ class CurvePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -111,28 +105,36 @@ class CurvePropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -176,7 +178,7 @@ class OffsetCurveType(AbstractCurveSegmentType):
         viewed from above.
     """
 
-    offset_base: Optional[CurvePropertyType] = field(
+    offset_base: CurvePropertyType | None = field(
         default=None,
         metadata={
             "name": "offsetBase",
@@ -185,7 +187,7 @@ class OffsetCurveType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    distance: Optional[LengthType] = field(
+    distance: LengthType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -193,7 +195,7 @@ class OffsetCurveType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    ref_direction: Optional[VectorType] = field(
+    ref_direction: VectorType | None = field(
         default=None,
         metadata={
             "name": "refDirection",
@@ -280,7 +282,7 @@ class OrientableCurveType(AbstractCurveType):
         of the curve traversal. "+" is the default value.
     """
 
-    base_curve: Optional[BaseCurve] = field(
+    base_curve: BaseCurve | None = field(
         default=None,
         metadata={
             "name": "baseCurve",
@@ -310,23 +312,21 @@ class CurveSegmentArrayPropertyType:
     """
 
     choice: list[
-        Union[
-            Bezier,
-            Bspline,
-            CubicSpline,
-            Geodesic,
-            GeodesicString,
-            Clothoid,
-            OffsetCurve,
-            CircleByCenterPoint,
-            ArcByCenterPoint,
-            ArcByBulge,
-            ArcStringByBulge,
-            Circle,
-            Arc,
-            ArcString,
-            LineStringSegment,
-        ]
+        Bezier
+        | Bspline
+        | CubicSpline
+        | Geodesic
+        | GeodesicString
+        | Clothoid
+        | OffsetCurve
+        | CircleByCenterPoint
+        | ArcByCenterPoint
+        | ArcByBulge
+        | ArcStringByBulge
+        | Circle
+        | Arc
+        | ArcString
+        | LineStringSegment
     ] = field(
         default_factory=list,
         metadata={
@@ -446,7 +446,7 @@ class CurveType(AbstractCurveType):
     :ivar segments: This element encapsulates the segments of the curve.
     """
 
-    segments: Optional[Segments] = field(
+    segments: Segments | None = field(
         default=None,
         metadata={
             "type": "Element",

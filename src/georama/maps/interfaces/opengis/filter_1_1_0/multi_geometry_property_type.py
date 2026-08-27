@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.filter_1_1_0.geometry_array_property_type import (
@@ -30,17 +29,16 @@ class MultiGeometryPropertyType:
     neither both nor none.
     """
 
-    choice: Optional[
-        Union[
-            MultiLineString,
-            MultiPolygon,
-            MultiSolid,
-            MultiSurface,
-            MultiCurve,
-            MultiPoint,
-            MultiGeometry,
-        ]
-    ] = field(
+    choice: (
+        MultiLineString
+        | MultiPolygon
+        | MultiSolid
+        | MultiSurface
+        | MultiCurve
+        | MultiPoint
+        | MultiGeometry
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -92,22 +90,14 @@ class MultiGeometryPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -115,28 +105,36 @@ class MultiGeometryPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

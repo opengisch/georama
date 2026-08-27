@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.md_progress_code import (
     MdProgressCode,
@@ -16,7 +15,7 @@ class MdProgressCodePropertyType:
     class Meta:
         name = "MD_ProgressCode_PropertyType"
 
-    md_progress_code: Optional[MdProgressCode] = field(
+    md_progress_code: MdProgressCode | None = field(
         default=None,
         metadata={
             "name": "MD_ProgressCode",
@@ -24,7 +23,7 @@ class MdProgressCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

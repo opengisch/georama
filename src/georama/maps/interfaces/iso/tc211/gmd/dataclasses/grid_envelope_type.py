@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
-from typing import List
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
 
 @dataclass
 class GridEnvelopeType:
-    low: List[int] = field(
+    low: list[int] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -14,7 +13,7 @@ class GridEnvelopeType:
             "tokens": True,
         },
     )
-    high: List[int] = field(
+    high: list[int] = field(
         default_factory=list,
         metadata={
             "type": "Element",

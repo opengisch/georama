@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.maximum_value import MaximumValue
 from georama.maps.interfaces.ogc.wfs_2_0_0.minimum_value import MinimumValue
@@ -28,7 +27,7 @@ class RangeType:
         applies.
     """
 
-    minimum_value: Optional[MinimumValue] = field(
+    minimum_value: MinimumValue | None = field(
         default=None,
         metadata={
             "name": "MinimumValue",
@@ -36,7 +35,7 @@ class RangeType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    maximum_value: Optional[MaximumValue] = field(
+    maximum_value: MaximumValue | None = field(
         default=None,
         metadata={
             "name": "MaximumValue",
@@ -44,7 +43,7 @@ class RangeType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    spacing: Optional[Spacing] = field(
+    spacing: Spacing | None = field(
         default=None,
         metadata={
             "name": "Spacing",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.actuate_value import ActuateValue
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.nil_reason_enumeration_value import (
@@ -24,7 +23,7 @@ class DatumPropertyType:
     either referencing or containing the definition of that datum.
     """
 
-    temporal_datum: Optional[TemporalDatum1] = field(
+    temporal_datum: TemporalDatum1 | None = field(
         default=None,
         metadata={
             "name": "TemporalDatum",
@@ -32,7 +31,7 @@ class DatumPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    vertical_datum: Optional[VerticalDatum1] = field(
+    vertical_datum: VerticalDatum1 | None = field(
         default=None,
         metadata={
             "name": "VerticalDatum",
@@ -40,7 +39,7 @@ class DatumPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    image_datum: Optional[ImageDatum1] = field(
+    image_datum: ImageDatum1 | None = field(
         default=None,
         metadata={
             "name": "ImageDatum",
@@ -48,7 +47,7 @@ class DatumPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    engineering_datum: Optional[EngineeringDatum1] = field(
+    engineering_datum: EngineeringDatum1 | None = field(
         default=None,
         metadata={
             "name": "EngineeringDatum",
@@ -56,7 +55,7 @@ class DatumPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    geodetic_datum: Optional[GeodeticDatum1] = field(
+    geodetic_datum: GeodeticDatum1 | None = field(
         default=None,
         metadata={
             "name": "GeodeticDatum",
@@ -73,49 +72,49 @@ class DatumPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -123,7 +122,7 @@ class DatumPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

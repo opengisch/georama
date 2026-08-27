@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.md_cell_geometry_code import (
     MdCellGeometryCode,
@@ -16,7 +15,7 @@ class MdCellGeometryCodePropertyType:
     class Meta:
         name = "MD_CellGeometryCode_PropertyType"
 
-    md_cell_geometry_code: Optional[MdCellGeometryCode] = field(
+    md_cell_geometry_code: MdCellGeometryCode | None = field(
         default=None,
         metadata={
             "name": "MD_CellGeometryCode",
@@ -24,7 +23,7 @@ class MdCellGeometryCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

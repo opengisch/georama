@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.gml_3_2_1.dq_absolute_external_positional_accuracy import (
@@ -25,9 +24,9 @@ class DqPositionalAccuracyPropertyType:
     class Meta:
         name = "DQ_PositionalAccuracy_PropertyType"
 
-    dq_absolute_external_positional_accuracy: Optional[
-        DqAbsoluteExternalPositionalAccuracy
-    ] = field(
+    dq_absolute_external_positional_accuracy: (
+        DqAbsoluteExternalPositionalAccuracy | None
+    ) = field(
         default=None,
         metadata={
             "name": "DQ_AbsoluteExternalPositionalAccuracy",
@@ -35,7 +34,7 @@ class DqPositionalAccuracyPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_gridded_data_positional_accuracy: Optional[DqGriddedDataPositionalAccuracy] = field(
+    dq_gridded_data_positional_accuracy: DqGriddedDataPositionalAccuracy | None = field(
         default=None,
         metadata={
             "name": "DQ_GriddedDataPositionalAccuracy",
@@ -43,9 +42,9 @@ class DqPositionalAccuracyPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_relative_internal_positional_accuracy: Optional[
-        DqRelativeInternalPositionalAccuracy
-    ] = field(
+    dq_relative_internal_positional_accuracy: (
+        DqRelativeInternalPositionalAccuracy | None
+    ) = field(
         default=None,
         metadata={
             "name": "DQ_RelativeInternalPositionalAccuracy",
@@ -62,22 +61,14 @@ class DqPositionalAccuracyPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -85,34 +76,42 @@ class DqPositionalAccuracyPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    uuidref: Optional[str] = field(
+    uuidref: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

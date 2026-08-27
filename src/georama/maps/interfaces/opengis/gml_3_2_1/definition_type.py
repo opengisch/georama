@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.definition_base_type import (
     DefinitionBaseType,
@@ -11,7 +10,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class DefinitionType(DefinitionBaseType):
-    remarks: Optional[Remarks] = field(
+    remarks: Remarks | None = field(
         default=None,
         metadata={
             "type": "Element",

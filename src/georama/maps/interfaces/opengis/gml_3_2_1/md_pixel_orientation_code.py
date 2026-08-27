@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.md_pixel_orientation_code_type import (
     MdPixelOrientationCodeType,
@@ -14,7 +13,7 @@ class MdPixelOrientationCode:
         name = "MD_PixelOrientationCode"
         namespace = "http://www.isotc211.org/2005/gmd"
 
-    value: Optional[MdPixelOrientationCodeType] = field(
+    value: MdPixelOrientationCodeType | None = field(
         default=None,
         metadata={
             "required": True,

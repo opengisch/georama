@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.ci_date_type_code import CiDateTypeCode
 from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
@@ -14,7 +13,7 @@ class CiDateTypeCodePropertyType:
     class Meta:
         name = "CI_DateTypeCode_PropertyType"
 
-    ci_date_type_code: Optional[CiDateTypeCode] = field(
+    ci_date_type_code: CiDateTypeCode | None = field(
         default=None,
         metadata={
             "name": "CI_DateTypeCode",
@@ -22,7 +21,7 @@ class CiDateTypeCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

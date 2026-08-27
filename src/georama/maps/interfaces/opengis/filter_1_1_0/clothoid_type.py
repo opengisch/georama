@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -49,7 +48,7 @@ class ClothoidType(AbstractCurveSegmentType):
         be positive or negative.
     """
 
-    ref_location: Optional[ClothoidTypeRefLocation] = field(
+    ref_location: ClothoidTypeRefLocation | None = field(
         default=None,
         metadata={
             "name": "refLocation",
@@ -58,7 +57,7 @@ class ClothoidType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    scale_factor: Optional[Decimal] = field(
+    scale_factor: Decimal | None = field(
         default=None,
         metadata={
             "name": "scaleFactor",
@@ -67,7 +66,7 @@ class ClothoidType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    start_parameter: Optional[float] = field(
+    start_parameter: float | None = field(
         default=None,
         metadata={
             "name": "startParameter",
@@ -76,7 +75,7 @@ class ClothoidType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    end_parameter: Optional[float] = field(
+    end_parameter: float | None = field(
         default=None,
         metadata={
             "name": "endParameter",

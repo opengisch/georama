@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_general_parameter_value_type import (
     AbstractGeneralParameterValueType,
@@ -28,14 +27,14 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class ParameterValueType(AbstractGeneralParameterValueType):
-    value: Optional[Value] = field(
+    value: Value | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    dms_angle_value: Optional[DmsAngleValue] = field(
+    dms_angle_value: DmsAngleValue | None = field(
         default=None,
         metadata={
             "name": "dmsAngleValue",
@@ -43,7 +42,7 @@ class ParameterValueType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    string_value: Optional[StringValue] = field(
+    string_value: StringValue | None = field(
         default=None,
         metadata={
             "name": "stringValue",
@@ -51,7 +50,7 @@ class ParameterValueType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    integer_value: Optional[IntegerValue] = field(
+    integer_value: IntegerValue | None = field(
         default=None,
         metadata={
             "name": "integerValue",
@@ -59,7 +58,7 @@ class ParameterValueType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    boolean_value: Optional[BooleanValue] = field(
+    boolean_value: BooleanValue | None = field(
         default=None,
         metadata={
             "name": "booleanValue",
@@ -67,7 +66,7 @@ class ParameterValueType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    value_list: Optional[ValueList] = field(
+    value_list: ValueList | None = field(
         default=None,
         metadata={
             "name": "valueList",
@@ -75,7 +74,7 @@ class ParameterValueType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    integer_value_list: Optional[IntegerValueList] = field(
+    integer_value_list: IntegerValueList | None = field(
         default=None,
         metadata={
             "name": "integerValueList",
@@ -83,7 +82,7 @@ class ParameterValueType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    value_file: Optional[ValueFile] = field(
+    value_file: ValueFile | None = field(
         default=None,
         metadata={
             "name": "valueFile",
@@ -91,7 +90,7 @@ class ParameterValueType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    value_of_parameter: Optional[ValueOfParameter] = field(
+    value_of_parameter: ValueOfParameter | None = field(
         default=None,
         metadata={
             "name": "valueOfParameter",
@@ -99,7 +98,7 @@ class ParameterValueType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    operation_parameter: Optional[OperationParameter2] = field(
+    operation_parameter: OperationParameter2 | None = field(
         default=None,
         metadata={
             "name": "operationParameter",

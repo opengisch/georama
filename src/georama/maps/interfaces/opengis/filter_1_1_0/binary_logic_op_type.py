@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import ForwardRef, Optional, Union
+from typing import ForwardRef, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.bbox import Bbox
 from georama.maps.interfaces.opengis.filter_1_1_0.beyond import Beyond
@@ -214,7 +214,7 @@ class Or(BinaryLogicOpType):
 
 @dataclass
 class UnaryLogicOpType(LogicOpsType):
-    choice: Optional[
+    choice: (
         Union[
             PropertyIsBetween,
             PropertyIsNull,
@@ -241,7 +241,8 @@ class UnaryLogicOpType(LogicOpsType):
             And,
             Function,
         ]
-    ] = field(
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",

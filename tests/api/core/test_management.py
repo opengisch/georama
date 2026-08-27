@@ -16,7 +16,9 @@ from rest_framework.test import APIClient
 )
 class TestAccess:
     @pytest.mark.django_db
-    def test_admin_has_get_access(self, admin_user, admin_user_name, admin_password, path):
+    def test_admin_has_get_access(
+        self, admin_user, admin_user_name, admin_password, path
+    ):
         client = APIClient()
         client.login(username=admin_user_name, password=admin_password)
         response = client.get(path, SERVER_NAME="localhost")

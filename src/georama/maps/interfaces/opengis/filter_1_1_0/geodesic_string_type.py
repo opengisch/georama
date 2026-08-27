@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -31,7 +30,7 @@ class GeodesicStringType(AbstractCurveSegmentType):
         GeodesicString the interpolation is fixed as "geodesic".
     """
 
-    pos_list_or_pos_or_point_property: list[Union[PosList, Pos, PointProperty]] = field(
+    pos_list_or_pos_or_point_property: list[PosList | Pos | PointProperty] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

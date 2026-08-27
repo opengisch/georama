@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.boolean_property_type_2 import (
     BooleanPropertyType2,
@@ -32,7 +31,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
     class Meta:
         name = "MD_ImageDescription_Type"
 
-    illumination_elevation_angle: Optional[RealPropertyType] = field(
+    illumination_elevation_angle: RealPropertyType | None = field(
         default=None,
         metadata={
             "name": "illuminationElevationAngle",
@@ -40,7 +39,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    illumination_azimuth_angle: Optional[RealPropertyType] = field(
+    illumination_azimuth_angle: RealPropertyType | None = field(
         default=None,
         metadata={
             "name": "illuminationAzimuthAngle",
@@ -48,7 +47,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    imaging_condition: Optional[MdImagingConditionCodePropertyType] = field(
+    imaging_condition: MdImagingConditionCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "imagingCondition",
@@ -56,7 +55,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    image_quality_code: Optional[MdIdentifierPropertyType] = field(
+    image_quality_code: MdIdentifierPropertyType | None = field(
         default=None,
         metadata={
             "name": "imageQualityCode",
@@ -64,7 +63,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    cloud_cover_percentage: Optional[RealPropertyType] = field(
+    cloud_cover_percentage: RealPropertyType | None = field(
         default=None,
         metadata={
             "name": "cloudCoverPercentage",
@@ -72,7 +71,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    processing_level_code: Optional[MdIdentifierPropertyType] = field(
+    processing_level_code: MdIdentifierPropertyType | None = field(
         default=None,
         metadata={
             "name": "processingLevelCode",
@@ -80,7 +79,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    compression_generation_quantity: Optional[IntegerPropertyType] = field(
+    compression_generation_quantity: IntegerPropertyType | None = field(
         default=None,
         metadata={
             "name": "compressionGenerationQuantity",
@@ -88,7 +87,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    triangulation_indicator: Optional[BooleanPropertyType2] = field(
+    triangulation_indicator: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "triangulationIndicator",
@@ -96,7 +95,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    radiometric_calibration_data_availability: Optional[BooleanPropertyType2] = field(
+    radiometric_calibration_data_availability: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "radiometricCalibrationDataAvailability",
@@ -104,7 +103,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    camera_calibration_information_availability: Optional[BooleanPropertyType2] = field(
+    camera_calibration_information_availability: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "cameraCalibrationInformationAvailability",
@@ -112,7 +111,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    film_distortion_information_availability: Optional[BooleanPropertyType2] = field(
+    film_distortion_information_availability: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "filmDistortionInformationAvailability",
@@ -120,7 +119,7 @@ class MdImageDescriptionType(MdCoverageDescriptionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    lens_distortion_information_availability: Optional[BooleanPropertyType2] = field(
+    lens_distortion_information_availability: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "lensDistortionInformationAvailability",

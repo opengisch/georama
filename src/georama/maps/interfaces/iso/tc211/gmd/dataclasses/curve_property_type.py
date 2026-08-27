@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -82,7 +82,7 @@ class CurvePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    line_string: Optional[LineString] = field(
+    line_string: LineString | None = field(
         default=None,
         metadata={
             "name": "LineString",
@@ -99,49 +99,49 @@ class CurvePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -149,7 +149,7 @@ class CurvePropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -167,7 +167,7 @@ class CurvePropertyType:
 
 @dataclass
 class OffsetCurveType(AbstractCurveSegmentType):
-    offset_base: Optional[CurvePropertyType] = field(
+    offset_base: CurvePropertyType | None = field(
         default=None,
         metadata={
             "name": "offsetBase",
@@ -176,7 +176,7 @@ class OffsetCurveType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    distance: Optional[LengthType] = field(
+    distance: LengthType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -184,7 +184,7 @@ class OffsetCurveType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    ref_direction: Optional[VectorType] = field(
+    ref_direction: VectorType | None = field(
         default=None,
         metadata={
             "name": "refDirection",
@@ -218,7 +218,7 @@ class CurveMember(CurvePropertyType):
 
 @dataclass
 class CompositeCurveType(AbstractCurveType):
-    curve_member: List[CurveMember] = field(
+    curve_member: list[CurveMember] = field(
         default_factory=list,
         metadata={
             "name": "curveMember",
@@ -227,7 +227,7 @@ class CompositeCurveType(AbstractCurveType):
             "min_occurs": 1,
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",
@@ -252,7 +252,7 @@ class OffsetCurve(OffsetCurveType):
 
 @dataclass
 class OrientableCurveType(AbstractCurveType):
-    base_curve: Optional[BaseCurve] = field(
+    base_curve: BaseCurve | None = field(
         default=None,
         metadata={
             "name": "baseCurve",
@@ -292,7 +292,7 @@ class CurveSegmentArrayPropertyType:
     segments.
     """
 
-    geodesic: List[Geodesic] = field(
+    geodesic: list[Geodesic] = field(
         default_factory=list,
         metadata={
             "name": "Geodesic",
@@ -301,7 +301,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    geodesic_string: List[GeodesicString] = field(
+    geodesic_string: list[GeodesicString] = field(
         default_factory=list,
         metadata={
             "name": "GeodesicString",
@@ -310,7 +310,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    clothoid: List[Clothoid] = field(
+    clothoid: list[Clothoid] = field(
         default_factory=list,
         metadata={
             "name": "Clothoid",
@@ -319,7 +319,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    offset_curve: List[OffsetCurve] = field(
+    offset_curve: list[OffsetCurve] = field(
         default_factory=list,
         metadata={
             "name": "OffsetCurve",
@@ -328,7 +328,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    bezier: List[Bezier] = field(
+    bezier: list[Bezier] = field(
         default_factory=list,
         metadata={
             "name": "Bezier",
@@ -337,7 +337,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    bspline: List[Bspline] = field(
+    bspline: list[Bspline] = field(
         default_factory=list,
         metadata={
             "name": "BSpline",
@@ -346,7 +346,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    cubic_spline: List[CubicSpline] = field(
+    cubic_spline: list[CubicSpline] = field(
         default_factory=list,
         metadata={
             "name": "CubicSpline",
@@ -355,7 +355,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    circle_by_center_point: List[CircleByCenterPoint] = field(
+    circle_by_center_point: list[CircleByCenterPoint] = field(
         default_factory=list,
         metadata={
             "name": "CircleByCenterPoint",
@@ -364,7 +364,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    arc_by_center_point: List[ArcByCenterPoint] = field(
+    arc_by_center_point: list[ArcByCenterPoint] = field(
         default_factory=list,
         metadata={
             "name": "ArcByCenterPoint",
@@ -373,7 +373,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    arc_by_bulge: List[ArcByBulge] = field(
+    arc_by_bulge: list[ArcByBulge] = field(
         default_factory=list,
         metadata={
             "name": "ArcByBulge",
@@ -382,7 +382,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    arc_string_by_bulge: List[ArcStringByBulge] = field(
+    arc_string_by_bulge: list[ArcStringByBulge] = field(
         default_factory=list,
         metadata={
             "name": "ArcStringByBulge",
@@ -391,7 +391,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    circle: List[Circle] = field(
+    circle: list[Circle] = field(
         default_factory=list,
         metadata={
             "name": "Circle",
@@ -400,7 +400,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    arc: List[Arc] = field(
+    arc: list[Arc] = field(
         default_factory=list,
         metadata={
             "name": "Arc",
@@ -409,7 +409,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    arc_string: List[ArcString] = field(
+    arc_string: list[ArcString] = field(
         default_factory=list,
         metadata={
             "name": "ArcString",
@@ -418,7 +418,7 @@ class CurveSegmentArrayPropertyType:
             "sequence": 1,
         },
     )
-    line_string_segment: List[LineStringSegment] = field(
+    line_string_segment: list[LineStringSegment] = field(
         default_factory=list,
         metadata={
             "name": "LineStringSegment",
@@ -458,7 +458,7 @@ class Segments(CurveSegmentArrayPropertyType):
 
 @dataclass
 class CurveType(AbstractCurveType):
-    segments: Optional[Segments] = field(
+    segments: Segments | None = field(
         default=None,
         metadata={
             "type": "Element",

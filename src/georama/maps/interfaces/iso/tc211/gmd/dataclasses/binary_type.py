@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.isotc211.org/2005/gco"
 
@@ -15,7 +14,7 @@ class BinaryType:
             "required": True,
         },
     )
-    src: Optional[str] = field(
+    src: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

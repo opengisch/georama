@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.character_string_property_type import (
     CharacterStringPropertyType,
@@ -14,7 +13,7 @@ class PtFreeTextPropertyType(CharacterStringPropertyType):
     class Meta:
         name = "PT_FreeText_PropertyType"
 
-    pt_free_text: Optional[PtFreeText] = field(
+    pt_free_text: PtFreeText | None = field(
         default=None,
         metadata={
             "name": "PT_FreeText",

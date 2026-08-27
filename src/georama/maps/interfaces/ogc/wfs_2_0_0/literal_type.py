@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 from xml.etree.ElementTree import QName
 
 __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
@@ -7,7 +6,7 @@ __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 
 @dataclass
 class LiteralType:
-    type_value: Optional[QName] = field(
+    type_value: QName | None = field(
         default=None,
         metadata={
             "name": "type",

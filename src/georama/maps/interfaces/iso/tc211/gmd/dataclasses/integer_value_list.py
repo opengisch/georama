@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -18,7 +17,7 @@ class IntegerValueList:
         name = "integerValueList"
         namespace = "http://www.opengis.net/gml"
 
-    value: List[int] = field(
+    value: list[int] = field(
         default_factory=list,
         metadata={
             "tokens": True,

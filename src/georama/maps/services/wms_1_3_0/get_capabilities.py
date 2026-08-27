@@ -76,7 +76,7 @@ class WmsGetCapabilities(WmsOperation):
         return Layer(
             # we use a 0/1 instead True/False here since this also conforms
             # to Chapter 7.2.4.7.1 in
-            # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens  # noqa: E501
+            # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens
             # compatibility with older versions of WMS spec
             queryable=1 if queryable else 0,
             opaque=0,
@@ -88,7 +88,9 @@ class WmsGetCapabilities(WmsOperation):
             crs=[Crs(key) for key in layer_crs_bboxes],
             ex_geographic_bounding_box=layer_crs_bboxes[WmsGetCapabilities.crs_84],
             bounding_box=[
-                bbox for _, bbox in layer_crs_bboxes.items() if isinstance(bbox, BoundingBox)
+                bbox
+                for _, bbox in layer_crs_bboxes.items()
+                if isinstance(bbox, BoundingBox)
             ],
             # TODO: We can obtain information about available styles from passed QML
             style=[
@@ -136,7 +138,7 @@ class WmsGetCapabilities(WmsOperation):
             )
             capabilities.capability.layer.layer.append(layer)
         # we use a 0/1 instead True/False here since this also conforms to Chapter 7.2.4.7.1 in
-        # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens  # noqa: E501
+        # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens
         # compatibility with older versions of WMS spec
         capabilities.capability.layer.queryable = 0
         capabilities.capability.layer.opaque = 0

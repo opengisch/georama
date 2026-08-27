@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.temporal_operands_type import (
     TemporalOperandsType,
@@ -16,7 +15,7 @@ class TemporalCapabilitiesType:
     class Meta:
         name = "Temporal_CapabilitiesType"
 
-    temporal_operands: Optional[TemporalOperandsType] = field(
+    temporal_operands: TemporalOperandsType | None = field(
         default=None,
         metadata={
             "name": "TemporalOperands",
@@ -25,7 +24,7 @@ class TemporalCapabilitiesType:
             "required": True,
         },
     )
-    temporal_operators: Optional[TemporalOperatorsType] = field(
+    temporal_operators: TemporalOperatorsType | None = field(
         default=None,
         metadata={
             "name": "TemporalOperators",

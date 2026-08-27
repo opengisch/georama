@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_style_type import (
     AbstractStyleType,
@@ -26,7 +25,7 @@ class StyleType(AbstractStyleType):
             "min_occurs": 1,
         },
     )
-    graph_style: Optional[GraphStyle2] = field(
+    graph_style: GraphStyle2 | None = field(
         default=None,
         metadata={
             "name": "graphStyle",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -22,7 +21,7 @@ class KnotType:
         weight used for this knot of the spline.
     """
 
-    value: Optional[float] = field(
+    value: float | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -30,7 +29,7 @@ class KnotType:
             "required": True,
         },
     )
-    multiplicity: Optional[int] = field(
+    multiplicity: int | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -38,7 +37,7 @@ class KnotType:
             "required": True,
         },
     )
-    weight: Optional[float] = field(
+    weight: float | None = field(
         default=None,
         metadata={
             "type": "Element",

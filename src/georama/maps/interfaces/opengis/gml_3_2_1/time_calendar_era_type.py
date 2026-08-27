@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Optional, Union
 
 from xsdata.models.datatype import XmlDate, XmlPeriod
 
@@ -15,7 +14,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class TimeCalendarEraType(DefinitionType):
-    reference_event: Optional[StringOrRefType] = field(
+    reference_event: StringOrRefType | None = field(
         default=None,
         metadata={
             "name": "referenceEvent",
@@ -24,7 +23,7 @@ class TimeCalendarEraType(DefinitionType):
             "required": True,
         },
     )
-    reference_date: Optional[Union[XmlDate, XmlPeriod]] = field(
+    reference_date: XmlDate | XmlPeriod | None = field(
         default=None,
         metadata={
             "name": "referenceDate",
@@ -33,7 +32,7 @@ class TimeCalendarEraType(DefinitionType):
             "required": True,
         },
     )
-    julian_reference: Optional[Decimal] = field(
+    julian_reference: Decimal | None = field(
         default=None,
         metadata={
             "name": "julianReference",
@@ -42,7 +41,7 @@ class TimeCalendarEraType(DefinitionType):
             "required": True,
         },
     )
-    epoch_of_use: Optional[TimePeriodPropertyType] = field(
+    epoch_of_use: TimePeriodPropertyType | None = field(
         default=None,
         metadata={
             "name": "epochOfUse",

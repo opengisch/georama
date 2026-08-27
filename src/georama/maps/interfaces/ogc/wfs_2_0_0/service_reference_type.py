@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.reference_type import ReferenceType
 
@@ -18,7 +17,7 @@ class ServiceReferenceType(ReferenceType):
     or for requesting the resource from a web server using HTTP Get.
     """
 
-    request_message_or_request_message_reference: Optional[Union[object, str]] = field(
+    request_message_or_request_message_reference: object | str | None = field(
         default=None,
         metadata={
             "type": "Elements",

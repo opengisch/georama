@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_gmltype import (
     AbstractGmltype,
@@ -20,7 +19,7 @@ class FeatureStyleType(AbstractGmltype):
     [complexType of] The style descriptor for features.
     """
 
-    feature_constraint: Optional[str] = field(
+    feature_constraint: str | None = field(
         default=None,
         metadata={
             "name": "featureConstraint",
@@ -44,7 +43,7 @@ class FeatureStyleType(AbstractGmltype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    label_style: Optional[LabelStyle2] = field(
+    label_style: LabelStyle2 | None = field(
         default=None,
         metadata={
             "name": "labelStyle",
@@ -52,21 +51,21 @@ class FeatureStyleType(AbstractGmltype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    feature_type: Optional[str] = field(
+    feature_type: str | None = field(
         default=None,
         metadata={
             "name": "featureType",
             "type": "Attribute",
         },
     )
-    base_type: Optional[str] = field(
+    base_type: str | None = field(
         default=None,
         metadata={
             "name": "baseType",
             "type": "Attribute",
         },
     )
-    query_grammar: Optional[QueryGrammarEnumeration] = field(
+    query_grammar: QueryGrammarEnumeration | None = field(
         default=None,
         metadata={
             "name": "queryGrammar",

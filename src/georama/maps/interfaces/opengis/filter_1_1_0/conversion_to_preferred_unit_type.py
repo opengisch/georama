@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.formula_type import FormulaType
 from georama.maps.interfaces.opengis.filter_1_1_0.unit_of_measure_type import (
@@ -21,7 +20,7 @@ class ConversionToPreferredUnitType(UnitOfMeasureType):
     "factor" or "formula".
     """
 
-    factor_or_formula: Optional[Union[float, FormulaType]] = field(
+    factor_or_formula: float | FormulaType | None = field(
         default=None,
         metadata={
             "type": "Elements",

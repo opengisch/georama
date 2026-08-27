@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -20,14 +19,14 @@ class CiTelephoneType(AbstractObjectType):
     class Meta:
         name = "CI_Telephone_Type"
 
-    voice: List[CharacterStringPropertyType] = field(
+    voice: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    facsimile: List[CharacterStringPropertyType] = field(
+    facsimile: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",

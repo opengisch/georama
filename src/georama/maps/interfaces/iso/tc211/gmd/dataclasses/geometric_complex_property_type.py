@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.actuate_value import ActuateValue
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.curve_property_type import (
@@ -33,7 +32,7 @@ class GeometricComplexPropertyType:
     neither both nor none.
     """
 
-    geometric_complex: Optional[GeometricComplex] = field(
+    geometric_complex: GeometricComplex | None = field(
         default=None,
         metadata={
             "name": "GeometricComplex",
@@ -41,7 +40,7 @@ class GeometricComplexPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    composite_curve: Optional[CompositeCurve] = field(
+    composite_curve: CompositeCurve | None = field(
         default=None,
         metadata={
             "name": "CompositeCurve",
@@ -49,7 +48,7 @@ class GeometricComplexPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    composite_surface: Optional[CompositeSurface] = field(
+    composite_surface: CompositeSurface | None = field(
         default=None,
         metadata={
             "name": "CompositeSurface",
@@ -57,7 +56,7 @@ class GeometricComplexPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    composite_solid: Optional[CompositeSolid] = field(
+    composite_solid: CompositeSolid | None = field(
         default=None,
         metadata={
             "name": "CompositeSolid",
@@ -80,49 +79,49 @@ class GeometricComplexPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -130,7 +129,7 @@ class GeometricComplexPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

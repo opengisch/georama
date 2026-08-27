@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.dcp import Dcp
 from georama.maps.interfaces.ogc.wfs_2_0_0.domain_type import DomainType
@@ -77,7 +76,7 @@ class Operation:
             "type": "Element",
         },
     )
-    name: Optional[str] = field(
+    name: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

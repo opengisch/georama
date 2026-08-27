@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -27,7 +26,7 @@ class CiResponsiblePartyType(AbstractObjectType):
     class Meta:
         name = "CI_ResponsibleParty_Type"
 
-    individual_name: Optional[CharacterStringPropertyType] = field(
+    individual_name: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "individualName",
@@ -35,7 +34,7 @@ class CiResponsiblePartyType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    organisation_name: Optional[CharacterStringPropertyType] = field(
+    organisation_name: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "organisationName",
@@ -43,7 +42,7 @@ class CiResponsiblePartyType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    position_name: Optional[CharacterStringPropertyType] = field(
+    position_name: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "positionName",
@@ -51,7 +50,7 @@ class CiResponsiblePartyType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    contact_info: Optional[CiContactPropertyType] = field(
+    contact_info: CiContactPropertyType | None = field(
         default=None,
         metadata={
             "name": "contactInfo",
@@ -59,7 +58,7 @@ class CiResponsiblePartyType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    role: Optional[CiRoleCodePropertyType] = field(
+    role: CiRoleCodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

@@ -3,14 +3,14 @@
 <div id="search{% if is_modal %}_modal{% endif %}" class="nav-item"
      {% if oob == "true" %}hx-swap-oob="true"{% endif %}>
 
-    <form 
+    <form
           hx-get="{{ request.path }}{% querystring_remove search_param 'offset' %}"
           hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
           hx-swap="innerHTML"
           hx-push-url="{% if is_modal %}false{% else %}true{% endif %}"
           hx-trigger="keyup[key!='Enter'] changed delay:200ms from:(form input), search from:(form input), submit"
           hx-sync="this:replace">
-        
+
         <input id="searchInput{% if is_modal %}_modal{% endif %}"
                class="form-control me-2"
                name="{{ search_param }}"

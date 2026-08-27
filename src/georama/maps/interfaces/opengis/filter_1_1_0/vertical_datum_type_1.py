@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_datum_type import (
     AbstractDatumType,
@@ -26,7 +25,7 @@ class VerticalDatumType1(AbstractDatumType):
     class Meta:
         name = "VerticalDatumType"
 
-    vertical_datum_type: Optional[VerticalDatumType] = field(
+    vertical_datum_type: VerticalDatumType | None = field(
         default=None,
         metadata={
             "name": "verticalDatumType",

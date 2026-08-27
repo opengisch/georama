@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.second_defining_parameter_1 import (
     SecondDefiningParameter1,
@@ -22,7 +21,7 @@ class SecondDefiningParameter2:
         name = "secondDefiningParameter"
         namespace = "http://www.opengis.net/gml"
 
-    second_defining_parameter: Optional[SecondDefiningParameter1] = field(
+    second_defining_parameter: SecondDefiningParameter1 | None = field(
         default=None,
         metadata={
             "name": "SecondDefiningParameter",

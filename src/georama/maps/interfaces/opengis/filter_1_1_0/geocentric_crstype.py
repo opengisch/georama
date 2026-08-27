@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_reference_system_type import (
     AbstractReferenceSystemType,
@@ -30,27 +29,27 @@ class GeocentricCrstype(AbstractReferenceSystemType):
     class Meta:
         name = "GeocentricCRSType"
 
-    uses_cartesian_cs_or_uses_spherical_cs: Optional[
-        Union[UsesCartesianCs, UsesSphericalCs]
-    ] = field(
-        default=None,
-        metadata={
-            "type": "Elements",
-            "choices": (
-                {
-                    "name": "usesCartesianCS",
-                    "type": UsesCartesianCs,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "usesSphericalCS",
-                    "type": UsesSphericalCs,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-            ),
-        },
+    uses_cartesian_cs_or_uses_spherical_cs: UsesCartesianCs | UsesSphericalCs | None = (
+        field(
+            default=None,
+            metadata={
+                "type": "Elements",
+                "choices": (
+                    {
+                        "name": "usesCartesianCS",
+                        "type": UsesCartesianCs,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "usesSphericalCS",
+                        "type": UsesSphericalCs,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                ),
+            },
+        )
     )
-    uses_geodetic_datum: Optional[UsesGeodeticDatum] = field(
+    uses_geodetic_datum: UsesGeodeticDatum | None = field(
         default=None,
         metadata={
             "name": "usesGeodeticDatum",

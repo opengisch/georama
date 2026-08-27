@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.online_resource_type import (
     OnlineResourceType,
@@ -30,7 +29,7 @@ class ServiceProvider:
     class Meta:
         namespace = "http://www.opengis.net/ows/1.1"
 
-    provider_name: Optional[str] = field(
+    provider_name: str | None = field(
         default=None,
         metadata={
             "name": "ProviderName",
@@ -38,14 +37,14 @@ class ServiceProvider:
             "required": True,
         },
     )
-    provider_site: Optional[OnlineResourceType] = field(
+    provider_site: OnlineResourceType | None = field(
         default=None,
         metadata={
             "name": "ProviderSite",
             "type": "Element",
         },
     )
-    service_contact: Optional[ResponsiblePartySubsetType] = field(
+    service_contact: ResponsiblePartySubsetType | None = field(
         default=None,
         metadata={
             "name": "ServiceContact",

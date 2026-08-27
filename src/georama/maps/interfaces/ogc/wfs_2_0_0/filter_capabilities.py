@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.available_functions_type import (
     AvailableFunctionsType,
@@ -30,7 +29,7 @@ class FilterCapabilities:
         name = "Filter_Capabilities"
         namespace = "http://www.opengis.net/fes/2.0"
 
-    conformance: Optional[ConformanceType] = field(
+    conformance: ConformanceType | None = field(
         default=None,
         metadata={
             "name": "Conformance",
@@ -38,42 +37,42 @@ class FilterCapabilities:
             "required": True,
         },
     )
-    id_capabilities: Optional[IdCapabilitiesType] = field(
+    id_capabilities: IdCapabilitiesType | None = field(
         default=None,
         metadata={
             "name": "Id_Capabilities",
             "type": "Element",
         },
     )
-    scalar_capabilities: Optional[ScalarCapabilitiesType] = field(
+    scalar_capabilities: ScalarCapabilitiesType | None = field(
         default=None,
         metadata={
             "name": "Scalar_Capabilities",
             "type": "Element",
         },
     )
-    spatial_capabilities: Optional[SpatialCapabilitiesType] = field(
+    spatial_capabilities: SpatialCapabilitiesType | None = field(
         default=None,
         metadata={
             "name": "Spatial_Capabilities",
             "type": "Element",
         },
     )
-    temporal_capabilities: Optional[TemporalCapabilitiesType] = field(
+    temporal_capabilities: TemporalCapabilitiesType | None = field(
         default=None,
         metadata={
             "name": "Temporal_Capabilities",
             "type": "Element",
         },
     )
-    functions: Optional[AvailableFunctionsType] = field(
+    functions: AvailableFunctionsType | None = field(
         default=None,
         metadata={
             "name": "Functions",
             "type": "Element",
         },
     )
-    extended_capabilities: Optional[ExtendedCapabilitiesType] = field(
+    extended_capabilities: ExtendedCapabilitiesType | None = field(
         default=None,
         metadata={
             "name": "Extended_Capabilities",

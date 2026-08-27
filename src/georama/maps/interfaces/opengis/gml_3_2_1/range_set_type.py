@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.boolean_list import BooleanList
 from georama.maps.interfaces.opengis.gml_3_2_1.category_list import CategoryList
@@ -56,7 +55,7 @@ class RangeSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    data_block: Optional[DataBlock] = field(
+    data_block: DataBlock | None = field(
         default=None,
         metadata={
             "name": "DataBlock",
@@ -64,7 +63,7 @@ class RangeSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    file: Optional[File] = field(
+    file: File | None = field(
         default=None,
         metadata={
             "name": "File",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.aggregation_type import (
     AggregationType,
@@ -15,7 +14,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class AbstractCoordinateSystemType(IdentifiedObjectType):
-    uses_axis: List[UsesAxis] = field(
+    uses_axis: list[UsesAxis] = field(
         default_factory=list,
         metadata={
             "name": "usesAxis",
@@ -23,14 +22,14 @@ class AbstractCoordinateSystemType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    axis: List[Axis] = field(
+    axis: list[Axis] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",

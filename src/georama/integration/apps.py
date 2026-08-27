@@ -32,4 +32,6 @@ class IntegrationConfig(GeoramaAbstractConfig):
         elif not global_folder_path.is_dir():
             raise Exception(f"A file already exists at {global_folder_name}")
         else:
-            logging.debug(f"Global organisation folder {global_folder_name} already created")
+            logging.debug(
+                f"Global organisation folder {global_folder_name} already created"
+            )

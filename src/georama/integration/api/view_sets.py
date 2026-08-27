@@ -36,7 +36,10 @@ from georama.integration.api.serializers import (
     RasterDatasourceSerializer,
     VectorDatasourceSerializer,
 )
-from georama.integration.lib.qgis_project_file_structure import QgisProject, QgisProjectCollection
+from georama.integration.lib.qgis_project_file_structure import (
+    QgisProject,
+    QgisProjectCollection,
+)
 from georama.integration.models import Custom, Project, Raster, Vector, VectorField
 from georama.integration.models.datasource import Datasource
 from georama.maps.adapter.qsl import call_qsl_exporter
@@ -56,7 +59,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
     list_body_path_partial_template_name: str = (
         "integration/drf/project/partials/list_body_path.html"
     )
-    list_body_partial_template_name: str = "integration/drf/project/partials/list_body.html"
+    list_body_partial_template_name: str = (
+        "integration/drf/project/partials/list_body.html"
+    )
     show_template_name = "integration/drf/project/show.html"
 
     @property
@@ -102,7 +107,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                     raise LookupError("Unexpected datasource type was passed")
                 # We don't need to filter for organisation here again, since the project_db
                 # is bound to it already.
-                qs = datasource_model.objects.filter(qgis_layer_id=layer.id, project=project_db)
+                qs = datasource_model.objects.filter(
+                    qgis_layer_id=layer.id, project=project_db
+                )
                 if await qs.aexists():
                     logging.debug(
                         f" Dataset was found and will be updated {layer.name}"
@@ -113,7 +120,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                     logging.debug(
                         f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
                     )
-                    datasource = datasource_model(qgis_layer_id=layer.id, project=project_db)
+                    datasource = datasource_model(
+                        qgis_layer_id=layer.id, project=project_db
+                    )
                 await datasource.set_values_from_qsl(layer)
                 await datasource.asave()
                 logging.debug(
@@ -149,7 +158,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                             f" was written to DB successfully."
                         )
                     logging.debug("   Cleaning out old fields...")
-                    async for field_db in VectorField.objects.filter(datasource=datasource).all():
+                    async for field_db in VectorField.objects.filter(
+                        datasource=datasource
+                    ).all():
                         field_match = layer.get_field_by_name(field_db.name)
                         if field_match is None:
                             logging.debug(
@@ -162,7 +173,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                     logging.debug("   ✓ Finished - Cleaning out old fields...")
         logging.debug(" Cleaning out old datasources.")
         async for datasource_db in Datasource.objects.filter(project=project_db).all():
-            dataset_match = project_json.datasets.find_dataset_by_id(datasource_db.qgis_layer_id)
+            dataset_match = project_json.datasets.find_dataset_by_id(
+                datasource_db.qgis_layer_id
+            )
             if dataset_match is None:
                 logging.debug(
                     f"    Deleting datasource {datasource_db.name} since it was not"
@@ -170,7 +183,6 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 )
                 await datasource_db.adelete()
         logging.debug(" ✓ Finished - Cleaning out old datasources.")
-        return None
 
     @property
     def non_integrated_url_name(self):
@@ -184,17 +196,27 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
 
         if request.POST:
             project_path = request.data["path"]
-            project_file = QgisProject(path=project_path, organisation=organisation_folder)  # noqa: F841
+            project_file = QgisProject(
+                path=project_path, organisation=organisation_folder
+            )
             if not project_file.project_path.exists():
-                raise Http404(f"Project with path {project_file.project_path} not found")
+                raise Http404(
+                    f"Project with path {project_file.project_path} not found"
+                )
             response = await call_qsl_exporter(project_file.path_from_root)
             if response.status_code != status.HTTP_200_OK:
-                msg = _("Communication with Exporter API was not successful STATUSCODE:")
+                msg = _(
+                    "Communication with Exporter API was not successful STATUSCODE:"
+                )
                 return HttpResponseServerError(f"{msg} {response.status_code}")
             else:
                 result = DictDecoder().decode(response.json(), ExportResult)
             if not result.successful:
-                msg = result.content if settings.DEBUG else _("A problem occurred while exporting.")
+                msg = (
+                    result.content
+                    if settings.DEBUG
+                    else _("A problem occurred while exporting.")
+                )
                 return HttpResponseServerError(msg)
             project_json = JsonParser().from_string(result.content, Config)
             qs = Project.objects.filter(
@@ -243,7 +265,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                     [
                         {
                             "project_path": p.path_from_orga,
-                            "config_path": p.config_path_from_orga if p.has_config else None,
+                            "config_path": p.config_path_from_orga
+                            if p.has_config
+                            else None,
                         }
                         for p in pqs
                     ],
@@ -255,7 +279,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 [
                     {
                         "project_path": p.path_from_orga,
-                        "config_path": p.config_path_from_orga if p.has_config else None,
+                        "config_path": p.config_path_from_orga
+                        if p.has_config
+                        else None,
                     }
                     for p in filtered_file_list
                 ],
@@ -283,7 +309,9 @@ class ManageDatasourceViewSet(GeoramaManagerViewSet):
     search_fields = ["name"]
     ordering_fields = ["name"]
     filterset_fields = ["name"]
-    list_body_partial_template_name: str = "integration/drf/datasource/partials/list_body.html"
+    list_body_partial_template_name: str = (
+        "integration/drf/datasource/partials/list_body.html"
+    )
 
     async def get_breadcrumbs(self):
         app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()

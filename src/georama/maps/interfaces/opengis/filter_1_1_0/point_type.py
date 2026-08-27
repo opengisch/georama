@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_geometric_primitive_type import (
     AbstractGeometricPrimitiveType,
@@ -17,7 +16,7 @@ class PointType(AbstractGeometricPrimitiveType):
     A Point is defined by a single coordinate tuple.
     """
 
-    pos_or_coordinates_or_coord: Optional[Union[Pos, Coordinates, Coord]] = field(
+    pos_or_coordinates_or_coord: Pos | Coordinates | Coord | None = field(
         default=None,
         metadata={
             "type": "Elements",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.all_some_type import AllSomeType
 from georama.maps.interfaces.ogc.wfs_2_0_0.base_request_type import BaseRequestType
@@ -11,7 +10,7 @@ __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
 @dataclass
 class LockFeatureType(BaseRequestType):
-    stored_query_or_query: list[Union[StoredQuery, Query]] = field(
+    stored_query_or_query: list[StoredQuery | Query] = field(
         default_factory=list,
         metadata={
             "type": "Elements",
@@ -29,7 +28,7 @@ class LockFeatureType(BaseRequestType):
             ),
         },
     )
-    lock_id: Optional[str] = field(
+    lock_id: str | None = field(
         default=None,
         metadata={
             "name": "lockId",

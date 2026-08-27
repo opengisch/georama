@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from georama.maps.interfaces.opengis.filter_1_1_0.polygon_patches import PolygonPatches
 from georama.maps.interfaces.opengis.filter_1_1_0.surface_type import SurfaceType
@@ -27,7 +27,7 @@ class PolyhedralSurfaceType(SurfaceType):
             "type": "Ignore",
         },
     )
-    polygon_patches: Optional[PolygonPatches] = field(
+    polygon_patches: PolygonPatches | None = field(
         default=None,
         metadata={
             "name": "polygonPatches",

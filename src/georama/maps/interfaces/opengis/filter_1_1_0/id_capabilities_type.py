@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.eid import Eid
 from georama.maps.interfaces.opengis.filter_1_1_0.fid import Fid
@@ -12,7 +11,7 @@ class IdCapabilitiesType:
     class Meta:
         name = "Id_CapabilitiesType"
 
-    eid_or_fid: list[Union[Eid, Fid]] = field(
+    eid_or_fid: list[Eid | Fid] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

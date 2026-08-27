@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -20,7 +19,7 @@ class MdConstraintsType(AbstractObjectType):
     class Meta:
         name = "MD_Constraints_Type"
 
-    use_limitation: List[CharacterStringPropertyType] = field(
+    use_limitation: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "useLimitation",

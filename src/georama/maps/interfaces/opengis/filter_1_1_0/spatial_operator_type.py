@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.geometry_operands_type import (
     GeometryOperandsType,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/ogc"
 
 @dataclass
 class SpatialOperatorType:
-    geometry_operands: Optional[GeometryOperandsType] = field(
+    geometry_operands: GeometryOperandsType | None = field(
         default=None,
         metadata={
             "name": "GeometryOperands",
@@ -21,7 +20,7 @@ class SpatialOperatorType:
             "namespace": "http://www.opengis.net/ogc",
         },
     )
-    name: Optional[SpatialOperatorNameType] = field(
+    name: SpatialOperatorNameType | None = field(
         default=None,
         metadata={
             "type": "Attribute",

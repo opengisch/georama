@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from xsdata.models.datatype import XmlTime
 
@@ -16,7 +15,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class TimeClockType(TimeReferenceSystemType):
-    reference_event: Optional[StringOrRefType] = field(
+    reference_event: StringOrRefType | None = field(
         default=None,
         metadata={
             "name": "referenceEvent",
@@ -25,7 +24,7 @@ class TimeClockType(TimeReferenceSystemType):
             "required": True,
         },
     )
-    reference_time: Optional[XmlTime] = field(
+    reference_time: XmlTime | None = field(
         default=None,
         metadata={
             "name": "referenceTime",
@@ -34,7 +33,7 @@ class TimeClockType(TimeReferenceSystemType):
             "required": True,
         },
     )
-    utc_reference: Optional[XmlTime] = field(
+    utc_reference: XmlTime | None = field(
         default=None,
         metadata={
             "name": "utcReference",

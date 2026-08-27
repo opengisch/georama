@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.comparison_ops_type import (
     ComparisonOpsType,
@@ -11,7 +10,7 @@ __NAMESPACE__ = "http://www.opengis.net/ogc"
 
 @dataclass
 class PropertyIsNullType(ComparisonOpsType):
-    property_name: Optional[PropertyName] = field(
+    property_name: PropertyName | None = field(
         default=None,
         metadata={
             "name": "PropertyName",

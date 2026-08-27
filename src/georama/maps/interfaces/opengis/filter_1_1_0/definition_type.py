@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_gmltype import (
     AbstractGmltype,
@@ -16,7 +15,7 @@ class DefinitionType(AbstractGmltype):
     The gml:id attribute is required - it must be possible to reference this definition using this handle.
     """
 
-    id: Optional[str] = field(
+    id: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

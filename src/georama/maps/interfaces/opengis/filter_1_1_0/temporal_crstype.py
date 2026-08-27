@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_reference_system_type import (
     AbstractReferenceSystemType,
@@ -21,7 +20,7 @@ class TemporalCrstype(AbstractReferenceSystemType):
     class Meta:
         name = "TemporalCRSType"
 
-    uses_temporal_cs: Optional[UsesTemporalCs] = field(
+    uses_temporal_cs: UsesTemporalCs | None = field(
         default=None,
         metadata={
             "name": "usesTemporalCS",
@@ -30,7 +29,7 @@ class TemporalCrstype(AbstractReferenceSystemType):
             "required": True,
         },
     )
-    uses_temporal_datum: Optional[UsesTemporalDatum] = field(
+    uses_temporal_datum: UsesTemporalDatum | None = field(
         default=None,
         metadata={
             "name": "usesTemporalDatum",

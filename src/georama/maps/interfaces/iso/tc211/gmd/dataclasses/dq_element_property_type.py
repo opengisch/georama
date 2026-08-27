@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.actuate_value import ActuateValue
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.dq_absolute_external_positional_accuracy import (
@@ -60,7 +59,7 @@ class DqElementPropertyType:
     class Meta:
         name = "DQ_Element_PropertyType"
 
-    dq_completeness_commission: Optional[DqCompletenessCommission] = field(
+    dq_completeness_commission: DqCompletenessCommission | None = field(
         default=None,
         metadata={
             "name": "DQ_CompletenessCommission",
@@ -68,7 +67,7 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_completeness_omission: Optional[DqCompletenessOmission] = field(
+    dq_completeness_omission: DqCompletenessOmission | None = field(
         default=None,
         metadata={
             "name": "DQ_CompletenessOmission",
@@ -76,7 +75,7 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_conceptual_consistency: Optional[DqConceptualConsistency] = field(
+    dq_conceptual_consistency: DqConceptualConsistency | None = field(
         default=None,
         metadata={
             "name": "DQ_ConceptualConsistency",
@@ -84,7 +83,7 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_domain_consistency: Optional[DqDomainConsistency] = field(
+    dq_domain_consistency: DqDomainConsistency | None = field(
         default=None,
         metadata={
             "name": "DQ_DomainConsistency",
@@ -92,7 +91,7 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_format_consistency: Optional[DqFormatConsistency] = field(
+    dq_format_consistency: DqFormatConsistency | None = field(
         default=None,
         metadata={
             "name": "DQ_FormatConsistency",
@@ -100,7 +99,7 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_topological_consistency: Optional[DqTopologicalConsistency] = field(
+    dq_topological_consistency: DqTopologicalConsistency | None = field(
         default=None,
         metadata={
             "name": "DQ_TopologicalConsistency",
@@ -108,9 +107,9 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_absolute_external_positional_accuracy: Optional[
-        DqAbsoluteExternalPositionalAccuracy
-    ] = field(
+    dq_absolute_external_positional_accuracy: (
+        DqAbsoluteExternalPositionalAccuracy | None
+    ) = field(
         default=None,
         metadata={
             "name": "DQ_AbsoluteExternalPositionalAccuracy",
@@ -118,7 +117,7 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_gridded_data_positional_accuracy: Optional[DqGriddedDataPositionalAccuracy] = field(
+    dq_gridded_data_positional_accuracy: DqGriddedDataPositionalAccuracy | None = field(
         default=None,
         metadata={
             "name": "DQ_GriddedDataPositionalAccuracy",
@@ -126,9 +125,9 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_relative_internal_positional_accuracy: Optional[
-        DqRelativeInternalPositionalAccuracy
-    ] = field(
+    dq_relative_internal_positional_accuracy: (
+        DqRelativeInternalPositionalAccuracy | None
+    ) = field(
         default=None,
         metadata={
             "name": "DQ_RelativeInternalPositionalAccuracy",
@@ -136,27 +135,27 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_thematic_classification_correctness: Optional[DqThematicClassificationCorrectness] = (
-        field(
-            default=None,
-            metadata={
-                "name": "DQ_ThematicClassificationCorrectness",
-                "type": "Element",
-                "namespace": "http://www.isotc211.org/2005/gmd",
-            },
-        )
+    dq_thematic_classification_correctness: (
+        DqThematicClassificationCorrectness | None
+    ) = field(
+        default=None,
+        metadata={
+            "name": "DQ_ThematicClassificationCorrectness",
+            "type": "Element",
+            "namespace": "http://www.isotc211.org/2005/gmd",
+        },
     )
-    dq_non_quantitative_attribute_accuracy: Optional[DqNonQuantitativeAttributeAccuracy] = (
-        field(
-            default=None,
-            metadata={
-                "name": "DQ_NonQuantitativeAttributeAccuracy",
-                "type": "Element",
-                "namespace": "http://www.isotc211.org/2005/gmd",
-            },
-        )
+    dq_non_quantitative_attribute_accuracy: (
+        DqNonQuantitativeAttributeAccuracy | None
+    ) = field(
+        default=None,
+        metadata={
+            "name": "DQ_NonQuantitativeAttributeAccuracy",
+            "type": "Element",
+            "namespace": "http://www.isotc211.org/2005/gmd",
+        },
     )
-    dq_quantitative_attribute_accuracy: Optional[DqQuantitativeAttributeAccuracy] = field(
+    dq_quantitative_attribute_accuracy: DqQuantitativeAttributeAccuracy | None = field(
         default=None,
         metadata={
             "name": "DQ_QuantitativeAttributeAccuracy",
@@ -164,7 +163,7 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_accuracy_of_atime_measurement: Optional[DqAccuracyOfAtimeMeasurement] = field(
+    dq_accuracy_of_atime_measurement: DqAccuracyOfAtimeMeasurement | None = field(
         default=None,
         metadata={
             "name": "DQ_AccuracyOfATimeMeasurement",
@@ -172,7 +171,7 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_temporal_consistency: Optional[DqTemporalConsistency] = field(
+    dq_temporal_consistency: DqTemporalConsistency | None = field(
         default=None,
         metadata={
             "name": "DQ_TemporalConsistency",
@@ -180,7 +179,7 @@ class DqElementPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_temporal_validity: Optional[DqTemporalValidity] = field(
+    dq_temporal_validity: DqTemporalValidity | None = field(
         default=None,
         metadata={
             "name": "DQ_TemporalValidity",
@@ -197,55 +196,55 @@ class DqElementPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    uuidref: Optional[str] = field(
+    uuidref: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

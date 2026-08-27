@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.character_string_property_type import (
     CharacterStringPropertyType,
@@ -23,7 +22,7 @@ class MdLegalConstraintsType(MdConstraintsType):
     class Meta:
         name = "MD_LegalConstraints_Type"
 
-    access_constraints: List[MdRestrictionCodePropertyType] = field(
+    access_constraints: list[MdRestrictionCodePropertyType] = field(
         default_factory=list,
         metadata={
             "name": "accessConstraints",
@@ -31,7 +30,7 @@ class MdLegalConstraintsType(MdConstraintsType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    use_constraints: List[MdRestrictionCodePropertyType] = field(
+    use_constraints: list[MdRestrictionCodePropertyType] = field(
         default_factory=list,
         metadata={
             "name": "useConstraints",
@@ -39,7 +38,7 @@ class MdLegalConstraintsType(MdConstraintsType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    other_constraints: List[CharacterStringPropertyType] = field(
+    other_constraints: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "otherConstraints",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.envelope import Envelope
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.envelope_with_time_period import (
@@ -15,7 +14,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class BoundingShapeType:
-    envelope_with_time_period: Optional[EnvelopeWithTimePeriod] = field(
+    envelope_with_time_period: EnvelopeWithTimePeriod | None = field(
         default=None,
         metadata={
             "name": "EnvelopeWithTimePeriod",
@@ -23,7 +22,7 @@ class BoundingShapeType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    envelope: Optional[Envelope] = field(
+    envelope: Envelope | None = field(
         default=None,
         metadata={
             "name": "Envelope",
@@ -31,7 +30,7 @@ class BoundingShapeType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    null: Optional[Null] = field(
+    null: Null | None = field(
         default=None,
         metadata={
             "name": "Null",
@@ -39,7 +38,7 @@ class BoundingShapeType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

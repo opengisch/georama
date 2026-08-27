@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.isotc211.org/2005/gco"
 
@@ -15,7 +14,7 @@ class CodeListValueType:
             "required": True,
         },
     )
-    code_list: Optional[str] = field(
+    code_list: str | None = field(
         default=None,
         metadata={
             "name": "codeList",
@@ -23,7 +22,7 @@ class CodeListValueType:
             "required": True,
         },
     )
-    code_list_value: Optional[str] = field(
+    code_list_value: str | None = field(
         default=None,
         metadata={
             "name": "codeListValue",
@@ -31,7 +30,7 @@ class CodeListValueType:
             "required": True,
         },
     )
-    code_space: Optional[str] = field(
+    code_space: str | None = field(
         default=None,
         metadata={
             "name": "codeSpace",

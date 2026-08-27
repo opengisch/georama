@@ -28,11 +28,15 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     OgcServer as GGOgcServer,
 )
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import OgcServers
-from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    Theme as GGTheme,
+)
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     ThemesJson as GGThemesJson,
 )
-from georama.webgis.interfaces.geomapfish.themes_json_2_8.parsers import CustomDictDecoder
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.parsers import (
+    CustomDictDecoder,
+)
 from georama.webgis.models import Metadata, Theme, WmsLayer
 
 
@@ -123,7 +127,10 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
         )
         await WmsLayer.objects.abulk_create(wms_layer_index.values())
         gg_theme = await theme_json_from_project_config(
-            str(theme.id), theme.icon_default, project.config_as_dataclass, wms_layer_index
+            str(theme.id),
+            theme.icon_default,
+            project.config_as_dataclass,
+            wms_layer_index,
         )
         theme.theme_json = DictEncoder().encode(gg_theme)
         await theme.asave()
@@ -168,7 +175,8 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
         qs = await self.public_or_object_permission(self.get_queryset())
 
         themes_json = GGThemesJson(
-            ogc_servers=OgcServers(georama_webgis=self.georama_ogc_server(request)), themes=[]
+            ogc_servers=OgcServers(georama_webgis=self.georama_ogc_server(request)),
+            themes=[],
         )
 
         async for theme in qs.all():
@@ -181,4 +189,6 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
                     gg_theme
                 )
 
-        return Response(data=DictEncoder().encode(themes_json), status=status.HTTP_200_OK)
+        return Response(
+            data=DictEncoder().encode(themes_json), status=status.HTTP_200_OK
+        )

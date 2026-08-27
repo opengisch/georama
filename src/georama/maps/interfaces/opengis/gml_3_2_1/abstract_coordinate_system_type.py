@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.aggregation_type import AggregationType
 from georama.maps.interfaces.opengis.gml_3_2_1.axis import Axis
@@ -28,7 +27,7 @@ class AbstractCoordinateSystemType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.lang_value import LangValue
 
@@ -18,7 +17,7 @@ class Title2:
             "required": True,
         },
     )
-    lang: Union[str, LangValue] = field(
+    lang: str | LangValue = field(
         default="en",
         metadata={
             "type": "Attribute",

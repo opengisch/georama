@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.time_ordinal_era_type import (
     TimeOrdinalEraPropertyType,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class TimeOrdinalReferenceSystemType(TimeReferenceSystemType):
-    component: List[TimeOrdinalEraPropertyType] = field(
+    component: list[TimeOrdinalEraPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",

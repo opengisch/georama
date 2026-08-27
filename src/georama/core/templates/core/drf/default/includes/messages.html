@@ -26,17 +26,17 @@
 
 
 <script>
-    
+
     // Show messages on a regular full page load
     document.querySelectorAll(".toast").forEach(el => {
         bootstrap.Toast.getOrCreateInstance(el).show();
     });
-    
+
     // Show messages on a partial page load
     document.body.addEventListener("htmx:afterSwap", () => {
         document.querySelectorAll(".toast").forEach(el => {
             bootstrap.Toast.getOrCreateInstance(el).show();
         });
     });
-    
+
 </script>

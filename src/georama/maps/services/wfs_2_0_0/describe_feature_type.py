@@ -49,7 +49,11 @@ class WfsDescribeFeatureType(WfsOperation):
             "MultiLineString25D",
         ]:
             column_type = "gml:MultiCurvePropertyType"
-        elif datasource.geometry_type_wkb in ["MultiSurface", "MultiPolygon", "MultiPolygon25D"]:
+        elif datasource.geometry_type_wkb in [
+            "MultiSurface",
+            "MultiPolygon",
+            "MultiPolygon25D",
+        ]:
             column_type = "gml:MultiSurfacePropertyType"
         else:
             logging.debug(
@@ -69,7 +73,9 @@ class WfsDescribeFeatureType(WfsOperation):
     def describe_feature_type(self, type_names: list[str] | None) -> Schema | None:
         # typename is a comma separated list
         if type_names:
-            found_layers = self.obtain_accessible_layers(self.sanitized_typenames(type_names))
+            found_layers = self.obtain_accessible_layers(
+                self.sanitized_typenames(type_names)
+            )
         else:
             found_layers = self.obtain_accessible_layers()
         logging.debug(found_layers)
@@ -149,14 +155,23 @@ class WfsDescribeFeatureType(WfsOperation):
 
     @staticmethod
     def render_json(described_feature_type) -> str:
-        serializer = JsonSerializer(SerializerConfig(ignore_default_attributes=True, indent=2))
+        serializer = JsonSerializer(
+            SerializerConfig(ignore_default_attributes=True, indent=2)
+        )
         return serializer.render(described_feature_type)
 
     def render(
         self, requested_format: str, described_feature_type: Schema
     ) -> tuple[str, str, bool]:
-        if requested_format == "TEXT/XML" or requested_format == "APPLICATION/GML+XML; VERSION=3.2":
-            return self.render_xml(described_feature_type), requested_format.lower(), True
+        if (
+            requested_format == "TEXT/XML"
+            or requested_format == "APPLICATION/GML+XML; VERSION=3.2"
+        ):
+            return (
+                self.render_xml(described_feature_type),
+                requested_format.lower(),
+                True,
+            )
         elif requested_format == "GML3":
             return (
                 self.render_xml(described_feature_type),
@@ -164,7 +179,11 @@ class WfsDescribeFeatureType(WfsOperation):
                 True,
             )
         elif requested_format == "APPLICATION/JSON" or requested_format == "TEXT/JSON":
-            return self.render_json(described_feature_type), requested_format.lower(), True
+            return (
+                self.render_json(described_feature_type),
+                requested_format.lower(),
+                True,
+            )
         else:
             logging.debug("No matching Format was found.")
             return (

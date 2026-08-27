@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_surface_patch_type import (
     AbstractSurfacePatchType,
@@ -14,7 +13,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class RectangleType(AbstractSurfacePatchType):
-    exterior: Optional[Exterior] = field(
+    exterior: Exterior | None = field(
         default=None,
         metadata={
             "type": "Element",

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_gmltype import (
     AbstractGmltype,
@@ -81,7 +81,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class ValueArrayPropertyType:
-    quantity_extent: List[QuantityExtent] = field(
+    quantity_extent: list[QuantityExtent] = field(
         default_factory=list,
         metadata={
             "name": "QuantityExtent",
@@ -90,7 +90,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    count_extent: List[CountExtent] = field(
+    count_extent: list[CountExtent] = field(
         default_factory=list,
         metadata={
             "name": "CountExtent",
@@ -99,7 +99,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    category_extent: List[CategoryExtent] = field(
+    category_extent: list[CategoryExtent] = field(
         default_factory=list,
         metadata={
             "name": "CategoryExtent",
@@ -108,7 +108,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    value_array: List["ValueArray"] = field(
+    value_array: list["ValueArray"] = field(
         default_factory=list,
         metadata={
             "name": "ValueArray",
@@ -117,7 +117,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    composite_value: List["CompositeValue"] = field(
+    composite_value: list["CompositeValue"] = field(
         default_factory=list,
         metadata={
             "name": "CompositeValue",
@@ -126,7 +126,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    quantity_list: List[QuantityList] = field(
+    quantity_list: list[QuantityList] = field(
         default_factory=list,
         metadata={
             "name": "QuantityList",
@@ -135,7 +135,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    count_list: List[CountList] = field(
+    count_list: list[CountList] = field(
         default_factory=list,
         metadata={
             "name": "CountList",
@@ -144,7 +144,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    category_list: List[CategoryList] = field(
+    category_list: list[CategoryList] = field(
         default_factory=list,
         metadata={
             "name": "CategoryList",
@@ -153,7 +153,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    boolean_list: List[BooleanList] = field(
+    boolean_list: list[BooleanList] = field(
         default_factory=list,
         metadata={
             "name": "BooleanList",
@@ -162,7 +162,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    quantity: List[Quantity] = field(
+    quantity: list[Quantity] = field(
         default_factory=list,
         metadata={
             "name": "Quantity",
@@ -172,7 +172,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    count: List[Count] = field(
+    count: list[Count] = field(
         default_factory=list,
         metadata={
             "name": "Count",
@@ -182,7 +182,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    category: List[Category] = field(
+    category: list[Category] = field(
         default_factory=list,
         metadata={
             "name": "Category",
@@ -192,7 +192,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    boolean: List[Boolean1] = field(
+    boolean: list[Boolean1] = field(
         default_factory=list,
         metadata={
             "name": "Boolean",
@@ -202,7 +202,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    rectified_grid: List[RectifiedGrid] = field(
+    rectified_grid: list[RectifiedGrid] = field(
         default_factory=list,
         metadata={
             "name": "RectifiedGrid",
@@ -211,7 +211,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    grid: List[Grid] = field(
+    grid: list[Grid] = field(
         default_factory=list,
         metadata={
             "name": "Grid",
@@ -220,7 +220,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    geometric_complex: List[GeometricComplex] = field(
+    geometric_complex: list[GeometricComplex] = field(
         default_factory=list,
         metadata={
             "name": "GeometricComplex",
@@ -229,7 +229,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    multi_solid: List[MultiSolid] = field(
+    multi_solid: list[MultiSolid] = field(
         default_factory=list,
         metadata={
             "name": "MultiSolid",
@@ -238,7 +238,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    multi_surface: List[MultiSurface] = field(
+    multi_surface: list[MultiSurface] = field(
         default_factory=list,
         metadata={
             "name": "MultiSurface",
@@ -247,7 +247,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    multi_curve: List[MultiCurve] = field(
+    multi_curve: list[MultiCurve] = field(
         default_factory=list,
         metadata={
             "name": "MultiCurve",
@@ -256,7 +256,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    multi_point: List[MultiPoint] = field(
+    multi_point: list[MultiPoint] = field(
         default_factory=list,
         metadata={
             "name": "MultiPoint",
@@ -265,7 +265,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    multi_geometry: List[MultiGeometry] = field(
+    multi_geometry: list[MultiGeometry] = field(
         default_factory=list,
         metadata={
             "name": "MultiGeometry",
@@ -274,7 +274,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    composite_solid: List[CompositeSolid] = field(
+    composite_solid: list[CompositeSolid] = field(
         default_factory=list,
         metadata={
             "name": "CompositeSolid",
@@ -283,7 +283,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    solid: List[Solid] = field(
+    solid: list[Solid] = field(
         default_factory=list,
         metadata={
             "name": "Solid",
@@ -292,7 +292,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    composite_surface: List[CompositeSurface] = field(
+    composite_surface: list[CompositeSurface] = field(
         default_factory=list,
         metadata={
             "name": "CompositeSurface",
@@ -301,7 +301,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    orientable_surface: List[OrientableSurface] = field(
+    orientable_surface: list[OrientableSurface] = field(
         default_factory=list,
         metadata={
             "name": "OrientableSurface",
@@ -310,7 +310,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    tin: List[Tin] = field(
+    tin: list[Tin] = field(
         default_factory=list,
         metadata={
             "name": "Tin",
@@ -319,7 +319,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    triangulated_surface: List[TriangulatedSurface] = field(
+    triangulated_surface: list[TriangulatedSurface] = field(
         default_factory=list,
         metadata={
             "name": "TriangulatedSurface",
@@ -328,7 +328,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    polyhedral_surface: List[PolyhedralSurface] = field(
+    polyhedral_surface: list[PolyhedralSurface] = field(
         default_factory=list,
         metadata={
             "name": "PolyhedralSurface",
@@ -337,7 +337,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    surface: List[Surface] = field(
+    surface: list[Surface] = field(
         default_factory=list,
         metadata={
             "name": "Surface",
@@ -346,7 +346,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    polygon: List[Polygon] = field(
+    polygon: list[Polygon] = field(
         default_factory=list,
         metadata={
             "name": "Polygon",
@@ -355,7 +355,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    composite_curve: List[CompositeCurve] = field(
+    composite_curve: list[CompositeCurve] = field(
         default_factory=list,
         metadata={
             "name": "CompositeCurve",
@@ -364,7 +364,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    orientable_curve: List[OrientableCurve] = field(
+    orientable_curve: list[OrientableCurve] = field(
         default_factory=list,
         metadata={
             "name": "OrientableCurve",
@@ -373,7 +373,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    curve: List[Curve] = field(
+    curve: list[Curve] = field(
         default_factory=list,
         metadata={
             "name": "Curve",
@@ -382,7 +382,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    line_string: List[LineString] = field(
+    line_string: list[LineString] = field(
         default_factory=list,
         metadata={
             "name": "LineString",
@@ -391,7 +391,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    point: List[Point] = field(
+    point: list[Point] = field(
         default_factory=list,
         metadata={
             "name": "Point",
@@ -400,7 +400,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    time_topology_complex: List[TimeTopologyComplex] = field(
+    time_topology_complex: list[TimeTopologyComplex] = field(
         default_factory=list,
         metadata={
             "name": "TimeTopologyComplex",
@@ -409,7 +409,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    time_edge: List[TimeEdge] = field(
+    time_edge: list[TimeEdge] = field(
         default_factory=list,
         metadata={
             "name": "TimeEdge",
@@ -418,7 +418,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    time_node: List[TimeNode] = field(
+    time_node: list[TimeNode] = field(
         default_factory=list,
         metadata={
             "name": "TimeNode",
@@ -427,7 +427,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    time_period: List[TimePeriod] = field(
+    time_period: list[TimePeriod] = field(
         default_factory=list,
         metadata={
             "name": "TimePeriod",
@@ -436,7 +436,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    time_instant: List[TimeInstant] = field(
+    time_instant: list[TimeInstant] = field(
         default_factory=list,
         metadata={
             "name": "TimeInstant",
@@ -445,7 +445,7 @@ class ValueArrayPropertyType:
             "sequence": 1,
         },
     )
-    null: List[Null] = field(
+    null: list[Null] = field(
         default_factory=list,
         metadata={
             "name": "Null",
@@ -464,7 +464,7 @@ class ValueArrayPropertyType:
 
 @dataclass
 class ValuePropertyType:
-    quantity_extent: Optional[QuantityExtent] = field(
+    quantity_extent: QuantityExtent | None = field(
         default=None,
         metadata={
             "name": "QuantityExtent",
@@ -472,7 +472,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    count_extent: Optional[CountExtent] = field(
+    count_extent: CountExtent | None = field(
         default=None,
         metadata={
             "name": "CountExtent",
@@ -480,7 +480,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    category_extent: Optional[CategoryExtent] = field(
+    category_extent: CategoryExtent | None = field(
         default=None,
         metadata={
             "name": "CategoryExtent",
@@ -504,7 +504,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    quantity_list: Optional[QuantityList] = field(
+    quantity_list: QuantityList | None = field(
         default=None,
         metadata={
             "name": "QuantityList",
@@ -512,7 +512,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    count_list: Optional[CountList] = field(
+    count_list: CountList | None = field(
         default=None,
         metadata={
             "name": "CountList",
@@ -520,7 +520,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    category_list: Optional[CategoryList] = field(
+    category_list: CategoryList | None = field(
         default=None,
         metadata={
             "name": "CategoryList",
@@ -528,7 +528,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    boolean_list: Optional[BooleanList] = field(
+    boolean_list: BooleanList | None = field(
         default=None,
         metadata={
             "name": "BooleanList",
@@ -536,7 +536,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    quantity: Optional[Quantity] = field(
+    quantity: Quantity | None = field(
         default=None,
         metadata={
             "name": "Quantity",
@@ -545,7 +545,7 @@ class ValuePropertyType:
             "nillable": True,
         },
     )
-    count: Optional[Count] = field(
+    count: Count | None = field(
         default=None,
         metadata={
             "name": "Count",
@@ -554,7 +554,7 @@ class ValuePropertyType:
             "nillable": True,
         },
     )
-    category: Optional[Category] = field(
+    category: Category | None = field(
         default=None,
         metadata={
             "name": "Category",
@@ -563,7 +563,7 @@ class ValuePropertyType:
             "nillable": True,
         },
     )
-    boolean: Optional[Boolean1] = field(
+    boolean: Boolean1 | None = field(
         default=None,
         metadata={
             "name": "Boolean",
@@ -572,7 +572,7 @@ class ValuePropertyType:
             "nillable": True,
         },
     )
-    rectified_grid: Optional[RectifiedGrid] = field(
+    rectified_grid: RectifiedGrid | None = field(
         default=None,
         metadata={
             "name": "RectifiedGrid",
@@ -580,7 +580,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    grid: Optional[Grid] = field(
+    grid: Grid | None = field(
         default=None,
         metadata={
             "name": "Grid",
@@ -588,7 +588,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    geometric_complex: Optional[GeometricComplex] = field(
+    geometric_complex: GeometricComplex | None = field(
         default=None,
         metadata={
             "name": "GeometricComplex",
@@ -596,7 +596,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    multi_solid: Optional[MultiSolid] = field(
+    multi_solid: MultiSolid | None = field(
         default=None,
         metadata={
             "name": "MultiSolid",
@@ -604,7 +604,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    multi_surface: Optional[MultiSurface] = field(
+    multi_surface: MultiSurface | None = field(
         default=None,
         metadata={
             "name": "MultiSurface",
@@ -612,7 +612,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    multi_curve: Optional[MultiCurve] = field(
+    multi_curve: MultiCurve | None = field(
         default=None,
         metadata={
             "name": "MultiCurve",
@@ -620,7 +620,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    multi_point: Optional[MultiPoint] = field(
+    multi_point: MultiPoint | None = field(
         default=None,
         metadata={
             "name": "MultiPoint",
@@ -628,7 +628,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    multi_geometry: Optional[MultiGeometry] = field(
+    multi_geometry: MultiGeometry | None = field(
         default=None,
         metadata={
             "name": "MultiGeometry",
@@ -636,7 +636,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    composite_solid: Optional[CompositeSolid] = field(
+    composite_solid: CompositeSolid | None = field(
         default=None,
         metadata={
             "name": "CompositeSolid",
@@ -644,7 +644,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    solid: Optional[Solid] = field(
+    solid: Solid | None = field(
         default=None,
         metadata={
             "name": "Solid",
@@ -652,7 +652,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    composite_surface: Optional[CompositeSurface] = field(
+    composite_surface: CompositeSurface | None = field(
         default=None,
         metadata={
             "name": "CompositeSurface",
@@ -660,7 +660,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    orientable_surface: Optional[OrientableSurface] = field(
+    orientable_surface: OrientableSurface | None = field(
         default=None,
         metadata={
             "name": "OrientableSurface",
@@ -668,7 +668,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    tin: Optional[Tin] = field(
+    tin: Tin | None = field(
         default=None,
         metadata={
             "name": "Tin",
@@ -676,7 +676,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    triangulated_surface: Optional[TriangulatedSurface] = field(
+    triangulated_surface: TriangulatedSurface | None = field(
         default=None,
         metadata={
             "name": "TriangulatedSurface",
@@ -684,7 +684,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    polyhedral_surface: Optional[PolyhedralSurface] = field(
+    polyhedral_surface: PolyhedralSurface | None = field(
         default=None,
         metadata={
             "name": "PolyhedralSurface",
@@ -692,7 +692,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    surface: Optional[Surface] = field(
+    surface: Surface | None = field(
         default=None,
         metadata={
             "name": "Surface",
@@ -700,7 +700,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    polygon: Optional[Polygon] = field(
+    polygon: Polygon | None = field(
         default=None,
         metadata={
             "name": "Polygon",
@@ -708,7 +708,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    composite_curve: Optional[CompositeCurve] = field(
+    composite_curve: CompositeCurve | None = field(
         default=None,
         metadata={
             "name": "CompositeCurve",
@@ -716,7 +716,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    orientable_curve: Optional[OrientableCurve] = field(
+    orientable_curve: OrientableCurve | None = field(
         default=None,
         metadata={
             "name": "OrientableCurve",
@@ -724,7 +724,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    curve: Optional[Curve] = field(
+    curve: Curve | None = field(
         default=None,
         metadata={
             "name": "Curve",
@@ -732,7 +732,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    line_string: Optional[LineString] = field(
+    line_string: LineString | None = field(
         default=None,
         metadata={
             "name": "LineString",
@@ -740,7 +740,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    point: Optional[Point] = field(
+    point: Point | None = field(
         default=None,
         metadata={
             "name": "Point",
@@ -748,7 +748,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    time_topology_complex: Optional[TimeTopologyComplex] = field(
+    time_topology_complex: TimeTopologyComplex | None = field(
         default=None,
         metadata={
             "name": "TimeTopologyComplex",
@@ -756,7 +756,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    time_edge: Optional[TimeEdge] = field(
+    time_edge: TimeEdge | None = field(
         default=None,
         metadata={
             "name": "TimeEdge",
@@ -764,7 +764,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    time_node: Optional[TimeNode] = field(
+    time_node: TimeNode | None = field(
         default=None,
         metadata={
             "name": "TimeNode",
@@ -772,7 +772,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    time_period: Optional[TimePeriod] = field(
+    time_period: TimePeriod | None = field(
         default=None,
         metadata={
             "name": "TimePeriod",
@@ -780,7 +780,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    time_instant: Optional[TimeInstant] = field(
+    time_instant: TimeInstant | None = field(
         default=None,
         metadata={
             "name": "TimeInstant",
@@ -788,7 +788,7 @@ class ValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    null: Optional[Null] = field(
+    null: Null | None = field(
         default=None,
         metadata={
             "name": "Null",
@@ -805,49 +805,49 @@ class ValuePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -855,7 +855,7 @@ class ValuePropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -895,7 +895,7 @@ class ValueComponents(ValueArrayPropertyType):
 
 @dataclass
 class CompositeValueType(AbstractGmltype):
-    value_component: List[ValueComponent] = field(
+    value_component: list[ValueComponent] = field(
         default_factory=list,
         metadata={
             "name": "valueComponent",
@@ -903,7 +903,7 @@ class CompositeValueType(AbstractGmltype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    value_components: Optional[ValueComponents] = field(
+    value_components: ValueComponents | None = field(
         default=None,
         metadata={
             "name": "valueComponents",
@@ -911,7 +911,7 @@ class CompositeValueType(AbstractGmltype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",
@@ -936,14 +936,14 @@ class CompositeValue(CompositeValueType):
 
 @dataclass
 class ValueArrayType(CompositeValueType):
-    code_space: Optional[str] = field(
+    code_space: str | None = field(
         default=None,
         metadata={
             "name": "codeSpace",
             "type": "Attribute",
         },
     )
-    uom: Optional[str] = field(
+    uom: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

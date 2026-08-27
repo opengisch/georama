@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.gml_3_2_1.curve_property_type import (
@@ -47,7 +46,7 @@ class GeometricPrimitivePropertyType:
     neither both nor none.
     """
 
-    composite_solid: Optional[CompositeSolid] = field(
+    composite_solid: CompositeSolid | None = field(
         default=None,
         metadata={
             "name": "CompositeSolid",
@@ -55,7 +54,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    solid: Optional[Solid] = field(
+    solid: Solid | None = field(
         default=None,
         metadata={
             "name": "Solid",
@@ -63,7 +62,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    composite_surface: Optional[CompositeSurface] = field(
+    composite_surface: CompositeSurface | None = field(
         default=None,
         metadata={
             "name": "CompositeSurface",
@@ -71,7 +70,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    shell: Optional[Shell] = field(
+    shell: Shell | None = field(
         default=None,
         metadata={
             "name": "Shell",
@@ -79,7 +78,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    orientable_surface: Optional[OrientableSurface] = field(
+    orientable_surface: OrientableSurface | None = field(
         default=None,
         metadata={
             "name": "OrientableSurface",
@@ -87,7 +86,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    tin: Optional[Tin] = field(
+    tin: Tin | None = field(
         default=None,
         metadata={
             "name": "Tin",
@@ -95,7 +94,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    triangulated_surface: Optional[TriangulatedSurface] = field(
+    triangulated_surface: TriangulatedSurface | None = field(
         default=None,
         metadata={
             "name": "TriangulatedSurface",
@@ -103,7 +102,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    polyhedral_surface: Optional[PolyhedralSurface] = field(
+    polyhedral_surface: PolyhedralSurface | None = field(
         default=None,
         metadata={
             "name": "PolyhedralSurface",
@@ -111,7 +110,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    surface: Optional[Surface] = field(
+    surface: Surface | None = field(
         default=None,
         metadata={
             "name": "Surface",
@@ -119,7 +118,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    polygon: Optional[Polygon] = field(
+    polygon: Polygon | None = field(
         default=None,
         metadata={
             "name": "Polygon",
@@ -127,7 +126,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    composite_curve: Optional[CompositeCurve] = field(
+    composite_curve: CompositeCurve | None = field(
         default=None,
         metadata={
             "name": "CompositeCurve",
@@ -135,7 +134,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    orientable_curve: Optional[OrientableCurve] = field(
+    orientable_curve: OrientableCurve | None = field(
         default=None,
         metadata={
             "name": "OrientableCurve",
@@ -143,7 +142,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    curve: Optional[Curve] = field(
+    curve: Curve | None = field(
         default=None,
         metadata={
             "name": "Curve",
@@ -151,7 +150,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    ring: Optional[Ring] = field(
+    ring: Ring | None = field(
         default=None,
         metadata={
             "name": "Ring",
@@ -159,7 +158,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    linear_ring: Optional[LinearRing] = field(
+    linear_ring: LinearRing | None = field(
         default=None,
         metadata={
             "name": "LinearRing",
@@ -167,7 +166,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    line_string: Optional[LineString] = field(
+    line_string: LineString | None = field(
         default=None,
         metadata={
             "name": "LineString",
@@ -175,7 +174,7 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    point: Optional[Point] = field(
+    point: Point | None = field(
         default=None,
         metadata={
             "name": "Point",
@@ -198,22 +197,14 @@ class GeometricPrimitivePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -221,28 +212,36 @@ class GeometricPrimitivePropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -250,7 +249,7 @@ class GeometricPrimitivePropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

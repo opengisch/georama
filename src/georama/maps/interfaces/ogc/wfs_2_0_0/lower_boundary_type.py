@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.function_type import Function
 from georama.maps.interfaces.ogc.wfs_2_0_0.literal import Literal
@@ -10,9 +9,9 @@ __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 
 @dataclass
 class LowerBoundaryType:
-    literal_or_function_or_value_reference: Optional[
-        Union[Literal, Function, ValueReference]
-    ] = field(
+    literal_or_function_or_value_reference: (
+        Literal | Function | ValueReference | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",

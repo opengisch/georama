@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.is_sphere_value import IsSphereValue
 
@@ -18,4 +17,4 @@ class IsSphere:
         name = "isSphere"
         namespace = "http://www.opengis.net/gml"
 
-    value: Optional[IsSphereValue] = field(default=None)
+    value: IsSphereValue | None = field(default=None)

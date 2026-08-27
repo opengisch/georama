@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -34,7 +33,7 @@ class MdKeywordsType(AbstractObjectType):
             "min_occurs": 1,
         },
     )
-    type_value: Optional[MdKeywordTypeCodePropertyType] = field(
+    type_value: MdKeywordTypeCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "type",
@@ -42,7 +41,7 @@ class MdKeywordsType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    thesaurus_name: Optional[CiCitationPropertyType] = field(
+    thesaurus_name: CiCitationPropertyType | None = field(
         default=None,
         metadata={
             "name": "thesaurusName",

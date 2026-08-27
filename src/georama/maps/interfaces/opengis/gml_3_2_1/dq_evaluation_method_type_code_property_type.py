@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.dq_evaluation_method_type_code import (
     DqEvaluationMethodTypeCode,
@@ -16,7 +15,7 @@ class DqEvaluationMethodTypeCodePropertyType:
     class Meta:
         name = "DQ_EvaluationMethodTypeCode_PropertyType"
 
-    dq_evaluation_method_type_code: Optional[DqEvaluationMethodTypeCode] = field(
+    dq_evaluation_method_type_code: DqEvaluationMethodTypeCode | None = field(
         default=None,
         metadata={
             "name": "DQ_EvaluationMethodTypeCode",
@@ -24,7 +23,7 @@ class DqEvaluationMethodTypeCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_md_spatial_representation_type import (
     AbstractMdSpatialRepresentationType,
@@ -23,7 +22,7 @@ class MdVectorSpatialRepresentationType(AbstractMdSpatialRepresentationType):
     class Meta:
         name = "MD_VectorSpatialRepresentation_Type"
 
-    topology_level: Optional[MdTopologyLevelCodePropertyType] = field(
+    topology_level: MdTopologyLevelCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "topologyLevel",

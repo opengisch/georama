@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.comparison_ops_type import (
     ComparisonOpsType,
@@ -12,7 +11,7 @@ __NAMESPACE__ = "http://www.opengis.net/ogc"
 
 @dataclass
 class PropertyIsLikeType(ComparisonOpsType):
-    property_name: Optional[PropertyName] = field(
+    property_name: PropertyName | None = field(
         default=None,
         metadata={
             "name": "PropertyName",
@@ -21,7 +20,7 @@ class PropertyIsLikeType(ComparisonOpsType):
             "required": True,
         },
     )
-    literal: Optional[Literal] = field(
+    literal: Literal | None = field(
         default=None,
         metadata={
             "name": "Literal",
@@ -30,7 +29,7 @@ class PropertyIsLikeType(ComparisonOpsType):
             "required": True,
         },
     )
-    wild_card: Optional[str] = field(
+    wild_card: str | None = field(
         default=None,
         metadata={
             "name": "wildCard",
@@ -38,7 +37,7 @@ class PropertyIsLikeType(ComparisonOpsType):
             "required": True,
         },
     )
-    single_char: Optional[str] = field(
+    single_char: str | None = field(
         default=None,
         metadata={
             "name": "singleChar",
@@ -46,7 +45,7 @@ class PropertyIsLikeType(ComparisonOpsType):
             "required": True,
         },
     )
-    escape_char: Optional[str] = field(
+    escape_char: str | None = field(
         default=None,
         metadata={
             "name": "escapeChar",

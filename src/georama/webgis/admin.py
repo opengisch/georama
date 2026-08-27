@@ -5,7 +5,10 @@ from unfold.admin import ModelAdmin
 
 from georama.core.common.admin import OrganisationalModelAdmin
 from georama.webgis.models import Metadata, Theme, WmsLayer
-from georama.webgis.models.theme import ThemeGroupObjectPermission, ThemeUserObjectPermission
+from georama.webgis.models.theme import (
+    ThemeGroupObjectPermission,
+    ThemeUserObjectPermission,
+)
 
 logger = logging.getLogger(__name__)
 

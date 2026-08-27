@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_geometry_type import (
     AbstractGeometryType,
@@ -17,7 +16,7 @@ class GridType(AbstractGeometryType):
     the other sets at right angles.
     """
 
-    limits: Optional[GridLimitsType] = field(
+    limits: GridLimitsType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -34,7 +33,7 @@ class GridType(AbstractGeometryType):
             "min_occurs": 1,
         },
     )
-    dimension: Optional[int] = field(
+    dimension: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",

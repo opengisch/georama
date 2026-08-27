@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -12,13 +11,13 @@ class MeasureType:
     Reference System for the amount, either a ratio or position scale.
     """
 
-    value: Optional[float] = field(
+    value: float | None = field(
         default=None,
         metadata={
             "required": True,
         },
     )
-    uom: Optional[str] = field(
+    uom: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

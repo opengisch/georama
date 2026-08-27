@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -11,7 +10,7 @@ class LabelType:
     useful information from the feature.
     """
 
-    transform: Optional[str] = field(
+    transform: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

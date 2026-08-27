@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.grid_function import GridFunction
 from georama.maps.interfaces.opengis.filter_1_1_0.index_map import IndexMap
@@ -16,9 +15,9 @@ class CoverageFunctionType:
     More functions will be added to this list
     """
 
-    mapping_rule_or_index_map_or_grid_function: Optional[
-        Union[MappingRule, IndexMap, GridFunction]
-    ] = field(
+    mapping_rule_or_index_map_or_grid_function: (
+        MappingRule | IndexMap | GridFunction | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",

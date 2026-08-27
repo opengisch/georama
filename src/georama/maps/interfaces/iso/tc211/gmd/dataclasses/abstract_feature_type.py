@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_gmltype import (
     AbstractGmltype,
@@ -27,7 +26,7 @@ class AbstractFeatureType(AbstractGmltype):
     location of the feature.
     """
 
-    bounded_by: Optional[BoundedBy] = field(
+    bounded_by: BoundedBy | None = field(
         default=None,
         metadata={
             "name": "boundedBy",
@@ -36,7 +35,7 @@ class AbstractFeatureType(AbstractGmltype):
             "nillable": True,
         },
     )
-    priority_location: Optional[PriorityLocation] = field(
+    priority_location: PriorityLocation | None = field(
         default=None,
         metadata={
             "name": "priorityLocation",
@@ -44,7 +43,7 @@ class AbstractFeatureType(AbstractGmltype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    location: Optional[Location] = field(
+    location: Location | None = field(
         default=None,
         metadata={
             "type": "Element",

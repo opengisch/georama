@@ -34,7 +34,9 @@ class OgcServer(View):
     model = WmsLayer
     appname = MapsConfig.get_simple_appname()
 
-    def wms_130_capabilities(self, request: GeoramaHttpRequest, params: dict) -> HttpResponse:
+    def wms_130_capabilities(
+        self, request: GeoramaHttpRequest, params: dict
+    ) -> HttpResponse:
         """
         Handling the wms 1.3.0 capabilities.
 
@@ -73,7 +75,9 @@ class OgcServer(View):
                 content_type="application/json",
             )
 
-    def wfs_200_capabilities(self, request: GeoramaHttpRequest, params: dict) -> HttpResponse:
+    def wfs_200_capabilities(
+        self, request: GeoramaHttpRequest, params: dict
+    ) -> HttpResponse:
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetCapabilities(
             self.appname,
@@ -108,7 +112,10 @@ class OgcServer(View):
         language = "en-US"
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetMetadata(
-            self.appname, f"{request.build_absolute_uri('.')}?", request.user, self.model
+            self.appname,
+            f"{request.build_absolute_uri('.')}?",
+            request.user,
+            self.model,
         )
         if requested_layer:
             if requested_format not in operation.allowed_formats:
@@ -122,17 +129,23 @@ class OgcServer(View):
                 )
             if requested_format == "TEXT/XML":
                 return HttpResponse(
-                    operation.render_xml(operation.get_metadata(requested_layer, language)),
+                    operation.render_xml(
+                        operation.get_metadata(requested_layer, language)
+                    ),
                     content_type="text/xml",
                 )
             elif requested_format == "APPLICATION/JSON":
                 return HttpResponse(
-                    operation.render_json(operation.get_metadata(requested_layer, language)),
+                    operation.render_json(
+                        operation.get_metadata(requested_layer, language)
+                    ),
                     content_type="application/json",
                 )
         else:
             return HttpResponse(
-                operation.render_operation_parsing_failed("Query paramater 'layer' has to be set!"),
+                operation.render_operation_parsing_failed(
+                    "Query paramater 'layer' has to be set!"
+                ),
                 status=400,
                 content_type="text/xml",
             )
@@ -146,7 +159,9 @@ class OgcServer(View):
         requested_layer = params.get("TYPENAME")
         if requested_layer:
             requested_layer = requested_layer.split(",")
-        requested_format = params.get("OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2").upper()
+        requested_format = params.get(
+            "OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2"
+        ).upper()
         operation = WfsDescribeFeatureType(
             self.appname,
             f"{request.build_absolute_uri('.')}?",
@@ -169,7 +184,9 @@ class OgcServer(View):
                 content_type=content_type,
             )
 
-    async def wfs_200_getfeature(self, request: GeoramaHttpRequest, params: dict) -> HttpResponse:
+    async def wfs_200_getfeature(
+        self, request: GeoramaHttpRequest, params: dict
+    ) -> HttpResponse:
         operation = WfsGetFeature(
             self.appname,
             f"{request.build_absolute_uri('.')}?",
@@ -177,11 +194,13 @@ class OgcServer(View):
             self.model,
             request.georama_organisation,
         )
-        get_feature_parameter = operation.query_parameters_to_get_feature_request(params)
-
-        job = await sync_to_async(operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True)(
-            get_feature_parameter
+        get_feature_parameter = operation.query_parameters_to_get_feature_request(
+            params
         )
+
+        job = await sync_to_async(
+            operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True
+        )(get_feature_parameter)
         result, status = await qsl_redis_queue.post(job, Config().job_timeout)
 
         self.handle_job_result(result, status)
@@ -255,9 +274,9 @@ class OgcServer(View):
 
         if "SERVICE" not in params:
             if params["REQUEST"].upper() == "GETMETADATA":
-                return await sync_to_async(self.wfs_get_metadata, thread_sensitive=True)(
-                    request, params
-                )
+                return await sync_to_async(
+                    self.wfs_get_metadata, thread_sensitive=True
+                )(request, params)
             else:
                 return HttpResponse(
                     "Only request allowed without service param is GetMetadata", 400
@@ -266,9 +285,9 @@ class OgcServer(View):
         if params["SERVICE"].upper() == "WMS":
             if params["REQUEST"] == "GETCAPABILITIES":
                 if params.get("VERSION", "1.3.0") == "1.3.0":
-                    return await sync_to_async(self.wms_130_capabilities, thread_sensitive=True)(
-                        request, params
-                    )
+                    return await sync_to_async(
+                        self.wms_130_capabilities, thread_sensitive=True
+                    )(request, params)
                 else:
                     return HttpResponse("Only VERSION 1.3.0 is available", 400)
             elif params["REQUEST"] == "GETMAP":
@@ -278,7 +297,9 @@ class OgcServer(View):
                 parser_config = ParserConfig(
                     fail_on_unknown_properties=False, fail_on_unknown_attributes=False
                 )
-                service_params = DictDecoder(parser_config).decode(params, GetMapRequestParams)
+                service_params = DictDecoder(parser_config).decode(
+                    params, GetMapRequestParams
+                )
                 operation = WmsGetMap(
                     self.appname,
                     f"{request.build_absolute_uri('.')}?",
@@ -287,9 +308,9 @@ class OgcServer(View):
                     request.georama_organisation,
                 )
                 try:
-                    job = await sync_to_async(operation.prepare_job_content, thread_sensitive=True)(
-                        service_params
-                    )
+                    job = await sync_to_async(
+                        operation.prepare_job_content, thread_sensitive=True
+                    )(service_params)
                     logging.debug(job)
                 except ValueError as e:
                     return HttpResponse(e, status=400, content_type="text/plain")
@@ -310,9 +331,9 @@ class OgcServer(View):
                     self.model,
                 )
                 try:
-                    job = await sync_to_async(operation.prepare_job_content, thread_sensitive=True)(
-                        service_params
-                    )
+                    job = await sync_to_async(
+                        operation.prepare_job_content, thread_sensitive=True
+                    )(service_params)
                     logging.debug(job)
                 except ValueError as e:
                     return HttpResponse(e, status=400, content_type="text/plain")
@@ -335,13 +356,13 @@ class OgcServer(View):
             else:
                 return HttpResponse("Only VERSION 2.0.0 is available", 400)
             if params["REQUEST"] == "GETCAPABILITIES":
-                return await sync_to_async(self.wfs_200_capabilities, thread_sensitive=True)(
-                    request, params
-                )
+                return await sync_to_async(
+                    self.wfs_200_capabilities, thread_sensitive=True
+                )(request, params)
             elif params["REQUEST"] == "DESCRIBEFEATURETYPE":
-                return await sync_to_async(self.wfs_200_describefeaturetype, thread_sensitive=True)(
-                    request, params
-                )
+                return await sync_to_async(
+                    self.wfs_200_describefeaturetype, thread_sensitive=True
+                )(request, params)
             elif params["REQUEST"] == "GETFEATURE":
                 try:
                     return await self.wfs_200_getfeature(request, params)
@@ -371,7 +392,9 @@ class OgcServer(View):
                 request.georama_organisation,
             )
             try:
-                get_feature_parameter = XmlParser().from_bytes(request.body, GetFeature200)
+                get_feature_parameter = XmlParser().from_bytes(
+                    request.body, GetFeature200
+                )
                 job = await sync_to_async(
                     operation.getfeature_to_qslgetfeaturejob, thread_sensitive=True
                 )(get_feature_parameter)

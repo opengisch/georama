@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from xsdata.models.datatype import XmlDuration
 
@@ -12,7 +11,7 @@ class TmPeriodDuration:
         name = "TM_PeriodDuration"
         namespace = "http://www.isotc211.org/2005/gts"
 
-    value: Optional[XmlDuration] = field(
+    value: XmlDuration | None = field(
         default=None,
         metadata={
             "required": True,

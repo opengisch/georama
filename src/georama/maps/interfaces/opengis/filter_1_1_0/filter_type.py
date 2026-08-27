@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.bbox import Bbox
 from georama.maps.interfaces.opengis.filter_1_1_0.beyond import Beyond
@@ -49,33 +48,31 @@ __NAMESPACE__ = "http://www.opengis.net/ogc"
 @dataclass
 class FilterType:
     choice: list[
-        Union[
-            Bbox,
-            Beyond,
-            Dwithin,
-            Contains,
-            Intersects,
-            Crosses,
-            Overlaps,
-            Within,
-            Touches,
-            Disjoint,
-            Equals,
-            PropertyIsBetween,
-            PropertyIsNull,
-            PropertyIsLike,
-            PropertyIsGreaterThanOrEqualTo,
-            PropertyIsLessThanOrEqualTo,
-            PropertyIsGreaterThan,
-            PropertyIsLessThan,
-            PropertyIsNotEqualTo,
-            PropertyIsEqualTo,
-            Not,
-            Or,
-            And,
-            GmlObjectId,
-            FeatureId,
-        ]
+        Bbox
+        | Beyond
+        | Dwithin
+        | Contains
+        | Intersects
+        | Crosses
+        | Overlaps
+        | Within
+        | Touches
+        | Disjoint
+        | Equals
+        | PropertyIsBetween
+        | PropertyIsNull
+        | PropertyIsLike
+        | PropertyIsGreaterThanOrEqualTo
+        | PropertyIsLessThanOrEqualTo
+        | PropertyIsGreaterThan
+        | PropertyIsLessThan
+        | PropertyIsNotEqualTo
+        | PropertyIsEqualTo
+        | Not
+        | Or
+        | And
+        | GmlObjectId
+        | FeatureId
     ] = field(
         default_factory=list,
         metadata={

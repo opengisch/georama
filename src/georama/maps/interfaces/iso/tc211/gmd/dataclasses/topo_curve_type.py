@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_topo_primitive_type import (
     DirectedEdge,
@@ -16,7 +15,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class TopoCurveType(AbstractTopologyType):
-    directed_edge: List[DirectedEdge] = field(
+    directed_edge: list[DirectedEdge] = field(
         default_factory=list,
         metadata={
             "name": "directedEdge",
@@ -25,7 +24,7 @@ class TopoCurveType(AbstractTopologyType):
             "min_occurs": 1,
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",

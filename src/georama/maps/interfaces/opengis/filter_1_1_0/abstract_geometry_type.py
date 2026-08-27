@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_gmltype import (
     AbstractGmltype,
@@ -51,20 +50,20 @@ class AbstractGeometryType(AbstractGmltype):
         attribute shall also be omitted.
     """
 
-    gid: Optional[str] = field(
+    gid: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    srs_name_attribute: Optional[str] = field(
+    srs_name_attribute: str | None = field(
         default=None,
         metadata={
             "name": "srsName",
             "type": "Attribute",
         },
     )
-    srs_dimension: Optional[int] = field(
+    srs_dimension: int | None = field(
         default=None,
         metadata={
             "name": "srsDimension",

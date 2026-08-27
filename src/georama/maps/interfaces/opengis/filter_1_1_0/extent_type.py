@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.bounding_box import BoundingBox
 from georama.maps.interfaces.opengis.filter_1_1_0.bounding_polygon import (
@@ -28,14 +27,14 @@ class ExtentType:
         describes the spatial domain of this object.
     """
 
-    description: Optional[Description] = field(
+    description: Description | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    bounding_box_or_bounding_polygon: list[Union[BoundingBox, BoundingPolygon]] = field(
+    bounding_box_or_bounding_polygon: list[BoundingBox | BoundingPolygon] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

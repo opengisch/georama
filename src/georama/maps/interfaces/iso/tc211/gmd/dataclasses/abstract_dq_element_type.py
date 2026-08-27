@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -29,7 +28,7 @@ class AbstractDqElementType(AbstractObjectType):
     class Meta:
         name = "AbstractDQ_Element_Type"
 
-    name_of_measure: List[CharacterStringPropertyType] = field(
+    name_of_measure: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "nameOfMeasure",
@@ -37,7 +36,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    measure_identification: Optional[MdIdentifierPropertyType] = field(
+    measure_identification: MdIdentifierPropertyType | None = field(
         default=None,
         metadata={
             "name": "measureIdentification",
@@ -45,7 +44,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    measure_description: Optional[CharacterStringPropertyType] = field(
+    measure_description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "measureDescription",
@@ -53,7 +52,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    evaluation_method_type: Optional[DqEvaluationMethodTypeCodePropertyType] = field(
+    evaluation_method_type: DqEvaluationMethodTypeCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "evaluationMethodType",
@@ -61,7 +60,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    evaluation_method_description: Optional[CharacterStringPropertyType] = field(
+    evaluation_method_description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "evaluationMethodDescription",
@@ -69,7 +68,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    evaluation_procedure: Optional[CiCitationPropertyType] = field(
+    evaluation_procedure: CiCitationPropertyType | None = field(
         default=None,
         metadata={
             "name": "evaluationProcedure",
@@ -77,7 +76,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    date_time: List[DateTimePropertyType] = field(
+    date_time: list[DateTimePropertyType] = field(
         default_factory=list,
         metadata={
             "name": "dateTime",
@@ -85,7 +84,7 @@ class AbstractDqElementType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    result: List[DqResultPropertyType] = field(
+    result: list[DqResultPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",

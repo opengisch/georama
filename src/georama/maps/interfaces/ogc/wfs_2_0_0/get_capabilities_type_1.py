@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.accept_formats_type import AcceptFormatsType
 from georama.maps.interfaces.ogc.wfs_2_0_0.accept_versions_type import (
@@ -35,7 +34,7 @@ class GetCapabilitiesType1:
     class Meta:
         name = "GetCapabilitiesType"
 
-    accept_versions: Optional[AcceptVersionsType] = field(
+    accept_versions: AcceptVersionsType | None = field(
         default=None,
         metadata={
             "name": "AcceptVersions",
@@ -43,7 +42,7 @@ class GetCapabilitiesType1:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    sections: Optional[SectionsType] = field(
+    sections: SectionsType | None = field(
         default=None,
         metadata={
             "name": "Sections",
@@ -51,7 +50,7 @@ class GetCapabilitiesType1:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    accept_formats: Optional[AcceptFormatsType] = field(
+    accept_formats: AcceptFormatsType | None = field(
         default=None,
         metadata={
             "name": "AcceptFormats",
@@ -59,7 +58,7 @@ class GetCapabilitiesType1:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    update_sequence: Optional[str] = field(
+    update_sequence: str | None = field(
         default=None,
         metadata={
             "name": "updateSequence",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.description_type import DescriptionType
 from georama.maps.interfaces.ogc.wfs_2_0_0.identifier import Identifier
@@ -21,7 +20,7 @@ class BasicIdentificationType(DescriptionType):
         Specification for this service.
     """
 
-    identifier: Optional[Identifier] = field(
+    identifier: Identifier | None = field(
         default=None,
         metadata={
             "name": "Identifier",

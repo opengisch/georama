@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.ds_initiative_type_code import (
     DsInitiativeTypeCode,
@@ -16,7 +15,7 @@ class DsInitiativeTypeCodePropertyType:
     class Meta:
         name = "DS_InitiativeTypeCode_PropertyType"
 
-    ds_initiative_type_code: Optional[DsInitiativeTypeCode] = field(
+    ds_initiative_type_code: DsInitiativeTypeCode | None = field(
         default=None,
         metadata={
             "name": "DS_InitiativeTypeCode",
@@ -24,7 +23,7 @@ class DsInitiativeTypeCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

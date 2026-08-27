@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.method_formula import MethodFormula
 from georama.maps.interfaces.opengis.filter_1_1_0.method_id import MethodId
@@ -47,14 +46,14 @@ class OperationMethodType(OperationMethodBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    remarks: Optional[Remarks] = field(
+    remarks: Remarks | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    method_formula: Optional[MethodFormula] = field(
+    method_formula: MethodFormula | None = field(
         default=None,
         metadata={
             "name": "methodFormula",
@@ -63,7 +62,7 @@ class OperationMethodType(OperationMethodBaseType):
             "required": True,
         },
     )
-    source_dimensions: Optional[SourceDimensions] = field(
+    source_dimensions: SourceDimensions | None = field(
         default=None,
         metadata={
             "name": "sourceDimensions",
@@ -72,7 +71,7 @@ class OperationMethodType(OperationMethodBaseType):
             "required": True,
         },
     )
-    target_dimensions: Optional[TargetDimensions] = field(
+    target_dimensions: TargetDimensions | None = field(
         default=None,
         metadata={
             "name": "targetDimensions",

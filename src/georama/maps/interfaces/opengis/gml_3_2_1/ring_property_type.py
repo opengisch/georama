@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.curve_property_type import Ring
 
@@ -13,7 +12,7 @@ class RingPropertyType:
     to represent a component of a surface boundary.
     """
 
-    ring: Optional[Ring] = field(
+    ring: Ring | None = field(
         default=None,
         metadata={
             "name": "Ring",

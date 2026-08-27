@@ -13,8 +13,12 @@ from georama.integration.api.view_sets import (
 app_name = "integration"
 
 management_router = routers.SimpleRouter()
-management_router.register(r"projects", ManageProjectViewSet, basename="manager-project")
-management_router.register(r"datasources", ManageDatasourceViewSet, basename="manager-datasource")
+management_router.register(
+    r"projects", ManageProjectViewSet, basename="manager-project"
+)
+management_router.register(
+    r"datasources", ManageDatasourceViewSet, basename="manager-datasource"
+)
 management_router.register(
     r"vector_datasources", ManageVectorDatasourceViewSet, basename="manager-vector"
 )

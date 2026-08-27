@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.character_string_property_type import (
     CharacterStringPropertyType,
@@ -25,7 +24,7 @@ class PtLocaleContainerType:
     class Meta:
         name = "PT_LocaleContainer_Type"
 
-    description: Optional[CharacterStringPropertyType] = field(
+    description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -33,7 +32,7 @@ class PtLocaleContainerType:
             "required": True,
         },
     )
-    locale: Optional[PtLocalePropertyType] = field(
+    locale: PtLocalePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -41,7 +40,7 @@ class PtLocaleContainerType:
             "required": True,
         },
     )
-    date: List[CiDatePropertyType] = field(
+    date: list[CiDatePropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -49,7 +48,7 @@ class PtLocaleContainerType:
             "min_occurs": 1,
         },
     )
-    responsible_party: List[CiResponsiblePartyPropertyType] = field(
+    responsible_party: list[CiResponsiblePartyPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "responsibleParty",
@@ -58,7 +57,7 @@ class PtLocaleContainerType:
             "min_occurs": 1,
         },
     )
-    localised_string: List[LocalisedCharacterStringPropertyType] = field(
+    localised_string: list[LocalisedCharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "localisedString",

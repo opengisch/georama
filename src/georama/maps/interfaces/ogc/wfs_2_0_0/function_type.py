@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import ForwardRef, Optional, Union
+from typing import ForwardRef, Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.literal import Literal
 from georama.maps.interfaces.ogc.wfs_2_0_0.value_reference import ValueReference
@@ -34,7 +34,7 @@ class FunctionType:
             ),
         },
     )
-    name: Optional[str] = field(
+    name: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

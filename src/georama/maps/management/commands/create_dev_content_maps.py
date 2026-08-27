@@ -40,7 +40,9 @@ class Command(BaseCommand):
                 permission = random.choice(permissions)
                 assign_perm(permission, user, wms_layer)
 
-            self.stdout.write(self.style.SUCCESS("Successfully created development content."))
+            self.stdout.write(
+                self.style.SUCCESS("Successfully created development content.")
+            )
         else:
             self.stdout.write(
                 self.style.ERROR("This command can be used only in Dev environments!")

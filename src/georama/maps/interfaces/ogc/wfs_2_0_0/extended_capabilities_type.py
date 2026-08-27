@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.additional_operators_type import (
     AdditionalOperatorsType,
@@ -13,7 +12,7 @@ class ExtendedCapabilitiesType:
     class Meta:
         name = "Extended_CapabilitiesType"
 
-    additional_operators: Optional[AdditionalOperatorsType] = field(
+    additional_operators: AdditionalOperatorsType | None = field(
         default=None,
         metadata={
             "name": "AdditionalOperators",

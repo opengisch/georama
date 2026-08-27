@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -60,7 +59,7 @@ class ArcStringByBulgeType(AbstractCurveSegmentType):
         points in the arc string must be numArc + 1.
     """
 
-    choice: list[Union[Pos, PointProperty, PointRep, PosList, Coordinates]] = field(
+    choice: list[Pos | PointProperty | PointRep | PosList | Coordinates] = field(
         default_factory=list,
         metadata={
             "type": "Elements",
@@ -116,7 +115,7 @@ class ArcStringByBulgeType(AbstractCurveSegmentType):
             "type": "Attribute",
         },
     )
-    num_arc: Optional[int] = field(
+    num_arc: int | None = field(
         default=None,
         metadata={
             "name": "numArc",

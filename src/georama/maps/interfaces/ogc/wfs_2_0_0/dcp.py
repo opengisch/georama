@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.http import Http
 
@@ -19,7 +18,7 @@ class Dcp:
         name = "DCP"
         namespace = "http://www.opengis.net/ows/1.1"
 
-    http: Optional[Http] = field(
+    http: Http | None = field(
         default=None,
         metadata={
             "name": "HTTP",

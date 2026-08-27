@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.comparison_ops_type import ComparisonOpsType
 from georama.maps.interfaces.ogc.wfs_2_0_0.function_type import Function
@@ -13,9 +12,9 @@ __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 
 @dataclass
 class PropertyIsBetweenType(ComparisonOpsType):
-    literal_or_function_or_value_reference: Optional[
-        Union[Literal, Function, ValueReference]
-    ] = field(
+    literal_or_function_or_value_reference: (
+        Literal | Function | ValueReference | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -38,7 +37,7 @@ class PropertyIsBetweenType(ComparisonOpsType):
             ),
         },
     )
-    lower_boundary: Optional[LowerBoundaryType] = field(
+    lower_boundary: LowerBoundaryType | None = field(
         default=None,
         metadata={
             "name": "LowerBoundary",
@@ -47,7 +46,7 @@ class PropertyIsBetweenType(ComparisonOpsType):
             "required": True,
         },
     )
-    upper_boundary: Optional[UpperBoundaryType] = field(
+    upper_boundary: UpperBoundaryType | None = field(
         default=None,
         metadata={
             "name": "UpperBoundary",

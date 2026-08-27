@@ -24,6 +24,8 @@ class FeatureLayerManager(OrganisationalManager):
         with transaction.atomic():
             feature_layers = super().bulk_create(*args, **kwargs)
             Field.objects.bulk_create(
-                field for layer in feature_layers for field in layer.datasource_related_fields()
+                field
+                for layer in feature_layers
+                for field in layer.datasource_related_fields()
             )
             return feature_layers

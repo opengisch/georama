@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.md_coverage_content_type_code import (
     MdCoverageContentTypeCode,
@@ -16,7 +15,7 @@ class MdCoverageContentTypeCodePropertyType:
     class Meta:
         name = "MD_CoverageContentTypeCode_PropertyType"
 
-    md_coverage_content_type_code: Optional[MdCoverageContentTypeCode] = field(
+    md_coverage_content_type_code: MdCoverageContentTypeCode | None = field(
         default=None,
         metadata={
             "name": "MD_CoverageContentTypeCode",
@@ -24,7 +23,7 @@ class MdCoverageContentTypeCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

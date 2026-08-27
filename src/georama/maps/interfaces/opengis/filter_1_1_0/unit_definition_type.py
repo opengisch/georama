@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.catalog_symbol import CatalogSymbol
 from georama.maps.interfaces.opengis.filter_1_1_0.definition_type import DefinitionType
@@ -19,7 +18,7 @@ class UnitDefinitionType(DefinitionType):
     unknown.
     """
 
-    quantity_type: Optional[QuantityType] = field(
+    quantity_type: QuantityType | None = field(
         default=None,
         metadata={
             "name": "quantityType",
@@ -28,7 +27,7 @@ class UnitDefinitionType(DefinitionType):
             "required": True,
         },
     )
-    catalog_symbol: Optional[CatalogSymbol] = field(
+    catalog_symbol: CatalogSymbol | None = field(
         default=None,
         metadata={
             "name": "catalogSymbol",

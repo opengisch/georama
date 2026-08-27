@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.cone import Cone
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.cylinder import Cylinder
@@ -18,7 +17,7 @@ class SurfacePatchArrayPropertyType:
     patches.
     """
 
-    sphere: List[Sphere] = field(
+    sphere: list[Sphere] = field(
         default_factory=list,
         metadata={
             "name": "Sphere",
@@ -27,7 +26,7 @@ class SurfacePatchArrayPropertyType:
             "sequence": 1,
         },
     )
-    cylinder: List[Cylinder] = field(
+    cylinder: list[Cylinder] = field(
         default_factory=list,
         metadata={
             "name": "Cylinder",
@@ -36,7 +35,7 @@ class SurfacePatchArrayPropertyType:
             "sequence": 1,
         },
     )
-    cone: List[Cone] = field(
+    cone: list[Cone] = field(
         default_factory=list,
         metadata={
             "name": "Cone",
@@ -45,7 +44,7 @@ class SurfacePatchArrayPropertyType:
             "sequence": 1,
         },
     )
-    rectangle: List[Rectangle] = field(
+    rectangle: list[Rectangle] = field(
         default_factory=list,
         metadata={
             "name": "Rectangle",
@@ -54,7 +53,7 @@ class SurfacePatchArrayPropertyType:
             "sequence": 1,
         },
     )
-    triangle: List[Triangle] = field(
+    triangle: list[Triangle] = field(
         default_factory=list,
         metadata={
             "name": "Triangle",
@@ -63,7 +62,7 @@ class SurfacePatchArrayPropertyType:
             "sequence": 1,
         },
     )
-    polygon_patch: List[PolygonPatch] = field(
+    polygon_patch: list[PolygonPatch] = field(
         default_factory=list,
         metadata={
             "name": "PolygonPatch",

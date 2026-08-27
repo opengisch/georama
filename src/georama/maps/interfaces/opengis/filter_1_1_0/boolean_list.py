@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.null_enumeration_value import (
     NullEnumerationValue,
@@ -19,7 +18,7 @@ class BooleanList:
     class Meta:
         namespace = "http://www.opengis.net/gml"
 
-    value: list[Union[str, NullEnumerationValue]] = field(
+    value: list[str | NullEnumerationValue] = field(
         default_factory=list,
         metadata={
             "pattern": r"other:\w{2,}",

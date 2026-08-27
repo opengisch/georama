@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 
@@ -18,7 +17,7 @@ class DomainMetadataType:
             "required": True,
         },
     )
-    reference: Optional[str] = field(
+    reference: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -21,14 +20,14 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class CubicSplineType(AbstractCurveSegmentType):
-    pos: List[Pos] = field(
+    pos: list[Pos] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    point_property: List[PointProperty] = field(
+    point_property: list[PointProperty] = field(
         default_factory=list,
         metadata={
             "name": "pointProperty",
@@ -36,7 +35,7 @@ class CubicSplineType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    point_rep: List[PointRep] = field(
+    point_rep: list[PointRep] = field(
         default_factory=list,
         metadata={
             "name": "pointRep",
@@ -44,7 +43,7 @@ class CubicSplineType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    pos_list: Optional[PosList] = field(
+    pos_list: PosList | None = field(
         default=None,
         metadata={
             "name": "posList",
@@ -52,14 +51,14 @@ class CubicSplineType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    coordinates: Optional[Coordinates] = field(
+    coordinates: Coordinates | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    vector_at_start: Optional[VectorType] = field(
+    vector_at_start: VectorType | None = field(
         default=None,
         metadata={
             "name": "vectorAtStart",
@@ -68,7 +67,7 @@ class CubicSplineType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    vector_at_end: Optional[VectorType] = field(
+    vector_at_end: VectorType | None = field(
         default=None,
         metadata={
             "name": "vectorAtEnd",

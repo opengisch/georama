@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.capabilities_base_type import (
     CapabilitiesBaseType,
@@ -18,7 +17,7 @@ class WfsCapabilitiesType(CapabilitiesBaseType):
     class Meta:
         name = "WFS_CapabilitiesType"
 
-    wsdl: Optional[WfsCapabilitiesTypeWsdl] = field(
+    wsdl: WfsCapabilitiesTypeWsdl | None = field(
         default=None,
         metadata={
             "name": "WSDL",
@@ -26,7 +25,7 @@ class WfsCapabilitiesType(CapabilitiesBaseType):
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    feature_type_list: Optional[FeatureTypeList] = field(
+    feature_type_list: FeatureTypeList | None = field(
         default=None,
         metadata={
             "name": "FeatureTypeList",
@@ -34,7 +33,7 @@ class WfsCapabilitiesType(CapabilitiesBaseType):
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    filter_capabilities: Optional[FilterCapabilities] = field(
+    filter_capabilities: FilterCapabilities | None = field(
         default=None,
         metadata={
             "name": "Filter_Capabilities",

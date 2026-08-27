@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.base_style_descriptor_type import (
     BaseStyleDescriptorType,
@@ -17,7 +16,7 @@ class TopologyStyleType(BaseStyleDescriptorType):
     Describes individual topology elements styles.
     """
 
-    symbol_or_style: Optional[Union[Symbol, str]] = field(
+    symbol_or_style: Symbol | str | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -35,7 +34,7 @@ class TopologyStyleType(BaseStyleDescriptorType):
             ),
         },
     )
-    label_style: Optional[LabelStyle2] = field(
+    label_style: LabelStyle2 | None = field(
         default=None,
         metadata={
             "name": "labelStyle",
@@ -43,14 +42,14 @@ class TopologyStyleType(BaseStyleDescriptorType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    topology_property: Optional[str] = field(
+    topology_property: str | None = field(
         default=None,
         metadata={
             "name": "topologyProperty",
             "type": "Attribute",
         },
     )
-    topology_type: Optional[str] = field(
+    topology_type: str | None = field(
         default=None,
         metadata={
             "name": "topologyType",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.distance import Distance
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.length import Length
@@ -15,7 +14,7 @@ class LengthPropertyType:
     class Meta:
         name = "Length_PropertyType"
 
-    distance: Optional[Distance] = field(
+    distance: Distance | None = field(
         default=None,
         metadata={
             "name": "Distance",
@@ -23,7 +22,7 @@ class LengthPropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    length: Optional[Length] = field(
+    length: Length | None = field(
         default=None,
         metadata={
             "name": "Length",
@@ -31,7 +30,7 @@ class LengthPropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_general_parameter_value_property_type import (
     IncludesValue,
@@ -17,7 +16,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class TransformationType(AbstractGeneralTransformationType):
-    uses_method: Optional[UsesMethod] = field(
+    uses_method: UsesMethod | None = field(
         default=None,
         metadata={
             "name": "usesMethod",
@@ -25,14 +24,14 @@ class TransformationType(AbstractGeneralTransformationType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    method: Optional[Method] = field(
+    method: Method | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    includes_value: List[IncludesValue] = field(
+    includes_value: list[IncludesValue] = field(
         default_factory=list,
         metadata={
             "name": "includesValue",
@@ -40,7 +39,7 @@ class TransformationType(AbstractGeneralTransformationType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_value: List[UsesValue] = field(
+    uses_value: list[UsesValue] = field(
         default_factory=list,
         metadata={
             "name": "usesValue",
@@ -48,7 +47,7 @@ class TransformationType(AbstractGeneralTransformationType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    parameter_value: List[ParameterValue2] = field(
+    parameter_value: list[ParameterValue2] = field(
         default_factory=list,
         metadata={
             "name": "parameterValue",

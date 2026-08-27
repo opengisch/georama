@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, ForwardRef, Optional, Union
+from typing import Any, ForwardRef, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.absolute_external_positional_accuracy import (
     AbsoluteExternalPositionalAccuracy,
@@ -55,7 +55,7 @@ class CrsrefType:
     class Meta:
         name = "CRSRefType"
 
-    choice: Optional[
+    choice: (
         Union[
             "CompoundCrs",
             TemporalCrs,
@@ -67,7 +67,8 @@ class CrsrefType:
             VerticalCrs,
             GeographicCrs,
         ]
-    ] = field(
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -129,22 +130,14 @@ class CrsrefType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -152,28 +145,36 @@ class CrsrefType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -190,7 +191,7 @@ class CoordinateReferenceSystemRefType:
     the definition of that reference system.
     """
 
-    choice: Optional[
+    choice: (
         Union[
             TemporalCrs,
             ImageCrs,
@@ -201,7 +202,8 @@ class CoordinateReferenceSystemRefType:
             VerticalCrs,
             GeographicCrs,
         ]
-    ] = field(
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -258,22 +260,14 @@ class CoordinateReferenceSystemRefType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -281,28 +275,36 @@ class CoordinateReferenceSystemRefType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -400,14 +402,14 @@ class AbstractCoordinateOperationType(AbstractCoordinateOperationBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    remarks: Optional[Remarks] = field(
+    remarks: Remarks | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    operation_version: Optional[OperationVersion] = field(
+    operation_version: OperationVersion | None = field(
         default=None,
         metadata={
             "name": "operationVersion",
@@ -415,7 +417,7 @@ class AbstractCoordinateOperationType(AbstractCoordinateOperationBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    valid_area: Optional[ValidArea] = field(
+    valid_area: ValidArea | None = field(
         default=None,
         metadata={
             "name": "validArea",
@@ -423,7 +425,7 @@ class AbstractCoordinateOperationType(AbstractCoordinateOperationBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    scope: Optional[Scope] = field(
+    scope: Scope | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -431,11 +433,9 @@ class AbstractCoordinateOperationType(AbstractCoordinateOperationBaseType):
         },
     )
     covariance_matrix_or_relative_internal_positional_accuracy_or_absolute_external_positional_accuracy: list[
-        Union[
-            CovarianceMatrix,
-            RelativeInternalPositionalAccuracy,
-            AbsoluteExternalPositionalAccuracy,
-        ]
+        CovarianceMatrix
+        | RelativeInternalPositionalAccuracy
+        | AbsoluteExternalPositionalAccuracy
     ] = field(
         default_factory=list,
         metadata={
@@ -459,7 +459,7 @@ class AbstractCoordinateOperationType(AbstractCoordinateOperationBaseType):
             ),
         },
     )
-    source_crs: Optional[SourceCrs] = field(
+    source_crs: SourceCrs | None = field(
         default=None,
         metadata={
             "name": "sourceCRS",
@@ -467,7 +467,7 @@ class AbstractCoordinateOperationType(AbstractCoordinateOperationBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    target_crs: Optional[TargetCrs] = field(
+    target_crs: TargetCrs | None = field(
         default=None,
         metadata={
             "name": "targetCRS",
@@ -573,7 +573,7 @@ class ConversionType(AbstractGeneralConversionType):
         set of parameter values used by this conversion operation.
     """
 
-    uses_method: Optional[UsesMethod] = field(
+    uses_method: UsesMethod | None = field(
         default=None,
         metadata={
             "name": "usesMethod",
@@ -605,7 +605,7 @@ class GeneralConversionRefType:
     definition of that conversion.
     """
 
-    conversion: Optional[Conversion] = field(
+    conversion: Conversion | None = field(
         default=None,
         metadata={
             "name": "Conversion",
@@ -622,22 +622,14 @@ class GeneralConversionRefType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -645,28 +637,36 @@ class GeneralConversionRefType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -701,7 +701,7 @@ class AbstractGeneralDerivedCrstype(AbstractReferenceSystemType):
     class Meta:
         name = "AbstractGeneralDerivedCRSType"
 
-    base_crs: Optional[BaseCrs] = field(
+    base_crs: BaseCrs | None = field(
         default=None,
         metadata={
             "name": "baseCRS",
@@ -710,7 +710,7 @@ class AbstractGeneralDerivedCrstype(AbstractReferenceSystemType):
             "required": True,
         },
     )
-    defined_by_conversion: Optional[DefinedByConversion] = field(
+    defined_by_conversion: DefinedByConversion | None = field(
         default=None,
         metadata={
             "name": "definedByConversion",
@@ -734,7 +734,7 @@ class DerivedCrstype1(AbstractGeneralDerivedCrstype):
     class Meta:
         name = "DerivedCRSType"
 
-    derived_crstype: Optional[DerivedCrstype] = field(
+    derived_crstype: DerivedCrstype | None = field(
         default=None,
         metadata={
             "name": "derivedCRSType",
@@ -743,7 +743,7 @@ class DerivedCrstype1(AbstractGeneralDerivedCrstype):
             "required": True,
         },
     )
-    uses_cs: Optional[UsesCs] = field(
+    uses_cs: UsesCs | None = field(
         default=None,
         metadata={
             "name": "usesCS",
@@ -768,7 +768,7 @@ class ProjectedCrstype(AbstractGeneralDerivedCrstype):
     class Meta:
         name = "ProjectedCRSType"
 
-    uses_cartesian_cs: Optional[UsesCartesianCs] = field(
+    uses_cartesian_cs: UsesCartesianCs | None = field(
         default=None,
         metadata={
             "name": "usesCartesianCS",

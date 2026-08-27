@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.measure_description import (
     MeasureDescription,
@@ -14,7 +13,7 @@ class AbstractPositionalAccuracyType:
     Position error estimate (or accuracy) data.
     """
 
-    measure_description: Optional[MeasureDescription] = field(
+    measure_description: MeasureDescription | None = field(
         default=None,
         metadata={
             "name": "measureDescription",

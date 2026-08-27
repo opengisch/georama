@@ -12,7 +12,10 @@ class WebGisConfig(GeoramaAbstractConfig):
     app_index_page = "webgis:theme-list"
 
     def ready(self):
-        from georama.core.common.remote_actions import RemoteAction, register_remote_action
+        from georama.core.common.remote_actions import (
+            RemoteAction,
+            register_remote_action,
+        )
         from georama.integration.models import Project
 
         super().ready()

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -30,21 +29,21 @@ class CiContactType(AbstractObjectType):
     class Meta:
         name = "CI_Contact_Type"
 
-    phone: Optional[CiTelephonePropertyType] = field(
+    phone: CiTelephonePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    address: Optional[CiAddressPropertyType] = field(
+    address: CiAddressPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    online_resource: Optional[CiOnlineResourcePropertyType] = field(
+    online_resource: CiOnlineResourcePropertyType | None = field(
         default=None,
         metadata={
             "name": "onlineResource",
@@ -52,7 +51,7 @@ class CiContactType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    hours_of_service: Optional[CharacterStringPropertyType] = field(
+    hours_of_service: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "hoursOfService",
@@ -60,7 +59,7 @@ class CiContactType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    contact_instructions: Optional[CharacterStringPropertyType] = field(
+    contact_instructions: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "contactInstructions",

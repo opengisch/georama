@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.md_restriction_code import (
     MdRestrictionCode,
@@ -16,7 +15,7 @@ class MdRestrictionCodePropertyType:
     class Meta:
         name = "MD_RestrictionCode_PropertyType"
 
-    md_restriction_code: Optional[MdRestrictionCode] = field(
+    md_restriction_code: MdRestrictionCode | None = field(
         default=None,
         metadata={
             "name": "MD_RestrictionCode",
@@ -24,7 +23,7 @@ class MdRestrictionCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

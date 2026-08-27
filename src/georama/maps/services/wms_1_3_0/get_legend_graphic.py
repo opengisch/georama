@@ -15,7 +15,9 @@ class WmsGetLegendGraphic(WmsOperation):
     def prepare_job_content(
         self, service_params: GetLegendGraphicRequestParams
     ) -> QslJobParameterLegend:
-        accessible_published_as = self.obtain_accessible_layers(service_params.layer_list)
+        accessible_published_as = self.obtain_accessible_layers(
+            service_params.layer_list
+        )
 
         if service_params.DPI:
             dpi = service_params.DPI
@@ -46,7 +48,7 @@ class WmsGetLegendGraphic(WmsOperation):
                 try:
                     qsl_job_layer = dataset.to_qsl_job_layer(requested_style_name)
                 except LookupError:
-                    raise ValueError(  # noqa: B904
+                    raise ValueError(
                         f"Requested style {requested_style_name} is not"
                         f"defined for layer {dataset.name}"
                     )

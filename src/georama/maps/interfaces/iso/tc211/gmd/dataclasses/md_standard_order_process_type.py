@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -24,14 +23,14 @@ class MdStandardOrderProcessType(AbstractObjectType):
     class Meta:
         name = "MD_StandardOrderProcess_Type"
 
-    fees: Optional[CharacterStringPropertyType] = field(
+    fees: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    planned_available_date_time: Optional[DateTimePropertyType] = field(
+    planned_available_date_time: DateTimePropertyType | None = field(
         default=None,
         metadata={
             "name": "plannedAvailableDateTime",
@@ -39,7 +38,7 @@ class MdStandardOrderProcessType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    ordering_instructions: Optional[CharacterStringPropertyType] = field(
+    ordering_instructions: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "orderingInstructions",
@@ -47,7 +46,7 @@ class MdStandardOrderProcessType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    turnaround: Optional[CharacterStringPropertyType] = field(
+    turnaround: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_reference_system_type import (
     AbstractReferenceSystemType,
@@ -25,7 +24,7 @@ class GeographicCrstype(AbstractReferenceSystemType):
     class Meta:
         name = "GeographicCRSType"
 
-    uses_ellipsoidal_cs: Optional[UsesEllipsoidalCs] = field(
+    uses_ellipsoidal_cs: UsesEllipsoidalCs | None = field(
         default=None,
         metadata={
             "name": "usesEllipsoidalCS",
@@ -34,7 +33,7 @@ class GeographicCrstype(AbstractReferenceSystemType):
             "required": True,
         },
     )
-    uses_geodetic_datum: Optional[UsesGeodeticDatum] = field(
+    uses_geodetic_datum: UsesGeodeticDatum | None = field(
         default=None,
         metadata={
             "name": "usesGeodeticDatum",

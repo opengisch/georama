@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_md_spatial_representation_type import (
     AbstractMdSpatialRepresentationType,
@@ -29,7 +28,7 @@ class MdGridSpatialRepresentationType(AbstractMdSpatialRepresentationType):
     class Meta:
         name = "MD_GridSpatialRepresentation_Type"
 
-    number_of_dimensions: Optional[IntegerPropertyType] = field(
+    number_of_dimensions: IntegerPropertyType | None = field(
         default=None,
         metadata={
             "name": "numberOfDimensions",
@@ -46,7 +45,7 @@ class MdGridSpatialRepresentationType(AbstractMdSpatialRepresentationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    cell_geometry: Optional[MdCellGeometryCodePropertyType] = field(
+    cell_geometry: MdCellGeometryCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "cellGeometry",
@@ -55,7 +54,7 @@ class MdGridSpatialRepresentationType(AbstractMdSpatialRepresentationType):
             "required": True,
         },
     )
-    transformation_parameter_availability: Optional[BooleanPropertyType2] = field(
+    transformation_parameter_availability: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "transformationParameterAvailability",

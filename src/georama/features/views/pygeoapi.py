@@ -102,7 +102,9 @@ class PygeoapiServer(View):
         """
         return self.execute_from_django(core_api.conformance, request)
 
-    def collections(self, request: HttpRequest, collection_id: str | None = None) -> HttpResponse:
+    def collections(
+        self, request: HttpRequest, collection_id: str | None = None
+    ) -> HttpResponse:
         """
         OGC API collections endpoint
 
@@ -111,7 +113,9 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP Response
         """
-        return self.execute_from_django(core_api.describe_collections, request, collection_id)
+        return self.execute_from_django(
+            core_api.describe_collections, request, collection_id
+        )
 
     def collection_schema(
         self, request: HttpRequest, collection_id: str | None = None
@@ -126,7 +130,9 @@ class PygeoapiServer(View):
         """
         feature_layer = self.get_collection_or_404(collection_id)
         if "view_featurelayer" in get_perms(request.user, feature_layer):
-            return self.execute_from_django(core_api.get_collection_schema, request, collection_id)
+            return self.execute_from_django(
+                core_api.get_collection_schema, request, collection_id
+            )
         else:
             raise PermissionDenied()
 
@@ -149,7 +155,9 @@ class PygeoapiServer(View):
         else:
             raise PermissionDenied()
 
-    def collection_items(self, request: HttpRequest, collection_id: str) -> HttpResponse:
+    def collection_items(
+        self, request: HttpRequest, collection_id: str
+    ) -> HttpResponse:
         """
         OGC API collections items endpoint
 
@@ -273,7 +281,9 @@ class PygeoapiServer(View):
         server_config["server"]["url"] = (
             f"{request.scheme}://{request.get_host()}{reverse('features:index')}"
         )
-        for feature_layer in get_objects_for_user(request.user, ["view_featurelayer"], self.model):
+        for feature_layer in get_objects_for_user(
+            request.user, ["view_featurelayer"], self.model
+        ):
             server_config["resources"][str(feature_layer.id)] = self.create_resource(
                 feature_layer, request
             )
@@ -312,7 +322,9 @@ class PygeoapiServer(View):
             "data": {
                 "source_type": driver_lookup[source.ogr.path.split(".")[-1].upper()],
                 "source": os.path.join(
-                    Config().path, feature_layer.datasource.project.collection.name, source.ogr.path
+                    Config().path,
+                    feature_layer.datasource.project.collection.name,
+                    source.ogr.path,
                 ),
                 "source_capabilities": {"paging": True},
             },
@@ -374,7 +386,9 @@ class PygeoapiServer(View):
 
         return provider_definition
 
-    def create_resource(self, feature_layer: FeatureLayer, request: HttpRequest) -> dict:
+    def create_resource(
+        self, feature_layer: FeatureLayer, request: HttpRequest
+    ) -> dict:
         editable = any(
             p in get_perms(request.user, feature_layer)
             for p in ("add_featurelayer", "change_featurelayer", "delete_featurelayer")
@@ -383,9 +397,13 @@ class PygeoapiServer(View):
         features_properties = [p for p in feature_layer.fields.all() if p.visible]
 
         if feature_layer.datasource.driver.upper() == "POSTGRES":
-            provider = self.create_postgres_provider(feature_layer, editable, features_properties)
+            provider = self.create_postgres_provider(
+                feature_layer, editable, features_properties
+            )
         elif feature_layer.datasource.driver.upper() == "OGR":
-            provider = self.create_ogr_provider(feature_layer, editable, features_properties)
+            provider = self.create_ogr_provider(
+                feature_layer, editable, features_properties
+            )
         else:
             raise NotImplementedError
 
@@ -456,7 +474,7 @@ def getDatasetFieldConstraints(field_properties: list[Field], geom_type: str):
 
         if field.precision and field.precision > 0 and field.type_oapif == "number":
             # Specify how many decimal places are allowed
-            try:  # noqa: SIM105
+            try:
                 schema["multipleOf"] = 1 / 10**field.precision
             except ValueError:
                 pass

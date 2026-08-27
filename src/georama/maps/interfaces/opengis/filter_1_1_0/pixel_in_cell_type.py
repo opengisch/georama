@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.code_type import CodeType
 
@@ -17,7 +16,7 @@ class PixelInCellType(CodeType):
         this PixelInCellType.
     """
 
-    code_space: Optional[str] = field(
+    code_space: str | None = field(
         default=None,
         metadata={
             "name": "codeSpace",

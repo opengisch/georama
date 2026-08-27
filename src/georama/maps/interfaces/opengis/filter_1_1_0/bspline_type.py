@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -52,7 +51,7 @@ class BsplineType(AbstractCurveSegmentType):
     class Meta:
         name = "BSplineType"
 
-    choice: list[Union[Pos, PointProperty, PointRep, PosList, Coordinates]] = field(
+    choice: list[Pos | PointProperty | PointRep | PosList | Coordinates] = field(
         default_factory=list,
         metadata={
             "type": "Elements",
@@ -85,7 +84,7 @@ class BsplineType(AbstractCurveSegmentType):
             ),
         },
     )
-    degree: Optional[int] = field(
+    degree: int | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -107,14 +106,14 @@ class BsplineType(AbstractCurveSegmentType):
             "type": "Attribute",
         },
     )
-    is_polynomial: Optional[bool] = field(
+    is_polynomial: bool | None = field(
         default=None,
         metadata={
             "name": "isPolynomial",
             "type": "Attribute",
         },
     )
-    knot_type: Optional[KnotTypesType] = field(
+    knot_type: KnotTypesType | None = field(
         default=None,
         metadata={
             "name": "knotType",

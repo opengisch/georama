@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_dq_result_type import (
     AbstractDqResultType,
@@ -30,7 +29,7 @@ class DqQuantitativeResultType(AbstractDqResultType):
     class Meta:
         name = "DQ_QuantitativeResult_Type"
 
-    value_type: Optional[RecordTypePropertyType] = field(
+    value_type: RecordTypePropertyType | None = field(
         default=None,
         metadata={
             "name": "valueType",
@@ -38,7 +37,7 @@ class DqQuantitativeResultType(AbstractDqResultType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    value_unit: Optional[UnitOfMeasurePropertyType] = field(
+    value_unit: UnitOfMeasurePropertyType | None = field(
         default=None,
         metadata={
             "name": "valueUnit",
@@ -47,7 +46,7 @@ class DqQuantitativeResultType(AbstractDqResultType):
             "required": True,
         },
     )
-    error_statistic: Optional[CharacterStringPropertyType] = field(
+    error_statistic: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "errorStatistic",
@@ -55,7 +54,7 @@ class DqQuantitativeResultType(AbstractDqResultType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    value: List[RecordPropertyType] = field(
+    value: list[RecordPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",

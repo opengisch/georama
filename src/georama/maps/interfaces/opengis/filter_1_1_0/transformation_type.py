@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_general_transformation_type import (
     AbstractGeneralTransformationType,
@@ -31,7 +30,7 @@ class TransformationType(AbstractGeneralTransformationType):
         set of parameter values used by this transformation operation.
     """
 
-    uses_method: Optional[UsesMethod] = field(
+    uses_method: UsesMethod | None = field(
         default=None,
         metadata={
             "name": "usesMethod",

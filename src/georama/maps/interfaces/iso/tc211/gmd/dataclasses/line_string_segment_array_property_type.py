@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.line_string_segment import (
     LineStringSegment,
@@ -14,7 +13,7 @@ class LineStringSegmentArrayPropertyType:
     Gml:LineStringSegmentArrayPropertyType provides a container for line strings.
     """
 
-    line_string_segment: List[LineStringSegment] = field(
+    line_string_segment: list[LineStringSegment] = field(
         default_factory=list,
         metadata={
             "name": "LineStringSegment",

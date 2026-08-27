@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_md_content_information_type import (
     AbstractMdContentInformationType,
@@ -26,7 +25,7 @@ class MdCoverageDescriptionType(AbstractMdContentInformationType):
     class Meta:
         name = "MD_CoverageDescription_Type"
 
-    attribute_description: Optional[RecordTypePropertyType] = field(
+    attribute_description: RecordTypePropertyType | None = field(
         default=None,
         metadata={
             "name": "attributeDescription",
@@ -35,7 +34,7 @@ class MdCoverageDescriptionType(AbstractMdContentInformationType):
             "required": True,
         },
     )
-    content_type: Optional[MdCoverageContentTypeCodePropertyType] = field(
+    content_type: MdCoverageContentTypeCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "contentType",
@@ -44,7 +43,7 @@ class MdCoverageDescriptionType(AbstractMdContentInformationType):
             "required": True,
         },
     )
-    dimension: List[MdRangeDimensionPropertyType] = field(
+    dimension: list[MdRangeDimensionPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_geometric_aggregate_type import (
     AbstractGeometricAggregateType,
@@ -16,7 +15,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class MultiSurfaceType(AbstractGeometricAggregateType):
-    surface_member: List[SurfaceMember] = field(
+    surface_member: list[SurfaceMember] = field(
         default_factory=list,
         metadata={
             "name": "surfaceMember",
@@ -24,7 +23,7 @@ class MultiSurfaceType(AbstractGeometricAggregateType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    surface_members: Optional[SurfaceMembers] = field(
+    surface_members: SurfaceMembers | None = field(
         default=None,
         metadata={
             "name": "surfaceMembers",

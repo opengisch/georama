@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_discrete_coverage_type import (
     AbstractDiscreteCoverageType,
@@ -61,7 +61,7 @@ class MultiSurfaceCoverageType(AbstractDiscreteCoverageType):
             "type": "Ignore",
         },
     )
-    multi_surface_domain: Optional[MultiSurfaceDomain] = field(
+    multi_surface_domain: MultiSurfaceDomain | None = field(
         default=None,
         metadata={
             "name": "multiSurfaceDomain",

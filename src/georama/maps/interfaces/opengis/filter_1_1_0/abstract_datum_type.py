@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_datum_base_type import (
     AbstractDatumBaseType,
@@ -48,14 +47,14 @@ class AbstractDatumType(AbstractDatumBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    remarks: Optional[Remarks] = field(
+    remarks: Remarks | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    anchor_point: Optional[AnchorPoint] = field(
+    anchor_point: AnchorPoint | None = field(
         default=None,
         metadata={
             "name": "anchorPoint",
@@ -63,7 +62,7 @@ class AbstractDatumType(AbstractDatumBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    realization_epoch: Optional[RealizationEpoch] = field(
+    realization_epoch: RealizationEpoch | None = field(
         default=None,
         metadata={
             "name": "realizationEpoch",
@@ -71,7 +70,7 @@ class AbstractDatumType(AbstractDatumBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    valid_area: Optional[ValidArea] = field(
+    valid_area: ValidArea | None = field(
         default=None,
         metadata={
             "name": "validArea",
@@ -79,7 +78,7 @@ class AbstractDatumType(AbstractDatumBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    scope: Optional[Scope] = field(
+    scope: Scope | None = field(
         default=None,
         metadata={
             "type": "Element",

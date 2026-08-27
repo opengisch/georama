@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.catalog_symbol import CatalogSymbol
 from georama.maps.interfaces.opengis.gml_3_2_1.definition_type import DefinitionType
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class UnitDefinitionType(DefinitionType):
-    quantity_type: Optional[QuantityType] = field(
+    quantity_type: QuantityType | None = field(
         default=None,
         metadata={
             "name": "quantityType",
@@ -21,7 +20,7 @@ class UnitDefinitionType(DefinitionType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    quantity_type_reference: Optional[QuantityTypeReference] = field(
+    quantity_type_reference: QuantityTypeReference | None = field(
         default=None,
         metadata={
             "name": "quantityTypeReference",
@@ -29,7 +28,7 @@ class UnitDefinitionType(DefinitionType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    catalog_symbol: Optional[CatalogSymbol] = field(
+    catalog_symbol: CatalogSymbol | None = field(
         default=None,
         metadata={
             "name": "catalogSymbol",

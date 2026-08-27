@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_ex_geographic_extent_type import (
     AbstractExGeographicExtentType,
@@ -21,7 +20,7 @@ class ExBoundingPolygonType(AbstractExGeographicExtentType):
     class Meta:
         name = "EX_BoundingPolygon_Type"
 
-    polygon: List[GmObjectPropertyType] = field(
+    polygon: list[GmObjectPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",

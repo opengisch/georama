@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.boolean_property_type_2 import (
     BooleanPropertyType2,
@@ -25,7 +24,7 @@ class MdGeorectifiedType(MdGridSpatialRepresentationType):
     class Meta:
         name = "MD_Georectified_Type"
 
-    check_point_availability: Optional[BooleanPropertyType2] = field(
+    check_point_availability: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "checkPointAvailability",
@@ -34,7 +33,7 @@ class MdGeorectifiedType(MdGridSpatialRepresentationType):
             "required": True,
         },
     )
-    check_point_description: Optional[CharacterStringPropertyType] = field(
+    check_point_description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "checkPointDescription",
@@ -42,7 +41,7 @@ class MdGeorectifiedType(MdGridSpatialRepresentationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    corner_points: List[GmPointPropertyType] = field(
+    corner_points: list[GmPointPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "cornerPoints",
@@ -50,7 +49,7 @@ class MdGeorectifiedType(MdGridSpatialRepresentationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    center_point: Optional[GmPointPropertyType] = field(
+    center_point: GmPointPropertyType | None = field(
         default=None,
         metadata={
             "name": "centerPoint",
@@ -58,7 +57,7 @@ class MdGeorectifiedType(MdGridSpatialRepresentationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    point_in_pixel: Optional[MdPixelOrientationCodePropertyType] = field(
+    point_in_pixel: MdPixelOrientationCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "pointInPixel",
@@ -67,7 +66,7 @@ class MdGeorectifiedType(MdGridSpatialRepresentationType):
             "required": True,
         },
     )
-    transformation_dimension_description: Optional[CharacterStringPropertyType] = field(
+    transformation_dimension_description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "transformationDimensionDescription",
@@ -75,7 +74,7 @@ class MdGeorectifiedType(MdGridSpatialRepresentationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    transformation_dimension_mapping: List[CharacterStringPropertyType] = field(
+    transformation_dimension_mapping: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "transformationDimensionMapping",

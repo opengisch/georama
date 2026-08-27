@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 from xml.etree.ElementTree import QName
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.abstract_transaction_action_type import (
@@ -22,7 +21,7 @@ class UpdateType(AbstractTransactionActionType):
             "min_occurs": 1,
         },
     )
-    filter: Optional[Filter] = field(
+    filter: Filter | None = field(
         default=None,
         metadata={
             "name": "Filter",
@@ -30,7 +29,7 @@ class UpdateType(AbstractTransactionActionType):
             "namespace": "http://www.opengis.net/fes/2.0",
         },
     )
-    type_name: Optional[QName] = field(
+    type_name: QName | None = field(
         default=None,
         metadata={
             "name": "typeName",
@@ -45,7 +44,7 @@ class UpdateType(AbstractTransactionActionType):
             "type": "Attribute",
         },
     )
-    srs_name: Optional[str] = field(
+    srs_name: str | None = field(
         default=None,
         metadata={
             "name": "srsName",

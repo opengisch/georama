@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_geometric_aggregate_type import (
     AbstractGeometricAggregateType,
@@ -20,7 +19,7 @@ class MultiCurveType(AbstractGeometricAggregateType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    curve_members: Optional[CurveMembers] = field(
+    curve_members: CurveMembers | None = field(
         default=None,
         metadata={
             "name": "curveMembers",

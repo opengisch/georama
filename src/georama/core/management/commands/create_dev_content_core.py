@@ -28,7 +28,9 @@ class Command(BaseCommand):
             users = UserFactory.create_batch(50)
             for user in users:
                 MembershipFactory(user=user)
-            self.stdout.write(self.style.SUCCESS("Successfully created development content."))
+            self.stdout.write(
+                self.style.SUCCESS("Successfully created development content.")
+            )
         else:
             self.stdout.write(
                 self.style.ERROR("This command can be used only in Dev environments!")

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.temporal_operands_type import (
     TemporalOperandsType,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 
 @dataclass
 class TemporalOperatorType:
-    temporal_operands: Optional[TemporalOperandsType] = field(
+    temporal_operands: TemporalOperandsType | None = field(
         default=None,
         metadata={
             "name": "TemporalOperands",
@@ -21,7 +20,7 @@ class TemporalOperatorType:
             "namespace": "http://www.opengis.net/fes/2.0",
         },
     )
-    name: Optional[Union[str, TemporalOperatorNameTypeValue]] = field(
+    name: str | TemporalOperatorNameTypeValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",

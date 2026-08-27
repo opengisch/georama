@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_general_parameter_value_property_type import (
     IncludesValue,
@@ -17,7 +16,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class TransformationType(AbstractGeneralTransformationType):
-    uses_method: Optional[UsesMethod] = field(
+    uses_method: UsesMethod | None = field(
         default=None,
         metadata={
             "name": "usesMethod",
@@ -25,7 +24,7 @@ class TransformationType(AbstractGeneralTransformationType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    method: Optional[Method] = field(
+    method: Method | None = field(
         default=None,
         metadata={
             "type": "Element",

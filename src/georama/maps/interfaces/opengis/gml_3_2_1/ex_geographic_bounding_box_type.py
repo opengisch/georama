@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_ex_geographic_extent_type import (
     AbstractExGeographicExtentType,
@@ -20,7 +19,7 @@ class ExGeographicBoundingBoxType(AbstractExGeographicExtentType):
     class Meta:
         name = "EX_GeographicBoundingBox_Type"
 
-    west_bound_longitude: Optional[DecimalPropertyType] = field(
+    west_bound_longitude: DecimalPropertyType | None = field(
         default=None,
         metadata={
             "name": "westBoundLongitude",
@@ -29,7 +28,7 @@ class ExGeographicBoundingBoxType(AbstractExGeographicExtentType):
             "required": True,
         },
     )
-    east_bound_longitude: Optional[DecimalPropertyType] = field(
+    east_bound_longitude: DecimalPropertyType | None = field(
         default=None,
         metadata={
             "name": "eastBoundLongitude",
@@ -38,7 +37,7 @@ class ExGeographicBoundingBoxType(AbstractExGeographicExtentType):
             "required": True,
         },
     )
-    south_bound_latitude: Optional[DecimalPropertyType] = field(
+    south_bound_latitude: DecimalPropertyType | None = field(
         default=None,
         metadata={
             "name": "southBoundLatitude",
@@ -47,7 +46,7 @@ class ExGeographicBoundingBoxType(AbstractExGeographicExtentType):
             "required": True,
         },
     )
-    north_bound_latitude: Optional[DecimalPropertyType] = field(
+    north_bound_latitude: DecimalPropertyType | None = field(
         default=None,
         metadata={
             "name": "northBoundLatitude",

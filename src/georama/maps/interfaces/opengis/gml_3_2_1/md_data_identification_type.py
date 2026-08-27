@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_md_identification_type import (
     AbstractMdIdentificationType,
@@ -31,13 +30,15 @@ class MdDataIdentificationType(AbstractMdIdentificationType):
     class Meta:
         name = "MD_DataIdentification_Type"
 
-    spatial_representation_type: list[MdSpatialRepresentationTypeCodePropertyType] = field(
-        default_factory=list,
-        metadata={
-            "name": "spatialRepresentationType",
-            "type": "Element",
-            "namespace": "http://www.isotc211.org/2005/gmd",
-        },
+    spatial_representation_type: list[MdSpatialRepresentationTypeCodePropertyType] = (
+        field(
+            default_factory=list,
+            metadata={
+                "name": "spatialRepresentationType",
+                "type": "Element",
+                "namespace": "http://www.isotc211.org/2005/gmd",
+            },
+        )
     )
     spatial_resolution: list[MdResolutionPropertyType] = field(
         default_factory=list,
@@ -71,7 +72,7 @@ class MdDataIdentificationType(AbstractMdIdentificationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    environment_description: Optional[CharacterStringPropertyType] = field(
+    environment_description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "environmentDescription",
@@ -86,7 +87,7 @@ class MdDataIdentificationType(AbstractMdIdentificationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    supplemental_information: Optional[CharacterStringPropertyType] = field(
+    supplemental_information: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "supplementalInformation",

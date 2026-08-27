@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_time_primitive_type import (
     TimeEdge,
@@ -57,7 +56,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class DomainSetType:
-    rectified_grid: Optional[RectifiedGrid] = field(
+    rectified_grid: RectifiedGrid | None = field(
         default=None,
         metadata={
             "name": "RectifiedGrid",
@@ -65,7 +64,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    grid: Optional[Grid] = field(
+    grid: Grid | None = field(
         default=None,
         metadata={
             "name": "Grid",
@@ -73,7 +72,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    geometric_complex: Optional[GeometricComplex] = field(
+    geometric_complex: GeometricComplex | None = field(
         default=None,
         metadata={
             "name": "GeometricComplex",
@@ -81,7 +80,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_solid: Optional[MultiSolid] = field(
+    multi_solid: MultiSolid | None = field(
         default=None,
         metadata={
             "name": "MultiSolid",
@@ -89,7 +88,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_surface: Optional[MultiSurface] = field(
+    multi_surface: MultiSurface | None = field(
         default=None,
         metadata={
             "name": "MultiSurface",
@@ -97,7 +96,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_curve: Optional[MultiCurve] = field(
+    multi_curve: MultiCurve | None = field(
         default=None,
         metadata={
             "name": "MultiCurve",
@@ -105,7 +104,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_point: Optional[MultiPoint] = field(
+    multi_point: MultiPoint | None = field(
         default=None,
         metadata={
             "name": "MultiPoint",
@@ -113,7 +112,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_geometry: Optional[MultiGeometry] = field(
+    multi_geometry: MultiGeometry | None = field(
         default=None,
         metadata={
             "name": "MultiGeometry",
@@ -121,7 +120,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    composite_solid: Optional[CompositeSolid] = field(
+    composite_solid: CompositeSolid | None = field(
         default=None,
         metadata={
             "name": "CompositeSolid",
@@ -129,7 +128,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    solid: Optional[Solid] = field(
+    solid: Solid | None = field(
         default=None,
         metadata={
             "name": "Solid",
@@ -137,7 +136,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    composite_surface: Optional[CompositeSurface] = field(
+    composite_surface: CompositeSurface | None = field(
         default=None,
         metadata={
             "name": "CompositeSurface",
@@ -145,7 +144,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    shell: Optional[Shell] = field(
+    shell: Shell | None = field(
         default=None,
         metadata={
             "name": "Shell",
@@ -153,7 +152,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    orientable_surface: Optional[OrientableSurface] = field(
+    orientable_surface: OrientableSurface | None = field(
         default=None,
         metadata={
             "name": "OrientableSurface",
@@ -161,7 +160,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    tin: Optional[Tin] = field(
+    tin: Tin | None = field(
         default=None,
         metadata={
             "name": "Tin",
@@ -169,7 +168,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    triangulated_surface: Optional[TriangulatedSurface] = field(
+    triangulated_surface: TriangulatedSurface | None = field(
         default=None,
         metadata={
             "name": "TriangulatedSurface",
@@ -177,7 +176,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    polyhedral_surface: Optional[PolyhedralSurface] = field(
+    polyhedral_surface: PolyhedralSurface | None = field(
         default=None,
         metadata={
             "name": "PolyhedralSurface",
@@ -185,7 +184,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    surface: Optional[Surface] = field(
+    surface: Surface | None = field(
         default=None,
         metadata={
             "name": "Surface",
@@ -193,7 +192,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    polygon: Optional[Polygon] = field(
+    polygon: Polygon | None = field(
         default=None,
         metadata={
             "name": "Polygon",
@@ -201,7 +200,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    composite_curve: Optional[CompositeCurve] = field(
+    composite_curve: CompositeCurve | None = field(
         default=None,
         metadata={
             "name": "CompositeCurve",
@@ -209,7 +208,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    orientable_curve: Optional[OrientableCurve] = field(
+    orientable_curve: OrientableCurve | None = field(
         default=None,
         metadata={
             "name": "OrientableCurve",
@@ -217,7 +216,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    curve: Optional[Curve] = field(
+    curve: Curve | None = field(
         default=None,
         metadata={
             "name": "Curve",
@@ -225,7 +224,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    ring: Optional[Ring] = field(
+    ring: Ring | None = field(
         default=None,
         metadata={
             "name": "Ring",
@@ -233,7 +232,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    linear_ring: Optional[LinearRing] = field(
+    linear_ring: LinearRing | None = field(
         default=None,
         metadata={
             "name": "LinearRing",
@@ -241,7 +240,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    line_string: Optional[LineString] = field(
+    line_string: LineString | None = field(
         default=None,
         metadata={
             "name": "LineString",
@@ -249,7 +248,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    point: Optional[Point] = field(
+    point: Point | None = field(
         default=None,
         metadata={
             "name": "Point",
@@ -257,7 +256,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    time_topology_complex: Optional[TimeTopologyComplex] = field(
+    time_topology_complex: TimeTopologyComplex | None = field(
         default=None,
         metadata={
             "name": "TimeTopologyComplex",
@@ -265,7 +264,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    time_edge: Optional[TimeEdge] = field(
+    time_edge: TimeEdge | None = field(
         default=None,
         metadata={
             "name": "TimeEdge",
@@ -273,7 +272,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    time_node: Optional[TimeNode] = field(
+    time_node: TimeNode | None = field(
         default=None,
         metadata={
             "name": "TimeNode",
@@ -281,7 +280,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    time_period: Optional[TimePeriod] = field(
+    time_period: TimePeriod | None = field(
         default=None,
         metadata={
             "name": "TimePeriod",
@@ -289,7 +288,7 @@ class DomainSetType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    time_instant: Optional[TimeInstant] = field(
+    time_instant: TimeInstant | None = field(
         default=None,
         metadata={
             "name": "TimeInstant",
@@ -312,22 +311,14 @@ class DomainSetType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -335,28 +326,36 @@ class DomainSetType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -364,7 +363,7 @@ class DomainSetType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

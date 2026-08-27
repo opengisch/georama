@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.catalog_symbol import (
     CatalogSymbol,
@@ -17,7 +16,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class UnitDefinitionType(DefinitionType):
-    quantity_type: Optional[QuantityType] = field(
+    quantity_type: QuantityType | None = field(
         default=None,
         metadata={
             "name": "quantityType",
@@ -25,7 +24,7 @@ class UnitDefinitionType(DefinitionType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    quantity_type_reference: Optional[QuantityTypeReference] = field(
+    quantity_type_reference: QuantityTypeReference | None = field(
         default=None,
         metadata={
             "name": "quantityTypeReference",
@@ -33,7 +32,7 @@ class UnitDefinitionType(DefinitionType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    catalog_symbol: Optional[CatalogSymbol] = field(
+    catalog_symbol: CatalogSymbol | None = field(
         default=None,
         metadata={
             "name": "catalogSymbol",

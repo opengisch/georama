@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -19,7 +18,7 @@ class MdGeometricObjectsType(AbstractObjectType):
     class Meta:
         name = "MD_GeometricObjects_Type"
 
-    geometric_object_type: Optional[MdGeometricObjectTypeCodePropertyType] = field(
+    geometric_object_type: MdGeometricObjectTypeCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "geometricObjectType",
@@ -28,7 +27,7 @@ class MdGeometricObjectsType(AbstractObjectType):
             "required": True,
         },
     )
-    geometric_object_count: Optional[IntegerPropertyType] = field(
+    geometric_object_count: IntegerPropertyType | None = field(
         default=None,
         metadata={
             "name": "geometricObjectCount",

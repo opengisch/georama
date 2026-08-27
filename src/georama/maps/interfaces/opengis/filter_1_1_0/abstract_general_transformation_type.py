@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from georama.maps.interfaces.opengis.filter_1_1_0.crsref_type import (
     AbstractCoordinateOperationType,
@@ -36,7 +36,7 @@ class AbstractGeneralTransformationType(AbstractCoordinateOperationType):
             "type": "Ignore",
         },
     )
-    operation_version: Optional[OperationVersion] = field(
+    operation_version: OperationVersion | None = field(
         default=None,
         metadata={
             "name": "operationVersion",
@@ -45,7 +45,7 @@ class AbstractGeneralTransformationType(AbstractCoordinateOperationType):
             "required": True,
         },
     )
-    source_crs: Optional[SourceCrs] = field(
+    source_crs: SourceCrs | None = field(
         default=None,
         metadata={
             "name": "sourceCRS",
@@ -54,7 +54,7 @@ class AbstractGeneralTransformationType(AbstractCoordinateOperationType):
             "required": True,
         },
     )
-    target_crs: Optional[TargetCrs] = field(
+    target_crs: TargetCrs | None = field(
         default=None,
         metadata={
             "name": "targetCRS",

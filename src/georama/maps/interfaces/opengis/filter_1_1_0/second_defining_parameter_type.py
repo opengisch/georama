@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.inverse_flattening import (
     InverseFlattening,
@@ -17,9 +16,9 @@ class SecondDefiningParameterType:
     An ellipsoid requires two defining parameters: semi-major axis and inverse flattening or semi-major axis and semi-minor axis. When the reference body is a sphere rather than an ellipsoid, only a single defining parameter is required, namely the radius of the sphere; in that case, the semi-major axis "degenerates" into the radius of the sphere.
     """
 
-    inverse_flattening_or_semi_minor_axis_or_is_sphere: Optional[
-        Union[InverseFlattening, SemiMinorAxis, IsSphere]
-    ] = field(
+    inverse_flattening_or_semi_minor_axis_or_is_sphere: (
+        InverseFlattening | SemiMinorAxis | IsSphere | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",

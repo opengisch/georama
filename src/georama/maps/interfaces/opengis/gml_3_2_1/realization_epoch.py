@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from xsdata.models.datatype import XmlDate
 
@@ -17,7 +16,7 @@ class RealizationEpoch:
         name = "realizationEpoch"
         namespace = "http://www.opengis.net/gml/3.2"
 
-    value: Optional[XmlDate] = field(
+    value: XmlDate | None = field(
         default=None,
         metadata={
             "required": True,

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.code_type import CodeType
 from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
@@ -20,7 +19,7 @@ class Category(CodeType):
         nillable = True
         namespace = "http://www.opengis.net/gml/3.2"
 
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

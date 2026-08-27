@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.abstract_transaction_action_type import (
     AbstractTransactionActionType,
@@ -11,14 +10,14 @@ __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
 @dataclass
 class ReplaceType(AbstractTransactionActionType):
-    other_element: Optional[object] = field(
+    other_element: object | None = field(
         default=None,
         metadata={
             "type": "Wildcard",
             "namespace": "##other",
         },
     )
-    filter: Optional[Filter] = field(
+    filter: Filter | None = field(
         default=None,
         metadata={
             "name": "Filter",
@@ -34,7 +33,7 @@ class ReplaceType(AbstractTransactionActionType):
             "type": "Attribute",
         },
     )
-    srs_name: Optional[str] = field(
+    srs_name: str | None = field(
         default=None,
         metadata={
             "name": "srsName",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.character_string_property_type import (
     CharacterStringPropertyType,
@@ -24,7 +23,7 @@ class MdSecurityConstraintsType(MdConstraintsType):
     class Meta:
         name = "MD_SecurityConstraints_Type"
 
-    classification: Optional[MdClassificationCodePropertyType] = field(
+    classification: MdClassificationCodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -32,7 +31,7 @@ class MdSecurityConstraintsType(MdConstraintsType):
             "required": True,
         },
     )
-    user_note: Optional[CharacterStringPropertyType] = field(
+    user_note: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "userNote",
@@ -40,7 +39,7 @@ class MdSecurityConstraintsType(MdConstraintsType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    classification_system: Optional[CharacterStringPropertyType] = field(
+    classification_system: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "classificationSystem",
@@ -48,7 +47,7 @@ class MdSecurityConstraintsType(MdConstraintsType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    handling_description: Optional[CharacterStringPropertyType] = field(
+    handling_description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "handlingDescription",

@@ -8,14 +8,21 @@ from faker import Faker
 from faker.utils.loading import find_available_providers
 
 from georama.core.common.faker.gis import Dataset
-from georama.integration.factories import CustomFactory, FieldFactory, RasterFactory, VectorFactory
+from georama.integration.factories import (
+    CustomFactory,
+    FieldFactory,
+    RasterFactory,
+    VectorFactory,
+)
 from georama.integration.models import Datasource, Project, Vector, VectorField
 
 META_PROVIDERS_MODULES = [
     "georama.core.common.faker",
 ]
 
-PROVIDERS = find_available_providers([import_module(path) for path in META_PROVIDERS_MODULES])
+PROVIDERS = find_available_providers(
+    [import_module(path) for path in META_PROVIDERS_MODULES]
+)
 
 fake = Faker(locale="de_CH", providers=PROVIDERS)
 
@@ -120,7 +127,9 @@ class Command(BaseCommand):
 
             RasterFactory.create_batch(150)
             CustomFactory.create_batch(150)
-            self.stdout.write(self.style.SUCCESS("Successfully created development content."))
+            self.stdout.write(
+                self.style.SUCCESS("Successfully created development content.")
+            )
         else:
             self.stdout.write(
                 self.style.ERROR("This command can be used only in Dev environments!")

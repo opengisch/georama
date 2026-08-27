@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.boolean_list import BooleanList
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.category_list import CategoryList
@@ -16,7 +15,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class RangeSetType:
-    value_array: List[ValueArray] = field(
+    value_array: list[ValueArray] = field(
         default_factory=list,
         metadata={
             "name": "ValueArray",
@@ -24,7 +23,7 @@ class RangeSetType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    quantity_list: List[QuantityList] = field(
+    quantity_list: list[QuantityList] = field(
         default_factory=list,
         metadata={
             "name": "QuantityList",
@@ -32,7 +31,7 @@ class RangeSetType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    count_list: List[CountList] = field(
+    count_list: list[CountList] = field(
         default_factory=list,
         metadata={
             "name": "CountList",
@@ -40,7 +39,7 @@ class RangeSetType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    category_list: List[CategoryList] = field(
+    category_list: list[CategoryList] = field(
         default_factory=list,
         metadata={
             "name": "CategoryList",
@@ -48,7 +47,7 @@ class RangeSetType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    boolean_list: List[BooleanList] = field(
+    boolean_list: list[BooleanList] = field(
         default_factory=list,
         metadata={
             "name": "BooleanList",
@@ -56,7 +55,7 @@ class RangeSetType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    data_block: Optional[DataBlock] = field(
+    data_block: DataBlock | None = field(
         default=None,
         metadata={
             "name": "DataBlock",
@@ -64,7 +63,7 @@ class RangeSetType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    file: Optional[File] = field(
+    file: File | None = field(
         default=None,
         metadata={
             "name": "File",

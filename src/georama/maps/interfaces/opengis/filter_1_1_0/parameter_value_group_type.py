@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_general_parameter_value_type import (
     AbstractGeneralParameterValueType,
@@ -39,7 +38,7 @@ class ParameterValueGroupType(AbstractGeneralParameterValueType):
             "min_occurs": 2,
         },
     )
-    values_of_group: Optional[ValuesOfGroup] = field(
+    values_of_group: ValuesOfGroup | None = field(
         default=None,
         metadata={
             "name": "valuesOfGroup",

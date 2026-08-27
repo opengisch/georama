@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_feature_type import (
     AbstractFeatureType,
@@ -15,7 +14,7 @@ class BoundedFeatureType(AbstractFeatureType):
     Makes boundedBy mandatory.
     """
 
-    bounded_by: Optional[BoundedBy] = field(
+    bounded_by: BoundedBy | None = field(
         default=None,
         metadata={
             "name": "boundedBy",

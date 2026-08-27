@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.direct_position_type import (
     DirectPositionType,
@@ -11,7 +10,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class AffinePlacementType:
-    location: Optional[DirectPositionType] = field(
+    location: DirectPositionType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -19,7 +18,7 @@ class AffinePlacementType:
             "required": True,
         },
     )
-    ref_direction: List[VectorType] = field(
+    ref_direction: list[VectorType] = field(
         default_factory=list,
         metadata={
             "name": "refDirection",
@@ -28,7 +27,7 @@ class AffinePlacementType:
             "min_occurs": 1,
         },
     )
-    in_dimension: Optional[int] = field(
+    in_dimension: int | None = field(
         default=None,
         metadata={
             "name": "inDimension",
@@ -37,7 +36,7 @@ class AffinePlacementType:
             "required": True,
         },
     )
-    out_dimension: Optional[int] = field(
+    out_dimension: int | None = field(
         default=None,
         metadata={
             "name": "outDimension",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.file_value_model_type import (
     FileValueModelType,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class FileType:
-    range_parameters: Optional[RangeParameters] = field(
+    range_parameters: RangeParameters | None = field(
         default=None,
         metadata={
             "name": "rangeParameters",
@@ -22,7 +21,7 @@ class FileType:
             "required": True,
         },
     )
-    file_name: Optional[str] = field(
+    file_name: str | None = field(
         default=None,
         metadata={
             "name": "fileName",
@@ -30,7 +29,7 @@ class FileType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    file_reference: Optional[str] = field(
+    file_reference: str | None = field(
         default=None,
         metadata={
             "name": "fileReference",
@@ -38,7 +37,7 @@ class FileType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    file_structure: Optional[FileValueModelType] = field(
+    file_structure: FileValueModelType | None = field(
         default=None,
         metadata={
             "name": "fileStructure",
@@ -47,7 +46,7 @@ class FileType:
             "required": True,
         },
     )
-    mime_type: Optional[str] = field(
+    mime_type: str | None = field(
         default=None,
         metadata={
             "name": "mimeType",
@@ -55,7 +54,7 @@ class FileType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    compression: Optional[str] = field(
+    compression: str | None = field(
         default=None,
         metadata={
             "type": "Element",

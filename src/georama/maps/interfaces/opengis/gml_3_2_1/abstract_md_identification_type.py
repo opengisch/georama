@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -50,7 +49,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
     class Meta:
         name = "AbstractMD_Identification_Type"
 
-    citation: Optional[CiCitationPropertyType] = field(
+    citation: CiCitationPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -58,7 +57,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
             "required": True,
         },
     )
-    abstract: Optional[CharacterStringPropertyType] = field(
+    abstract: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -66,7 +65,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
             "required": True,
         },
     )
-    purpose: Optional[CharacterStringPropertyType] = field(
+    purpose: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

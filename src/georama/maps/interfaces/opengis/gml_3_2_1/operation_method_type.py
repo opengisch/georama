@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_general_operation_parameter_property_type import (
     GeneralOperationParameter,
@@ -21,7 +20,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class OperationMethodType(IdentifiedObjectType):
-    formula_citation: Optional[FormulaCitation] = field(
+    formula_citation: FormulaCitation | None = field(
         default=None,
         metadata={
             "name": "formulaCitation",
@@ -29,7 +28,7 @@ class OperationMethodType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    method_formula: Optional[MethodFormula] = field(
+    method_formula: MethodFormula | None = field(
         default=None,
         metadata={
             "name": "methodFormula",
@@ -37,14 +36,14 @@ class OperationMethodType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    formula: Optional[Formula] = field(
+    formula: Formula | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    source_dimensions: Optional[SourceDimensions] = field(
+    source_dimensions: SourceDimensions | None = field(
         default=None,
         metadata={
             "name": "sourceDimensions",
@@ -52,7 +51,7 @@ class OperationMethodType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    target_dimensions: Optional[TargetDimensions] = field(
+    target_dimensions: TargetDimensions | None = field(
         default=None,
         metadata={
             "name": "targetDimensions",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.un_named_domain_type import UnNamedDomainType
 
@@ -15,7 +14,7 @@ class DomainType(UnNamedDomainType):
     :ivar name: Name or identifier of this quantity.
     """
 
-    name: Optional[str] = field(
+    name: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

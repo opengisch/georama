@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.solid import Solid
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.solid_property_type import (
@@ -17,7 +16,7 @@ class SolidArrayPropertyType:
     geometry elements or arrays of geometry elements is not supported.
     """
 
-    composite_solid: List[CompositeSolid] = field(
+    composite_solid: list[CompositeSolid] = field(
         default_factory=list,
         metadata={
             "name": "CompositeSolid",
@@ -26,7 +25,7 @@ class SolidArrayPropertyType:
             "sequence": 1,
         },
     )
-    solid: List[Solid] = field(
+    solid: list[Solid] = field(
         default_factory=list,
         metadata={
             "name": "Solid",

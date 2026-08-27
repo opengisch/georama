@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.linear_ring import LinearRing
 from georama.maps.interfaces.opengis.filter_1_1_0.ring import Ring
@@ -13,7 +12,7 @@ class AbstractRingPropertyType:
     Encapsulates a ring to represent the surface boundary property of a surface.
     """
 
-    ring_or_linear_ring: Optional[Union[Ring, LinearRing]] = field(
+    ring_or_linear_ring: Ring | LinearRing | None = field(
         default=None,
         metadata={
             "type": "Elements",

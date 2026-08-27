@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_surface_patch_type import (
     AbstractSurfacePatchType,
@@ -37,7 +36,7 @@ class PolygonPatchType(AbstractSurfacePatchType):
         contained within that plane.
     """
 
-    outer_boundary_is_or_exterior: Optional[Union[OuterBoundaryIs, Exterior]] = field(
+    outer_boundary_is_or_exterior: OuterBoundaryIs | Exterior | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -55,7 +54,7 @@ class PolygonPatchType(AbstractSurfacePatchType):
             ),
         },
     )
-    inner_boundary_is_or_interior: list[Union[InnerBoundaryIs, Interior]] = field(
+    inner_boundary_is_or_interior: list[InnerBoundaryIs | Interior] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

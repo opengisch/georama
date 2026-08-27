@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.composite_solid_type import (
     CompositeSolid,
@@ -66,38 +65,37 @@ class BinarySpatialOpType(SpatialOpsType):
             "sequence": 1,
         },
     )
-    choice: Optional[
-        Union[
-            MultiLineString,
-            MultiPolygon,
-            MultiSolid,
-            MultiSurface,
-            MultiCurve,
-            MultiPoint,
-            MultiGeometry,
-            RectifiedGrid,
-            Grid,
-            GeometricComplex,
-            Ring,
-            LinearRing,
-            Solid,
-            CompositeSolid,
-            OrientableSurface,
-            Tin,
-            TriangulatedSurface,
-            PolyhedralSurface,
-            Surface,
-            CompositeSurface,
-            Polygon,
-            OrientableCurve,
-            Curve,
-            CompositeCurve,
-            LineString,
-            Point,
-            EnvelopeWithTimePeriod,
-            Envelope,
-        ]
-    ] = field(
+    choice: (
+        MultiLineString
+        | MultiPolygon
+        | MultiSolid
+        | MultiSurface
+        | MultiCurve
+        | MultiPoint
+        | MultiGeometry
+        | RectifiedGrid
+        | Grid
+        | GeometricComplex
+        | Ring
+        | LinearRing
+        | Solid
+        | CompositeSolid
+        | OrientableSurface
+        | Tin
+        | TriangulatedSurface
+        | PolyhedralSurface
+        | Surface
+        | CompositeSurface
+        | Polygon
+        | OrientableCurve
+        | Curve
+        | CompositeCurve
+        | LineString
+        | Point
+        | EnvelopeWithTimePeriod
+        | Envelope
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",

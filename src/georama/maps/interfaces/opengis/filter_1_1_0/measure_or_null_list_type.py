@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.null_enumeration_value import (
     NullEnumerationValue,
@@ -17,14 +16,14 @@ class MeasureOrNullListType:
     amount, either a ratio or position scale.
     """
 
-    value: list[Union[str, NullEnumerationValue]] = field(
+    value: list[str | NullEnumerationValue] = field(
         default_factory=list,
         metadata={
             "pattern": r"other:\w{2,}",
             "tokens": True,
         },
     )
-    uom: Optional[str] = field(
+    uom: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

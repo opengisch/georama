@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.range import Range
 from georama.maps.interfaces.ogc.wfs_2_0_0.value_1 import Value1
@@ -18,7 +17,7 @@ class AllowedValues:
     class Meta:
         namespace = "http://www.opengis.net/ows/1.1"
 
-    value_or_range: list[Union[Value1, Range]] = field(
+    value_or_range: list[Value1 | Range] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

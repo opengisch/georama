@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import ForwardRef, Optional, Union
+from typing import ForwardRef, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.expression_type import ExpressionType
 from georama.maps.interfaces.opengis.filter_1_1_0.literal import Literal
@@ -10,7 +10,9 @@ __NAMESPACE__ = "http://www.opengis.net/ogc"
 
 @dataclass
 class BinaryOperatorType(ExpressionType):
-    choice: list[Union[Literal, "Function", PropertyName, "Div", "Mul", "Sub", "Add"]] = field(
+    choice: list[
+        Union[Literal, "Function", PropertyName, "Div", "Mul", "Sub", "Add"]
+    ] = field(
         default_factory=list,
         metadata={
             "type": "Elements",
@@ -132,7 +134,7 @@ class FunctionType(ExpressionType):
             ),
         },
     )
-    name: Optional[str] = field(
+    name: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

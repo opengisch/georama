@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -20,14 +19,14 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class ArcByCenterPointType(AbstractCurveSegmentType):
-    pos: Optional[Pos] = field(
+    pos: Pos | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    point_property: Optional[PointProperty] = field(
+    point_property: PointProperty | None = field(
         default=None,
         metadata={
             "name": "pointProperty",
@@ -35,7 +34,7 @@ class ArcByCenterPointType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    point_rep: Optional[PointRep] = field(
+    point_rep: PointRep | None = field(
         default=None,
         metadata={
             "name": "pointRep",
@@ -43,7 +42,7 @@ class ArcByCenterPointType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    pos_list: Optional[PosList] = field(
+    pos_list: PosList | None = field(
         default=None,
         metadata={
             "name": "posList",
@@ -51,14 +50,14 @@ class ArcByCenterPointType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    coordinates: Optional[Coordinates] = field(
+    coordinates: Coordinates | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    radius: Optional[LengthType] = field(
+    radius: LengthType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -66,7 +65,7 @@ class ArcByCenterPointType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    start_angle: Optional[AngleType] = field(
+    start_angle: AngleType | None = field(
         default=None,
         metadata={
             "name": "startAngle",
@@ -74,7 +73,7 @@ class ArcByCenterPointType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    end_angle: Optional[AngleType] = field(
+    end_angle: AngleType | None = field(
         default=None,
         metadata={
             "name": "endAngle",

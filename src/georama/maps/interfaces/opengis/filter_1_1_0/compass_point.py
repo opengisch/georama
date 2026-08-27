@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.compass_point_enumeration import (
     CompassPointEnumeration,
@@ -13,7 +12,7 @@ class CompassPoint:
     class Meta:
         namespace = "http://www.opengis.net/gml"
 
-    value: Optional[CompassPointEnumeration] = field(
+    value: CompassPointEnumeration | None = field(
         default=None,
         metadata={
             "required": True,

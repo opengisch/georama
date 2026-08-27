@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_gmltype import (
     AbstractGmltype,
@@ -19,7 +18,7 @@ class AbstractTimeSliceType(AbstractGmltype):
     acquired.
     """
 
-    valid_time: Optional[ValidTime] = field(
+    valid_time: ValidTime | None = field(
         default=None,
         metadata={
             "name": "validTime",
@@ -28,7 +27,7 @@ class AbstractTimeSliceType(AbstractGmltype):
             "required": True,
         },
     )
-    data_source: Optional[DataSource] = field(
+    data_source: DataSource | None = field(
         default=None,
         metadata={
             "name": "dataSource",

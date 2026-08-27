@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.md_distribution_units import (
     MdDistributionUnits,
@@ -16,7 +15,7 @@ class MdDistributionUnitsPropertyType:
     class Meta:
         name = "MD_DistributionUnits_PropertyType"
 
-    md_distribution_units: Optional[MdDistributionUnits] = field(
+    md_distribution_units: MdDistributionUnits | None = field(
         default=None,
         metadata={
             "name": "MD_DistributionUnits",
@@ -24,7 +23,7 @@ class MdDistributionUnitsPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

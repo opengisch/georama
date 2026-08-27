@@ -20,7 +20,9 @@ class Membership(models.Model):
         )
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the membership.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the membership."),
     )
     user = models.ForeignKey(
         GeoramaUser,

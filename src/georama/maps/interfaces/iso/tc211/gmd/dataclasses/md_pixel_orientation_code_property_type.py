@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.md_pixel_orientation_code import (
     MdPixelOrientationCode,
@@ -16,7 +15,7 @@ class MdPixelOrientationCodePropertyType:
     class Meta:
         name = "MD_PixelOrientationCode_PropertyType"
 
-    md_pixel_orientation_code: Optional[MdPixelOrientationCode] = field(
+    md_pixel_orientation_code: MdPixelOrientationCode | None = field(
         default=None,
         metadata={
             "name": "MD_PixelOrientationCode",
@@ -24,7 +23,7 @@ class MdPixelOrientationCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

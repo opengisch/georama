@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.sequence_rule_type import (
     SequenceRuleType,
@@ -10,7 +9,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class GridFunctionType:
-    sequence_rule: Optional[SequenceRuleType] = field(
+    sequence_rule: SequenceRuleType | None = field(
         default=None,
         metadata={
             "name": "sequenceRule",
@@ -18,7 +17,7 @@ class GridFunctionType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    start_point: List[int] = field(
+    start_point: list[int] = field(
         default_factory=list,
         metadata={
             "name": "startPoint",

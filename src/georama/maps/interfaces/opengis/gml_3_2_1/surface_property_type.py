@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_surface_type import (
     AbstractSurfaceType,
@@ -60,7 +60,7 @@ class SurfacePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    tin: Optional[Tin] = field(
+    tin: Tin | None = field(
         default=None,
         metadata={
             "name": "Tin",
@@ -68,7 +68,7 @@ class SurfacePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    triangulated_surface: Optional[TriangulatedSurface] = field(
+    triangulated_surface: TriangulatedSurface | None = field(
         default=None,
         metadata={
             "name": "TriangulatedSurface",
@@ -76,7 +76,7 @@ class SurfacePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    polyhedral_surface: Optional[PolyhedralSurface] = field(
+    polyhedral_surface: PolyhedralSurface | None = field(
         default=None,
         metadata={
             "name": "PolyhedralSurface",
@@ -84,7 +84,7 @@ class SurfacePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    surface: Optional[Surface] = field(
+    surface: Surface | None = field(
         default=None,
         metadata={
             "name": "Surface",
@@ -92,7 +92,7 @@ class SurfacePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    polygon: Optional[Polygon] = field(
+    polygon: Polygon | None = field(
         default=None,
         metadata={
             "name": "Polygon",
@@ -109,22 +109,14 @@ class SurfacePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -132,28 +124,36 @@ class SurfacePropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -161,7 +161,7 @@ class SurfacePropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -217,7 +217,7 @@ class CompositeSurfaceType(AbstractSurfaceType):
             "min_occurs": 1,
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",
@@ -228,7 +228,7 @@ class CompositeSurfaceType(AbstractSurfaceType):
 
 @dataclass
 class OrientableSurfaceType(AbstractSurfaceType):
-    base_surface: Optional[BaseSurface] = field(
+    base_surface: BaseSurface | None = field(
         default=None,
         metadata={
             "name": "baseSurface",
@@ -256,7 +256,7 @@ class ShellType(AbstractSurfaceType):
             "min_occurs": 1,
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",

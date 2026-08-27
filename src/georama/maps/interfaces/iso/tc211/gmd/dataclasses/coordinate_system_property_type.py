@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.actuate_value import ActuateValue
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.affine_cs_1 import AffineCs1
@@ -42,7 +41,7 @@ class CoordinateSystemPropertyType:
     coordinate system.
     """
 
-    oblique_cartesian_cs: Optional[ObliqueCartesianCs] = field(
+    oblique_cartesian_cs: ObliqueCartesianCs | None = field(
         default=None,
         metadata={
             "name": "ObliqueCartesianCS",
@@ -50,7 +49,7 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    affine_cs: Optional[AffineCs1] = field(
+    affine_cs: AffineCs1 | None = field(
         default=None,
         metadata={
             "name": "AffineCS",
@@ -58,7 +57,7 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    cylindrical_cs: Optional[CylindricalCs] = field(
+    cylindrical_cs: CylindricalCs | None = field(
         default=None,
         metadata={
             "name": "CylindricalCS",
@@ -66,7 +65,7 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    polar_cs: Optional[PolarCs] = field(
+    polar_cs: PolarCs | None = field(
         default=None,
         metadata={
             "name": "PolarCS",
@@ -74,7 +73,7 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    spherical_cs: Optional[SphericalCs1] = field(
+    spherical_cs: SphericalCs1 | None = field(
         default=None,
         metadata={
             "name": "SphericalCS",
@@ -82,7 +81,7 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    user_defined_cs: Optional[UserDefinedCs] = field(
+    user_defined_cs: UserDefinedCs | None = field(
         default=None,
         metadata={
             "name": "UserDefinedCS",
@@ -90,7 +89,7 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    linear_cs: Optional[LinearCs] = field(
+    linear_cs: LinearCs | None = field(
         default=None,
         metadata={
             "name": "LinearCS",
@@ -98,7 +97,7 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    temporal_cs: Optional[TemporalCs] = field(
+    temporal_cs: TemporalCs | None = field(
         default=None,
         metadata={
             "name": "TemporalCS",
@@ -106,7 +105,7 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    time_cs: Optional[TimeCs1] = field(
+    time_cs: TimeCs1 | None = field(
         default=None,
         metadata={
             "name": "TimeCS",
@@ -114,7 +113,7 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    vertical_cs: Optional[VerticalCs1] = field(
+    vertical_cs: VerticalCs1 | None = field(
         default=None,
         metadata={
             "name": "VerticalCS",
@@ -122,7 +121,7 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    cartesian_cs: Optional[CartesianCs1] = field(
+    cartesian_cs: CartesianCs1 | None = field(
         default=None,
         metadata={
             "name": "CartesianCS",
@@ -130,7 +129,7 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    ellipsoidal_cs: Optional[EllipsoidalCs1] = field(
+    ellipsoidal_cs: EllipsoidalCs1 | None = field(
         default=None,
         metadata={
             "name": "EllipsoidalCS",
@@ -147,49 +146,49 @@ class CoordinateSystemPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -197,7 +196,7 @@ class CoordinateSystemPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

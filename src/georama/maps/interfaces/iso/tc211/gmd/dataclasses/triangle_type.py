@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_surface_patch_type import (
     AbstractSurfacePatchType,
@@ -14,7 +13,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class TriangleType(AbstractSurfacePatchType):
-    exterior: Optional[Exterior] = field(
+    exterior: Exterior | None = field(
         default=None,
         metadata={
             "type": "Element",

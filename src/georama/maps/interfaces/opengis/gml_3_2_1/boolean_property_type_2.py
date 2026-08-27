@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.boolean_2 import Boolean2
 from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
@@ -14,7 +13,7 @@ class BooleanPropertyType2:
     class Meta:
         name = "Boolean_PropertyType"
 
-    boolean: Optional[Boolean2] = field(
+    boolean: Boolean2 | None = field(
         default=None,
         metadata={
             "name": "Boolean",
@@ -22,7 +21,7 @@ class BooleanPropertyType2:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

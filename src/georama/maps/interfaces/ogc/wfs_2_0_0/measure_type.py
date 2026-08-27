@@ -1,18 +1,17 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 
 
 @dataclass
 class MeasureType:
-    value: Optional[float] = field(
+    value: float | None = field(
         default=None,
         metadata={
             "required": True,
         },
     )
-    uom: Optional[str] = field(
+    uom: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

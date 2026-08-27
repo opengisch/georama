@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.localised_character_string import (
     LocalisedCharacterString,
@@ -16,7 +15,7 @@ class LocalisedCharacterStringPropertyType(ObjectReferencePropertyType):
     class Meta:
         name = "LocalisedCharacterString_PropertyType"
 
-    localised_character_string: Optional[LocalisedCharacterString] = field(
+    localised_character_string: LocalisedCharacterString | None = field(
         default=None,
         metadata={
             "name": "LocalisedCharacterString",

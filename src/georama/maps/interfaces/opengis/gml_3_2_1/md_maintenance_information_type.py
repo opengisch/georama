@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -38,16 +37,18 @@ class MdMaintenanceInformationType(AbstractObjectType):
     class Meta:
         name = "MD_MaintenanceInformation_Type"
 
-    maintenance_and_update_frequency: Optional[MdMaintenanceFrequencyCodePropertyType] = field(
-        default=None,
-        metadata={
-            "name": "maintenanceAndUpdateFrequency",
-            "type": "Element",
-            "namespace": "http://www.isotc211.org/2005/gmd",
-            "required": True,
-        },
+    maintenance_and_update_frequency: MdMaintenanceFrequencyCodePropertyType | None = (
+        field(
+            default=None,
+            metadata={
+                "name": "maintenanceAndUpdateFrequency",
+                "type": "Element",
+                "namespace": "http://www.isotc211.org/2005/gmd",
+                "required": True,
+            },
+        )
     )
-    date_of_next_update: Optional[DatePropertyType] = field(
+    date_of_next_update: DatePropertyType | None = field(
         default=None,
         metadata={
             "name": "dateOfNextUpdate",
@@ -55,7 +56,7 @@ class MdMaintenanceInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    user_defined_maintenance_frequency: Optional[TmPeriodDurationPropertyType] = field(
+    user_defined_maintenance_frequency: TmPeriodDurationPropertyType | None = field(
         default=None,
         metadata={
             "name": "userDefinedMaintenanceFrequency",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.double_or_nil_reason_tuple_list import (
     DoubleOrNilReasonTupleList,
@@ -12,7 +11,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class DataBlockType:
-    range_parameters: Optional[RangeParameters] = field(
+    range_parameters: RangeParameters | None = field(
         default=None,
         metadata={
             "name": "rangeParameters",
@@ -21,7 +20,7 @@ class DataBlockType:
             "required": True,
         },
     )
-    tuple_list: Optional[TupleList] = field(
+    tuple_list: TupleList | None = field(
         default=None,
         metadata={
             "name": "tupleList",
@@ -29,7 +28,7 @@ class DataBlockType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    double_or_nil_reason_tuple_list: Optional[DoubleOrNilReasonTupleList] = field(
+    double_or_nil_reason_tuple_list: DoubleOrNilReasonTupleList | None = field(
         default=None,
         metadata={
             "name": "doubleOrNilReasonTupleList",

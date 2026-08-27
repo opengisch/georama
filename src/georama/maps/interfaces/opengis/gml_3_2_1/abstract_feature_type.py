@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_gmltype import AbstractGmltype
 from georama.maps.interfaces.opengis.gml_3_2_1.bounded_by import BoundedBy
@@ -23,7 +22,7 @@ class AbstractFeatureType(AbstractGmltype):
     location of the feature.
     """
 
-    bounded_by: Optional[BoundedBy] = field(
+    bounded_by: BoundedBy | None = field(
         default=None,
         metadata={
             "name": "boundedBy",
@@ -32,7 +31,7 @@ class AbstractFeatureType(AbstractGmltype):
             "nillable": True,
         },
     )
-    priority_location: Optional[PriorityLocation] = field(
+    priority_location: PriorityLocation | None = field(
         default=None,
         metadata={
             "name": "priorityLocation",
@@ -40,7 +39,7 @@ class AbstractFeatureType(AbstractGmltype):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    location: Optional[Location] = field(
+    location: Location | None = field(
         default=None,
         metadata={
             "type": "Element",

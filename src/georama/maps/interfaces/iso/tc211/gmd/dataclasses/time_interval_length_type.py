@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.time_unit_type_value import (
     TimeUnitTypeValue,
@@ -11,13 +10,13 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class TimeIntervalLengthType:
-    value: Optional[Decimal] = field(
+    value: Decimal | None = field(
         default=None,
         metadata={
             "required": True,
         },
     )
-    unit: Optional[Union[str, TimeUnitTypeValue]] = field(
+    unit: str | TimeUnitTypeValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -25,13 +24,13 @@ class TimeIntervalLengthType:
             "pattern": r"other:\w{2,}",
         },
     )
-    radix: Optional[int] = field(
+    radix: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    factor: Optional[int] = field(
+    factor: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",

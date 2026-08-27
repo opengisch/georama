@@ -10,7 +10,9 @@ class OgcOperation:
     crs_84 = "CRS:84"
     crs_4326 = "EPSG:4326"
 
-    def __init__(self, appname: str, url: str, user, model: Model, organisation: Organisation):
+    def __init__(
+        self, appname: str, url: str, user, model: Model, organisation: Organisation
+    ):
         self.appname: str = appname
         self.url: str = url
         self.user: User = user

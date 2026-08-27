@@ -14,7 +14,9 @@ class JobHandlingBaseError(GeoramaBaseError):
 
 
 class UnexpectedBehaviourError(JobHandlingBaseError):
-    def __init__(self, message="Something unexpected happened while job execution", job_id=None):
+    def __init__(
+        self, message="Something unexpected happened while job execution", job_id=None
+    ):
         super().__init__(message=message, job_id=job_id)
 
 

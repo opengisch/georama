@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.base_style_descriptor_type import (
     BaseStyleDescriptorType,
@@ -16,7 +15,7 @@ class LabelStyleType(BaseStyleDescriptorType):
     topology.
     """
 
-    style: Optional[str] = field(
+    style: str | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -24,7 +23,7 @@ class LabelStyleType(BaseStyleDescriptorType):
             "required": True,
         },
     )
-    label: Optional[LabelType] = field(
+    label: LabelType | None = field(
         default=None,
         metadata={
             "type": "Element",

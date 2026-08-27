@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -33,7 +32,7 @@ class MdExtendedElementInformationType(AbstractObjectType):
     class Meta:
         name = "MD_ExtendedElementInformation_Type"
 
-    name: Optional[CharacterStringPropertyType] = field(
+    name: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -41,7 +40,7 @@ class MdExtendedElementInformationType(AbstractObjectType):
             "required": True,
         },
     )
-    short_name: Optional[CharacterStringPropertyType] = field(
+    short_name: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "shortName",
@@ -49,7 +48,7 @@ class MdExtendedElementInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    domain_code: Optional[IntegerPropertyType] = field(
+    domain_code: IntegerPropertyType | None = field(
         default=None,
         metadata={
             "name": "domainCode",
@@ -57,7 +56,7 @@ class MdExtendedElementInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    definition: Optional[CharacterStringPropertyType] = field(
+    definition: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -65,21 +64,21 @@ class MdExtendedElementInformationType(AbstractObjectType):
             "required": True,
         },
     )
-    obligation: Optional[MdObligationCodePropertyType] = field(
+    obligation: MdObligationCodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    condition: Optional[CharacterStringPropertyType] = field(
+    condition: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    data_type: Optional[MdDatatypeCodePropertyType] = field(
+    data_type: MdDatatypeCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "dataType",
@@ -88,7 +87,7 @@ class MdExtendedElementInformationType(AbstractObjectType):
             "required": True,
         },
     )
-    maximum_occurrence: Optional[CharacterStringPropertyType] = field(
+    maximum_occurrence: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "maximumOccurrence",
@@ -96,7 +95,7 @@ class MdExtendedElementInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    domain_value: Optional[CharacterStringPropertyType] = field(
+    domain_value: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "domainValue",
@@ -104,7 +103,7 @@ class MdExtendedElementInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    parent_entity: List[CharacterStringPropertyType] = field(
+    parent_entity: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "parentEntity",
@@ -113,7 +112,7 @@ class MdExtendedElementInformationType(AbstractObjectType):
             "min_occurs": 1,
         },
     )
-    rule: Optional[CharacterStringPropertyType] = field(
+    rule: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -121,14 +120,14 @@ class MdExtendedElementInformationType(AbstractObjectType):
             "required": True,
         },
     )
-    rationale: List[CharacterStringPropertyType] = field(
+    rationale: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    source: List[CiResponsiblePartyPropertyType] = field(
+    source: list[CiResponsiblePartyPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",

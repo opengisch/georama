@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.actuate_value import ActuateValue
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.code_type import CodeType
@@ -25,7 +24,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class DirectionPropertyType:
-    direction_vector: Optional[DirectionVectorType] = field(
+    direction_vector: DirectionVectorType | None = field(
         default=None,
         metadata={
             "name": "DirectionVector",
@@ -33,7 +32,7 @@ class DirectionPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    direction_description: Optional[DirectionDescriptionType] = field(
+    direction_description: DirectionDescriptionType | None = field(
         default=None,
         metadata={
             "name": "DirectionDescription",
@@ -41,7 +40,7 @@ class DirectionPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    compass_point: Optional[CompassPointEnumeration] = field(
+    compass_point: CompassPointEnumeration | None = field(
         default=None,
         metadata={
             "name": "CompassPoint",
@@ -49,7 +48,7 @@ class DirectionPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    direction_keyword: Optional[CodeType] = field(
+    direction_keyword: CodeType | None = field(
         default=None,
         metadata={
             "name": "DirectionKeyword",
@@ -57,7 +56,7 @@ class DirectionPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    direction_string: Optional[StringOrRefType] = field(
+    direction_string: StringOrRefType | None = field(
         default=None,
         metadata={
             "name": "DirectionString",
@@ -80,49 +79,49 @@ class DirectionPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -130,7 +129,7 @@ class DirectionPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

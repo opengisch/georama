@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.output_format import OutputFormat
 
@@ -37,7 +36,7 @@ class GetResourceByIdType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    output_format: Optional[OutputFormat] = field(
+    output_format: OutputFormat | None = field(
         default=None,
         metadata={
             "name": "OutputFormat",
@@ -45,14 +44,14 @@ class GetResourceByIdType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    service: Optional[str] = field(
+    service: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "required": True,
         },
     )
-    version: Optional[str] = field(
+    version: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

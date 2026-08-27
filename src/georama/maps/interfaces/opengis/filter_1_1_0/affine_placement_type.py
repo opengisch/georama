@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.direct_position_type import (
     DirectPositionType,
@@ -44,7 +43,7 @@ class AffinePlacementType:
     :ivar out_dimension: Dimension of the co-ordinate space.
     """
 
-    location: Optional[DirectPositionType] = field(
+    location: DirectPositionType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -61,7 +60,7 @@ class AffinePlacementType:
             "min_occurs": 1,
         },
     )
-    in_dimension: Optional[int] = field(
+    in_dimension: int | None = field(
         default=None,
         metadata={
             "name": "inDimension",
@@ -70,7 +69,7 @@ class AffinePlacementType:
             "required": True,
         },
     )
-    out_dimension: Optional[int] = field(
+    out_dimension: int | None = field(
         default=None,
         metadata={
             "name": "outDimension",

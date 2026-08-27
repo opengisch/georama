@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_topo_primitive_type import (
     Edge,
@@ -18,7 +17,7 @@ class TopoPrimitiveArrayAssociationType:
     TopoComplex.
     """
 
-    choice: list[Union[TopoSolid, Face, Edge, Node]] = field(
+    choice: list[TopoSolid | Face | Edge | Node] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

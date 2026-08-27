@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_md_spatial_representation_type import (
     AbstractMdSpatialRepresentationType,
@@ -23,7 +22,7 @@ class MdVectorSpatialRepresentationType(AbstractMdSpatialRepresentationType):
     class Meta:
         name = "MD_VectorSpatialRepresentation_Type"
 
-    topology_level: Optional[MdTopologyLevelCodePropertyType] = field(
+    topology_level: MdTopologyLevelCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "topologyLevel",
@@ -31,7 +30,7 @@ class MdVectorSpatialRepresentationType(AbstractMdSpatialRepresentationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    geometric_objects: List[MdGeometricObjectsPropertyType] = field(
+    geometric_objects: list[MdGeometricObjectsPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "geometricObjects",

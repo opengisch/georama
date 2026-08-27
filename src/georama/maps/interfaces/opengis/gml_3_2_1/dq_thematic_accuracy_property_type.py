@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.actuate_type import ActuateType
 from georama.maps.interfaces.opengis.gml_3_2_1.dq_non_quantitative_attribute_accuracy import (
@@ -25,27 +24,27 @@ class DqThematicAccuracyPropertyType:
     class Meta:
         name = "DQ_ThematicAccuracy_PropertyType"
 
-    dq_thematic_classification_correctness: Optional[DqThematicClassificationCorrectness] = (
-        field(
-            default=None,
-            metadata={
-                "name": "DQ_ThematicClassificationCorrectness",
-                "type": "Element",
-                "namespace": "http://www.isotc211.org/2005/gmd",
-            },
-        )
+    dq_thematic_classification_correctness: (
+        DqThematicClassificationCorrectness | None
+    ) = field(
+        default=None,
+        metadata={
+            "name": "DQ_ThematicClassificationCorrectness",
+            "type": "Element",
+            "namespace": "http://www.isotc211.org/2005/gmd",
+        },
     )
-    dq_non_quantitative_attribute_accuracy: Optional[DqNonQuantitativeAttributeAccuracy] = (
-        field(
-            default=None,
-            metadata={
-                "name": "DQ_NonQuantitativeAttributeAccuracy",
-                "type": "Element",
-                "namespace": "http://www.isotc211.org/2005/gmd",
-            },
-        )
+    dq_non_quantitative_attribute_accuracy: (
+        DqNonQuantitativeAttributeAccuracy | None
+    ) = field(
+        default=None,
+        metadata={
+            "name": "DQ_NonQuantitativeAttributeAccuracy",
+            "type": "Element",
+            "namespace": "http://www.isotc211.org/2005/gmd",
+        },
     )
-    dq_quantitative_attribute_accuracy: Optional[DqQuantitativeAttributeAccuracy] = field(
+    dq_quantitative_attribute_accuracy: DqQuantitativeAttributeAccuracy | None = field(
         default=None,
         metadata={
             "name": "DQ_QuantitativeAttributeAccuracy",
@@ -62,22 +61,14 @@ class DqThematicAccuracyPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -85,34 +76,42 @@ class DqThematicAccuracyPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    uuidref: Optional[str] = field(
+    uuidref: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

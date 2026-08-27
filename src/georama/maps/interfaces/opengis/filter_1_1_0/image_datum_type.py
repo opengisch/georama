@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_datum_type import (
     AbstractDatumType,
@@ -17,7 +16,7 @@ class ImageDatumType(AbstractDatumType):
     For more information, see OGC Abstract Specification Topic 2.
     """
 
-    pixel_in_cell: Optional[PixelInCell] = field(
+    pixel_in_cell: PixelInCell | None = field(
         default=None,
         metadata={
             "name": "pixelInCell",

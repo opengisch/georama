@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.id_capabilities_type import (
     IdCapabilitiesType,
@@ -20,7 +19,7 @@ class FilterCapabilities:
         name = "Filter_Capabilities"
         namespace = "http://www.opengis.net/ogc"
 
-    spatial_capabilities: Optional[SpatialCapabilitiesType] = field(
+    spatial_capabilities: SpatialCapabilitiesType | None = field(
         default=None,
         metadata={
             "name": "Spatial_Capabilities",
@@ -28,7 +27,7 @@ class FilterCapabilities:
             "required": True,
         },
     )
-    scalar_capabilities: Optional[ScalarCapabilitiesType] = field(
+    scalar_capabilities: ScalarCapabilitiesType | None = field(
         default=None,
         metadata={
             "name": "Scalar_Capabilities",
@@ -36,7 +35,7 @@ class FilterCapabilities:
             "required": True,
         },
     )
-    id_capabilities: Optional[IdCapabilitiesType] = field(
+    id_capabilities: IdCapabilitiesType | None = field(
         default=None,
         metadata={
             "name": "Id_Capabilities",

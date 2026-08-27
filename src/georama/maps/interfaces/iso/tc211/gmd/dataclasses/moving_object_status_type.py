@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_time_slice_type import (
     AbstractTimeSliceType,
@@ -30,21 +29,21 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class MovingObjectStatusType(AbstractTimeSliceType):
-    position: Optional[GeometryPropertyType] = field(
+    position: GeometryPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    pos: Optional[Pos] = field(
+    pos: Pos | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    location_name: Optional[LocationName] = field(
+    location_name: LocationName | None = field(
         default=None,
         metadata={
             "name": "locationName",
@@ -52,7 +51,7 @@ class MovingObjectStatusType(AbstractTimeSliceType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    location_reference: Optional[LocationReference] = field(
+    location_reference: LocationReference | None = field(
         default=None,
         metadata={
             "name": "locationReference",
@@ -60,7 +59,7 @@ class MovingObjectStatusType(AbstractTimeSliceType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    priority_location: Optional[PriorityLocation] = field(
+    priority_location: PriorityLocation | None = field(
         default=None,
         metadata={
             "name": "priorityLocation",
@@ -68,49 +67,49 @@ class MovingObjectStatusType(AbstractTimeSliceType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    location: Optional[Location] = field(
+    location: Location | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    speed: Optional[MeasureType] = field(
+    speed: MeasureType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    bearing: Optional[DirectionPropertyType] = field(
+    bearing: DirectionPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    acceleration: Optional[MeasureType] = field(
+    acceleration: MeasureType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    elevation: Optional[MeasureType] = field(
+    elevation: MeasureType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    status: Optional[Status] = field(
+    status: Status | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    status_reference: Optional[StatusReference] = field(
+    status_reference: StatusReference | None = field(
         default=None,
         metadata={
             "name": "statusReference",

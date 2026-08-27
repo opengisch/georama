@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.reference_type import (
     ReferenceType,
@@ -10,7 +9,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class MappingRuleType:
-    rule_definition: Optional[str] = field(
+    rule_definition: str | None = field(
         default=None,
         metadata={
             "name": "ruleDefinition",
@@ -18,7 +17,7 @@ class MappingRuleType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    rule_reference: Optional[ReferenceType] = field(
+    rule_reference: ReferenceType | None = field(
         default=None,
         metadata={
             "name": "ruleReference",

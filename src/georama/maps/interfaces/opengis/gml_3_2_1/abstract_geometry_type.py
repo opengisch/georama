@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_gmltype import AbstractGmltype
 
@@ -19,14 +18,14 @@ class AbstractGeometryType(AbstractGmltype):
     -       Every geometry element (i.e. an element of a geometry type) shall be directly or indirectly in the substitution group of AbstractGeometry.
     """
 
-    srs_name: Optional[str] = field(
+    srs_name: str | None = field(
         default=None,
         metadata={
             "name": "srsName",
             "type": "Attribute",
         },
     )
-    srs_dimension: Optional[int] = field(
+    srs_dimension: int | None = field(
         default=None,
         metadata={
             "name": "srsDimension",

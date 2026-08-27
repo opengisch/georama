@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.nil_reason_enumeration_value import (
     NilReasonEnumerationValue,
@@ -13,7 +12,7 @@ class Null:
     class Meta:
         namespace = "http://www.opengis.net/gml"
 
-    value: Union[str, NilReasonEnumerationValue] = field(
+    value: str | NilReasonEnumerationValue = field(
         default="",
         metadata={
             "required": True,

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.md_topic_category_code import (
     MdTopicCategoryCode,
@@ -16,7 +15,7 @@ class MdTopicCategoryCodePropertyType:
     class Meta:
         name = "MD_TopicCategoryCode_PropertyType"
 
-    md_topic_category_code: Optional[MdTopicCategoryCode] = field(
+    md_topic_category_code: MdTopicCategoryCode | None = field(
         default=None,
         metadata={
             "name": "MD_TopicCategoryCode",
@@ -24,7 +23,7 @@ class MdTopicCategoryCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

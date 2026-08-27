@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -26,7 +25,7 @@ class MdApplicationSchemaInformationType(AbstractObjectType):
     class Meta:
         name = "MD_ApplicationSchemaInformation_Type"
 
-    name: Optional[CiCitationPropertyType] = field(
+    name: CiCitationPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -34,7 +33,7 @@ class MdApplicationSchemaInformationType(AbstractObjectType):
             "required": True,
         },
     )
-    schema_language: Optional[CharacterStringPropertyType] = field(
+    schema_language: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "schemaLanguage",
@@ -43,7 +42,7 @@ class MdApplicationSchemaInformationType(AbstractObjectType):
             "required": True,
         },
     )
-    constraint_language: Optional[CharacterStringPropertyType] = field(
+    constraint_language: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "constraintLanguage",
@@ -52,7 +51,7 @@ class MdApplicationSchemaInformationType(AbstractObjectType):
             "required": True,
         },
     )
-    schema_ascii: Optional[CharacterStringPropertyType] = field(
+    schema_ascii: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "schemaAscii",
@@ -60,7 +59,7 @@ class MdApplicationSchemaInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    graphics_file: Optional[BinaryPropertyType] = field(
+    graphics_file: BinaryPropertyType | None = field(
         default=None,
         metadata={
             "name": "graphicsFile",
@@ -68,7 +67,7 @@ class MdApplicationSchemaInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    software_development_file: Optional[BinaryPropertyType] = field(
+    software_development_file: BinaryPropertyType | None = field(
         default=None,
         metadata={
             "name": "softwareDevelopmentFile",
@@ -76,7 +75,7 @@ class MdApplicationSchemaInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    software_development_file_format: Optional[CharacterStringPropertyType] = field(
+    software_development_file_format: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "softwareDevelopmentFileFormat",

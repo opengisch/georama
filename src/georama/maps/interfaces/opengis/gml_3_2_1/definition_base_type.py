@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_gmltype import AbstractGmltype
 from georama.maps.interfaces.opengis.gml_3_2_1.identifier import Identifier
@@ -9,7 +8,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class DefinitionBaseType(AbstractGmltype):
-    identifier: Optional[Identifier] = field(
+    identifier: Identifier | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -17,7 +16,7 @@ class DefinitionBaseType(AbstractGmltype):
             "required": True,
         },
     )
-    id: Optional[str] = field(
+    id: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

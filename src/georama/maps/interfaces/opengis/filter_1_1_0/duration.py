@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from xsdata.models.datatype import XmlDuration
 
@@ -19,7 +18,7 @@ class Duration:
         name = "duration"
         namespace = "http://www.opengis.net/gml"
 
-    value: Optional[XmlDuration] = field(
+    value: XmlDuration | None = field(
         default=None,
         metadata={
             "required": True,

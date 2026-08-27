@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_surface_type import (
     AbstractSurfaceType,
@@ -32,9 +31,9 @@ class SurfaceType(AbstractSurfaceType):
     describe the interior structure of the Surface.
     """
 
-    triangle_patches_or_polygon_patches_or_patches: Optional[
-        Union[TrianglePatches, PolygonPatches, Patches]
-    ] = field(
+    triangle_patches_or_polygon_patches_or_patches: (
+        TrianglePatches | PolygonPatches | Patches | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",

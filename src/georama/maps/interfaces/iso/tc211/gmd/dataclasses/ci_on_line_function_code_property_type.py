@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.ci_on_line_function_code import (
     CiOnLineFunctionCode,
@@ -16,7 +15,7 @@ class CiOnLineFunctionCodePropertyType:
     class Meta:
         name = "CI_OnLineFunctionCode_PropertyType"
 
-    ci_on_line_function_code: Optional[CiOnLineFunctionCode] = field(
+    ci_on_line_function_code: CiOnLineFunctionCode | None = field(
         default=None,
         metadata={
             "name": "CI_OnLineFunctionCode",
@@ -24,7 +23,7 @@ class CiOnLineFunctionCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

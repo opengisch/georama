@@ -31,8 +31,10 @@ class PageNumberPagination(DRFPageNumberPagination):
         try:
             self.page = paginator.page(page_number)
         except InvalidPage as exc:
-            msg = self.invalid_page_message.format(page_number=page_number, message=str(exc))
-            raise NotFound(msg)  # noqa: B904
+            msg = self.invalid_page_message.format(
+                page_number=page_number, message=str(exc)
+            )
+            raise NotFound(msg)
 
         if paginator.num_pages > 1 and self.template is not None:
             # The browsable API should display pagination controls.
@@ -116,7 +118,9 @@ class CursorPagination(DRFCursorPagination):
         if (await results.acount()) > (await self.page.acount()):
             has_following_position = True
             num_elements = await results.acount()
-            async for item in queryset[offset + num_elements : offset + num_elements + 1]:
+            async for item in queryset[
+                offset + num_elements : offset + num_elements + 1
+            ]:
                 instance = item
                 break
             following_position = self._get_position_from_instance(

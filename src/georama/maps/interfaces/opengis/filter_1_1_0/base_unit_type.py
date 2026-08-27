@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.reference_type import ReferenceType
 from georama.maps.interfaces.opengis.filter_1_1_0.unit_definition_type import (
@@ -18,7 +17,7 @@ class BaseUnitType(UnitDefinitionType):
     within this system.  Sometimes known as "fundamental unit".
     """
 
-    units_system: Optional[ReferenceType] = field(
+    units_system: ReferenceType | None = field(
         default=None,
         metadata={
             "name": "unitsSystem",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.available_crs import AvailableCrs
 from georama.maps.interfaces.ogc.wfs_2_0_0.basic_identification_type import (
@@ -28,7 +27,7 @@ class IdentificationType(BasicIdentificationType):
     :ivar supported_crs_or_available_crs:
     """
 
-    wgs84_bounding_box_or_bounding_box: list[Union[Wgs84BoundingBox, BoundingBox]] = field(
+    wgs84_bounding_box_or_bounding_box: list[Wgs84BoundingBox | BoundingBox] = field(
         default_factory=list,
         metadata={
             "type": "Elements",
@@ -54,7 +53,7 @@ class IdentificationType(BasicIdentificationType):
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    supported_crs_or_available_crs: list[Union[SupportedCrs, AvailableCrs]] = field(
+    supported_crs_or_available_crs: list[SupportedCrs | AvailableCrs] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

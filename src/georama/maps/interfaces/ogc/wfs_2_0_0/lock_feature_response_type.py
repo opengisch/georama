@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.features_locked_type import (
     FeaturesLockedType,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
 @dataclass
 class LockFeatureResponseType:
-    features_locked: Optional[FeaturesLockedType] = field(
+    features_locked: FeaturesLockedType | None = field(
         default=None,
         metadata={
             "name": "FeaturesLocked",
@@ -21,7 +20,7 @@ class LockFeatureResponseType:
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    features_not_locked: Optional[FeaturesNotLockedType] = field(
+    features_not_locked: FeaturesNotLockedType | None = field(
         default=None,
         metadata={
             "name": "FeaturesNotLocked",
@@ -29,7 +28,7 @@ class LockFeatureResponseType:
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    lock_id: Optional[str] = field(
+    lock_id: str | None = field(
         default=None,
         metadata={
             "name": "lockId",

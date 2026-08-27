@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -17,7 +16,7 @@ class StyleVariationType:
             "required": True,
         },
     )
-    style_property: Optional[str] = field(
+    style_property: str | None = field(
         default=None,
         metadata={
             "name": "styleProperty",
@@ -25,7 +24,7 @@ class StyleVariationType:
             "required": True,
         },
     )
-    feature_property_range: Optional[str] = field(
+    feature_property_range: str | None = field(
         default=None,
         metadata={
             "name": "featurePropertyRange",

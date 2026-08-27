@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.integer_property_type import (
     IntegerPropertyType,
@@ -22,7 +21,7 @@ class MdBandType(MdRangeDimensionType):
     class Meta:
         name = "MD_Band_Type"
 
-    max_value: Optional[RealPropertyType] = field(
+    max_value: RealPropertyType | None = field(
         default=None,
         metadata={
             "name": "maxValue",
@@ -30,7 +29,7 @@ class MdBandType(MdRangeDimensionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    min_value: Optional[RealPropertyType] = field(
+    min_value: RealPropertyType | None = field(
         default=None,
         metadata={
             "name": "minValue",
@@ -38,14 +37,14 @@ class MdBandType(MdRangeDimensionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    units: Optional[UomLengthPropertyType] = field(
+    units: UomLengthPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    peak_response: Optional[RealPropertyType] = field(
+    peak_response: RealPropertyType | None = field(
         default=None,
         metadata={
             "name": "peakResponse",
@@ -53,7 +52,7 @@ class MdBandType(MdRangeDimensionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    bits_per_value: Optional[IntegerPropertyType] = field(
+    bits_per_value: IntegerPropertyType | None = field(
         default=None,
         metadata={
             "name": "bitsPerValue",
@@ -61,7 +60,7 @@ class MdBandType(MdRangeDimensionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    tone_gradation: Optional[IntegerPropertyType] = field(
+    tone_gradation: IntegerPropertyType | None = field(
         default=None,
         metadata={
             "name": "toneGradation",
@@ -69,7 +68,7 @@ class MdBandType(MdRangeDimensionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    scale_factor: Optional[RealPropertyType] = field(
+    scale_factor: RealPropertyType | None = field(
         default=None,
         metadata={
             "name": "scaleFactor",
@@ -77,7 +76,7 @@ class MdBandType(MdRangeDimensionType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    offset: Optional[RealPropertyType] = field(
+    offset: RealPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

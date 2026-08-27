@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.grid_type import GridType
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.point_property_type import (
@@ -12,7 +11,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class RectifiedGridType(GridType):
-    origin: Optional[PointPropertyType] = field(
+    origin: PointPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -20,7 +19,7 @@ class RectifiedGridType(GridType):
             "required": True,
         },
     )
-    offset_vector: List[VectorType] = field(
+    offset_vector: list[VectorType] = field(
         default_factory=list,
         metadata={
             "name": "offsetVector",

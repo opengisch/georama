@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.resource_id import ResourceId
 
@@ -17,7 +16,7 @@ class CreatedOrModifiedFeatureType:
             "min_occurs": 1,
         },
     )
-    handle: Optional[str] = field(
+    handle: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

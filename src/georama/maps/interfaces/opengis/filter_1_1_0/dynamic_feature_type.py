@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_feature_type import (
     AbstractFeatureType,
@@ -18,7 +17,7 @@ class DynamicFeatureType(AbstractFeatureType):
     A dynamic feature may possess a history and/or a timestamp.
     """
 
-    valid_time: Optional[ValidTime] = field(
+    valid_time: ValidTime | None = field(
         default=None,
         metadata={
             "name": "validTime",
@@ -26,7 +25,7 @@ class DynamicFeatureType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    track_or_history: Optional[Union[Track, History]] = field(
+    track_or_history: Track | History | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -44,7 +43,7 @@ class DynamicFeatureType(AbstractFeatureType):
             ),
         },
     )
-    data_source: Optional[DataSource] = field(
+    data_source: DataSource | None = field(
         default=None,
         metadata={
             "name": "dataSource",

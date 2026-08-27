@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.decimal import DecimalType
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.integer import Integer
@@ -16,7 +15,7 @@ class NumberPropertyType:
     class Meta:
         name = "Number_PropertyType"
 
-    real: Optional[Real] = field(
+    real: Real | None = field(
         default=None,
         metadata={
             "name": "Real",
@@ -24,7 +23,7 @@ class NumberPropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    decimal: Optional[DecimalType] = field(
+    decimal: DecimalType | None = field(
         default=None,
         metadata={
             "name": "Decimal",
@@ -32,7 +31,7 @@ class NumberPropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    integer: Optional[Integer] = field(
+    integer: Integer | None = field(
         default=None,
         metadata={
             "name": "Integer",
@@ -40,7 +39,7 @@ class NumberPropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

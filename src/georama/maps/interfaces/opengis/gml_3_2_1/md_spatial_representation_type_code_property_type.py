@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.md_spatial_representation_type_code import (
     MdSpatialRepresentationTypeCode,
@@ -16,7 +15,7 @@ class MdSpatialRepresentationTypeCodePropertyType:
     class Meta:
         name = "MD_SpatialRepresentationTypeCode_PropertyType"
 
-    md_spatial_representation_type_code: Optional[MdSpatialRepresentationTypeCode] = field(
+    md_spatial_representation_type_code: MdSpatialRepresentationTypeCode | None = field(
         default=None,
         metadata={
             "name": "MD_SpatialRepresentationTypeCode",
@@ -24,7 +23,7 @@ class MdSpatialRepresentationTypeCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

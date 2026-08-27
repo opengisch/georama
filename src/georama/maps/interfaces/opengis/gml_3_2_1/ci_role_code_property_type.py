@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.ci_role_code import CiRoleCode
 from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
@@ -14,7 +13,7 @@ class CiRoleCodePropertyType:
     class Meta:
         name = "CI_RoleCode_PropertyType"
 
-    ci_role_code: Optional[CiRoleCode] = field(
+    ci_role_code: CiRoleCode | None = field(
         default=None,
         metadata={
             "name": "CI_RoleCode",
@@ -22,7 +21,7 @@ class CiRoleCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

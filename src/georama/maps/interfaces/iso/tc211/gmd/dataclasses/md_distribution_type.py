@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -24,7 +23,7 @@ class MdDistributionType(AbstractObjectType):
     class Meta:
         name = "MD_Distribution_Type"
 
-    distribution_format: List[MdFormatPropertyType] = field(
+    distribution_format: list[MdFormatPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "distributionFormat",
@@ -32,14 +31,14 @@ class MdDistributionType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    distributor: List[MdDistributorPropertyType] = field(
+    distributor: list[MdDistributorPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    transfer_options: List[MdDigitalTransferOptionsPropertyType] = field(
+    transfer_options: list[MdDigitalTransferOptionsPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "transferOptions",

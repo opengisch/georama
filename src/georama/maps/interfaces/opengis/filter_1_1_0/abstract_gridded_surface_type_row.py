@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.point_property import PointProperty
 from georama.maps.interfaces.opengis.filter_1_1_0.pos import Pos
@@ -13,7 +12,7 @@ class AbstractGriddedSurfaceTypeRow:
     class Meta:
         global_type = False
 
-    pos_list_or_pos_or_point_property: list[Union[PosList, Pos, PointProperty]] = field(
+    pos_list_or_pos_or_point_property: list[PosList | Pos | PointProperty] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

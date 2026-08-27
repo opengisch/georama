@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -19,7 +18,7 @@ class CiDateType(AbstractObjectType):
     class Meta:
         name = "CI_Date_Type"
 
-    date: Optional[DatePropertyType] = field(
+    date: DatePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -27,7 +26,7 @@ class CiDateType(AbstractObjectType):
             "required": True,
         },
     )
-    date_type: Optional[CiDateTypeCodePropertyType] = field(
+    date_type: CiDateTypeCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "dateType",

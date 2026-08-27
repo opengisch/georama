@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.base_request_type import BaseRequestType
 from georama.maps.interfaces.ogc.wfs_2_0_0.query import Query
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
 @dataclass
 class GetPropertyValueType(BaseRequestType):
-    stored_query_or_query: Optional[Union[StoredQuery, Query]] = field(
+    stored_query_or_query: StoredQuery | Query | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -31,7 +30,7 @@ class GetPropertyValueType(BaseRequestType):
             ),
         },
     )
-    value_reference: Optional[str] = field(
+    value_reference: str | None = field(
         default=None,
         metadata={
             "name": "valueReference",
@@ -39,7 +38,7 @@ class GetPropertyValueType(BaseRequestType):
             "required": True,
         },
     )
-    resolve_path: Optional[str] = field(
+    resolve_path: str | None = field(
         default=None,
         metadata={
             "name": "resolvePath",
@@ -53,7 +52,7 @@ class GetPropertyValueType(BaseRequestType):
             "type": "Attribute",
         },
     )
-    count: Optional[int] = field(
+    count: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -79,7 +78,7 @@ class GetPropertyValueType(BaseRequestType):
             "type": "Attribute",
         },
     )
-    resolve_depth: Union[int, StarStringType] = field(
+    resolve_depth: int | StarStringType = field(
         default=StarStringType.ASTERISK,
         metadata={
             "name": "resolveDepth",

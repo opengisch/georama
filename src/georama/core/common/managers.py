@@ -21,7 +21,9 @@ class OrganisationalManager(models.Manager.from_queryset(OrganisationalQuerySet)
         self.validate_organisational(qs.model)
         return qs.prefetch_related(qs.get_model_organisation_field())
 
-    def organisation_objects(self, organisation: Organisation | None) -> OrganisationalQuerySet:
+    def organisation_objects(
+        self, organisation: Organisation | None
+    ) -> OrganisationalQuerySet:
         """Filters for objects bound to passed organisation. Organisation `None`
         means the _global_ organisation.
 

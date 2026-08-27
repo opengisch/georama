@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.point_property import PointProperty
 from georama.maps.interfaces.opengis.gml_3_2_1.pos import Pos
@@ -13,7 +12,7 @@ class TinTypeControlPoint:
     class Meta:
         global_type = False
 
-    pos_list: Optional[PosList] = field(
+    pos_list: PosList | None = field(
         default=None,
         metadata={
             "name": "posList",

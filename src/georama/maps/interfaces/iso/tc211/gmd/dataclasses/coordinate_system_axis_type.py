@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.axis_abbrev import AxisAbbrev
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.axis_direction import (
@@ -17,7 +16,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class CoordinateSystemAxisType(IdentifiedObjectType):
-    axis_abbrev: Optional[AxisAbbrev] = field(
+    axis_abbrev: AxisAbbrev | None = field(
         default=None,
         metadata={
             "name": "axisAbbrev",
@@ -26,7 +25,7 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
             "required": True,
         },
     )
-    axis_direction: Optional[AxisDirection] = field(
+    axis_direction: AxisDirection | None = field(
         default=None,
         metadata={
             "name": "axisDirection",
@@ -35,7 +34,7 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
             "required": True,
         },
     )
-    minimum_value: Optional[MinimumValue] = field(
+    minimum_value: MinimumValue | None = field(
         default=None,
         metadata={
             "name": "minimumValue",
@@ -43,7 +42,7 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    maximum_value: Optional[MaximumValue] = field(
+    maximum_value: MaximumValue | None = field(
         default=None,
         metadata={
             "name": "maximumValue",
@@ -51,7 +50,7 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    range_meaning: Optional[RangeMeaning] = field(
+    range_meaning: RangeMeaning | None = field(
         default=None,
         metadata={
             "name": "rangeMeaning",
@@ -59,7 +58,7 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uom: Optional[str] = field(
+    uom: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

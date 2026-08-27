@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -32,7 +31,7 @@ class MdMediumType(AbstractObjectType):
     class Meta:
         name = "MD_Medium_Type"
 
-    name: Optional[MdMediumNameCodePropertyType] = field(
+    name: MdMediumNameCodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -46,7 +45,7 @@ class MdMediumType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    density_units: Optional[CharacterStringPropertyType] = field(
+    density_units: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "densityUnits",
@@ -54,7 +53,7 @@ class MdMediumType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    volumes: Optional[IntegerPropertyType] = field(
+    volumes: IntegerPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -69,7 +68,7 @@ class MdMediumType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    medium_note: Optional[CharacterStringPropertyType] = field(
+    medium_note: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "mediumNote",

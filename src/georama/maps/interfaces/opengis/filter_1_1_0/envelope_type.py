@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.coord import Coord
 from georama.maps.interfaces.opengis.filter_1_1_0.coordinates import Coordinates
@@ -50,7 +49,7 @@ class EnvelopeType:
         attribute shall also be omitted.
     """
 
-    choice: list[Union[LowerCorner, UpperCorner, Coord, Pos, Coordinates]] = field(
+    choice: list[LowerCorner | UpperCorner | Coord | Pos | Coordinates] = field(
         default_factory=list,
         metadata={
             "type": "Elements",
@@ -86,14 +85,14 @@ class EnvelopeType:
             "max_occurs": 2,
         },
     )
-    srs_name: Optional[str] = field(
+    srs_name: str | None = field(
         default=None,
         metadata={
             "name": "srsName",
             "type": "Attribute",
         },
     )
-    srs_dimension: Optional[int] = field(
+    srs_dimension: int | None = field(
         default=None,
         metadata={
             "name": "srsDimension",

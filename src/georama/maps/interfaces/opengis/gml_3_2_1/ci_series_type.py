@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -16,14 +15,14 @@ class CiSeriesType(AbstractObjectType):
     class Meta:
         name = "CI_Series_Type"
 
-    name: Optional[CharacterStringPropertyType] = field(
+    name: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    issue_identification: Optional[CharacterStringPropertyType] = field(
+    issue_identification: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "issueIdentification",
@@ -31,7 +30,7 @@ class CiSeriesType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    page: Optional[CharacterStringPropertyType] = field(
+    page: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

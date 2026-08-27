@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_geometry_type import (
     AbstractGeometryType,
@@ -16,7 +15,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class GeometricComplexType(AbstractGeometryType):
-    element: List[GeometricPrimitivePropertyType] = field(
+    element: list[GeometricPrimitivePropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -24,7 +23,7 @@ class GeometricComplexType(AbstractGeometryType):
             "min_occurs": 1,
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",

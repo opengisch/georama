@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.knot_type import KnotType
 
@@ -12,7 +11,7 @@ class KnotPropertyType:
     Encapsulates a knot to use it in a geometric type.
     """
 
-    knot: Optional[KnotType] = field(
+    knot: KnotType | None = field(
         default=None,
         metadata={
             "name": "Knot",

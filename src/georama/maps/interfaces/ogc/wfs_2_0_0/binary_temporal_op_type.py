@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.function_type import Function
 from georama.maps.interfaces.ogc.wfs_2_0_0.literal import Literal
@@ -11,7 +10,7 @@ __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 
 @dataclass
 class BinaryTemporalOpType(TemporalOpsType):
-    choice: list[Union[Literal, Function, ValueReference, object]] = field(
+    choice: list[Literal | Function | ValueReference | object] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

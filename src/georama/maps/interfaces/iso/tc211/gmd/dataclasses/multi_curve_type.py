@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_geometric_aggregate_type import (
     AbstractGeometricAggregateType,
@@ -14,7 +13,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class MultiCurveType(AbstractGeometricAggregateType):
-    curve_member: List[CurveMember] = field(
+    curve_member: list[CurveMember] = field(
         default_factory=list,
         metadata={
             "name": "curveMember",
@@ -22,7 +21,7 @@ class MultiCurveType(AbstractGeometricAggregateType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    curve_members: Optional[CurveMembers] = field(
+    curve_members: CurveMembers | None = field(
         default=None,
         metadata={
             "name": "curveMembers",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_surface_patch_type import (
     AbstractSurfacePatchType,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class AbstractParametricCurveSurfaceType(AbstractSurfacePatchType):
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",

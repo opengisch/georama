@@ -10,7 +10,9 @@ class GeometryOperandType(Enum):
     GML_LINE_STRING = QName("{http://www.opengis.net/gml}LineString")
     GML_POLYGON = QName("{http://www.opengis.net/gml}Polygon")
     GML_ARC_BY_CENTER_POINT = QName("{http://www.opengis.net/gml}ArcByCenterPoint")
-    GML_CIRCLE_BY_CENTER_POINT = QName("{http://www.opengis.net/gml}CircleByCenterPoint")
+    GML_CIRCLE_BY_CENTER_POINT = QName(
+        "{http://www.opengis.net/gml}CircleByCenterPoint"
+    )
     GML_ARC = QName("{http://www.opengis.net/gml}Arc")
     GML_CIRCLE = QName("{http://www.opengis.net/gml}Circle")
     GML_ARC_BY_BULGE = QName("{http://www.opengis.net/gml}ArcByBulge")

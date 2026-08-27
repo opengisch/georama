@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -21,14 +20,14 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class ArcStringByBulgeType(AbstractCurveSegmentType):
-    pos: List[Pos] = field(
+    pos: list[Pos] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    point_property: List[PointProperty] = field(
+    point_property: list[PointProperty] = field(
         default_factory=list,
         metadata={
             "name": "pointProperty",
@@ -36,7 +35,7 @@ class ArcStringByBulgeType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    point_rep: List[PointRep] = field(
+    point_rep: list[PointRep] = field(
         default_factory=list,
         metadata={
             "name": "pointRep",
@@ -44,7 +43,7 @@ class ArcStringByBulgeType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    pos_list: Optional[PosList] = field(
+    pos_list: PosList | None = field(
         default=None,
         metadata={
             "name": "posList",
@@ -52,14 +51,14 @@ class ArcStringByBulgeType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    coordinates: Optional[Coordinates] = field(
+    coordinates: Coordinates | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    bulge: List[float] = field(
+    bulge: list[float] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -67,7 +66,7 @@ class ArcStringByBulgeType(AbstractCurveSegmentType):
             "min_occurs": 1,
         },
     )
-    normal: List[VectorType] = field(
+    normal: list[VectorType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -82,7 +81,7 @@ class ArcStringByBulgeType(AbstractCurveSegmentType):
             "type": "Attribute",
         },
     )
-    num_arc: Optional[int] = field(
+    num_arc: int | None = field(
         default=None,
         metadata={
             "name": "numArc",

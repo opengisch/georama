@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.character_string_property_type import (
     CharacterStringPropertyType,
@@ -50,14 +49,14 @@ class MdScopeDescriptionType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dataset: Optional[CharacterStringPropertyType] = field(
+    dataset: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    other: Optional[CharacterStringPropertyType] = field(
+    other: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

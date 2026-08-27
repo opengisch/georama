@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.domain_type import DomainType
 from georama.maps.interfaces.ogc.wfs_2_0_0.extended_capabilities import (
@@ -61,7 +60,7 @@ class OperationsMetadata:
             "type": "Element",
         },
     )
-    extended_capabilities: Optional[ExtendedCapabilities] = field(
+    extended_capabilities: ExtendedCapabilities | None = field(
         default=None,
         metadata={
             "name": "ExtendedCapabilities",

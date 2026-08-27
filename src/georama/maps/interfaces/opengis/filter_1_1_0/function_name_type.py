@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/ogc"
 
@@ -12,7 +11,7 @@ class FunctionNameType:
             "required": True,
         },
     )
-    n_args: Optional[str] = field(
+    n_args: str | None = field(
         default=None,
         metadata={
             "name": "nArgs",

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_topology_type import (
     AbstractTopologyType,
@@ -31,7 +31,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class AbstractTopoPrimitiveType(AbstractTopologyType):
-    isolated: List["Isolated"] = field(
+    isolated: list["Isolated"] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -49,7 +49,7 @@ class AbstractTopoPrimitiveType(AbstractTopologyType):
 
 @dataclass
 class NodeType(AbstractTopoPrimitiveType):
-    directed_edge: List["DirectedEdge"] = field(
+    directed_edge: list["DirectedEdge"] = field(
         default_factory=list,
         metadata={
             "name": "directedEdge",
@@ -57,7 +57,7 @@ class NodeType(AbstractTopoPrimitiveType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    point_property: Optional[PointProperty] = field(
+    point_property: PointProperty | None = field(
         default=None,
         metadata={
             "name": "pointProperty",
@@ -65,7 +65,7 @@ class NodeType(AbstractTopoPrimitiveType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",
@@ -92,7 +92,7 @@ class Node(NodeType):
 
 @dataclass
 class DirectedNodePropertyType:
-    node: Optional[Node] = field(
+    node: Node | None = field(
         default=None,
         metadata={
             "name": "Node",
@@ -115,49 +115,49 @@ class DirectedNodePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -165,7 +165,7 @@ class DirectedNodePropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -198,7 +198,7 @@ class DirectedNode(DirectedNodePropertyType):
 
 @dataclass
 class EdgeType(AbstractTopoPrimitiveType):
-    directed_node: List[DirectedNode] = field(
+    directed_node: list[DirectedNode] = field(
         default_factory=list,
         metadata={
             "name": "directedNode",
@@ -208,7 +208,7 @@ class EdgeType(AbstractTopoPrimitiveType):
             "max_occurs": 2,
         },
     )
-    directed_face: List["DirectedFace"] = field(
+    directed_face: list["DirectedFace"] = field(
         default_factory=list,
         metadata={
             "name": "directedFace",
@@ -216,7 +216,7 @@ class EdgeType(AbstractTopoPrimitiveType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    curve_property: Optional[CurveProperty] = field(
+    curve_property: CurveProperty | None = field(
         default=None,
         metadata={
             "name": "curveProperty",
@@ -224,7 +224,7 @@ class EdgeType(AbstractTopoPrimitiveType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",
@@ -254,7 +254,7 @@ class Edge(EdgeType):
 
 @dataclass
 class DirectedEdgePropertyType:
-    edge: Optional[Edge] = field(
+    edge: Edge | None = field(
         default=None,
         metadata={
             "name": "Edge",
@@ -277,49 +277,49 @@ class DirectedEdgePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -327,7 +327,7 @@ class DirectedEdgePropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -345,7 +345,7 @@ class DirectedEdgePropertyType:
 
 @dataclass
 class IsolatedPropertyType:
-    node: Optional[Node] = field(
+    node: Node | None = field(
         default=None,
         metadata={
             "name": "Node",
@@ -353,7 +353,7 @@ class IsolatedPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    edge: Optional[Edge] = field(
+    edge: Edge | None = field(
         default=None,
         metadata={
             "name": "Edge",
@@ -370,49 +370,49 @@ class IsolatedPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -420,7 +420,7 @@ class IsolatedPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -465,7 +465,7 @@ class Isolated(IsolatedPropertyType):
 
 @dataclass
 class FaceType(AbstractTopoPrimitiveType):
-    directed_edge: List[DirectedEdge] = field(
+    directed_edge: list[DirectedEdge] = field(
         default_factory=list,
         metadata={
             "name": "directedEdge",
@@ -474,7 +474,7 @@ class FaceType(AbstractTopoPrimitiveType):
             "min_occurs": 1,
         },
     )
-    directed_topo_solid: List["DirectedTopoSolid"] = field(
+    directed_topo_solid: list["DirectedTopoSolid"] = field(
         default_factory=list,
         metadata={
             "name": "directedTopoSolid",
@@ -483,7 +483,7 @@ class FaceType(AbstractTopoPrimitiveType):
             "max_occurs": 2,
         },
     )
-    surface_property: Optional[SurfaceProperty] = field(
+    surface_property: SurfaceProperty | None = field(
         default=None,
         metadata={
             "name": "surfaceProperty",
@@ -491,7 +491,7 @@ class FaceType(AbstractTopoPrimitiveType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",
@@ -521,7 +521,7 @@ class Face(FaceType):
 
 @dataclass
 class DirectedFacePropertyType:
-    face: Optional[Face] = field(
+    face: Face | None = field(
         default=None,
         metadata={
             "name": "Face",
@@ -544,49 +544,49 @@ class DirectedFacePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -594,7 +594,7 @@ class DirectedFacePropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -628,7 +628,7 @@ class DirectedFace(DirectedFacePropertyType):
 
 @dataclass
 class TopoSolidType(AbstractTopoPrimitiveType):
-    directed_face: List[DirectedFace] = field(
+    directed_face: list[DirectedFace] = field(
         default_factory=list,
         metadata={
             "name": "directedFace",
@@ -637,7 +637,7 @@ class TopoSolidType(AbstractTopoPrimitiveType):
             "min_occurs": 1,
         },
     )
-    solid_property: Optional[SolidProperty] = field(
+    solid_property: SolidProperty | None = field(
         default=None,
         metadata={
             "name": "solidProperty",
@@ -645,7 +645,7 @@ class TopoSolidType(AbstractTopoPrimitiveType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",
@@ -669,7 +669,7 @@ class TopoSolid(TopoSolidType):
 
 @dataclass
 class ContainerPropertyType:
-    face: Optional[Face] = field(
+    face: Face | None = field(
         default=None,
         metadata={
             "name": "Face",
@@ -677,7 +677,7 @@ class ContainerPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    topo_solid: Optional[TopoSolid] = field(
+    topo_solid: TopoSolid | None = field(
         default=None,
         metadata={
             "name": "TopoSolid",
@@ -694,49 +694,49 @@ class ContainerPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -744,7 +744,7 @@ class ContainerPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -762,7 +762,7 @@ class ContainerPropertyType:
 
 @dataclass
 class DirectedTopoSolidPropertyType:
-    topo_solid: Optional[TopoSolid] = field(
+    topo_solid: TopoSolid | None = field(
         default=None,
         metadata={
             "name": "TopoSolid",
@@ -785,49 +785,49 @@ class DirectedTopoSolidPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -835,7 +835,7 @@ class DirectedTopoSolidPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

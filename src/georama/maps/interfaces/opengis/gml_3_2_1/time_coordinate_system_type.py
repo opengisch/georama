@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_time_primitive_type import (
     TimeInstantPropertyType,
@@ -19,7 +18,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class TimeCoordinateSystemType(TimeReferenceSystemType):
-    origin_position: Optional[TimePositionType] = field(
+    origin_position: TimePositionType | None = field(
         default=None,
         metadata={
             "name": "originPosition",
@@ -27,14 +26,14 @@ class TimeCoordinateSystemType(TimeReferenceSystemType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    origin: Optional[TimeInstantPropertyType] = field(
+    origin: TimeInstantPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    interval: Optional[TimeIntervalLengthType] = field(
+    interval: TimeIntervalLengthType | None = field(
         default=None,
         metadata={
             "type": "Element",

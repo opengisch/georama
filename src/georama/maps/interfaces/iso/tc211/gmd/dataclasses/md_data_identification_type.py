@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_md_identification_type import (
     AbstractMdIdentificationType,
@@ -31,15 +30,17 @@ class MdDataIdentificationType(AbstractMdIdentificationType):
     class Meta:
         name = "MD_DataIdentification_Type"
 
-    spatial_representation_type: List[MdSpatialRepresentationTypeCodePropertyType] = field(
-        default_factory=list,
-        metadata={
-            "name": "spatialRepresentationType",
-            "type": "Element",
-            "namespace": "http://www.isotc211.org/2005/gmd",
-        },
+    spatial_representation_type: list[MdSpatialRepresentationTypeCodePropertyType] = (
+        field(
+            default_factory=list,
+            metadata={
+                "name": "spatialRepresentationType",
+                "type": "Element",
+                "namespace": "http://www.isotc211.org/2005/gmd",
+            },
+        )
     )
-    spatial_resolution: List[MdResolutionPropertyType] = field(
+    spatial_resolution: list[MdResolutionPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "spatialResolution",
@@ -47,7 +48,7 @@ class MdDataIdentificationType(AbstractMdIdentificationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    language: List[CharacterStringPropertyType] = field(
+    language: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -55,7 +56,7 @@ class MdDataIdentificationType(AbstractMdIdentificationType):
             "min_occurs": 1,
         },
     )
-    character_set: List[MdCharacterSetCodePropertyType] = field(
+    character_set: list[MdCharacterSetCodePropertyType] = field(
         default_factory=list,
         metadata={
             "name": "characterSet",
@@ -63,7 +64,7 @@ class MdDataIdentificationType(AbstractMdIdentificationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    topic_category: List[MdTopicCategoryCodePropertyType] = field(
+    topic_category: list[MdTopicCategoryCodePropertyType] = field(
         default_factory=list,
         metadata={
             "name": "topicCategory",
@@ -71,7 +72,7 @@ class MdDataIdentificationType(AbstractMdIdentificationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    environment_description: Optional[CharacterStringPropertyType] = field(
+    environment_description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "environmentDescription",
@@ -79,14 +80,14 @@ class MdDataIdentificationType(AbstractMdIdentificationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    extent: List[ExExtentPropertyType] = field(
+    extent: list[ExExtentPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    supplemental_information: Optional[CharacterStringPropertyType] = field(
+    supplemental_information: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "supplementalInformation",

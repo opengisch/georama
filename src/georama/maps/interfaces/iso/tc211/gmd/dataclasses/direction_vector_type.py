@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.angle_type import AngleType
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.vector import Vector
@@ -13,14 +12,14 @@ class DirectionVectorType:
     Direction vectors are specified by providing components of a vector.
     """
 
-    vector: Optional[Vector] = field(
+    vector: Vector | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    horizontal_angle: Optional[AngleType] = field(
+    horizontal_angle: AngleType | None = field(
         default=None,
         metadata={
             "name": "horizontalAngle",
@@ -28,7 +27,7 @@ class DirectionVectorType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    vertical_angle: Optional[AngleType] = field(
+    vertical_angle: AngleType | None = field(
         default=None,
         metadata={
             "name": "verticalAngle",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -50,7 +49,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
     class Meta:
         name = "AbstractMD_Identification_Type"
 
-    citation: Optional[CiCitationPropertyType] = field(
+    citation: CiCitationPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -58,7 +57,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
             "required": True,
         },
     )
-    abstract: Optional[CharacterStringPropertyType] = field(
+    abstract: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -66,28 +65,28 @@ class AbstractMdIdentificationType(AbstractObjectType):
             "required": True,
         },
     )
-    purpose: Optional[CharacterStringPropertyType] = field(
+    purpose: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    credit: List[CharacterStringPropertyType] = field(
+    credit: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    status: List[MdProgressCodePropertyType] = field(
+    status: list[MdProgressCodePropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    point_of_contact: List[CiResponsiblePartyPropertyType] = field(
+    point_of_contact: list[CiResponsiblePartyPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "pointOfContact",
@@ -95,7 +94,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    resource_maintenance: List[MdMaintenanceInformationPropertyType] = field(
+    resource_maintenance: list[MdMaintenanceInformationPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "resourceMaintenance",
@@ -103,7 +102,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    graphic_overview: List[MdBrowseGraphicPropertyType] = field(
+    graphic_overview: list[MdBrowseGraphicPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "graphicOverview",
@@ -111,7 +110,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    resource_format: List[MdFormatPropertyType] = field(
+    resource_format: list[MdFormatPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "resourceFormat",
@@ -119,7 +118,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    descriptive_keywords: List[MdKeywordsPropertyType] = field(
+    descriptive_keywords: list[MdKeywordsPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "descriptiveKeywords",
@@ -127,7 +126,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    resource_specific_usage: List[MdUsagePropertyType] = field(
+    resource_specific_usage: list[MdUsagePropertyType] = field(
         default_factory=list,
         metadata={
             "name": "resourceSpecificUsage",
@@ -135,7 +134,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    resource_constraints: List[MdConstraintsPropertyType] = field(
+    resource_constraints: list[MdConstraintsPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "resourceConstraints",
@@ -143,7 +142,7 @@ class AbstractMdIdentificationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    aggregation_info: List[MdAggregateInformationPropertyType] = field(
+    aggregation_info: list[MdAggregateInformationPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "aggregationInfo",

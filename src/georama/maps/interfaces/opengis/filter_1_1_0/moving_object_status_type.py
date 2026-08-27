@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_time_slice_type import (
     AbstractTimeSliceType,
@@ -26,7 +25,7 @@ class MovingObjectStatusType(AbstractTimeSliceType):
     changes over time.
     """
 
-    priority_location_or_location: Optional[Union[PriorityLocation, Location]] = field(
+    priority_location_or_location: PriorityLocation | Location | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -44,35 +43,35 @@ class MovingObjectStatusType(AbstractTimeSliceType):
             ),
         },
     )
-    speed: Optional[MeasureType] = field(
+    speed: MeasureType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    bearing: Optional[DirectionPropertyType] = field(
+    bearing: DirectionPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    acceleration: Optional[MeasureType] = field(
+    acceleration: MeasureType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    elevation: Optional[MeasureType] = field(
+    elevation: MeasureType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    status: Optional[Status] = field(
+    status: Status | None = field(
         default=None,
         metadata={
             "type": "Element",

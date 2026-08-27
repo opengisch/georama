@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import ForwardRef, Optional, Union
+from typing import ForwardRef, Optional
 
 from xsdata.models.datatype import XmlDateTime
 
@@ -20,7 +20,7 @@ __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
 @dataclass
 class MemberPropertyType:
-    state: Optional[Union[str, StateValueTypeValue]] = field(
+    state: str | StateValueTypeValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -36,22 +36,14 @@ class MemberPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -59,21 +51,29 @@ class MemberPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -124,7 +124,7 @@ class ValueCollectionType:
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    truncated_response: Optional[TruncatedResponse] = field(
+    truncated_response: TruncatedResponse | None = field(
         default=None,
         metadata={
             "name": "truncatedResponse",
@@ -132,7 +132,7 @@ class ValueCollectionType:
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    time_stamp: Optional[XmlDateTime] = field(
+    time_stamp: XmlDateTime | None = field(
         default=None,
         metadata={
             "name": "timeStamp",
@@ -140,7 +140,7 @@ class ValueCollectionType:
             "required": True,
         },
     )
-    number_matched: Optional[Union[int, NonNegativeIntegerOrUnknownValue]] = field(
+    number_matched: int | NonNegativeIntegerOrUnknownValue | None = field(
         default=None,
         metadata={
             "name": "numberMatched",
@@ -148,7 +148,7 @@ class ValueCollectionType:
             "required": True,
         },
     )
-    number_returned: Optional[int] = field(
+    number_returned: int | None = field(
         default=None,
         metadata={
             "name": "numberReturned",
@@ -156,13 +156,13 @@ class ValueCollectionType:
             "required": True,
         },
     )
-    next: Optional[str] = field(
+    next: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    previous: Optional[str] = field(
+    previous: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -185,7 +185,7 @@ class Member(MemberPropertyType):
 
 @dataclass
 class SimpleFeatureCollectionType:
-    bounded_by: Optional[BoundedBy] = field(
+    bounded_by: BoundedBy | None = field(
         default=None,
         metadata={
             "name": "boundedBy",
@@ -224,7 +224,7 @@ class FeatureCollectionType(SimpleFeatureCollectionType):
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    truncated_response: Optional[TruncatedResponse] = field(
+    truncated_response: TruncatedResponse | None = field(
         default=None,
         metadata={
             "name": "truncatedResponse",
@@ -232,7 +232,7 @@ class FeatureCollectionType(SimpleFeatureCollectionType):
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    time_stamp: Optional[XmlDateTime] = field(
+    time_stamp: XmlDateTime | None = field(
         default=None,
         metadata={
             "name": "timeStamp",
@@ -240,7 +240,7 @@ class FeatureCollectionType(SimpleFeatureCollectionType):
             "required": True,
         },
     )
-    number_matched: Optional[Union[int, NonNegativeIntegerOrUnknownValue]] = field(
+    number_matched: int | NonNegativeIntegerOrUnknownValue | None = field(
         default=None,
         metadata={
             "name": "numberMatched",
@@ -248,7 +248,7 @@ class FeatureCollectionType(SimpleFeatureCollectionType):
             "required": True,
         },
     )
-    number_returned: Optional[int] = field(
+    number_returned: int | None = field(
         default=None,
         metadata={
             "name": "numberReturned",
@@ -256,19 +256,19 @@ class FeatureCollectionType(SimpleFeatureCollectionType):
             "required": True,
         },
     )
-    next: Optional[str] = field(
+    next: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    previous: Optional[str] = field(
+    previous: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    lock_id: Optional[str] = field(
+    lock_id: str | None = field(
         default=None,
         metadata={
             "name": "lockId",
@@ -301,9 +301,9 @@ class AdditionalObjects:
         name = "additionalObjects"
         namespace = "http://www.opengis.net/wfs/2.0"
 
-    value_collection_or_feature_collection_or_simple_feature_collection: Optional[
-        Union[ValueCollection, FeatureCollection, SimpleFeatureCollection]
-    ] = field(
+    value_collection_or_feature_collection_or_simple_feature_collection: (
+        ValueCollection | FeatureCollection | SimpleFeatureCollection | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -331,9 +331,9 @@ class AdditionalValues:
         name = "additionalValues"
         namespace = "http://www.opengis.net/wfs/2.0"
 
-    value_collection_or_feature_collection_or_simple_feature_collection: Optional[
-        Union[ValueCollection, FeatureCollection, SimpleFeatureCollection]
-    ] = field(
+    value_collection_or_feature_collection_or_simple_feature_collection: (
+        ValueCollection | FeatureCollection | SimpleFeatureCollection | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",

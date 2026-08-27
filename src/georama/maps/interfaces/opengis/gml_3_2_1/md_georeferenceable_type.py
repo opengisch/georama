@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.boolean_property_type_2 import (
     BooleanPropertyType2,
@@ -25,7 +24,7 @@ class MdGeoreferenceableType(MdGridSpatialRepresentationType):
     class Meta:
         name = "MD_Georeferenceable_Type"
 
-    control_point_availability: Optional[BooleanPropertyType2] = field(
+    control_point_availability: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "controlPointAvailability",
@@ -34,7 +33,7 @@ class MdGeoreferenceableType(MdGridSpatialRepresentationType):
             "required": True,
         },
     )
-    orientation_parameter_availability: Optional[BooleanPropertyType2] = field(
+    orientation_parameter_availability: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "orientationParameterAvailability",
@@ -43,7 +42,7 @@ class MdGeoreferenceableType(MdGridSpatialRepresentationType):
             "required": True,
         },
     )
-    orientation_parameter_description: Optional[CharacterStringPropertyType] = field(
+    orientation_parameter_description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "orientationParameterDescription",
@@ -51,7 +50,7 @@ class MdGeoreferenceableType(MdGridSpatialRepresentationType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    georeferenced_parameters: Optional[RecordPropertyType] = field(
+    georeferenced_parameters: RecordPropertyType | None = field(
         default=None,
         metadata={
             "name": "georeferencedParameters",

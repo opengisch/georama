@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -27,7 +26,7 @@ class MdAggregateInformationType(AbstractObjectType):
     class Meta:
         name = "MD_AggregateInformation_Type"
 
-    aggregate_data_set_name: Optional[CiCitationPropertyType] = field(
+    aggregate_data_set_name: CiCitationPropertyType | None = field(
         default=None,
         metadata={
             "name": "aggregateDataSetName",
@@ -35,7 +34,7 @@ class MdAggregateInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    aggregate_data_set_identifier: Optional[MdIdentifierPropertyType] = field(
+    aggregate_data_set_identifier: MdIdentifierPropertyType | None = field(
         default=None,
         metadata={
             "name": "aggregateDataSetIdentifier",
@@ -43,7 +42,7 @@ class MdAggregateInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    association_type: Optional[DsAssociationTypeCodePropertyType] = field(
+    association_type: DsAssociationTypeCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "associationType",
@@ -52,7 +51,7 @@ class MdAggregateInformationType(AbstractObjectType):
             "required": True,
         },
     )
-    initiative_type: Optional[DsInitiativeTypeCodePropertyType] = field(
+    initiative_type: DsInitiativeTypeCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "initiativeType",

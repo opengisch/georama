@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -13,13 +12,13 @@ class CodeListType:
     identified by the value of its codeSpace attribute.
     """
 
-    value: List[str] = field(
+    value: list[str] = field(
         default_factory=list,
         metadata={
             "tokens": True,
         },
     )
-    code_space: Optional[str] = field(
+    code_space: str | None = field(
         default=None,
         metadata={
             "name": "codeSpace",

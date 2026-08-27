@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -21,7 +20,7 @@ class MultiplicityType(AbstractObjectType):
     class Meta:
         name = "Multiplicity_Type"
 
-    range: List[MultiplicityRangePropertyType] = field(
+    range: list[MultiplicityRangePropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.point import Point
 
@@ -15,7 +14,7 @@ class PointArrayPropertyType:
     XLinks is not supported.
     """
 
-    point: List[Point] = field(
+    point: list[Point] = field(
         default_factory=list,
         metadata={
             "name": "Point",

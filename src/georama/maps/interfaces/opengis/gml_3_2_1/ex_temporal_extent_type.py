@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -20,7 +19,7 @@ class ExTemporalExtentType(AbstractObjectType):
     class Meta:
         name = "EX_TemporalExtent_Type"
 
-    extent: Optional[TmPrimitivePropertyType] = field(
+    extent: TmPrimitivePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

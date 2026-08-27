@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.comparison_ops_type import ComparisonOpsType
 from georama.maps.interfaces.ogc.wfs_2_0_0.function_type import Function
@@ -11,9 +10,9 @@ __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 
 @dataclass
 class PropertyIsNilType(ComparisonOpsType):
-    literal_or_function_or_value_reference: Optional[
-        Union[Literal, Function, ValueReference]
-    ] = field(
+    literal_or_function_or_value_reference: (
+        Literal | Function | ValueReference | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -36,7 +35,7 @@ class PropertyIsNilType(ComparisonOpsType):
             ),
         },
     )
-    nil_reason: Optional[str] = field(
+    nil_reason: str | None = field(
         default=None,
         metadata={
             "name": "nilReason",

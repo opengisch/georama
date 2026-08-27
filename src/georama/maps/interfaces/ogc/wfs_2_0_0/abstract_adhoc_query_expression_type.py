@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.abstract_query_expression_type import (
     AbstractQueryExpressionType,
@@ -21,7 +20,7 @@ class AbstractAdhocQueryExpressionType(AbstractQueryExpressionType):
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    filter: Optional[Filter] = field(
+    filter: Filter | None = field(
         default=None,
         metadata={
             "name": "Filter",
@@ -29,7 +28,7 @@ class AbstractAdhocQueryExpressionType(AbstractQueryExpressionType):
             "namespace": "http://www.opengis.net/fes/2.0",
         },
     )
-    sort_by: Optional[SortBy] = field(
+    sort_by: SortBy | None = field(
         default=None,
         metadata={
             "name": "SortBy",

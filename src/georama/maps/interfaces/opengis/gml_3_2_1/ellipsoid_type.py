@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.identified_object_type import (
     IdentifiedObjectType,
@@ -14,7 +13,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class EllipsoidType(IdentifiedObjectType):
-    semi_major_axis: Optional[SemiMajorAxis] = field(
+    semi_major_axis: SemiMajorAxis | None = field(
         default=None,
         metadata={
             "name": "semiMajorAxis",
@@ -23,7 +22,7 @@ class EllipsoidType(IdentifiedObjectType):
             "required": True,
         },
     )
-    second_defining_parameter: Optional[SecondDefiningParameter2] = field(
+    second_defining_parameter: SecondDefiningParameter2 | None = field(
         default=None,
         metadata={
             "name": "secondDefiningParameter",

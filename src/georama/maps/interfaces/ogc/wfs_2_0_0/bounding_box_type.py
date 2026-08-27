@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 
@@ -60,13 +59,13 @@ class BoundingBoxType:
             "tokens": True,
         },
     )
-    crs: Optional[str] = field(
+    crs: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    dimensions: Optional[int] = field(
+    dimensions: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",

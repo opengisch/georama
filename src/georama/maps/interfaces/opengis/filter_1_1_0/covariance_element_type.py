@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.column_index import ColumnIndex
 from georama.maps.interfaces.opengis.filter_1_1_0.covariance import Covariance
@@ -14,7 +13,7 @@ class CovarianceElementType:
     An element of a covariance matrix.
     """
 
-    row_index: Optional[RowIndex] = field(
+    row_index: RowIndex | None = field(
         default=None,
         metadata={
             "name": "rowIndex",
@@ -23,7 +22,7 @@ class CovarianceElementType:
             "required": True,
         },
     )
-    column_index: Optional[ColumnIndex] = field(
+    column_index: ColumnIndex | None = field(
         default=None,
         metadata={
             "name": "columnIndex",
@@ -32,7 +31,7 @@ class CovarianceElementType:
             "required": True,
         },
     )
-    covariance: Optional[Covariance] = field(
+    covariance: Covariance | None = field(
         default=None,
         metadata={
             "type": "Element",

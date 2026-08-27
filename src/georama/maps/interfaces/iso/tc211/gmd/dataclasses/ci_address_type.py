@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -20,7 +19,7 @@ class CiAddressType(AbstractObjectType):
     class Meta:
         name = "CI_Address_Type"
 
-    delivery_point: List[CharacterStringPropertyType] = field(
+    delivery_point: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "deliveryPoint",
@@ -28,14 +27,14 @@ class CiAddressType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    city: Optional[CharacterStringPropertyType] = field(
+    city: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    administrative_area: Optional[CharacterStringPropertyType] = field(
+    administrative_area: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "administrativeArea",
@@ -43,7 +42,7 @@ class CiAddressType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    postal_code: Optional[CharacterStringPropertyType] = field(
+    postal_code: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "postalCode",
@@ -51,14 +50,14 @@ class CiAddressType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    country: Optional[CharacterStringPropertyType] = field(
+    country: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    electronic_mail_address: List[CharacterStringPropertyType] = field(
+    electronic_mail_address: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "electronicMailAddress",

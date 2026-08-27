@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.topo_curve import TopoCurve
 
@@ -8,7 +7,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class TopoCurvePropertyType:
-    topo_curve: Optional[TopoCurve] = field(
+    topo_curve: TopoCurve | None = field(
         default=None,
         metadata={
             "name": "TopoCurve",

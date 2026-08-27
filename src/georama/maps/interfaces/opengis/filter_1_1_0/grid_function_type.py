@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.sequence_rule_type import (
     SequenceRuleType,
@@ -21,7 +20,7 @@ class GridFunctionType:
         definition.
     """
 
-    sequence_rule: Optional[SequenceRuleType] = field(
+    sequence_rule: SequenceRuleType | None = field(
         default=None,
         metadata={
             "name": "sequenceRule",

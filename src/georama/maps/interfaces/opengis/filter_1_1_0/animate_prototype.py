@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.animate_prototype_accumulate import (
     AnimatePrototypeAccumulate,
@@ -19,7 +18,7 @@ class AnimatePrototype:
     class Meta:
         name = "animatePrototype"
 
-    attribute_name: Optional[str] = field(
+    attribute_name: str | None = field(
         default=None,
         metadata={
             "name": "attributeName",
@@ -46,26 +45,26 @@ class AnimatePrototype:
             "type": "Attribute",
         },
     )
-    to: Optional[str] = field(
+    to: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    from_value: Optional[str] = field(
+    from_value: str | None = field(
         default=None,
         metadata={
             "name": "from",
             "type": "Attribute",
         },
     )
-    by: Optional[str] = field(
+    by: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    values: Optional[str] = field(
+    values: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
