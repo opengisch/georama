@@ -1,24 +1,13 @@
-name: Linting/Formatting
-on: push
+name: pre-commit
+
+on:
+  pull_request:
+  push:
+
 jobs:
-  lint-project:
+  pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - uses: actions/checkout@v6
-      - name: Prepare Build Environment
-        run: |
-          cp .env.dev .env
-          echo "UID=$(id -u)" >> .env
-          echo "GID=$(id -g)" >> .env
-          echo "QSL_SOURCE_BRANCH=master" >> .env
-          cat .env
-      - name: Build Georama Image
-        run: |
-          docker compose build georama
-      - name: Start Docker composition
-        run: |
-          docker compose up -d
-      - name: Run Ruff
-        run: docker compose exec georama uv run ruff check --output-format=github .
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v7
+    - uses: pre-commit/action@v3.0.1
