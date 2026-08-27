@@ -1,20 +1,18 @@
-ARG PYTHON_VERSION=3.12
-FROM python:$PYTHON_VERSION AS base
-LABEL org.opencontainers.image.authors="Clemens Rudert <clemens@opengis.ch>"
+# syntax=docker/dockerfile:1.17
+FROM debian:trixie-slim AS base
+LABEL org.opencontainers.image.authors="OPENGIS.ch <info@opengis.ch>"
 LABEL org.opencontainers.image.vendor="opengis.ch"
 LABEL org.opencontainers.image.title="Georama Base Image"
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
-    binutils \
-    libproj-dev \
-    gdal-bin \
-    libgdal-dev \
+    python3-gdal \
     gettext \
     openssh-server \
+    git \
     sudo
 
-COPY --from=ghcr.io/astral-sh/uv:0.11.19 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.12.6 /uv /uvx /bin/
 
 FROM base AS dev
 
@@ -59,18 +57,25 @@ ENV UV_LINK_MODE=copy
 
 # setting path to the static folder
 ENV GEORAMA_STATIC_ROOT=$STATIC_DIR
+ENV PYTHONPATH=/app/src
 
 # We install only the deps at build time,
 #   not the project itself
 USER $USER
 
-
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=cache,target=$UV_CACHE_DIR_BUILD_TIME,uid=$UID,gid=$GID \
-    python -c "import platform; print(platform.python_version())" > .python-version \
+    python3 -c "import platform; print(platform.python_version())" > .python-version \
+ && uv venv --system-site-packages "$UV_PROJECT_ENVIRONMENT" \
  && uv sync --frozen --no-install-project --group dev \
  && cp -r $UV_CACHE_DIR_BUILD_TIME/. $UV_CACHE_DIR_RUN_TIME
+
+# Use the virtual environment automatically
+ENV VIRTUAL_ENV=/home/$USER/.venv
+
+# Place entry points in the environment at the front of the path
+ENV PATH="/home/$USER/.venv/bin:$PATH"
 
 COPY docker/dev.entrypoint.sh /bin/dev.entrypoint.sh
 
