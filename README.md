@@ -46,6 +46,39 @@ docker compose run --rm --entrypoint bash georama -c "uv run manage"
 docker compose run --rm --entrypoint bash georama -c "uv run pytest"
 ```
 
+## Local editable qgis-server-light (optional)
+
+The shared dependency lock uses the Git source for `qgis-server-light` so `uv lock`
+is portable on host and CI.
+
+If you need to iterate on a local checkout, install it editable into your local env
+after syncing dependencies:
+
+```shell
+uv sync --group dev
+uv pip install --editable /absolute/path/to/qgis-server-light[interface]
+```
+
+## System GDAL
+
+GDAL bindings need to be compatible with the gdal binaries that are installed.
+The default way is that Georama expects gdal bindings to be installed from the system,
+on ubuntu this can be done with:
+
+```shell
+apt install python3-gdal
+```
+
+This requires the app to be run with system python too. If you want to run the app with
+another python interpreter than system python or have other specific needs, you will
+need to have gdal development dependencies to be installed and can install the `gdal`
+group
+
+```
+uv sync --group gdal
+```
+
+
 ### Create DEV content
 
 ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
@@ -124,11 +157,5 @@ docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_c
 
 # Problems
 
-- we depend on GDAL, uv always just installs the newest package or the locked on,
-  however, this
-  rarely matches the exact version available installed in random systems, so we remove
-  it as a dep
-  from pyproject.toml and make it a dep assumed to be available in the system via (
-  python3-gdal, or similar)
 - Inheritance of templates not working for django
   partials: https://code.djangoproject.com/ticket/37038

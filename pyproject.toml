@@ -30,7 +30,6 @@ dependencies = [
     "sqlalchemy>=2.0.51",
     "geoalchemy2>=0.20.0",
     "psycopg2-binary>=2.9.12",
-    "gdal==3.10.3",
     "httpx>=0.28.1",
     "redis==5.0.8",
 ]
@@ -38,10 +37,17 @@ dependencies = [
 [project.scripts]
 manage = "georama.manage:main"
 [build-system]
-requires = ["uv_build>=0.11.15,<0.12.0"]
+requires = ["uv_build>=0.12.0,<0.13.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
+gdal = [
+    # If the system doesn't ship any python bindings for gdal which are
+    # compatible with the python interpreter in use, this group can be installed
+    # it assumes that gdal development dependencies and compiler are available on the system
+    "gdal",
+]
+
 dev = [
     { include-group = "lint-format" },
     { include-group = "test" },
@@ -62,9 +68,6 @@ test = [
     "pytest-django>=4.12.0",
     "pytest-lazy-fixtures>=1.4.0",
 ]
-
-[tool.uv.sources]
-qgis-server-light = { path = "/qsl", editable = true }
 
 [tool.ruff]
 target-version = "py312"
