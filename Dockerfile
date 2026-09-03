@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 AS base
+FROM ubuntu:26.04 AS base
 
 USER 0
 RUN --mount=type=cache,target=/var/cache/apt \
