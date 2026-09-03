@@ -12,7 +12,7 @@ jobs:
     name: Check style (git-attributes)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: sudo rm /etc/apt/sources.list.d/*.list
       - name: Run make git-attributes
         run: make git-attributes
@@ -36,7 +36,7 @@ jobs:
           - '3.12'
           - '3.13'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Python v${{ matrix.python-version }}
         uses: actions/setup-python@v7
         with:
