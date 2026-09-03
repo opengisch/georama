@@ -33,11 +33,15 @@ class OrganisationMiddleware:
                 public_access = settings.ORGANISATION_GLOBAL_PUBLIC_ACCESS
             else:
                 try:
-                    logging.debug(f"Request for dedicated organisation. Domain: {subdomains}")
+                    logging.debug(
+                        f"Request for dedicated organisation. Domain: {subdomains}"
+                    )
                     matched_organisation = Organisation.objects.get(domain=subdomains)
                     public_access = matched_organisation.public_access
                 except Organisation.DoesNotExist:
-                    logging.debug(f"Organisation not found in database. Domain: {subdomains}")
+                    logging.debug(
+                        f"Organisation not found in database. Domain: {subdomains}"
+                    )
                     return HttpResponseNotFound(_("Not found"))
             logging.debug(f"Organisation offers public access: {public_access}")
             superuser = request.user.is_superuser if hasattr(request, "user") else False
@@ -49,14 +53,18 @@ class OrganisationMiddleware:
                         matched_organisation == membership.organisation
                         for membership in request.user.memberships.all()
                     ):
-                        logging.debug("User has no membership of the requested organisation")
+                        logging.debug(
+                            "User has no membership of the requested organisation"
+                        )
                         return HttpResponseForbidden(_("No Access"))
                 else:
                     logging.debug(
                         f"User was not authenticated, "
                         f"forwarding to {settings.ORGANISATION_NOT_AUTHENTICATED_TARGET}"
                     )
-                    return redirect(reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET))
+                    return redirect(
+                        reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET)
+                    )
 
         request.georama_organisation = matched_organisation
         logging.debug("Organisation middleware passed.")

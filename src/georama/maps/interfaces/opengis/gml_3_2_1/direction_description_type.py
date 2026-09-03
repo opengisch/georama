@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.code_type import CodeType
 from georama.maps.interfaces.opengis.gml_3_2_1.compass_point_enumeration import (
@@ -24,7 +23,7 @@ class DirectionDescriptionType:
     allowing the value to be included inline or by reference.
     """
 
-    compass_point: Optional[CompassPointEnumeration] = field(
+    compass_point: CompassPointEnumeration | None = field(
         default=None,
         metadata={
             "name": "compassPoint",
@@ -32,21 +31,21 @@ class DirectionDescriptionType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    keyword: Optional[CodeType] = field(
+    keyword: CodeType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    description: Optional[str] = field(
+    description: str | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    reference: Optional[ReferenceType] = field(
+    reference: ReferenceType | None = field(
         default=None,
         metadata={
             "type": "Element",

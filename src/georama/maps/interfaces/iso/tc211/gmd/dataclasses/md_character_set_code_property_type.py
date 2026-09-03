@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.md_character_set_code import (
     MdCharacterSetCode,
@@ -16,7 +15,7 @@ class MdCharacterSetCodePropertyType:
     class Meta:
         name = "MD_CharacterSetCode_PropertyType"
 
-    md_character_set_code: Optional[MdCharacterSetCode] = field(
+    md_character_set_code: MdCharacterSetCode | None = field(
         default=None,
         metadata={
             "name": "MD_CharacterSetCode",
@@ -24,7 +23,7 @@ class MdCharacterSetCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

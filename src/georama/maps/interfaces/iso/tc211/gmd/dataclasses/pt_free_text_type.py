@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -16,7 +15,7 @@ class PtFreeTextType(AbstractObjectType):
     class Meta:
         name = "PT_FreeText_Type"
 
-    text_group: List[LocalisedCharacterStringPropertyType] = field(
+    text_group: list[LocalisedCharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "textGroup",

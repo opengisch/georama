@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.base_style_descriptor_type import (
     BaseStyleDescriptorType,
@@ -16,7 +15,7 @@ class GeometryStyleType(BaseStyleDescriptorType):
     [complexType of] The style descriptor for geometries of a feature.
     """
 
-    symbol_or_style: Optional[Union[Symbol, str]] = field(
+    symbol_or_style: Symbol | str | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -34,7 +33,7 @@ class GeometryStyleType(BaseStyleDescriptorType):
             ),
         },
     )
-    label_style: Optional[LabelStyle2] = field(
+    label_style: LabelStyle2 | None = field(
         default=None,
         metadata={
             "name": "labelStyle",
@@ -42,14 +41,14 @@ class GeometryStyleType(BaseStyleDescriptorType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    geometry_property: Optional[str] = field(
+    geometry_property: str | None = field(
         default=None,
         metadata={
             "name": "geometryProperty",
             "type": "Attribute",
         },
     )
-    geometry_type: Optional[str] = field(
+    geometry_type: str | None = field(
         default=None,
         metadata={
             "name": "geometryType",

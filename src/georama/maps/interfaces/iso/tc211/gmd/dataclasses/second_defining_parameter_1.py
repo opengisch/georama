@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.length_type import LengthType
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.measure_type import MeasureType
@@ -16,21 +15,21 @@ class SecondDefiningParameter1:
         name = "SecondDefiningParameter"
         namespace = "http://www.opengis.net/gml"
 
-    inverse_flattening: Optional[MeasureType] = field(
+    inverse_flattening: MeasureType | None = field(
         default=None,
         metadata={
             "name": "inverseFlattening",
             "type": "Element",
         },
     )
-    semi_minor_axis: Optional[LengthType] = field(
+    semi_minor_axis: LengthType | None = field(
         default=None,
         metadata={
             "name": "semiMinorAxis",
             "type": "Element",
         },
     )
-    is_sphere: Optional[SecondDefiningParameterIsSphere] = field(
+    is_sphere: SecondDefiningParameterIsSphere | None = field(
         default=None,
         metadata={
             "name": "isSphere",

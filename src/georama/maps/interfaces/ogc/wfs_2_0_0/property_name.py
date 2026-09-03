@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 from xml.etree.ElementTree import QName
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.resolve_value_type import ResolveValueType
@@ -13,7 +12,7 @@ class PropertyName:
     class Meta:
         namespace = "http://www.opengis.net/wfs/2.0"
 
-    value: Optional[QName] = field(
+    value: QName | None = field(
         default=None,
         metadata={
             "required": True,
@@ -25,7 +24,7 @@ class PropertyName:
             "type": "Attribute",
         },
     )
-    resolve_depth: Union[int, StarStringType] = field(
+    resolve_depth: int | StarStringType = field(
         default=StarStringType.ASTERISK,
         metadata={
             "name": "resolveDepth",
@@ -39,7 +38,7 @@ class PropertyName:
             "type": "Attribute",
         },
     )
-    resolve_path: Optional[str] = field(
+    resolve_path: str | None = field(
         default=None,
         metadata={
             "name": "resolvePath",

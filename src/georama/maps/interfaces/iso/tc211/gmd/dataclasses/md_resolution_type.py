@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.distance_property_type import (
     DistancePropertyType,
@@ -16,7 +15,7 @@ class MdResolutionType:
     class Meta:
         name = "MD_Resolution_Type"
 
-    equivalent_scale: Optional[MdRepresentativeFractionPropertyType] = field(
+    equivalent_scale: MdRepresentativeFractionPropertyType | None = field(
         default=None,
         metadata={
             "name": "equivalentScale",
@@ -24,7 +23,7 @@ class MdResolutionType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    distance: Optional[DistancePropertyType] = field(
+    distance: DistancePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

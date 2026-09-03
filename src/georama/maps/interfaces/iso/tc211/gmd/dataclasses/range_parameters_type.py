@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.actuate_value import ActuateValue
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.boolean_1 import Boolean1
@@ -39,7 +38,7 @@ class RangeParametersType:
     gml:AbstractValue.
     """
 
-    quantity_extent: Optional[QuantityExtent] = field(
+    quantity_extent: QuantityExtent | None = field(
         default=None,
         metadata={
             "name": "QuantityExtent",
@@ -47,7 +46,7 @@ class RangeParametersType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    count_extent: Optional[CountExtent] = field(
+    count_extent: CountExtent | None = field(
         default=None,
         metadata={
             "name": "CountExtent",
@@ -55,7 +54,7 @@ class RangeParametersType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    category_extent: Optional[CategoryExtent] = field(
+    category_extent: CategoryExtent | None = field(
         default=None,
         metadata={
             "name": "CategoryExtent",
@@ -63,7 +62,7 @@ class RangeParametersType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    value_array: Optional[ValueArray] = field(
+    value_array: ValueArray | None = field(
         default=None,
         metadata={
             "name": "ValueArray",
@@ -71,7 +70,7 @@ class RangeParametersType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    composite_value: Optional[CompositeValue] = field(
+    composite_value: CompositeValue | None = field(
         default=None,
         metadata={
             "name": "CompositeValue",
@@ -79,7 +78,7 @@ class RangeParametersType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    quantity_list: Optional[QuantityList] = field(
+    quantity_list: QuantityList | None = field(
         default=None,
         metadata={
             "name": "QuantityList",
@@ -87,7 +86,7 @@ class RangeParametersType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    count_list: Optional[CountList] = field(
+    count_list: CountList | None = field(
         default=None,
         metadata={
             "name": "CountList",
@@ -95,7 +94,7 @@ class RangeParametersType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    category_list: Optional[CategoryList] = field(
+    category_list: CategoryList | None = field(
         default=None,
         metadata={
             "name": "CategoryList",
@@ -103,7 +102,7 @@ class RangeParametersType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    boolean_list: Optional[BooleanList] = field(
+    boolean_list: BooleanList | None = field(
         default=None,
         metadata={
             "name": "BooleanList",
@@ -111,7 +110,7 @@ class RangeParametersType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    quantity: Optional[Quantity] = field(
+    quantity: Quantity | None = field(
         default=None,
         metadata={
             "name": "Quantity",
@@ -120,7 +119,7 @@ class RangeParametersType:
             "nillable": True,
         },
     )
-    count: Optional[Count] = field(
+    count: Count | None = field(
         default=None,
         metadata={
             "name": "Count",
@@ -129,7 +128,7 @@ class RangeParametersType:
             "nillable": True,
         },
     )
-    category: Optional[Category] = field(
+    category: Category | None = field(
         default=None,
         metadata={
             "name": "Category",
@@ -138,7 +137,7 @@ class RangeParametersType:
             "nillable": True,
         },
     )
-    boolean: Optional[Boolean1] = field(
+    boolean: Boolean1 | None = field(
         default=None,
         metadata={
             "name": "Boolean",
@@ -162,49 +161,49 @@ class RangeParametersType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -212,7 +211,7 @@ class RangeParametersType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

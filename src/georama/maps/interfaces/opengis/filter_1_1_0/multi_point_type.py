@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_geometric_aggregate_type import (
     AbstractGeometricAggregateType,
@@ -25,7 +24,7 @@ class MultiPointType(AbstractGeometricAggregateType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    point_members: Optional[PointMembers] = field(
+    point_members: PointMembers | None = field(
         default=None,
         metadata={
             "name": "pointMembers",

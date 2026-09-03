@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.md_obligation_code import (
     MdObligationCode,
@@ -16,7 +15,7 @@ class MdObligationCodePropertyType:
     class Meta:
         name = "MD_ObligationCode_PropertyType"
 
-    md_obligation_code: Optional[MdObligationCode] = field(
+    md_obligation_code: MdObligationCode | None = field(
         default=None,
         metadata={
             "name": "MD_ObligationCode",
@@ -24,7 +23,7 @@ class MdObligationCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

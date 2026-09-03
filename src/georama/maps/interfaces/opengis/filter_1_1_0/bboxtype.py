@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.envelope import Envelope
 from georama.maps.interfaces.opengis.filter_1_1_0.envelope_with_time_period import (
@@ -16,7 +15,7 @@ class Bboxtype(SpatialOpsType):
     class Meta:
         name = "BBOXType"
 
-    property_name: Optional[PropertyName] = field(
+    property_name: PropertyName | None = field(
         default=None,
         metadata={
             "name": "PropertyName",
@@ -24,23 +23,23 @@ class Bboxtype(SpatialOpsType):
             "namespace": "http://www.opengis.net/ogc",
         },
     )
-    envelope_with_time_period_or_envelope: Optional[
-        Union[EnvelopeWithTimePeriod, Envelope]
-    ] = field(
-        default=None,
-        metadata={
-            "type": "Elements",
-            "choices": (
-                {
-                    "name": "EnvelopeWithTimePeriod",
-                    "type": EnvelopeWithTimePeriod,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "Envelope",
-                    "type": Envelope,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-            ),
-        },
+    envelope_with_time_period_or_envelope: EnvelopeWithTimePeriod | Envelope | None = (
+        field(
+            default=None,
+            metadata={
+                "type": "Elements",
+                "choices": (
+                    {
+                        "name": "EnvelopeWithTimePeriod",
+                        "type": EnvelopeWithTimePeriod,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "Envelope",
+                        "type": Envelope,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                ),
+            },
+        )
     )

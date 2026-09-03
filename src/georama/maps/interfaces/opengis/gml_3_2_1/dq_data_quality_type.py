@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -22,7 +21,7 @@ class DqDataQualityType(AbstractObjectType):
     class Meta:
         name = "DQ_DataQuality_Type"
 
-    scope: Optional[DqScopePropertyType] = field(
+    scope: DqScopePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -37,7 +36,7 @@ class DqDataQualityType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    lineage: Optional[LiLineagePropertyType] = field(
+    lineage: LiLineagePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

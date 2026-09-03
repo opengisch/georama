@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
@@ -27,14 +26,14 @@ class DirectPositionListType:
             "tokens": True,
         },
     )
-    srs_name: Optional[str] = field(
+    srs_name: str | None = field(
         default=None,
         metadata={
             "name": "srsName",
             "type": "Attribute",
         },
     )
-    srs_dimension: Optional[int] = field(
+    srs_dimension: int | None = field(
         default=None,
         metadata={
             "name": "srsDimension",
@@ -57,7 +56,7 @@ class DirectPositionListType:
             "tokens": True,
         },
     )
-    count: Optional[int] = field(
+    count: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",

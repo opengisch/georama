@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.length_type import LengthType
 from georama.maps.interfaces.opengis.gml_3_2_1.line_string_segment_array_property_type import (
@@ -31,7 +30,7 @@ class TinType(SurfaceType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    max_length: Optional[LengthType] = field(
+    max_length: LengthType | None = field(
         default=None,
         metadata={
             "name": "maxLength",
@@ -40,7 +39,7 @@ class TinType(SurfaceType):
             "required": True,
         },
     )
-    control_point: Optional[TinTypeControlPoint] = field(
+    control_point: TinTypeControlPoint | None = field(
         default=None,
         metadata={
             "name": "controlPoint",

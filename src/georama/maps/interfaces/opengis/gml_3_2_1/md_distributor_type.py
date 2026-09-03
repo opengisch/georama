@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -35,7 +34,7 @@ class MdDistributorType(AbstractObjectType):
     class Meta:
         name = "MD_Distributor_Type"
 
-    distributor_contact: Optional[CiResponsiblePartyPropertyType] = field(
+    distributor_contact: CiResponsiblePartyPropertyType | None = field(
         default=None,
         metadata={
             "name": "distributorContact",
@@ -82,7 +81,7 @@ class MdDistributorPropertyType:
     class Meta:
         name = "MD_Distributor_PropertyType"
 
-    md_distributor: Optional[MdDistributor] = field(
+    md_distributor: MdDistributor | None = field(
         default=None,
         metadata={
             "name": "MD_Distributor",
@@ -99,22 +98,14 @@ class MdDistributorPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -122,34 +113,42 @@ class MdDistributorPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    uuidref: Optional[str] = field(
+    uuidref: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -169,7 +168,7 @@ class MdFormatType(AbstractObjectType):
     class Meta:
         name = "MD_Format_Type"
 
-    name: Optional[CharacterStringPropertyType] = field(
+    name: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -177,7 +176,7 @@ class MdFormatType(AbstractObjectType):
             "required": True,
         },
     )
-    version: Optional[CharacterStringPropertyType] = field(
+    version: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -185,7 +184,7 @@ class MdFormatType(AbstractObjectType):
             "required": True,
         },
     )
-    amendment_number: Optional[CharacterStringPropertyType] = field(
+    amendment_number: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "amendmentNumber",
@@ -193,14 +192,14 @@ class MdFormatType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    specification: Optional[CharacterStringPropertyType] = field(
+    specification: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    file_decompression_technique: Optional[CharacterStringPropertyType] = field(
+    file_decompression_technique: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "fileDecompressionTechnique",
@@ -230,7 +229,7 @@ class MdFormatPropertyType:
     class Meta:
         name = "MD_Format_PropertyType"
 
-    md_format: Optional[MdFormat] = field(
+    md_format: MdFormat | None = field(
         default=None,
         metadata={
             "name": "MD_Format",
@@ -247,22 +246,14 @@ class MdFormatPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -270,34 +261,42 @@ class MdFormatPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    uuidref: Optional[str] = field(
+    uuidref: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

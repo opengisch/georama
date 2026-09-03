@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 
@@ -26,7 +25,7 @@ class AddressType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    city: Optional[str] = field(
+    city: str | None = field(
         default=None,
         metadata={
             "name": "City",
@@ -34,7 +33,7 @@ class AddressType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    administrative_area: Optional[str] = field(
+    administrative_area: str | None = field(
         default=None,
         metadata={
             "name": "AdministrativeArea",
@@ -42,7 +41,7 @@ class AddressType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    postal_code: Optional[str] = field(
+    postal_code: str | None = field(
         default=None,
         metadata={
             "name": "PostalCode",
@@ -50,7 +49,7 @@ class AddressType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    country: Optional[str] = field(
+    country: str | None = field(
         default=None,
         metadata={
             "name": "Country",

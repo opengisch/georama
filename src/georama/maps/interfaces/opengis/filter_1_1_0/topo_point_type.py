@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_topo_primitive_type import (
     DirectedNode,
@@ -22,7 +21,7 @@ class TopoPointType(AbstractTopologyType):
     elements which follow.
     """
 
-    directed_node: Optional[DirectedNode] = field(
+    directed_node: DirectedNode | None = field(
         default=None,
         metadata={
             "name": "directedNode",

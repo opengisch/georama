@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.conversion_to_preferred_unit import (
     ConversionToPreferredUnit,
@@ -26,9 +25,9 @@ class ConventionalUnitType(UnitDefinitionType):
     primitive units, may also be provided.
     """
 
-    conversion_to_preferred_unit_or_rough_conversion_to_preferred_unit: Optional[
-        Union[ConversionToPreferredUnit, RoughConversionToPreferredUnit]
-    ] = field(
+    conversion_to_preferred_unit_or_rough_conversion_to_preferred_unit: (
+        ConversionToPreferredUnit | RoughConversionToPreferredUnit | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -38,16 +37,18 @@ class MdMaintenanceInformationType(AbstractObjectType):
     class Meta:
         name = "MD_MaintenanceInformation_Type"
 
-    maintenance_and_update_frequency: Optional[MdMaintenanceFrequencyCodePropertyType] = field(
-        default=None,
-        metadata={
-            "name": "maintenanceAndUpdateFrequency",
-            "type": "Element",
-            "namespace": "http://www.isotc211.org/2005/gmd",
-            "required": True,
-        },
+    maintenance_and_update_frequency: MdMaintenanceFrequencyCodePropertyType | None = (
+        field(
+            default=None,
+            metadata={
+                "name": "maintenanceAndUpdateFrequency",
+                "type": "Element",
+                "namespace": "http://www.isotc211.org/2005/gmd",
+                "required": True,
+            },
+        )
     )
-    date_of_next_update: Optional[DatePropertyType] = field(
+    date_of_next_update: DatePropertyType | None = field(
         default=None,
         metadata={
             "name": "dateOfNextUpdate",
@@ -55,7 +56,7 @@ class MdMaintenanceInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    user_defined_maintenance_frequency: Optional[TmPeriodDurationPropertyType] = field(
+    user_defined_maintenance_frequency: TmPeriodDurationPropertyType | None = field(
         default=None,
         metadata={
             "name": "userDefinedMaintenanceFrequency",
@@ -63,7 +64,7 @@ class MdMaintenanceInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    update_scope: List[MdScopeCodePropertyType] = field(
+    update_scope: list[MdScopeCodePropertyType] = field(
         default_factory=list,
         metadata={
             "name": "updateScope",
@@ -71,7 +72,7 @@ class MdMaintenanceInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    update_scope_description: List[MdScopeDescriptionPropertyType] = field(
+    update_scope_description: list[MdScopeDescriptionPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "updateScopeDescription",
@@ -79,7 +80,7 @@ class MdMaintenanceInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    maintenance_note: List[CharacterStringPropertyType] = field(
+    maintenance_note: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "maintenanceNote",
@@ -87,7 +88,7 @@ class MdMaintenanceInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    contact: List[CiResponsiblePartyPropertyType] = field(
+    contact: list[CiResponsiblePartyPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",

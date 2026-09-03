@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.access_constraints import AccessConstraints
 from georama.maps.interfaces.ogc.wfs_2_0_0.code_type import CodeType
@@ -42,7 +41,7 @@ class ServiceIdentification(DescriptionType):
     class Meta:
         namespace = "http://www.opengis.net/ows/1.1"
 
-    service_type: Optional[CodeType] = field(
+    service_type: CodeType | None = field(
         default=None,
         metadata={
             "name": "ServiceType",
@@ -66,7 +65,7 @@ class ServiceIdentification(DescriptionType):
             "type": "Element",
         },
     )
-    fees: Optional[Fees] = field(
+    fees: Fees | None = field(
         default=None,
         metadata={
             "name": "Fees",

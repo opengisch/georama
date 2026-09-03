@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.operations_metadata import OperationsMetadata
 from georama.maps.interfaces.ogc.wfs_2_0_0.service_identification import (
@@ -39,7 +38,7 @@ class CapabilitiesBaseType:
         server shall not return this attribute.
     """
 
-    service_identification: Optional[ServiceIdentification] = field(
+    service_identification: ServiceIdentification | None = field(
         default=None,
         metadata={
             "name": "ServiceIdentification",
@@ -47,7 +46,7 @@ class CapabilitiesBaseType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    service_provider: Optional[ServiceProvider] = field(
+    service_provider: ServiceProvider | None = field(
         default=None,
         metadata={
             "name": "ServiceProvider",
@@ -55,7 +54,7 @@ class CapabilitiesBaseType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    operations_metadata: Optional[OperationsMetadata] = field(
+    operations_metadata: OperationsMetadata | None = field(
         default=None,
         metadata={
             "name": "OperationsMetadata",
@@ -63,7 +62,7 @@ class CapabilitiesBaseType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    version: Optional[str] = field(
+    version: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -71,7 +70,7 @@ class CapabilitiesBaseType:
             "pattern": r"\d+\.\d?\d\.\d?\d",
         },
     )
-    update_sequence: Optional[str] = field(
+    update_sequence: str | None = field(
         default=None,
         metadata={
             "name": "updateSequence",

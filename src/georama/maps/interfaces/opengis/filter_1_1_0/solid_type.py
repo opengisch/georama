@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_solid_type import (
     AbstractSolidType,
@@ -31,7 +30,7 @@ class SolidType(AbstractSolidType):
         boundaries.
     """
 
-    exterior: Optional[SurfacePropertyType] = field(
+    exterior: SurfacePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

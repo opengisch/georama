@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -12,7 +11,7 @@ class CoordType:
     Deprecated with GML 3.0 and replaced by DirectPositionType.
     """
 
-    x: Optional[Decimal] = field(
+    x: Decimal | None = field(
         default=None,
         metadata={
             "name": "X",
@@ -21,7 +20,7 @@ class CoordType:
             "required": True,
         },
     )
-    y: Optional[Decimal] = field(
+    y: Decimal | None = field(
         default=None,
         metadata={
             "name": "Y",
@@ -29,7 +28,7 @@ class CoordType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    z: Optional[Decimal] = field(
+    z: Decimal | None = field(
         default=None,
         metadata={
             "name": "Z",

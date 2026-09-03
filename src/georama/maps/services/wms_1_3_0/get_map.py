@@ -15,7 +15,9 @@ class WmsGetMap(WmsOperation):
     def __init__(self, appname: str, url: str, user, model, organisation: Organisation):
         super().__init__(appname, url, user, model, organisation)
 
-    def prepare_job_content(self, service_params: GetMapRequestParams) -> QslJobParameterRender:
+    def prepare_job_content(
+        self, service_params: GetMapRequestParams
+    ) -> QslJobParameterRender:
         # we pass the requested layers to filter DB objects
         # (this includes permission checks and fails for
         # all request when only one layer is not permitted!)
@@ -50,9 +52,11 @@ class WmsGetMap(WmsOperation):
                 qsl_job_layer = wms_layer.datasource.to_qsl_job_layer()
             else:
                 try:
-                    qsl_job_layer = wms_layer.datasource.to_qsl_job_layer(requested_style_name)
+                    qsl_job_layer = wms_layer.datasource.to_qsl_job_layer(
+                        requested_style_name
+                    )
                 except LookupError:
-                    raise ValueError(  # noqa: B904
+                    raise ValueError(
                         f"Requested style {requested_style_name} is not"
                         f"defined for layer {wms_layer.datasource.name}"
                     )

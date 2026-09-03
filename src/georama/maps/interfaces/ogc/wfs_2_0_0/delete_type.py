@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 from xml.etree.ElementTree import QName
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.abstract_transaction_action_type import (
@@ -12,7 +11,7 @@ __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
 @dataclass
 class DeleteType(AbstractTransactionActionType):
-    filter: Optional[Filter] = field(
+    filter: Filter | None = field(
         default=None,
         metadata={
             "name": "Filter",
@@ -21,7 +20,7 @@ class DeleteType(AbstractTransactionActionType):
             "required": True,
         },
     )
-    type_name: Optional[QName] = field(
+    type_name: QName | None = field(
         default=None,
         metadata={
             "name": "typeName",

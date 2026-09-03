@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -22,7 +21,7 @@ class MdDimensionType(AbstractObjectType):
     class Meta:
         name = "MD_Dimension_Type"
 
-    dimension_name: Optional[MdDimensionNameTypeCodePropertyType] = field(
+    dimension_name: MdDimensionNameTypeCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "dimensionName",
@@ -31,7 +30,7 @@ class MdDimensionType(AbstractObjectType):
             "required": True,
         },
     )
-    dimension_size: Optional[IntegerPropertyType] = field(
+    dimension_size: IntegerPropertyType | None = field(
         default=None,
         metadata={
             "name": "dimensionSize",
@@ -40,7 +39,7 @@ class MdDimensionType(AbstractObjectType):
             "required": True,
         },
     )
-    resolution: Optional[MeasurePropertyType] = field(
+    resolution: MeasurePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

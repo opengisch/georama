@@ -18,7 +18,9 @@ class UrlShortenerCreate(View):
 
         while True:
             try:
-                short = UrlShortener.objects.create(id=get_random_string(length=6), url=url)
+                short = UrlShortener.objects.create(
+                    id=get_random_string(length=6), url=url
+                )
                 break
             except IntegrityError:
                 continue

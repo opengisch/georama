@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -22,7 +21,7 @@ class PtLocaleType(AbstractObjectType):
     class Meta:
         name = "PT_Locale_Type"
 
-    language_code: Optional[LanguageCodePropertyType] = field(
+    language_code: LanguageCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "languageCode",
@@ -31,14 +30,14 @@ class PtLocaleType(AbstractObjectType):
             "required": True,
         },
     )
-    country: Optional[CountryPropertyType] = field(
+    country: CountryPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    character_encoding: Optional[MdCharacterSetCodePropertyType] = field(
+    character_encoding: MdCharacterSetCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "characterEncoding",

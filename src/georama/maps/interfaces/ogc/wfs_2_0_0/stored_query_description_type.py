@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.abstract_2 import Abstract2
 from georama.maps.interfaces.ogc.wfs_2_0_0.metadata import Metadata
@@ -57,7 +56,7 @@ class StoredQueryDescriptionType:
             "min_occurs": 1,
         },
     )
-    id: Optional[str] = field(
+    id: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

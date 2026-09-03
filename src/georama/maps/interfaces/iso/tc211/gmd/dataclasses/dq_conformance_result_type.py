@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_dq_result_type import (
     AbstractDqResultType,
@@ -24,7 +23,7 @@ class DqConformanceResultType(AbstractDqResultType):
     class Meta:
         name = "DQ_ConformanceResult_Type"
 
-    specification: Optional[CiCitationPropertyType] = field(
+    specification: CiCitationPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -32,7 +31,7 @@ class DqConformanceResultType(AbstractDqResultType):
             "required": True,
         },
     )
-    explanation: Optional[CharacterStringPropertyType] = field(
+    explanation: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -40,7 +39,7 @@ class DqConformanceResultType(AbstractDqResultType):
             "required": True,
         },
     )
-    pass_value: Optional[BooleanPropertyType2] = field(
+    pass_value: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "pass",

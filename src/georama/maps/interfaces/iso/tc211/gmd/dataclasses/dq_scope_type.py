@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -22,7 +21,7 @@ class DqScopeType(AbstractObjectType):
     class Meta:
         name = "DQ_Scope_Type"
 
-    level: Optional[MdScopeCodePropertyType] = field(
+    level: MdScopeCodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -30,14 +29,14 @@ class DqScopeType(AbstractObjectType):
             "required": True,
         },
     )
-    extent: Optional[ExExtentPropertyType] = field(
+    extent: ExExtentPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    level_description: List[MdScopeDescriptionPropertyType] = field(
+    level_description: list[MdScopeDescriptionPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "levelDescription",

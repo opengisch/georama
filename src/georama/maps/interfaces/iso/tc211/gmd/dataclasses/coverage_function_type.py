@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.coverage_mapping_rule import (
     CoverageMappingRule,
@@ -12,7 +11,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class CoverageFunctionType:
-    mapping_rule: Optional[MappingRule] = field(
+    mapping_rule: MappingRule | None = field(
         default=None,
         metadata={
             "name": "MappingRule",
@@ -20,7 +19,7 @@ class CoverageFunctionType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    coverage_mapping_rule: Optional[CoverageMappingRule] = field(
+    coverage_mapping_rule: CoverageMappingRule | None = field(
         default=None,
         metadata={
             "name": "CoverageMappingRule",
@@ -28,7 +27,7 @@ class CoverageFunctionType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    grid_function: Optional[GridFunction] = field(
+    grid_function: GridFunction | None = field(
         default=None,
         metadata={
             "name": "GridFunction",

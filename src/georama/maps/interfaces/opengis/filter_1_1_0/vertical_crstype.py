@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_reference_system_type import (
     AbstractReferenceSystemType,
@@ -28,7 +27,7 @@ class VerticalCrstype(AbstractReferenceSystemType):
     class Meta:
         name = "VerticalCRSType"
 
-    uses_vertical_cs: Optional[UsesVerticalCs] = field(
+    uses_vertical_cs: UsesVerticalCs | None = field(
         default=None,
         metadata={
             "name": "usesVerticalCS",
@@ -37,7 +36,7 @@ class VerticalCrstype(AbstractReferenceSystemType):
             "required": True,
         },
     )
-    uses_vertical_datum: Optional[UsesVerticalDatum] = field(
+    uses_vertical_datum: UsesVerticalDatum | None = field(
         default=None,
         metadata={
             "name": "usesVerticalDatum",

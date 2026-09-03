@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_reference_system_base_type import (
     AbstractReferenceSystemBaseType,
@@ -34,14 +33,14 @@ class AbstractReferenceSystemType(AbstractReferenceSystemBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    remarks: Optional[Remarks] = field(
+    remarks: Remarks | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    valid_area: Optional[ValidArea] = field(
+    valid_area: ValidArea | None = field(
         default=None,
         metadata={
             "name": "validArea",
@@ -49,7 +48,7 @@ class AbstractReferenceSystemType(AbstractReferenceSystemBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    scope: Optional[Scope] = field(
+    scope: Scope | None = field(
         default=None,
         metadata={
             "type": "Element",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.description import Description
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.description_reference import (
@@ -19,7 +18,7 @@ class AbstractGmltype:
     class Meta:
         name = "AbstractGMLType"
 
-    meta_data_property: List[MetaDataProperty] = field(
+    meta_data_property: list[MetaDataProperty] = field(
         default_factory=list,
         metadata={
             "name": "metaDataProperty",
@@ -27,14 +26,14 @@ class AbstractGmltype:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    description: Optional[Description] = field(
+    description: Description | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    description_reference: Optional[DescriptionReference] = field(
+    description_reference: DescriptionReference | None = field(
         default=None,
         metadata={
             "name": "descriptionReference",
@@ -42,21 +41,21 @@ class AbstractGmltype:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    identifier: Optional[Identifier] = field(
+    identifier: Identifier | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    name: List[Name] = field(
+    name: list[Name] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    id: Optional[str] = field(
+    id: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

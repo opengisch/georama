@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.code_type import CodeType
 
@@ -13,7 +12,7 @@ class CodeWithAuthorityType(CodeType):
     an instance.
     """
 
-    code_space: Optional[str] = field(
+    code_space: str | None = field(
         default=None,
         metadata={
             "name": "codeSpace",

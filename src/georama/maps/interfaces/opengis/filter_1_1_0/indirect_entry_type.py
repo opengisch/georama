@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.definition_proxy import (
     DefinitionProxy,
@@ -22,7 +21,7 @@ class IndirectEntryType:
     definitions as valid entries in a dictionary.
     """
 
-    definition_proxy: Optional[DefinitionProxy] = field(
+    definition_proxy: DefinitionProxy | None = field(
         default=None,
         metadata={
             "name": "DefinitionProxy",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_curve_type import (
     AbstractCurveType,
@@ -38,7 +37,7 @@ class LineStringType(AbstractCurveType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    pos_list: Optional[PosList] = field(
+    pos_list: PosList | None = field(
         default=None,
         metadata={
             "name": "posList",
@@ -46,7 +45,7 @@ class LineStringType(AbstractCurveType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    coordinates: Optional[Coordinates] = field(
+    coordinates: Coordinates | None = field(
         default=None,
         metadata={
             "type": "Element",

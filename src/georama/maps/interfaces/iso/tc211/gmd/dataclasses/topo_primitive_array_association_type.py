@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_topo_primitive_type import (
     Edge,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class TopoPrimitiveArrayAssociationType:
-    topo_solid: List[TopoSolid] = field(
+    topo_solid: list[TopoSolid] = field(
         default_factory=list,
         metadata={
             "name": "TopoSolid",
@@ -22,7 +21,7 @@ class TopoPrimitiveArrayAssociationType:
             "sequence": 1,
         },
     )
-    face: List[Face] = field(
+    face: list[Face] = field(
         default_factory=list,
         metadata={
             "name": "Face",
@@ -31,7 +30,7 @@ class TopoPrimitiveArrayAssociationType:
             "sequence": 1,
         },
     )
-    edge: List[Edge] = field(
+    edge: list[Edge] = field(
         default_factory=list,
         metadata={
             "name": "Edge",
@@ -40,7 +39,7 @@ class TopoPrimitiveArrayAssociationType:
             "sequence": 1,
         },
     )
-    node: List[Node] = field(
+    node: list[Node] = field(
         default_factory=list,
         metadata={
             "name": "Node",

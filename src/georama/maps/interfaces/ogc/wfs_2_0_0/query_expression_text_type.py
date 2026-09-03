@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 from xml.etree.ElementTree import QName
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
@@ -15,7 +14,7 @@ class QueryExpressionTextType:
             "tokens": True,
         },
     )
-    language: Optional[str] = field(
+    language: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

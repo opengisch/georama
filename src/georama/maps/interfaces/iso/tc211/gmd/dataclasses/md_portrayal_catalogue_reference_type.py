@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -20,7 +19,7 @@ class MdPortrayalCatalogueReferenceType(AbstractObjectType):
     class Meta:
         name = "MD_PortrayalCatalogueReference_Type"
 
-    portrayal_catalogue_citation: List[CiCitationPropertyType] = field(
+    portrayal_catalogue_citation: list[CiCitationPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "portrayalCatalogueCitation",

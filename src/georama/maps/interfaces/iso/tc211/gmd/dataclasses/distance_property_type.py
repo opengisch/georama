@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.distance import Distance
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.nil_reason_enumeration_value import (
@@ -14,7 +13,7 @@ class DistancePropertyType:
     class Meta:
         name = "Distance_PropertyType"
 
-    distance: Optional[Distance] = field(
+    distance: Distance | None = field(
         default=None,
         metadata={
             "name": "Distance",
@@ -22,7 +21,7 @@ class DistancePropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

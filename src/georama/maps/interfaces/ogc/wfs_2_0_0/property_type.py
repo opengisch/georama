@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.property_type_value_reference import (
     PropertyTypeValueReference,
@@ -10,7 +9,7 @@ __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
 @dataclass
 class PropertyType:
-    value_reference: Optional[PropertyTypeValueReference] = field(
+    value_reference: PropertyTypeValueReference | None = field(
         default=None,
         metadata={
             "name": "ValueReference",
@@ -19,7 +18,7 @@ class PropertyType:
             "required": True,
         },
     )
-    value: Optional[object] = field(
+    value: object | None = field(
         default=None,
         metadata={
             "name": "Value",

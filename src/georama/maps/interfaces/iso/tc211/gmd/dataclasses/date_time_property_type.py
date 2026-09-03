@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.date_time import DateTime
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.nil_reason_enumeration_value import (
@@ -14,7 +13,7 @@ class DateTimePropertyType:
     class Meta:
         name = "DateTime_PropertyType"
 
-    date_time: Optional[DateTime] = field(
+    date_time: DateTime | None = field(
         default=None,
         metadata={
             "name": "DateTime",
@@ -22,7 +21,7 @@ class DateTimePropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

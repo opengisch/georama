@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.origin import Origin
 from georama.maps.interfaces.opengis.filter_1_1_0.temporal_datum_base_type import (
@@ -17,7 +16,7 @@ class TemporalDatumType(TemporalDatumBaseType):
     "origin" element with the dateTime type.
     """
 
-    origin: Optional[Origin] = field(
+    origin: Origin | None = field(
         default=None,
         metadata={
             "type": "Element",

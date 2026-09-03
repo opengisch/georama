@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.polygon import Polygon
 from georama.maps.interfaces.opengis.filter_1_1_0.polyhedral_surface import (
@@ -27,15 +26,13 @@ class SurfaceArrayPropertyType:
     """
 
     choice: list[
-        Union[
-            OrientableSurface,
-            Tin,
-            TriangulatedSurface,
-            PolyhedralSurface,
-            Surface,
-            CompositeSurface,
-            Polygon,
-        ]
+        OrientableSurface
+        | Tin
+        | TriangulatedSurface
+        | PolyhedralSurface
+        | Surface
+        | CompositeSurface
+        | Polygon
     ] = field(
         default_factory=list,
         metadata={

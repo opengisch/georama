@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.abstract_1 import Abstract1
 from georama.maps.interfaces.ogc.wfs_2_0_0.abstract_reference_base_type import (
@@ -29,7 +28,7 @@ class ReferenceType(AbstractReferenceBaseType):
         Specification for each use of this type in a specific OWS.
     """
 
-    identifier: Optional[Identifier] = field(
+    identifier: Identifier | None = field(
         default=None,
         metadata={
             "name": "Identifier",
@@ -45,7 +44,7 @@ class ReferenceType(AbstractReferenceBaseType):
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    format: Optional[str] = field(
+    format: str | None = field(
         default=None,
         metadata={
             "name": "Format",

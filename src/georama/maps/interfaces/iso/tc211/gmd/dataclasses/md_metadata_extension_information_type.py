@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -23,7 +22,7 @@ class MdMetadataExtensionInformationType(AbstractObjectType):
     class Meta:
         name = "MD_MetadataExtensionInformation_Type"
 
-    extension_on_line_resource: Optional[CiOnlineResourcePropertyType] = field(
+    extension_on_line_resource: CiOnlineResourcePropertyType | None = field(
         default=None,
         metadata={
             "name": "extensionOnLineResource",
@@ -31,11 +30,13 @@ class MdMetadataExtensionInformationType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    extended_element_information: List[MdExtendedElementInformationPropertyType] = field(
-        default_factory=list,
-        metadata={
-            "name": "extendedElementInformation",
-            "type": "Element",
-            "namespace": "http://www.isotc211.org/2005/gmd",
-        },
+    extended_element_information: list[MdExtendedElementInformationPropertyType] = (
+        field(
+            default_factory=list,
+            metadata={
+                "name": "extendedElementInformation",
+                "type": "Element",
+                "namespace": "http://www.isotc211.org/2005/gmd",
+            },
+        )
     )

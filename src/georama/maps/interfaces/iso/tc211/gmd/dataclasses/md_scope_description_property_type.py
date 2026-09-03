@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.md_scope_description import (
     MdScopeDescription,
@@ -16,7 +15,7 @@ class MdScopeDescriptionPropertyType:
     class Meta:
         name = "MD_ScopeDescription_PropertyType"
 
-    md_scope_description: Optional[MdScopeDescription] = field(
+    md_scope_description: MdScopeDescription | None = field(
         default=None,
         metadata={
             "name": "MD_ScopeDescription",
@@ -24,7 +23,7 @@ class MdScopeDescriptionPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

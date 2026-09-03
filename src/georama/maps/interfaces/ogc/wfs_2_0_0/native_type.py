@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.abstract_transaction_action_type import (
     AbstractTransactionActionType,
@@ -10,7 +9,7 @@ __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
 @dataclass
 class NativeType(AbstractTransactionActionType):
-    vendor_id: Optional[str] = field(
+    vendor_id: str | None = field(
         default=None,
         metadata={
             "name": "vendorId",
@@ -18,7 +17,7 @@ class NativeType(AbstractTransactionActionType):
             "required": True,
         },
     )
-    safe_to_ignore: Optional[bool] = field(
+    safe_to_ignore: bool | None = field(
         default=None,
         metadata={
             "name": "safeToIgnore",

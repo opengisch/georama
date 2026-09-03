@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.array_type import AbstractCoverageType
 from georama.maps.interfaces.opengis.filter_1_1_0.coverage_function import (
@@ -17,7 +16,7 @@ class AbstractContinuousCoverageType(AbstractCoverageType):
     within a single spatiotemporal object in its spatiotemporal domain.
     """
 
-    coverage_function: Optional[CoverageFunction] = field(
+    coverage_function: CoverageFunction | None = field(
         default=None,
         metadata={
             "name": "coverageFunction",

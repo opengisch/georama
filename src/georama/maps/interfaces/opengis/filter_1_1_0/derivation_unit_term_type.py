@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.unit_of_measure_type import (
     UnitOfMeasureType,
@@ -17,7 +16,7 @@ class DerivationUnitTermType(UnitOfMeasureType):
     unit. The exponent can be positive or negative, but not zero.
     """
 
-    exponent: Optional[int] = field(
+    exponent: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",

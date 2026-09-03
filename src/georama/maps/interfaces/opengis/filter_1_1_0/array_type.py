@@ -354,7 +354,7 @@ class CompositeValueType(AbstractGmltype):
 class FeaturePropertyType:
     """Container for a feature - follow gml:AssociationType pattern."""
 
-    choice: Optional[
+    choice: (
         Union[
             "DirectedObservationAtDistance",
             "DirectedObservation",
@@ -367,7 +367,8 @@ class FeaturePropertyType:
             "MultiPointCoverage",
             "FeatureCollection",
         ]
-    ] = field(
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -434,22 +435,14 @@ class FeaturePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -457,28 +450,36 @@ class FeaturePropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -541,14 +542,14 @@ class ValueArrayType(CompositeValueType):
     this is a more efficient encoding.
     """
 
-    code_space: Optional[str] = field(
+    code_space: str | None = field(
         default=None,
         metadata={
             "name": "codeSpace",
             "type": "Attribute",
         },
     )
-    uom: Optional[str] = field(
+    uom: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -589,7 +590,7 @@ class AbstractFeatureCollectionType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    feature_members: Optional[FeatureMembers] = field(
+    feature_members: FeatureMembers | None = field(
         default=None,
         metadata={
             "name": "featureMembers",
@@ -610,7 +611,7 @@ class AssociationType:
     If co-occurence is not prohibited, then both a link and content may be present.  If this occurs in an instance, then the rule for interpretation is that the instance found by traversing the href provides the normative value of the property, and should be used when possible.  The value(s) included as content may be used if the remote instance cannot be resolved.  This may be considered to be a "cached" version of the value(s).
     """
 
-    choice: Optional[
+    choice: (
         Union[
             GenericMetaData,
             GraphStyle1,
@@ -716,7 +717,8 @@ class AssociationType:
             Array,
             Bag,
         ]
-    ] = field(
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -1248,22 +1250,14 @@ class AssociationType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -1271,28 +1265,36 @@ class AssociationType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -1334,23 +1336,22 @@ class RangeParametersType:
     map of the composite value structure.
     """
 
-    choice: Optional[
-        Union[
-            Boolean,
-            Category,
-            Quantity,
-            Count,
-            BooleanList,
-            CategoryList,
-            QuantityList,
-            CountList,
-            CategoryExtent,
-            QuantityExtent,
-            CountExtent,
-            ValueArray,
-            CompositeValue,
-        ]
-    ] = field(
+    choice: (
+        Boolean
+        | Category
+        | Quantity
+        | Count
+        | BooleanList
+        | CategoryList
+        | QuantityList
+        | CountList
+        | CategoryExtent
+        | QuantityExtent
+        | CountExtent
+        | ValueArray
+        | CompositeValue
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -1432,22 +1433,14 @@ class RangeParametersType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -1455,28 +1448,36 @@ class RangeParametersType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -1517,7 +1518,7 @@ class RangeParameters(RangeParametersType):
 
 @dataclass
 class DataBlockType:
-    range_parameters: Optional[RangeParameters] = field(
+    range_parameters: RangeParameters | None = field(
         default=None,
         metadata={
             "name": "rangeParameters",
@@ -1526,9 +1527,9 @@ class DataBlockType:
             "required": True,
         },
     )
-    tuple_list_or_double_or_null_tuple_list: Optional[
-        Union[TupleList, DoubleOrNullTupleList]
-    ] = field(
+    tuple_list_or_double_or_null_tuple_list: (
+        TupleList | DoubleOrNullTupleList | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -1550,7 +1551,7 @@ class DataBlockType:
 
 @dataclass
 class FileType:
-    range_parameters: Optional[RangeParameters] = field(
+    range_parameters: RangeParameters | None = field(
         default=None,
         metadata={
             "name": "rangeParameters",
@@ -1559,7 +1560,7 @@ class FileType:
             "required": True,
         },
     )
-    file_name: Optional[str] = field(
+    file_name: str | None = field(
         default=None,
         metadata={
             "name": "fileName",
@@ -1568,7 +1569,7 @@ class FileType:
             "required": True,
         },
     )
-    file_structure: Optional[FileValueModelType] = field(
+    file_structure: FileValueModelType | None = field(
         default=None,
         metadata={
             "name": "fileStructure",
@@ -1577,7 +1578,7 @@ class FileType:
             "required": True,
         },
     )
-    mime_type: Optional[str] = field(
+    mime_type: str | None = field(
         default=None,
         metadata={
             "name": "mimeType",
@@ -1585,7 +1586,7 @@ class FileType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    compression: Optional[str] = field(
+    compression: str | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -1609,15 +1610,13 @@ class File(FileType):
 @dataclass
 class RangeSetType:
     choice: list[
-        Union[
-            ValueArray,
-            BooleanList,
-            CategoryList,
-            QuantityList,
-            CountList,
-            DataBlock,
-            File,
-        ]
+        ValueArray
+        | BooleanList
+        | CategoryList
+        | QuantityList
+        | CountList
+        | DataBlock
+        | File
     ] = field(
         default_factory=list,
         metadata={
@@ -1678,17 +1677,16 @@ class AbstractCoverageType(AbstractFeatureType):
     Note that a coverage is a GML feature.
     """
 
-    choice_1: Optional[
-        Union[
-            RectifiedGridDomain,
-            GridDomain,
-            MultiSolidDomain,
-            MultiSurfaceDomain,
-            MultiCurveDomain,
-            MultiPointDomain,
-            DomainSet,
-        ]
-    ] = field(
+    choice_1: (
+        RectifiedGridDomain
+        | GridDomain
+        | MultiSolidDomain
+        | MultiSurfaceDomain
+        | MultiCurveDomain
+        | MultiPointDomain
+        | DomainSet
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -1731,7 +1729,7 @@ class AbstractCoverageType(AbstractFeatureType):
             ),
         },
     )
-    range_set: Optional[RangeSet] = field(
+    range_set: RangeSet | None = field(
         default=None,
         metadata={
             "name": "rangeSet",
@@ -1740,7 +1738,7 @@ class AbstractCoverageType(AbstractFeatureType):
             "required": True,
         },
     )
-    dimension: Optional[int] = field(
+    dimension: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -1763,7 +1761,7 @@ class AbstractDiscreteCoverageType(AbstractCoverageType):
     conforms to ISO 19123.
     """
 
-    coverage_function: Optional[CoverageFunction] = field(
+    coverage_function: CoverageFunction | None = field(
         default=None,
         metadata={
             "name": "coverageFunction",
@@ -1789,7 +1787,7 @@ class GridCoverageType(AbstractDiscreteCoverageType):
             "type": "Ignore",
         },
     )
-    grid_domain: Optional[GridDomain] = field(
+    grid_domain: GridDomain | None = field(
         default=None,
         metadata={
             "name": "gridDomain",
@@ -1820,7 +1818,7 @@ class MultiCurveCoverageType(AbstractDiscreteCoverageType):
             "type": "Ignore",
         },
     )
-    multi_curve_domain: Optional[MultiCurveDomain] = field(
+    multi_curve_domain: MultiCurveDomain | None = field(
         default=None,
         metadata={
             "name": "multiCurveDomain",
@@ -1851,7 +1849,7 @@ class MultiPointCoverageType(AbstractDiscreteCoverageType):
             "type": "Ignore",
         },
     )
-    multi_point_domain: Optional[MultiPointDomain] = field(
+    multi_point_domain: MultiPointDomain | None = field(
         default=None,
         metadata={
             "name": "multiPointDomain",
@@ -1882,7 +1880,7 @@ class MultiSolidCoverageType(AbstractDiscreteCoverageType):
             "type": "Ignore",
         },
     )
-    multi_solid_domain: Optional[MultiSolidDomain] = field(
+    multi_solid_domain: MultiSolidDomain | None = field(
         default=None,
         metadata={
             "name": "multiSolidDomain",
@@ -1914,7 +1912,7 @@ class MultiSurfaceCoverageType(AbstractDiscreteCoverageType):
             "type": "Ignore",
         },
     )
-    multi_surface_domain: Optional[MultiSurfaceDomain] = field(
+    multi_surface_domain: MultiSurfaceDomain | None = field(
         default=None,
         metadata={
             "name": "multiSurfaceDomain",
@@ -1941,7 +1939,7 @@ class RectifiedGridCoverageType(AbstractDiscreteCoverageType):
             "type": "Ignore",
         },
     )
-    rectified_grid_domain: Optional[RectifiedGridDomain] = field(
+    rectified_grid_domain: RectifiedGridDomain | None = field(
         default=None,
         metadata={
             "name": "rectifiedGridDomain",
@@ -1994,7 +1992,7 @@ class TargetPropertyType:
     Container for an object representing the target or subject of an observation.
     """
 
-    choice: Optional[
+    choice: (
         Union[
             "DirectedObservationAtDistance",
             "DirectedObservation",
@@ -2033,7 +2031,8 @@ class TargetPropertyType:
             LineString,
             Point,
         ]
-    ] = field(
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -2230,22 +2229,14 @@ class TargetPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -2253,28 +2244,36 @@ class TargetPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -2307,7 +2306,7 @@ class Target(TargetPropertyType):
 
 @dataclass
 class ObservationType(AbstractFeatureType):
-    valid_time: Optional[ValidTime] = field(
+    valid_time: ValidTime | None = field(
         default=None,
         metadata={
             "name": "validTime",
@@ -2316,14 +2315,14 @@ class ObservationType(AbstractFeatureType):
             "required": True,
         },
     )
-    using: Optional[Using] = field(
+    using: Using | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    subject_or_target: Optional[Union[Subject, Target]] = field(
+    subject_or_target: Subject | Target | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -2341,7 +2340,7 @@ class ObservationType(AbstractFeatureType):
             ),
         },
     )
-    result_of: Optional[ResultOf] = field(
+    result_of: ResultOf | None = field(
         default=None,
         metadata={
             "name": "resultOf",
@@ -2354,7 +2353,7 @@ class ObservationType(AbstractFeatureType):
 
 @dataclass
 class DirectedObservationType(ObservationType):
-    direction: Optional[Direction] = field(
+    direction: Direction | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -2378,7 +2377,7 @@ class DirectedObservation(DirectedObservationType):
 
 @dataclass
 class DirectedObservationAtDistanceType(DirectedObservationType):
-    distance: Optional[MeasureType] = field(
+    distance: MeasureType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -2402,111 +2401,109 @@ class ArrayAssociationType:
     """
 
     choice: list[
-        Union[
-            GenericMetaData,
-            GraphStyle1,
-            LabelStyle1,
-            TopologyStyle1,
-            GeometryStyle1,
-            FeatureStyle1,
-            Style,
-            TopoComplex,
-            TopoSolid,
-            Face,
-            Edge,
-            Node,
-            MovingObjectStatus,
-            DirectedObservationAtDistance,
-            DirectedObservation,
-            Observation,
-            RectifiedGridCoverage,
-            GridCoverage,
-            MultiSolidCoverage,
-            MultiSurfaceCoverage,
-            MultiCurveCoverage,
-            MultiPointCoverage,
-            FeatureCollection,
-            TimeTopologyComplex,
-            TimeEdge,
-            TimeNode,
-            TimePeriod,
-            TimeInstant,
-            MultiLineString,
-            MultiPolygon,
-            MultiSolid,
-            MultiSurface,
-            MultiCurve,
-            MultiPoint,
-            MultiGeometry,
-            RectifiedGrid,
-            Grid,
-            GeometricComplex,
-            Ring,
-            LinearRing,
-            Solid,
-            CompositeSolid,
-            OrientableSurface,
-            Tin,
-            TriangulatedSurface,
-            PolyhedralSurface,
-            Surface,
-            CompositeSurface,
-            Polygon,
-            OrientableCurve,
-            Curve,
-            CompositeCurve,
-            LineString,
-            Point,
-            TimeCalendarEra,
-            TimeClock,
-            TimeCalendar,
-            TimeOrdinalReferenceSystem,
-            TimeCoordinateSystem,
-            OperationParameterGroup,
-            OperationParameter,
-            OperationMethod,
-            Transformation,
-            Conversion,
-            PassThroughOperation,
-            ConcatenatedOperation,
-            Ellipsoid,
-            PrimeMeridian,
-            GeodeticDatum,
-            TemporalDatum,
-            VerticalDatum,
-            ImageDatum,
-            EngineeringDatum,
-            ObliqueCartesianCs,
-            CylindricalCs,
-            PolarCs,
-            SphericalCs,
-            UserDefinedCs,
-            LinearCs,
-            TemporalCs,
-            VerticalCs,
-            CartesianCs,
-            EllipsoidalCs,
-            CoordinateSystemAxis,
-            CompoundCrs,
-            TemporalCrs,
-            ImageCrs,
-            EngineeringCrs,
-            DerivedCrs,
-            ProjectedCrs,
-            GeocentricCrs,
-            VerticalCrs,
-            GeographicCrs,
-            ConventionalUnit,
-            DerivedUnit,
-            BaseUnit,
-            UnitDefinition,
-            DefinitionProxy,
-            DefinitionCollection,
-            Dictionary,
-            Definition,
-            Array,
-            Bag,
-        ]
+        GenericMetaData
+        | GraphStyle1
+        | LabelStyle1
+        | TopologyStyle1
+        | GeometryStyle1
+        | FeatureStyle1
+        | Style
+        | TopoComplex
+        | TopoSolid
+        | Face
+        | Edge
+        | Node
+        | MovingObjectStatus
+        | DirectedObservationAtDistance
+        | DirectedObservation
+        | Observation
+        | RectifiedGridCoverage
+        | GridCoverage
+        | MultiSolidCoverage
+        | MultiSurfaceCoverage
+        | MultiCurveCoverage
+        | MultiPointCoverage
+        | FeatureCollection
+        | TimeTopologyComplex
+        | TimeEdge
+        | TimeNode
+        | TimePeriod
+        | TimeInstant
+        | MultiLineString
+        | MultiPolygon
+        | MultiSolid
+        | MultiSurface
+        | MultiCurve
+        | MultiPoint
+        | MultiGeometry
+        | RectifiedGrid
+        | Grid
+        | GeometricComplex
+        | Ring
+        | LinearRing
+        | Solid
+        | CompositeSolid
+        | OrientableSurface
+        | Tin
+        | TriangulatedSurface
+        | PolyhedralSurface
+        | Surface
+        | CompositeSurface
+        | Polygon
+        | OrientableCurve
+        | Curve
+        | CompositeCurve
+        | LineString
+        | Point
+        | TimeCalendarEra
+        | TimeClock
+        | TimeCalendar
+        | TimeOrdinalReferenceSystem
+        | TimeCoordinateSystem
+        | OperationParameterGroup
+        | OperationParameter
+        | OperationMethod
+        | Transformation
+        | Conversion
+        | PassThroughOperation
+        | ConcatenatedOperation
+        | Ellipsoid
+        | PrimeMeridian
+        | GeodeticDatum
+        | TemporalDatum
+        | VerticalDatum
+        | ImageDatum
+        | EngineeringDatum
+        | ObliqueCartesianCs
+        | CylindricalCs
+        | PolarCs
+        | SphericalCs
+        | UserDefinedCs
+        | LinearCs
+        | TemporalCs
+        | VerticalCs
+        | CartesianCs
+        | EllipsoidalCs
+        | CoordinateSystemAxis
+        | CompoundCrs
+        | TemporalCrs
+        | ImageCrs
+        | EngineeringCrs
+        | DerivedCrs
+        | ProjectedCrs
+        | GeocentricCrs
+        | VerticalCrs
+        | GeographicCrs
+        | ConventionalUnit
+        | DerivedUnit
+        | BaseUnit
+        | UnitDefinition
+        | DefinitionProxy
+        | DefinitionCollection
+        | Dictionary
+        | Definition
+        | Array
+        | Bag
     ] = field(
         default_factory=list,
         metadata={
@@ -3039,125 +3036,123 @@ class ValueArrayPropertyType:
     """
 
     choice: list[
-        Union[
-            Boolean,
-            Category,
-            Quantity,
-            Count,
-            BooleanList,
-            CategoryList,
-            QuantityList,
-            CountList,
-            CategoryExtent,
-            QuantityExtent,
-            CountExtent,
-            ValueArray,
-            CompositeValue,
-            GenericMetaData,
-            GraphStyle1,
-            LabelStyle1,
-            TopologyStyle1,
-            GeometryStyle1,
-            FeatureStyle1,
-            Style,
-            TopoComplex,
-            TopoSolid,
-            Face,
-            Edge,
-            Node,
-            MovingObjectStatus,
-            DirectedObservationAtDistance,
-            DirectedObservation,
-            Observation,
-            RectifiedGridCoverage,
-            GridCoverage,
-            MultiSolidCoverage,
-            MultiSurfaceCoverage,
-            MultiCurveCoverage,
-            MultiPointCoverage,
-            FeatureCollection,
-            TimeTopologyComplex,
-            TimeEdge,
-            TimeNode,
-            TimePeriod,
-            TimeInstant,
-            MultiLineString,
-            MultiPolygon,
-            MultiSolid,
-            MultiSurface,
-            MultiCurve,
-            MultiPoint,
-            MultiGeometry,
-            RectifiedGrid,
-            Grid,
-            GeometricComplex,
-            Ring,
-            LinearRing,
-            Solid,
-            CompositeSolid,
-            OrientableSurface,
-            Tin,
-            TriangulatedSurface,
-            PolyhedralSurface,
-            Surface,
-            CompositeSurface,
-            Polygon,
-            OrientableCurve,
-            Curve,
-            CompositeCurve,
-            LineString,
-            Point,
-            TimeCalendarEra,
-            TimeClock,
-            TimeCalendar,
-            TimeOrdinalReferenceSystem,
-            TimeCoordinateSystem,
-            OperationParameterGroup,
-            OperationParameter,
-            OperationMethod,
-            Transformation,
-            Conversion,
-            PassThroughOperation,
-            ConcatenatedOperation,
-            Ellipsoid,
-            PrimeMeridian,
-            GeodeticDatum,
-            TemporalDatum,
-            VerticalDatum,
-            ImageDatum,
-            EngineeringDatum,
-            ObliqueCartesianCs,
-            CylindricalCs,
-            PolarCs,
-            SphericalCs,
-            UserDefinedCs,
-            LinearCs,
-            TemporalCs,
-            VerticalCs,
-            CartesianCs,
-            EllipsoidalCs,
-            CoordinateSystemAxis,
-            CompoundCrs,
-            TemporalCrs,
-            ImageCrs,
-            EngineeringCrs,
-            DerivedCrs,
-            ProjectedCrs,
-            GeocentricCrs,
-            VerticalCrs,
-            GeographicCrs,
-            ConventionalUnit,
-            DerivedUnit,
-            BaseUnit,
-            UnitDefinition,
-            DefinitionProxy,
-            DefinitionCollection,
-            Dictionary,
-            Definition,
-            Array,
-            Bag,
-            Null,
-        ]
+        Boolean
+        | Category
+        | Quantity
+        | Count
+        | BooleanList
+        | CategoryList
+        | QuantityList
+        | CountList
+        | CategoryExtent
+        | QuantityExtent
+        | CountExtent
+        | ValueArray
+        | CompositeValue
+        | GenericMetaData
+        | GraphStyle1
+        | LabelStyle1
+        | TopologyStyle1
+        | GeometryStyle1
+        | FeatureStyle1
+        | Style
+        | TopoComplex
+        | TopoSolid
+        | Face
+        | Edge
+        | Node
+        | MovingObjectStatus
+        | DirectedObservationAtDistance
+        | DirectedObservation
+        | Observation
+        | RectifiedGridCoverage
+        | GridCoverage
+        | MultiSolidCoverage
+        | MultiSurfaceCoverage
+        | MultiCurveCoverage
+        | MultiPointCoverage
+        | FeatureCollection
+        | TimeTopologyComplex
+        | TimeEdge
+        | TimeNode
+        | TimePeriod
+        | TimeInstant
+        | MultiLineString
+        | MultiPolygon
+        | MultiSolid
+        | MultiSurface
+        | MultiCurve
+        | MultiPoint
+        | MultiGeometry
+        | RectifiedGrid
+        | Grid
+        | GeometricComplex
+        | Ring
+        | LinearRing
+        | Solid
+        | CompositeSolid
+        | OrientableSurface
+        | Tin
+        | TriangulatedSurface
+        | PolyhedralSurface
+        | Surface
+        | CompositeSurface
+        | Polygon
+        | OrientableCurve
+        | Curve
+        | CompositeCurve
+        | LineString
+        | Point
+        | TimeCalendarEra
+        | TimeClock
+        | TimeCalendar
+        | TimeOrdinalReferenceSystem
+        | TimeCoordinateSystem
+        | OperationParameterGroup
+        | OperationParameter
+        | OperationMethod
+        | Transformation
+        | Conversion
+        | PassThroughOperation
+        | ConcatenatedOperation
+        | Ellipsoid
+        | PrimeMeridian
+        | GeodeticDatum
+        | TemporalDatum
+        | VerticalDatum
+        | ImageDatum
+        | EngineeringDatum
+        | ObliqueCartesianCs
+        | CylindricalCs
+        | PolarCs
+        | SphericalCs
+        | UserDefinedCs
+        | LinearCs
+        | TemporalCs
+        | VerticalCs
+        | CartesianCs
+        | EllipsoidalCs
+        | CoordinateSystemAxis
+        | CompoundCrs
+        | TemporalCrs
+        | ImageCrs
+        | EngineeringCrs
+        | DerivedCrs
+        | ProjectedCrs
+        | GeocentricCrs
+        | VerticalCrs
+        | GeographicCrs
+        | ConventionalUnit
+        | DerivedUnit
+        | BaseUnit
+        | UnitDefinition
+        | DefinitionProxy
+        | DefinitionCollection
+        | Dictionary
+        | Definition
+        | Array
+        | Bag
+        | Null
     ] = field(
         default_factory=list,
         metadata={
@@ -3759,127 +3754,126 @@ class ValuePropertyType:
     GML property which refers to, or contains, a Value.
     """
 
-    choice: Optional[
-        Union[
-            Boolean,
-            Category,
-            Quantity,
-            Count,
-            BooleanList,
-            CategoryList,
-            QuantityList,
-            CountList,
-            CategoryExtent,
-            QuantityExtent,
-            CountExtent,
-            ValueArray,
-            CompositeValue,
-            GenericMetaData,
-            GraphStyle1,
-            LabelStyle1,
-            TopologyStyle1,
-            GeometryStyle1,
-            FeatureStyle1,
-            Style,
-            TopoComplex,
-            TopoSolid,
-            Face,
-            Edge,
-            Node,
-            MovingObjectStatus,
-            DirectedObservationAtDistance,
-            DirectedObservation,
-            Observation,
-            RectifiedGridCoverage,
-            GridCoverage,
-            MultiSolidCoverage,
-            MultiSurfaceCoverage,
-            MultiCurveCoverage,
-            MultiPointCoverage,
-            FeatureCollection,
-            TimeTopologyComplex,
-            TimeEdge,
-            TimeNode,
-            TimePeriod,
-            TimeInstant,
-            MultiLineString,
-            MultiPolygon,
-            MultiSolid,
-            MultiSurface,
-            MultiCurve,
-            MultiPoint,
-            MultiGeometry,
-            RectifiedGrid,
-            Grid,
-            GeometricComplex,
-            Ring,
-            LinearRing,
-            Solid,
-            CompositeSolid,
-            OrientableSurface,
-            Tin,
-            TriangulatedSurface,
-            PolyhedralSurface,
-            Surface,
-            CompositeSurface,
-            Polygon,
-            OrientableCurve,
-            Curve,
-            CompositeCurve,
-            LineString,
-            Point,
-            TimeCalendarEra,
-            TimeClock,
-            TimeCalendar,
-            TimeOrdinalReferenceSystem,
-            TimeCoordinateSystem,
-            OperationParameterGroup,
-            OperationParameter,
-            OperationMethod,
-            Transformation,
-            Conversion,
-            PassThroughOperation,
-            ConcatenatedOperation,
-            Ellipsoid,
-            PrimeMeridian,
-            GeodeticDatum,
-            TemporalDatum,
-            VerticalDatum,
-            ImageDatum,
-            EngineeringDatum,
-            ObliqueCartesianCs,
-            CylindricalCs,
-            PolarCs,
-            SphericalCs,
-            UserDefinedCs,
-            LinearCs,
-            TemporalCs,
-            VerticalCs,
-            CartesianCs,
-            EllipsoidalCs,
-            CoordinateSystemAxis,
-            CompoundCrs,
-            TemporalCrs,
-            ImageCrs,
-            EngineeringCrs,
-            DerivedCrs,
-            ProjectedCrs,
-            GeocentricCrs,
-            VerticalCrs,
-            GeographicCrs,
-            ConventionalUnit,
-            DerivedUnit,
-            BaseUnit,
-            UnitDefinition,
-            DefinitionProxy,
-            DefinitionCollection,
-            Dictionary,
-            Definition,
-            Array,
-            Bag,
-            Null,
-        ]
-    ] = field(
+    choice: (
+        Boolean
+        | Category
+        | Quantity
+        | Count
+        | BooleanList
+        | CategoryList
+        | QuantityList
+        | CountList
+        | CategoryExtent
+        | QuantityExtent
+        | CountExtent
+        | ValueArray
+        | CompositeValue
+        | GenericMetaData
+        | GraphStyle1
+        | LabelStyle1
+        | TopologyStyle1
+        | GeometryStyle1
+        | FeatureStyle1
+        | Style
+        | TopoComplex
+        | TopoSolid
+        | Face
+        | Edge
+        | Node
+        | MovingObjectStatus
+        | DirectedObservationAtDistance
+        | DirectedObservation
+        | Observation
+        | RectifiedGridCoverage
+        | GridCoverage
+        | MultiSolidCoverage
+        | MultiSurfaceCoverage
+        | MultiCurveCoverage
+        | MultiPointCoverage
+        | FeatureCollection
+        | TimeTopologyComplex
+        | TimeEdge
+        | TimeNode
+        | TimePeriod
+        | TimeInstant
+        | MultiLineString
+        | MultiPolygon
+        | MultiSolid
+        | MultiSurface
+        | MultiCurve
+        | MultiPoint
+        | MultiGeometry
+        | RectifiedGrid
+        | Grid
+        | GeometricComplex
+        | Ring
+        | LinearRing
+        | Solid
+        | CompositeSolid
+        | OrientableSurface
+        | Tin
+        | TriangulatedSurface
+        | PolyhedralSurface
+        | Surface
+        | CompositeSurface
+        | Polygon
+        | OrientableCurve
+        | Curve
+        | CompositeCurve
+        | LineString
+        | Point
+        | TimeCalendarEra
+        | TimeClock
+        | TimeCalendar
+        | TimeOrdinalReferenceSystem
+        | TimeCoordinateSystem
+        | OperationParameterGroup
+        | OperationParameter
+        | OperationMethod
+        | Transformation
+        | Conversion
+        | PassThroughOperation
+        | ConcatenatedOperation
+        | Ellipsoid
+        | PrimeMeridian
+        | GeodeticDatum
+        | TemporalDatum
+        | VerticalDatum
+        | ImageDatum
+        | EngineeringDatum
+        | ObliqueCartesianCs
+        | CylindricalCs
+        | PolarCs
+        | SphericalCs
+        | UserDefinedCs
+        | LinearCs
+        | TemporalCs
+        | VerticalCs
+        | CartesianCs
+        | EllipsoidalCs
+        | CoordinateSystemAxis
+        | CompoundCrs
+        | TemporalCrs
+        | ImageCrs
+        | EngineeringCrs
+        | DerivedCrs
+        | ProjectedCrs
+        | GeocentricCrs
+        | VerticalCrs
+        | GeographicCrs
+        | ConventionalUnit
+        | DerivedUnit
+        | BaseUnit
+        | UnitDefinition
+        | DefinitionProxy
+        | DefinitionCollection
+        | Dictionary
+        | Definition
+        | Array
+        | Bag
+        | Null
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -4481,22 +4475,14 @@ class ValuePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -4504,28 +4490,36 @@ class ValuePropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_feature_type import (
     AbstractFeatureType,
@@ -17,7 +16,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class DynamicFeatureType(AbstractFeatureType):
-    valid_time: Optional[ValidTime] = field(
+    valid_time: ValidTime | None = field(
         default=None,
         metadata={
             "name": "validTime",
@@ -25,21 +24,21 @@ class DynamicFeatureType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    track: Optional[Track] = field(
+    track: Track | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    history: Optional[History] = field(
+    history: History | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    data_source: Optional[DataSource] = field(
+    data_source: DataSource | None = field(
         default=None,
         metadata={
             "name": "dataSource",
@@ -47,7 +46,7 @@ class DynamicFeatureType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    data_source_reference: Optional[DataSourceReference] = field(
+    data_source_reference: DataSourceReference | None = field(
         default=None,
         metadata={
             "name": "dataSourceReference",

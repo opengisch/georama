@@ -8,7 +8,9 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 
 @dataclass
-class AbstractGeneralOperationParameterRef(AbstractGeneralOperationParameterPropertyType):
+class AbstractGeneralOperationParameterRef(
+    AbstractGeneralOperationParameterPropertyType
+):
     class Meta:
         name = "abstractGeneralOperationParameterRef"
         namespace = "http://www.opengis.net/gml/3.2"

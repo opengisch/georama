@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -31,7 +30,7 @@ class LineStringSegmentType(AbstractCurveSegmentType):
         LineStringSegment the interpolation is fixed as "linear".
     """
 
-    choice: list[Union[Pos, PointProperty, PointRep, PosList, Coordinates]] = field(
+    choice: list[Pos | PointProperty | PointRep | PosList | Coordinates] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

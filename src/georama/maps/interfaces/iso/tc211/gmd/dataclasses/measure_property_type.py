@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.angle_1 import Angle1
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.distance import Distance
@@ -18,7 +17,7 @@ class MeasurePropertyType:
     class Meta:
         name = "Measure_PropertyType"
 
-    scale: Optional[Scale] = field(
+    scale: Scale | None = field(
         default=None,
         metadata={
             "name": "Scale",
@@ -26,7 +25,7 @@ class MeasurePropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    angle: Optional[Angle1] = field(
+    angle: Angle1 | None = field(
         default=None,
         metadata={
             "name": "Angle",
@@ -34,7 +33,7 @@ class MeasurePropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    distance: Optional[Distance] = field(
+    distance: Distance | None = field(
         default=None,
         metadata={
             "name": "Distance",
@@ -42,7 +41,7 @@ class MeasurePropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    length: Optional[Length] = field(
+    length: Length | None = field(
         default=None,
         metadata={
             "name": "Length",
@@ -50,7 +49,7 @@ class MeasurePropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    measure: Optional[Measure1] = field(
+    measure: Measure1 | None = field(
         default=None,
         metadata={
             "name": "Measure",
@@ -58,7 +57,7 @@ class MeasurePropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

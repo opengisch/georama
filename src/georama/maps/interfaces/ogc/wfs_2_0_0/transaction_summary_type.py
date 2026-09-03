@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
 
 @dataclass
 class TransactionSummaryType:
-    total_inserted: Optional[int] = field(
+    total_inserted: int | None = field(
         default=None,
         metadata={
             "name": "totalInserted",
@@ -14,7 +13,7 @@ class TransactionSummaryType:
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    total_updated: Optional[int] = field(
+    total_updated: int | None = field(
         default=None,
         metadata={
             "name": "totalUpdated",
@@ -22,7 +21,7 @@ class TransactionSummaryType:
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    total_replaced: Optional[int] = field(
+    total_replaced: int | None = field(
         default=None,
         metadata={
             "name": "totalReplaced",
@@ -30,7 +29,7 @@ class TransactionSummaryType:
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    total_deleted: Optional[int] = field(
+    total_deleted: int | None = field(
         default=None,
         metadata={
             "name": "totalDeleted",

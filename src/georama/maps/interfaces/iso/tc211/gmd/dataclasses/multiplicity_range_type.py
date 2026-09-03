@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -24,7 +23,7 @@ class MultiplicityRangeType(AbstractObjectType):
     class Meta:
         name = "MultiplicityRange_Type"
 
-    lower: Optional[IntegerPropertyType] = field(
+    lower: IntegerPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -32,7 +31,7 @@ class MultiplicityRangeType(AbstractObjectType):
             "required": True,
         },
     )
-    upper: Optional[UnlimitedIntegerPropertyType] = field(
+    upper: UnlimitedIntegerPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

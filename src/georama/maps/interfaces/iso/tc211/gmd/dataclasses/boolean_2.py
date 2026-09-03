@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.isotc211.org/2005/gco"
 
@@ -10,7 +9,7 @@ class Boolean2:
         name = "Boolean"
         namespace = "http://www.isotc211.org/2005/gco"
 
-    value: Optional[bool] = field(
+    value: bool | None = field(
         default=None,
         metadata={
             "required": True,

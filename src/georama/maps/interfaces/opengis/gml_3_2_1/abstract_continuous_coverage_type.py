@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_coverage_type import (
     AbstractCoverageType,
@@ -11,7 +10,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class AbstractContinuousCoverageType(AbstractCoverageType):
-    coverage_function: Optional[CoverageFunction] = field(
+    coverage_function: CoverageFunction | None = field(
         default=None,
         metadata={
             "name": "coverageFunction",

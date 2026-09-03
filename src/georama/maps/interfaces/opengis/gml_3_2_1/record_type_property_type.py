@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
     NilReasonEnumerationValue,
@@ -14,7 +13,7 @@ class RecordTypePropertyType:
     class Meta:
         name = "RecordType_PropertyType"
 
-    record_type: Optional[RecordType] = field(
+    record_type: RecordType | None = field(
         default=None,
         metadata={
             "name": "RecordType",
@@ -22,7 +21,7 @@ class RecordTypePropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

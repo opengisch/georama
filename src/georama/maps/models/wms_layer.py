@@ -32,7 +32,9 @@ class WmsLayerAbstract(models.Model):
         abstract = True
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the wms layer.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the wms layer."),
     )
 
     public = models.BooleanField(default=False)
@@ -178,7 +180,9 @@ class WmsLayerAbstract(models.Model):
             bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
             self.extent_wgs84 = bbox_wgs84.to_2d_string()
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
         self._prepare_save()
 
         super().save(
@@ -209,7 +213,9 @@ class WmsLayerAbstract(models.Model):
         if not self.crs_transform_to_wgs84:
             source = self._get_spatial_ref(self.get_datasource.crs_to_qsl.auth_id)
             target = self._get_spatial_ref(4326)
-            self.crs_transform_to_wgs84 = osgeo_osr.CoordinateTransformation(source, target)
+            self.crs_transform_to_wgs84 = osgeo_osr.CoordinateTransformation(
+                source, target
+            )
         llCorner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_min, bbox.y_min)
         urCorner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_max, bbox.y_max)
         return BBox.from_list([*llCorner, *urCorner])

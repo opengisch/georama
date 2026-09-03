@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.reference_type import (
     ReferenceType,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class BaseUnitType(UnitDefinitionType):
-    units_system: Optional[ReferenceType] = field(
+    units_system: ReferenceType | None = field(
         default=None,
         metadata={
             "name": "unitsSystem",

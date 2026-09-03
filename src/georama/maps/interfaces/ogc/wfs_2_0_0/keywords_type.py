@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.code_type import CodeType
 from georama.maps.interfaces.ogc.wfs_2_0_0.language_string_type import (
@@ -36,7 +35,7 @@ class KeywordsType:
             "min_occurs": 1,
         },
     )
-    type_value: Optional[CodeType] = field(
+    type_value: CodeType | None = field(
         default=None,
         metadata={
             "name": "Type",

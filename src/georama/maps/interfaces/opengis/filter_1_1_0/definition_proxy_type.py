@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.definition_ref import DefinitionRef
 from georama.maps.interfaces.opengis.filter_1_1_0.definition_type import DefinitionType
@@ -24,7 +23,7 @@ class DefinitionProxyType(DefinitionType):
         XML document.
     """
 
-    definition_ref: Optional[DefinitionRef] = field(
+    definition_ref: DefinitionRef | None = field(
         default=None,
         metadata={
             "name": "definitionRef",

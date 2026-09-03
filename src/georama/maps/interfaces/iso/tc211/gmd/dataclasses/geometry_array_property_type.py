@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_geometric_aggregate_type import (
     AbstractGeometricAggregateType,
@@ -59,7 +59,7 @@ class GeometryArrayPropertyType:
     geometry elements via XLinks is not supported.
     """
 
-    rectified_grid: List[RectifiedGrid] = field(
+    rectified_grid: list[RectifiedGrid] = field(
         default_factory=list,
         metadata={
             "name": "RectifiedGrid",
@@ -68,7 +68,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    grid: List[Grid] = field(
+    grid: list[Grid] = field(
         default_factory=list,
         metadata={
             "name": "Grid",
@@ -77,7 +77,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    geometric_complex: List[GeometricComplex] = field(
+    geometric_complex: list[GeometricComplex] = field(
         default_factory=list,
         metadata={
             "name": "GeometricComplex",
@@ -86,7 +86,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    multi_solid: List[MultiSolid] = field(
+    multi_solid: list[MultiSolid] = field(
         default_factory=list,
         metadata={
             "name": "MultiSolid",
@@ -95,7 +95,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    multi_surface: List[MultiSurface] = field(
+    multi_surface: list[MultiSurface] = field(
         default_factory=list,
         metadata={
             "name": "MultiSurface",
@@ -104,7 +104,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    multi_curve: List[MultiCurve] = field(
+    multi_curve: list[MultiCurve] = field(
         default_factory=list,
         metadata={
             "name": "MultiCurve",
@@ -113,7 +113,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    multi_point: List[MultiPoint] = field(
+    multi_point: list[MultiPoint] = field(
         default_factory=list,
         metadata={
             "name": "MultiPoint",
@@ -122,7 +122,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    multi_geometry: List["MultiGeometry"] = field(
+    multi_geometry: list["MultiGeometry"] = field(
         default_factory=list,
         metadata={
             "name": "MultiGeometry",
@@ -131,7 +131,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    composite_solid: List[CompositeSolid] = field(
+    composite_solid: list[CompositeSolid] = field(
         default_factory=list,
         metadata={
             "name": "CompositeSolid",
@@ -140,7 +140,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    solid: List[Solid] = field(
+    solid: list[Solid] = field(
         default_factory=list,
         metadata={
             "name": "Solid",
@@ -149,7 +149,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    composite_surface: List[CompositeSurface] = field(
+    composite_surface: list[CompositeSurface] = field(
         default_factory=list,
         metadata={
             "name": "CompositeSurface",
@@ -158,7 +158,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    orientable_surface: List[OrientableSurface] = field(
+    orientable_surface: list[OrientableSurface] = field(
         default_factory=list,
         metadata={
             "name": "OrientableSurface",
@@ -167,7 +167,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    tin: List[Tin] = field(
+    tin: list[Tin] = field(
         default_factory=list,
         metadata={
             "name": "Tin",
@@ -176,7 +176,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    triangulated_surface: List[TriangulatedSurface] = field(
+    triangulated_surface: list[TriangulatedSurface] = field(
         default_factory=list,
         metadata={
             "name": "TriangulatedSurface",
@@ -185,7 +185,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    polyhedral_surface: List[PolyhedralSurface] = field(
+    polyhedral_surface: list[PolyhedralSurface] = field(
         default_factory=list,
         metadata={
             "name": "PolyhedralSurface",
@@ -194,7 +194,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    surface: List[Surface] = field(
+    surface: list[Surface] = field(
         default_factory=list,
         metadata={
             "name": "Surface",
@@ -203,7 +203,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    polygon: List[Polygon] = field(
+    polygon: list[Polygon] = field(
         default_factory=list,
         metadata={
             "name": "Polygon",
@@ -212,7 +212,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    composite_curve: List[CompositeCurve] = field(
+    composite_curve: list[CompositeCurve] = field(
         default_factory=list,
         metadata={
             "name": "CompositeCurve",
@@ -221,7 +221,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    orientable_curve: List[OrientableCurve] = field(
+    orientable_curve: list[OrientableCurve] = field(
         default_factory=list,
         metadata={
             "name": "OrientableCurve",
@@ -230,7 +230,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    curve: List[Curve] = field(
+    curve: list[Curve] = field(
         default_factory=list,
         metadata={
             "name": "Curve",
@@ -239,7 +239,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    line_string: List[LineString] = field(
+    line_string: list[LineString] = field(
         default_factory=list,
         metadata={
             "name": "LineString",
@@ -248,7 +248,7 @@ class GeometryArrayPropertyType:
             "sequence": 1,
         },
     )
-    point: List[Point] = field(
+    point: list[Point] = field(
         default_factory=list,
         metadata={
             "name": "Point",
@@ -278,7 +278,7 @@ class GeometryPropertyType:
     A generic type for such a geometry property is GeometryPropertyType.
     """
 
-    rectified_grid: Optional[RectifiedGrid] = field(
+    rectified_grid: RectifiedGrid | None = field(
         default=None,
         metadata={
             "name": "RectifiedGrid",
@@ -286,7 +286,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    grid: Optional[Grid] = field(
+    grid: Grid | None = field(
         default=None,
         metadata={
             "name": "Grid",
@@ -294,7 +294,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    geometric_complex: Optional[GeometricComplex] = field(
+    geometric_complex: GeometricComplex | None = field(
         default=None,
         metadata={
             "name": "GeometricComplex",
@@ -302,7 +302,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    multi_solid: Optional[MultiSolid] = field(
+    multi_solid: MultiSolid | None = field(
         default=None,
         metadata={
             "name": "MultiSolid",
@@ -310,7 +310,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    multi_surface: Optional[MultiSurface] = field(
+    multi_surface: MultiSurface | None = field(
         default=None,
         metadata={
             "name": "MultiSurface",
@@ -318,7 +318,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    multi_curve: Optional[MultiCurve] = field(
+    multi_curve: MultiCurve | None = field(
         default=None,
         metadata={
             "name": "MultiCurve",
@@ -326,7 +326,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    multi_point: Optional[MultiPoint] = field(
+    multi_point: MultiPoint | None = field(
         default=None,
         metadata={
             "name": "MultiPoint",
@@ -342,7 +342,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    composite_solid: Optional[CompositeSolid] = field(
+    composite_solid: CompositeSolid | None = field(
         default=None,
         metadata={
             "name": "CompositeSolid",
@@ -350,7 +350,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    solid: Optional[Solid] = field(
+    solid: Solid | None = field(
         default=None,
         metadata={
             "name": "Solid",
@@ -358,7 +358,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    composite_surface: Optional[CompositeSurface] = field(
+    composite_surface: CompositeSurface | None = field(
         default=None,
         metadata={
             "name": "CompositeSurface",
@@ -366,7 +366,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    orientable_surface: Optional[OrientableSurface] = field(
+    orientable_surface: OrientableSurface | None = field(
         default=None,
         metadata={
             "name": "OrientableSurface",
@@ -374,7 +374,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    tin: Optional[Tin] = field(
+    tin: Tin | None = field(
         default=None,
         metadata={
             "name": "Tin",
@@ -382,7 +382,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    triangulated_surface: Optional[TriangulatedSurface] = field(
+    triangulated_surface: TriangulatedSurface | None = field(
         default=None,
         metadata={
             "name": "TriangulatedSurface",
@@ -390,7 +390,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    polyhedral_surface: Optional[PolyhedralSurface] = field(
+    polyhedral_surface: PolyhedralSurface | None = field(
         default=None,
         metadata={
             "name": "PolyhedralSurface",
@@ -398,7 +398,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    surface: Optional[Surface] = field(
+    surface: Surface | None = field(
         default=None,
         metadata={
             "name": "Surface",
@@ -406,7 +406,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    polygon: Optional[Polygon] = field(
+    polygon: Polygon | None = field(
         default=None,
         metadata={
             "name": "Polygon",
@@ -414,7 +414,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    composite_curve: Optional[CompositeCurve] = field(
+    composite_curve: CompositeCurve | None = field(
         default=None,
         metadata={
             "name": "CompositeCurve",
@@ -422,7 +422,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    orientable_curve: Optional[OrientableCurve] = field(
+    orientable_curve: OrientableCurve | None = field(
         default=None,
         metadata={
             "name": "OrientableCurve",
@@ -430,7 +430,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    curve: Optional[Curve] = field(
+    curve: Curve | None = field(
         default=None,
         metadata={
             "name": "Curve",
@@ -438,7 +438,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    line_string: Optional[LineString] = field(
+    line_string: LineString | None = field(
         default=None,
         metadata={
             "name": "LineString",
@@ -446,7 +446,7 @@ class GeometryPropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    point: Optional[Point] = field(
+    point: Point | None = field(
         default=None,
         metadata={
             "name": "Point",
@@ -463,49 +463,49 @@ class GeometryPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -513,7 +513,7 @@ class GeometryPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -556,7 +556,7 @@ class GeometryMembers(GeometryArrayPropertyType):
 
 @dataclass
 class MultiGeometryType(AbstractGeometricAggregateType):
-    geometry_member: List[GeometryMember] = field(
+    geometry_member: list[GeometryMember] = field(
         default_factory=list,
         metadata={
             "name": "geometryMember",
@@ -564,7 +564,7 @@ class MultiGeometryType(AbstractGeometricAggregateType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    geometry_members: Optional[GeometryMembers] = field(
+    geometry_members: GeometryMembers | None = field(
         default=None,
         metadata={
             "name": "geometryMembers",

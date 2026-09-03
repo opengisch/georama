@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_coordinate_system_base_type import (
     AbstractCoordinateSystemBaseType,
@@ -43,7 +42,7 @@ class AbstractCoordinateSystemType(AbstractCoordinateSystemBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    remarks: Optional[Remarks] = field(
+    remarks: Remarks | None = field(
         default=None,
         metadata={
             "type": "Element",

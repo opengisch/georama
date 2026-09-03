@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.md_topology_level_code import (
     MdTopologyLevelCode,
@@ -16,7 +15,7 @@ class MdTopologyLevelCodePropertyType:
     class Meta:
         name = "MD_TopologyLevelCode_PropertyType"
 
-    md_topology_level_code: Optional[MdTopologyLevelCode] = field(
+    md_topology_level_code: MdTopologyLevelCode | None = field(
         default=None,
         metadata={
             "name": "MD_TopologyLevelCode",
@@ -24,7 +23,7 @@ class MdTopologyLevelCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

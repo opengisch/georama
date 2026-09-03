@@ -85,7 +85,9 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
         request=PublishFromDatasourceInput,
     )
     @action(detail=False, methods=["post"], url_path="publish_from_datasource")
-    async def publish_from_datasource(self, request: GeoramaDrfRequest, *args, **kwargs):
+    async def publish_from_datasource(
+        self, request: GeoramaDrfRequest, *args, **kwargs
+    ):
         perms = await self._get_model_permissions()
         if perms["can_add"]:
             pfdi = PublishFromDatasourceInput(data=request.data)
@@ -94,7 +96,9 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
             ds: Datasource = await qs.aget(id=pfdi.validated_data["pk"])
             md = Metadata(title=ds.name)
             await md.asave()
-            fl = WmsLayer(datasource=ds, metadata=md, extent=ds.bbox, extent_wgs84=ds.bbox_wgs84)
+            fl = WmsLayer(
+                datasource=ds, metadata=md, extent=ds.bbox, extent_wgs84=ds.bbox_wgs84
+            )
             if pfdi.validated_data["create_preview"]:
                 image: bytes = await generate_preview_image(fl)
                 fl.preview = image
@@ -145,7 +149,9 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
         url_name="generate_preview_image_bulk",
         renderer_classes=[renderers.JSONRenderer, renderers.BrowsableAPIRenderer],
     )
-    async def generate_preview_image_bulk(self, request: GeoramaDrfRequest, *args, **kwargs):
+    async def generate_preview_image_bulk(
+        self, request: GeoramaDrfRequest, *args, **kwargs
+    ):
         perms = await self._get_model_permissions()
         if perms["can_change"]:
             pgi = PreviewGeneratorInput(data=request.data)
@@ -156,7 +162,9 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             results: list[dict] = []
-            async for layer in self.get_queryset().filter(id__in=pgi.validated_data["layer_ids"]):
+            async for layer in self.get_queryset().filter(
+                id__in=pgi.validated_data["layer_ids"]
+            ):
                 image: bytes = await generate_preview_image(layer)
                 layer.preview = image
                 await layer.asave()

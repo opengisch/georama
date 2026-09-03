@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.definition_type import DefinitionType
 from georama.maps.interfaces.opengis.filter_1_1_0.minimum_occurs import MinimumOccurs
@@ -14,7 +13,7 @@ class AbstractGeneralOperationParameterType(DefinitionType):
     method.
     """
 
-    minimum_occurs: Optional[MinimumOccurs] = field(
+    minimum_occurs: MinimumOccurs | None = field(
         default=None,
         metadata={
             "name": "minimumOccurs",

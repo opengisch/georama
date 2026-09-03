@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Optional, Union
 
 from xsdata.models.datatype import XmlDate, XmlDateTime, XmlPeriod, XmlTime
 
@@ -42,21 +41,23 @@ class TimePositionType:
     enumeration.
     """
 
-    value: Union[XmlDate, XmlPeriod, XmlTime, XmlDateTime, str, Decimal] = field(default="")
+    value: XmlDate | XmlPeriod | XmlTime | XmlDateTime | str | Decimal = field(
+        default=""
+    )
     frame: str = field(
         default="#ISO-8601",
         metadata={
             "type": "Attribute",
         },
     )
-    calendar_era_name: Optional[str] = field(
+    calendar_era_name: str | None = field(
         default=None,
         metadata={
             "name": "calendarEraName",
             "type": "Attribute",
         },
     )
-    indeterminate_position: Optional[TimeIndeterminateValueType] = field(
+    indeterminate_position: TimeIndeterminateValueType | None = field(
         default=None,
         metadata={
             "name": "indeterminatePosition",

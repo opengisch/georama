@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.language_code import LanguageCode
 from georama.maps.interfaces.opengis.gml_3_2_1.nil_reason_enumeration_value import (
@@ -14,7 +13,7 @@ class LanguageCodePropertyType:
     class Meta:
         name = "LanguageCode_PropertyType"
 
-    language_code: Optional[LanguageCode] = field(
+    language_code: LanguageCode | None = field(
         default=None,
         metadata={
             "name": "LanguageCode",
@@ -22,7 +21,7 @@ class LanguageCodePropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

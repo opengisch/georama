@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.action_results_type import ActionResultsType
 from georama.maps.interfaces.ogc.wfs_2_0_0.transaction_summary_type import (
@@ -11,7 +10,7 @@ __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
 @dataclass
 class TransactionResponseType:
-    transaction_summary: Optional[TransactionSummaryType] = field(
+    transaction_summary: TransactionSummaryType | None = field(
         default=None,
         metadata={
             "name": "TransactionSummary",
@@ -20,7 +19,7 @@ class TransactionResponseType:
             "required": True,
         },
     )
-    insert_results: Optional[ActionResultsType] = field(
+    insert_results: ActionResultsType | None = field(
         default=None,
         metadata={
             "name": "InsertResults",
@@ -28,7 +27,7 @@ class TransactionResponseType:
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    update_results: Optional[ActionResultsType] = field(
+    update_results: ActionResultsType | None = field(
         default=None,
         metadata={
             "name": "UpdateResults",
@@ -36,7 +35,7 @@ class TransactionResponseType:
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    replace_results: Optional[ActionResultsType] = field(
+    replace_results: ActionResultsType | None = field(
         default=None,
         metadata={
             "name": "ReplaceResults",
@@ -44,7 +43,7 @@ class TransactionResponseType:
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    version: Optional[str] = field(
+    version: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

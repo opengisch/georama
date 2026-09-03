@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
@@ -9,7 +8,7 @@ class DefaultCrs:
     class Meta:
         global_type = False
 
-    value: Optional[str] = field(
+    value: str | None = field(
         default=None,
         metadata={
             "required": True,

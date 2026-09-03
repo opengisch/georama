@@ -8,7 +8,9 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-SUBDOMAIN_REGEX = r"^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)?$"
+SUBDOMAIN_REGEX = (
+    r"^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)?$"
+)
 
 
 def validate_domain_name_not_global(value: str) -> None:
@@ -25,7 +27,9 @@ class Organisation(models.Model):
         verbose_name_plural = _("organisations")
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the organisation.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the organisation."),
     )
     name = models.CharField(help_text=_("Name of the organisation."))
     domain = models.CharField(
@@ -37,7 +41,8 @@ class Organisation(models.Model):
         ],
     )
     public_access = models.BooleanField(
-        default=False, help_text=_("Whether anonymous users can access this organisation.")
+        default=False,
+        help_text=_("Whether anonymous users can access this organisation."),
     )
 
     def __str__(self):

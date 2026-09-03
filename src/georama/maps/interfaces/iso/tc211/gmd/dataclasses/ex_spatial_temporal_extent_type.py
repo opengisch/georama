@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.ex_geographic_extent_property_type import (
     ExGeographicExtentPropertyType,
@@ -20,7 +19,7 @@ class ExSpatialTemporalExtentType(ExTemporalExtentType):
     class Meta:
         name = "EX_SpatialTemporalExtent_Type"
 
-    spatial_extent: List[ExGeographicExtentPropertyType] = field(
+    spatial_extent: list[ExGeographicExtentPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "spatialExtent",

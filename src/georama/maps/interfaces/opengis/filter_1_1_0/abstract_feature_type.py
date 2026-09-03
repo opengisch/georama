@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_gmltype import (
     AbstractGmltype,
@@ -22,7 +21,7 @@ class AbstractFeatureType(AbstractGmltype):
     A concrete feature type must derive from this type and specify additional  properties in an application schema. A feature must possess an identifying attribute ('id' - 'fid' has been deprecated).
     """
 
-    bounded_by: Optional[BoundedBy] = field(
+    bounded_by: BoundedBy | None = field(
         default=None,
         metadata={
             "name": "boundedBy",
@@ -30,7 +29,7 @@ class AbstractFeatureType(AbstractGmltype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    priority_location_or_location: Optional[Union[PriorityLocation, Location]] = field(
+    priority_location_or_location: PriorityLocation | Location | None = field(
         default=None,
         metadata={
             "type": "Elements",

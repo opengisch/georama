@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.composite_solid_type import (
     CompositeSolid,
@@ -52,7 +51,7 @@ __NAMESPACE__ = "http://www.opengis.net/ogc"
 
 @dataclass
 class DistanceBufferType(SpatialOpsType):
-    property_name: Optional[PropertyName] = field(
+    property_name: PropertyName | None = field(
         default=None,
         metadata={
             "name": "PropertyName",
@@ -61,36 +60,35 @@ class DistanceBufferType(SpatialOpsType):
             "required": True,
         },
     )
-    choice: Optional[
-        Union[
-            MultiLineString,
-            MultiPolygon,
-            MultiSolid,
-            MultiSurface,
-            MultiCurve,
-            MultiPoint,
-            MultiGeometry,
-            RectifiedGrid,
-            Grid,
-            GeometricComplex,
-            Ring,
-            LinearRing,
-            Solid,
-            CompositeSolid,
-            OrientableSurface,
-            Tin,
-            TriangulatedSurface,
-            PolyhedralSurface,
-            Surface,
-            CompositeSurface,
-            Polygon,
-            OrientableCurve,
-            Curve,
-            CompositeCurve,
-            LineString,
-            Point,
-        ]
-    ] = field(
+    choice: (
+        MultiLineString
+        | MultiPolygon
+        | MultiSolid
+        | MultiSurface
+        | MultiCurve
+        | MultiPoint
+        | MultiGeometry
+        | RectifiedGrid
+        | Grid
+        | GeometricComplex
+        | Ring
+        | LinearRing
+        | Solid
+        | CompositeSolid
+        | OrientableSurface
+        | Tin
+        | TriangulatedSurface
+        | PolyhedralSurface
+        | Surface
+        | CompositeSurface
+        | Polygon
+        | OrientableCurve
+        | Curve
+        | CompositeCurve
+        | LineString
+        | Point
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -228,7 +226,7 @@ class DistanceBufferType(SpatialOpsType):
             ),
         },
     )
-    distance: Optional[DistanceType] = field(
+    distance: DistanceType | None = field(
         default=None,
         metadata={
             "name": "Distance",

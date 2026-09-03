@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from xsdata.models.datatype import XmlDateTime
 
@@ -13,34 +12,34 @@ __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 
 @dataclass
 class ResourceIdType(AbstractIdType):
-    rid: Optional[str] = field(
+    rid: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "required": True,
         },
     )
-    previous_rid: Optional[str] = field(
+    previous_rid: str | None = field(
         default=None,
         metadata={
             "name": "previousRid",
             "type": "Attribute",
         },
     )
-    version: Optional[Union[VersionActionTokens, int, XmlDateTime]] = field(
+    version: VersionActionTokens | int | XmlDateTime | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    start_date: Optional[XmlDateTime] = field(
+    start_date: XmlDateTime | None = field(
         default=None,
         metadata={
             "name": "startDate",
             "type": "Attribute",
         },
     )
-    end_date: Optional[XmlDateTime] = field(
+    end_date: XmlDateTime | None = field(
         default=None,
         metadata={
             "name": "endDate",

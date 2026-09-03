@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.knot_type import KnotType
 
@@ -19,7 +18,7 @@ class KnotPropertyType:
         this knot of the spline.
     """
 
-    knot: Optional[KnotType] = field(
+    knot: KnotType | None = field(
         default=None,
         metadata={
             "name": "Knot",

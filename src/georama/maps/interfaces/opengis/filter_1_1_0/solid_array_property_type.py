@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.composite_solid_type import (
     CompositeSolid,
@@ -17,7 +16,7 @@ class SolidArrayPropertyType:
     geometry elements or arrays of geometry elements is not supported.
     """
 
-    solid_or_composite_solid: list[Union[Solid, CompositeSolid]] = field(
+    solid_or_composite_solid: list[Solid | CompositeSolid] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

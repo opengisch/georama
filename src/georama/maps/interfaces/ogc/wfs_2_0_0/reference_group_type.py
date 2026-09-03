@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.basic_identification_type import (
     BasicIdentificationType,
@@ -19,7 +18,7 @@ class ReferenceGroupType(BasicIdentificationType):
     group.
     """
 
-    service_reference_or_reference: list[Union[ServiceReference, Reference]] = field(
+    service_reference_or_reference: list[ServiceReference | Reference] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

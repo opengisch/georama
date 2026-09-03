@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.degrees_type_value import (
     DegreesTypeValue,
@@ -22,14 +21,14 @@ class DegreesType:
     direction.
     """
 
-    value: Optional[int] = field(
+    value: int | None = field(
         default=None,
         metadata={
             "required": True,
             "max_inclusive": 359,
         },
     )
-    direction: Optional[DegreesTypeValue] = field(
+    direction: DegreesTypeValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",

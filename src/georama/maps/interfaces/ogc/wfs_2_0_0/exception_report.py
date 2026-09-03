@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.exception import Exception
 from georama.maps.interfaces.ogc.wfs_2_0_0.lang_value import LangValue
@@ -45,7 +44,7 @@ class ExceptionReport:
             "min_occurs": 1,
         },
     )
-    version: Optional[str] = field(
+    version: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -53,7 +52,7 @@ class ExceptionReport:
             "pattern": r"\d+\.\d?\d\.\d?\d",
         },
     )
-    lang: Optional[Union[str, LangValue]] = field(
+    lang: str | LangValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",

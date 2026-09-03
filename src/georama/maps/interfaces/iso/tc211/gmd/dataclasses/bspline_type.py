@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -29,14 +28,14 @@ class BsplineType(AbstractCurveSegmentType):
     class Meta:
         name = "BSplineType"
 
-    pos: List[Pos] = field(
+    pos: list[Pos] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    point_property: List[PointProperty] = field(
+    point_property: list[PointProperty] = field(
         default_factory=list,
         metadata={
             "name": "pointProperty",
@@ -44,7 +43,7 @@ class BsplineType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    point_rep: List[PointRep] = field(
+    point_rep: list[PointRep] = field(
         default_factory=list,
         metadata={
             "name": "pointRep",
@@ -52,7 +51,7 @@ class BsplineType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    pos_list: Optional[PosList] = field(
+    pos_list: PosList | None = field(
         default=None,
         metadata={
             "name": "posList",
@@ -60,14 +59,14 @@ class BsplineType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    coordinates: Optional[Coordinates] = field(
+    coordinates: Coordinates | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    degree: Optional[int] = field(
+    degree: int | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -75,7 +74,7 @@ class BsplineType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    knot: List[KnotPropertyType] = field(
+    knot: list[KnotPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -89,14 +88,14 @@ class BsplineType(AbstractCurveSegmentType):
             "type": "Attribute",
         },
     )
-    is_polynomial: Optional[bool] = field(
+    is_polynomial: bool | None = field(
         default=None,
         metadata={
             "name": "isPolynomial",
             "type": "Attribute",
         },
     )
-    knot_type: Optional[KnotTypesType] = field(
+    knot_type: KnotTypesType | None = field(
         default=None,
         metadata={
             "name": "knotType",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.contact_info import ContactInfo
 from georama.maps.interfaces.ogc.wfs_2_0_0.individual_name import IndividualName
@@ -19,7 +18,7 @@ class ResponsiblePartyType:
     shall be included.
     """
 
-    individual_name: Optional[IndividualName] = field(
+    individual_name: IndividualName | None = field(
         default=None,
         metadata={
             "name": "IndividualName",
@@ -27,7 +26,7 @@ class ResponsiblePartyType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    organisation_name: Optional[OrganisationName] = field(
+    organisation_name: OrganisationName | None = field(
         default=None,
         metadata={
             "name": "OrganisationName",
@@ -35,7 +34,7 @@ class ResponsiblePartyType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    position_name: Optional[PositionName] = field(
+    position_name: PositionName | None = field(
         default=None,
         metadata={
             "name": "PositionName",
@@ -43,7 +42,7 @@ class ResponsiblePartyType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    contact_info: Optional[ContactInfo] = field(
+    contact_info: ContactInfo | None = field(
         default=None,
         metadata={
             "name": "ContactInfo",
@@ -51,7 +50,7 @@ class ResponsiblePartyType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    role: Optional[Role] = field(
+    role: Role | None = field(
         default=None,
         metadata={
             "name": "Role",

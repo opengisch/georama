@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -32,21 +31,21 @@ class MdMediumType(AbstractObjectType):
     class Meta:
         name = "MD_Medium_Type"
 
-    name: Optional[MdMediumNameCodePropertyType] = field(
+    name: MdMediumNameCodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    density: List[RealPropertyType] = field(
+    density: list[RealPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    density_units: Optional[CharacterStringPropertyType] = field(
+    density_units: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "densityUnits",
@@ -54,14 +53,14 @@ class MdMediumType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    volumes: Optional[IntegerPropertyType] = field(
+    volumes: IntegerPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    medium_format: List[MdMediumFormatCodePropertyType] = field(
+    medium_format: list[MdMediumFormatCodePropertyType] = field(
         default_factory=list,
         metadata={
             "name": "mediumFormat",
@@ -69,7 +68,7 @@ class MdMediumType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    medium_note: Optional[CharacterStringPropertyType] = field(
+    medium_note: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "mediumNote",

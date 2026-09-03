@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.binary_operator_type import (
     Add,
@@ -19,7 +18,7 @@ __NAMESPACE__ = "http://www.opengis.net/ogc"
 
 @dataclass
 class BinaryComparisonOpType(ComparisonOpsType):
-    choice: list[Union[Literal, Function, PropertyName, Div, Mul, Sub, Add]] = field(
+    choice: list[Literal | Function | PropertyName | Div | Mul | Sub | Add] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.crsref_type import (
     AbstractCoordinateOperationType,
@@ -33,7 +32,7 @@ class PassThroughOperationType(AbstractCoordinateOperationType):
             "min_occurs": 1,
         },
     )
-    uses_operation: Optional[UsesOperation] = field(
+    uses_operation: UsesOperation | None = field(
         default=None,
         metadata={
             "name": "usesOperation",

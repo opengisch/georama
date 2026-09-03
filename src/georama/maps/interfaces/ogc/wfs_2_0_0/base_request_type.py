@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
@@ -14,7 +13,7 @@ class BaseRequestType:
             "required": True,
         },
     )
-    version: Optional[str] = field(
+    version: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -22,7 +21,7 @@ class BaseRequestType:
             "pattern": r"2\.0\.\d+",
         },
     )
-    handle: Optional[str] = field(
+    handle: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

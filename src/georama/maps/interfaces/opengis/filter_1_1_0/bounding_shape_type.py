@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.envelope import Envelope
 from georama.maps.interfaces.opengis.filter_1_1_0.envelope_with_time_period import (
@@ -16,9 +15,9 @@ class BoundingShapeType:
     Bounding shape.
     """
 
-    envelope_with_time_period_or_envelope_or_null: Optional[
-        Union[EnvelopeWithTimePeriod, Envelope, Null]
-    ] = field(
+    envelope_with_time_period_or_envelope_or_null: (
+        EnvelopeWithTimePeriod | Envelope | Null | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",

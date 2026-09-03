@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_datum_type import (
     AbstractDatumType,
@@ -21,7 +20,7 @@ class GeodeticDatumType(AbstractDatumType):
     sphere).
     """
 
-    uses_prime_meridian: Optional[UsesPrimeMeridian] = field(
+    uses_prime_meridian: UsesPrimeMeridian | None = field(
         default=None,
         metadata={
             "name": "usesPrimeMeridian",
@@ -30,7 +29,7 @@ class GeodeticDatumType(AbstractDatumType):
             "required": True,
         },
     )
-    uses_ellipsoid: Optional[UsesEllipsoid] = field(
+    uses_ellipsoid: UsesEllipsoid | None = field(
         default=None,
         metadata={
             "name": "usesEllipsoid",

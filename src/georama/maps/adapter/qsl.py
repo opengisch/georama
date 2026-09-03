@@ -61,7 +61,9 @@ async def generate_preview_image(wms_layer: WmsLayer) -> bytes | None:
                 f"Preview image generation through QSL was not successful. "
                 f"Status: {status} Result: {result}"
             )
-            raise RequestError(f"The request to QSL returned non successful. Status: {status}")
+            raise RequestError(
+                f"The request to QSL returned non successful. Status: {status}"
+            )
     except ValueError as e:
         logging.exception(f"Error while generating preview image: {e}")
     except PermissionError as e:

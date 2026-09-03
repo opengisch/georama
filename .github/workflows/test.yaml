@@ -9,12 +9,6 @@ jobs:
   test-py:
     name: Test Python
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        python-version:
-          - '3.12'
-          - '3.13'
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -34,4 +28,4 @@ jobs:
         run: |
           docker compose up -d
       - name: Run tests
-        run: docker compose run --rm --entrypoint bash georama -c "uv run pytest"
+        run: docker compose run --rm --entrypoint bash georama -c "pytest"

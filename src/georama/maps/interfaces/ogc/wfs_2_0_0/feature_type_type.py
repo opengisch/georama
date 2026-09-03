@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 from xml.etree.ElementTree import QName
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.abstract_2 import Abstract2
@@ -24,7 +23,7 @@ __NAMESPACE__ = "http://www.opengis.net/wfs/2.0"
 
 @dataclass
 class FeatureTypeType:
-    name: Optional[QName] = field(
+    name: QName | None = field(
         default=None,
         metadata={
             "name": "Name",
@@ -58,7 +57,7 @@ class FeatureTypeType:
         },
     )
     default_crs_or_other_crs_or_no_crs: list[
-        Union[DefaultCrs, OtherCrs, FeatureTypeTypeNoCrs]
+        DefaultCrs | OtherCrs | FeatureTypeTypeNoCrs
     ] = field(
         default_factory=list,
         metadata={
@@ -82,7 +81,7 @@ class FeatureTypeType:
             ),
         },
     )
-    output_formats: Optional[OutputFormatListType] = field(
+    output_formats: OutputFormatListType | None = field(
         default=None,
         metadata={
             "name": "OutputFormats",
@@ -106,7 +105,7 @@ class FeatureTypeType:
             "namespace": "http://www.opengis.net/wfs/2.0",
         },
     )
-    extended_description: Optional[ExtendedDescriptionType] = field(
+    extended_description: ExtendedDescriptionType | None = field(
         default=None,
         metadata={
             "name": "ExtendedDescription",

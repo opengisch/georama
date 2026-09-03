@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_general_parameter_value_type import (
     AbstractGeneralParameterValueType,
@@ -31,7 +31,7 @@ class AbstractGeneralParameterValuePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    parameter_value: Optional[ParameterValue1] = field(
+    parameter_value: ParameterValue1 | None = field(
         default=None,
         metadata={
             "name": "ParameterValue",
@@ -69,7 +69,7 @@ class UsesValue(AbstractGeneralParameterValuePropertyType):
 
 @dataclass
 class ParameterValueGroupType(AbstractGeneralParameterValueType):
-    includes_value: List[IncludesValue] = field(
+    includes_value: list[IncludesValue] = field(
         default_factory=list,
         metadata={
             "name": "includesValue",
@@ -77,7 +77,7 @@ class ParameterValueGroupType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_value: List[UsesValue] = field(
+    uses_value: list[UsesValue] = field(
         default_factory=list,
         metadata={
             "name": "usesValue",
@@ -85,7 +85,7 @@ class ParameterValueGroupType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    parameter_value: List[ParameterValue2] = field(
+    parameter_value: list[ParameterValue2] = field(
         default_factory=list,
         metadata={
             "name": "parameterValue",
@@ -93,7 +93,7 @@ class ParameterValueGroupType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    values_of_group: Optional[ValuesOfGroup] = field(
+    values_of_group: ValuesOfGroup | None = field(
         default=None,
         metadata={
             "name": "valuesOfGroup",
@@ -101,7 +101,7 @@ class ParameterValueGroupType(AbstractGeneralParameterValueType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    group: Optional[Group] = field(
+    group: Group | None = field(
         default=None,
         metadata={
             "type": "Element",

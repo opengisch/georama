@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.allowed_values import AllowedValues
 from georama.maps.interfaces.ogc.wfs_2_0_0.any_value import AnyValue
@@ -35,7 +34,7 @@ class UnNamedDomainType:
         Implementation Specification for this service.
     """
 
-    choice: Optional[Union[AllowedValues, AnyValue, NoValues, ValuesReference]] = field(
+    choice: AllowedValues | AnyValue | NoValues | ValuesReference | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -63,7 +62,7 @@ class UnNamedDomainType:
             ),
         },
     )
-    default_value: Optional[DefaultValue] = field(
+    default_value: DefaultValue | None = field(
         default=None,
         metadata={
             "name": "DefaultValue",
@@ -71,7 +70,7 @@ class UnNamedDomainType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    meaning: Optional[Meaning] = field(
+    meaning: Meaning | None = field(
         default=None,
         metadata={
             "name": "Meaning",
@@ -79,7 +78,7 @@ class UnNamedDomainType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    data_type: Optional[DataType] = field(
+    data_type: DataType | None = field(
         default=None,
         metadata={
             "name": "DataType",
@@ -87,7 +86,7 @@ class UnNamedDomainType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    uom_or_reference_system: Optional[Union[Uom, ReferenceSystem]] = field(
+    uom_or_reference_system: Uom | ReferenceSystem | None = field(
         default=None,
         metadata={
             "type": "Elements",

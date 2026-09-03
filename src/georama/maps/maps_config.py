@@ -34,12 +34,16 @@ class Config:
             keyword_list=wms130_capabilities.KeywordList(
                 keyword=[
                     wms130_capabilities.Keyword(value="fast", vocabulary="ISO"),
-                    wms130_capabilities.Keyword(value="infoMapAccessService", vocabulary="ISO"),
+                    wms130_capabilities.Keyword(
+                        value="infoMapAccessService", vocabulary="ISO"
+                    ),
                 ]
             ),
             contact_information=wms130_capabilities.ContactInformation(
                 contact_person_primary=wms130_capabilities.ContactPersonPrimary(
-                    contact_person=wms130_capabilities.ContactPerson(value="Clemens Rudert"),
+                    contact_person=wms130_capabilities.ContactPerson(
+                        value="Clemens Rudert"
+                    ),
                     contact_organization=wms130_capabilities.ContactOrganization(
                         value="OPENGIS.ch"
                     ),
@@ -76,7 +80,9 @@ class Config:
                         wms130_capabilities.Dcptype(
                             http=wms130_capabilities.Http(
                                 get=wms130_capabilities.Get(
-                                    online_resource=wms130_capabilities.OnlineResource(href=url)
+                                    online_resource=wms130_capabilities.OnlineResource(
+                                        href=url
+                                    )
                                 )
                             )
                         )
@@ -88,7 +94,9 @@ class Config:
                         wms130_capabilities.Dcptype(
                             http=wms130_capabilities.Http(
                                 get=wms130_capabilities.Get(
-                                    online_resource=wms130_capabilities.OnlineResource(href=url)
+                                    online_resource=wms130_capabilities.OnlineResource(
+                                        href=url
+                                    )
                                 )
                             )
                         )
@@ -111,7 +119,9 @@ class Config:
                 keyword_list=wms130_capabilities.KeywordList(
                     keyword=[
                         wms130_capabilities.Keyword(value="fast", vocabulary="ISO"),
-                        wms130_capabilities.Keyword(value="infoMapAccessService", vocabulary="ISO"),
+                        wms130_capabilities.Keyword(
+                            value="infoMapAccessService", vocabulary="ISO"
+                        ),
                     ]
                 ),
                 crs=[
@@ -375,10 +385,12 @@ class Config:
                         default_value=wfs_2_0_0.DefaultValue(value="FALSE"),
                     ),
                     wfs_2_0_0.DomainType(
-                        name="KVPEncoding", default_value=wfs_2_0_0.DefaultValue(value="FALSE")
+                        name="KVPEncoding",
+                        default_value=wfs_2_0_0.DefaultValue(value="FALSE"),
                     ),
                     wfs_2_0_0.DomainType(
-                        name="XMLEncoding", default_value=wfs_2_0_0.DefaultValue(value="TRUE")
+                        name="XMLEncoding",
+                        default_value=wfs_2_0_0.DefaultValue(value="TRUE"),
                     ),
                     wfs_2_0_0.DomainType(
                         name="SOAPEncoding",
@@ -487,8 +499,12 @@ class Config:
                                 name="outputFormat",
                                 choice=wfs_2_0_0.AllowedValues(
                                     value_or_range=[
-                                        wfs_2_0_0.Value1(value="application/gml+xml; version=3.2"),
-                                        wfs_2_0_0.Value1(value="text/xml; subtype=gml/3.2.1"),
+                                        wfs_2_0_0.Value1(
+                                            value="application/gml+xml; version=3.2"
+                                        ),
+                                        wfs_2_0_0.Value1(
+                                            value="text/xml; subtype=gml/3.2.1"
+                                        ),
                                         wfs_2_0_0.Value1(value="text/json"),
                                     ]
                                 ),
@@ -512,8 +528,12 @@ class Config:
                                 name="outputFormat",
                                 choice=wfs_2_0_0.AllowedValues(
                                     value_or_range=[
-                                        wfs_2_0_0.Value1(value="application/gml+xml; version=3.2"),
-                                        wfs_2_0_0.Value1(value="text/xml; subtype=gml/3.2.1"),
+                                        wfs_2_0_0.Value1(
+                                            value="application/gml+xml; version=3.2"
+                                        ),
+                                        wfs_2_0_0.Value1(
+                                            value="text/xml; subtype=gml/3.2.1"
+                                        ),
                                         wfs_2_0_0.Value1(value="text/json"),
                                     ]
                                 ),
@@ -537,8 +557,12 @@ class Config:
                                 name="outputFormat",
                                 choice=wfs_2_0_0.AllowedValues(
                                     value_or_range=[
-                                        wfs_2_0_0.Value1(value="application/gml+xml; version=3.2"),
-                                        wfs_2_0_0.Value1(value="text/xml; subtype=gml/3.2.1"),
+                                        wfs_2_0_0.Value1(
+                                            value="application/gml+xml; version=3.2"
+                                        ),
+                                        wfs_2_0_0.Value1(
+                                            value="text/xml; subtype=gml/3.2.1"
+                                        ),
                                         wfs_2_0_0.Value1(value="text/json"),
                                     ]
                                 ),
@@ -589,7 +613,9 @@ class Config:
                             postal_code="7031",
                         ),
                         hours_of_service="09:00 - 16:00",
-                        online_resource=wfs_2_0_0.OnlineResourceType(href="https://opengis.ch"),
+                        online_resource=wfs_2_0_0.OnlineResourceType(
+                            href="https://opengis.ch"
+                        ),
                     ),
                     individual_name=wfs_2_0_0.IndividualName(
                         value="Rudert, Clemens",
@@ -621,17 +647,25 @@ class Config:
                     "CI_ResponsibleParty": {
                         "id": "contact",
                         "individualName": {
-                            "LocalisedCharacterString": {"value": "Fachstelle für Geoinformation"}
+                            "LocalisedCharacterString": {
+                                "value": "Fachstelle für Geoinformation"
+                            }
                         },
                         "organisationName": {
-                            "LocalisedCharacterString": {"value": "Grundbuch- und Vermessungsamt"}
+                            "LocalisedCharacterString": {
+                                "value": "Grundbuch- und Vermessungsamt"
+                            }
                         },
                         "contactInfo": {
                             "CI_Contact": {
                                 "phone": {
                                     "CI_Telephone": {
                                         "voice": [
-                                            {"LocalisedCharacterString": {"value": "+41612679953"}}
+                                            {
+                                                "LocalisedCharacterString": {
+                                                    "value": "+41612679953"
+                                                }
+                                            }
                                         ],
                                     },
                                     "type": "simple",
@@ -645,25 +679,41 @@ class Config:
                                                 }
                                             }
                                         ],
-                                        "city": {"LocalisedCharacterString": {"value": "Basel"}},
+                                        "city": {
+                                            "LocalisedCharacterString": {
+                                                "value": "Basel"
+                                            }
+                                        },
                                         "administrativeArea": {
-                                            "LocalisedCharacterString": {"value": "Basel-Stadt"}
+                                            "LocalisedCharacterString": {
+                                                "value": "Basel-Stadt"
+                                            }
                                         },
                                         "postalCode": {
-                                            "LocalisedCharacterString": {"value": "4001"}
+                                            "LocalisedCharacterString": {
+                                                "value": "4001"
+                                            }
                                         },
                                         "country": {
-                                            "LocalisedCharacterString": {"value": "Schweiz"}
+                                            "LocalisedCharacterString": {
+                                                "value": "Schweiz"
+                                            }
                                         },
                                         "electronicMailAddress": [
-                                            {"LocalisedCharacterString": {"value": "geo@bs.ch"}}
+                                            {
+                                                "LocalisedCharacterString": {
+                                                    "value": "geo@bs.ch"
+                                                }
+                                            }
                                         ],
                                     },
                                     "type": "simple",
                                 },
                                 "onlineResource": {
                                     "CI_OnlineResource": {
-                                        "linkage": {"URL": {"value": "https://wms.geo.bs.ch"}}
+                                        "linkage": {
+                                            "URL": {"value": "https://wms.geo.bs.ch"}
+                                        }
                                     },
                                     "type": "simple",
                                 },
@@ -731,7 +781,7 @@ class Config:
                                                         "deliveryPoint": [
                                                             {
                                                                 "LocalisedCharacterString": {
-                                                                    "value": "Dufourstrasse 40/50, Postfach",  # noqa: E501
+                                                                    "value": "Dufourstrasse 40/50, Postfach",
                                                                 }
                                                             }
                                                         ],

@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.fill_default_type import (
     FillDefaultType,
@@ -38,64 +37,64 @@ class SetType(SetPrototype):
             "namespace": "##other",
         },
     )
-    id: Optional[str] = field(
+    id: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    class_value: Optional[str] = field(
+    class_value: str | None = field(
         default=None,
         metadata={
             "name": "class",
             "type": "Attribute",
         },
     )
-    lang: Optional[Union[str, LangValue]] = field(
+    lang: str | LangValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/XML/1998/namespace",
         },
     )
-    alt: Optional[str] = field(
+    alt: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    longdesc: Optional[str] = field(
+    longdesc: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    begin: Optional[str] = field(
+    begin: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    end: Optional[str] = field(
+    end: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    dur: Optional[str] = field(
+    dur: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    repeat_dur: Optional[str] = field(
+    repeat_dur: str | None = field(
         default=None,
         metadata={
             "name": "repeatDur",
             "type": "Attribute",
         },
     )
-    repeat_count: Optional[Decimal] = field(
+    repeat_count: Decimal | None = field(
         default=None,
         metadata={
             "name": "repeatCount",
@@ -103,19 +102,19 @@ class SetType(SetPrototype):
             "min_inclusive": Decimal("0.0"),
         },
     )
-    repeat: Optional[int] = field(
+    repeat: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    min: Optional[str] = field(
+    min: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    max: Optional[str] = field(
+    max: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -128,7 +127,7 @@ class SetType(SetPrototype):
             "type": "Attribute",
         },
     )
-    sync_tolerance: Optional[str] = field(
+    sync_tolerance: str | None = field(
         default=None,
         metadata={
             "name": "syncTolerance",
@@ -175,7 +174,7 @@ class SetType(SetPrototype):
             "type": "Attribute",
         },
     )
-    target_element: Optional[str] = field(
+    target_element: str | None = field(
         default=None,
         metadata={
             "name": "targetElement",

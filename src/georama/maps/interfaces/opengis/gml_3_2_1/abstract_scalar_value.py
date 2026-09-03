@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
@@ -15,7 +14,7 @@ class AbstractScalarValue:
     class Meta:
         namespace = "http://www.opengis.net/gml/3.2"
 
-    any_element: Optional[object] = field(
+    any_element: object | None = field(
         default=None,
         metadata={
             "type": "Wildcard",

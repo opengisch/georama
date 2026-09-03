@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.md_obligation_code_type import (
     MdObligationCodeType,
@@ -14,7 +13,7 @@ class MdObligationCode:
         name = "MD_ObligationCode"
         namespace = "http://www.isotc211.org/2005/gmd"
 
-    value: Optional[MdObligationCodeType] = field(
+    value: MdObligationCodeType | None = field(
         default=None,
         metadata={
             "required": True,

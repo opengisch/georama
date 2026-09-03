@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -16,7 +15,7 @@ class MdReferenceSystemType(AbstractObjectType):
     class Meta:
         name = "MD_ReferenceSystem_Type"
 
-    reference_system_identifier: Optional[RsIdentifierPropertyType] = field(
+    reference_system_identifier: RsIdentifierPropertyType | None = field(
         default=None,
         metadata={
             "name": "referenceSystemIdentifier",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_topo_primitive_type import (
     DirectedNode,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class TopoPointType(AbstractTopologyType):
-    directed_node: Optional[DirectedNode] = field(
+    directed_node: DirectedNode | None = field(
         default=None,
         metadata={
             "name": "directedNode",

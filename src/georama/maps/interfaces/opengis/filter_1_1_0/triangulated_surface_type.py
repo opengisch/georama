@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from georama.maps.interfaces.opengis.filter_1_1_0.surface_type import SurfaceType
 from georama.maps.interfaces.opengis.filter_1_1_0.triangle_patches import (
@@ -28,7 +28,7 @@ class TriangulatedSurfaceType(SurfaceType):
             "type": "Ignore",
         },
     )
-    triangle_patches: Optional[TrianglePatches] = field(
+    triangle_patches: TrianglePatches | None = field(
         default=None,
         metadata={
             "name": "trianglePatches",

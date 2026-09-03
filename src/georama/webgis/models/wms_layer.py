@@ -9,8 +9,12 @@ from georama.maps.models.wms_layer import WmsLayerAbstract
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     LayerSettings as GGLayerSettings,
 )
-from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import MetaData as GGMetadata
-from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import WmsLayer as GGWmsLayer
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    MetaData as GGMetadata,
+)
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    WmsLayer as GGWmsLayer,
+)
 from georama.webgis.managers.wms_layer import WmsLayerManager
 from georama.webgis.models.metadata import Metadata
 

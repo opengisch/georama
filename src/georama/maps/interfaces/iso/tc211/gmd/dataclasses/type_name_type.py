@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -22,7 +21,7 @@ class TypeNameType(AbstractObjectType):
     class Meta:
         name = "TypeName_Type"
 
-    a_name: Optional[CharacterStringPropertyType] = field(
+    a_name: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "aName",

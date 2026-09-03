@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -26,7 +25,7 @@ class MdKeywordsType(AbstractObjectType):
     class Meta:
         name = "MD_Keywords_Type"
 
-    keyword: List[CharacterStringPropertyType] = field(
+    keyword: list[CharacterStringPropertyType] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -34,7 +33,7 @@ class MdKeywordsType(AbstractObjectType):
             "min_occurs": 1,
         },
     )
-    type_value: Optional[MdKeywordTypeCodePropertyType] = field(
+    type_value: MdKeywordTypeCodePropertyType | None = field(
         default=None,
         metadata={
             "name": "type",
@@ -42,7 +41,7 @@ class MdKeywordsType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    thesaurus_name: Optional[CiCitationPropertyType] = field(
+    thesaurus_name: CiCitationPropertyType | None = field(
         default=None,
         metadata={
             "name": "thesaurusName",

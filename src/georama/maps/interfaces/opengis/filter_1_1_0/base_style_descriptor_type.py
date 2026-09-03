@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_gmltype import (
     AbstractGmltype,
@@ -22,7 +21,7 @@ class BaseStyleDescriptorType(AbstractGmltype):
     Base complex type for geometry, topology, label and graph styles.
     """
 
-    spatial_resolution: Optional[ScaleType] = field(
+    spatial_resolution: ScaleType | None = field(
         default=None,
         metadata={
             "name": "spatialResolution",

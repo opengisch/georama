@@ -26,7 +26,9 @@ class TestOrganisationMiddleware:
             return request
 
         rf = RequestFactory()
-        request = rf.get("", SERVER_NAME=f"{organisation_public_access.domain}.localhost")
+        request = rf.get(
+            "", SERVER_NAME=f"{organisation_public_access.domain}.localhost"
+        )
         middleware = OrganisationMiddleware(mock_get_response)
         middleware(request)
         assert hasattr(request, "georama_organisation")
@@ -47,7 +49,9 @@ class TestOrganisationMiddleware:
     @pytest.mark.django_db
     def test_organisation_exists(self, organisation_public_access):
         client = Client()
-        response = client.get("", SERVER_NAME=f"{organisation_public_access.domain}.localhost")
+        response = client.get(
+            "", SERVER_NAME=f"{organisation_public_access.domain}.localhost"
+        )
         assert response.status_code == 200
 
     @pytest.mark.parametrize(
@@ -82,7 +86,9 @@ class TestOrganisationMiddleware:
         self, organisation_non_public_access
     ):
         client = Client()
-        response = client.get("", SERVER_NAME=f"{organisation_non_public_access.domain}.localhost")
+        response = client.get(
+            "", SERVER_NAME=f"{organisation_non_public_access.domain}.localhost"
+        )
         assert response.status_code == status.HTTP_302_FOUND
         assert response.headers["Location"] == reverse(
             settings.ORGANISATION_NOT_AUTHENTICATED_TARGET
@@ -98,7 +104,9 @@ class TestOrganisationMiddleware:
     ):
         client = Client()
         client.login(username=user_user_name, password=user_password)
-        response = client.get("", SERVER_NAME=f"{organisation_non_public_access.domain}.localhost")
+        response = client.get(
+            "", SERVER_NAME=f"{organisation_non_public_access.domain}.localhost"
+        )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @pytest.mark.django_db
@@ -111,7 +119,9 @@ class TestOrganisationMiddleware:
     ):
         client = Client()
         client.login(username=user_user_name, password=user_password)
-        response = client.get("", SERVER_NAME=f"{organisation_non_public_access.domain}.localhost")
+        response = client.get(
+            "", SERVER_NAME=f"{organisation_non_public_access.domain}.localhost"
+        )
         assert response.status_code == status.HTTP_200_OK
 
     @pytest.mark.django_db
@@ -127,9 +137,13 @@ class TestOrganisationMiddleware:
         client.login(username=admin_user_name, password=admin_password)
         response = client.get("", SERVER_NAME="localhost")
         assert response.status_code == status.HTTP_200_OK
-        response = client.get("", SERVER_NAME=f"{organisation_public_access.domain}.localhost")
+        response = client.get(
+            "", SERVER_NAME=f"{organisation_public_access.domain}.localhost"
+        )
         assert response.status_code == status.HTTP_200_OK
-        response = client.get("", SERVER_NAME=f"{organisation_non_public_access.domain}.localhost")
+        response = client.get(
+            "", SERVER_NAME=f"{organisation_non_public_access.domain}.localhost"
+        )
         assert response.status_code == status.HTTP_200_OK
 
     @pytest.mark.django_db
@@ -138,7 +152,9 @@ class TestOrganisationMiddleware:
         organisation_public_access,
     ):
         client = Client()
-        response = client.get("", SERVER_NAME=f"{organisation_public_access.domain}.localhost")
+        response = client.get(
+            "", SERVER_NAME=f"{organisation_public_access.domain}.localhost"
+        )
         assert response.status_code == status.HTTP_200_OK
 
     @pytest.mark.django_db
@@ -151,7 +167,9 @@ class TestOrganisationMiddleware:
         client = Client()
         response = client.get(path, SERVER_NAME="localhost")
         assert response.status_code == status.HTTP_200_OK
-        response = client.get(path, SERVER_NAME=f"{organisation_public_access.domain}.localhost")
+        response = client.get(
+            path, SERVER_NAME=f"{organisation_public_access.domain}.localhost"
+        )
         assert response.status_code == status.HTTP_200_OK
         response = client.get(
             path, SERVER_NAME=f"{organisation_non_public_access.domain}.localhost"
@@ -172,7 +190,9 @@ class TestOrganisationMiddleware:
         client = Client()
         response = client.get(path, SERVER_NAME="localhost")
         assert response.status_code == status.HTTP_200_OK
-        response = client.get(path, SERVER_NAME=f"{organisation_public_access.domain}.localhost")
+        response = client.get(
+            path, SERVER_NAME=f"{organisation_public_access.domain}.localhost"
+        )
         assert response.status_code == status.HTTP_200_OK
         response = client.get(
             path, SERVER_NAME=f"{organisation_non_public_access.domain}.localhost"

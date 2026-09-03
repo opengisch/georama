@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_reference_system_type import (
     AbstractReferenceSystemType,
@@ -25,7 +24,7 @@ class EngineeringCrstype(AbstractReferenceSystemType):
     class Meta:
         name = "EngineeringCRSType"
 
-    uses_cs: Optional[UsesCs] = field(
+    uses_cs: UsesCs | None = field(
         default=None,
         metadata={
             "name": "usesCS",
@@ -34,7 +33,7 @@ class EngineeringCrstype(AbstractReferenceSystemType):
             "required": True,
         },
     )
-    uses_engineering_datum: Optional[UsesEngineeringDatum] = field(
+    uses_engineering_datum: UsesEngineeringDatum | None = field(
         default=None,
         metadata={
             "name": "usesEngineeringDatum",

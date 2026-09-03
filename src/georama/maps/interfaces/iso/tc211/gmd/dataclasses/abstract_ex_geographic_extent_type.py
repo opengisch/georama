@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -20,7 +19,7 @@ class AbstractExGeographicExtentType(AbstractObjectType):
     class Meta:
         name = "AbstractEX_GeographicExtent_Type"
 
-    extent_type_code: Optional[BooleanPropertyType2] = field(
+    extent_type_code: BooleanPropertyType2 | None = field(
         default=None,
         metadata={
             "name": "extentTypeCode",

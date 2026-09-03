@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.exception_report import ExceptionReport
 
@@ -12,7 +11,7 @@ class TruncatedResponse:
         name = "truncatedResponse"
         namespace = "http://www.opengis.net/wfs/2.0"
 
-    exception_report: Optional[ExceptionReport] = field(
+    exception_report: ExceptionReport | None = field(
         default=None,
         metadata={
             "name": "ExceptionReport",

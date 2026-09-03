@@ -34,7 +34,9 @@ class Datasource(models.Model):
         )
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the datasource.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the datasource."),
     )
     qgis_layer_id = models.CharField(
         max_length=1000, help_text=_("Layer identifier from the source QGIS project.")
@@ -42,19 +44,25 @@ class Datasource(models.Model):
     name = models.CharField(max_length=1000, help_text=_("Name of the datasource."))
     bbox = models.CharField(
         max_length=1000,
-        help_text=_("Bounding box of the datasource in the source coordinate reference system."),
+        help_text=_(
+            "Bounding box of the datasource in the source coordinate reference system."
+        ),
     )
     bbox_wgs84 = models.CharField(
-        max_length=1000, help_text=_("Bounding box of the datasource transformed to WGS84.")
+        max_length=1000,
+        help_text=_("Bounding box of the datasource transformed to WGS84."),
     )
     source = models.JSONField(
-        default=dict, help_text=_("Source configuration and connection metadata of the datasource.")
+        default=dict,
+        help_text=_("Source configuration and connection metadata of the datasource."),
     )
     styles = models.JSONField(
-        default=list, help_text=_("Rendered style definitions associated with this datasource.")
+        default=list,
+        help_text=_("Rendered style definitions associated with this datasource."),
     )
     driver = models.CharField(
-        max_length=50, help_text=_("Provider driver name used to access the datasource.")
+        max_length=50,
+        help_text=_("Provider driver name used to access the datasource."),
     )
     crs = models.JSONField(
         default=dict, help_text=_("Coordinate reference system of the datasource.")
@@ -79,12 +87,16 @@ class Datasource(models.Model):
 
     @property
     def get_parser_config(self):
-        return ParserConfig(fail_on_unknown_attributes=False, fail_on_unknown_properties=False)
+        return ParserConfig(
+            fail_on_unknown_attributes=False, fail_on_unknown_properties=False
+        )
 
     @property
     def source_to_qsl(self) -> DataSource:
         # TODO: Implement an ENV Django app to manipulate datasources in a hookable way
-        datasource = DictDecoder(config=self.get_parser_config).decode(self.source, DataSource)
+        datasource = DictDecoder(config=self.get_parser_config).decode(
+            self.source, DataSource
+        )
         return datasource
 
     @property
@@ -108,7 +120,7 @@ class Datasource(models.Model):
         return QslJobLayer(
             id=self.qgis_layer_id,
             name=self.name,
-            source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
+            source=json.dumps(source_definition.to_qgis_decoded_uri),
             driver=self.driver,
             style=style,
             remote=source_definition.remote,
@@ -138,7 +150,9 @@ class Datasource(models.Model):
 
     @property
     def styles_to_qsl(self) -> list[Style]:
-        return DictDecoder(config=self.get_parser_config).decode(self.styles, list[Style])
+        return DictDecoder(config=self.get_parser_config).decode(
+            self.styles, list[Style]
+        )
 
     @property
     def type(self) -> Literal["vector", "raster", "custom"]:
@@ -225,7 +239,9 @@ class VectorField(models.Model):
     is_primary_key = models.BooleanField(
         default=False, help_text=_("Whether this field is the datasource primary key.")
     )
-    type_wfs = models.CharField(max_length=1000, help_text=_("Field datatype exposed through WFS."))
+    type_wfs = models.CharField(
+        max_length=1000, help_text=_("Field datatype exposed through WFS.")
+    )
     type_oapif = models.CharField(
         max_length=1000, help_text=_("Field datatype exposed through OGC API Features.")
     )
@@ -234,8 +250,12 @@ class VectorField(models.Model):
         max_length=1000,
         help_text=_("Output format for the OGC API Features field type."),
     )
-    alias = models.CharField(max_length=1000, help_text=_("Human-readable field label."))
-    comment = models.CharField(max_length=1000, help_text=_("Comment or description of the field."))
+    alias = models.CharField(
+        max_length=1000, help_text=_("Human-readable field label.")
+    )
+    comment = models.CharField(
+        max_length=1000, help_text=_("Comment or description of the field.")
+    )
     nullable = models.BooleanField(
         default=True, help_text=_("Whether this field can store null values.")
     )

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.actuate_value import ActuateValue
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.base_unit import BaseUnit
@@ -23,7 +22,7 @@ class UnitOfMeasurePropertyType:
     class Meta:
         name = "UnitOfMeasure_PropertyType"
 
-    conventional_unit: Optional[ConventionalUnit] = field(
+    conventional_unit: ConventionalUnit | None = field(
         default=None,
         metadata={
             "name": "ConventionalUnit",
@@ -31,7 +30,7 @@ class UnitOfMeasurePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    derived_unit: Optional[DerivedUnit] = field(
+    derived_unit: DerivedUnit | None = field(
         default=None,
         metadata={
             "name": "DerivedUnit",
@@ -39,7 +38,7 @@ class UnitOfMeasurePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    base_unit: Optional[BaseUnit] = field(
+    base_unit: BaseUnit | None = field(
         default=None,
         metadata={
             "name": "BaseUnit",
@@ -47,7 +46,7 @@ class UnitOfMeasurePropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    unit_definition: Optional[UnitDefinition] = field(
+    unit_definition: UnitDefinition | None = field(
         default=None,
         metadata={
             "name": "UnitDefinition",
@@ -64,55 +63,55 @@ class UnitOfMeasurePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    uuidref: Optional[str] = field(
+    uuidref: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

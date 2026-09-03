@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -40,7 +39,7 @@ class LiProcessStepType(AbstractObjectType):
     class Meta:
         name = "LI_ProcessStep_Type"
 
-    description: Optional[CharacterStringPropertyType] = field(
+    description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -48,14 +47,14 @@ class LiProcessStepType(AbstractObjectType):
             "required": True,
         },
     )
-    rationale: Optional[CharacterStringPropertyType] = field(
+    rationale: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    date_time: Optional[DateTimePropertyType] = field(
+    date_time: DateTimePropertyType | None = field(
         default=None,
         metadata={
             "name": "dateTime",
@@ -91,7 +90,7 @@ class LiProcessStepPropertyType:
     class Meta:
         name = "LI_ProcessStep_PropertyType"
 
-    li_process_step: Optional[LiProcessStep] = field(
+    li_process_step: LiProcessStep | None = field(
         default=None,
         metadata={
             "name": "LI_ProcessStep",
@@ -108,22 +107,14 @@ class LiProcessStepPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -131,34 +122,42 @@ class LiProcessStepPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    uuidref: Optional[str] = field(
+    uuidref: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -174,14 +173,14 @@ class LiSourceType(AbstractObjectType):
     class Meta:
         name = "LI_Source_Type"
 
-    description: Optional[CharacterStringPropertyType] = field(
+    description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    scale_denominator: Optional[MdRepresentativeFractionPropertyType] = field(
+    scale_denominator: MdRepresentativeFractionPropertyType | None = field(
         default=None,
         metadata={
             "name": "scaleDenominator",
@@ -189,7 +188,7 @@ class LiSourceType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    source_reference_system: Optional[MdReferenceSystemPropertyType] = field(
+    source_reference_system: MdReferenceSystemPropertyType | None = field(
         default=None,
         metadata={
             "name": "sourceReferenceSystem",
@@ -197,7 +196,7 @@ class LiSourceType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    source_citation: Optional[CiCitationPropertyType] = field(
+    source_citation: CiCitationPropertyType | None = field(
         default=None,
         metadata={
             "name": "sourceCitation",
@@ -235,7 +234,7 @@ class LiSourcePropertyType:
     class Meta:
         name = "LI_Source_PropertyType"
 
-    li_source: Optional[LiSource] = field(
+    li_source: LiSource | None = field(
         default=None,
         metadata={
             "name": "LI_Source",
@@ -252,22 +251,14 @@ class LiSourcePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -275,34 +266,42 @@ class LiSourcePropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    uuidref: Optional[str] = field(
+    uuidref: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_gmltype import (
     AbstractGmltype,
@@ -21,21 +20,21 @@ class AbstractGeometryType(AbstractGmltype):
     -       Every geometry element (i.e. an element of a geometry type) shall be directly or indirectly in the substitution group of AbstractGeometry.
     """
 
-    srs_name: Optional[str] = field(
+    srs_name: str | None = field(
         default=None,
         metadata={
             "name": "srsName",
             "type": "Attribute",
         },
     )
-    srs_dimension: Optional[int] = field(
+    srs_dimension: int | None = field(
         default=None,
         metadata={
             "name": "srsDimension",
             "type": "Attribute",
         },
     )
-    axis_labels_attribute: List[str] = field(
+    axis_labels_attribute: list[str] = field(
         default_factory=list,
         metadata={
             "name": "axisLabels",
@@ -43,7 +42,7 @@ class AbstractGeometryType(AbstractGmltype):
             "tokens": True,
         },
     )
-    uom_labels: List[str] = field(
+    uom_labels: list[str] = field(
         default_factory=list,
         metadata={
             "name": "uomLabels",

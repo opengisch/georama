@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_feature_type import (
     AbstractFeatureType,
@@ -11,7 +10,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class BoundedFeatureType(AbstractFeatureType):
-    bounded_by: Optional[BoundedBy] = field(
+    bounded_by: BoundedBy | None = field(
         default=None,
         metadata={
             "name": "boundedBy",

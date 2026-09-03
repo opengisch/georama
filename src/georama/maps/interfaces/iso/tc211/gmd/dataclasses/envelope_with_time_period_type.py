@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.envelope_type import EnvelopeType
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.time_position_type import (
@@ -11,7 +10,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class EnvelopeWithTimePeriodType(EnvelopeType):
-    begin_position: Optional[TimePositionType] = field(
+    begin_position: TimePositionType | None = field(
         default=None,
         metadata={
             "name": "beginPosition",
@@ -20,7 +19,7 @@ class EnvelopeWithTimePeriodType(EnvelopeType):
             "required": True,
         },
     )
-    end_position: Optional[TimePositionType] = field(
+    end_position: TimePositionType | None = field(
         default=None,
         metadata={
             "name": "endPosition",

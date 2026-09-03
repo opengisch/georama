@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_crstype import (
     AbstractCoordinateOperationType,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class AbstractGeneralTransformationType(AbstractCoordinateOperationType):
-    operation_version: Optional[OperationVersion] = field(
+    operation_version: OperationVersion | None = field(
         default=None,
         metadata={
             "name": "operationVersion",
@@ -22,7 +21,7 @@ class AbstractGeneralTransformationType(AbstractCoordinateOperationType):
             "required": True,
         },
     )
-    source_crs: Optional[SourceCrs] = field(
+    source_crs: SourceCrs | None = field(
         default=None,
         metadata={
             "name": "sourceCRS",
@@ -31,7 +30,7 @@ class AbstractGeneralTransformationType(AbstractCoordinateOperationType):
             "required": True,
         },
     )
-    target_crs: Optional[TargetCrs] = field(
+    target_crs: TargetCrs | None = field(
         default=None,
         metadata={
             "name": "targetCRS",

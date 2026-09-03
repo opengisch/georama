@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -21,7 +20,7 @@ class MdBrowseGraphicType(AbstractObjectType):
     class Meta:
         name = "MD_BrowseGraphic_Type"
 
-    file_name: Optional[CharacterStringPropertyType] = field(
+    file_name: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "fileName",
@@ -30,7 +29,7 @@ class MdBrowseGraphicType(AbstractObjectType):
             "required": True,
         },
     )
-    file_description: Optional[CharacterStringPropertyType] = field(
+    file_description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "fileDescription",
@@ -38,7 +37,7 @@ class MdBrowseGraphicType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    file_type: Optional[CharacterStringPropertyType] = field(
+    file_type: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "fileType",

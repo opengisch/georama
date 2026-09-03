@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/ows/1.1"
 
@@ -14,7 +13,7 @@ class ExtendedCapabilities:
     class Meta:
         namespace = "http://www.opengis.net/ows/1.1"
 
-    any_element: Optional[object] = field(
+    any_element: object | None = field(
         default=None,
         metadata={
             "type": "Wildcard",

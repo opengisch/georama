@@ -16,7 +16,9 @@ class MetadataFactory(factory.django.DjangoModelFactory):
 
     title = factory.Faker("word")
     description = factory.LazyAttribute(
-        lambda obj: random.choice([fake.text(max_nb_chars=random.randint(20, 1000)), ""])
+        lambda obj: random.choice(
+            [fake.text(max_nb_chars=random.randint(20, 1000)), ""]
+        )
     )
 
 

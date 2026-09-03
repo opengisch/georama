@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_geometric_aggregate_type import (
     AbstractGeometricAggregateType,
@@ -12,7 +11,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class MultiPointType(AbstractGeometricAggregateType):
-    point_member: List[PointMember] = field(
+    point_member: list[PointMember] = field(
         default_factory=list,
         metadata={
             "name": "pointMember",
@@ -20,7 +19,7 @@ class MultiPointType(AbstractGeometricAggregateType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    point_members: Optional[PointMembers] = field(
+    point_members: PointMembers | None = field(
         default=None,
         metadata={
             "name": "pointMembers",

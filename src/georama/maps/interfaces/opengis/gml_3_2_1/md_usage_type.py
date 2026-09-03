@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -26,7 +25,7 @@ class MdUsageType(AbstractObjectType):
     class Meta:
         name = "MD_Usage_Type"
 
-    specific_usage: Optional[CharacterStringPropertyType] = field(
+    specific_usage: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "specificUsage",
@@ -35,7 +34,7 @@ class MdUsageType(AbstractObjectType):
             "required": True,
         },
     )
-    usage_date_time: Optional[DateTimePropertyType] = field(
+    usage_date_time: DateTimePropertyType | None = field(
         default=None,
         metadata={
             "name": "usageDateTime",
@@ -43,7 +42,7 @@ class MdUsageType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    user_determined_limitations: Optional[CharacterStringPropertyType] = field(
+    user_determined_limitations: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "userDeterminedLimitations",

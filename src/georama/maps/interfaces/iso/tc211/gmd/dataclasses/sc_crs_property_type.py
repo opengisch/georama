@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, List, Optional, Union
+from typing import Any, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_general_parameter_value_property_type import (
     IncludesValue,
@@ -198,55 +198,55 @@ class ScCrsPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    uuidref: Optional[str] = field(
+    uuidref: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -267,7 +267,7 @@ class ExVerticalExtentType(AbstractObjectType):
         name = "EX_VerticalExtent_Type"
         target_namespace = "http://www.isotc211.org/2005/gmd"
 
-    minimum_value: Optional[RealPropertyType] = field(
+    minimum_value: RealPropertyType | None = field(
         default=None,
         metadata={
             "name": "minimumValue",
@@ -276,7 +276,7 @@ class ExVerticalExtentType(AbstractObjectType):
             "required": True,
         },
     )
-    maximum_value: Optional[RealPropertyType] = field(
+    maximum_value: RealPropertyType | None = field(
         default=None,
         metadata={
             "name": "maximumValue",
@@ -285,7 +285,7 @@ class ExVerticalExtentType(AbstractObjectType):
             "required": True,
         },
     )
-    vertical_crs: Optional[ScCrsPropertyType] = field(
+    vertical_crs: ScCrsPropertyType | None = field(
         default=None,
         metadata={
             "name": "verticalCRS",
@@ -309,7 +309,7 @@ class ExVerticalExtentPropertyType:
         name = "EX_VerticalExtent_PropertyType"
         target_namespace = "http://www.isotc211.org/2005/gmd"
 
-    ex_vertical_extent: Optional[ExVerticalExtent] = field(
+    ex_vertical_extent: ExVerticalExtent | None = field(
         default=None,
         metadata={
             "name": "EX_VerticalExtent",
@@ -326,55 +326,55 @@ class ExVerticalExtentPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    uuidref: Optional[str] = field(
+    uuidref: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -395,14 +395,14 @@ class ExExtentType(AbstractObjectType):
         name = "EX_Extent_Type"
         target_namespace = "http://www.isotc211.org/2005/gmd"
 
-    description: Optional[CharacterStringPropertyType] = field(
+    description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    geographic_element: List[ExGeographicExtentPropertyType] = field(
+    geographic_element: list[ExGeographicExtentPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "geographicElement",
@@ -410,7 +410,7 @@ class ExExtentType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    temporal_element: List[ExTemporalExtentPropertyType] = field(
+    temporal_element: list[ExTemporalExtentPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "temporalElement",
@@ -418,7 +418,7 @@ class ExExtentType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    vertical_element: List[ExVerticalExtentPropertyType] = field(
+    vertical_element: list[ExVerticalExtentPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "verticalElement",
@@ -447,7 +447,7 @@ class DomainOfValidity:
         name = "domainOfValidity"
         namespace = "http://www.opengis.net/gml"
 
-    ex_extent: Optional[ExExtent] = field(
+    ex_extent: ExExtent | None = field(
         default=None,
         metadata={
             "name": "EX_Extent",
@@ -464,49 +464,49 @@ class DomainOfValidity:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -514,7 +514,7 @@ class DomainOfValidity:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -530,7 +530,7 @@ class AbstractCrstype(IdentifiedObjectType):
         name = "AbstractCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    domain_of_validity: List[DomainOfValidity] = field(
+    domain_of_validity: list[DomainOfValidity] = field(
         default_factory=list,
         metadata={
             "name": "domainOfValidity",
@@ -538,7 +538,7 @@ class AbstractCrstype(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    scope: List[Scope] = field(
+    scope: list[Scope] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -553,7 +553,7 @@ class AbstractDatumType(IdentifiedObjectType):
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    domain_of_validity: Optional[DomainOfValidity] = field(
+    domain_of_validity: DomainOfValidity | None = field(
         default=None,
         metadata={
             "name": "domainOfValidity",
@@ -561,7 +561,7 @@ class AbstractDatumType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    scope: List[Scope] = field(
+    scope: list[Scope] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -569,7 +569,7 @@ class AbstractDatumType(IdentifiedObjectType):
             "min_occurs": 1,
         },
     )
-    anchor_point: Optional[AnchorPoint] = field(
+    anchor_point: AnchorPoint | None = field(
         default=None,
         metadata={
             "name": "anchorPoint",
@@ -577,7 +577,7 @@ class AbstractDatumType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    anchor_definition: Optional[AnchorDefinition] = field(
+    anchor_definition: AnchorDefinition | None = field(
         default=None,
         metadata={
             "name": "anchorDefinition",
@@ -585,7 +585,7 @@ class AbstractDatumType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    realization_epoch: Optional[RealizationEpoch] = field(
+    realization_epoch: RealizationEpoch | None = field(
         default=None,
         metadata={
             "name": "realizationEpoch",
@@ -606,7 +606,7 @@ class GeodeticDatumType(AbstractDatumType):
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    uses_prime_meridian: Optional[UsesPrimeMeridian] = field(
+    uses_prime_meridian: UsesPrimeMeridian | None = field(
         default=None,
         metadata={
             "name": "usesPrimeMeridian",
@@ -614,7 +614,7 @@ class GeodeticDatumType(AbstractDatumType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    prime_meridian: Optional[PrimeMeridian2] = field(
+    prime_meridian: PrimeMeridian2 | None = field(
         default=None,
         metadata={
             "name": "primeMeridian",
@@ -622,7 +622,7 @@ class GeodeticDatumType(AbstractDatumType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_ellipsoid: Optional[UsesEllipsoid] = field(
+    uses_ellipsoid: UsesEllipsoid | None = field(
         default=None,
         metadata={
             "name": "usesEllipsoid",
@@ -630,7 +630,7 @@ class GeodeticDatumType(AbstractDatumType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    ellipsoid: Optional[Ellipsoid2] = field(
+    ellipsoid: Ellipsoid2 | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -644,7 +644,7 @@ class ImageDatumType(AbstractDatumType):
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    pixel_in_cell: Optional[PixelInCell] = field(
+    pixel_in_cell: PixelInCell | None = field(
         default=None,
         metadata={
             "name": "pixelInCell",
@@ -741,7 +741,7 @@ class TemporalDatumType(TemporalDatumBaseType):
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    origin: Optional[Origin] = field(
+    origin: Origin | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -776,7 +776,7 @@ class EngineeringDatumPropertyType:
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    engineering_datum: Optional[EngineeringDatum1] = field(
+    engineering_datum: EngineeringDatum1 | None = field(
         default=None,
         metadata={
             "name": "EngineeringDatum",
@@ -793,49 +793,49 @@ class EngineeringDatumPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -843,7 +843,7 @@ class EngineeringDatumPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -863,7 +863,7 @@ class GeodeticDatumPropertyType:
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    geodetic_datum: Optional[GeodeticDatum1] = field(
+    geodetic_datum: GeodeticDatum1 | None = field(
         default=None,
         metadata={
             "name": "GeodeticDatum",
@@ -880,49 +880,49 @@ class GeodeticDatumPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -930,7 +930,7 @@ class GeodeticDatumPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -950,7 +950,7 @@ class ImageDatumPropertyType:
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    image_datum: Optional[ImageDatum1] = field(
+    image_datum: ImageDatum1 | None = field(
         default=None,
         metadata={
             "name": "ImageDatum",
@@ -967,49 +967,49 @@ class ImageDatumPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -1017,7 +1017,7 @@ class ImageDatumPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -1050,7 +1050,7 @@ class VerticalDatumPropertyType:
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    vertical_datum: Optional[VerticalDatum1] = field(
+    vertical_datum: VerticalDatum1 | None = field(
         default=None,
         metadata={
             "name": "VerticalDatum",
@@ -1067,49 +1067,49 @@ class VerticalDatumPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -1117,7 +1117,7 @@ class VerticalDatumPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -1137,7 +1137,7 @@ class TemporalDatumPropertyType:
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    temporal_datum: Optional[TemporalDatum1] = field(
+    temporal_datum: TemporalDatum1 | None = field(
         default=None,
         metadata={
             "name": "TemporalDatum",
@@ -1154,49 +1154,49 @@ class TemporalDatumPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -1204,7 +1204,7 @@ class TemporalDatumPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -1295,7 +1295,7 @@ class EngineeringCrstype(AbstractCrstype):
         name = "EngineeringCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    uses_cs: Optional[UsesCs] = field(
+    uses_cs: UsesCs | None = field(
         default=None,
         metadata={
             "name": "usesCS",
@@ -1303,7 +1303,7 @@ class EngineeringCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    coordinate_system: Optional[CoordinateSystem] = field(
+    coordinate_system: CoordinateSystem | None = field(
         default=None,
         metadata={
             "name": "coordinateSystem",
@@ -1311,7 +1311,7 @@ class EngineeringCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_engineering_datum: Optional[UsesEngineeringDatum] = field(
+    uses_engineering_datum: UsesEngineeringDatum | None = field(
         default=None,
         metadata={
             "name": "usesEngineeringDatum",
@@ -1319,7 +1319,7 @@ class EngineeringCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    engineering_datum: Optional[EngineeringDatum2] = field(
+    engineering_datum: EngineeringDatum2 | None = field(
         default=None,
         metadata={
             "name": "engineeringDatum",
@@ -1335,7 +1335,7 @@ class GeocentricCrstype(AbstractCrstype):
         name = "GeocentricCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    uses_cartesian_cs: Optional[UsesCartesianCs] = field(
+    uses_cartesian_cs: UsesCartesianCs | None = field(
         default=None,
         metadata={
             "name": "usesCartesianCS",
@@ -1343,7 +1343,7 @@ class GeocentricCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_spherical_cs: Optional[UsesSphericalCs] = field(
+    uses_spherical_cs: UsesSphericalCs | None = field(
         default=None,
         metadata={
             "name": "usesSphericalCS",
@@ -1351,7 +1351,7 @@ class GeocentricCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_geodetic_datum: Optional[UsesGeodeticDatum] = field(
+    uses_geodetic_datum: UsesGeodeticDatum | None = field(
         default=None,
         metadata={
             "name": "usesGeodeticDatum",
@@ -1372,7 +1372,7 @@ class GeodeticCrstype(AbstractCrstype):
         name = "GeodeticCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    uses_ellipsoidal_cs: Optional[UsesEllipsoidalCs] = field(
+    uses_ellipsoidal_cs: UsesEllipsoidalCs | None = field(
         default=None,
         metadata={
             "name": "usesEllipsoidalCS",
@@ -1380,7 +1380,7 @@ class GeodeticCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    ellipsoidal_cs: Optional[EllipsoidalCs2] = field(
+    ellipsoidal_cs: EllipsoidalCs2 | None = field(
         default=None,
         metadata={
             "name": "ellipsoidalCS",
@@ -1388,7 +1388,7 @@ class GeodeticCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_cartesian_cs: Optional[UsesCartesianCs] = field(
+    uses_cartesian_cs: UsesCartesianCs | None = field(
         default=None,
         metadata={
             "name": "usesCartesianCS",
@@ -1396,7 +1396,7 @@ class GeodeticCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    cartesian_cs: Optional[CartesianCs2] = field(
+    cartesian_cs: CartesianCs2 | None = field(
         default=None,
         metadata={
             "name": "cartesianCS",
@@ -1404,7 +1404,7 @@ class GeodeticCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_spherical_cs: Optional[UsesSphericalCs] = field(
+    uses_spherical_cs: UsesSphericalCs | None = field(
         default=None,
         metadata={
             "name": "usesSphericalCS",
@@ -1412,7 +1412,7 @@ class GeodeticCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    spherical_cs: Optional[SphericalCs2] = field(
+    spherical_cs: SphericalCs2 | None = field(
         default=None,
         metadata={
             "name": "sphericalCS",
@@ -1420,7 +1420,7 @@ class GeodeticCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_geodetic_datum: Optional[UsesGeodeticDatum] = field(
+    uses_geodetic_datum: UsesGeodeticDatum | None = field(
         default=None,
         metadata={
             "name": "usesGeodeticDatum",
@@ -1428,7 +1428,7 @@ class GeodeticCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    geodetic_datum: Optional[GeodeticDatum2] = field(
+    geodetic_datum: GeodeticDatum2 | None = field(
         default=None,
         metadata={
             "name": "geodeticDatum",
@@ -1444,7 +1444,7 @@ class GeographicCrstype(AbstractCrstype):
         name = "GeographicCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    uses_ellipsoidal_cs: Optional[UsesEllipsoidalCs] = field(
+    uses_ellipsoidal_cs: UsesEllipsoidalCs | None = field(
         default=None,
         metadata={
             "name": "usesEllipsoidalCS",
@@ -1453,7 +1453,7 @@ class GeographicCrstype(AbstractCrstype):
             "required": True,
         },
     )
-    uses_geodetic_datum: Optional[UsesGeodeticDatum] = field(
+    uses_geodetic_datum: UsesGeodeticDatum | None = field(
         default=None,
         metadata={
             "name": "usesGeodeticDatum",
@@ -1470,7 +1470,7 @@ class ImageCrstype(AbstractCrstype):
         name = "ImageCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    uses_cartesian_cs: Optional[UsesCartesianCs] = field(
+    uses_cartesian_cs: UsesCartesianCs | None = field(
         default=None,
         metadata={
             "name": "usesCartesianCS",
@@ -1478,7 +1478,7 @@ class ImageCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    cartesian_cs: Optional[CartesianCs2] = field(
+    cartesian_cs: CartesianCs2 | None = field(
         default=None,
         metadata={
             "name": "cartesianCS",
@@ -1486,7 +1486,7 @@ class ImageCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_affine_cs: Optional[UsesAffineCs] = field(
+    uses_affine_cs: UsesAffineCs | None = field(
         default=None,
         metadata={
             "name": "usesAffineCS",
@@ -1494,7 +1494,7 @@ class ImageCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    affine_cs: Optional[AffineCs2] = field(
+    affine_cs: AffineCs2 | None = field(
         default=None,
         metadata={
             "name": "affineCS",
@@ -1502,7 +1502,7 @@ class ImageCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_oblique_cartesian_cs: Optional[UsesObliqueCartesianCs] = field(
+    uses_oblique_cartesian_cs: UsesObliqueCartesianCs | None = field(
         default=None,
         metadata={
             "name": "usesObliqueCartesianCS",
@@ -1510,7 +1510,7 @@ class ImageCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_image_datum: Optional[UsesImageDatum] = field(
+    uses_image_datum: UsesImageDatum | None = field(
         default=None,
         metadata={
             "name": "usesImageDatum",
@@ -1518,7 +1518,7 @@ class ImageCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    image_datum: Optional[ImageDatum2] = field(
+    image_datum: ImageDatum2 | None = field(
         default=None,
         metadata={
             "name": "imageDatum",
@@ -1534,7 +1534,7 @@ class VerticalCrstype(AbstractCrstype):
         name = "VerticalCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    uses_vertical_cs: Optional[UsesVerticalCs] = field(
+    uses_vertical_cs: UsesVerticalCs | None = field(
         default=None,
         metadata={
             "name": "usesVerticalCS",
@@ -1542,7 +1542,7 @@ class VerticalCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    vertical_cs: Optional[VerticalCs2] = field(
+    vertical_cs: VerticalCs2 | None = field(
         default=None,
         metadata={
             "name": "verticalCS",
@@ -1550,7 +1550,7 @@ class VerticalCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_vertical_datum: Optional[UsesVerticalDatum] = field(
+    uses_vertical_datum: UsesVerticalDatum | None = field(
         default=None,
         metadata={
             "name": "usesVerticalDatum",
@@ -1558,7 +1558,7 @@ class VerticalCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    vertical_datum: Optional[VerticalDatum2] = field(
+    vertical_datum: VerticalDatum2 | None = field(
         default=None,
         metadata={
             "name": "verticalDatum",
@@ -1643,7 +1643,7 @@ class TemporalCrstype(AbstractCrstype):
         name = "TemporalCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    uses_time_cs: Optional[UsesTimeCs] = field(
+    uses_time_cs: UsesTimeCs | None = field(
         default=None,
         metadata={
             "name": "usesTimeCS",
@@ -1651,7 +1651,7 @@ class TemporalCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    time_cs: Optional[TimeCs2] = field(
+    time_cs: TimeCs2 | None = field(
         default=None,
         metadata={
             "name": "timeCS",
@@ -1659,7 +1659,7 @@ class TemporalCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_temporal_cs: Optional[UsesTemporalCs] = field(
+    uses_temporal_cs: UsesTemporalCs | None = field(
         default=None,
         metadata={
             "name": "usesTemporalCS",
@@ -1667,7 +1667,7 @@ class TemporalCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_temporal_datum: Optional[UsesTemporalDatum] = field(
+    uses_temporal_datum: UsesTemporalDatum | None = field(
         default=None,
         metadata={
             "name": "usesTemporalDatum",
@@ -1675,7 +1675,7 @@ class TemporalCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    temporal_datum: Optional[TemporalDatum2] = field(
+    temporal_datum: TemporalDatum2 | None = field(
         default=None,
         metadata={
             "name": "temporalDatum",
@@ -1716,7 +1716,7 @@ class GeodeticCrspropertyType:
         name = "GeodeticCRSPropertyType"
         target_namespace = "http://www.opengis.net/gml"
 
-    geodetic_crs: Optional[GeodeticCrs] = field(
+    geodetic_crs: GeodeticCrs | None = field(
         default=None,
         metadata={
             "name": "GeodeticCRS",
@@ -1733,49 +1733,49 @@ class GeodeticCrspropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -1783,7 +1783,7 @@ class GeodeticCrspropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -1799,7 +1799,7 @@ class GeographicCrspropertyType:
         name = "GeographicCRSPropertyType"
         target_namespace = "http://www.opengis.net/gml"
 
-    geographic_crs: Optional[GeographicCrs] = field(
+    geographic_crs: GeographicCrs | None = field(
         default=None,
         metadata={
             "name": "GeographicCRS",
@@ -1816,49 +1816,49 @@ class GeographicCrspropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -1866,7 +1866,7 @@ class GeographicCrspropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -1908,7 +1908,7 @@ class CrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    geocentric_crs: Optional[GeocentricCrs] = field(
+    geocentric_crs: GeocentricCrs | None = field(
         default=None,
         metadata={
             "name": "GeocentricCRS",
@@ -1916,7 +1916,7 @@ class CrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    geographic_crs: Optional[GeographicCrs] = field(
+    geographic_crs: GeographicCrs | None = field(
         default=None,
         metadata={
             "name": "GeographicCRS",
@@ -1924,7 +1924,7 @@ class CrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    temporal_crs: Optional[TemporalCrs] = field(
+    temporal_crs: TemporalCrs | None = field(
         default=None,
         metadata={
             "name": "TemporalCRS",
@@ -1932,7 +1932,7 @@ class CrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    image_crs: Optional[ImageCrs] = field(
+    image_crs: ImageCrs | None = field(
         default=None,
         metadata={
             "name": "ImageCRS",
@@ -1940,7 +1940,7 @@ class CrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    engineering_crs: Optional[EngineeringCrs] = field(
+    engineering_crs: EngineeringCrs | None = field(
         default=None,
         metadata={
             "name": "EngineeringCRS",
@@ -1948,7 +1948,7 @@ class CrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    vertical_crs: Optional[VerticalCrs] = field(
+    vertical_crs: VerticalCrs | None = field(
         default=None,
         metadata={
             "name": "VerticalCRS",
@@ -1956,7 +1956,7 @@ class CrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    geodetic_crs: Optional[GeodeticCrs] = field(
+    geodetic_crs: GeodeticCrs | None = field(
         default=None,
         metadata={
             "name": "GeodeticCRS",
@@ -1989,49 +1989,49 @@ class CrspropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -2039,7 +2039,7 @@ class CrspropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -2097,7 +2097,7 @@ class AbstractCoordinateOperationType(IdentifiedObjectType):
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    domain_of_validity: Optional[DomainOfValidity] = field(
+    domain_of_validity: DomainOfValidity | None = field(
         default=None,
         metadata={
             "name": "domainOfValidity",
@@ -2105,7 +2105,7 @@ class AbstractCoordinateOperationType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    scope: List[Scope] = field(
+    scope: list[Scope] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -2113,7 +2113,7 @@ class AbstractCoordinateOperationType(IdentifiedObjectType):
             "min_occurs": 1,
         },
     )
-    operation_version: Optional[OperationVersion] = field(
+    operation_version: OperationVersion | None = field(
         default=None,
         metadata={
             "name": "operationVersion",
@@ -2121,7 +2121,7 @@ class AbstractCoordinateOperationType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    coordinate_operation_accuracy: List[CoordinateOperationAccuracy] = field(
+    coordinate_operation_accuracy: list[CoordinateOperationAccuracy] = field(
         default_factory=list,
         metadata={
             "name": "coordinateOperationAccuracy",
@@ -2129,7 +2129,7 @@ class AbstractCoordinateOperationType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    source_crs: Optional[SourceCrs] = field(
+    source_crs: SourceCrs | None = field(
         default=None,
         metadata={
             "name": "sourceCRS",
@@ -2137,7 +2137,7 @@ class AbstractCoordinateOperationType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    target_crs: Optional[TargetCrs] = field(
+    target_crs: TargetCrs | None = field(
         default=None,
         metadata={
             "name": "targetCRS",
@@ -2177,7 +2177,7 @@ class ConversionType(AbstractGeneralConversionType):
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    uses_method: Optional[UsesMethod] = field(
+    uses_method: UsesMethod | None = field(
         default=None,
         metadata={
             "name": "usesMethod",
@@ -2185,14 +2185,14 @@ class ConversionType(AbstractGeneralConversionType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    method: Optional[Method] = field(
+    method: Method | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    includes_value: List[IncludesValue] = field(
+    includes_value: list[IncludesValue] = field(
         default_factory=list,
         metadata={
             "name": "includesValue",
@@ -2200,7 +2200,7 @@ class ConversionType(AbstractGeneralConversionType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_value: List[UsesValue] = field(
+    uses_value: list[UsesValue] = field(
         default_factory=list,
         metadata={
             "name": "usesValue",
@@ -2208,7 +2208,7 @@ class ConversionType(AbstractGeneralConversionType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    parameter_value: List[ParameterValue2] = field(
+    parameter_value: list[ParameterValue2] = field(
         default_factory=list,
         metadata={
             "name": "parameterValue",
@@ -2250,7 +2250,7 @@ class GeneralConversionPropertyType:
     class Meta:
         target_namespace = "http://www.opengis.net/gml"
 
-    conversion: Optional[Conversion1] = field(
+    conversion: Conversion1 | None = field(
         default=None,
         metadata={
             "name": "Conversion",
@@ -2267,49 +2267,49 @@ class GeneralConversionPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -2317,7 +2317,7 @@ class GeneralConversionPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -2352,7 +2352,7 @@ class AbstractGeneralDerivedCrstype(AbstractCrstype):
         name = "AbstractGeneralDerivedCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    defined_by_conversion: Optional[DefinedByConversion] = field(
+    defined_by_conversion: DefinedByConversion | None = field(
         default=None,
         metadata={
             "name": "definedByConversion",
@@ -2360,7 +2360,7 @@ class AbstractGeneralDerivedCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    conversion: Optional[Conversion2] = field(
+    conversion: Conversion2 | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -2375,7 +2375,7 @@ class ProjectedCrstype(AbstractGeneralDerivedCrstype):
         name = "ProjectedCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    base_geodetic_crs: Optional[BaseGeodeticCrs] = field(
+    base_geodetic_crs: BaseGeodeticCrs | None = field(
         default=None,
         metadata={
             "name": "baseGeodeticCRS",
@@ -2383,7 +2383,7 @@ class ProjectedCrstype(AbstractGeneralDerivedCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    base_geographic_crs: Optional[BaseGeographicCrs] = field(
+    base_geographic_crs: BaseGeographicCrs | None = field(
         default=None,
         metadata={
             "name": "baseGeographicCRS",
@@ -2391,7 +2391,7 @@ class ProjectedCrstype(AbstractGeneralDerivedCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_cartesian_cs: Optional[UsesCartesianCs] = field(
+    uses_cartesian_cs: UsesCartesianCs | None = field(
         default=None,
         metadata={
             "name": "usesCartesianCS",
@@ -2399,7 +2399,7 @@ class ProjectedCrstype(AbstractGeneralDerivedCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    cartesian_cs: Optional[CartesianCs2] = field(
+    cartesian_cs: CartesianCs2 | None = field(
         default=None,
         metadata={
             "name": "cartesianCS",
@@ -2437,7 +2437,7 @@ class SingleCrspropertyType:
         name = "SingleCRSPropertyType"
         target_namespace = "http://www.opengis.net/gml"
 
-    geocentric_crs: Optional[GeocentricCrs] = field(
+    geocentric_crs: GeocentricCrs | None = field(
         default=None,
         metadata={
             "name": "GeocentricCRS",
@@ -2445,7 +2445,7 @@ class SingleCrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    geographic_crs: Optional[GeographicCrs] = field(
+    geographic_crs: GeographicCrs | None = field(
         default=None,
         metadata={
             "name": "GeographicCRS",
@@ -2453,7 +2453,7 @@ class SingleCrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    temporal_crs: Optional[TemporalCrs] = field(
+    temporal_crs: TemporalCrs | None = field(
         default=None,
         metadata={
             "name": "TemporalCRS",
@@ -2461,7 +2461,7 @@ class SingleCrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    image_crs: Optional[ImageCrs] = field(
+    image_crs: ImageCrs | None = field(
         default=None,
         metadata={
             "name": "ImageCRS",
@@ -2469,7 +2469,7 @@ class SingleCrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    engineering_crs: Optional[EngineeringCrs] = field(
+    engineering_crs: EngineeringCrs | None = field(
         default=None,
         metadata={
             "name": "EngineeringCRS",
@@ -2477,7 +2477,7 @@ class SingleCrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    vertical_crs: Optional[VerticalCrs] = field(
+    vertical_crs: VerticalCrs | None = field(
         default=None,
         metadata={
             "name": "VerticalCRS",
@@ -2485,7 +2485,7 @@ class SingleCrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    geodetic_crs: Optional[GeodeticCrs] = field(
+    geodetic_crs: GeodeticCrs | None = field(
         default=None,
         metadata={
             "name": "GeodeticCRS",
@@ -2501,7 +2501,7 @@ class SingleCrspropertyType:
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    projected_crs: Optional[ProjectedCrs] = field(
+    projected_crs: ProjectedCrs | None = field(
         default=None,
         metadata={
             "name": "ProjectedCRS",
@@ -2518,49 +2518,49 @@ class SingleCrspropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -2568,7 +2568,7 @@ class SingleCrspropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -2618,7 +2618,7 @@ class CompoundCrstype(AbstractCrstype):
         name = "CompoundCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    includes_single_crs: List[IncludesSingleCrs] = field(
+    includes_single_crs: list[IncludesSingleCrs] = field(
         default_factory=list,
         metadata={
             "name": "includesSingleCRS",
@@ -2626,7 +2626,7 @@ class CompoundCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    component_reference_system: List[ComponentReferenceSystem] = field(
+    component_reference_system: list[ComponentReferenceSystem] = field(
         default_factory=list,
         metadata={
             "name": "componentReferenceSystem",
@@ -2634,7 +2634,7 @@ class CompoundCrstype(AbstractCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",
@@ -2649,7 +2649,7 @@ class DerivedCrstype1(AbstractGeneralDerivedCrstype):
         name = "DerivedCRSType"
         target_namespace = "http://www.opengis.net/gml"
 
-    base_crs: Optional[BaseCrs] = field(
+    base_crs: BaseCrs | None = field(
         default=None,
         metadata={
             "name": "baseCRS",
@@ -2658,7 +2658,7 @@ class DerivedCrstype1(AbstractGeneralDerivedCrstype):
             "required": True,
         },
     )
-    derived_crstype: Optional[DerivedCrstype] = field(
+    derived_crstype: DerivedCrstype | None = field(
         default=None,
         metadata={
             "name": "derivedCRSType",
@@ -2667,7 +2667,7 @@ class DerivedCrstype1(AbstractGeneralDerivedCrstype):
             "required": True,
         },
     )
-    uses_cs: Optional[UsesCs] = field(
+    uses_cs: UsesCs | None = field(
         default=None,
         metadata={
             "name": "usesCS",
@@ -2675,7 +2675,7 @@ class DerivedCrstype1(AbstractGeneralDerivedCrstype):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    coordinate_system: Optional[CoordinateSystem] = field(
+    coordinate_system: CoordinateSystem | None = field(
         default=None,
         metadata={
             "name": "coordinateSystem",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.curve_property_type import (
     CompositeCurve,
@@ -19,7 +18,7 @@ class CurveArrayPropertyType:
     geometry elements or arrays of geometry elements is not supported.
     """
 
-    choice: list[Union[OrientableCurve, Curve, CompositeCurve, LineString]] = field(
+    choice: list[OrientableCurve | Curve | CompositeCurve | LineString] = field(
         default_factory=list,
         metadata={
             "type": "Elements",

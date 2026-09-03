@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.increment_order import IncrementOrder
 from georama.maps.interfaces.opengis.gml_3_2_1.sequence_rule_enumeration import (
@@ -19,13 +18,13 @@ class SequenceRuleType:
     default is "Linear".
     """
 
-    value: Optional[SequenceRuleEnumeration] = field(
+    value: SequenceRuleEnumeration | None = field(
         default=None,
         metadata={
             "required": True,
         },
     )
-    order: Optional[IncrementOrder] = field(
+    order: IncrementOrder | None = field(
         default=None,
         metadata={
             "type": "Attribute",

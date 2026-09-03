@@ -6,10 +6,9 @@ import logging
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional
 
 
-def handle_list_encoding(parameter_value: str) -> List[str]:
+def handle_list_encoding(parameter_value: str) -> list[str]:
     """
     Try to derive if the parameter_value is encoded as a list as it is defined in WFS 2.0
         => (param1,param2)(param3,param4)
@@ -61,22 +60,22 @@ class AbstractGetMapRequestParams(AbstractRequestParams):
     WIDTH: int = field(metadata={"type": "Element"})
     HEIGHT: int = field(metadata={"type": "Element"})
     FORMAT: str = field(metadata={"type": "Element"})
-    TRANSPARENT: Optional[bool] = field(default=True, metadata={"type": "Element"})
-    STYLES: Optional[str] = field(default=None, metadata={"type": "Element"})
-    DPI: Optional[int] = field(default=72, metadata={"type": "Element"})
-    FILTER: Optional[str] = field(default=None, metadata={"type": "Element"})
+    TRANSPARENT: bool | None = field(default=True, metadata={"type": "Element"})
+    STYLES: str | None = field(default=None, metadata={"type": "Element"})
+    DPI: int | None = field(default=72, metadata={"type": "Element"})
+    FILTER: str | None = field(default=None, metadata={"type": "Element"})
 
     @property
-    def layer_list(self) -> List[str]:
+    def layer_list(self) -> list[str]:
         return self.LAYERS.split(",")
 
     @property
-    def bbox_list(self) -> List[float]:
+    def bbox_list(self) -> list[float]:
         bbox_list = self.BBOX.split(",")
         return [float(part) for part in bbox_list[0:4]]
 
     @property
-    def bbox_crs(self) -> Optional[str]:
+    def bbox_crs(self) -> str | None:
         bbox_list = self.BBOX.split(",")
         try:
             bbox_crs = bbox_list[5]
@@ -89,9 +88,11 @@ class AbstractGetMapRequestParams(AbstractRequestParams):
         return bbox_crs
 
     @property
-    def style_list(self) -> List[str]:
+    def style_list(self) -> list[str]:
         if self.STYLES:
-            logging.debug("There were styles in the request. Processing them further...")
+            logging.debug(
+                "There were styles in the request. Processing them further..."
+            )
             style_list = self.STYLES.split(",")
             self.validate_normalisation(style_list)
             logging.debug(f"Old list of styles was: {style_list}")
@@ -104,23 +105,25 @@ class AbstractGetMapRequestParams(AbstractRequestParams):
             )
             return [self._default_style_name] * len(self.layer_list)
 
-    def apply_default_style(self, style_list: List[str]) -> List[str]:
+    def apply_default_style(self, style_list: list[str]) -> list[str]:
         for index, style in enumerate(style_list):
             if style == "":
                 style_list[index] = self._default_style_name
         return style_list
 
     @property
-    def filter_list(self) -> List[str] | None:
+    def filter_list(self) -> list[str] | None:
         if self.FILTER:
-            logging.debug("There were filters in the request. Processing them further...")
+            logging.debug(
+                "There were filters in the request. Processing them further..."
+            )
             filter_list = handle_list_encoding(self.FILTER)
             self.validate_normalisation(filter_list)
             return filter_list
         else:
             return None
 
-    def validate_normalisation(self, compare_list: List[str]):
+    def validate_normalisation(self, compare_list: list[str]):
         if len(compare_list) != len(self.layer_list):
             logging.debug(
                 "Length of layer list has to be same as compared list. That"
@@ -136,31 +139,33 @@ class AbstractGetMapRequestParams(AbstractRequestParams):
 
 @dataclass
 class GetMapRequestParams(AbstractGetMapRequestParams):
-    MAP_RESOLUTION: Optional[int] = None
-    FORMAT_OPTIONS: Optional[str] = None
+    MAP_RESOLUTION: int | None = None
+    FORMAT_OPTIONS: str | None = None
 
 
 @dataclass
 class GetLegendGraphicRequestParams(AbstractRequestParams):
     _default_style_name = "default"
-    LAYERS: Optional[str] = field(default=None, metadata={"type": "Element"})
-    STYLES: Optional[str] = field(default=None, metadata={"type": "Element"})
-    FORMAT: Optional[str] = field(default="image/png", metadata={"type": "Element"})
-    WIDTH: Optional[int] = field(default=None, metadata={"type": "Element"})
-    HEIGHT: Optional[int] = field(default=None, metadata={"type": "Element"})
-    DPI: Optional[int] = field(default=None, metadata={"type": "Element"})
-    FORMAT_OPTIONS: Optional[str] = field(default=None, metadata={"type": "Element"})
-    LAYERTITLE: Optional[bool] = field(default=None, metadata={"type": "Element"})
-    SCALE: Optional[float] = field(default=None, metadata={"type": "Element"})
+    LAYERS: str | None = field(default=None, metadata={"type": "Element"})
+    STYLES: str | None = field(default=None, metadata={"type": "Element"})
+    FORMAT: str | None = field(default="image/png", metadata={"type": "Element"})
+    WIDTH: int | None = field(default=None, metadata={"type": "Element"})
+    HEIGHT: int | None = field(default=None, metadata={"type": "Element"})
+    DPI: int | None = field(default=None, metadata={"type": "Element"})
+    FORMAT_OPTIONS: str | None = field(default=None, metadata={"type": "Element"})
+    LAYERTITLE: bool | None = field(default=None, metadata={"type": "Element"})
+    SCALE: float | None = field(default=None, metadata={"type": "Element"})
 
     @property
-    def layer_list(self) -> List[str]:
+    def layer_list(self) -> list[str]:
         return self.LAYERS.split(",")
 
     @property
-    def style_list(self) -> List[str]:
+    def style_list(self) -> list[str]:
         if self.STYLES:
-            logging.debug("There were styles in the request. Processing them further...")
+            logging.debug(
+                "There were styles in the request. Processing them further..."
+            )
             style_list = self.STYLES.split(",")
             self.validate_normalisation(style_list)
             logging.debug(f"Old list of styles was: {style_list}")
@@ -173,13 +178,13 @@ class GetLegendGraphicRequestParams(AbstractRequestParams):
             )
             return [self._default_style_name] * len(self.layer_list)
 
-    def apply_default_style(self, style_list: List[str]) -> List[str]:
+    def apply_default_style(self, style_list: list[str]) -> list[str]:
         for index, style in enumerate(style_list):
             if style == "":
                 style_list[index] = self._default_style_name
         return style_list
 
-    def validate_normalisation(self, compare_list: List[str]):
+    def validate_normalisation(self, compare_list: list[str]):
         if len(compare_list) != len(self.layer_list):
             logging.debug(
                 "Length of layer list has to be same as compared list. That"

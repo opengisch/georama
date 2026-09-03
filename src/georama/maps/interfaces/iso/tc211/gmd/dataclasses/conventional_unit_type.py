@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.conversion_to_preferred_unit import (
     ConversionToPreferredUnit,
@@ -19,7 +18,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class ConventionalUnitType(UnitDefinitionType):
-    conversion_to_preferred_unit: Optional[ConversionToPreferredUnit] = field(
+    conversion_to_preferred_unit: ConversionToPreferredUnit | None = field(
         default=None,
         metadata={
             "name": "conversionToPreferredUnit",
@@ -27,7 +26,7 @@ class ConventionalUnitType(UnitDefinitionType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    rough_conversion_to_preferred_unit: Optional[RoughConversionToPreferredUnit] = field(
+    rough_conversion_to_preferred_unit: RoughConversionToPreferredUnit | None = field(
         default=None,
         metadata={
             "name": "roughConversionToPreferredUnit",
@@ -35,7 +34,7 @@ class ConventionalUnitType(UnitDefinitionType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    derivation_unit_term: List[DerivationUnitTerm] = field(
+    derivation_unit_term: list[DerivationUnitTerm] = field(
         default_factory=list,
         metadata={
             "name": "derivationUnitTerm",

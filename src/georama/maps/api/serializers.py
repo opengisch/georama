@@ -62,7 +62,9 @@ class PreviewGeneratorInput(serializers.Serializer):
 class PublishFromDatasourceInput(serializers.Serializer):
     pk = serializers.UUIDField(
         required=True,
-        help_text=_("UUIDs (primary key) of the datasource the layer should be published from."),
+        help_text=_(
+            "UUIDs (primary key) of the datasource the layer should be published from."
+        ),
     )
     create_preview = serializers.BooleanField(
         default=True,

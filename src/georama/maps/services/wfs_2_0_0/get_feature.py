@@ -36,7 +36,10 @@ from django.db.models import Model
 from guardian.shortcuts import get_perms
 from qgis_server_light.interface.job.common.input import OgcFilterFES20
 from qgis_server_light.interface.job.common.output import JobResult
-from qgis_server_light.interface.job.feature.input import FeatureQuery, QslJobParameterFeature
+from qgis_server_light.interface.job.feature.input import (
+    FeatureQuery,
+    QslJobParameterFeature,
+)
 from qgis_server_light.interface.job.feature.output import QueryCollection
 from xsdata.formats.converter import Converter, converter
 from xsdata.formats.dataclass.parsers import JsonParser, XmlParser
@@ -119,7 +122,9 @@ class WfsGetFeature(WfsOperation):
             "TEXT/JSON",
         ]
 
-    def obtain_accessible_layers(self, layer_names: list[str] | None = None) -> list[WmsLayer]:
+    def obtain_accessible_layers(
+        self, layer_names: list[str] | None = None
+    ) -> list[WmsLayer]:
         """
         This method derives the layers which are available for WFS operation.
         This Method solves multiple purposes:
@@ -139,18 +144,27 @@ class WfsGetFeature(WfsOperation):
         if layer_names:
             query = query.filter(id__in=layer_names)
         found_layers = query.all()
-        found_difference = set(layer_names) - {layer.identifier for layer in found_layers}
+        found_difference = set(layer_names) - {
+            layer.identifier for layer in found_layers
+        }
         if len(found_difference) > 0:
             raise AttributeError(
                 self.render_exception(f"Layer(s) not found: {list(found_difference)}")
             )
         for wms_layer in found_layers:
-            if "view_wmslayer" in get_perms(self.user, wms_layer) and wms_layer.queryable:
+            if (
+                "view_wmslayer" in get_perms(self.user, wms_layer)
+                and wms_layer.queryable
+            ):
                 accessible_layers.append(wms_layer)
-        permission_difference = set(layer_names) - {layer.identifier for layer in accessible_layers}
+        permission_difference = set(layer_names) - {
+            layer.identifier for layer in accessible_layers
+        }
         if len(permission_difference) > 0:
             raise PermissionError(
-                self.render_exception(f"Layer(s) not permitted: {list(permission_difference)}")
+                self.render_exception(
+                    f"Layer(s) not permitted: {list(permission_difference)}"
+                )
             )
         return accessible_layers
 
@@ -218,7 +232,9 @@ class WfsGetFeature(WfsOperation):
             # we have typenames in the query
             type_names_lists = handle_list_encoding(type_names_param_value)
         else:
-            raise AttributeError(self.render_exception("TypeNames is a mandatory parameter!"))
+            raise AttributeError(
+                self.render_exception("TypeNames is a mandatory parameter!")
+            )
         if aliases_param_value:
             # we have aliases in the query
             aliases_lists = handle_list_encoding(aliases_param_value)
@@ -240,7 +256,9 @@ class WfsGetFeature(WfsOperation):
             # no filters were passed, we create an empty list of same length as type_names
             filters_lists = [None] * len(type_names_lists)
 
-        combined_lists = zip(type_names_lists, aliases_lists, filters_lists, strict=False)
+        combined_lists = zip(
+            type_names_lists, aliases_lists, filters_lists, strict=False
+        )
         for type_names, aliases, filter_definition in combined_lists:
             type_names_value_list = type_names.split(",")
             if aliases:
@@ -278,7 +296,9 @@ class WfsGetFeature(WfsOperation):
                 # and one which states a conflicting situation B.8.5.5
                 # TODO: Check how the conflict can be explained?
                 fes_filter.bbox = Bbox(
-                    choice=[ValueReference(type_name) for type_name in type_names_value_list]
+                    choice=[
+                        ValueReference(type_name) for type_name in type_names_value_list
+                    ]
                     + [
                         Envelope(
                             lower_corner=DirectPositionType(value=bbox_list[0:2]),
@@ -293,7 +313,9 @@ class WfsGetFeature(WfsOperation):
                     srs_name=srs_name,
                     type_names=type_names_value_list,
                     aliases=aliases_value_list,
-                    filter=fes_filter if not self.check_filter_empty(fes_filter) else None,
+                    filter=fes_filter
+                    if not self.check_filter_empty(fes_filter)
+                    else None,
                 )
             )
         return queries
@@ -341,7 +363,9 @@ class WfsGetFeature(WfsOperation):
         feature_collection.number_returned = len(feature_collection.member)
         return feature_collection
 
-    def unwrap_type_names(self, get_feature_params: GetFeature, unique: bool = True) -> list[str]:
+    def unwrap_type_names(
+        self, get_feature_params: GetFeature, unique: bool = True
+    ) -> list[str]:
         """
         Get a list of all typenames
         Args:
@@ -381,7 +405,9 @@ class WfsGetFeature(WfsOperation):
             # the definitions of these
             # layers (this includes permission check and existence check)
             accessible_datasets = []
-            for layer in self.obtain_accessible_layers(self.sanitized_typenames(query.type_names)):
+            for layer in self.obtain_accessible_layers(
+                self.sanitized_typenames(query.type_names)
+            ):
                 accessible_datasets.append(layer.datasource.to_qsl_job_layer())
             if query.filter:
                 if len(accessible_datasets) > 1:
@@ -480,7 +506,9 @@ class WfsGetFeature(WfsOperation):
                 # XYZM
                 dimensions = 4
             else:
-                logging.debug(f"Geometry type '{geometry_type}' is not in supported list")
+                logging.debug(
+                    f"Geometry type '{geometry_type}' is not in supported list"
+                )
                 raise NotImplementedError()
 
             if is_multipoint:
@@ -513,7 +541,11 @@ class WfsGetFeature(WfsOperation):
                 points[i] = Point(
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
-                    pos=Pos(value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")),
+                    pos=Pos(
+                        value=np.frombuffer(
+                            wkb[0:geometry_part_offset], dtype=endian + "f8"
+                        )
+                    ),
                 )
                 wkb = wkb[geometry_part_offset:]
 
@@ -561,7 +593,9 @@ class WfsGetFeature(WfsOperation):
                 # XYZM
                 dimensions = 4
             else:
-                logging.debug(f"Geometry type '{geometry_type}' is not in supported list")
+                logging.debug(
+                    f"Geometry type '{geometry_type}' is not in supported list"
+                )
                 raise NotImplementedError()
 
             if is_multiline:
@@ -595,7 +629,9 @@ class WfsGetFeature(WfsOperation):
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
                     pos_list=PosList(
-                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
+                        value=np.frombuffer(
+                            wkb[0:geometry_part_offset], dtype=endian + "f8"
+                        )
                     ),
                 )
 
@@ -646,7 +682,9 @@ class WfsGetFeature(WfsOperation):
                 # XYZM
                 dimensions = 4
             else:
-                logging.debug(f"Geometry type '{geometry_type}' is not in supported list")
+                logging.debug(
+                    f"Geometry type '{geometry_type}' is not in supported list"
+                )
                 raise NotImplementedError()
 
             if is_multipolygon:
@@ -685,19 +723,27 @@ class WfsGetFeature(WfsOperation):
                     wkb = wkb[4:]
                     # calculating offset to read geometry part
                     geometry_part_offset = number_of_points * dimensions * 8
-                    logging.debug(f"  parsing ring:{ring} with: {number_of_points} points")
+                    logging.debug(
+                        f"  parsing ring:{ring} with: {number_of_points} points"
+                    )
 
                     pos_list = PosList(
-                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
+                        value=np.frombuffer(
+                            wkb[0:geometry_part_offset], dtype=endian + "f8"
+                        )
                     )
                     # slicing wkb be geometry part offset
                     wkb = wkb[geometry_part_offset:]
                     if ring == 0:
                         # this is the exterior ring
-                        polygon.exterior = Exterior(linear_ring=LinearRing(pos_list=pos_list))
+                        polygon.exterior = Exterior(
+                            linear_ring=LinearRing(pos_list=pos_list)
+                        )
                     else:
                         # all others are interior rings
-                        polygon.interior.append(Interior(linear_ring=LinearRing(pos_list=pos_list)))
+                        polygon.interior.append(
+                            Interior(linear_ring=LinearRing(pos_list=pos_list))
+                        )
                 polygons[i] = polygon
 
             if is_multipolygon:
@@ -712,7 +758,10 @@ class WfsGetFeature(WfsOperation):
                 return GeometryMember(polygon=polygons[0])
 
     def get_feature(
-        self, get_feature_parameter: GetFeature, result: JobResult, job: QslJobParameterFeature
+        self,
+        get_feature_parameter: GetFeature,
+        result: JobResult,
+        job: QslJobParameterFeature,
     ):
         qsl_query_collection = JsonParser().from_bytes(result.data, QueryCollection)
         wfs_feature_collection = FeatureCollection(
@@ -730,7 +779,7 @@ class WfsGetFeature(WfsOperation):
                 fields = []
                 feature_dict = {}
                 for attribute in feature.attributes:
-                    if attribute.value is not None:  # noqa: SIM108
+                    if attribute.value is not None:
                         type_name = type(attribute.value)
                     else:
                         # we take a save exit here, since we do not want to validate
@@ -775,8 +824,12 @@ class WfsGetFeature(WfsOperation):
                     feature_dict["id"] = (
                         f"{self.own_namespace}:{feature_collection.name}.{feature_sequence}"
                     )
-                fields.append(("geometry", GeometryMember | GeometryMembers, field(default=None)))
-                feature_dataclass = make_dataclass(feature_collection.name, fields=fields)
+                fields.append(
+                    ("geometry", GeometryMember | GeometryMembers, field(default=None))
+                )
+                feature_dataclass = make_dataclass(
+                    feature_collection.name, fields=fields
+                )
                 feature_dataclass.Meta = GeoramaMeta
                 feature_object = feature_dataclass(**feature_dict)
                 start = time.time()
@@ -823,7 +876,9 @@ class WfsGetFeature(WfsOperation):
 
     @staticmethod
     def render_json(feature_collection: FeatureCollection) -> str:
-        serializer = JsonSerializer(SerializerConfig(ignore_default_attributes=True, indent=2))
+        serializer = JsonSerializer(
+            SerializerConfig(ignore_default_attributes=True, indent=2)
+        )
         return serializer.render(feature_collection)
 
     def render(
@@ -832,7 +887,10 @@ class WfsGetFeature(WfsOperation):
         feature_collection: FeatureCollection,
         requested_typenames: list[str],
     ) -> tuple[str, str, bool]:
-        if requested_format == "TEXT/XML" or requested_format == "APPLICATION/GML+XML; VERSION=3.2":
+        if (
+            requested_format == "TEXT/XML"
+            or requested_format == "APPLICATION/GML+XML; VERSION=3.2"
+        ):
             return (
                 self.render_xml(feature_collection, requested_typenames),
                 f"{requested_format.lower()}; charset=utf-8",

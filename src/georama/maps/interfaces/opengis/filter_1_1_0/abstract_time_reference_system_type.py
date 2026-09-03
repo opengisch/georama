@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.definition_type import DefinitionType
 
@@ -16,7 +15,7 @@ class AbstractTimeReferenceSystemType(DefinitionType):
     elapsed since some epoch, e.g. UNIX time).
     """
 
-    domain_of_validity: Optional[str] = field(
+    domain_of_validity: str | None = field(
         default=None,
         metadata={
             "name": "domainOfValidity",

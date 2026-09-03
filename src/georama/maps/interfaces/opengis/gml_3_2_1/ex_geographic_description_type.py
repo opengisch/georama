@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_ex_geographic_extent_type import (
     AbstractExGeographicExtentType,
@@ -16,7 +15,7 @@ class ExGeographicDescriptionType(AbstractExGeographicExtentType):
     class Meta:
         name = "EX_GeographicDescription_Type"
 
-    geographic_identifier: Optional[MdIdentifierPropertyType] = field(
+    geographic_identifier: MdIdentifierPropertyType | None = field(
         default=None,
         metadata={
             "name": "geographicIdentifier",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -27,7 +26,7 @@ class CiOnlineResourceType(AbstractObjectType):
     class Meta:
         name = "CI_OnlineResource_Type"
 
-    linkage: Optional[UrlPropertyType] = field(
+    linkage: UrlPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -35,14 +34,14 @@ class CiOnlineResourceType(AbstractObjectType):
             "required": True,
         },
     )
-    protocol: Optional[CharacterStringPropertyType] = field(
+    protocol: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    application_profile: Optional[CharacterStringPropertyType] = field(
+    application_profile: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "applicationProfile",
@@ -50,21 +49,21 @@ class CiOnlineResourceType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    name: Optional[CharacterStringPropertyType] = field(
+    name: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    description: Optional[CharacterStringPropertyType] = field(
+    description: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    function: Optional[CiOnLineFunctionCodePropertyType] = field(
+    function: CiOnLineFunctionCodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

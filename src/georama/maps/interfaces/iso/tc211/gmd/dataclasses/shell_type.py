@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.aggregation_type import (
     AggregationType,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class ShellType:
-    surface_member: List[SurfaceMember] = field(
+    surface_member: list[SurfaceMember] = field(
         default_factory=list,
         metadata={
             "name": "surfaceMember",
@@ -22,7 +21,7 @@ class ShellType:
             "min_occurs": 1,
         },
     )
-    aggregation_type: Optional[AggregationType] = field(
+    aggregation_type: AggregationType | None = field(
         default=None,
         metadata={
             "name": "aggregationType",

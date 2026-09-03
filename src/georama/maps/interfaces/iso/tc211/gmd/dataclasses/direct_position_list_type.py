@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -21,27 +20,27 @@ class DirectPositionListType:
     definition) and the number of direct positions.
     """
 
-    value: List[float] = field(
+    value: list[float] = field(
         default_factory=list,
         metadata={
             "tokens": True,
         },
     )
-    srs_name: Optional[str] = field(
+    srs_name: str | None = field(
         default=None,
         metadata={
             "name": "srsName",
             "type": "Attribute",
         },
     )
-    srs_dimension: Optional[int] = field(
+    srs_dimension: int | None = field(
         default=None,
         metadata={
             "name": "srsDimension",
             "type": "Attribute",
         },
     )
-    axis_labels: List[str] = field(
+    axis_labels: list[str] = field(
         default_factory=list,
         metadata={
             "name": "axisLabels",
@@ -49,7 +48,7 @@ class DirectPositionListType:
             "tokens": True,
         },
     )
-    uom_labels: List[str] = field(
+    uom_labels: list[str] = field(
         default_factory=list,
         metadata={
             "name": "uomLabels",
@@ -57,7 +56,7 @@ class DirectPositionListType:
             "tokens": True,
         },
     )
-    count: Optional[int] = field(
+    count: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",

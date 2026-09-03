@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.axis_abbrev import AxisAbbrev
 from georama.maps.interfaces.opengis.filter_1_1_0.axis_direction import AxisDirection
@@ -35,14 +34,14 @@ class CoordinateSystemAxisType(CoordinateSystemAxisBaseType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    remarks: Optional[Remarks] = field(
+    remarks: Remarks | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    axis_abbrev: Optional[AxisAbbrev] = field(
+    axis_abbrev: AxisAbbrev | None = field(
         default=None,
         metadata={
             "name": "axisAbbrev",
@@ -51,7 +50,7 @@ class CoordinateSystemAxisType(CoordinateSystemAxisBaseType):
             "required": True,
         },
     )
-    axis_direction: Optional[AxisDirection] = field(
+    axis_direction: AxisDirection | None = field(
         default=None,
         metadata={
             "name": "axisDirection",
@@ -60,7 +59,7 @@ class CoordinateSystemAxisType(CoordinateSystemAxisBaseType):
             "required": True,
         },
     )
-    uom: Optional[str] = field(
+    uom: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

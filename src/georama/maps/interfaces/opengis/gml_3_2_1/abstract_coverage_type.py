@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_feature_type import (
     AbstractFeatureType,
@@ -33,7 +32,7 @@ class AbstractCoverageType(AbstractFeatureType):
     The basic elements of a coverage can be seen in this content model: the coverage contains gml:domainSet and gml:rangeSet properties. The gml:domainSet property describes the domain of the coverage and the gml:rangeSet property describes the range of the coverage.
     """
 
-    rectified_grid_domain: Optional[RectifiedGridDomain] = field(
+    rectified_grid_domain: RectifiedGridDomain | None = field(
         default=None,
         metadata={
             "name": "rectifiedGridDomain",
@@ -41,7 +40,7 @@ class AbstractCoverageType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    grid_domain: Optional[GridDomain] = field(
+    grid_domain: GridDomain | None = field(
         default=None,
         metadata={
             "name": "gridDomain",
@@ -49,7 +48,7 @@ class AbstractCoverageType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_solid_domain: Optional[MultiSolidDomain] = field(
+    multi_solid_domain: MultiSolidDomain | None = field(
         default=None,
         metadata={
             "name": "multiSolidDomain",
@@ -57,7 +56,7 @@ class AbstractCoverageType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_surface_domain: Optional[MultiSurfaceDomain] = field(
+    multi_surface_domain: MultiSurfaceDomain | None = field(
         default=None,
         metadata={
             "name": "multiSurfaceDomain",
@@ -65,7 +64,7 @@ class AbstractCoverageType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_curve_domain: Optional[MultiCurveDomain] = field(
+    multi_curve_domain: MultiCurveDomain | None = field(
         default=None,
         metadata={
             "name": "multiCurveDomain",
@@ -73,7 +72,7 @@ class AbstractCoverageType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_point_domain: Optional[MultiPointDomain] = field(
+    multi_point_domain: MultiPointDomain | None = field(
         default=None,
         metadata={
             "name": "multiPointDomain",
@@ -81,7 +80,7 @@ class AbstractCoverageType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    domain_set: Optional[DomainSet] = field(
+    domain_set: DomainSet | None = field(
         default=None,
         metadata={
             "name": "domainSet",
@@ -89,7 +88,7 @@ class AbstractCoverageType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    range_set: Optional[RangeSet] = field(
+    range_set: RangeSet | None = field(
         default=None,
         metadata={
             "name": "rangeSet",

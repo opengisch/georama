@@ -59,13 +59,24 @@ class FeatureLayer(models.Model):
             # permission which is used for the object permission evaluation on
             # the published feature layer
             ("view_objects_on_published_layer", "Can view items on published layer"),
-            ("create_objects_on_published_layer", "Can create items on published layer"),
-            ("delete_objects_on_published_layer", "Can delete items on published layer"),
-            ("update_objects_on_published_layer", "Can update items on published layer"),
+            (
+                "create_objects_on_published_layer",
+                "Can create items on published layer",
+            ),
+            (
+                "delete_objects_on_published_layer",
+                "Can delete items on published layer",
+            ),
+            (
+                "update_objects_on_published_layer",
+                "Can update items on published layer",
+            ),
         ]
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the feature layer.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the feature layer."),
     )
 
     public = models.BooleanField(default=False)
@@ -80,12 +91,16 @@ class FeatureLayer(models.Model):
     default_items = models.IntegerField(
         default=10,
         null=True,
-        help_text=_("The default number of features that should be returned for the layer."),
+        help_text=_(
+            "The default number of features that should be returned for the layer."
+        ),
     )
     max_items = models.IntegerField(
         default=500,
         null=True,
-        help_text=_("The maximum number of features that may be returned for the layer."),
+        help_text=_(
+            "The maximum number of features that may be returned for the layer."
+        ),
     )
     on_exceed = models.CharField(
         default="ERROR",

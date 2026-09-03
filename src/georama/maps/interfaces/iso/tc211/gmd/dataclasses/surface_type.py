@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_surface_type import (
     AbstractSurfaceType,
@@ -17,7 +16,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class SurfaceType(AbstractSurfaceType):
-    triangle_patches: Optional[TrianglePatches] = field(
+    triangle_patches: TrianglePatches | None = field(
         default=None,
         metadata={
             "name": "trianglePatches",
@@ -25,7 +24,7 @@ class SurfaceType(AbstractSurfaceType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    polygon_patches: Optional[PolygonPatches] = field(
+    polygon_patches: PolygonPatches | None = field(
         default=None,
         metadata={
             "name": "polygonPatches",
@@ -33,7 +32,7 @@ class SurfaceType(AbstractSurfaceType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    patches: Optional[Patches] = field(
+    patches: Patches | None = field(
         default=None,
         metadata={
             "type": "Element",

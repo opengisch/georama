@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_general_operation_parameter_property_type import (
     GeneralOperationParameter,
@@ -24,7 +23,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class OperationMethodType(IdentifiedObjectType):
-    method_formula: Optional[MethodFormula] = field(
+    method_formula: MethodFormula | None = field(
         default=None,
         metadata={
             "name": "methodFormula",
@@ -32,14 +31,14 @@ class OperationMethodType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    formula: Optional[Formula] = field(
+    formula: Formula | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    source_dimensions: Optional[SourceDimensions] = field(
+    source_dimensions: SourceDimensions | None = field(
         default=None,
         metadata={
             "name": "sourceDimensions",
@@ -47,7 +46,7 @@ class OperationMethodType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    target_dimensions: Optional[TargetDimensions] = field(
+    target_dimensions: TargetDimensions | None = field(
         default=None,
         metadata={
             "name": "targetDimensions",
@@ -55,7 +54,7 @@ class OperationMethodType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    uses_parameter: List[UsesParameter] = field(
+    uses_parameter: list[UsesParameter] = field(
         default_factory=list,
         metadata={
             "name": "usesParameter",
@@ -63,7 +62,7 @@ class OperationMethodType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    general_operation_parameter: List[GeneralOperationParameter] = field(
+    general_operation_parameter: list[GeneralOperationParameter] = field(
         default_factory=list,
         metadata={
             "name": "generalOperationParameter",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -20,22 +19,14 @@ class FormulaType:
     and denominator parameters.
     """
 
-    a: Optional[float] = field(
+    a: float | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    b: Optional[float] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.opengis.net/gml",
-            "required": True,
-        },
-    )
-    c: Optional[float] = field(
+    b: float | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -43,7 +34,15 @@ class FormulaType:
             "required": True,
         },
     )
-    d: Optional[float] = field(
+    c: float | None = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.opengis.net/gml",
+            "required": True,
+        },
+    )
+    d: float | None = field(
         default=None,
         metadata={
             "type": "Element",

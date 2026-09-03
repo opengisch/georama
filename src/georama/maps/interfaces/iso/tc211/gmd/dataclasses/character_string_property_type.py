@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.character_string import (
     CharacterString,
@@ -101,7 +100,7 @@ class CharacterStringPropertyType:
     class Meta:
         name = "CharacterString_PropertyType"
 
-    country: Optional[Country] = field(
+    country: Country | None = field(
         default=None,
         metadata={
             "name": "Country",
@@ -109,7 +108,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    language_code: Optional[LanguageCode] = field(
+    language_code: LanguageCode | None = field(
         default=None,
         metadata={
             "name": "LanguageCode",
@@ -117,7 +116,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    localised_character_string: Optional[LocalisedCharacterString] = field(
+    localised_character_string: LocalisedCharacterString | None = field(
         default=None,
         metadata={
             "name": "LocalisedCharacterString",
@@ -125,7 +124,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_evaluation_method_type_code: Optional[DqEvaluationMethodTypeCode] = field(
+    dq_evaluation_method_type_code: DqEvaluationMethodTypeCode | None = field(
         default=None,
         metadata={
             "name": "DQ_EvaluationMethodTypeCode",
@@ -133,7 +132,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    ds_initiative_type_code: Optional[DsInitiativeTypeCode] = field(
+    ds_initiative_type_code: DsInitiativeTypeCode | None = field(
         default=None,
         metadata={
             "name": "DS_InitiativeTypeCode",
@@ -141,7 +140,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    ds_association_type_code: Optional[DsAssociationTypeCode] = field(
+    ds_association_type_code: DsAssociationTypeCode | None = field(
         default=None,
         metadata={
             "name": "DS_AssociationTypeCode",
@@ -149,7 +148,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_keyword_type_code: Optional[MdKeywordTypeCode] = field(
+    md_keyword_type_code: MdKeywordTypeCode | None = field(
         default=None,
         metadata={
             "name": "MD_KeywordTypeCode",
@@ -157,7 +156,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_progress_code: Optional[MdProgressCode] = field(
+    md_progress_code: MdProgressCode | None = field(
         default=None,
         metadata={
             "name": "MD_ProgressCode",
@@ -165,7 +164,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_spatial_representation_type_code: Optional[MdSpatialRepresentationTypeCode] = field(
+    md_spatial_representation_type_code: MdSpatialRepresentationTypeCode | None = field(
         default=None,
         metadata={
             "name": "MD_SpatialRepresentationTypeCode",
@@ -173,7 +172,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_character_set_code: Optional[MdCharacterSetCode] = field(
+    md_character_set_code: MdCharacterSetCode | None = field(
         default=None,
         metadata={
             "name": "MD_CharacterSetCode",
@@ -181,7 +180,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_topic_category_code: Optional[MdTopicCategoryCode] = field(
+    md_topic_category_code: MdTopicCategoryCode | None = field(
         default=None,
         metadata={
             "name": "MD_TopicCategoryCode",
@@ -189,7 +188,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_scope_code: Optional[MdScopeCode] = field(
+    md_scope_code: MdScopeCode | None = field(
         default=None,
         metadata={
             "name": "MD_ScopeCode",
@@ -197,7 +196,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_maintenance_frequency_code: Optional[MdMaintenanceFrequencyCode] = field(
+    md_maintenance_frequency_code: MdMaintenanceFrequencyCode | None = field(
         default=None,
         metadata={
             "name": "MD_MaintenanceFrequencyCode",
@@ -205,7 +204,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_medium_name_code: Optional[MdMediumNameCode] = field(
+    md_medium_name_code: MdMediumNameCode | None = field(
         default=None,
         metadata={
             "name": "MD_MediumNameCode",
@@ -213,7 +212,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_medium_format_code: Optional[MdMediumFormatCode] = field(
+    md_medium_format_code: MdMediumFormatCode | None = field(
         default=None,
         metadata={
             "name": "MD_MediumFormatCode",
@@ -221,7 +220,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_distribution_units: Optional[MdDistributionUnits] = field(
+    md_distribution_units: MdDistributionUnits | None = field(
         default=None,
         metadata={
             "name": "MD_DistributionUnits",
@@ -229,7 +228,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_restriction_code: Optional[MdRestrictionCode] = field(
+    md_restriction_code: MdRestrictionCode | None = field(
         default=None,
         metadata={
             "name": "MD_RestrictionCode",
@@ -237,7 +236,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_classification_code: Optional[MdClassificationCode] = field(
+    md_classification_code: MdClassificationCode | None = field(
         default=None,
         metadata={
             "name": "MD_ClassificationCode",
@@ -245,7 +244,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_imaging_condition_code: Optional[MdImagingConditionCode] = field(
+    md_imaging_condition_code: MdImagingConditionCode | None = field(
         default=None,
         metadata={
             "name": "MD_ImagingConditionCode",
@@ -253,7 +252,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_coverage_content_type_code: Optional[MdCoverageContentTypeCode] = field(
+    md_coverage_content_type_code: MdCoverageContentTypeCode | None = field(
         default=None,
         metadata={
             "name": "MD_CoverageContentTypeCode",
@@ -261,7 +260,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_datatype_code: Optional[MdDatatypeCode] = field(
+    md_datatype_code: MdDatatypeCode | None = field(
         default=None,
         metadata={
             "name": "MD_DatatypeCode",
@@ -269,7 +268,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_obligation_code: Optional[MdObligationCode] = field(
+    md_obligation_code: MdObligationCode | None = field(
         default=None,
         metadata={
             "name": "MD_ObligationCode",
@@ -277,7 +276,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_dimension_name_type_code: Optional[MdDimensionNameTypeCode] = field(
+    md_dimension_name_type_code: MdDimensionNameTypeCode | None = field(
         default=None,
         metadata={
             "name": "MD_DimensionNameTypeCode",
@@ -285,7 +284,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_cell_geometry_code: Optional[MdCellGeometryCode] = field(
+    md_cell_geometry_code: MdCellGeometryCode | None = field(
         default=None,
         metadata={
             "name": "MD_CellGeometryCode",
@@ -293,7 +292,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_geometric_object_type_code: Optional[MdGeometricObjectTypeCode] = field(
+    md_geometric_object_type_code: MdGeometricObjectTypeCode | None = field(
         default=None,
         metadata={
             "name": "MD_GeometricObjectTypeCode",
@@ -301,7 +300,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_topology_level_code: Optional[MdTopologyLevelCode] = field(
+    md_topology_level_code: MdTopologyLevelCode | None = field(
         default=None,
         metadata={
             "name": "MD_TopologyLevelCode",
@@ -309,7 +308,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    md_pixel_orientation_code: Optional[MdPixelOrientationCode] = field(
+    md_pixel_orientation_code: MdPixelOrientationCode | None = field(
         default=None,
         metadata={
             "name": "MD_PixelOrientationCode",
@@ -317,7 +316,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    ci_date_type_code: Optional[CiDateTypeCode] = field(
+    ci_date_type_code: CiDateTypeCode | None = field(
         default=None,
         metadata={
             "name": "CI_DateTypeCode",
@@ -325,7 +324,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    ci_on_line_function_code: Optional[CiOnLineFunctionCode] = field(
+    ci_on_line_function_code: CiOnLineFunctionCode | None = field(
         default=None,
         metadata={
             "name": "CI_OnLineFunctionCode",
@@ -333,7 +332,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    ci_presentation_form_code: Optional[CiPresentationFormCode] = field(
+    ci_presentation_form_code: CiPresentationFormCode | None = field(
         default=None,
         metadata={
             "name": "CI_PresentationFormCode",
@@ -341,7 +340,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    ci_role_code: Optional[CiRoleCode] = field(
+    ci_role_code: CiRoleCode | None = field(
         default=None,
         metadata={
             "name": "CI_RoleCode",
@@ -349,7 +348,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    character_string: Optional[CharacterString] = field(
+    character_string: CharacterString | None = field(
         default=None,
         metadata={
             "name": "CharacterString",
@@ -357,7 +356,7 @@ class CharacterStringPropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

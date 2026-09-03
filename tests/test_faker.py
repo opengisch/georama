@@ -3,7 +3,14 @@ from importlib import import_module
 import pytest
 from faker import Faker
 from faker.utils.loading import find_available_providers
-from shapely import LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon
+from shapely import (
+    LineString,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
+)
 
 from georama.core.common.faker.gis import Dataset
 
@@ -11,7 +18,9 @@ META_PROVIDERS_MODULES = [
     "georama.core.common.faker",
 ]
 
-PROVIDERS = find_available_providers([import_module(path) for path in META_PROVIDERS_MODULES])
+PROVIDERS = find_available_providers(
+    [import_module(path) for path in META_PROVIDERS_MODULES]
+)
 
 
 class TestGeomFaker:
@@ -122,6 +131,8 @@ class TestGeomFaker:
         fake = Faker(locale=locale, providers=PROVIDERS)
         min_records = 1
         max_records = 5
-        ds: Dataset = fake.vector_dataset("dummy", min_records=min_records, max_records=max_records)
+        ds: Dataset = fake.vector_dataset(
+            "dummy", min_records=min_records, max_records=max_records
+        )
         assert ds.amount <= max_records
         assert ds.amount >= min_records

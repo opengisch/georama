@@ -15,4 +15,6 @@ class FieldModelForm(forms.ModelForm):
         ]
 
 
-FieldFormSet = modelformset_factory(Field, fields=["name", "visible"], extra=0, form=FieldModelForm)
+FieldFormSet = modelformset_factory(
+    Field, fields=["name", "visible"], extra=0, form=FieldModelForm
+)

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.gml_3_2_1.date import Date
 from georama.maps.interfaces.opengis.gml_3_2_1.date_time import DateTime
@@ -15,7 +14,7 @@ class DatePropertyType:
     class Meta:
         name = "Date_PropertyType"
 
-    date: Optional[Date] = field(
+    date: Date | None = field(
         default=None,
         metadata={
             "name": "Date",
@@ -24,7 +23,7 @@ class DatePropertyType:
             "nillable": True,
         },
     )
-    date_time: Optional[DateTime] = field(
+    date_time: DateTime | None = field(
         default=None,
         metadata={
             "name": "DateTime",
@@ -32,7 +31,7 @@ class DatePropertyType:
             "namespace": "http://www.isotc211.org/2005/gco",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

@@ -33,7 +33,10 @@ class WfsGetCapabilities(WfsOperation):
             title=[Title(value=title)],
             default_crs_or_other_crs_or_no_crs=[DefaultCrs(value=crs)],
             output_formats=OutputFormatListType(
-                format=["application/gml+xml; version=3.2", "text/xml; subtype=gml/3.2.1"]
+                format=[
+                    "application/gml+xml; version=3.2",
+                    "text/xml; subtype=gml/3.2.1",
+                ]
             ),
             wgs84_bounding_box=[
                 Wgs84BoundingBox(
@@ -42,7 +45,9 @@ class WfsGetCapabilities(WfsOperation):
                 )
             ],
             metadata_url=[
-                MetadataUrltype(href=f"{url}request=GetMetadata&layer={name.split(':')[1]}")
+                MetadataUrltype(
+                    href=f"{url}request=GetMetadata&layer={name.split(':')[1]}"
+                )
             ],
         )
 
@@ -80,7 +85,9 @@ class WfsGetCapabilities(WfsOperation):
         serializer = JsonSerializer()
         return serializer.render(capabilities)
 
-    def render(self, requested_format: str, capabilities: WfsCapabilities) -> str | None:
+    def render(
+        self, requested_format: str, capabilities: WfsCapabilities
+    ) -> str | None:
         if requested_format == "TEXT/XML":
             return self.render_xml(capabilities)
         elif requested_format == "APPLICATION/JSON":

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.decimal_minutes import DecimalMinutes
 from georama.maps.interfaces.opengis.filter_1_1_0.degrees import Degrees
@@ -18,7 +17,7 @@ class DmsangleType:
     class Meta:
         name = "DMSAngleType"
 
-    degrees: Optional[Degrees] = field(
+    degrees: Degrees | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -26,7 +25,7 @@ class DmsangleType:
             "required": True,
         },
     )
-    decimal_minutes_or_minutes_or_seconds: list[Union[DecimalMinutes, Minutes, Seconds]] = (
+    decimal_minutes_or_minutes_or_seconds: list[DecimalMinutes | Minutes | Seconds] = (
         field(
             default_factory=list,
             metadata={

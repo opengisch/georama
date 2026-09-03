@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_general_parameter_value_type import (
     AbstractGeneralParameterValueType,
@@ -34,18 +33,17 @@ class ParameterValueType(AbstractGeneralParameterValueType):
     with many instances.
     """
 
-    choice: Optional[
-        Union[
-            Value,
-            DmsAngleValue,
-            StringValue,
-            IntegerValue,
-            BooleanValue,
-            ValueList,
-            IntegerValueList,
-            ValueFile,
-        ]
-    ] = field(
+    choice: (
+        Value
+        | DmsAngleValue
+        | StringValue
+        | IntegerValue
+        | BooleanValue
+        | ValueList
+        | IntegerValueList
+        | ValueFile
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -93,7 +91,7 @@ class ParameterValueType(AbstractGeneralParameterValueType):
             ),
         },
     )
-    value_of_parameter: Optional[ValueOfParameter] = field(
+    value_of_parameter: ValueOfParameter | None = field(
         default=None,
         metadata={
             "name": "valueOfParameter",

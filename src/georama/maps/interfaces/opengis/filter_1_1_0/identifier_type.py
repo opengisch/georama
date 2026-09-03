@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.coordinate_operation_name import (
     CoordinateOperationName,
@@ -32,20 +31,19 @@ class IdentifierType:
     :ivar remarks: Remarks about this code or alias.
     """
 
-    choice: Optional[
-        Union[
-            GroupName,
-            ParameterName,
-            MethodName,
-            CoordinateOperationName,
-            EllipsoidName,
-            MeridianName,
-            DatumName,
-            CsName,
-            SrsName,
-            Name,
-        ]
-    ] = field(
+    choice: (
+        GroupName
+        | ParameterName
+        | MethodName
+        | CoordinateOperationName
+        | EllipsoidName
+        | MeridianName
+        | DatumName
+        | CsName
+        | SrsName
+        | Name
+        | None
+    ) = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -103,14 +101,14 @@ class IdentifierType:
             ),
         },
     )
-    version: Optional[Version] = field(
+    version: Version | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    remarks: Optional[Remarks] = field(
+    remarks: Remarks | None = field(
         default=None,
         metadata={
             "type": "Element",

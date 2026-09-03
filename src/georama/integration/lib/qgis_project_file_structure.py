@@ -81,7 +81,9 @@ class QgisProjectCollection:
     def projects(self) -> list[QgisProject]:
         return self.projects_filtered()
 
-    def projects_filtered(self, path_filter: set[Path] | None = None) -> list[QgisProject]:
+    def projects_filtered(
+        self, path_filter: set[Path] | None = None
+    ) -> list[QgisProject]:
         search_path = Path(settings.DATA_INTEGRATION_ROOT) / self.organisation
         if path_filter is None:
             path_filter = set()

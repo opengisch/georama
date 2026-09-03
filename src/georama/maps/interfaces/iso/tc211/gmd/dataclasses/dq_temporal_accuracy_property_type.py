@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.actuate_value import ActuateValue
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.dq_accuracy_of_atime_measurement import (
@@ -24,7 +23,7 @@ class DqTemporalAccuracyPropertyType:
     class Meta:
         name = "DQ_TemporalAccuracy_PropertyType"
 
-    dq_accuracy_of_atime_measurement: Optional[DqAccuracyOfAtimeMeasurement] = field(
+    dq_accuracy_of_atime_measurement: DqAccuracyOfAtimeMeasurement | None = field(
         default=None,
         metadata={
             "name": "DQ_AccuracyOfATimeMeasurement",
@@ -32,7 +31,7 @@ class DqTemporalAccuracyPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_temporal_consistency: Optional[DqTemporalConsistency] = field(
+    dq_temporal_consistency: DqTemporalConsistency | None = field(
         default=None,
         metadata={
             "name": "DQ_TemporalConsistency",
@@ -40,7 +39,7 @@ class DqTemporalAccuracyPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    dq_temporal_validity: Optional[DqTemporalValidity] = field(
+    dq_temporal_validity: DqTemporalValidity | None = field(
         default=None,
         metadata={
             "name": "DQ_TemporalValidity",
@@ -57,55 +56,55 @@ class DqTemporalAccuracyPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    arcrole: Optional[str] = field(
+    arcrole: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    title: Optional[str] = field(
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowValue] = field(
+    show: ShowValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateValue] = field(
+    actuate: ActuateValue | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    uuidref: Optional[str] = field(
+    uuidref: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

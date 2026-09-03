@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Optional
 
 __NAMESPACE__ = "http://www.isotc211.org/2005/gco"
 
@@ -11,7 +10,7 @@ class DecimalType:
         name = "Decimal"
         namespace = "http://www.isotc211.org/2005/gco"
 
-    value: Optional[Decimal] = field(
+    value: Decimal | None = field(
         default=None,
         metadata={
             "required": True,

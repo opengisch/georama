@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_time_object_type import (
     AbstractTimeObjectType,
@@ -62,7 +61,7 @@ class AbstractTimeTopologyPrimitiveType(AbstractTimePrimitiveType):
     primitive.
     """
 
-    complex: Optional[ReferenceType] = field(
+    complex: ReferenceType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -77,7 +76,7 @@ class TimeInstantType(AbstractTimeGeometricPrimitiveType):
     Omit back-pointers begunBy, endedBy.
     """
 
-    time_position: Optional[TimePosition] = field(
+    time_position: TimePosition | None = field(
         default=None,
         metadata={
             "name": "timePosition",
@@ -96,7 +95,7 @@ class TimeInstant(TimeInstantType):
 
 @dataclass
 class TimeInstantPropertyType:
-    time_instant: Optional[TimeInstant] = field(
+    time_instant: TimeInstant | None = field(
         default=None,
         metadata={
             "name": "TimeInstant",
@@ -113,22 +112,14 @@ class TimeInstantPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -136,28 +127,36 @@ class TimeInstantPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -189,7 +188,7 @@ class TimeNodeType(AbstractTimeTopologyPrimitiveType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    position: Optional[TimeInstantPropertyType] = field(
+    position: TimeInstantPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -200,27 +199,25 @@ class TimeNodeType(AbstractTimeTopologyPrimitiveType):
 
 @dataclass
 class TimePeriodType(AbstractTimeGeometricPrimitiveType):
-    begin_position_or_begin: Optional[Union[TimePositionType, TimeInstantPropertyType]] = (
-        field(
-            default=None,
-            metadata={
-                "type": "Elements",
-                "choices": (
-                    {
-                        "name": "beginPosition",
-                        "type": TimePositionType,
-                        "namespace": "http://www.opengis.net/gml",
-                    },
-                    {
-                        "name": "begin",
-                        "type": TimeInstantPropertyType,
-                        "namespace": "http://www.opengis.net/gml",
-                    },
-                ),
-            },
-        )
+    begin_position_or_begin: TimePositionType | TimeInstantPropertyType | None = field(
+        default=None,
+        metadata={
+            "type": "Elements",
+            "choices": (
+                {
+                    "name": "beginPosition",
+                    "type": TimePositionType,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+                {
+                    "name": "begin",
+                    "type": TimeInstantPropertyType,
+                    "namespace": "http://www.opengis.net/gml",
+                },
+            ),
+        },
     )
-    end_position_or_end: Optional[Union[TimePositionType, TimeInstantPropertyType]] = field(
+    end_position_or_end: TimePositionType | TimeInstantPropertyType | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -238,7 +235,7 @@ class TimePeriodType(AbstractTimeGeometricPrimitiveType):
             ),
         },
     )
-    duration_or_time_interval: Optional[Union[Duration, TimeInterval]] = field(
+    duration_or_time_interval: Duration | TimeInterval | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -289,7 +286,7 @@ class TimeNodePropertyType:
     given, but not both or none.
     """
 
-    time_node: Optional[TimeNode] = field(
+    time_node: TimeNode | None = field(
         default=None,
         metadata={
             "name": "TimeNode",
@@ -306,22 +303,14 @@ class TimeNodePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -329,28 +318,36 @@ class TimeNodePropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -362,7 +359,7 @@ class TimeNodePropertyType:
 
 @dataclass
 class TimePeriodPropertyType:
-    time_period: Optional[TimePeriod] = field(
+    time_period: TimePeriod | None = field(
         default=None,
         metadata={
             "name": "TimePeriod",
@@ -379,22 +376,14 @@ class TimePeriodPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -402,28 +391,36 @@ class TimePeriodPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -439,7 +436,7 @@ class TimeEdgeType(AbstractTimeTopologyPrimitiveType):
     Type declaration of the element "TimeEdge".
     """
 
-    start: Optional[TimeNodePropertyType] = field(
+    start: TimeNodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -447,7 +444,7 @@ class TimeEdgeType(AbstractTimeTopologyPrimitiveType):
             "required": True,
         },
     )
-    end: Optional[TimeNodePropertyType] = field(
+    end: TimeNodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -455,7 +452,7 @@ class TimeEdgeType(AbstractTimeTopologyPrimitiveType):
             "required": True,
         },
     )
-    extent: Optional[TimePeriodPropertyType] = field(
+    extent: TimePeriodPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -487,7 +484,7 @@ class TimeEdgePropertyType:
     given, but not both or none.
     """
 
-    time_edge: Optional[TimeEdge] = field(
+    time_edge: TimeEdge | None = field(
         default=None,
         metadata={
             "name": "TimeEdge",
@@ -504,22 +501,14 @@ class TimeEdgePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -527,28 +516,36 @@ class TimeEdgePropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -560,7 +557,7 @@ class TimeEdgePropertyType:
 
 @dataclass
 class TimePrimitivePropertyType:
-    choice: Optional[Union[TimeEdge, TimeNode, TimePeriod, TimeInstant]] = field(
+    choice: TimeEdge | TimeNode | TimePeriod | TimeInstant | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -597,22 +594,14 @@ class TimePrimitivePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -620,28 +609,36 @@ class TimePrimitivePropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -653,7 +650,7 @@ class TimePrimitivePropertyType:
 
 @dataclass
 class RelatedTimeType(TimePrimitivePropertyType):
-    relative_position: Optional[RelatedTimeTypeRelativePosition] = field(
+    relative_position: RelatedTimeTypeRelativePosition | None = field(
         default=None,
         metadata={
             "name": "relativePosition",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_positional_accuracy_type import (
     AbstractPositionalAccuracyType,
@@ -15,7 +14,7 @@ class AbsoluteExternalPositionalAccuracyType(AbstractPositionalAccuracyType):
     Closeness of reported coordinate values to values accepted as or being true.
     """
 
-    result: Optional[Result] = field(
+    result: Result | None = field(
         default=None,
         metadata={
             "type": "Element",

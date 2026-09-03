@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.axis_abbrev import AxisAbbrev
 from georama.maps.interfaces.opengis.gml_3_2_1.axis_direction import AxisDirection
@@ -29,7 +28,7 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
         axis.
     """
 
-    axis_abbrev: Optional[AxisAbbrev] = field(
+    axis_abbrev: AxisAbbrev | None = field(
         default=None,
         metadata={
             "name": "axisAbbrev",
@@ -38,7 +37,7 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
             "required": True,
         },
     )
-    axis_direction: Optional[AxisDirection] = field(
+    axis_direction: AxisDirection | None = field(
         default=None,
         metadata={
             "name": "axisDirection",
@@ -47,7 +46,7 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
             "required": True,
         },
     )
-    minimum_value: Optional[MinimumValue] = field(
+    minimum_value: MinimumValue | None = field(
         default=None,
         metadata={
             "name": "minimumValue",
@@ -55,7 +54,7 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    maximum_value: Optional[MaximumValue] = field(
+    maximum_value: MaximumValue | None = field(
         default=None,
         metadata={
             "name": "maximumValue",
@@ -63,7 +62,7 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    range_meaning: Optional[RangeMeaning] = field(
+    range_meaning: RangeMeaning | None = field(
         default=None,
         metadata={
             "name": "rangeMeaning",
@@ -71,7 +70,7 @@ class CoordinateSystemAxisType(IdentifiedObjectType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    uom: Optional[str] = field(
+    uom: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

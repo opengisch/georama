@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -29,7 +28,7 @@ class MdDigitalTransferOptionsType(AbstractObjectType):
     class Meta:
         name = "MD_DigitalTransferOptions_Type"
 
-    units_of_distribution: Optional[CharacterStringPropertyType] = field(
+    units_of_distribution: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "name": "unitsOfDistribution",
@@ -37,7 +36,7 @@ class MdDigitalTransferOptionsType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    transfer_size: Optional[RealPropertyType] = field(
+    transfer_size: RealPropertyType | None = field(
         default=None,
         metadata={
             "name": "transferSize",
@@ -53,7 +52,7 @@ class MdDigitalTransferOptionsType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    off_line: Optional[MdMediumPropertyType] = field(
+    off_line: MdMediumPropertyType | None = field(
         default=None,
         metadata={
             "name": "offLine",

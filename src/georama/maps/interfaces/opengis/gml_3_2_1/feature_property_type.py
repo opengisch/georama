@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_feature_type import (
     AbstractFeatureType,
@@ -107,7 +107,7 @@ class FeaturePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    rectified_grid_coverage: Optional[RectifiedGridCoverage] = field(
+    rectified_grid_coverage: RectifiedGridCoverage | None = field(
         default=None,
         metadata={
             "name": "RectifiedGridCoverage",
@@ -115,7 +115,7 @@ class FeaturePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    grid_coverage: Optional[GridCoverage] = field(
+    grid_coverage: GridCoverage | None = field(
         default=None,
         metadata={
             "name": "GridCoverage",
@@ -123,7 +123,7 @@ class FeaturePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_solid_coverage: Optional[MultiSolidCoverage] = field(
+    multi_solid_coverage: MultiSolidCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiSolidCoverage",
@@ -131,7 +131,7 @@ class FeaturePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_surface_coverage: Optional[MultiSurfaceCoverage] = field(
+    multi_surface_coverage: MultiSurfaceCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiSurfaceCoverage",
@@ -139,7 +139,7 @@ class FeaturePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_curve_coverage: Optional[MultiCurveCoverage] = field(
+    multi_curve_coverage: MultiCurveCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiCurveCoverage",
@@ -147,7 +147,7 @@ class FeaturePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_point_coverage: Optional[MultiPointCoverage] = field(
+    multi_point_coverage: MultiPointCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiPointCoverage",
@@ -155,7 +155,7 @@ class FeaturePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    dynamic_feature_collection: Optional[DynamicFeatureCollection] = field(
+    dynamic_feature_collection: DynamicFeatureCollection | None = field(
         default=None,
         metadata={
             "name": "DynamicFeatureCollection",
@@ -163,7 +163,7 @@ class FeaturePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    dynamic_feature: Optional[DynamicFeature] = field(
+    dynamic_feature: DynamicFeature | None = field(
         default=None,
         metadata={
             "name": "DynamicFeature",
@@ -186,22 +186,14 @@ class FeaturePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -209,28 +201,36 @@ class FeaturePropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -238,7 +238,7 @@ class FeaturePropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -250,7 +250,7 @@ class FeaturePropertyType:
 
 @dataclass
 class ObservationType(AbstractFeatureType):
-    valid_time: Optional[ValidTime] = field(
+    valid_time: ValidTime | None = field(
         default=None,
         metadata={
             "name": "validTime",
@@ -280,7 +280,7 @@ class ObservationType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    result_of: Optional[ResultOf] = field(
+    result_of: ResultOf | None = field(
         default=None,
         metadata={
             "name": "resultOf",
@@ -293,7 +293,7 @@ class ObservationType(AbstractFeatureType):
 
 @dataclass
 class DirectedObservationType(ObservationType):
-    direction: Optional[Direction] = field(
+    direction: Direction | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -353,7 +353,7 @@ class DirectedObservation(DirectedObservationType):
 
 @dataclass
 class DirectedObservationAtDistanceType(DirectedObservationType):
-    distance: Optional[MeasureType] = field(
+    distance: MeasureType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -506,7 +506,7 @@ class AbstractFeatureCollectionType(AbstractFeatureType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    feature_members: Optional[FeatureMembers] = field(
+    feature_members: FeatureMembers | None = field(
         default=None,
         metadata={
             "name": "featureMembers",
@@ -529,7 +529,7 @@ class FeatureCollection(FeatureCollectionType):
 
 @dataclass
 class ProcedurePropertyType:
-    feature_collection: Optional[FeatureCollection] = field(
+    feature_collection: FeatureCollection | None = field(
         default=None,
         metadata={
             "name": "FeatureCollection",
@@ -537,7 +537,7 @@ class ProcedurePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    directed_observation_at_distance: Optional[DirectedObservationAtDistance] = field(
+    directed_observation_at_distance: DirectedObservationAtDistance | None = field(
         default=None,
         metadata={
             "name": "DirectedObservationAtDistance",
@@ -545,7 +545,7 @@ class ProcedurePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    directed_observation: Optional[DirectedObservation] = field(
+    directed_observation: DirectedObservation | None = field(
         default=None,
         metadata={
             "name": "DirectedObservation",
@@ -553,7 +553,7 @@ class ProcedurePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    observation: Optional[Observation] = field(
+    observation: Observation | None = field(
         default=None,
         metadata={
             "name": "Observation",
@@ -561,7 +561,7 @@ class ProcedurePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    rectified_grid_coverage: Optional[RectifiedGridCoverage] = field(
+    rectified_grid_coverage: RectifiedGridCoverage | None = field(
         default=None,
         metadata={
             "name": "RectifiedGridCoverage",
@@ -569,7 +569,7 @@ class ProcedurePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    grid_coverage: Optional[GridCoverage] = field(
+    grid_coverage: GridCoverage | None = field(
         default=None,
         metadata={
             "name": "GridCoverage",
@@ -577,7 +577,7 @@ class ProcedurePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_solid_coverage: Optional[MultiSolidCoverage] = field(
+    multi_solid_coverage: MultiSolidCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiSolidCoverage",
@@ -585,7 +585,7 @@ class ProcedurePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_surface_coverage: Optional[MultiSurfaceCoverage] = field(
+    multi_surface_coverage: MultiSurfaceCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiSurfaceCoverage",
@@ -593,7 +593,7 @@ class ProcedurePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_curve_coverage: Optional[MultiCurveCoverage] = field(
+    multi_curve_coverage: MultiCurveCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiCurveCoverage",
@@ -601,7 +601,7 @@ class ProcedurePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_point_coverage: Optional[MultiPointCoverage] = field(
+    multi_point_coverage: MultiPointCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiPointCoverage",
@@ -609,7 +609,7 @@ class ProcedurePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    dynamic_feature_collection: Optional[DynamicFeatureCollection] = field(
+    dynamic_feature_collection: DynamicFeatureCollection | None = field(
         default=None,
         metadata={
             "name": "DynamicFeatureCollection",
@@ -617,7 +617,7 @@ class ProcedurePropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    dynamic_feature: Optional[DynamicFeature] = field(
+    dynamic_feature: DynamicFeature | None = field(
         default=None,
         metadata={
             "name": "DynamicFeature",
@@ -640,22 +640,14 @@ class ProcedurePropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -663,28 +655,36 @@ class ProcedurePropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -692,7 +692,7 @@ class ProcedurePropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",
@@ -704,7 +704,7 @@ class ProcedurePropertyType:
 
 @dataclass
 class TargetPropertyType:
-    feature_collection: Optional[FeatureCollection] = field(
+    feature_collection: FeatureCollection | None = field(
         default=None,
         metadata={
             "name": "FeatureCollection",
@@ -712,7 +712,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    directed_observation_at_distance: Optional[DirectedObservationAtDistance] = field(
+    directed_observation_at_distance: DirectedObservationAtDistance | None = field(
         default=None,
         metadata={
             "name": "DirectedObservationAtDistance",
@@ -720,7 +720,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    directed_observation: Optional[DirectedObservation] = field(
+    directed_observation: DirectedObservation | None = field(
         default=None,
         metadata={
             "name": "DirectedObservation",
@@ -728,7 +728,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    observation: Optional[Observation] = field(
+    observation: Observation | None = field(
         default=None,
         metadata={
             "name": "Observation",
@@ -736,7 +736,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    rectified_grid_coverage: Optional[RectifiedGridCoverage] = field(
+    rectified_grid_coverage: RectifiedGridCoverage | None = field(
         default=None,
         metadata={
             "name": "RectifiedGridCoverage",
@@ -744,7 +744,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    grid_coverage: Optional[GridCoverage] = field(
+    grid_coverage: GridCoverage | None = field(
         default=None,
         metadata={
             "name": "GridCoverage",
@@ -752,7 +752,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_solid_coverage: Optional[MultiSolidCoverage] = field(
+    multi_solid_coverage: MultiSolidCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiSolidCoverage",
@@ -760,7 +760,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_surface_coverage: Optional[MultiSurfaceCoverage] = field(
+    multi_surface_coverage: MultiSurfaceCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiSurfaceCoverage",
@@ -768,7 +768,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_curve_coverage: Optional[MultiCurveCoverage] = field(
+    multi_curve_coverage: MultiCurveCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiCurveCoverage",
@@ -776,7 +776,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_point_coverage: Optional[MultiPointCoverage] = field(
+    multi_point_coverage: MultiPointCoverage | None = field(
         default=None,
         metadata={
             "name": "MultiPointCoverage",
@@ -784,7 +784,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    dynamic_feature_collection: Optional[DynamicFeatureCollection] = field(
+    dynamic_feature_collection: DynamicFeatureCollection | None = field(
         default=None,
         metadata={
             "name": "DynamicFeatureCollection",
@@ -792,7 +792,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    dynamic_feature: Optional[DynamicFeature] = field(
+    dynamic_feature: DynamicFeature | None = field(
         default=None,
         metadata={
             "name": "DynamicFeature",
@@ -800,7 +800,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    rectified_grid: Optional[RectifiedGrid] = field(
+    rectified_grid: RectifiedGrid | None = field(
         default=None,
         metadata={
             "name": "RectifiedGrid",
@@ -808,7 +808,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    grid: Optional[Grid] = field(
+    grid: Grid | None = field(
         default=None,
         metadata={
             "name": "Grid",
@@ -816,7 +816,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    geometric_complex: Optional[GeometricComplex] = field(
+    geometric_complex: GeometricComplex | None = field(
         default=None,
         metadata={
             "name": "GeometricComplex",
@@ -824,7 +824,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_solid: Optional[MultiSolid] = field(
+    multi_solid: MultiSolid | None = field(
         default=None,
         metadata={
             "name": "MultiSolid",
@@ -832,7 +832,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_surface: Optional[MultiSurface] = field(
+    multi_surface: MultiSurface | None = field(
         default=None,
         metadata={
             "name": "MultiSurface",
@@ -840,7 +840,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_curve: Optional[MultiCurve] = field(
+    multi_curve: MultiCurve | None = field(
         default=None,
         metadata={
             "name": "MultiCurve",
@@ -848,7 +848,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_point: Optional[MultiPoint] = field(
+    multi_point: MultiPoint | None = field(
         default=None,
         metadata={
             "name": "MultiPoint",
@@ -856,7 +856,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    multi_geometry: Optional[MultiGeometry] = field(
+    multi_geometry: MultiGeometry | None = field(
         default=None,
         metadata={
             "name": "MultiGeometry",
@@ -864,7 +864,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    composite_solid: Optional[CompositeSolid] = field(
+    composite_solid: CompositeSolid | None = field(
         default=None,
         metadata={
             "name": "CompositeSolid",
@@ -872,7 +872,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    solid: Optional[Solid] = field(
+    solid: Solid | None = field(
         default=None,
         metadata={
             "name": "Solid",
@@ -880,7 +880,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    composite_surface: Optional[CompositeSurface] = field(
+    composite_surface: CompositeSurface | None = field(
         default=None,
         metadata={
             "name": "CompositeSurface",
@@ -888,7 +888,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    shell: Optional[Shell] = field(
+    shell: Shell | None = field(
         default=None,
         metadata={
             "name": "Shell",
@@ -896,7 +896,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    orientable_surface: Optional[OrientableSurface] = field(
+    orientable_surface: OrientableSurface | None = field(
         default=None,
         metadata={
             "name": "OrientableSurface",
@@ -904,7 +904,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    tin: Optional[Tin] = field(
+    tin: Tin | None = field(
         default=None,
         metadata={
             "name": "Tin",
@@ -912,7 +912,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    triangulated_surface: Optional[TriangulatedSurface] = field(
+    triangulated_surface: TriangulatedSurface | None = field(
         default=None,
         metadata={
             "name": "TriangulatedSurface",
@@ -920,7 +920,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    polyhedral_surface: Optional[PolyhedralSurface] = field(
+    polyhedral_surface: PolyhedralSurface | None = field(
         default=None,
         metadata={
             "name": "PolyhedralSurface",
@@ -928,7 +928,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    surface: Optional[Surface] = field(
+    surface: Surface | None = field(
         default=None,
         metadata={
             "name": "Surface",
@@ -936,7 +936,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    polygon: Optional[Polygon] = field(
+    polygon: Polygon | None = field(
         default=None,
         metadata={
             "name": "Polygon",
@@ -944,7 +944,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    composite_curve: Optional[CompositeCurve] = field(
+    composite_curve: CompositeCurve | None = field(
         default=None,
         metadata={
             "name": "CompositeCurve",
@@ -952,7 +952,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    orientable_curve: Optional[OrientableCurve] = field(
+    orientable_curve: OrientableCurve | None = field(
         default=None,
         metadata={
             "name": "OrientableCurve",
@@ -960,7 +960,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    curve: Optional[Curve] = field(
+    curve: Curve | None = field(
         default=None,
         metadata={
             "name": "Curve",
@@ -968,7 +968,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    ring: Optional[Ring] = field(
+    ring: Ring | None = field(
         default=None,
         metadata={
             "name": "Ring",
@@ -976,7 +976,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    linear_ring: Optional[LinearRing] = field(
+    linear_ring: LinearRing | None = field(
         default=None,
         metadata={
             "name": "LinearRing",
@@ -984,7 +984,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    line_string: Optional[LineString] = field(
+    line_string: LineString | None = field(
         default=None,
         metadata={
             "name": "LineString",
@@ -992,7 +992,7 @@ class TargetPropertyType:
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    point: Optional[Point] = field(
+    point: Point | None = field(
         default=None,
         metadata={
             "name": "Point",
@@ -1015,22 +1015,14 @@ class TargetPropertyType:
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    href: Optional[str] = field(
+    href: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    role: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/xlink",
-            "min_length": 1,
-        },
-    )
-    arcrole: Optional[str] = field(
+    role: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -1038,28 +1030,36 @@ class TargetPropertyType:
             "min_length": 1,
         },
     )
-    title: Optional[str] = field(
+    arcrole: str | None = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/xlink",
+            "min_length": 1,
+        },
+    )
+    title: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    show: Optional[ShowType] = field(
+    show: ShowType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    actuate: Optional[ActuateType] = field(
+    actuate: ActuateType | None = field(
         default=None,
         metadata={
             "type": "Attribute",
             "namespace": "http://www.w3.org/1999/xlink",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",
@@ -1067,7 +1067,7 @@ class TargetPropertyType:
             "pattern": r"other:\w{2,}",
         },
     )
-    remote_schema: Optional[str] = field(
+    remote_schema: str | None = field(
         default=None,
         metadata={
             "name": "remoteSchema",

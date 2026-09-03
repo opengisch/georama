@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.isotc211.org/2005/gmd"
 
@@ -15,13 +14,13 @@ class LocalisedCharacterStringType:
             "required": True,
         },
     )
-    id: Optional[str] = field(
+    id: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    locale: Optional[str] = field(
+    locale: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

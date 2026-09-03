@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.greenwich_longitude import (
     GreenwichLongitude,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class PrimeMeridianType(IdentifiedObjectType):
-    greenwich_longitude: Optional[GreenwichLongitude] = field(
+    greenwich_longitude: GreenwichLongitude | None = field(
         default=None,
         metadata={
             "name": "greenwichLongitude",

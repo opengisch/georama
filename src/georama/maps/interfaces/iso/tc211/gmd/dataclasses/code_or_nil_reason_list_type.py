@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.nil_reason_enumeration_value import (
     NilReasonEnumerationValue,
@@ -20,14 +19,14 @@ class CodeOrNilReasonListType:
     expected, but the value may be absent for some reason.
     """
 
-    value: List[Union[str, NilReasonEnumerationValue]] = field(
+    value: list[str | NilReasonEnumerationValue] = field(
         default_factory=list,
         metadata={
             "pattern": r"other:\w{2,}",
             "tokens": True,
         },
     )
-    code_space: Optional[str] = field(
+    code_space: str | None = field(
         default=None,
         metadata={
             "name": "codeSpace",

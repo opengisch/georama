@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.aeshetic_criteria_type import (
     AesheticCriteriaType,
@@ -24,28 +23,28 @@ class GraphStyleType(BaseStyleDescriptorType):
     Describes graph-specific style attributes.
     """
 
-    planar: Optional[bool] = field(
+    planar: bool | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    directed: Optional[bool] = field(
+    directed: bool | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    grid: Optional[bool] = field(
+    grid: bool | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    min_distance: Optional[float] = field(
+    min_distance: float | None = field(
         default=None,
         metadata={
             "name": "minDistance",
@@ -53,7 +52,7 @@ class GraphStyleType(BaseStyleDescriptorType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    min_angle: Optional[float] = field(
+    min_angle: float | None = field(
         default=None,
         metadata={
             "name": "minAngle",
@@ -61,7 +60,7 @@ class GraphStyleType(BaseStyleDescriptorType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    graph_type: Optional[GraphTypeType] = field(
+    graph_type: GraphTypeType | None = field(
         default=None,
         metadata={
             "name": "graphType",
@@ -69,7 +68,7 @@ class GraphStyleType(BaseStyleDescriptorType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    drawing_type: Optional[DrawingTypeType] = field(
+    drawing_type: DrawingTypeType | None = field(
         default=None,
         metadata={
             "name": "drawingType",
@@ -77,7 +76,7 @@ class GraphStyleType(BaseStyleDescriptorType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    line_type: Optional[LineTypeType] = field(
+    line_type: LineTypeType | None = field(
         default=None,
         metadata={
             "name": "lineType",

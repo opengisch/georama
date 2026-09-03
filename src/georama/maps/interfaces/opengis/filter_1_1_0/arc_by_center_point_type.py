@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -41,7 +40,7 @@ class ArcByCenterPointType(AbstractCurveSegmentType):
         attribute is fixed to "1".
     """
 
-    choice: Optional[Union[Pos, PointProperty, PointRep, PosList, Coordinates]] = field(
+    choice: Pos | PointProperty | PointRep | PosList | Coordinates | None = field(
         default=None,
         metadata={
             "type": "Elements",
@@ -74,7 +73,7 @@ class ArcByCenterPointType(AbstractCurveSegmentType):
             ),
         },
     )
-    radius: Optional[LengthType] = field(
+    radius: LengthType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -82,7 +81,7 @@ class ArcByCenterPointType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    start_angle: Optional[AngleType] = field(
+    start_angle: AngleType | None = field(
         default=None,
         metadata={
             "name": "startAngle",
@@ -90,7 +89,7 @@ class ArcByCenterPointType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml",
         },
     )
-    end_angle: Optional[AngleType] = field(
+    end_angle: AngleType | None = field(
         default=None,
         metadata={
             "name": "endAngle",

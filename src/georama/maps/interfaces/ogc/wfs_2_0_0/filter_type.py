@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.abstract_selection_clause_type import (
     AbstractSelectionClauseType,
@@ -59,48 +58,46 @@ __NAMESPACE__ = "http://www.opengis.net/fes/2.0"
 @dataclass
 class FilterType(AbstractSelectionClauseType):
     choice: list[
-        Union[
-            PropertyIsBetween,
-            PropertyIsNil,
-            PropertyIsNull,
-            PropertyIsLike,
-            PropertyIsGreaterThanOrEqualTo,
-            PropertyIsLessThanOrEqualTo,
-            PropertyIsGreaterThan,
-            PropertyIsLessThan,
-            PropertyIsNotEqualTo,
-            PropertyIsEqualTo,
-            Bbox,
-            Beyond,
-            Dwithin,
-            Contains,
-            Intersects,
-            Crosses,
-            Overlaps,
-            Within,
-            Touches,
-            Disjoint,
-            Equals,
-            AnyInteracts,
-            OverlappedBy,
-            Toverlaps,
-            MetBy,
-            Meets,
-            Tequals,
-            Ends,
-            EndedBy,
-            During,
-            Tcontains,
-            BegunBy,
-            Begins,
-            Before,
-            After,
-            Not,
-            Or,
-            And,
-            Function,
-            ResourceId,
-        ]
+        PropertyIsBetween
+        | PropertyIsNil
+        | PropertyIsNull
+        | PropertyIsLike
+        | PropertyIsGreaterThanOrEqualTo
+        | PropertyIsLessThanOrEqualTo
+        | PropertyIsGreaterThan
+        | PropertyIsLessThan
+        | PropertyIsNotEqualTo
+        | PropertyIsEqualTo
+        | Bbox
+        | Beyond
+        | Dwithin
+        | Contains
+        | Intersects
+        | Crosses
+        | Overlaps
+        | Within
+        | Touches
+        | Disjoint
+        | Equals
+        | AnyInteracts
+        | OverlappedBy
+        | Toverlaps
+        | MetBy
+        | Meets
+        | Tequals
+        | Ends
+        | EndedBy
+        | During
+        | Tcontains
+        | BegunBy
+        | Begins
+        | Before
+        | After
+        | Not
+        | Or
+        | And
+        | Function
+        | ResourceId
     ] = field(
         default_factory=list,
         metadata={

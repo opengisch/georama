@@ -4,7 +4,9 @@ from django.core.validators import RegexValidator
 
 from georama.core.models.membership import Membership
 
-SUBDOMAIN_REGEX = r"^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)?$"
+SUBDOMAIN_REGEX = (
+    r"^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)?$"
+)
 
 
 @pytest.mark.django_db

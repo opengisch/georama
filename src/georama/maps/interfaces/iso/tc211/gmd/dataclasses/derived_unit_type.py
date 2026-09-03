@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.derivation_unit_term import (
     DerivationUnitTerm,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class DerivedUnitType(UnitDefinitionType):
-    derivation_unit_term: List[DerivationUnitTerm] = field(
+    derivation_unit_term: list[DerivationUnitTerm] = field(
         default_factory=list,
         metadata={
             "name": "derivationUnitTerm",

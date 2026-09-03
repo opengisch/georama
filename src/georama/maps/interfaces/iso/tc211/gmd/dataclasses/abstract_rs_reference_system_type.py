@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -23,7 +22,7 @@ class AbstractRsReferenceSystemType(AbstractObjectType):
     class Meta:
         name = "AbstractRS_ReferenceSystem_Type"
 
-    name: Optional[RsIdentifierPropertyType] = field(
+    name: RsIdentifierPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -31,7 +30,7 @@ class AbstractRsReferenceSystemType(AbstractObjectType):
             "required": True,
         },
     )
-    domain_of_validity: List[ExExtentPropertyType] = field(
+    domain_of_validity: list[ExExtentPropertyType] = field(
         default_factory=list,
         metadata={
             "name": "domainOfValidity",

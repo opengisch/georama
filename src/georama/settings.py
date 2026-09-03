@@ -393,7 +393,9 @@ class Base(Configuration):
     QSL_EXPORTER_URL = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
 
     # GeoGirafe stuff
-    WEBGISURL = values.Value("https://localhost:9309", environ_prefix=GEORAMA_ENV_PREFIX)
+    WEBGISURL = values.Value(
+        "https://localhost:9309", environ_prefix=GEORAMA_ENV_PREFIX
+    )
 
     # Georama internal settings
     SITE_TITLE = values.Value("Georama", environ_prefix=GEORAMA_ENV_PREFIX)
@@ -403,7 +405,9 @@ class Base(Configuration):
     # e.g. sub.example.com or sub.sub.example.com
     ORGANISATION_DOMAIN = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
     # Allow public access on the global application or not
-    ORGANISATION_GLOBAL_PUBLIC_ACCESS = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+    ORGANISATION_GLOBAL_PUBLIC_ACCESS = values.BooleanValue(
+        True, environ_prefix=GEORAMA_ENV_PREFIX
+    )
     # view name which should be used to redirect to, when someone tries to
     # access nonpublic organisation unauthenticated
     ORGANISATION_NOT_AUTHENTICATED_TARGET = values.Value(
@@ -445,7 +449,9 @@ class Base(Configuration):
 
     # The name which identifies the OGC server of Georama for the webgis app
     # it's the name which will be used in the themes.json response for GeoGirafe
-    WEBGIS_OGC_SERVER_NAME = values.Value("georama.webgis", environ_prefix=GEORAMA_ENV_PREFIX)
+    WEBGIS_OGC_SERVER_NAME = values.Value(
+        "georama.webgis", environ_prefix=GEORAMA_ENV_PREFIX
+    )
 
 
 class Dev(Base):

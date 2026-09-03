@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.increment_order import (
     IncrementOrder,
@@ -21,19 +20,19 @@ class SequenceRuleType:
     default is “Linear”.
     """
 
-    value: Optional[SequenceRuleEnumeration] = field(
+    value: SequenceRuleEnumeration | None = field(
         default=None,
         metadata={
             "required": True,
         },
     )
-    order: Optional[IncrementOrder] = field(
+    order: IncrementOrder | None = field(
         default=None,
         metadata={
             "type": "Attribute",
         },
     )
-    axis_order: List[str] = field(
+    axis_order: list[str] = field(
         default_factory=list,
         metadata={
             "name": "axisOrder",

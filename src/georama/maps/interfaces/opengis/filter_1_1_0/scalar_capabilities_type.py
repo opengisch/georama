@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.filter_1_1_0.arithmetic_operators_type import (
     ArithmeticOperatorsType,
@@ -19,7 +18,7 @@ class ScalarCapabilitiesType:
     class Meta:
         name = "Scalar_CapabilitiesType"
 
-    logical_operators: Optional[LogicalOperators] = field(
+    logical_operators: LogicalOperators | None = field(
         default=None,
         metadata={
             "name": "LogicalOperators",
@@ -27,7 +26,7 @@ class ScalarCapabilitiesType:
             "namespace": "http://www.opengis.net/ogc",
         },
     )
-    comparison_operators: Optional[ComparisonOperatorsType] = field(
+    comparison_operators: ComparisonOperatorsType | None = field(
         default=None,
         metadata={
             "name": "ComparisonOperators",
@@ -35,7 +34,7 @@ class ScalarCapabilitiesType:
             "namespace": "http://www.opengis.net/ogc",
         },
     )
-    arithmetic_operators: Optional[ArithmeticOperatorsType] = field(
+    arithmetic_operators: ArithmeticOperatorsType | None = field(
         default=None,
         metadata={
             "name": "ArithmeticOperators",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.horizontal_angle import (
     HorizontalAngle,
@@ -17,7 +16,7 @@ class DirectionVectorType:
     """
 
     vector_or_horizontal_angle_or_vertical_angle: list[
-        Union[Vector, HorizontalAngle, VerticalAngle]
+        Vector | HorizontalAngle | VerticalAngle
     ] = field(
         default_factory=list,
         metadata={

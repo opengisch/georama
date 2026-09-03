@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from xsdata.models.datatype import XmlTime
 
@@ -34,7 +33,7 @@ class TimeClockType(AbstractTimeReferenceSystemType):
     :ivar date_basis:
     """
 
-    reference_event: Optional[StringOrRefType] = field(
+    reference_event: StringOrRefType | None = field(
         default=None,
         metadata={
             "name": "referenceEvent",
@@ -43,7 +42,7 @@ class TimeClockType(AbstractTimeReferenceSystemType):
             "required": True,
         },
     )
-    reference_time: Optional[XmlTime] = field(
+    reference_time: XmlTime | None = field(
         default=None,
         metadata={
             "name": "referenceTime",
@@ -52,7 +51,7 @@ class TimeClockType(AbstractTimeReferenceSystemType):
             "required": True,
         },
     )
-    utc_reference: Optional[XmlTime] = field(
+    utc_reference: XmlTime | None = field(
         default=None,
         metadata={
             "name": "utcReference",

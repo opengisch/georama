@@ -8,7 +8,9 @@ from georama.features.views.pygeoapi import PygeoapiServer
 app_name = "features"
 
 management_router = routers.SimpleRouter()
-management_router.register(r"feature_layers", ManageFeatureLayerViewSet, basename="feature-manager")
+management_router.register(
+    r"feature_layers", ManageFeatureLayerViewSet, basename="feature-manager"
+)
 
 router = DefaultRouter()
 router.register(r"feature_layers", FeatureLayerViewSet, basename="feature")

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_curve_segment_type import (
     AbstractCurveSegmentType,
@@ -42,7 +41,7 @@ class CubicSplineType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    pos_list: Optional[PosList] = field(
+    pos_list: PosList | None = field(
         default=None,
         metadata={
             "name": "posList",
@@ -50,14 +49,14 @@ class CubicSplineType(AbstractCurveSegmentType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    coordinates: Optional[Coordinates] = field(
+    coordinates: Coordinates | None = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    vector_at_start: Optional[VectorType] = field(
+    vector_at_start: VectorType | None = field(
         default=None,
         metadata={
             "name": "vectorAtStart",
@@ -66,7 +65,7 @@ class CubicSplineType(AbstractCurveSegmentType):
             "required": True,
         },
     )
-    vector_at_end: Optional[VectorType] = field(
+    vector_at_end: VectorType | None = field(
         default=None,
         metadata={
             "name": "vectorAtEnd",

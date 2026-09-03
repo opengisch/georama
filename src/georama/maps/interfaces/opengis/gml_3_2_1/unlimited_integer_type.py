@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 __NAMESPACE__ = "http://www.isotc211.org/2005/gco"
 
@@ -9,13 +8,13 @@ class UnlimitedIntegerType:
     class Meta:
         name = "UnlimitedInteger_Type"
 
-    value: Optional[int] = field(
+    value: int | None = field(
         default=None,
         metadata={
             "required": True,
         },
     )
-    is_infinite: Optional[bool] = field(
+    is_infinite: bool | None = field(
         default=None,
         metadata={
             "name": "isInfinite",

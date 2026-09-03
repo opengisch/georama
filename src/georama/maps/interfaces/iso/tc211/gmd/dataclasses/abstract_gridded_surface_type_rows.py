@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_gridded_surface_type_rows_row import (
     AbstractGriddedSurfaceTypeRowsRow,
@@ -13,7 +12,7 @@ class AbstractGriddedSurfaceTypeRows:
     class Meta:
         global_type = False
 
-    row: List[AbstractGriddedSurfaceTypeRowsRow] = field(
+    row: list[AbstractGriddedSurfaceTypeRowsRow] = field(
         default_factory=list,
         metadata={
             "name": "Row",

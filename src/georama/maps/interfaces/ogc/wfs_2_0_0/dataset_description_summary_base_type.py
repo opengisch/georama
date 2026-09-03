@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.bounding_box import BoundingBox
 from georama.maps.interfaces.ogc.wfs_2_0_0.code_type import CodeType
@@ -66,7 +65,7 @@ class DatasetDescriptionSummaryBaseType(DescriptionType):
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    identifier: Optional[CodeType] = field(
+    identifier: CodeType | None = field(
         default=None,
         metadata={
             "name": "Identifier",

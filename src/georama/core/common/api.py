@@ -53,7 +53,9 @@ def build_mock_request(method, path, view, original_request, **kwargs):
     transport all attributes (DRF SPectacular), this method is configured in the
     settings py then!
     """
-    request = original_build_mock_request(method, path, view, original_request, **kwargs)
+    request = original_build_mock_request(
+        method, path, view, original_request, **kwargs
+    )
     if original_request:
         request.georama_organisation = original_request.georama_organisation
     return request
@@ -119,7 +121,10 @@ class GeoramaTemplateViewSetReadOnly(
         search_fields = getattr(self, "search_fields", [])
         search_fields_hint = f"{_('searchable fields')}: {
             ', '.join(
-                [_(self._prettify_field_name(field_name, True)) for field_name in search_fields]
+                [
+                    _(self._prettify_field_name(field_name, True))
+                    for field_name in search_fields
+                ]
             )
         }"
 
@@ -128,7 +133,9 @@ class GeoramaTemplateViewSetReadOnly(
             # this is how the filters.SearchFilter does it too
             "search_fields": search_fields,
             "search_param": filters.SearchFilter.search_param,
-            "search_term": self.request.query_params.get(filters.SearchFilter.search_param, ""),
+            "search_term": self.request.query_params.get(
+                filters.SearchFilter.search_param, ""
+            ),
             "search_fields_hint": search_fields_hint,
             "ordering_param": filters.OrderingFilter.ordering_param,
             "breadcrumbs": await self.get_breadcrumbs(),
@@ -200,7 +207,9 @@ class GeoramaTemplateViewSetReadOnly(
             ordering.insert(0, field)
         return ordering
 
-    def build_ordering_context(self, request, queryset, ordering_filter: filters.OrderingFilter):
+    def build_ordering_context(
+        self, request, queryset, ordering_filter: filters.OrderingFilter
+    ):
         """Builds the template context for rendering ordering buttons."""
         current_ordering = ordering_filter.get_ordering(request, queryset, self) or []
         query_params = request.GET.copy()
@@ -320,7 +329,9 @@ class GeoramaTemplateViewSet(
         if self.request.META.get("GR-Src"):
             # call came from another app, we filter for only the fitting ones:
             remote_actions = [
-                ra for ra in remote_actions if ra.name == self.request.resolver_match.app_name
+                ra
+                for ra in remote_actions
+                if ra.name == self.request.resolver_match.app_name
             ]
         remote_actions = [
             ra
@@ -514,7 +525,10 @@ class GeoramaObjPermMixin:
             return queryset
         if self.request.user.is_authenticated:
             qs = await sync_to_async(get_objects_for_user, thread_sensitive=True)(
-                self.request.user, self.required_obj_perms, klass=queryset, any_perm=True
+                self.request.user,
+                self.required_obj_perms,
+                klass=queryset,
+                any_perm=True,
             ) | queryset.filter(public=True)
         else:
             qs = queryset.filter(public=True)
@@ -543,8 +557,6 @@ class OrganisationalModelViewSet(GeoramaOrganisationalMixin, viewsets.ModelViewS
             georama_organisation attribute.
     """
 
-    pass
-
 
 class GeoramaObjPermViewSetReadOnly(
     GeoramaObjPermMixin,
@@ -566,7 +578,10 @@ class GeoramaObjPermViewSetReadOnly(
 
 
 class GeoramaObjPermViewSet(
-    GeoramaObjPermMixin, GeoramaManageableMixin, GeoramaOrganisationalMixin, GeoramaTemplateViewSet
+    GeoramaObjPermMixin,
+    GeoramaManageableMixin,
+    GeoramaOrganisationalMixin,
+    GeoramaTemplateViewSet,
 ):
     """This viewset offers a full CRUD variant which is filtered for object
     permissions on the configured permissions. The content is filtered based on objects
@@ -618,7 +633,9 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
     """
 
     permissions_template_name: str = "core/drf/default/permissions.html"
-    permissions_list_template_name: str = "core/drf/default/includes/permissions_list_htmx.html"
+    permissions_list_template_name: str = (
+        "core/drf/default/includes/permissions_list_htmx.html"
+    )
     permissions_inherited_template_name: str = (
         "core/drf/default/includes/permissions_inherited_htmx.html"
     )
@@ -678,7 +695,9 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
     def _build_users_permissions_qs(
         self, pk: str, sort_by_latest: bool, permission_filters: dict, filter_name: str
     ):
-        group_perm_model = self.queryset.model.group_object_permissions.rel.related_model
+        group_perm_model = (
+            self.queryset.model.group_object_permissions.rel.related_model
+        )
         user_perm_model = self.queryset.model.user_object_permissions.rel.related_model
 
         qs = User.objects.annotate(
@@ -686,7 +705,9 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             entity_name=F("username"),
             entity_permissions=JSONObject(
                 **{
-                    permission: self._permission_exist(user_perm_model, "user_id", codename, pk)
+                    permission: self._permission_exist(
+                        user_perm_model, "user_id", codename, pk
+                    )
                     for permission, codename in self.queryset.model.PERMISSIONS.items()
                 }
             ),
@@ -726,14 +747,18 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         filter_name: str,
         filter_user: str,
     ):
-        group_perm_model = self.queryset.model.group_object_permissions.rel.related_model
+        group_perm_model = (
+            self.queryset.model.group_object_permissions.rel.related_model
+        )
 
         qs = Group.objects.annotate(
             entity_id=F("pk"),
             entity_name=F("name"),
             entity_permissions=JSONObject(
                 **{
-                    permission: self._permission_exist(group_perm_model, "group_id", codename, pk)
+                    permission: self._permission_exist(
+                        group_perm_model, "group_id", codename, pk
+                    )
                     for permission, codename in self.queryset.model.PERMISSIONS.items()
                 }
             ),
@@ -800,7 +825,9 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         if request.method == "POST":
             action_map = self.queryset.model.ACTION_MAP
 
-            payload_serializer = self.permissions_action_serializer_class(data=request.data)
+            payload_serializer = self.permissions_action_serializer_class(
+                data=request.data
+            )
             if not payload_serializer.is_valid():
                 messages.error(request, payload_serializer.errors)
                 return self._redirect(request, pk)
@@ -810,7 +837,9 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             groups = payload_serializer.validated_data["groups"]
 
             add, permission_names, _action_label = action_map[action_name]
-            permission_action = sync_to_async(assign_perm) if add else sync_to_async(remove_perm)
+            permission_action = (
+                sync_to_async(assign_perm) if add else sync_to_async(remove_perm)
+            )
             found_users = []
             found_groups = []
 
@@ -818,14 +847,18 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             async for user in User.objects.filter(id__in=users):
                 found_users.append(str(user.id))
                 for permission_name in permission_names:
-                    full_permission = f"{self.queryset.model._meta.app_label}.{permission_name}"
+                    full_permission = (
+                        f"{self.queryset.model._meta.app_label}.{permission_name}"
+                    )
                     await permission_action(full_permission, user, context["object"])
 
             # Should we do some validation here (or in the serializers) ?
             async for group in Group.objects.filter(id__in=groups):
                 found_groups.append(str(group.id))
                 for permission_name in permission_names:
-                    full_permission = f"{self.queryset.model._meta.app_label}.{permission_name}"
+                    full_permission = (
+                        f"{self.queryset.model._meta.app_label}.{permission_name}"
+                    )
                     await permission_action(full_permission, group, context["object"])
 
             if request.accepted_renderer.format == "html":
@@ -883,7 +916,9 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             )
 
             if request.META.get("HTTP_HX_REQUEST") == "true":
-                if request.META.get("HTTP_HX_TARGET", "").startswith("inherited-permissions-"):
+                if request.META.get("HTTP_HX_TARGET", "").startswith(
+                    "inherited-permissions-"
+                ):
                     template = self.permissions_inherited_template_name
                 else:
                     template = self.permissions_list_template_name

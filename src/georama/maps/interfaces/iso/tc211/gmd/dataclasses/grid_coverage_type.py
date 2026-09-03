@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_discrete_coverage_type import (
     AbstractDiscreteCoverageType,
@@ -59,7 +59,7 @@ class GridCoverageType(AbstractDiscreteCoverageType):
             "type": "Ignore",
         },
     )
-    grid_domain: Optional[GridDomain] = field(
+    grid_domain: GridDomain | None = field(
         default=None,
         metadata={
             "name": "gridDomain",

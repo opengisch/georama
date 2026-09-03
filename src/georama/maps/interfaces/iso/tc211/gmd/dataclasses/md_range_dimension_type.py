@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_object_type import (
     AbstractObjectType,
@@ -24,7 +23,7 @@ class MdRangeDimensionType(AbstractObjectType):
     class Meta:
         name = "MD_RangeDimension_Type"
 
-    sequence_identifier: Optional[MemberNamePropertyType] = field(
+    sequence_identifier: MemberNamePropertyType | None = field(
         default=None,
         metadata={
             "name": "sequenceIdentifier",
@@ -32,7 +31,7 @@ class MdRangeDimensionType(AbstractObjectType):
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    descriptor: Optional[CharacterStringPropertyType] = field(
+    descriptor: CharacterStringPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

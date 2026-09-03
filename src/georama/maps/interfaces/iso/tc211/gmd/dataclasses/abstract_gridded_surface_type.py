@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.abstract_gridded_surface_type_rows import (
     AbstractGriddedSurfaceTypeRows,
@@ -13,7 +12,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml"
 
 @dataclass
 class AbstractGriddedSurfaceType(AbstractParametricCurveSurfaceType):
-    rows: Optional[AbstractGriddedSurfaceTypeRows] = field(
+    rows: AbstractGriddedSurfaceTypeRows | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -21,14 +20,14 @@ class AbstractGriddedSurfaceType(AbstractParametricCurveSurfaceType):
             "required": True,
         },
     )
-    rows_attribute: Optional[int] = field(
+    rows_attribute: int | None = field(
         default=None,
         metadata={
             "name": "rows",
             "type": "Attribute",
         },
     )
-    columns: Optional[int] = field(
+    columns: int | None = field(
         default=None,
         metadata={
             "type": "Attribute",

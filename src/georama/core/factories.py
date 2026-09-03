@@ -93,4 +93,6 @@ class MembershipFactory(factory.django.DjangoModelFactory):
         skip_postgeneration_save = True
 
     user = factory.SubFactory(UserFactory)
-    organisation = factory.LazyAttribute(lambda obj: random.choice([None, OrganisationFactory()]))
+    organisation = factory.LazyAttribute(
+        lambda obj: random.choice([None, OrganisationFactory()])
+    )

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.md_resolution import MdResolution
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.nil_reason_enumeration_value import (
@@ -14,7 +13,7 @@ class MdResolutionPropertyType:
     class Meta:
         name = "MD_Resolution_PropertyType"
 
-    md_resolution: Optional[MdResolution] = field(
+    md_resolution: MdResolution | None = field(
         default=None,
         metadata={
             "name": "MD_Resolution",
@@ -22,7 +21,7 @@ class MdResolutionPropertyType:
             "namespace": "http://www.isotc211.org/2005/gmd",
         },
     )
-    nil_reason: Optional[Union[str, NilReasonEnumerationValue]] = field(
+    nil_reason: str | NilReasonEnumerationValue | None = field(
         default=None,
         metadata={
             "name": "nilReason",

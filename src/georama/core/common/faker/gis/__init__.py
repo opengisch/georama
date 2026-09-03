@@ -8,7 +8,14 @@ from faker import Faker
 from faker.providers import BaseProvider
 from pyproj import CRS, Transformer
 from shapely import box
-from shapely.geometry import LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon
+from shapely.geometry import (
+    LineString,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
+)
 
 localized = True
 default_locale = "de_CH"
@@ -70,7 +77,10 @@ def get_epsg_bounds(
             x1, y1 = transformer.transform(minx, miny)
             x2, y2 = transformer.transform(maxx, maxy)
             new_bounds = (min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2))
-            return new_bounds, wgs84_bounds  # (west/minx, south/miny, east/maxx, north/maxy)
+            return (
+                new_bounds,
+                wgs84_bounds,
+            )  # (west/minx, south/miny, east/maxx, north/maxy)
 
         # Fallback for C.R.S without area_of_use
         if crs.is_geographic:
@@ -652,11 +662,14 @@ class Provider(BaseProvider):
         coords = self._random_coordinates(num_points)
         return MultiPoint(coords)
 
-    def multilinestring(self, num_lines: int = 3, points_per_line: int = 5) -> MultiLineString:
+    def multilinestring(
+        self, num_lines: int = 3, points_per_line: int = 5
+    ) -> MultiLineString:
         """Generate a random valid MultiLineString as WKB."""
 
         lines = [
-            LineString(self._random_coordinates(max(2, points_per_line))) for _ in range(num_lines)
+            LineString(self._random_coordinates(max(2, points_per_line)))
+            for _ in range(num_lines)
         ]
         return MultiLineString(lines)
 
@@ -718,7 +731,9 @@ class Provider(BaseProvider):
         multi_polygon = MultiPolygon(polygons)
 
         if not multi_polygon.is_valid:
-            raise ValueError(f"Generated invalid MultiPolygon: {multi_polygon.is_valid}")
+            raise ValueError(
+                f"Generated invalid MultiPolygon: {multi_polygon.is_valid}"
+            )
 
         return multi_polygon
 
@@ -744,7 +759,9 @@ class Provider(BaseProvider):
 
     def vector_dataset(self, db_schema: str, min_records=10, max_records=50):
         schema: Schema = random.choice(self.schemas)
-        fields: list[Field] = random.sample(schema.fields, random.randint(1, len(schema.fields)))
+        fields: list[Field] = random.sample(
+            schema.fields, random.randint(1, len(schema.fields))
+        )
         table_name = f"{schema.name}_{self.sub_faker.unique.word()}"
         geometry_field_name = self.geometry_column_name()
         create_sql = self._produce_create_sql(
@@ -775,11 +792,15 @@ class Provider(BaseProvider):
         elif geom_gen in ["polygon", "multipolygon"]:
             return "polygon"
         else:
-            raise LookupError(f"Geomtry type not available for simplifiaciton: {geom_gen}")
+            raise LookupError(
+                f"Geomtry type not available for simplifiaciton: {geom_gen}"
+            )
 
     def vector_datasets(self, db_schema: str, amount=5, min_records=10, max_records=50):
         return [
-            self.vector_dataset(db_schema, min_records=min_records, max_records=max_records)
+            self.vector_dataset(
+                db_schema, min_records=min_records, max_records=max_records
+            )
             for _ in range(amount)
         ]
 
@@ -799,7 +820,9 @@ class Provider(BaseProvider):
         {",\n".join(self._produce_insert_sql_values(fields, geom_gen, amount))};
         """
 
-    def _produce_insert_sql_values(self, fields: list[Field], geom_gen: str, amount: int):
+    def _produce_insert_sql_values(
+        self, fields: list[Field], geom_gen: str, amount: int
+    ):
         return [self._produce_insert_sql_value(fields, geom_gen) for _ in range(amount)]
 
     def _produce_insert_sql_value(self, fields: list[Field], geom_gen: str):
@@ -841,8 +864,12 @@ class Provider(BaseProvider):
     def geometry_column_name(self):
         return random.choice(["geom", "geometry", "the_geom", "g"])
 
-    def _produce_create_sql_geom_part(self, geometry_type: str, geometry_field_name: str):
-        return f"{geometry_field_name} geometry({geometry_type.upper()},{self.epsg_code})"
+    def _produce_create_sql_geom_part(
+        self, geometry_type: str, geometry_field_name: str
+    ):
+        return (
+            f"{geometry_field_name} geometry({geometry_type.upper()},{self.epsg_code})"
+        )
 
     def _produce_create_sql_field_parts(self, fields: list[Field]) -> list[str]:
         return [self._produce_create_sql_field_part(field) for field in fields]

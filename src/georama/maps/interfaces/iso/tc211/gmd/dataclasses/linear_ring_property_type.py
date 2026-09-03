@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.linear_ring import LinearRing
 
@@ -13,7 +12,7 @@ class LinearRingPropertyType:
     linear ring to represent a component of a surface boundary.
     """
 
-    linear_ring: Optional[LinearRing] = field(
+    linear_ring: LinearRing | None = field(
         default=None,
         metadata={
             "name": "LinearRing",

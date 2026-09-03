@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from georama.maps.interfaces.opengis.filter_1_1_0.abstract_curve_type import (
     AbstractCurveType,
@@ -25,41 +24,43 @@ class LineStringType(AbstractCurveType):
     LineStringSegment.
     """
 
-    choice_1: list[Union[Pos, PointProperty, PointRep, Coord, PosList, Coordinates]] = field(
-        default_factory=list,
-        metadata={
-            "type": "Elements",
-            "choices": (
-                {
-                    "name": "pos",
-                    "type": Pos,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "pointProperty",
-                    "type": PointProperty,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "pointRep",
-                    "type": PointRep,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "coord",
-                    "type": Coord,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "posList",
-                    "type": PosList,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-                {
-                    "name": "coordinates",
-                    "type": Coordinates,
-                    "namespace": "http://www.opengis.net/gml",
-                },
-            ),
-        },
+    choice_1: list[Pos | PointProperty | PointRep | Coord | PosList | Coordinates] = (
+        field(
+            default_factory=list,
+            metadata={
+                "type": "Elements",
+                "choices": (
+                    {
+                        "name": "pos",
+                        "type": Pos,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "pointProperty",
+                        "type": PointProperty,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "pointRep",
+                        "type": PointRep,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "coord",
+                        "type": Coord,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "posList",
+                        "type": PosList,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                    {
+                        "name": "coordinates",
+                        "type": Coordinates,
+                        "namespace": "http://www.opengis.net/gml",
+                    },
+                ),
+            },
+        )
     )

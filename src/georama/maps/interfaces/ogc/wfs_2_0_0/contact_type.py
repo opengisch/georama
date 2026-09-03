@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.ogc.wfs_2_0_0.address_type import AddressType
 from georama.maps.interfaces.ogc.wfs_2_0_0.online_resource_type import (
@@ -38,7 +37,7 @@ class ContactType:
         to contact the individual or organization.
     """
 
-    phone: Optional[TelephoneType] = field(
+    phone: TelephoneType | None = field(
         default=None,
         metadata={
             "name": "Phone",
@@ -46,7 +45,7 @@ class ContactType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    address: Optional[AddressType] = field(
+    address: AddressType | None = field(
         default=None,
         metadata={
             "name": "Address",
@@ -54,7 +53,7 @@ class ContactType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    online_resource: Optional[OnlineResourceType] = field(
+    online_resource: OnlineResourceType | None = field(
         default=None,
         metadata={
             "name": "OnlineResource",
@@ -62,7 +61,7 @@ class ContactType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    hours_of_service: Optional[str] = field(
+    hours_of_service: str | None = field(
         default=None,
         metadata={
             "name": "HoursOfService",
@@ -70,7 +69,7 @@ class ContactType:
             "namespace": "http://www.opengis.net/ows/1.1",
         },
     )
-    contact_instructions: Optional[str] = field(
+    contact_instructions: str | None = field(
         default=None,
         metadata={
             "name": "ContactInstructions",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.conversion_to_preferred_unit import (
     ConversionToPreferredUnit,
@@ -19,7 +18,7 @@ __NAMESPACE__ = "http://www.opengis.net/gml/3.2"
 
 @dataclass
 class ConventionalUnitType(UnitDefinitionType):
-    conversion_to_preferred_unit: Optional[ConversionToPreferredUnit] = field(
+    conversion_to_preferred_unit: ConversionToPreferredUnit | None = field(
         default=None,
         metadata={
             "name": "conversionToPreferredUnit",
@@ -27,7 +26,7 @@ class ConventionalUnitType(UnitDefinitionType):
             "namespace": "http://www.opengis.net/gml/3.2",
         },
     )
-    rough_conversion_to_preferred_unit: Optional[RoughConversionToPreferredUnit] = field(
+    rough_conversion_to_preferred_unit: RoughConversionToPreferredUnit | None = field(
         default=None,
         metadata={
             "name": "roughConversionToPreferredUnit",

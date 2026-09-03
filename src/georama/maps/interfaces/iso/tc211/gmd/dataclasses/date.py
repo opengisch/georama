@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 from xsdata.models.datatype import XmlDate, XmlPeriod
 
@@ -12,7 +11,7 @@ class Date:
         nillable = True
         namespace = "http://www.isotc211.org/2005/gco"
 
-    value: Optional[Union[XmlDate, XmlPeriod]] = field(
+    value: XmlDate | XmlPeriod | None = field(
         default=None,
         metadata={
             "nillable": True,

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.polygon_patches import (
     PolygonPatches,
@@ -23,7 +23,7 @@ class PolyhedralSurfaceType(SurfaceType):
             "type": "Ignore",
         },
     )
-    polygon_patches: Optional[PolygonPatches] = field(
+    polygon_patches: PolygonPatches | None = field(
         default=None,
         metadata={
             "name": "polygonPatches",

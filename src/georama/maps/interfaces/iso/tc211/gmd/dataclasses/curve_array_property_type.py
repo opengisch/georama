@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.curve_property_type import (
     CompositeCurve,
@@ -20,7 +19,7 @@ class CurveArrayPropertyType:
     supported.
     """
 
-    composite_curve: List[CompositeCurve] = field(
+    composite_curve: list[CompositeCurve] = field(
         default_factory=list,
         metadata={
             "name": "CompositeCurve",
@@ -29,7 +28,7 @@ class CurveArrayPropertyType:
             "sequence": 1,
         },
     )
-    orientable_curve: List[OrientableCurve] = field(
+    orientable_curve: list[OrientableCurve] = field(
         default_factory=list,
         metadata={
             "name": "OrientableCurve",
@@ -38,7 +37,7 @@ class CurveArrayPropertyType:
             "sequence": 1,
         },
     )
-    curve: List[Curve] = field(
+    curve: list[Curve] = field(
         default_factory=list,
         metadata={
             "name": "Curve",
@@ -47,7 +46,7 @@ class CurveArrayPropertyType:
             "sequence": 1,
         },
     )
-    line_string: List[LineString] = field(
+    line_string: list[LineString] = field(
         default_factory=list,
         metadata={
             "name": "LineString",

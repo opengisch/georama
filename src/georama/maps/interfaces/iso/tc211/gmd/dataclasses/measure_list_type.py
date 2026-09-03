@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 __NAMESPACE__ = "http://www.opengis.net/gml"
 
@@ -10,13 +9,13 @@ class MeasureListType:
     Gml:MeasureListType provides for a list of quantities.
     """
 
-    value: List[float] = field(
+    value: list[float] = field(
         default_factory=list,
         metadata={
             "tokens": True,
         },
     )
-    uom: Optional[str] = field(
+    uom: str | None = field(
         default=None,
         metadata={
             "type": "Attribute",

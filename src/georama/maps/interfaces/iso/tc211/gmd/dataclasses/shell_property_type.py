@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses.shell import Shell
 
@@ -13,7 +12,7 @@ class ShellPropertyType:
     to represent a component of a solid boundary.
     """
 
-    shell: Optional[Shell] = field(
+    shell: Shell | None = field(
         default=None,
         metadata={
             "name": "Shell",

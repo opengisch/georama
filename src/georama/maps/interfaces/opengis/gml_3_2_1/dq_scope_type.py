@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 from georama.maps.interfaces.opengis.gml_3_2_1.abstract_object_type import (
     AbstractObjectType,
@@ -22,7 +21,7 @@ class DqScopeType(AbstractObjectType):
     class Meta:
         name = "DQ_Scope_Type"
 
-    level: Optional[MdScopeCodePropertyType] = field(
+    level: MdScopeCodePropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",
@@ -30,7 +29,7 @@ class DqScopeType(AbstractObjectType):
             "required": True,
         },
     )
-    extent: Optional[ExExtentPropertyType] = field(
+    extent: ExExtentPropertyType | None = field(
         default=None,
         metadata={
             "type": "Element",

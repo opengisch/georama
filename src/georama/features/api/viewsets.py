@@ -72,7 +72,9 @@ class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
             context["breadcrumb_action"] = BreadcrumbAction(
                 url=reverse("integration:manager-vector-list"),
                 tooltip=_("Publish a Vector Datasource as FeatureLayer"),
-                hint=_("Select a Vector Datasource to publish it as a new FeatureLayer"),
+                hint=_(
+                    "Select a Vector Datasource to publish it as a new FeatureLayer"
+                ),
                 title=_("FeatureLayer"),
                 type=ActionType.EMBEDDED,
                 icon="fa fa-circle-plus",

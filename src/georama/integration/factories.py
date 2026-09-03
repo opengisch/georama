@@ -15,7 +15,7 @@ from georama.integration import models
 fake = Faker()
 
 COLUMNS = [
-    # name,type,alias,nullable,type_oapif,is_primary_key,length,precision,type_oapif_format,type_wfs,comment # noqa E501
+    # name,type,alias,nullable,type_oapif,is_primary_key,length,precision,type_oapif_format,type_wfs,comment
     (
         "AREA",
         "float8",
@@ -866,7 +866,8 @@ STYLES = {
                 definition=urlsafe_b64encode(
                     zlib.compress(
                         (
-                            settings.BASE_DIR / f"tests/resources/styles/{geometry_type}.qml"
+                            settings.BASE_DIR
+                            / f"tests/resources/styles/{geometry_type}.qml"
                         ).read_bytes()
                     )
                 ).decode(),
@@ -892,7 +893,9 @@ class ProjectFactory(factory.django.DjangoModelFactory):
             depth=random.randint(0, 4), absolute=False, extension=["qgs", "qgz"]
         )
     )
-    organisation = factory.LazyFunction(lambda: random.choice([OrganisationFactory(), None]))
+    organisation = factory.LazyFunction(
+        lambda: random.choice([OrganisationFactory(), None])
+    )
 
 
 class DatasourceFactory(factory.django.DjangoModelFactory):
@@ -908,8 +911,12 @@ class DatasourceFactory(factory.django.DjangoModelFactory):
     styles = []
     driver = factory.Iterator(["ogr", "gdal", "postgres"])
     crs = {}
-    minimum_scale = factory.Faker("pyfloat", min_value=10.0, max_value=80000.0, positive=True)
-    maximum_scale = factory.Faker("pyfloat", min_value=85000.0, max_value=1000000.0, positive=True)
+    minimum_scale = factory.Faker(
+        "pyfloat", min_value=10.0, max_value=80000.0, positive=True
+    )
+    maximum_scale = factory.Faker(
+        "pyfloat", min_value=85000.0, max_value=1000000.0, positive=True
+    )
     project = factory.SubFactory(ProjectFactory)
 
 
@@ -917,8 +924,12 @@ class VectorFactory(DatasourceFactory):
     class Meta:
         model = models.Vector
 
-    geometry_type_simple = factory.Sequence(lambda n: GEOMETRY_TYPES[n % len(GEOMETRY_TYPES)][0])
-    geometry_type_wkb = factory.Sequence(lambda n: GEOMETRY_TYPES[n % len(GEOMETRY_TYPES)][1])
+    geometry_type_simple = factory.Sequence(
+        lambda n: GEOMETRY_TYPES[n % len(GEOMETRY_TYPES)][0]
+    )
+    geometry_type_wkb = factory.Sequence(
+        lambda n: GEOMETRY_TYPES[n % len(GEOMETRY_TYPES)][1]
+    )
     styles = factory.LazyAttribute(lambda self: STYLES[self.geometry_type_simple])
 
     @factory.post_generation

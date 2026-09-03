@@ -22,7 +22,9 @@ class WfsOperation(OgcOperation):
                     exception_text=["It was not possible to process the request"],
                     locator="GetFeature",
                 ),
-                Wfs200Exception(exception_code="InvalidParameterValue", exception_text=[message]),
+                Wfs200Exception(
+                    exception_code="InvalidParameterValue", exception_text=[message]
+                ),
             ],
         )
 
@@ -75,7 +77,9 @@ class WfsOperation(OgcOperation):
                     wrong_typenames.append(name)
                 else:
                     # the requested typename belongs to our namespace
-                    sanitized_typenames.append(name.replace(f"{self.own_namespace}:", ""))
+                    sanitized_typenames.append(
+                        name.replace(f"{self.own_namespace}:", "")
+                    )
             else:
                 wrong_typenames.append(
                     f"typename has unexpected format (expected '<namespace>:<name>') got {name}"
@@ -90,7 +94,9 @@ class WfsOperation(OgcOperation):
             )
         return sanitized_typenames
 
-    def obtain_accessible_layers(self, layer_names: list[str] | None = None) -> list[WmsLayer]:
+    def obtain_accessible_layers(
+        self, layer_names: list[str] | None = None
+    ) -> list[WmsLayer]:
         return get_objects_for_user(self.user, ["view_wmslayer"], self.model).filter(
             datasource__vector__isnull=False
         )
