@@ -169,9 +169,13 @@ class DataSetAdmin(admin.ModelAdmin):
                 source_list = ["<ul>"]
                 source = obj.source_to_qsl
                 for field in fields(source_config):
-                    source_list.append(
-                        f"<li>{field.name}: {getattr(source_config, field.name)}</li>"
-                    )
+                    if not (
+                        source_field.name == "postgres"
+                        and field.name not in {"provider", "key", "table", "schema", "srid"}
+                    ):
+                        source_list.append(
+                            f"<li>{field.name}: {getattr(source_config, field.name)}</li>"
+                        )
                 source_list.append("</ul>")
                 snippet = f"<label>{source_field.name}:</label>{''.join(source_list)}"
                 return mark_safe(snippet)
