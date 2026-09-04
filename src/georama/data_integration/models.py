@@ -127,7 +127,7 @@ class DataSet(models.Model):
             style = self.get_default_style()
         return QslJobLayer(
             id=self.qgis_layer_id,
-            name=self.title,
+            name=self.name,
             source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
             driver=self.driver,
             style=style,
