@@ -66,6 +66,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository }}
+          flavor: |
+            latest=false
+          tags: |
+            type=semver,pattern=v{{version}},value=${{ github.event.release.tag_name }}
+            type=semver,pattern=v{{major}}.{{minor}},value=${{ github.event.release.tag_name }}
+            type=semver,pattern=v{{major}},value=${{ github.event.release.tag_name }}
+
       - name: Build release (${{ github.event.release.tag_name }})
         uses: docker/build-push-action@v7
         with:
@@ -73,7 +85,8 @@ jobs:
           push: true
           target: prod
           cache-from: type=local,src=cache
-          tags: ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   ghcr-pr-image:
     runs-on: ubuntu-latest
