@@ -24,8 +24,6 @@ jobs:
         include:
           - target: dev
             label: latest-dev
-          - target: prod
-            label: latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -71,7 +69,7 @@ jobs:
         with:
           context: .
           push: true
-          target: prod
+          target: dev
           cache-from: type=local,src=cache
           tags: ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
 
