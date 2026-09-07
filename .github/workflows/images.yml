@@ -105,6 +105,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # dependabot has no rights to push pr image.
+      # we want the pipeline to signal red on build failure still,
+      # but not on push failure
       - name: Build PR Image
         if: github.event.action != 'closed'
         uses: docker/build-push-action@v7
@@ -115,6 +118,7 @@ jobs:
           tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}
 
       - name: Build PR Image
+        if: github.event.action != 'closed'
         continue-on-error: true
         uses: docker/build-push-action@v7
         with:
@@ -122,12 +126,24 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}
 
-      - name: Delete PR Image
+      - name: Delete PR image
         if: github.event.action == 'closed'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: pr-${{ github.event.pull_request.number }}
+          PACKAGE: georama-release-fork
         run: |
-          echo "Deleting GHCR image for PR branch ${{ github.head_ref }} (docker image pr-${{ github.event.pull_request.number }})"
-          # Delete via GitHub API
-          curl -s -X DELETE \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://ghcr.io/v2/${{ github.repository }}/manifests/pr-${{ github.event.pull_request.number }} || true
+          ID=$(gh api \
+            "/orgs/${{ github.repository_owner }}/packages/container/$PACKAGE/versions" \
+            --paginate \
+            --jq ".[] | select(.metadata.container.tags | index(\"$TAG\")) | .id")
+      
+          if [ -n "$ID" ]; then
+            echo "Deleting package version $ID for tag $TAG"
+      
+            gh api \
+              --method DELETE \
+              "/orgs/${{ github.repository_owner }}/packages/container/$PACKAGE/versions/$ID"
+          else
+            echo "No package version found for tag $TAG"
+          fi
