@@ -131,7 +131,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: pr-${{ github.event.pull_request.number }}
-          PACKAGE: georama-release-fork
+          PACKAGE: georama
         run: |
           ID=$(gh api \
             "/orgs/${{ github.repository_owner }}/packages/container/$PACKAGE/versions" \
