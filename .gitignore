@@ -1,6 +1,7 @@
 .idea/
 .vscode/
 .env
+docker-compose.override.yml
 *.egg-info/
 *.pyc
 *\.bak

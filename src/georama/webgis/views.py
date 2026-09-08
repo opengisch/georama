@@ -145,6 +145,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         layer_group=db_node,
                         public=True,
                         is_checked=raster_match.is_checked,
+                        is_background=raster_match.is_wms_background,
                     ).save()
                 # Vector layers without geometries are skipped during data integration
                 elif vector_match and vector_match.is_spatial:
@@ -164,6 +165,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         layer_group=db_node,
                         dimensions={},
                         is_checked=vector_match.is_checked,
+                        is_background=vector_match.is_wms_background,
                         public=True,
                     ).save()
                 elif custom_match:
@@ -181,6 +183,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         layer_group=db_node,
                         dimensions={},
                         is_checked=custom_match.is_checked,
+                        is_background=custom_match.is_wms_background,
                         public=True,
                     ).save()
                 else:
@@ -415,21 +418,37 @@ class Themes(View):
         layer_group: LayerGroup | Theme,
         config: ThemesJson,
         user: User,
+        background_layers: list,
     ):
         for child in node.get_children():
             if child.get_children():
                 # this is a group to unpack
                 group = child.as_dataclass()
                 layer_group.children.append(group)
-                self.assemble_themes_tree_from_treebeard(child, group, config, user)
+                self.assemble_themes_tree_from_treebeard(
+                    child, group, config, user, background_layers
+                )
             else:
                 if hasattr(child, "wms_datasets"):
                     # we filter for permission on the one-to-one field connected
                     # published_as element
-                    if child.wms_datasets.has_read_permission(user, central_app_label):
-                        layer_group.children.append(child.wms_datasets.as_dataclass(config))
+                    wms = child.wms_datasets
+                    if not wms.has_read_permission(user, central_app_label):
+                        continue
+                    layer_dataclass = wms.as_dataclass(config)
+                    if wms.is_background:
+                        if layer_dataclass.name not in {b.name for b in background_layers}:
+                            background_layers.append(layer_dataclass)
+                    else:
+                        layer_group.children.append(layer_dataclass)
                 elif hasattr(child, "wmts_datasets"):
-                    layer_group.children.append(child.wmts_datasets.as_dataclass())
+                    wmts = child.wmts_datasets
+                    layer_dataclass = wmts.as_dataclass()
+                    if wmts.is_background:
+                        if layer_dataclass.name not in {b.name for b in background_layers}:
+                            background_layers.append(layer_dataclass)
+                    else:
+                        layer_group.children.append(layer_dataclass)
                 else:
                     logging.debug(
                         f"We are not aware of the passed type of {child}"
@@ -440,6 +459,7 @@ class Themes(View):
         geogirafe_config = ThemesJson()
         for ogc_server in WebGisOgcServer.objects.all():
             geogirafe_config.ogc_servers.append(ogc_server.as_dataclass())
+        background_layers: list = []
         for theme in PublishedAsTheme.objects.all():
             if theme.has_general_permission(self.request.user, central_app_label):
                 theme_object = theme.as_dataclass()
@@ -448,13 +468,13 @@ class Themes(View):
                 geogirafe_config.themes.append(theme_object)
                 root_node = theme.tree_elements.first().get_root()
                 self.assemble_themes_tree_from_treebeard(
-                    root_node, theme_object, geogirafe_config, request.user
+                    root_node, theme_object, geogirafe_config, request.user, background_layers
                 )
         result_dict = {
             "themes": DictEncoder().encode(geogirafe_config.themes),
             "ogcServers": {},
             "errors": [],
-            "background_layers": [],
+            "background_layers": DictEncoder().encode(background_layers),
         }
         for ogc_server in geogirafe_config.ogc_servers:
             result_dict["ogcServers"][ogc_server.name] = DictEncoder().encode(ogc_server)

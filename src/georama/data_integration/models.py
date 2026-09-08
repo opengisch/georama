@@ -75,6 +75,7 @@ class DataSet(models.Model):
     crs = models.JSONField(default=dict)
     minimum_scale = models.FloatField(null=True)
     maximum_scale = models.FloatField(null=True)
+    is_wms_background = models.BooleanField(default=False)
 
     @property
     def dataset_type(self):
@@ -211,6 +212,7 @@ class VectorDataSet(DataSet):
             geometry_type_simple=self.geometry_type_simple,
             geometry_type_wkb=self.geometry_type_wkb,
             fields=self.fields_to_qsl,
+            is_wms_background=self.is_wms_background,
         )
 
 
@@ -249,6 +251,7 @@ class RasterDataSet(DataSet):
             crs=self.crs_to_qsl,
             minimum_scale=self.minimum_scale,
             maximum_scale=self.maximum_scale,
+            is_wms_background=self.is_wms_background,
         )
 
 
@@ -287,6 +290,7 @@ class CustomDataSet(DataSet):
             crs=self.crs_to_qsl,
             minimum_scale=self.minimum_scale,
             maximum_scale=self.maximum_scale,
+            is_wms_background=self.is_wms_background,
         )
 
 

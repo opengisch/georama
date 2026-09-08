@@ -216,6 +216,7 @@ class Layer(PublishedAs):
     metadata = models.JSONField(default=None, null=True, blank=True)
     dimensions = models.JSONField(default=None, null=True, blank=True)
     is_checked = models.BooleanField(default=False)
+    is_background = models.BooleanField(default=False)
 
     class Meta:  # noqa: F811
         abstract = True
