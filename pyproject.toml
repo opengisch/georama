@@ -124,7 +124,7 @@ optional-dependencies.check =[
 # Docs: dev and build dependencies
 optional-dependencies.docs = [
     "mkdocs==1.6.1",
-    "mkdocs-macros-plugin==1.0.5",
+    "mkdocs-macros-plugin==1.5.0",
     "mkdocs-material==9.5.34",
     "mkdocs-mermaid2-plugin==1.1.1",
     "mkdocs-section-index==0.3.8",
