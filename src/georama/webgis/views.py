@@ -146,7 +146,8 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         public=True,
                         is_checked=raster_match.is_checked,
                     ).save()
-                elif vector_match:
+                # Vector layers without geometries are skipped during data integration
+                elif vector_match and vector_match.is_spatial:
                     query = VectorDataSet.objects.filter(project=project, qgis_layer_id=child)
                     if query.exists():
                         dataset = query.get()
