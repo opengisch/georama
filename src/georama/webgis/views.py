@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 
 from django.conf import settings
 from django.contrib.auth import get_permission_codename
@@ -63,21 +64,17 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
 
     @staticmethod
     def extend_bbox(bbox: BBox, bbox_extension: BBox):
-        if bbox_extension.x_min < bbox.x_min or bbox.x_min == 0:
-            bbox.x_min = bbox_extension.x_min
-        if bbox_extension.y_min < bbox.y_min or bbox.y_min == 0:
-            bbox.y_min = bbox_extension.y_min
-        if bbox_extension.x_max > bbox.x_max or bbox.x_max == 0:
-            bbox.x_max = bbox_extension.x_max
-        if bbox_extension.y_max > bbox.y_max or bbox.y_max == 0:
-            bbox.y_max = bbox_extension.y_max
+        bbox.x_min = min(bbox_extension.x_min, bbox.x_min)
+        bbox.y_min = min(bbox_extension.y_min, bbox.y_min)
+        bbox.x_max = max(bbox_extension.x_max, bbox.x_max)
+        bbox.y_max = max(bbox_extension.y_max, bbox.y_max)
 
     @staticmethod
     def bbox_center_position(bbox: BBox):
-        return (
+        return [
             (bbox.x_max + bbox.x_min) / 2,
             (bbox.y_max + bbox.y_min) / 2,
-        )
+        ]
 
     @staticmethod
     def find_dataset_by_name(
@@ -211,7 +208,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                 db_root_node = LayerGroupMp.objects.get(pk=root_group.pk)
                 db_root_node.theme = theme
                 db_root_node.save()
-                bbox = BBox(0.0, 0.0, 0.0, 0.0)
+                bbox = BBox(math.inf, math.inf, -math.inf, -math.inf)
                 # Highly recursive task, we flatten the tree into treebeard structure
                 self.assemble_tree_to_treebeard(
                     # the element with empty string as name is always the root of the tree
@@ -223,8 +220,10 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                     bbox,
                     ogc_server.name,
                 )
-                x, y = self.bbox_center_position(bbox)
-                theme.location = [x, y]
+                if any(math.isinf(n) for n in bbox.to_2d_list()):
+                    theme.location = [0, 0]
+                else:
+                    theme.location = self.bbox_center_position(bbox)
                 theme.save()
                 next_url = request.GET.get("next")
                 if next_url and url_has_allowed_host_and_scheme(
