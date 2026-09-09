@@ -188,7 +188,6 @@ class WfsGetMetadata(OgcOperation):
         wfs_link_gml3 = (
             f"{self.url}"
             f"{found_layer.create_wfs_url_params(output_format='APPLICATION/GML+XML; VERSION=3.2')}"
-            # noqa: E501
         )
         BBox.from_string(found_layer.datasource.bbox_wgs84)
         # TODO: Make that catched from configuration as we do for WMS already!

@@ -170,7 +170,6 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 )
                 await datasource_db.adelete()
         logging.debug(" ✓ Finished - Cleaning out old datasources.")
-        return None
 
     @property
     def non_integrated_url_name(self):
@@ -184,7 +183,7 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
 
         if request.POST:
             project_path = request.data["path"]
-            project_file = QgisProject(path=project_path, organisation=organisation_folder)  # noqa: F841
+            project_file = QgisProject(path=project_path, organisation=organisation_folder)
             if not project_file.project_path.exists():
                 raise Http404(f"Project with path {project_file.project_path} not found")
             response = await call_qsl_exporter(project_file.path_from_root)

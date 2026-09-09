@@ -108,7 +108,7 @@ class Datasource(models.Model):
         return QslJobLayer(
             id=self.qgis_layer_id,
             name=self.name,
-            source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
+            source=json.dumps(source_definition.to_qgis_decoded_uri),
             driver=self.driver,
             style=style,
             remote=source_definition.remote,

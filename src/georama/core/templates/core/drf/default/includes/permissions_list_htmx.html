@@ -7,12 +7,12 @@
 
         <!-- Toolbar -->
         <nav class="navbar navbar-expand gap-4 flex-wrap me-3">
-    
+
             <!-- Search -->
             <div class="nav-item d-flex">
                 {% include "core/drf/default/includes/search_htmx.html" %}
             </div>
-    
+
             <!-- Entity filters -->
             <div class="nav-item d-flex gap-2 align-items-center"
                  hx-boost="true"
@@ -41,10 +41,10 @@
                     {% trans "Users" %}
                 </a>
             </div>
-    
+
             <!-- Bulk operations -->
             <div id="bulk-action-container" class="nav-item d-flex gap-2 align-items-center">
-            
+
                 <form method="post" id="bulk-action-form"
                       action="{% url permissions_url_name object.pk %}{% querystring %}"
                       hx-post="{% url permissions_url_name object.pk %}{% querystring %}"
@@ -52,7 +52,7 @@
                       hx-swap="innerHTML">
                     {% csrf_token %}
                 </form>
-            
+
                 <div class="dropdown">
                     <button
                             class="btn btn-outline-primary dropdown-toggle"
@@ -65,7 +65,7 @@
                         <i class="fa fa-list"></i>
                         {% trans "Select bulk action" %}
                     </button>
-    
+
                     <div class="dropdown-menu p-3" aria-labelledby="bulk-action-dropdown" style="z-index: 1050;">
                         {% for action_value, action_label in action_choices %}
                             <div class="dropdown-item form-check form-check-inline">
@@ -91,7 +91,7 @@
                     </div>
                 </div>
             </div>
-    
+
             {% if permissions_entity_field == "users" %}
                 {% blocktranslate asvar title %}Permission inherited from group{% endblocktranslate %}
                 <div class="d-flex align-items-center ms-auto"
@@ -106,13 +106,13 @@
 
         <!-- List (scroll area) -->
         <div class="d-flex flex-column flex-grow-1 flex-nowrap row m-0 overflow-auto mt-4">
-    
+
             <!-- List header -->
             <div class="row p-2 border-bottom text-muted sticky-top bg-body"
                  hx-boost="true"
                  hx-target="#list_partial{% if is_modal %}_modal{% endif %}"
                  hx-push-url="{% if is_modal %}false{% else %}true{% endif %}">
-            
+
                 <div class="col align-content-center">
                     <input
                             class="form-check-input me-3"
@@ -125,7 +125,7 @@
                     >
                     <span>{% trans "Name" %}</span>
                 </div>
-            
+
                 <!-- Time granted -->
                 <div class="col-2 d-lg-flex align-items-center">
                     {% blocktranslate asvar title %}Sort by the time access was granted{% endblocktranslate %}
@@ -137,7 +137,7 @@
                     </a>
                     <span class="d-none d-lg-block">{% trans "Time granted" %}</span>
                 </div>
-            
+
                 <!-- Permission column headers -->
                 <div class="col-4 d-flex">
                     {% if 'can_view' in available_permissions %}
@@ -152,7 +152,7 @@
                             <span class="d-none d-lg-block">{% trans "View" %}</span>
                         </div>
                     {% endif %}
-            
+
                     {% if 'can_create' in available_permissions %}
                         <div class="d-flex flex-grow-1 justify-content-center align-items-center">
                             {% blocktranslate asvar title %}Filter entries with create permission{% endblocktranslate %}
@@ -165,7 +165,7 @@
                             <span class="d-none d-lg-block">{% trans "Create" %}</span>
                         </div>
                     {% endif %}
-            
+
                     {% if 'can_update' in available_permissions %}
                         <div class="d-flex flex-grow-1 justify-content-center align-items-center">
                             {% blocktranslate asvar title %}Filter entries with update permission{% endblocktranslate %}
@@ -178,7 +178,7 @@
                             <span class="d-none d-lg-block">{% trans "Update" %}</span>
                         </div>
                     {% endif %}
-            
+
                     {% if 'can_delete' in available_permissions %}
                         <div class="d-flex flex-grow-1 justify-content-center align-items-center">
                             {% blocktranslate asvar title %}Filter entries with delete permission{% endblocktranslate %}
@@ -192,24 +192,24 @@
                         </div>
                     {% endif %}
                 </div>
-            
+
                 <div class="col-2"></div>
-            
+
             </div>
-            
-            
+
+
             {% if object_list|length == 0 %}
                 <div class="fs-4 text-center p-4">
                     {% trans "No items in this list" %}
                 </div>
             {% endif %}
-    
-            
+
+
             {% for row in object_list %}
-            
+
                 <!-- Row -->
                 <div class="row striped-row p-2 align-items-center">
-            
+
                     <!-- User / group name and selector -->
                     <div class="col">
                         <input
@@ -227,7 +227,7 @@
                             {{ row.entity_name }}
                         </label>
                     </div>
-            
+
                     <!-- Time granted -->
                     {% if row.permission_time_created %}
                         <div class="col-2 d-none d-lg-block text-muted small text-truncate"
@@ -237,7 +237,7 @@
                     {% else %}
                         <div class="col-2 text-muted small d-none d-lg-block"> - </div>
                     {% endif %}
-            
+
                     <!-- Permission columns -->
                     <div class="col-4 d-flex">
                         {% if row.permission_time_created %}
@@ -248,8 +248,8 @@
                                     </button>
                                 </div>
                             {% endif %}
-                
-                
+
+
                             {% if row.entity_permissions.can_view and 'can_create' in available_permissions %}
                                 <div class="flex-grow-1 text-center">
                                     <form method="post"
@@ -268,8 +268,8 @@
                                     </form>
                                 </div>
                             {% endif %}
-                
-                
+
+
                             {% if row.entity_permissions.can_view and 'can_update' in available_permissions %}
                                 <div class="flex-grow-1 text-center">
                                     <form method="post"
@@ -288,7 +288,7 @@
                                     </form>
                                 </div>
                             {% endif %}
-                
+
                             {% if row.entity_permissions.can_view and 'can_delete' in available_permissions  %}
                                 <div class="flex-grow-1 text-center">
                                     <form method="post"
@@ -309,7 +309,7 @@
                             {% endif %}
                         {% else %}
                             <!-- List non-editable, inherited permissions -->
-                            {% include "core/drf/default/includes/permissions_icon_set_readonly.html" with readonly_permission=row.inherited_permissions %}  
+                            {% include "core/drf/default/includes/permissions_icon_set_readonly.html" with readonly_permission=row.inherited_permissions %}
                         {% endif %}
                     </div>
 
@@ -378,7 +378,7 @@
                              hx-push-url="false"
                              hx-on::before-request="document.getElementById('inherited-toggle-icon-{{ row.entity_id }}').classList.add('d-none'); document.getElementById('inherited-spinner-{{ row.entity_id }}').classList.remove('d-none')"
                              hx-on::after-request="document.getElementById('inherited-spinner-{{ row.entity_id }}').classList.add('d-none'); document.getElementById('inherited-toggle-icon-{{ row.entity_id }}').classList.remove('d-none')">
-                            
+
                             <div id="inherited-permissions-{{ row.entity_id }}-content"></div>
                         </div>
                     {% endif %}
@@ -386,7 +386,7 @@
             {% endfor %}
         </div>
     </div>
-    
+
 
     {% block pagination %}
         {% include "core/drf/default/includes/pagination_htmx.html" %}
