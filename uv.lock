@@ -694,7 +694,6 @@ dependencies = [
     { name = "djangorestframework" },
     { name = "djangorestframework-gis" },
     { name = "drf-spectacular", extra = ["sidecar"] },
-    { name = "gdal" },
     { name = "geoalchemy2" },
     { name = "httpx" },
     { name = "psycopg", extra = ["pool"] },
@@ -722,6 +721,9 @@ dev = [
     { name = "shapely" },
     { name = "ty" },
 ]
+gdal = [
+    { name = "gdal" },
+]
 lint-format = [
     { name = "ruff" },
 ]
@@ -747,13 +749,12 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.17.1" },
     { name = "djangorestframework-gis", specifier = ">=1.2.1" },
     { name = "drf-spectacular", extras = ["sidecar"], specifier = ">=0.29.0" },
-    { name = "gdal", specifier = "==3.10.3" },
     { name = "geoalchemy2", specifier = ">=0.20.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "psycopg", extras = ["pool"], specifier = ">=3.3.4" },
     { name = "psycopg2-binary", specifier = ">=2.9.12" },
     { name = "pygeoapi", specifier = "==0.21.0" },
-    { name = "qgis-server-light", extras = ["interface"], editable = "/qsl" },
+    { name = "qgis-server-light", extras = ["interface"], git = "https://github.com/opengisch/qgis-server-light.git?rev=refactoring" },
     { name = "redis", specifier = "==5.0.8" },
     { name = "sqlalchemy", specifier = ">=2.0.51" },
     { name = "uvicorn", specifier = ">=0.49.0" },
@@ -770,11 +771,12 @@ dev = [
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-django", specifier = ">=4.12.0" },
     { name = "pytest-lazy-fixtures", specifier = ">=1.4.0" },
-    { name = "qgis-server-light", extras = ["interface"], editable = "/qsl" },
+    { name = "qgis-server-light", extras = ["interface"] },
     { name = "ruff", specifier = ">=0.15.15" },
     { name = "shapely", specifier = ">=2.1.2" },
     { name = "ty", specifier = ">=0.0.56" },
 ]
+gdal = [{ name = "gdal" }]
 lint-format = [{ name = "ruff", specifier = ">=0.15.15" }]
 test = [
     { name = "pytest", specifier = ">=9.0.3" },
@@ -1588,63 +1590,7 @@ wheels = [
 [[package]]
 name = "qgis-server-light"
 version = "0.1.0"
-source = { editable = "/qsl" }
-
-[package.metadata]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "click", specifier = ">=8.4.2" },
-    { name = "flask", specifier = ">=3.1.3" },
-    { name = "fpng-py", specifier = ">=0.0.3" },
-    { name = "hupper", specifier = ">=1.12.1" },
-    { name = "mkdocs", specifier = ">=1.6,<2.0" },
-    { name = "mkdocs-autorefs", specifier = ">=1.4.4" },
-    { name = "mkdocs-gen-files", specifier = ">=0.6.1" },
-    { name = "mkdocs-literate-nav", specifier = ">=0.6.3" },
-    { name = "mkdocs-material", specifier = ">=9,<10" },
-    { name = "mkdocs-section-index", specifier = ">=0.3.12" },
-    { name = "mkdocstrings", specifier = ">=1.0.4" },
-    { name = "mkdocstrings-python", specifier = ">=2.0.5" },
-    { name = "pgserviceparser", specifier = ">=3.0.3" },
-    { name = "pillow", specifier = ">=12.3.0" },
-    { name = "pixelmatch", specifier = ">=0.4.0" },
-    { name = "pyprof2calltree", specifier = ">=1.4.5" },
-    { name = "pytest", specifier = ">=9.1.1" },
-    { name = "redis", specifier = "==5.0.8" },
-    { name = "ruff", specifier = ">=0.15.20" },
-    { name = "ty", specifier = ">=0.0.56" },
-    { name = "xsdata", specifier = ">=26.2" },
-]
-docs = [
-    { name = "mkdocs", specifier = ">=1.6,<2.0" },
-    { name = "mkdocs-autorefs", specifier = ">=1.4.4" },
-    { name = "mkdocs-gen-files", specifier = ">=0.6.1" },
-    { name = "mkdocs-literate-nav", specifier = ">=0.6.3" },
-    { name = "mkdocs-material", specifier = ">=9,<10" },
-    { name = "mkdocs-section-index", specifier = ">=0.3.12" },
-    { name = "mkdocstrings", specifier = ">=1.0.4" },
-    { name = "mkdocstrings-python", specifier = ">=2.0.5" },
-]
-exporter = [
-    { name = "click", specifier = ">=8.4.2" },
-    { name = "flask", specifier = ">=3.1.3" },
-    { name = "pgserviceparser", specifier = ">=3.0.3" },
-    { name = "xsdata", specifier = ">=26.2" },
-]
-interface = []
-lint-format = [{ name = "ruff", specifier = ">=0.15.20" }]
-test = [
-    { name = "pillow", specifier = ">=12.3.0" },
-    { name = "pixelmatch", specifier = ">=0.4.0" },
-    { name = "pytest", specifier = ">=9.1.1" },
-]
-worker = [
-    { name = "fpng-py", specifier = ">=0.0.3" },
-    { name = "hupper", specifier = ">=1.12.1" },
-    { name = "redis", specifier = "==5.0.8" },
-    { name = "xsdata", specifier = ">=26.2" },
-]
+source = { git = "https://github.com/opengisch/qgis-server-light.git?rev=refactoring#c28f4dfeafbd96eccb65625ef65e5cc1e3f602bf" }
 
 [[package]]
 name = "rasterio"

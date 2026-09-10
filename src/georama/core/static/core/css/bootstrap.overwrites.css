@@ -6,21 +6,21 @@
     --bs-warning: var(#ed7f2c);
     --bs-light: #d2d3cc;
     --bs-dark: #464744;
-    
+
     --bs-primary-rgb: var(--georama-green-rgb);
     --bs-secondary-rgb: var(--georama-yellow-rgb);
     --bs-success-rgb: var(--georama-green-rgb);
     --bs-warning-rgb: 237, 127, 44;
     --bs-light-rgb: 210, 211, 204;
     --bs-dark-rgb: 70, 71, 68;
-    
+
     --bs-primary-text-emphasis: var(--georama-green-dark);
     --bs-secondary-text-emphasis: var(--georama-yellow-dark);
     --bs-success-text-emphasis: var(--georama-green-dark);
     --bs-warning-text-emphasis: #663503;
     --bs-light-text-emphasis: #495057;
     --bs-dark-text-emphasis: #495057;
-    
+
     --bs-primary-bg-subtle: #e6f0d9;
     --bs-primary-border-subtle: #cde1b3;
     /* TODO PI: Define more subtle colors */
@@ -52,12 +52,12 @@
     --bs-light-rgb: 75, 76, 72;
     --bs-dark: #1a1b18;
     --bs-dark-rgb: 26, 27, 24;
-    
+
     --bs-body-bg: #262626;
     --bs-body-bg-rgb: 38, 38, 38;
     --bs-body-color: #f1f1f1;
     --bs-body-color-rgb: 241, 241, 241;
-    
+
     --bs-primary-text-emphasis: var(--georama-green-light);
     --bs-primary-bg-subtle: #1a240d;
     --bs-primary-border-subtle: var(--georama-green-dark);
@@ -74,7 +74,7 @@
     --bs-link-color-rgb: 180, 210, 140;
     --bs-link-hover-color: #c3dba3;
     --bs-link-hover-color-rgb: 195, 219, 163;
-    
+
     --bs-code-color: #c1daa0;
     --bs-focus-ring-color: rgba(var(--georama-green-rgb), 0.25);
 }
@@ -272,7 +272,7 @@
     --bs-list-group-action-active-bg: var(--bs-secondary-bg);
     --bs-list-group-active-bg: var(--georama-green);
     --bs-list-group-active-border-color: var(--georama-green);
-    
+
 }
 
 .text-bg-warning {
@@ -299,4 +299,3 @@
     -webkit-text-decoration-color: RGBA(198, 153, 58, var(--bs-link-underline-opacity, 1)) !important;
     text-decoration-color: RGBA(198, 153, 58, var(--bs-link-underline-opacity, 1)) !important;
 }
-

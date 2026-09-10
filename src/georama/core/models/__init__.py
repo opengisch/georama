@@ -4,8 +4,8 @@ from georama.core.models.organisation import Organisation
 from georama.core.models.user import GeoramaUser
 
 __all__ = [
-    "Membership",
-    "GeoramaUser",
     "Fence",
+    "GeoramaUser",
+    "Membership",
     "Organisation",
 ]

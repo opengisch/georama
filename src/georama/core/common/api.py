@@ -543,8 +543,6 @@ class OrganisationalModelViewSet(GeoramaOrganisationalMixin, viewsets.ModelViewS
             georama_organisation attribute.
     """
 
-    pass
-
 
 class GeoramaObjPermViewSetReadOnly(
     GeoramaObjPermMixin,
