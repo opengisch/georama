@@ -271,7 +271,6 @@ class DBService:
                 dataset.maximum_scale = layer.maximum_scale
                 dataset.geometry_type_simple = layer.geometry_type_simple
                 dataset.geometry_type_wkb = layer.geometry_type_wkb
-                dataset.is_wms_background = layer.is_wms_background
                 dataset.save()
                 logging.debug(
                     f" ✓ Dataset {layer.name} (qgis-layer-id: {layer.id})"
@@ -375,7 +374,6 @@ class DBService:
             dataset.crs = DictEncoder().encode(layer.crs)
             dataset.minimum_scale = layer.minimum_scale
             dataset.maximum_scale = layer.maximum_scale
-            dataset.is_wms_background = layer.is_wms_background
             dataset.save()
             logging.debug(
                 f" ✓ Dataset {layer.name} (qgis-layer-id: {layer.id})"
@@ -419,7 +417,6 @@ class DBService:
             dataset.crs = DictEncoder().encode(layer.crs)
             dataset.minimum_scale = layer.minimum_scale
             dataset.maximum_scale = layer.maximum_scale
-            dataset.is_wms_background = layer.is_wms_background
             dataset.save()
         logging.debug(" Cleaning out old custom datasets.")
         for dataset_db in CustomDataSet.objects.filter(project=project_db).all():
