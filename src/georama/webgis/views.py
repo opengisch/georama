@@ -145,7 +145,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         layer_group=db_node,
                         public=True,
                         is_checked=raster_match.is_checked,
-                        is_background=raster_match.is_wms_background,
+                        is_background=raster_match.is_background,
                     ).save()
                 # Vector layers without geometries are skipped during data integration
                 elif vector_match and vector_match.is_spatial:
@@ -165,7 +165,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         layer_group=db_node,
                         dimensions={},
                         is_checked=vector_match.is_checked,
-                        is_background=vector_match.is_wms_background,
+                        is_background=vector_match.is_background,
                         public=True,
                     ).save()
                 elif custom_match:
@@ -183,7 +183,7 @@ class PublishThemeFromProject(GeoramaLoginRequiredMixin, PermissionRequiredMixin
                         layer_group=db_node,
                         dimensions={},
                         is_checked=custom_match.is_checked,
-                        is_background=custom_match.is_wms_background,
+                        is_background=custom_match.is_background,
                         public=True,
                     ).save()
                 else:
