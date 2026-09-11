@@ -424,10 +424,13 @@ class Themes(View):
             if child.get_children():
                 # this is a group to unpack
                 group = child.as_dataclass()
-                layer_group.children.append(group)
                 self.assemble_themes_tree_from_treebeard(
                     child, group, config, user, background_layers
                 )
+                # skip groups left empty because all their layers were background
+                # layers (moved to `background_layers`) or filtered out by permission
+                if group.children:
+                    layer_group.children.append(group)
             else:
                 if hasattr(child, "wms_datasets"):
                     # we filter for permission on the one-to-one field connected
