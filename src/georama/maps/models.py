@@ -205,26 +205,42 @@ class PublishedAsWmsAbstract(PublishedAs):
         # We have to call the following @properties a bit awkward because
         # they contain sync django orm actions
         dataset = await sync_to_async(lambda: self.bound_dataset)()
-        qsl_job_layer = await sync_to_async(lambda: dataset.to_qsl_job_layer())()
-        # this way we always set a style, or it will fail if list has no styles
-        # we could make that configurable in admin gui easily
-        get_map_job = QslJobParameterRender(
+        return await self.render_dataset_image(
+            dataset,
             bbox=BBox.from_string(self.extent),
             crs=dataset.crs_to_qsl.auth_id,
             width=self.preview_dimensions[0],
             height=self.preview_dimensions[1],
-            dpi=72,
+        )
+
+    async def render_dataset_image(
+        self,
+        dataset: CustomDataSet | RasterDataSet | VectorDataSet,
+        bbox: BBox,
+        crs: str,
+        width: int,
+        height: int,
+        dpi: int = 72,
+    ) -> bytes | None:
+        # to_qsl_job_layer() touches the ORM (project.mandant.name), which is a sync-only
+        # operation and must not run directly inside this async function.
+        qsl_job_layer = await sync_to_async(dataset.to_qsl_job_layer)()
+        render_job = QslJobParameterRender(
+            bbox=bbox,
+            crs=crs,
+            width=width,
+            height=height,
+            dpi=dpi,
             format="image/png",
             layers=[qsl_job_layer],
         )
         try:
-            result_tuple = await qsl_redis_queue.post(get_map_job, Config().job_timeout)
-            result, _ = result_tuple
+            result, _ = await qsl_redis_queue.post(render_job, Config().job_timeout)
             return result.data
         except ValueError as e:
-            LOGGER.error(f"Error while generating preview image: {e}")
+            LOGGER.error(f"Error while rendering dataset image for '{dataset.name}': {e}")
         except PermissionError as e:
-            LOGGER.error(f"Permission error while generating preview image: {e}")
+            LOGGER.error(f"Permission error while rendering image for '{dataset.name}': {e}")
         return None
 
     def _to_wgs84_extent(self, bbox: BBox) -> BBox:
