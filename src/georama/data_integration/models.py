@@ -128,6 +128,7 @@ class DataSet(models.Model):
         return QslJobLayer(
             id=self.qgis_layer_id,
             name=self.name,
+            title=self.title,
             source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
             driver=self.driver,
             style=style,
