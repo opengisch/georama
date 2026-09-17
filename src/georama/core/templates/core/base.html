@@ -61,13 +61,6 @@
                             </a>
                         </li>
                     {% endfor %}
-                    {% if request.user.is_staff %}
-                        <li class="nav-item align-content-center">
-                            {% url "settings" as settings_url %}
-                            <a class="nav-link {% if request.path == settings_url %}fw-bold active{% endif %}"
-                               href="{{ settings_url }}">Settings</a>
-                        </li>
-                    {% endif %}
                     <li class="nav-item align-items-center">
                         <div class="nav-link">
                             <a id="themeToggle"
@@ -78,6 +71,7 @@
                             </a>
                         </div>
                     </li>
+                    <li class="nav-item align-items-center">
                     <li class="nav-item align-items-center">
                         <div class="nav-link ps-0">
                             {% if request.path != '/login/' %}
