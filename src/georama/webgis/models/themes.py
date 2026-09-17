@@ -294,15 +294,6 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     min_resolution_hint = models.FloatField(default=0.0)
     max_resolution_hint = models.FloatField(default=999999999.0)
 
-    # Basemaps don't have a single natural extent to render a representative 
-    # thumbnail from so every basemap thumbnail is rendered over the same
-    # fixed Swiss bounding box (EPSG:2056 / CH1903+ LV95).
-    # TODO: make this configurable per layer/project if non-Swiss projects show up.
-    thumbnail_bbox = BBox.from_string("2457000,1075000,2862000,1296000")
-    thumbnail_crs = "EPSG:2056"
-    # Size/aspect ratio matches geogirafe's built-in basemap thumbnails
-    thumbnail_dimensions = (220, 120)
-
     def __str__(self):
         return f"{self.name}"
 
@@ -311,12 +302,20 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
         return False
 
     def save(self, *args, **kwargs):
+        # Basemaps don't have a single natural extent to render a representative 
+        # thumbnail from so every basemap thumbnail is rendered over the same
+        # fixed Swiss bounding box (EPSG:2056 / CH1903+ LV95).
+        # TODO: make this configurable per layer/project if non-Swiss projects show up.
+        thumbnail_bbox = BBox.from_string("2457000,1075000,2862000,1296000")
+        thumbnail_crs = "EPSG:2056"
+        # Size/aspect ratio matches geogirafe's built-in basemap thumbnails
+        thumbnail_dimensions = (220, 120)
         if self.is_background and not self.thumbnail:
             self.thumbnail = async_to_sync(self.render_dataset_image)(
                 self.raster_dataset,
-                self.thumbnail_bbox,
-                self.thumbnail_crs,
-                *self.thumbnail_dimensions,
+                thumbnail_bbox,
+                thumbnail_crs,
+                *thumbnail_dimensions,
             )
         super().save(*args, **kwargs)
 
