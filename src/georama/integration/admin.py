@@ -17,6 +17,7 @@ class ProjectAdmin(OrganisationalModelAdmin):
 class DatasourceAdmin(OrganisationalModelAdmin):
     list_display = ["name", "project__organisation__name"]
     prefetch_organisation_related = "project__organisation"
+    exclude = ("source",)
 
 
 @admin.register(Custom)
