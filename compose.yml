@@ -23,8 +23,8 @@ services:
         - action: rebuild
           path: Dockerfile
     ports:
-      - "4242:4242"
-      - "4222:2222"
+      - "127.0.0.1:4242:4242"
+      - "127.0.0.1:4222:2222"
     volumes:
       - ./:/app
       - georama-venv:/.venv
@@ -43,7 +43,7 @@ services:
     volumes:
       - "georama-db:/var/lib/postgresql/data"
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     environment:
       - "POSTGRES_USER=${GEORAMA_DB_USER?}"
       - "POSTGRES_PASSWORD=${GEORAMA_DB_PW?}"
@@ -86,7 +86,7 @@ services:
     environment:
       - "QSL_DATA_ROOT=/io/data"
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     command:
       - "serve-exporter-api-outbound"
     volumes:
@@ -98,8 +98,8 @@ services:
       - ./geogirafe/config.json:/var/www/localhost/htdocs/config.json
       - ./geogirafe/config.mobile.json:/var/www/localhost/htdocs/config.mobile.json
     ports:
-      - "9309:443"
-      - "9308:80"
+      - "127.0.0.1:9309:443"
+      - "127.0.0.1:9308:80"
 volumes:
   georama-venv:
   georama-static:
