@@ -7,6 +7,7 @@ from django.db import models
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from osgeo import osr as osgeo_osr
 from qgis_server_light.interface.common import BBox
 from qgis_server_light.interface.exporter.extract import DataSource
 from treebeard.mp_tree import MP_Node
@@ -294,15 +295,6 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     min_resolution_hint = models.FloatField(default=0.0)
     max_resolution_hint = models.FloatField(default=999999999.0)
 
-    # Basemaps don't have a single natural extent to render a representative 
-    # thumbnail from so every basemap thumbnail is rendered over the same
-    # fixed Swiss bounding box (EPSG:2056 / CH1903+ LV95).
-    # TODO: make this configurable per layer/project if non-Swiss projects show up.
-    thumbnail_bbox = BBox.from_string("2457000,1075000,2862000,1296000")
-    thumbnail_crs = "EPSG:2056"
-    # Size/aspect ratio matches geogirafe's built-in basemap thumbnails
-    thumbnail_dimensions = (220, 120)
-
     def __str__(self):
         return f"{self.name}"
 
@@ -310,12 +302,81 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     def create_preview(self):
         return False
 
+    @staticmethod
+    def _bbox_wgs84_is_plausible(bbox_wgs84: str, crs: str) -> bool:
+        try:
+            epsg_code = int(crs.split(":")[1])
+            spatial_ref = osgeo_osr.SpatialReference()
+            if spatial_ref.ImportFromEPSG(epsg_code) != 0:
+                return False
+            area_of_use = spatial_ref.GetAreaOfUse()
+            if area_of_use is None:
+                return False
+            dataset_bbox = BBox.from_string(bbox_wgs84)
+        except Exception:
+            return False
+
+        return not (
+            dataset_bbox.x_max < area_of_use.west_lon_degree
+            or dataset_bbox.x_min > area_of_use.east_lon_degree
+            or dataset_bbox.y_max < area_of_use.south_lat_degree
+            or dataset_bbox.y_min > area_of_use.north_lat_degree
+        )
+
+    def _thumbnail_bbox_and_crs(self) -> tuple[BBox, str]:
+        # Basemaps don't have a single natural extent to render a representative
+        # thumbnail so f the dataset's bbox/crs can't be determined, we fall back to this
+        # fixed Swiss bounding box (EPSG:2056 / CH1903+ LV95).
+        default_thumbnail_bbox = BBox.from_string("2457000,1075000,2862000,1296000")
+        default_thumbnail_crs = "EPSG:2056"
+        # Size/aspect ratio matches geogirafe's built-in basemap thumbnails
+        thumbnail_dimensions = (220, 120)
+        thumbnail_extent_fraction = 0.15
+        try:
+            dataset = self.raster_dataset
+            if dataset is None or not dataset.bbox or not dataset.bbox_wgs84:
+                raise ValueError("dataset has no bbox") 
+            real_bbox = BBox.from_string(dataset.bbox)
+            crs = dataset.crs_to_qsl.auth_id
+            if not crs:
+                raise ValueError("dataset has no crs")
+            if not self._bbox_wgs84_is_plausible(dataset.bbox_wgs84, crs):
+                raise ValueError("dataset bbox is outside the CRS area of use")
+        except Exception:
+            return default_thumbnail_bbox, default_thumbnail_crs
+
+        real_width = real_bbox.x_max - real_bbox.x_min
+        real_height = real_bbox.y_max - real_bbox.y_min
+        if real_width <= 0 or real_height <= 0:
+            return default_thumbnail_bbox, default_thumbnail_crs
+
+        aspect_ratio = thumbnail_dimensions[0] / thumbnail_dimensions[1]
+        max_window_width = real_width * thumbnail_extent_fraction
+        max_window_height = real_height * thumbnail_extent_fraction
+        if max_window_width / aspect_ratio <= max_window_height:
+            window_width = max_window_width
+            window_height = max_window_width / aspect_ratio
+        else:
+            window_height = max_window_height
+            window_width = max_window_height * aspect_ratio
+
+        center_x = (real_bbox.x_min + real_bbox.x_max) / 2
+        center_y = (real_bbox.y_min + real_bbox.y_max) / 2
+        bbox = BBox(
+            x_min=center_x - window_width / 2,
+            x_max=center_x + window_width / 2,
+            y_min=center_y - window_height / 2,
+            y_max=center_y + window_height / 2,
+        )
+        return bbox, crs
+
     def save(self, *args, **kwargs):
         if self.is_background and not self.thumbnail:
+            thumbnail_bbox, thumbnail_crs = self._thumbnail_bbox_and_crs()
             self.thumbnail = async_to_sync(self.render_dataset_image)(
                 self.raster_dataset,
-                self.thumbnail_bbox,
-                self.thumbnail_crs,
+                thumbnail_bbox,
+                thumbnail_crs,
                 *self.thumbnail_dimensions,
             )
         super().save(*args, **kwargs)
