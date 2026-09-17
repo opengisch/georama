@@ -321,7 +321,6 @@ class Base(Configuration):
 
     LANGUAGES = [
         ("en", _("English")),
-        ("de", _("German")),
     ]
 
     # Static files (CSS, JavaScript, Images)
