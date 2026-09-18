@@ -2,7 +2,9 @@ import logging
 
 from asgiref.sync import sync_to_async
 from django.http import HttpRequest, HttpResponse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from qgis_server_light.interface.dispatcher.common import Status
 from qgis_server_light.interface.job.common.output import JobResult
 from xsdata.exceptions import ParserError
@@ -30,6 +32,7 @@ from georama.maps.services.wms_1_3_0.get_map import WmsGetMap
 log = logging.getLogger(__name__)
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class OgcServer(View):
     model = WmsLayer
     appname = MapsConfig.get_simple_appname()
