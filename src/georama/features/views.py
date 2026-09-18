@@ -329,8 +329,11 @@ class PygeoapiServer(View):
         # TODO: make this configurable
         driver_lookup = {"SHP": "ESRI Shapefile", "GPKG": "GPKG", "GDB": "OpenFileGDB"}
 
-        # for OGR `geom` is the standard geometry column
-        geom_field = "geom"
+        # Geometry column names vary by driver/source.
+        # By setting it to None, we let gdal find it with ogr_feature.GetGeometryRef()
+        # It doesn't impact field_constraints: QGIS's fields() API (used by the
+        # QSL exporter) never reports the geometry column as an attribute field,
+        geom_field = None
         geom_type = published_as.dataset.geometry_type_wkb
 
         field_constraints = getDatasetFieldConstraints(
@@ -478,7 +481,7 @@ class PygeoapiServer(View):
 
 
 def getDatasetFieldConstraints(
-    field_properties: list[ColumnOgcApiFeatures], geom_field: str, geom_type: str
+    field_properties: list[ColumnOgcApiFeatures], geom_field: str | None, geom_type: str
 ):
     field_constraints: dict[str, dict] = {}
 
