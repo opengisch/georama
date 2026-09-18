@@ -1,11 +1,13 @@
 import base64
 import uuid
 
+from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.db import models
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from qgis_server_light.interface.common import BBox
 from qgis_server_light.interface.exporter.extract import DataSource
 from treebeard.mp_tree import MP_Node
 from xsdata.formats.dataclass.parsers import DictDecoder
@@ -217,12 +219,19 @@ class Layer(PublishedAs):
     dimensions = models.JSONField(default=None, null=True, blank=True)
     is_checked = models.BooleanField(default=False)
     is_background = models.BooleanField(default=False)
+    thumbnail = models.BinaryField(default=None, null=True, blank=True)
 
     class Meta:  # noqa: F811
         abstract = True
 
     def __str__(self):
         return f"{self.name}"
+
+    @property
+    def thumbnail_as_base64(self):
+        if self.thumbnail is None:
+            return None
+        return f"data:image/png;base64,{base64.b64encode(self.thumbnail).decode()}"
 
 
 class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
@@ -292,6 +301,24 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
     def create_preview(self):
         return False
 
+    def save(self, *args, **kwargs):
+        # Basemaps don't have a single natural extent to render a representative 
+        # thumbnail from so every basemap thumbnail is rendered over the same
+        # fixed Swiss bounding box (EPSG:2056 / CH1903+ LV95).
+        # TODO: make this configurable per layer/project if non-Swiss projects show up.
+        thumbnail_bbox = BBox.from_string("2457000,1075000,2862000,1296000")
+        thumbnail_crs = "EPSG:2056"
+        # Size/aspect ratio matches geogirafe's built-in basemap thumbnails
+        thumbnail_dimensions = (220, 120)
+        if self.is_background and not self.thumbnail:
+            self.thumbnail = async_to_sync(self.render_dataset_image)(
+                self.raster_dataset,
+                thumbnail_bbox,
+                thumbnail_crs,
+                *thumbnail_dimensions,
+            )
+        super().save(*args, **kwargs)
+
     @property
     def get_raster_dataset(self) -> RasterDataSet:
         return self.raster_dataset
@@ -308,7 +335,12 @@ class PublishedAsLayerWms(Layer, PublishedAsWmsAbstract):
         config = ParserConfig(
             fail_on_unknown_properties=False, fail_on_unknown_attributes=False
         )
-        metadata = MetaData(legend=True, isLegendExpanded=True, isChecked=self.is_checked)
+        metadata = MetaData(
+            legend=True,
+            isLegendExpanded=True,
+            isChecked=self.is_checked,
+            thumbnail=self.thumbnail_as_base64,
+        )
         if self.dimensions:
             dimensions = DictDecoder(config).decode(self.dimensions, Dimensions)
         else:
