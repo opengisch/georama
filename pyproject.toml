@@ -135,7 +135,7 @@ optional-dependencies.docs = [
     "mkdocs-autorefs==1.4.0",
     "pymdown-extensions==10.5",
     "mkdocs-click==0.8.1",
-    "griffe==1.2.0"
+    "griffe==2.3.0"
 ]
 
 [tool.setuptools.dynamic]
