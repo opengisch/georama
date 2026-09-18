@@ -32,6 +32,7 @@ async def handle_dataset(
     gg_children: list[LayerGroup | WmsLayer | WmtsLayer],
     bbox: BBox,
     wms_layer_index: WmsLayerIndex,
+    background_layers: list[WmsLayer | WmtsLayer]
 ):
     # Vector layers without geometries are skipped during data integration
     if not qsl_dataset.is_spatial:
@@ -39,6 +40,9 @@ async def handle_dataset(
     wms_layer = wms_layer_index[qsl_dataset.id]
     gg_wms_layer = wms_layer.as_gg_wms_layer
     gg_wms_layer.metadata.isChecked = qsl_dataset.is_checked
+    if qsl_dataset.is_background:
+        background_layers.append(gg_wms_layer)
+        return
     if wms_layer.extent is not None:
         extend_bbox(bbox, BBox.from_string(wms_layer.extent))
     gg_children.append(gg_wms_layer)
@@ -50,6 +54,7 @@ async def unwrap_group(
     gg_children: list[LayerGroup | WmsLayer | WmtsLayer],
     bbox: BBox,
     wms_layer_index: WmsLayerIndex,
+    background_layers: list[WmsLayer | WmtsLayer]
 ):
     for child in qsl_group.children:
         qsl_tree_match = config.tree.find_by_name(child)
@@ -72,6 +77,7 @@ async def unwrap_group(
                 gg_group.children,
                 bbox,
                 wms_layer_index,
+                background_layers,
             )
         else:
             ds = config.datasets.find_dataset_by_id(child)
@@ -83,6 +89,7 @@ async def unwrap_group(
                 gg_children,
                 bbox,
                 wms_layer_index,
+                background_layers,
             )
 
 
@@ -91,15 +98,17 @@ async def theme_json_from_project_config(
     icon: str,
     project_config: Config,
     wms_layer_index: WmsLayerIndex,
-) -> Theme:
+) -> tuple[Theme, list[WmsLayer | WmtsLayer]]:
     bbox = BBox(math.inf, math.inf, -math.inf, -math.inf)
     children = []
+    background_layers: list[WmsLayer | WmtsLayer] = []
     await unwrap_group(
         project_config.tree.root,
         project_config,
         children,
         bbox,
         wms_layer_index,
+        background_layers,
     )
     if any(math.isinf(n) for n in bbox.to_2d_list()):
         location = [0.0, 0.0]
@@ -115,4 +124,4 @@ async def theme_json_from_project_config(
         zoom=4,
         location=location,
     )
-    return gg_theme
+    return gg_theme, background_layers

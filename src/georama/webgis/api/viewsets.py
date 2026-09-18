@@ -7,6 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.common.api import (
@@ -31,6 +32,12 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Ogc
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     ThemesJson as GGThemesJson,
+)
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    WmsLayer as GGWmsLayer,
+)
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    WmtsLayer as GGWmtsLayer,
 )
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.parsers import CustomDictDecoder
 from georama.webgis.models import Metadata, Theme, WmsLayer
@@ -65,12 +72,10 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
         local_perms = perm_checker.get_required_permissions("POST", self.queryset.model)
         # we also check if the remote data can be used (view)
         remote_perms = perm_checker.get_required_permissions("GET", Project)
-        if all(
-            [
-                await self.request.user.ahas_perms(local_perms),
-                await self.request.user.ahas_perms(remote_perms),
-            ]
-        ):
+        if all([
+            await self.request.user.ahas_perms(local_perms),
+            await self.request.user.ahas_perms(remote_perms),
+        ]):
             context["breadcrumb_action"] = BreadcrumbAction(
                 url=reverse("integration:manager-project-list"),
                 tooltip=_("Publish a Project as Theme"),
@@ -95,6 +100,7 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
             zoom=4,
             # temporarily we set this
             theme_json={},
+            background_layers=[],
         )
         await theme.asave()
         return theme
@@ -118,14 +124,15 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
                 theme=theme,
             )
             wms_layer_index[ds.qgis_layer_id] = wl
-        await Metadata.objects.abulk_create(
-            [wms_layer.metadata for wms_layer in wms_layer_index.values()]
-        )
+        await Metadata.objects.abulk_create([
+            wms_layer.metadata for wms_layer in wms_layer_index.values()
+        ])
         await WmsLayer.objects.abulk_create(wms_layer_index.values())
-        gg_theme = await theme_json_from_project_config(
+        gg_theme, background_layers = await theme_json_from_project_config(
             str(theme.id), theme.icon_default, project.config_as_dataclass, wms_layer_index
         )
         theme.theme_json = DictEncoder().encode(gg_theme)
+        theme.background_layers = DictEncoder().encode(background_layers)
         await theme.asave()
         return redirect(reverse(self.url_name_list))
 
@@ -168,7 +175,9 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
         qs = await self.public_or_object_permission(self.get_queryset())
 
         themes_json = GGThemesJson(
-            ogc_servers=OgcServers(georama_webgis=self.georama_ogc_server(request)), themes=[]
+            ogc_servers=OgcServers(georama_webgis=self.georama_ogc_server(request)),
+            themes=[],
+            background_layers=[],
         )
 
         async for theme in qs.all():
@@ -180,5 +189,11 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
                     # NOTE: We use a special extended encoder here, not the default XSData variant!
                     gg_theme
                 )
-
+                theme_background_layers = DictDecoder().decode(
+                    theme.background_layers, list[GGWmsLayer]
+                )
+                themes_json.background_layers = [
+                    *themes_json.background_layers,
+                    *theme_background_layers,
+                ]
         return Response(data=DictEncoder().encode(themes_json), status=status.HTTP_200_OK)
