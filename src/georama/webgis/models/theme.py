@@ -60,6 +60,7 @@ class Theme(models.Model):
     location = models.JSONField(null=True)
     zoom = models.IntegerField(null=True)
     theme_json = models.JSONField()
+    background_layers = models.JSONField()
 
     objects = ThemeManager()
 
