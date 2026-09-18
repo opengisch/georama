@@ -271,7 +271,7 @@ class PygeoapiServer(View):
     def handle_runtime_config(self, request: HttpRequest) -> tuple[dict, dict]:
         server_config = ServerConfig().get()
         server_config["server"]["url"] = (
-            f"{request.scheme}://{request.get_host()}{reverse('features:index')}"
+            f"{request.scheme}://{request.get_host()}{reverse('features:landing')}"
         )
         for feature_layer in get_objects_for_user(request.user, ["view_featurelayer"], self.model):
             server_config["resources"][str(feature_layer.id)] = self.create_resource(
