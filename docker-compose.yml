@@ -10,7 +10,7 @@ services:
       - ./:/app
       - "${GEORAMA_LOCAL_DATA:-./tests/resources/projects}:/io/data:ro"
     ports:
-      - "4242:4242"
+      - "127.0.0.1:4242:4242"
     depends_on:
       georama-db:
         condition: service_healthy
@@ -22,7 +22,7 @@ services:
     volumes:
       - "georama-db_data:/var/lib/postgresql/data"
     ports:
-      - "54321:5432"
+      - "127.0.0.1:54321:5432"
     environment:
       - "POSTGRES_USER=${GEORAMA_DB_USER:-postgres}"
       - "POSTGRES_PASSWORD=${GEORAMA_DB_PW:-test}"
@@ -35,7 +35,7 @@ services:
   qsl-redis:
     image: redis:8.6.2
     ports:
-      - "1234:6379"
+      - "127.0.0.1:1234:6379"
   qsl:
     restart: unless-stopped
     image: opengisch/qgis-server-light-dev:latest
@@ -51,7 +51,7 @@ services:
     image: opengisch/qgis-server-light-dev:latest
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     command:
       - "serve-exporter-api-outbound"
     volumes:
@@ -62,8 +62,8 @@ services:
       - ./geogirafe/config.json:/var/www/localhost/htdocs/config.json
       - ./geogirafe/config.mobile.json:/var/www/localhost/htdocs/config.mobile.json
     ports:
-      - "9309:443"
-      - "9308:80"
+      - "127.0.0.1:9309:443"
+      - "127.0.0.1:9308:80"
   keycloak:
     image: quay.io/keycloak/keycloak:26.5
     environment:
@@ -102,8 +102,8 @@ services:
     restart: unless-stopped
     command: ["start-dev", "--http-port", "7080", "--https-port", "7443", "--import-realm"]
     ports:
-      - "7080:7080"
-      - "7443:7443"
+      - "127.0.0.1:7080:7080"
+      - "127.0.0.1:7443:7443"
     volumes:
       - ./keycloak/certs/keycloak.crt:/etc/x509/https/tls.crt
       - ./keycloak/certs/keycloak.key:/etc/x509/https/tls.key
