@@ -2,6 +2,7 @@ import logging
 
 from qgis_server_light.interface.job.legend.input import QslJobParameterLegend
 
+from georama.core.models import Organisation
 from georama.maps.interfaces.georama.requests import GetLegendGraphicRequestParams
 from georama.maps.services.wms_1_3_0 import WmsOperation
 
@@ -9,8 +10,8 @@ from georama.maps.services.wms_1_3_0 import WmsOperation
 class WmsGetLegendGraphic(WmsOperation):
     default_style_name = "default"
 
-    def __init__(self, appname: str, url: str, user, model):
-        super().__init__(appname, url, user, model)
+    def __init__(self, appname: str, url: str, user, model, organisation: Organisation):
+        super().__init__(appname, url, user, model, organisation)
 
     def prepare_job_content(
         self, service_params: GetLegendGraphicRequestParams

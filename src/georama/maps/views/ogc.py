@@ -308,6 +308,7 @@ class OgcServer(View):
                     f"{request.build_absolute_uri('ows')}?",
                     request.user,
                     self.model,
+                    request.georama_organisation,
                 )
                 try:
                     job = await sync_to_async(operation.prepare_job_content, thread_sensitive=True)(

@@ -83,7 +83,7 @@ class WmsLayer(WmsLayerAbstract):
                     name=self.metadata.title,
                     minResolutionHint=self.min_resolution_hint,
                     maxResolutionHint=self.max_resolution_hint,
-                    queryable=bool(self.is_queryable),
+                    queryable=self.is_queryable,
                 )
             ],
             ogcServer=settings.WEBGIS_OGC_SERVER_NAME,

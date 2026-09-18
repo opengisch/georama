@@ -89,7 +89,7 @@ class WmsLayerAbstract(models.Model):
         return self.get_datasource.type in ["vector"]
 
     @property
-    def is_queryable(self):
+    def is_queryable(self) -> bool:
         # Currently we do allow querying on Vectordatasources only
         if self.queryable_type:
             return self.queryable
