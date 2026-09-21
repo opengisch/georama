@@ -268,12 +268,12 @@ MANAGE_ACTION="shell_plus"
 manage: $(PIP_REQUIREMENTS)
 	$(VENV_BIN)/python src/georama/manage.py $(MANAGE_ACTION)
 
-.PHONY: migrate
+.PHONY: collectstatic
 collectstatic: $(PIP_REQUIREMENTS)
-    # compare https://github.com/Koed00/django-q/issues/743
-    DJANGO_SECRET_KEY="$${DJANGO_SECRET_KEY:-notimportant}" \
+	# compare https://github.com/Koed00/django-q/issues/743
+	DJANGO_SECRET_KEY="$${DJANGO_SECRET_KEY:-notimportant}" \
 	$(VENV_BIN)/python src/georama/manage.py \
-	collectstatic
+	collectstatic --noinput
 
 .PHONY: migrate
 migrate: $(PIP_REQUIREMENTS)
