@@ -25,9 +25,8 @@ jobs:
         run: |
           docker compose build georama
       - name: Start Docker composition
-        run: |
-          docker compose up -d
+        run: docker compose up -d
       - name: Check migrations
         env:
           DJANGO_CONFIGURATION: Dev
-        run: uv run manage makemigrations --check --dry-run
+        run: docker compose exec georama uv run manage makemigrations --check --dry-run
