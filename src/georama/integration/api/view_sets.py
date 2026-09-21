@@ -1,4 +1,5 @@
 import logging
+from operator import attrgetter
 from pathlib import Path
 
 from adrf.mixins import get_data
@@ -224,6 +225,15 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
         }
         collection = QgisProjectCollection(organisation_folder)
         filtered_file_list = collection.projects_filtered(existing_project_paths)
+        ordering_filter = filters.OrderingFilter()
+        # The projects come from the file system, so the OrderingFilter cannot be applied
+        # as a queryset filter.
+        ordering = ordering_filter.get_ordering(request, filtered_file_list, self) or []
+        for ordering_field in reversed(ordering):
+            filtered_file_list.sort(
+                key=attrgetter(ordering_field.removeprefix("-")),
+                reverse=ordering_field.startswith("-"),
+            )
         pqs = await self.apaginate_queryset(filtered_file_list)
 
         if request.accepted_renderer.format == "html":
@@ -234,9 +244,19 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             context["object_list"] = pqs
             context["limit"] = self.paginator.limit
             context["list_body_partial"] = self.list_body_path_partial_template_name
+            context["ordering_context"] = self.build_ordering_context(
+                request=request,
+                queryset=filtered_file_list,
+                ordering_filter=ordering_filter,
+            )
             context.update(await self._get_model_permissions())
             context.update(self.paginator.get_html_context())
-            return Response(context, template_name=self.list_template_name)
+
+            if request.META.get("HTTP_HX_REQUEST") == "true":
+                template = self.list_partial_template_name
+            else:
+                template = self.list_template_name
+            return Response(context, template_name=template)
         else:
             if pqs is not None:
                 serializer = FileSystemProjectSerializer(

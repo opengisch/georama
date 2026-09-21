@@ -16,6 +16,10 @@ class QgisProject:
         return "json"
 
     @property
+    def name(self) -> str:
+        return self.path.stem
+
+    @property
     def root_path(self) -> Path:
         return Path(settings.DATA_INTEGRATION_ROOT)
 

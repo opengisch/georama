@@ -26,7 +26,6 @@ def extend_bbox(bbox: BBox, bbox_extension: BBox):
     bbox.y_max = max(bbox_extension.y_max, bbox.y_max)
 
 
-
 async def handle_dataset(
     qsl_dataset: DataSet,
     gg_children: list[LayerGroup | WmsLayer | WmtsLayer],
