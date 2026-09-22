@@ -266,7 +266,9 @@ class Base(Configuration):
         },
         environ_prefix=GEORAMA_ENV_PREFIX,
     )
-    DB_CONN_MAX_AGE = values.Value(default=0, environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_CONN_MAX_AGE = values.IntegerValue(default=0, environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_CONN_HEALTH_CHECKS = values.BooleanValue(True, environ_prefix="GEORAMA")
+    DB_DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(True, environ_prefix="GEORAMA")
 
     @property
     def DATABASES(self):
@@ -280,6 +282,8 @@ class Base(Configuration):
                 "PORT": self.DB_PORT,
                 "OPTIONS": self.DB_OPTIONS,
                 "CONN_MAX_AGE": self.DB_CONN_MAX_AGE,
+                "CONN_HEALTH_CHECKS": self.DB_CONN_HEALTH_CHECKS,
+                "DISABLE_SERVER_SIDE_CURSORS": self.DB_DISABLE_SERVER_SIDE_CURSORS,
             },
         }
 
