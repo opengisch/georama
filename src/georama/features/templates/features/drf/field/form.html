@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load static i18n model_extras %}
+{% load static i18n model_extras crispy_forms_tags %}
 
 {% block list_actions %}
 
@@ -36,12 +36,12 @@
 
                     <!-- Form content -->
 
-                    {% load crispy_forms_tags %}
                     <form id="{{ object.pk }}"
                           action="{% url view.url_name_fields object.pk %}"
                           method="post">
                         {% csrf_token %}
-                        {{ form|crispy }}
+                                                {{ form.management_form }}
+                                                {{ form|crispy }}
                     </form>
 
                 </div>

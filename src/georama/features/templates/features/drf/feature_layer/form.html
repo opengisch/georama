@@ -67,12 +67,12 @@
 
                     <!-- Form content -->
 
-                    {% load crispy_forms_tags %}
+                    {% load rest_framework %}
                     <form id="{{ object.pk }}"
                           action="{% url view.url_name_update object.pk %}"
                           method="post">
                         {% csrf_token %}
-                        {{ form|crispy }}
+                        {% render_form serializer %}
                     </form>
 
                 </div>

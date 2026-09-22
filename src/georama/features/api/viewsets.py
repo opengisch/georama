@@ -22,9 +22,8 @@ from georama.features.api.serializers import (
     FeatureLayerSerializer,
     FieldSerializer,
 )
-from georama.features.forms.feature_layer import FeatureLayerModelForm
 from georama.features.forms.field import FieldFormSet
-from georama.features.models import FeatureLayer, Field, Metadata
+from georama.features.models import FeatureLayer, Metadata
 from georama.integration.models import Vector
 
 User = get_user_model()
@@ -41,8 +40,6 @@ class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
     search_fields = ["metadata__title"]
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
-    form = FeatureLayerModelForm
-
     show_template_name = "features/drf/feature_layer/detail.html"
     form_template_name: str = "features/drf/feature_layer/form.html"
 
@@ -110,8 +107,7 @@ class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
 
         if request.accepted_renderer.format in ["html"]:
             context = await self._prepare_single_context()
-            fs = FieldFormSet(queryset=Field.objects.filter(feature_layer=layer))
-            context["form"] = fs
+            context["form"] = FieldFormSet(queryset=layer.fields.all())
             context["breadcrumbs"][-1].view_name = reverse(
                 self.url_name_show, kwargs={"pk": layer.pk}
             )

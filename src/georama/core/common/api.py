@@ -375,7 +375,7 @@ class GeoramaTemplateViewSet(
         """
         if request.accepted_renderer.format == "html":
             context = await self._prepare_single_context()
-            context["form"] = self.form(instance=context["object"])
+            context["serializer"] = self.get_serializer(context["object"])
             return Response(context, template_name=self.form_template_name)
         else:
             return await super().aretrieve(request, *args, **kwargs)
@@ -391,10 +391,6 @@ class GeoramaTemplateViewSet(
         renderer_classes=[renderers.TemplateHTMLRenderer],
     )
     async def aform_update(self, request, *args, **kwargs):
-        # We set partial to allow partially send data since the form might have hidden
-        # fields and therefore not sending all data which would be necessary for the
-        # underlying serializer
-        kwargs["partial"] = True
         await self.aupdate(request, *args, **kwargs)
         instance = await self.aget_object()
         return redirect(reverse(self.url_name_retrieve, kwargs={"pk": instance.pk}))

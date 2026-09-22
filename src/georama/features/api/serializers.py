@@ -48,6 +48,12 @@ class FeatureLayerSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
+    async def aupdate(self, instance, validated_data):
+        metadata_data = validated_data.pop("metadata", {})
+        instance = await super().aupdate(instance, validated_data)
+        await MetadataSerializer().aupdate(instance.metadata, metadata_data)
+        return instance
+
 
 class FeatureLayerPermissionSerializer(serializers.Serializer):
     can_view = serializers.BooleanField()
