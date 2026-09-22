@@ -1,9 +1,11 @@
 from django.db import models
 
-from georama.core.common.managers import OrganisationalManager
+from georama.core.common.managers import LayerManager
+from georama.core.common.querysets import OrganisationalQuerySet
+from georama.core.models import Organisation
 
 
-class WmsLayerManager(OrganisationalManager):
+class WmsLayerManager(LayerManager):
     def get_queryset(self) -> models.QuerySet:
         """Always prefetch bound fields to reduce queries.
 
@@ -21,3 +23,13 @@ class WmsLayerManager(OrganisationalManager):
                 "datasource__custom",
             )
         )
+
+    def accessible_layers_queryable(
+        self,
+        organisation: Organisation,
+        user,
+        perms: list[str],
+        layer_names: list[str] | None = None,
+    ) -> OrganisationalQuerySet:
+        qs = super().accessible_layers(organisation, user, perms, layer_names)
+        return qs.filter(datasource__vector__isnull=False).filter(queryable=True)

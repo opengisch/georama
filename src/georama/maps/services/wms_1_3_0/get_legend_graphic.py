@@ -10,8 +10,10 @@ from georama.maps.services.wms_1_3_0 import WmsOperation
 class WmsGetLegendGraphic(WmsOperation):
     default_style_name = "default"
 
-    def __init__(self, appname: str, url: str, user, model, organisation: Organisation):
-        super().__init__(appname, url, user, model, organisation)
+    def __init__(
+        self, appname: str, url: str, user, model, organisation: Organisation, perms: list[str]
+    ):
+        super().__init__(appname, url, user, model, organisation, perms)
 
     def prepare_job_content(
         self, service_params: GetLegendGraphicRequestParams

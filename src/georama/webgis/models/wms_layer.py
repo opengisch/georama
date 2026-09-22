@@ -80,7 +80,7 @@ class WmsLayer(WmsLayerAbstract):
             maxResolutionHint=self.max_resolution_hint,
             childLayers=[
                 GGLayerSettings(
-                    name=self.metadata.title,
+                    name=self.identifier,
                     minResolutionHint=self.min_resolution_hint,
                     maxResolutionHint=self.max_resolution_hint,
                     queryable=self.is_queryable,

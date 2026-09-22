@@ -7,6 +7,7 @@ from georama.core.factories import (
     UserFactory,
 )
 from georama.integration.factories import ProjectFactory, VectorFactory
+from georama.maps.factories import MetadataFactory, WmsLayerFactory
 
 
 @pytest.fixture
@@ -152,3 +153,39 @@ def global_vector_dataset(project_global_organisation):
     vector = VectorFactory.create(project=project_global_organisation)
     yield vector
     vector.delete()
+
+
+@pytest.fixture
+def global_wms_layer_public_queryable(global_vector_dataset):
+    layer = WmsLayerFactory.create(
+        public=True,
+        queryable=True,
+        datasource=global_vector_dataset,
+        metadata=MetadataFactory.create(title="Global Public Queryable"),
+    )
+    yield layer
+    layer.delete()
+
+
+@pytest.fixture
+def global_wms_layer_public_non_queryable(global_vector_dataset):
+    layer = WmsLayerFactory.create(
+        public=True,
+        queryable=False,
+        datasource=global_vector_dataset,
+        metadata=MetadataFactory.create(title="Global Public NonQueryable"),
+    )
+    yield layer
+    layer.delete()
+
+
+@pytest.fixture
+def global_wms_layer_non_public_queryable(global_vector_dataset):
+    layer = WmsLayerFactory.create(
+        public=False,
+        queryable=True,
+        datasource=global_vector_dataset,
+        metadata=MetadataFactory.create(title="Global NonPublic Queryable"),
+    )
+    yield layer
+    layer.delete()
