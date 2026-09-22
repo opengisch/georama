@@ -273,7 +273,7 @@ class ThemesJson:
         default_factory=list, metadata={"type": "Element", "required": False}
     )
     errors: list[str] = field(default_factory=list)
-    background_layers: list[str] = field(default_factory=list)
+    background_layers: list[WmsLayer | WmtsLayer] = field(default_factory=list)
 
     def get_ogc_server_by_name(self, name: str) -> OgcServer | None:
         for ogc_server in self.ogc_servers:
