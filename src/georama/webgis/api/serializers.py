@@ -1,10 +1,15 @@
 from adrf import serializers
+from django.conf import settings
+from django.db import IntegrityError
+from django.urls import reverse
+from django.utils.crypto import get_random_string
+from rest_framework.exceptions import ValidationError
 
 from georama.core.common.serializers import (
     ObjectPermissionSerializer,
     PermissionActionSerializer,
 )
-from georama.webgis.models import Theme
+from georama.webgis.models import Theme, UrlShortener
 from georama.webgis.models.metadata import Metadata
 from georama.webgis.models.wms_layer import WmsLayer
 
@@ -66,3 +71,35 @@ class ThemePermissionActionSerializer(PermissionActionSerializer):
     action = serializers.ChoiceField(
         choices=[(key, value[2]) for key, value in Theme.ACTION_MAP.items()]
     )
+
+
+class UrlShortenerCreateSerializer(serializers.ModelSerializer):
+    short_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UrlShortener
+        fields = ["url", "short_url"]
+        extra_kwargs = {"url": {"write_only": True}}
+
+    def get_short_url(self, obj):
+        return reverse("webgis:short-detail", kwargs={"pk": obj.pk})
+
+    def validate_url(self, value):
+        if not value.startswith(settings.WEBGISURL):
+            raise ValidationError("Invalid URL.")
+        return value
+
+    def create(self, validated_data):
+        while True:
+            try:
+                return UrlShortener.objects.create(id=get_random_string(length=6), **validated_data)
+            except IntegrityError:
+                continue
+
+
+class UrlShortenerRetrieveSerializer(serializers.ModelSerializer):
+    long_url = serializers.CharField(source="url")
+
+    class Meta:
+        model = UrlShortener
+        fields = ["long_url"]

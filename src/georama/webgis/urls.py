@@ -3,7 +3,7 @@ from django.urls import include, path
 
 from georama.webgis.api.viewsets import ManageThemeViewSet, ThemeViewSet
 from georama.webgis.views.ogc import OgcServerWebGis
-from georama.webgis.views.url_shortener import UrlShortenerCreate, UrlShortenerRetrieve
+from georama.webgis.views.url_shortener import UrlShortenerViewSet
 
 app_name = "webgis"
 
@@ -13,10 +13,12 @@ management_router.register(r"themes", ManageThemeViewSet, basename="theme-manage
 router = DefaultRouter()
 router.register(r"themes", ThemeViewSet, basename="theme")
 
+short_router = SimpleRouter(trailing_slash=False)
+short_router.register(r"short", UrlShortenerViewSet, basename="short")
+
 urlpatterns = [
     path("", include(router.urls)),
+    path("", include(short_router.urls)),
     path("manage/", include(management_router.urls)),
     path("ows/", OgcServerWebGis.as_view(), name="ows_entry"),
-    path("/short/get/<str:id>", UrlShortenerRetrieve.as_view(), name="get_short_url"),
-    path("/short/create", UrlShortenerCreate.as_view(), name="shorten_url"),
 ]
