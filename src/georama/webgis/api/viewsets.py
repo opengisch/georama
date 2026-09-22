@@ -71,10 +71,12 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
         local_perms = perm_checker.get_required_permissions("POST", self.queryset.model)
         # we also check if the remote data can be used (view)
         remote_perms = perm_checker.get_required_permissions("GET", Project)
-        if all([
-            await self.request.user.ahas_perms(local_perms),
-            await self.request.user.ahas_perms(remote_perms),
-        ]):
+        if all(
+            [
+                await self.request.user.ahas_perms(local_perms),
+                await self.request.user.ahas_perms(remote_perms),
+            ]
+        ):
             context["breadcrumb_action"] = BreadcrumbAction(
                 url=reverse("integration:manager-project-list"),
                 tooltip=_("Publish a Project as Theme"),
@@ -123,9 +125,9 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
                 theme=theme,
             )
             wms_layer_index[ds.qgis_layer_id] = wl
-        await Metadata.objects.abulk_create([
-            wms_layer.metadata for wms_layer in wms_layer_index.values()
-        ])
+        await Metadata.objects.abulk_create(
+            [wms_layer.metadata for wms_layer in wms_layer_index.values()]
+        )
         await WmsLayer.objects.abulk_create(wms_layer_index.values())
         gg_theme, background_layers = await theme_json_from_project_config(
             str(theme.id), theme.icon_default, project.config_as_dataclass, wms_layer_index

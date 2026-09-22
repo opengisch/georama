@@ -262,10 +262,11 @@ class Base(Configuration):
     DB_PORT = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
     DB_OPTIONS = values.DictValue(
         {
-            "pool": True,
+            "pool": False,
         },
         environ_prefix=GEORAMA_ENV_PREFIX,
     )
+    DB_CONN_MAX_AGE = values.Value(default=0, environ_prefix=GEORAMA_ENV_PREFIX)
 
     @property
     def DATABASES(self):
@@ -278,6 +279,7 @@ class Base(Configuration):
                 "HOST": self.DB_HOST,
                 "PORT": self.DB_PORT,
                 "OPTIONS": self.DB_OPTIONS,
+                "CONN_MAX_AGE": self.DB_CONN_MAX_AGE,
             },
         }
 
