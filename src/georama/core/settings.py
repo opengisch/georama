@@ -307,9 +307,10 @@ class Base(Configuration):
     DB_PW = values.Value("test", environ_prefix="GEORAMA")
     DB_HOST = values.Value("localhost", environ_prefix="GEORAMA")
     DB_PORT = values.Value("54321", environ_prefix="GEORAMA")
+    DB_CONN_MAX_AGE = values.IntegerValue(0, environ_prefix="GEORAMA")
     DB_OPTIONS = values.DictValue(
         {
-            "pool": True,
+            "pool": False,
         },
         environ_prefix="GEORAMA",
     )
@@ -324,6 +325,7 @@ class Base(Configuration):
                 "PASSWORD": self.DB_PW,
                 "HOST": self.DB_HOST,
                 "PORT": self.DB_PORT,
+                "CONN_MAX_AGE": self.DB_CONN_MAX_AGE,
                 "OPTIONS": self.DB_OPTIONS,
             }
         }
