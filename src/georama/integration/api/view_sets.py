@@ -224,7 +224,10 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             ).values_list("path", flat=True)
         }
         collection = QgisProjectCollection(organisation_folder)
-        filtered_file_list = collection.projects_filtered(existing_project_paths)
+        filtered_file_list = collection.projects_filtered(
+            existing_project_paths,
+            request.query_params.get("search", ""),
+        )
         ordering_filter = filters.OrderingFilter()
         # The projects come from the file system, so the OrderingFilter cannot be applied
         # as a queryset filter.
@@ -251,12 +254,11 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             )
             context.update(await self._get_model_permissions())
             context.update(self.paginator.get_html_context())
-
             if request.META.get("HTTP_HX_REQUEST") == "true":
-                template = self.list_partial_template_name
+                template_name = self.list_partial_template_name
             else:
-                template = self.list_template_name
-            return Response(context, template_name=template)
+                template_name = self.list_template_name
+            return Response(context, template_name=template_name)
         else:
             if pqs is not None:
                 serializer = FileSystemProjectSerializer(
