@@ -30,7 +30,7 @@ services:
       - georama-venv:/.venv
       - georama-static:/georama/static
       - ssh_host_keys:/etc/ssh
-      - ./docker/sshd_config.conf:/etc/ssh/sshd_config
+      - ./docker/dev.sshd_config.conf:/etc/ssh/sshd_config
     depends_on:
       georama-db:
         condition: service_healthy
