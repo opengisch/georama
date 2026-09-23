@@ -13,9 +13,8 @@ dependencies = [
     "django-cors-headers>=4.9.0",
     "django-filter>=25.2",
     "django-guardian>=3.3.1",
-    "psycopg[pool]>=3.3.4",
+    "psycopg[binary]>=3.3.4",
     "django-unfold>=0.96.0",
-    "uvicorn>=0.49.0",
     "django-extensions>=4.1",
     "djangorestframework>=3.17.1",
     "drf-spectacular[sidecar]>=0.29.0",
@@ -42,9 +41,16 @@ requires = ["uv_build>=0.11.15,<0.12.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
+prod = [
+    "gunicorn==26.2.0",
+    # https://github.com/Kludex/uvicorn/discussions/2798
+    "uvicorn-worker>=0.4.0",
+]
+
 dev = [
     { include-group = "lint-format" },
     { include-group = "test" },
+    "uvicorn>=0.49.0",
     "django-extensions>=4.1",
     "django-silk>=5.5.0",
     "factory-boy>=3.3.3",

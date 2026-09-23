@@ -9,9 +9,9 @@ RUN apt-get update && apt-get install -y \
     gdal-bin \
     gettext
 
-COPY --from=ghcr.io/astral-sh/uv:0.11.19 /uv /uvx /bin/
-
 FROM base AS builder-base
+
+COPY --from=ghcr.io/astral-sh/uv:0.11.19 /uv /uvx /bin/
 
 RUN apt-get update && apt-get install -y \
     binutils \
@@ -96,16 +96,16 @@ WORKDIR /app
 
 COPY pyproject.toml ./
 RUN uv lock --no-sources
-RUN uv sync --frozen --no-install-project --no-dev
+RUN uv sync --frozen --no-install-project --no-dev --group prod
 
 COPY ./src ./src
 COPY ./README.md ./
-RUN uv sync --frozen --no-dev --no-editable
+RUN uv sync --frozen --no-dev --no-editable --group prod
 RUN DJANGO_CONFIGURATION=Static \
     uv run --no-sources manage collectstatic --noinput
 
-FROM python:${PYTHON_VERSION}
-
+FROM base
+ARG USER=1001
 ENV GEORAMA_DATA_INTEGRATION_ROOT=/io
 
 WORKDIR /static
@@ -119,7 +119,7 @@ COPY docker/prod.run.sh /usr/local/bin/
 
 RUN useradd \
       --system \
-      --uid 1001 \
+      --uid $USER \
       --gid 0 \
       --shell /bin/bash \
       --no-create-home \
@@ -127,13 +127,17 @@ RUN useradd \
       --password '*' \
       app && \
     mkdir -p /data && \
-    chown 1001:0 /data && \
+    chown $USER:0 /data && \
     chmod g=u /data && \
     mkdir -p /auth && \
-    chown 1001:0 /auth && \
+    chown $USER:0 /auth && \
+    chown $USER:0 /io && \
     chmod g=u /auth && \
     chgrp 0 /etc/passwd && \
-    chmod g=u /etc/passwd
+    chmod g=u /etc/passwd && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/*
 
 ENTRYPOINT [ "/usr/local/bin/prod.uid_entrypoint.sh" ]
 
@@ -141,4 +145,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 CMD [ "/usr/local/bin/prod.run.sh" ]
 
-USER 1001
+USER $USER
