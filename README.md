@@ -132,3 +132,9 @@ docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_c
   python3-gdal, or similar)
 - Inheritance of templates not working for django
   partials: https://code.djangoproject.com/ticket/37038
+
+# PROD notes
+
+- pooling of DB connections from georama to its own DB has to be handled externally (
+  suggestion: pg_bouncer)
+- 

@@ -31,7 +31,7 @@ async def handle_dataset(
     gg_children: list[LayerGroup | WmsLayer | WmtsLayer],
     bbox: BBox,
     wms_layer_index: WmsLayerIndex,
-    background_layers: list[WmsLayer | WmtsLayer]
+    background_layers: list[WmsLayer | WmtsLayer],
 ):
     # Vector layers without geometries are skipped during data integration
     if not qsl_dataset.is_spatial:
@@ -53,7 +53,7 @@ async def unwrap_group(
     gg_children: list[LayerGroup | WmsLayer | WmtsLayer],
     bbox: BBox,
     wms_layer_index: WmsLayerIndex,
-    background_layers: list[WmsLayer | WmtsLayer]
+    background_layers: list[WmsLayer | WmtsLayer],
 ):
     for child in qsl_group.children:
         qsl_tree_match = config.tree.find_by_name(child)
