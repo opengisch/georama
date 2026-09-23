@@ -72,7 +72,7 @@ dependencies = [
     "django-cors-headers==4.9.0",
     "django-treebeard==4.8.0",
     "django-admin-sortable2==2.3.1",
-    "django-simple-history==3.11.0",
+    "django-simple-history==3.13.0",
     "django-extensions==3.2.3",
     # prod-server deps
     "gunicorn==26.0.0",
