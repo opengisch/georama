@@ -100,7 +100,7 @@ jobs:
           - target: ""
             suffix: ""
           - target: dev
-            suffix: "dev"
+            suffix: "-dev"
 
     steps:
       - name: Checkout
@@ -127,8 +127,8 @@ jobs:
           target: ${{ matrix.target }}
           push: false
           load: true
-          tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}-${{ matrix.suffix }}
-          cache-from: type=gha,scope=pr-${{ matrix.suffix }}
+          tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}${{ matrix.suffix }}
+          cache-from: type=gha,scope=pr${{ matrix.suffix }}
 
       - name: Build PR Image
         if: github.event.action != 'closed'
@@ -138,15 +138,15 @@ jobs:
           context: .
           target: ${{ matrix.target }}
           push: true
-          tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}-${{ matrix.suffix }}
-          cache-from: type=gha,scope=pr-${{ matrix.suffix }}
-          cache-to: type=gha,mode=max,scope=pr-${{ matrix.suffix }}
+          tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}${{ matrix.suffix }}
+          cache-from: type=gha,scope=pr${{ matrix.suffix }}
+          cache-to: type=gha,mode=max,scope=pr${{ matrix.suffix }}
 
       - name: Delete PR image
         if: github.event.action == 'closed'
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: pr-${{ github.event.pull_request.number }}-${{ matrix.suffix }}
+          TAG: pr-${{ github.event.pull_request.number }}${{ matrix.suffix }}
           PACKAGE: georama
         run: |
           ID=$(gh api \
