@@ -23,10 +23,12 @@
 - [ ] A tester has been assigned, if the GUI or a GUI related workflow logic is impacted by the PR (at the developer's discretion).
 
 ### For the tester
+*Only required if relevant*
 - [ ] The tester has successfully tested the new code on their development setup or on a suitable development server/devbox
 - [ ] **The code can be merged** (from a functional perspective)
 
 ### For the code reviewer
+*Required in every case*
 
 - [ ] New code was successfully reviewed
 - [ ] The reviewer fully understands the new code
