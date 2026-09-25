@@ -7,6 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.serializers import DictEncoder
 
@@ -24,6 +25,8 @@ from georama.webgis.api.serializers import (
     ThemeObjectPermissionSerializer,
     ThemePermissionActionSerializer,
     ThemeSerializer,
+    UrlShortenerCreateSerializer,
+    UrlShortenerRetrieveSerializer,
 )
 from georama.webgis.forms.theme import ThemeModelForm
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
@@ -38,7 +41,7 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     WmsLayer as GGWmsLayer,
 )
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.parsers import CustomDictDecoder
-from georama.webgis.models import Metadata, Theme, WmsLayer
+from georama.webgis.models import Metadata, Theme, UrlShortener, WmsLayer
 
 
 class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
@@ -198,3 +201,16 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
                     *theme_background_layers,
                 ]
         return Response(data=DictEncoder().encode(themes_json), status=status.HTTP_200_OK)
+
+
+class UrlShortenerViewSet(ModelViewSet):
+    queryset = UrlShortener.objects.all()
+    serializer_class = UrlShortenerCreateSerializer
+    http_method_names = ["get", "post"]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return UrlShortenerCreateSerializer
+        if self.action == "retrieve":
+            return UrlShortenerRetrieveSerializer
+        raise AssertionError(f"Unsupported action: {self.action}")

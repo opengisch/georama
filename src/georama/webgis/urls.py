@@ -1,9 +1,8 @@
 from adrf.routers import DefaultRouter, SimpleRouter
 from django.urls import include, path
 
-from georama.webgis.api.viewsets import ManageThemeViewSet, ThemeViewSet
+from georama.webgis.api.viewsets import ManageThemeViewSet, ThemeViewSet, UrlShortenerViewSet
 from georama.webgis.views.ogc import OgcServerWebGis
-from georama.webgis.views.url_shortener import UrlShortenerViewSet
 
 app_name = "webgis"
 
