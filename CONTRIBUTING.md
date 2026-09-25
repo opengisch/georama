@@ -66,3 +66,15 @@ Good documentation is as valuable as good code. If you spot something unclear, o
 ### 🔧 Submit a fix or feature
 
 Ready to write some code? Wonderful! Please make sure you've discussed it with us first (see [Before you dive in](#before-you-dive-in)), then follow the technical setup below.
+
+---
+
+## Pull Request Review Policy
+
+All pull requests must be properly reviewed and tested before merging.
+
+The review process is not based on distrust of the delivering developer. It is a necessary control for maintaining consistent code quality, sharing knowledge, and identifying bugs, edge cases, security issues, and unintended side effects.
+
+Reviewers must understand the change (no matter how small), assess the implementation and tests, and test the code locally on their development setup or on a suitable development server/devbox. Where possible, the fix must also be tested functionally ("click-testing"), by someone else than the developer. Required feedback must be addressed before approval.
+
+A quick or superficial approval (such as asking someone to approve and merge without reviewing and testing) is not sufficient. Approval means the reviewer has genuinely checked the change and considers it ready to merge.
