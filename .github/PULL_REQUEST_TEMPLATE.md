@@ -19,12 +19,12 @@
 - [ ] If necessary (at the developer's discretion), unit tests have been added for critical parts.
 - [ ] All unit tests run without error.
 - [ ] Pull-Request contains a few explanations of what was done.
-- [ ] The fix has been tested functionaly ("click-testing"), ideally by another person than the developer.
 - [ ] A reviewer has been assigned.
+- [ ] A tester has been assigned, if the GUI or a GUI related workflow logic is impacted by the PR (at the developer's discretion).
 
 ### For the tester
 - [ ] The tester has successfully tested the new code on their development setup or on a suitable development server/devbox
-- [ ] **- [ ] The code can be merged** (from a functional perspective)
+- [ ] **The code can be merged** (from a functional perspective)
 
 ### For the code reviewer
 
@@ -33,7 +33,7 @@
 - [ ] If comments could be added on unclear code, the developer has been informed.
 - [ ] If unit tests could be added in certain places, the developer has been informed.
 - [ ] The reviewer has successfully tested the new code on their development setup or on a suitable development server/devbox
-**- [ ] The code can be merged** (from a code perspective)
+- [ ] **The code can be merged** (from a code perspective)
 
 ## Screenshots / Evidence (if applicable)
 <!-- If your changes affect the UI, please include screenshots or a short recording demonstrating the fix. -->
