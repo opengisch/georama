@@ -23,9 +23,18 @@ class MetadataFactory(factory.django.DjangoModelFactory):
 class WmsLayerFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = WmsLayer
-        django_get_or_create = ("datasource",)
 
     public = factory.Iterator([True, False])
     queryable = factory.Iterator([True, False])
     metadata = factory.SubFactory(MetadataFactory)
     datasource = factory.SubFactory(VectorFactory)
+    extent = factory.LazyFunction(
+        lambda: ",".join(
+            [str(float(x)) for x in fake.latlng()] + [str(float(x)) for x in fake.latlng()]
+        )
+    )
+    extent_wgs84 = factory.LazyFunction(
+        lambda: ",".join(
+            [str(float(x)) for x in fake.latlng()] + [str(float(x)) for x in fake.latlng()]
+        )
+    )

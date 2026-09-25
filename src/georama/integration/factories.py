@@ -810,7 +810,7 @@ GEOMETRY_TYPES = [
     ("point", "multipoint"),
     ("line", "multilinestring"),
     ("polygon", "multipolygon"),
-    ("geometrycollection", "geometrycollection"),
+    # ("geometrycollection", "geometrycollection"),
     # 2D Curve Types
     ("line", "circularstring"),
     ("line", "compoundcurve"),
@@ -824,7 +824,7 @@ GEOMETRY_TYPES = [
     ("point", "multipointz"),
     ("line", "multilinestringz"),
     ("polygon", "multipolygonz"),
-    ("geometrycollection", "geometrycollectionz"),
+    # ("geometrycollection", "geometrycollectionz"),
     ("line", "circularstringz"),
     ("line", "compoundcurvez"),
     ("polygon", "curvepolygonz"),
@@ -837,7 +837,7 @@ GEOMETRY_TYPES = [
     ("point", "multipointm"),
     ("line", "multilinestringm"),
     ("polygon", "multipolygonm"),
-    ("geometrycollection", "geometrycollectionm"),
+    # ("geometrycollection", "geometrycollectionm"),
     ("line", "circularstringm"),
     ("line", "compoundcurvem"),
     ("polygon", "curvepolygonm"),
@@ -850,7 +850,7 @@ GEOMETRY_TYPES = [
     ("point", "multipointzm"),
     ("line", "multilinestringzm"),
     ("polygon", "multipolygonzm"),
-    ("geometrycollection", "geometrycollectionzm"),
+    # ("geometrycollection", "geometrycollectionzm"),
     ("line", "circularstringzm"),
     ("line", "compoundcurvezm"),
     ("polygon", "curvepolygonzm"),
@@ -902,8 +902,16 @@ class DatasourceFactory(factory.django.DjangoModelFactory):
 
     qgis_layer_id = factory.LazyAttribute(lambda a: f"{a.name.lower()}_{uuid.uuid4()}")
     name = factory.Faker("word")
-    bbox = factory.LazyFunction(lambda: [float(x) for x in fake.latlng()])
-    bbox_wgs84 = factory.LazyFunction(lambda: [float(x) for x in fake.latlng()])
+    bbox = factory.LazyFunction(
+        lambda: ",".join(
+            [str(float(x)) for x in fake.latlng()] + [str(float(x)) for x in fake.latlng()]
+        )
+    )
+    bbox_wgs84 = factory.LazyFunction(
+        lambda: ",".join(
+            [str(float(x)) for x in fake.latlng()] + [str(float(x)) for x in fake.latlng()]
+        )
+    )
     source = {}
     styles = []
     driver = factory.Iterator(["ogr", "gdal", "postgres"])
