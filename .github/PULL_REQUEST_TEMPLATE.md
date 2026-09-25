@@ -17,7 +17,7 @@
 - [ ] Code conforms to defined coding standards
 - [ ] Image builds in the CI are passing
 - [ ] If necessary (at the developer's discretion), unit tests have been added for critical parts.
-- [ ] All unit tests run without error.
+  - [ ] All unit tests run without error.
 - [ ] Pull-Request contains a few explanations of what was done.
 - [ ] A reviewer has been assigned.
 - [ ] A tester has been assigned, if the GUI or a GUI related workflow logic is impacted by the PR (at the developer's discretion).
