@@ -1,4 +1,5 @@
 import pytest
+from guardian.shortcuts import assign_perm
 
 from georama.core.factories import (
     AdminUserFactory,
@@ -8,6 +9,7 @@ from georama.core.factories import (
 )
 from georama.integration.factories import ProjectFactory, VectorFactory
 from georama.maps.factories import MetadataFactory, WmsLayerFactory
+from georama.maps.models.wms_layer import WmsLayerUserObjectPermission
 
 
 @pytest.fixture
@@ -189,3 +191,16 @@ def global_wms_layer_non_public_queryable(global_vector_dataset):
     )
     yield layer
     layer.delete()
+
+
+@pytest.fixture
+def user_with_membership_global_layer_permission(
+    user_with_membership_global, global_wms_layer_non_public_queryable
+):
+    assign_perm(
+        "view_published_wms_layer",
+        user_with_membership_global,
+        global_wms_layer_non_public_queryable,
+    )
+    yield user_with_membership_global
+    WmsLayerUserObjectPermission.objects.all().delete()

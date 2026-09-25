@@ -69,7 +69,6 @@ class LayerManager(OrganisationalManager):
         layer_names: list[str] | None = None,
     ) -> OrganisationalQuerySet:
         qs = self.get_queryset().organisation_objects(organisation)
-        qs = self.prefilter_queryset(qs)
         if layer_names is None:
             # most notably this is the case on capability requests
             return self.get_public_or_permitted(organisation, user, perms)
