@@ -1,22 +1,24 @@
 ARG PYTHON_VERSION=3.12
-FROM python:$PYTHON_VERSION AS base
+FROM python:${PYTHON_VERSION} AS base
 LABEL org.opencontainers.image.authors="Clemens Rudert <clemens@opengis.ch>"
 LABEL org.opencontainers.image.vendor="opengis.ch"
 LABEL org.opencontainers.image.title="Georama Base Image"
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
-    binutils \
-    libproj-dev \
     gdal-bin \
-    libgdal-dev \
-    gettext \
-    openssh-server \
-    sudo
+    gettext
+
+FROM base AS builder-base
 
 COPY --from=ghcr.io/astral-sh/uv:0.11.19 /uv /uvx /bin/
 
-FROM base AS dev
+RUN apt-get update && apt-get install -y \
+    binutils \
+    libproj-dev \
+    libgdal-dev
+
+FROM builder-base AS dev
 
 ARG UID=1000
 ARG GID=1000
@@ -28,6 +30,13 @@ ARG UV_CACHE_DIR_RUN_TIME=/home/$USER/.cache/uv
 ENV UV_PROJECT_ENVIRONMENT=/home/$USER/.venv
 ARG QSL_SOURCE_DIR=/qsl
 ARG QSL_SOURCE_BRANCH=master
+
+RUN apt-get update && apt-get install -y \
+    binutils \
+    libproj-dev \
+    libgdal-dev \
+    openssh-server \
+    sudo
 
 # Setup a non-root user
 RUN groupadd --system --gid $GID nonroot \
@@ -75,3 +84,65 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
 COPY docker/dev.entrypoint.sh /bin/dev.entrypoint.sh
 
 ENTRYPOINT ["/bin/dev.entrypoint.sh"]
+
+FROM builder-base AS prod-builder
+
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+
+WORKDIR /app/tests/resources/projects
+WORKDIR /static
+WORKDIR /app
+
+COPY pyproject.toml ./
+RUN uv lock --no-sources
+RUN uv sync --frozen --no-install-project --no-dev --group prod
+
+COPY ./src ./src
+COPY ./README.md ./
+RUN uv sync --frozen --no-dev --no-editable --group prod
+RUN DJANGO_CONFIGURATION=Static \
+    uv run --no-sources manage collectstatic --noinput
+
+FROM base
+ARG USER=1001
+ENV GEORAMA_DATA_INTEGRATION_ROOT=/io
+
+WORKDIR /static
+WORKDIR $GEORAMA_DATA_INTEGRATION_ROOT
+WORKDIR /app
+COPY --from=prod-builder /app/.venv /app/.venv
+COPY --from=prod-builder /app/.static /static
+COPY --from=prod-builder /app/src /app/src
+COPY docker/prod.uid_entrypoint.sh /usr/local/bin/
+COPY docker/prod.run.sh /usr/local/bin/
+
+RUN useradd \
+      --system \
+      --uid $USER \
+      --gid 0 \
+      --shell /bin/bash \
+      --no-create-home \
+      --no-user-group \
+      --password '*' \
+      app && \
+    mkdir -p /data && \
+    chown $USER:0 /data && \
+    chmod g=u /data && \
+    mkdir -p /auth && \
+    chown $USER:0 /auth && \
+    chown $USER:0 /io && \
+    chmod g=u /auth && \
+    chgrp 0 /etc/passwd && \
+    chmod g=u /etc/passwd && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/*
+
+ENTRYPOINT [ "/usr/local/bin/prod.uid_entrypoint.sh" ]
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+CMD [ "/usr/local/bin/prod.run.sh" ]
+
+USER $USER

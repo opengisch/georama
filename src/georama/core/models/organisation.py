@@ -45,7 +45,7 @@ class Organisation(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        organisation_folder: Path = settings.DATA_INTEGRATION_ROOT / self.domain
+        organisation_folder: Path = Path(settings.DATA_INTEGRATION_ROOT) / self.domain
         if not organisation_folder.exists():
             logging.info(f"Organisation folder {self.domain} created")
             organisation_folder.mkdir()

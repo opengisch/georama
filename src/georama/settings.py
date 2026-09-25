@@ -22,6 +22,10 @@ GEORAMA_ENV_PREFIX = "GEORAMA"
 
 
 class Base(Configuration):
+    """Collects the default settings. This should be updated sensitively, and it should
+    be restrictive, so with a prod save setup in mind. Dev/Test odr other non Prod
+    environments shall override and set values"""
+
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR = Path(__file__).resolve().parent.parent.parent
     STATIC_ROOT = values.Value(BASE_DIR / ".static", environ_prefix=GEORAMA_ENV_PREFIX)
@@ -30,20 +34,20 @@ class Base(Configuration):
     # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
     # SECURITY WARNING: keep the secret key used in production secret!
-    SECRET_KEY = values.SecretValue()
+    SECRET_KEY = values.SecretValue(environ_required=True)
 
     # https://docs.djangoproject.com/en/6.0/ref/settings/#std-setting-ALLOWED_HOSTS
     ALLOWED_HOSTS = values.ListValue([], separator=LIST_ENV_SEPARATOR)
 
     # https://docs.djangoproject.com/en/6.0/ref/settings/#std-setting-CSRF_TRUSTED_ORIGINS
     CSRF_TRUSTED_ORIGINS = values.ListValue(
-        ["http://localhost:4242"],
+        environ_required=True,
         separator=LIST_ENV_SEPARATOR,
     )
 
     # https://github.com/adamchainz/django-cors-headers#cors_allowed_origins-sequencestr
     CORS_ALLOWED_ORIGINS = values.ListValue(
-        ["https://localhost:9309"],
+        environ_required=True,
         separator=LIST_ENV_SEPARATOR,
         environ_prefix=GEORAMA_ENV_PREFIX,
     )
@@ -253,14 +257,15 @@ class Base(Configuration):
     # Database
     # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-    DB_NAME = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_NAME = values.Value(environ_required=True, environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_USER = values.Value(environ_required=True, environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_PW = values.Value(environ_required=True, environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_HOST = values.Value(environ_required=True, environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_PORT = values.Value(environ_required=True, environ_prefix=GEORAMA_ENV_PREFIX)
+
     DB_ENGINE = values.Value(
         "django.contrib.gis.db.backends.postgis", environ_prefix=GEORAMA_ENV_PREFIX
     )
-    DB_USER = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
-    DB_PW = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
-    DB_HOST = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
-    DB_PORT = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
     DB_OPTIONS = values.DictValue(
         {
             "pool": False,
@@ -396,10 +401,12 @@ class Base(Configuration):
     QSL_EXPORTER_UNIFY_LAYER_NAMES_BY_GROUP = values.BooleanValue(
         True, environ_prefix=GEORAMA_ENV_PREFIX
     )
-    QSL_EXPORTER_URL = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    QSL_EXPORTER_URL = values.Value(environ_required=True, environ_prefix=GEORAMA_ENV_PREFIX)
+
+    QSL_REDIS_URL = values.Value(environ_required=True, environ_prefix="")
 
     # GeoGirafe stuff
-    WEBGISURL = values.Value("http://localhost:9308", environ_prefix=GEORAMA_ENV_PREFIX)
+    WEBGISURL = values.Value(environ_required=True, environ_prefix=GEORAMA_ENV_PREFIX)
 
     # Georama internal settings
     SITE_TITLE = values.Value("Georama", environ_prefix=GEORAMA_ENV_PREFIX)
@@ -407,7 +414,7 @@ class Base(Configuration):
     # the domain georama runs-this is be used for deriving the organisation
     # if georama runs already below a subdomain, you need to include it in this setting
     # e.g. sub.example.com or sub.sub.example.com
-    ORGANISATION_DOMAIN = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    ORGANISATION_DOMAIN = values.Value(environ_required=True, environ_prefix=GEORAMA_ENV_PREFIX)
     # Allow public access on the global application or not
     ORGANISATION_GLOBAL_PUBLIC_ACCESS = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
     # view name which should be used to redirect to, when someone tries to
@@ -438,14 +445,12 @@ class Base(Configuration):
     LIST_PAGE_SIZE_DEFAULT = values.IntegerValue(10, environ_prefix=GEORAMA_ENV_PREFIX)
 
     DATA_INTEGRATION_ROOT = values.PathValue(
-        BASE_DIR / "tests/resources/projects", environ_prefix=GEORAMA_ENV_PREFIX
+        environ_required=True, environ_prefix=GEORAMA_ENV_PREFIX
     )
 
     DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER = values.Value(
         "global", environ_prefix=GEORAMA_ENV_PREFIX
     )
-
-    QSL_REDIS_URL = values.Value(environ_prefix="")
 
     JOB_TIMEOUT = values.FloatValue(1000, environ_prefix=GEORAMA_ENV_PREFIX)
 
@@ -524,6 +529,11 @@ class Dev(Base):
     )
 
     ORGANISATION_DOMAIN = "localhost"
+    WEBGISURL = values.Value("http://localhost:9308", environ_prefix=GEORAMA_ENV_PREFIX)
+    DATA_INTEGRATION_ROOT = values.PathValue(
+        Base.BASE_DIR / "tests/resources/projects", environ_prefix=GEORAMA_ENV_PREFIX
+    )
+    QSL_REDIS_URL = values.Value(default="redis://qsl-redis:6379", environ_prefix="")
 
 
 class Prod(Base):
@@ -544,3 +554,29 @@ class Test(Base):
     ]
     ALLOWED_HOSTS = Dev.ALLOWED_HOSTS
     ORGANISATION_DOMAIN = Dev.ORGANISATION_DOMAIN
+    CORS_ALLOWED_ORIGINS = Dev.CORS_ALLOWED_ORIGINS
+    CSRF_TRUSTED_ORIGINS = Dev.CSRF_TRUSTED_ORIGINS
+    DATA_INTEGRATION_ROOT = Dev.DATA_INTEGRATION_ROOT
+    QSL_EXPORTER_URL = Dev.QSL_EXPORTER_URL
+    WEBGISURL = Dev.WEBGISURL
+    QSL_REDIS_URL = Dev.QSL_REDIS_URL
+
+
+class Static(Base):
+    """A helper configuration so we can call collectstatic without valid
+    fully flavoured ENV config-this won't result in a runnable georama instance
+    """
+
+    SECRET_KEY = "this is just a dummy we need to set but it won't be used"
+    DB_NAME = None
+    DB_USER = None
+    DB_PW = None
+    DB_HOST = None
+    DB_PORT = None
+    CORS_ALLOWED_ORIGINS = None
+    CSRF_TRUSTED_ORIGINS = None
+    DATA_INTEGRATION_ROOT = "/tmp"
+    ORGANISATION_DOMAIN = None
+    QSL_EXPORTER_URL = None
+    WEBGISURL = None
+    QSL_REDIS_URL = "redis://"
