@@ -14,6 +14,12 @@ Open-source thrives on community, and we're glad you're part of ours!
 
 ---
 
+## Licensing
+
+By contributing to Georama you agree your work may be licensed under both the [AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) and our OPENGIS.ch Commercial licence.
+
+---
+
 ## Before you dive in
 
 We want to be upfront with you: **at the moment, we have limited time and resources to review and merge external contributions**. This doesn't mean we don't want your help, quite the opposite! It just means that, to avoid frustration on both sides, we strongly encourage you to **get in touch with us before investing significant time in a PR or a new feature**.
@@ -63,134 +69,12 @@ Ready to write some code? Wonderful! Please make sure you've discussed it with u
 
 ---
 
-## Technical setup
+## Pull Request Review Policy
 
-### 1. Fork and clone
+All pull requests must be properly reviewed and tested before merging.
 
-Fork the repository on GitHub, then clone your fork locally:
+The review process is not based on distrust of the delivering developer. It is a necessary control for maintaining consistent code quality, sharing knowledge, and identifying bugs, edge cases, security issues, and unintended side effects.
 
-```bash
-git clone git@github.com:opengisch/georama.git
-```
+Reviewers must understand the change (no matter how small), assess the implementation and tests, and test the code locally on their development setup or on a suitable development server/devbox. Where possible, the fix must also be tested functionally ("click-testing"), by someone else than the developer. Required feedback must be addressed before approval.
 
-### 2. Set up your local environment
-
-Assuming you have virtualenv installed, this is how you set up your fork for local development:
-
-```bash
-cd georama
-virtualenv env --python=python3
-source env/bin/activate
-pip install -e .
-```
-
-### 3. Create a branch for local development
-
-```bash
-git checkout -b name-of-your-bugfix-or-feature
-```
-
-### 4. Make your changes
-
-Go ahead! If you're adding functionality, please write tests as you go. It makes review much smoother.
-
-### 5. Run the tests
-
-```bash
-pip install tox
-tox
-```
-
-This runs the test suite against multiple Python versions. Make sure everything passes before submitting.
-
-### 6. Check test coverage
-
-Coverage is important to us. After running tox, check the report in the `htmlcov` directory. Please don't include this directory in your commits.
-
-### 7. Commit and push
-
-```bash
-git add -p
-git commit -m "A clear and descriptive commit message"
-git push origin name-of-your-bugfix-or-feature
-```
-
-### 8. Open a pull request
-
-Submit your PR through GitHub. Please keep PRs focused: one feature or fix per PR makes review much easier.
-
-### Testing with tox
- 
-Tox uses pytest under the hood and supports the same syntax for selecting tests. For more details, see the [pytest usage docs](http://pytest.org/en/latest/example/index.html).
- 
-To run the full test suite across all configured Python versions:
- 
-```bash
-tox
-```
- 
-To run all tests using a specific Python version, e.g. Python 3.8:
- 
-```bash
-tox -e py38
-```
- 
-To run only tests matching a specific name, e.g. `smoke_test`, using Python 3.8:
- 
-```bash
-tox -e py38 -- -k 'smoke_test'
-```
- 
-To produce built `.tar.gz` and wheel distributions:
- 
-```bash
-tox -e check && tox -e build
-```
-
-
----
-
-## Pull request checklist
-
-Before submitting, please check:
-
-- [ ] My changes are covered by tests
-- [ ] All tests pass locally
-- [ ] I've updated the documentation where relevant
-- [ ] My PR is focused and doesn't bundle multiple unrelated changes
-- [ ] I've discussed this change with the team (via issue or discussion) and added a link in the PR description
-
----
-
-## Coding standards
-
-We value:
-
-- **Single responsibility:** each unit of code does one thing
-- **Modularity:** keep things loosely coupled
-- **Composition over inheritance**
-
----
-
-## For core committers
-
-### Reviewing pull requests
-
-- Think carefully about long-term implications. Will this affect existing users? Is it something we want to maintain indefinitely?
-- Be thorough. PRs almost always need at least one round of feedback before they're ready. Quality over speed.
-- When merging, close or update any related issues with a note on how they were addressed.
-
-### Prioritizing pull requests
-
-From most to least urgent:
-
-1. Fixes for broken tests (on any supported platform or Python version)
-2. Tests for uncovered corner cases
-3. Minor documentation edits
-4. Bug fixes
-5. Major documentation updates
-6. New features
-
----
-
-*Georama is a volunteer-driven project. We appreciate your patience, your ideas, and your contributions, big or small. Welcome aboard!* 🌍
+A quick or superficial approval (such as asking someone to approve and merge without reviewing and testing) is not sufficient. Approval means the reviewer has genuinely checked the change and considers it ready to merge.

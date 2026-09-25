@@ -102,7 +102,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
 
 ## License
 
-See [LICENSE](LICENSE) — temporary terms, permanent open-source license planned for early 2027
+Georama is open source and dual-licensed under [AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) (or later) and OPENGIS.ch Commercial licence.
 
 ## About OPENGIS.ch
 
