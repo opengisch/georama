@@ -10,8 +10,10 @@ from django.db import IntegrityError, transaction
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.crypto import get_random_string
+from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from qgis_server_light.interface.common import BBox
 from qgis_server_light.interface.exporter.extract import Config as QslConfig
 from qgis_server_light.interface.exporter.extract import Custom as QslCustom
@@ -667,7 +669,8 @@ def translation_json(request: HttpRequest):
         json.dumps(translation, indent=2), status=200, content_type="application/json"
     )
 
-
+""" Exempt from CSRF verification to allow Geogirafe to create short URLs. """
+@method_decorator(csrf_exempt, name="dispatch")
 class UrlShortenerCreate(View):
     def post(self, request: HttpRequest):
         url = request.POST.get("url", "").strip()
