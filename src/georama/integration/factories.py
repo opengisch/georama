@@ -902,8 +902,16 @@ class DatasourceFactory(factory.django.DjangoModelFactory):
 
     qgis_layer_id = factory.LazyAttribute(lambda a: f"{a.name.lower()}_{uuid.uuid4()}")
     name = factory.Faker("word")
-    bbox = factory.LazyFunction(lambda: [float(x) for x in fake.latlng()])
-    bbox_wgs84 = factory.LazyFunction(lambda: [float(x) for x in fake.latlng()])
+    bbox = factory.LazyFunction(
+        lambda: ",".join(
+            [str(float(x)) for x in fake.latlng()] + [str(float(x)) for x in fake.latlng()]
+        )
+    )
+    bbox_wgs84 = factory.LazyFunction(
+        lambda: ",".join(
+            [str(float(x)) for x in fake.latlng()] + [str(float(x)) for x in fake.latlng()]
+        )
+    )
     source = {}
     styles = []
     driver = factory.Iterator(["ogr", "gdal", "postgres"])
