@@ -10,6 +10,4 @@ class ThemeModelForm(forms.ModelForm):
             "project",
             "public",
             "ordering",
-            "location",
-            "zoom",
         ]

@@ -57,10 +57,8 @@ class Theme(models.Model):
     )
     public = models.BooleanField(default=False)
     ordering = models.IntegerField()
-    location = models.JSONField(null=True)
-    zoom = models.IntegerField(null=True)
     theme_json = models.JSONField()
-    background_layers = models.JSONField()
+    background_layers = models.JSONField(blank=True)
 
     objects = ThemeManager()
 
@@ -104,9 +102,10 @@ class Theme(models.Model):
 
     @property
     def endpoint_url(self):
+        ggtheme = self.as_dataclass()
         return (
             f"{settings.WEBGISURL}?themes={self.metadata.title}&map_zoom="
-            f"{self.zoom}&map_x={self.location[0]}&map_y={self.location[1]}"
+            f"{ggtheme.zoom}&map_x={ggtheme.location[0]}&map_y={ggtheme.location[1]}"
         )
 
 

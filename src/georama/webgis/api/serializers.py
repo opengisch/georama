@@ -37,8 +37,8 @@ class ThemeSerializer(serializers.ModelSerializer):
             "metadata_id",
             "public",
             "ordering",
-            "zoom",
             "theme_json",
+            "background_layers",
         ]
         extra_kwargs = {"id": {"read_only": True}}
 

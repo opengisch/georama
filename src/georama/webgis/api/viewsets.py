@@ -101,7 +101,6 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
             metadata=metadata,
             public=False,
             ordering=highest_theme.ordering + 1 if highest_theme else 1,
-            zoom=4,
             # temporarily we set this
             theme_json={},
             background_layers=[],
@@ -205,7 +204,6 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
 
 class UrlShortenerViewSet(ModelViewSet):
     queryset = UrlShortener.objects.all()
-    serializer_class = UrlShortenerCreateSerializer
     http_method_names = ["get", "post"]
 
     def get_serializer_class(self):
