@@ -8,7 +8,10 @@ class TestQgisProjectFileStructure:
         assert QgisProjectCollection("test").organisation == "test"
 
     def test_qgis_project_collection_glob_pattern(self):
-        assert QgisProjectCollection("test").glob_pattern == "*.qg[sz]"
+        assert QgisProjectCollection("test").glob_pattern() == "*.qg[sz]"
+
+    def test_qgis_project_collection_glob_pattern_filtered(self):
+        assert QgisProjectCollection("test").glob_pattern("hello") == "*hello*.qg[sz]"
 
     def test_qgis_project_collection_return_empty_list_on_empty_folder(self, organisation_a_folder):
         pl = QgisProjectCollection(organisation_a_folder.name).projects()
