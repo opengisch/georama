@@ -6,7 +6,7 @@ from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 from django.urls import reverse
 from django.views import View
-from guardian.shortcuts import get_objects_for_user, get_perms
+from guardian.shortcuts import get_perms
 from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
@@ -66,11 +66,15 @@ class PygeoapiServer(View):
             response[key] = value
         return response
 
-    def get_collection_or_404(self, collection_id: str):
+    def get_collection_or_404_or_403(self, collection_id: str, perm: str):
         try:
-            return self.model.objects.get(id=collection_id)
+            return self.model.objects.accessible_layers(
+                self.request.georama_organisation, self.request.user, [perm], [collection_id]
+            )
         except self.model.DoesNotExist as e:
-            raise Http404("Collection not found") from e
+            raise Http404(e) from e
+        except PermissionError as e:
+            raise PermissionDenied(e) from e
 
     def landing(self, request: HttpRequest) -> HttpResponse:
         """
@@ -124,11 +128,8 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP Response
         """
-        feature_layer = self.get_collection_or_404(collection_id)
-        if "view_featurelayer" in get_perms(request.user, feature_layer):
-            return self.execute_from_django(core_api.get_collection_schema, request, collection_id)
-        else:
-            raise PermissionDenied()
+        _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+        return self.execute_from_django(core_api.get_collection_schema, request, collection_id)
 
     def collection_queryables(
         self, request: HttpRequest, collection_id: str | None = None
@@ -141,13 +142,10 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP Response
         """
-        feature_layer = self.get_collection_or_404(collection_id)
-        if "view_featurelayer" in get_perms(request.user, feature_layer):
-            return self.execute_from_django(
-                itemtypes_api.get_collection_queryables, request, collection_id
-            )
-        else:
-            raise PermissionDenied()
+        _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+        return self.execute_from_django(
+            itemtypes_api.get_collection_queryables, request, collection_id
+        )
 
     def collection_items(self, request: HttpRequest, collection_id: str) -> HttpResponse:
         """
@@ -159,49 +157,43 @@ class PygeoapiServer(View):
         :returns: Django HTTP response
         """
 
-        feature_layer = self.get_collection_or_404(collection_id)
-
         if request.method == "GET":
-            if "view_featurelayer" in get_perms(request.user, feature_layer):
-                response_ = self.execute_from_django(
-                    itemtypes_api.get_collection_items,
-                    request,
-                    collection_id,
-                    skip_valid_check=True,
-                )
-            else:
-                raise PermissionDenied()
+            _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+            response_ = self.execute_from_django(
+                itemtypes_api.get_collection_items,
+                request,
+                collection_id,
+                skip_valid_check=True,
+            )
         elif request.method == "POST":
-            if "add_featurelayer" in get_perms(request.user, feature_layer):
-                if request.content_type is not None:
-                    if request.content_type == "application/geo+json":
-                        response_ = self.execute_from_django(
-                            itemtypes_api.manage_collection_item,
-                            request,
-                            "create",
-                            collection_id,
-                            skip_valid_check=True,
-                        )
-                    else:
-                        response_ = self.execute_from_django(
-                            itemtypes_api.post_collection_items,
-                            request,
-                            collection_id,
-                            skip_valid_check=True,
-                        )
+            _ = self.get_collection_or_404_or_403(collection_id, "add_featurelayer")
+            if request.content_type is not None:
+                if request.content_type == "application/geo+json":
+                    response_ = self.execute_from_django(
+                        itemtypes_api.manage_collection_item,
+                        request,
+                        "create",
+                        collection_id,
+                        skip_valid_check=True,
+                    )
+                else:
+                    response_ = self.execute_from_django(
+                        itemtypes_api.post_collection_items,
+                        request,
+                        collection_id,
+                        skip_valid_check=True,
+                    )
             else:
-                raise PermissionDenied()
+                raise BadRequest()
         elif request.method == "OPTIONS":
-            if "view_featurelayer" in get_perms(request.user, feature_layer):
-                response_ = self.execute_from_django(
-                    itemtypes_api.manage_collection_item,
-                    request,
-                    "options",
-                    collection_id,
-                    skip_valid_check=True,
-                )
-            else:
-                raise PermissionDenied()
+            _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+            response_ = self.execute_from_django(
+                itemtypes_api.manage_collection_item,
+                request,
+                "options",
+                collection_id,
+                skip_valid_check=True,
+            )
         else:
             raise BadRequest()
 
@@ -219,50 +211,42 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP response
         """
-        feature_layer = self.get_collection_or_404(collection_id)
+
         if request.method == "GET":
-            if "view_featurelayer" in get_perms(request.user, feature_layer):
-                response_ = self.execute_from_django(
-                    itemtypes_api.get_collection_item, request, collection_id, item_id
-                )
-            else:
-                raise PermissionDenied()
+            _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+            response_ = self.execute_from_django(
+                itemtypes_api.get_collection_item, request, collection_id, item_id
+            )
         elif request.method == "PUT":
-            if "change_featurelayer" in get_perms(request.user, feature_layer):
-                response_ = self.execute_from_django(
-                    itemtypes_api.manage_collection_item,
-                    request,
-                    "update",
-                    collection_id,
-                    item_id,
-                    skip_valid_check=True,
-                )
-            else:
-                raise PermissionDenied()
+            _ = self.get_collection_or_404_or_403(collection_id, "change_featurelayer")
+            response_ = self.execute_from_django(
+                itemtypes_api.manage_collection_item,
+                request,
+                "update",
+                collection_id,
+                item_id,
+                skip_valid_check=True,
+            )
         elif request.method == "DELETE":
-            if "delete_featurelayer" in get_perms(request.user, feature_layer):
-                response_ = self.execute_from_django(
-                    itemtypes_api.manage_collection_item,
-                    request,
-                    "delete",
-                    collection_id,
-                    item_id,
-                    skip_valid_check=True,
-                )
-            else:
-                raise PermissionDenied()
+            _ = self.get_collection_or_404_or_403(collection_id, "delete_featurelayer")
+            response_ = self.execute_from_django(
+                itemtypes_api.manage_collection_item,
+                request,
+                "delete",
+                collection_id,
+                item_id,
+                skip_valid_check=True,
+            )
         elif request.method == "OPTIONS":
-            if "view_featurelayer" in get_perms(request.user, feature_layer):
-                response_ = self.execute_from_django(
-                    itemtypes_api.manage_collection_item,
-                    request,
-                    "options",
-                    collection_id,
-                    item_id,
-                    skip_valid_check=True,
-                )
-            else:
-                raise PermissionDenied()
+            _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+            response_ = self.execute_from_django(
+                itemtypes_api.manage_collection_item,
+                request,
+                "options",
+                collection_id,
+                item_id,
+                skip_valid_check=True,
+            )
         else:
             raise BadRequest()
 
@@ -273,7 +257,9 @@ class PygeoapiServer(View):
         server_config["server"]["url"] = (
             f"{request.scheme}://{request.get_host()}{reverse('features:landing')}"
         )
-        for feature_layer in get_objects_for_user(request.user, ["view_featurelayer"], self.model):
+        for feature_layer in self.model.objects.accessible_layers(
+            self.request.georama_organisation, request.user, ["view_featurelayer"]
+        ):
             server_config["resources"][str(feature_layer.id)] = self.create_resource(
                 feature_layer, request
             )

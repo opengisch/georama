@@ -77,7 +77,7 @@ class LayerManager(OrganisationalManager):
         qs = qs.filter(id__in=layer_names)
         found_difference = set(layer_names) - {layer.identifier for layer in qs}
         if len(found_difference) > 0:
-            raise PermissionError(f"Layer(s) not found: {list(found_difference)}")
+            raise qs.model.DoesNotExist(f"Layer(s) not found: {list(found_difference)}")
 
         # continue with the available list checking for permissions
         qs = self.get_public_or_permitted(organisation, user, perms)
