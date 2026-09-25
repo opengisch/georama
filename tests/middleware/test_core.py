@@ -1,10 +1,44 @@
+import base64
+
 import pytest
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
+from django.http import HttpResponse
 from django.test import Client, RequestFactory
 from django.urls import reverse
 from rest_framework import status
 
+from georama.core.middleware.basic_auth import BasicAuthenticationMiddleware
 from georama.core.middleware.organisation import OrganisationMiddleware
+
+
+class TestBasicAuthMiddleware:
+    @pytest.mark.django_db
+    def test_basic_auth_authenticates_user(self, user, user_user_name, user_password):
+        credentials = base64.b64encode(f"{user_user_name}:{user_password}".encode()).decode()
+        request = RequestFactory().get("/", HTTP_AUTHORIZATION=f"Basic {credentials}")
+        request.user = AnonymousUser()
+        middleware = BasicAuthenticationMiddleware(lambda _: HttpResponse("hello"))
+        response = middleware(request)
+        assert response.text == "hello"
+        assert request.user == user
+
+    @pytest.mark.django_db
+    def test_basic_auth_authenticates_user_access_non_public_organisation(
+        self,
+        organisation_non_public_access,
+        user_with_dedicated_membership_non_public,
+        user_user_name,
+        user_password,
+    ):
+        credentials = base64.b64encode(f"{user_user_name}:{user_password}".encode()).decode()
+        client = Client()
+        response = client.get(
+            "",
+            SERVER_NAME=f"{organisation_non_public_access.domain}.localhost",
+            HTTP_AUTHORIZATION=f"Basic {credentials}"
+        )
+        assert response.status_code == status.HTTP_200_OK
 
 
 class TestOrganisationMiddleware:
