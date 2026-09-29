@@ -53,6 +53,15 @@ ARG STATIC_DIR="/georama/static"
 WORKDIR $STATIC_DIR
 WORKDIR /app
 
+ARG BUILD_BRANCH=
+ARG BUILD_COMMIT=
+
+COPY docker/generate-build-info.py /usr/local/bin/generate-build-info.py
+RUN python3 /usr/local/bin/generate-build-info.py \
+    --output "$STATIC_DIR/core/build-info.json" \
+    --branch "$BUILD_BRANCH" \
+    --commit "$BUILD_COMMIT"
+
 ADD --unpack https://github.com/opengisch/qgis-server-light/archive/refs/heads/$QSL_SOURCE_BRANCH.tar.gz $QSL_SOURCE_DIR
 RUN mv $QSL_SOURCE_DIR/qgis-server-light-$QSL_SOURCE_BRANCH/* $QSL_SOURCE_DIR
 RUN chown -R $UID:$GID /app \
