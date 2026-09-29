@@ -657,19 +657,24 @@ class AdminPublishDatasetAsWms(GeoramaLoginRequiredMixin, PermissionRequiredMixi
         return redirect("admin:webgis_publishedaslayerwms_changelist")
 
 
-def translation_json(request: HttpRequest):
-    translation = {"de": {}}
+def translation_json(request: HttpRequest, lang: str = "de"):
+    # Quick fix: whatever the GeoGirafe language, the original titles are returned
+    # (keyed by the requested language so GeoGirafe accepts them).
+    translation = {lang: {}}
     for layer_group in LayerGroupMp.objects.all():
-        translation["de"][layer_group.name] = layer_group.title
+        translation[lang][layer_group.name] = layer_group.title
     for theme in PublishedAsTheme.objects.all():
-        translation["de"][theme.name] = theme.title
+        translation[lang][theme.name] = theme.title
     for layer in PublishedAsLayerWms.objects.all():
-        translation["de"][layer.name] = layer.title
+        translation[lang][layer.name] = layer.title
     return HttpResponse(
         json.dumps(translation, indent=2), status=200, content_type="application/json"
     )
 
+
 """ Exempt from CSRF verification to allow Geogirafe to create short URLs. """
+
+
 @method_decorator(csrf_exempt, name="dispatch")
 class UrlShortenerCreate(View):
     def post(self, request: HttpRequest):
