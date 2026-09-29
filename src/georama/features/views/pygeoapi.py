@@ -66,10 +66,16 @@ class PygeoapiServer(View):
             response[key] = value
         return response
 
-    def get_collection_or_404_or_403(self, collection_id: str, perm: str):
+    def get_collection_or_404_or_403(
+        self, collection_id: str, perm: str, include_public: bool = False
+    ):
         try:
             return self.model.objects.accessible_layers(
-                self.request.georama_organisation, self.request.user, [perm], [collection_id]
+                self.request.georama_organisation,
+                self.request.user,
+                [perm],
+                [collection_id],
+                include_public,
             )
         except self.model.DoesNotExist as e:
             raise Http404(e) from e
@@ -128,7 +134,9 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP Response
         """
-        _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+        _ = self.get_collection_or_404_or_403(
+            collection_id, "view_objects_on_published_layer", include_public=True
+        )
         return self.execute_from_django(core_api.get_collection_schema, request, collection_id)
 
     def collection_queryables(
@@ -142,7 +150,9 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP Response
         """
-        _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+        _ = self.get_collection_or_404_or_403(
+            collection_id, "view_objects_on_published_layer", include_public=True
+        )
         return self.execute_from_django(
             itemtypes_api.get_collection_queryables, request, collection_id
         )
@@ -158,7 +168,9 @@ class PygeoapiServer(View):
         """
 
         if request.method == "GET":
-            _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+            _ = self.get_collection_or_404_or_403(
+                collection_id, "view_objects_on_published_layer", include_public=True
+            )
             response_ = self.execute_from_django(
                 itemtypes_api.get_collection_items,
                 request,
@@ -166,7 +178,9 @@ class PygeoapiServer(View):
                 skip_valid_check=True,
             )
         elif request.method == "POST":
-            _ = self.get_collection_or_404_or_403(collection_id, "add_featurelayer")
+            _ = self.get_collection_or_404_or_403(
+                collection_id, "create_objects_on_published_layer"
+            )
             if request.content_type is not None:
                 if request.content_type == "application/geo+json":
                     response_ = self.execute_from_django(
@@ -178,15 +192,18 @@ class PygeoapiServer(View):
                     )
                 else:
                     response_ = self.execute_from_django(
-                        itemtypes_api.post_collection_items,
+                        itemtypes_api.manage_collection_item,
                         request,
+                        "create",
                         collection_id,
                         skip_valid_check=True,
                     )
             else:
                 raise BadRequest()
         elif request.method == "OPTIONS":
-            _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+            _ = self.get_collection_or_404_or_403(
+                collection_id, "view_objects_on_published_layer", include_public=True
+            )
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
                 request,
@@ -213,12 +230,16 @@ class PygeoapiServer(View):
         """
 
         if request.method == "GET":
-            _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+            _ = self.get_collection_or_404_or_403(
+                collection_id, "view_objects_on_published_layer", include_public=True
+            )
             response_ = self.execute_from_django(
                 itemtypes_api.get_collection_item, request, collection_id, item_id
             )
         elif request.method == "PUT":
-            _ = self.get_collection_or_404_or_403(collection_id, "change_featurelayer")
+            _ = self.get_collection_or_404_or_403(
+                collection_id, "update_objects_on_published_layer"
+            )
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
                 request,
@@ -228,7 +249,9 @@ class PygeoapiServer(View):
                 skip_valid_check=True,
             )
         elif request.method == "DELETE":
-            _ = self.get_collection_or_404_or_403(collection_id, "delete_featurelayer")
+            _ = self.get_collection_or_404_or_403(
+                collection_id, "delete_objects_on_published_layer"
+            )
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
                 request,
@@ -238,7 +261,9 @@ class PygeoapiServer(View):
                 skip_valid_check=True,
             )
         elif request.method == "OPTIONS":
-            _ = self.get_collection_or_404_or_403(collection_id, "view_featurelayer")
+            _ = self.get_collection_or_404_or_403(
+                collection_id, "view_objects_on_published_layer", include_public=True
+            )
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
                 request,
@@ -258,9 +283,12 @@ class PygeoapiServer(View):
             f"{request.scheme}://{request.get_host()}{reverse('features:landing')}"
         )
         for feature_layer in self.model.objects.accessible_layers(
-            self.request.georama_organisation, request.user, ["view_featurelayer"]
+            self.request.georama_organisation,
+            request.user,
+            ["view_objects_on_published_layer"],
+            include_public=True,
         ):
-            server_config["resources"][str(feature_layer.id)] = self.create_resource(
+            server_config["resources"][feature_layer.identifier] = self.create_resource(
                 feature_layer, request
             )
         return server_config, get_oas(server_config)
@@ -363,7 +391,11 @@ class PygeoapiServer(View):
     def create_resource(self, feature_layer: FeatureLayer, request: HttpRequest) -> dict:
         editable = any(
             p in get_perms(request.user, feature_layer)
-            for p in ("add_featurelayer", "change_featurelayer", "delete_featurelayer")
+            for p in (
+                "create_objects_on_published_layer",
+                "update_objects_on_published_layer",
+                "delete_objects_on_published_layer",
+            )
         )
 
         features_properties = [p for p in feature_layer.fields.all() if p.visible]

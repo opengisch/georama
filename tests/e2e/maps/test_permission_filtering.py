@@ -81,9 +81,9 @@ class TestOgcService:
         self,
         client,
         global_wms_layer_non_public_queryable,
-        user_with_membership_global_layer_permission,
+        user_with_membership_global_wms_layer_permission,
     ):
-        client.force_login(user_with_membership_global_layer_permission)
+        client.force_login(user_with_membership_global_wms_layer_permission)
         response = client.get(self.wms_capabilities_url)
         capabilities: WmsCapabilities = XmlParser().from_bytes(response.content, WmsCapabilities)
         assert capabilities.capability.layer is not None
@@ -97,9 +97,9 @@ class TestOgcService:
         self,
         client,
         global_wms_layer_non_public_queryable,
-        user_with_membership_global_layer_permission,
+        user_with_membership_global_wms_layer_permission,
     ):
-        client.force_login(user_with_membership_global_layer_permission)
+        client.force_login(user_with_membership_global_wms_layer_permission)
         response = client.get(self.wfs_capabilities_url)
         capabilities: WfsCapabilities = XmlParser().from_bytes(response.content, WfsCapabilities)
         assert capabilities.feature_type_list is not None

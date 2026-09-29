@@ -89,7 +89,7 @@ class WfsOperation(OgcOperation):
             )
         return sanitized_typenames
 
-    def obtain_accessible_layers(self, layer_names: list[str] | None = None) -> list[WmsLayer]:
+    def obtain_accessible_layers(self, layer_ids: list[str] | None = None) -> list[WmsLayer]:
         return self.model.objects.accessible_layers_queryable(
-            self.organisation, self.user, self.perms, layer_names
+            self.organisation, self.user, self.perms, layer_ids, include_public=True
         ).all()

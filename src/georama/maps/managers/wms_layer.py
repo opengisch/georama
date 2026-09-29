@@ -30,6 +30,7 @@ class WmsLayerManager(LayerManager):
         user,
         perms: list[str],
         layer_names: list[str] | None = None,
+        include_public: bool = True,
     ) -> OrganisationalQuerySet:
-        qs = super().accessible_layers(organisation, user, perms, layer_names)
+        qs = super().accessible_layers(organisation, user, perms, layer_names, include_public)
         return qs.filter(datasource__vector__isnull=False).filter(queryable=True)
