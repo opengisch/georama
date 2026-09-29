@@ -75,7 +75,7 @@ urlpatterns = [
         name="publish_dataset_as_wms",
     ),
     path(
-        "/translations/de.json",
+        "/translations/<str:lang>.json",
         views.translation_json,
         name="translation_json",
     ),

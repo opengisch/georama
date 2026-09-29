@@ -4,9 +4,24 @@
   },
   "languages": {
     "translations": {
-      "de": ["i18n/de.json", "http://localhost:4242/webgis/translations/de.json"]
+      "en": [
+        "i18n/en.json",
+        "http://localhost:4242/webgis/translations/en.json"
+      ],
+      "fr": [
+        "i18n/fr.json",
+        "http://localhost:4242/webgis/translations/fr.json"
+      ],
+      "it": [
+        "i18n/it.json",
+        "http://localhost:4242/webgis/translations/it.json"
+      ],
+      "de": [
+        "i18n/de.json",
+        "http://localhost:4242/webgis/translations/de.json"
+      ]
     },
-    "defaultLanguage": "de"
+    "defaultLanguage": "en"
   },
   "interface": {
     "defaultSelectionComponent": "grid"
@@ -52,7 +67,10 @@
     "startZoom": "0",
     "startPosition": "2670000,1220000",
     "maxExtent": "2420000,1030000,3000000,1500000",
-    "scales": [1000000, 400000, 200000, 80000, 40000, 20000, 10000, 8000, 6000, 4000, 2000, 1000, 500, 250, 100, 50]
+    "scales": [
+      1000000, 400000, 200000, 80000, 40000, 20000, 10000, 8000, 6000, 4000,
+      2000, 1000, 500, 250, 100, 50
+    ]
   },
   "map3d": {
     "terrainUrl": "https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/",
@@ -60,9 +78,14 @@
       "url": "https://wmts20.geo.admin.ch/1.0.0/ch.swisstopo.swissimage-product/default/current/4326/{z}/{x}/{y}.jpeg",
       "minLoD": 8,
       "maxLoD": 17,
-      "coverageArea": [5.013926957923385, 45.35600133779394, 11.477436312994008, 48.27502358353741]
+      "coverageArea": [
+        5.013926957923385, 45.35600133779394, 11.477436312994008,
+        48.27502358353741
+      ]
     },
-    "tilesetsUrls": ["https://vectortiles100.geo.admin.ch/3d-tiles/ch.swisstopo.swisstlm3d.3d/20201020/tileset.json"],
+    "tilesetsUrls": [
+      "https://vectortiles100.geo.admin.ch/3d-tiles/ch.swisstopo.swisstlm3d.3d/20201020/tileset.json"
+    ],
     "maximumZoomDistance": 25000
   },
   "oauth": {
@@ -83,9 +106,24 @@
   },
   "contextmenu": {
     "crs": [
-      { "code": "EPSG:2056", "translation": "EPSG:2056", "format": "decimal", "precision": 1 },
-      { "code": "EPSG:4326", "translation": "EPSG:4326", "format": "decimal", "precision": 7 },
-      { "code": "EPSG:4326", "translation": "EPSG:4326-DMS", "format": "dms", "precision": 2 }
+      {
+        "code": "EPSG:2056",
+        "translation": "EPSG:2056",
+        "format": "decimal",
+        "precision": 1
+      },
+      {
+        "code": "EPSG:4326",
+        "translation": "EPSG:4326",
+        "format": "decimal",
+        "precision": 7
+      },
+      {
+        "code": "EPSG:4326",
+        "translation": "EPSG:4326-DMS",
+        "format": "dms",
+        "precision": 2
+      }
     ]
   },
   "crs": [
@@ -96,7 +134,12 @@
   ],
   "contact": {
     "url": "https://mydomain.ch",
-    "reasons": ["Give feeback", "Ask a question", "Report an error", "Request secure access"],
+    "reasons": [
+      "Give feeback",
+      "Ask a question",
+      "Report an error",
+      "Request secure access"
+    ],
     "email": "contact@mydomain.ch"
   },
   "externalLayers": {
