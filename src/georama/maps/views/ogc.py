@@ -52,7 +52,7 @@ class OgcServer(View):
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WmsGetCapabilities(
             self.appname,
-            f"{request.build_absolute_uri('.')}?",
+            f"{request.build_absolute_uri('ows')}?",
             request.user,
             self.model,
             request.georama_organisation,
@@ -82,7 +82,7 @@ class OgcServer(View):
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetCapabilities(
             self.appname,
-            f"{request.build_absolute_uri('.')}?",
+            f"{request.build_absolute_uri('ows')}?",
             request.user,
             self.model,
             request.georama_organisation,
@@ -115,7 +115,7 @@ class OgcServer(View):
         requested_format = params.get("FORMAT", "TEXT/XML")
         operation = WfsGetMetadata(
             self.appname,
-            f"{request.build_absolute_uri('.')}?",
+            f"{request.build_absolute_uri('ows')}?",
             request.user,
             self.model,
             request.georama_organisation,
@@ -160,7 +160,7 @@ class OgcServer(View):
         requested_format = params.get("OUTPUTFORMAT", "APPLICATION/GML+XML; VERSION=3.2").upper()
         operation = WfsDescribeFeatureType(
             self.appname,
-            f"{request.build_absolute_uri('.')}?",
+            f"{request.build_absolute_uri('ows')}?",
             request.user,
             self.model,
             request.georama_organisation,
@@ -184,7 +184,7 @@ class OgcServer(View):
     async def wfs_200_getfeature(self, request: GeoramaHttpRequest, params: dict) -> HttpResponse:
         operation = WfsGetFeature(
             self.appname,
-            f"{request.build_absolute_uri('.')}?",
+            f"{request.build_absolute_uri('ows')}?",
             request.user,
             self.model,
             request.georama_organisation,
@@ -294,7 +294,7 @@ class OgcServer(View):
                 service_params = DictDecoder(parser_config).decode(params, GetMapRequestParams)
                 operation = WmsGetMap(
                     self.appname,
-                    f"{request.build_absolute_uri('.')}?",
+                    f"{request.build_absolute_uri('ows')}?",
                     request.user,
                     self.model,
                     request.georama_organisation,
@@ -381,7 +381,7 @@ class OgcServer(View):
         try:
             operation = WfsGetFeature(
                 self.appname,
-                f"{request.build_absolute_uri('.')}?",
+                f"{request.build_absolute_uri('ows')}?",
                 request.user,
                 self.model,
                 request.georama_organisation,
