@@ -195,10 +195,7 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
                 theme_background_layers = DictDecoder().decode(
                     theme.background_layers, list[GGWmsLayer]
                 )
-                themes_json.background_layers = [
-                    *themes_json.background_layers,
-                    *theme_background_layers,
-                ]
+                themes_json.background_layers.extend(theme_background_layers)
         return Response(data=DictEncoder().encode(themes_json), status=status.HTTP_200_OK)
 
 
