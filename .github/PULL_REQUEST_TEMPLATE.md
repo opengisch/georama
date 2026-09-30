@@ -1,9 +1,7 @@
-# Pull Request Template
-
-## Description
+# Description
 <!-- Please include a summary of the change and which issue is fixed. List any dependencies that are required for this change. -->
 
-## Type of Change
+# Type of Change
 <!-- Mark the relevant option with an "x" inside the brackets -->
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
@@ -11,8 +9,8 @@
 - [ ] Documentation update
 - [ ] Refactoring (no functional changes)
 
-## Definition of Done
-### For the developer
+# Definition of Done
+## For the developer
 
 - [ ] Code conforms to defined coding standards
 - [ ] Image builds in the CI are passing
@@ -22,12 +20,12 @@
 - [ ] A reviewer has been assigned.
 - [ ] A tester has been assigned, if the GUI or a GUI related workflow logic is impacted by the PR (at the developer's discretion).
 
-### For the tester
+## For the tester
 *Only required if relevant*
 - [ ] The tester has successfully tested the new code on their development setup or on a suitable development server/devbox
 - [ ] **The code can be merged** (from a functional perspective)
 
-### For the code reviewer
+## For the code reviewer
 *Required in every case*
 
 - [ ] New code was successfully reviewed
@@ -37,8 +35,8 @@
 - [ ] The reviewer has successfully tested the new code on their development setup or on a suitable development server/devbox
 - [ ] **The code can be merged** (from a code perspective)
 
-## Screenshots / Evidence (if applicable)
+# Screenshots / Evidence (if applicable)
 <!-- If your changes affect the UI, please include screenshots or a short recording demonstrating the fix. -->
 
-## Related Issues
+# Related Issues
 <!-- Link any related issues here (e.g., Closes #123) -->
