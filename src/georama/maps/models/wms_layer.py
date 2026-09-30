@@ -35,8 +35,6 @@ class WmsLayerAbstract(models.Model):
         primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the wms layer.")
     )
 
-    public = models.BooleanField(default=False)
-
     extent_buffer = models.FloatField(
         default=0.0,
         help_text=_("Extent buffer size of the layer"),
@@ -269,6 +267,8 @@ class WmsLayer(WmsLayerAbstract):
             # permission which is used for the object permission evaluation on the published themes
             ("view_published_wms_layer", "Can view published WMS Layer"),
         ]
+
+    public = models.BooleanField(default=False)
 
     datasource = models.ForeignKey(
         Datasource,

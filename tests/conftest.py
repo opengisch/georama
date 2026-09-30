@@ -21,6 +21,10 @@ from georama.integration.factories import FieldFactory, ProjectFactory, VectorFa
 from georama.maps.factories import MetadataFactory as MapsWmsLayerMetadataFactory
 from georama.maps.factories import WmsLayerFactory
 from georama.maps.models.wms_layer import WmsLayerUserObjectPermission
+from georama.webgis.factories import MetadataFactory as WebGisMetadataFactory
+from georama.webgis.factories import ThemeFactory
+from georama.webgis.factories import WmsLayerFactory as WebGisWmsLayerFactory
+from georama.webgis.models.theme import ThemeUserObjectPermission
 
 
 @pytest.fixture
@@ -312,6 +316,65 @@ def user_with_membership_global_wms_layer_permission(
     )
     yield user_with_membership_global
     WmsLayerUserObjectPermission.objects.all().delete()
+
+
+@pytest.fixture
+def global_webgis_theme_public(project_global_organisation):
+    theme = ThemeFactory.create(
+        project=project_global_organisation,
+        public=True,
+        metadata=WebGisMetadataFactory.create(title="Global Public Theme"),
+    )
+    yield theme
+    theme.delete()
+
+
+@pytest.fixture
+def global_webgis_theme_non_public(project_global_organisation):
+    theme = ThemeFactory.create(
+        project=project_global_organisation,
+        public=False,
+        metadata=WebGisMetadataFactory.create(title="Global NonPublic Theme"),
+    )
+    yield theme
+    theme.delete()
+
+
+@pytest.fixture
+def global_webgis_wms_layer_public_theme(global_vector_dataset, global_webgis_theme_public):
+    layer = WebGisWmsLayerFactory.create(
+        queryable=True,
+        datasource=global_vector_dataset,
+        metadata=WebGisMetadataFactory.create(title="Global Public Theme Layer"),
+        theme=global_webgis_theme_public,
+    )
+    yield layer
+    layer.delete()
+
+
+@pytest.fixture
+def global_webgis_wms_layer_non_public_theme(global_vector_dataset, global_webgis_theme_non_public):
+    layer = WebGisWmsLayerFactory.create(
+        queryable=True,
+        datasource=global_vector_dataset,
+        metadata=WebGisMetadataFactory.create(title="Global NonPublic Theme Layer"),
+        theme=global_webgis_theme_non_public,
+    )
+    yield layer
+    layer.delete()
+
+
+@pytest.fixture
+def user_with_membership_global_webgis_theme_permission(
+    user_with_membership_global, global_webgis_wms_layer_non_public_theme
+):
+    assign_perm(
+        "view_published_theme",
+        user_with_membership_global,
+        global_webgis_wms_layer_non_public_theme.theme,
+    )
+    yield user_with_membership_global
+    ThemeUserObjectPermission.objects.all().delete()
 
 
 @pytest.fixture

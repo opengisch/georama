@@ -24,7 +24,6 @@ class MetadataFactory(factory.django.DjangoModelFactory):
 class ThemeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Theme
-        django_get_or_create = ("project",)
 
     project = factory.SubFactory(ProjectFactory)
     metadata = factory.SubFactory(MetadataFactory)
@@ -39,9 +38,7 @@ class ThemeFactory(factory.django.DjangoModelFactory):
 class WmsLayerFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = WmsLayer
-        django_get_or_create = ("datasource",)
 
-    public = factory.Iterator([True, False])
     queryable = factory.Iterator([True, False])
     metadata = factory.SubFactory(MetadataFactory)
     datasource = factory.SubFactory(VectorFactory)
