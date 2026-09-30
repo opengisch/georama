@@ -53,6 +53,7 @@ dependencies = [
     "psycopg[binary,pool]",
     # pygeoapi and its friends
     "pygeoapi==0.21.0",
+    "psycopg2-binary",
     "geoalchemy2",
     # django stuff
     "django[argon2]==5.2.16",
