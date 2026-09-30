@@ -43,7 +43,7 @@ DJANGO_SECRET_KEY=<your-secret-key>
 GEORAMA_DB_PW=<your-db-password>
 GEORAMA_DB_USER=<your-db-user>
 GEORAMA_DB_PORT=5432
-GEORAMA_DB_HOST=georama-db
+GEORAMA_DB_HOST=pgbouncer
 GEORAMA_DB_NAME=postgres
 
 GEORAMA_LOCAL_DATA=<path-to-your-qgis-projects>
