@@ -14,7 +14,27 @@ services:
     depends_on:
       georama-db:
         condition: service_healthy
+      pgbouncer:
+        condition: service_healthy
       keycloak:
+        condition: service_healthy
+
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.25.1-p0
+    environment:
+      DB_HOST: georama-db
+      DB_NAME: "${GEORAMA_DB_NAME:-postgres}"
+      DB_USER: "${GEORAMA_DB_USER:-postgres}"
+      DB_PASSWORD: "${GEORAMA_DB_PW:-test}"
+      AUTH_TYPE: scram-sha-256
+      POOL_MODE: transaction
+    healthcheck:
+      test: pg_isready -h 127.0.0.1 -p 5432
+      interval: 10s
+      timeout: 2s
+      retries: 5
+    depends_on:
+      georama-db:
         condition: service_healthy
 
   georama-db:
