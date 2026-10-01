@@ -122,6 +122,10 @@ class FeatureLayer(models.Model):
             )
 
     @property
+    def identifier(self):
+        return str(self.id)
+
+    @property
     def title(self):
         return self.metadata.title
 

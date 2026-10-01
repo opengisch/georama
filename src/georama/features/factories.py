@@ -23,7 +23,6 @@ class MetadataFactory(factory.django.DjangoModelFactory):
 class FeatureLayerFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = FeatureLayer
-        django_get_or_create = ("datasource",)
 
     public = factory.Iterator([True, False])
     metadata = factory.SubFactory(MetadataFactory)

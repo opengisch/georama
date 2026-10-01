@@ -1,4 +1,3 @@
-from guardian.shortcuts import get_objects_for_user
 from xsdata.formats.dataclass.serializers import XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 
@@ -90,7 +89,7 @@ class WfsOperation(OgcOperation):
             )
         return sanitized_typenames
 
-    def obtain_accessible_layers(self, layer_names: list[str] | None = None) -> list[WmsLayer]:
-        return get_objects_for_user(self.user, ["view_wmslayer"], self.model).filter(
-            datasource__vector__isnull=False
-        )
+    def obtain_accessible_layers(self, layer_ids: list[str] | None = None) -> list[WmsLayer]:
+        return self.model.objects.accessible_layers_queryable(
+            self.organisation, self.user, self.perms, layer_ids, include_public=True
+        ).all()

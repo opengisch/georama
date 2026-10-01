@@ -36,7 +36,7 @@ class TestBasicAuthMiddleware:
         response = client.get(
             "",
             SERVER_NAME=f"{organisation_non_public_access.domain}.localhost",
-            HTTP_AUTHORIZATION=f"Basic {credentials}"
+            HTTP_AUTHORIZATION=f"Basic {credentials}",
         )
         assert response.status_code == status.HTTP_200_OK
 

@@ -10,12 +10,21 @@ class OgcOperation:
     crs_84 = "CRS:84"
     crs_4326 = "EPSG:4326"
 
-    def __init__(self, appname: str, url: str, user, model: Model, organisation: Organisation):
+    def __init__(
+        self,
+        appname: str,
+        url: str,
+        user,
+        model: Model,
+        organisation: Organisation,
+        perms: list[str],
+    ):
         self.appname: str = appname
         self.url: str = url
         self.user: User = user
         self.model = model
         self.organisation = organisation
+        self.perms = perms
 
     @property
     def allowed_formats(self) -> list[str]:

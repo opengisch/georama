@@ -1,6 +1,5 @@
 import uuid
 
-from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.db import models
 from django.templatetags.static import static
@@ -18,7 +17,6 @@ from georama.maps.apps import central_app_label
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
 from georama.webgis.managers.theme import ThemeManager
 from georama.webgis.models.metadata import Metadata
-from georama.webgis.models.wms_layer import WmsLayer
 
 
 class Theme(models.Model):
@@ -75,27 +73,6 @@ class Theme(models.Model):
 
     def set_from_dataclass(self, theme: GGTheme):
         self.theme_json = DictEncoder().encode(theme)
-
-    async def assign_theme_public_to_all_theme_layers(self):
-        await WmsLayer.objects.filter(theme=self).aupdate(public=self.public)
-
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        async_to_sync(self.assign_theme_public_to_all_theme_layers)()
-        super().save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields,
-        )
-
-    async def asave(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        await self.assign_theme_public_to_all_theme_layers()
-        await super().asave(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields,
-        )
 
     def get_absolute_url(self):
         return reverse(f"{central_app_label}:theme-detail", kwargs={"pk": self.pk})

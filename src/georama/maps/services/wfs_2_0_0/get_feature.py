@@ -33,7 +33,6 @@ from typing import Any
 
 import numpy as np
 from django.db.models import Model
-from guardian.shortcuts import get_perms
 from qgis_server_light.interface.job.common.input import OgcFilterFES20
 from qgis_server_light.interface.job.common.output import JobResult
 from qgis_server_light.interface.job.feature.input import FeatureQuery, QslJobParameterFeature
@@ -44,6 +43,7 @@ from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 from xsdata.models.datatype import XmlDateTime
 
+from georama.core.models import Organisation
 from georama.maps.interfaces.georama.requests import handle_list_encoding
 from georama.maps.interfaces.ogc.wfs_2_0_0 import (
     Bbox,
@@ -74,7 +74,6 @@ from georama.maps.interfaces.opengis.gml_3_2_1 import (
     PosList,
     SurfaceMembers,
 )
-from georama.maps.models import WmsLayer
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 
@@ -91,8 +90,16 @@ converter.register_converter(np.ndarray, NumpyArrayConverter())
 
 
 class WfsGetFeature(WfsOperation):
-    def __init__(self, appname: str, url: str, user, model: Model):
-        super().__init__(appname, url, user, model)
+    def __init__(
+        self,
+        appname: str,
+        url: str,
+        user,
+        model: Model,
+        organisation: Organisation,
+        perms: list[str],
+    ):
+        super().__init__(appname, url, user, model, organisation, perms)
         self.name_space_map = {
             "": "http://www.opengis.net/wfs/2.0",
             "xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -118,41 +125,6 @@ class WfsGetFeature(WfsOperation):
             "APPLICATION/JSON",
             "TEXT/JSON",
         ]
-
-    def obtain_accessible_layers(self, layer_names: list[str] | None = None) -> list[WmsLayer]:
-        """
-        This method derives the layers which are available for WFS operation.
-        This Method solves multiple purposes:
-            1. Find configured VECTOR layers from Georama database
-            2. Check if layers queried in request but not configured in Georama database
-            3. Check permissions of layers
-        Args:
-            layer_names: Optional list of layer names which are checked against the
-                Georama database (default: None)
-
-        Returns:
-            List of accessible layers.
-        """
-        accessible_layers = []
-        # we do want only published vector datasets!
-        query = self.model.objects.filter(datasource__vector__isnull=False)
-        if layer_names:
-            query = query.filter(id__in=layer_names)
-        found_layers = query.all()
-        found_difference = set(layer_names) - {layer.identifier for layer in found_layers}
-        if len(found_difference) > 0:
-            raise AttributeError(
-                self.render_exception(f"Layer(s) not found: {list(found_difference)}")
-            )
-        for wms_layer in found_layers:
-            if "view_wmslayer" in get_perms(self.user, wms_layer) and wms_layer.queryable:
-                accessible_layers.append(wms_layer)
-        permission_difference = set(layer_names) - {layer.identifier for layer in accessible_layers}
-        if len(permission_difference) > 0:
-            raise PermissionError(
-                self.render_exception(f"Layer(s) not permitted: {list(permission_difference)}")
-            )
-        return accessible_layers
 
     def prepare_filter_element(self, filter_definition: str) -> Filter:
         """
