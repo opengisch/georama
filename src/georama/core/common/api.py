@@ -25,10 +25,7 @@ from rest_framework.response import Response
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.remote_actions import RemoteAction, get_remote_action
 from georama.core.common.request import GeoramaDrfRequest
-from georama.core.common.serializers import (
-    ObjectPermissionSerializer,
-    PermissionActionSerializer,
-)
+from georama.core.common.serializers import ObjectPermissionSerializer, PermissionActionSerializer
 from georama.core.patches.adrf import pagination
 
 User = get_user_model()
@@ -394,6 +391,10 @@ class GeoramaTemplateViewSet(
         renderer_classes=[renderers.TemplateHTMLRenderer],
     )
     async def aform_update(self, request, *args, **kwargs):
+        # We set partial to allow partially send data since the form might have hidden
+        # fields and therefore not sending all data which would be necessary for the
+        # underlying serializer
+        kwargs["partial"] = True
         await self.aupdate(request, *args, **kwargs)
         instance = await self.aget_object()
         return redirect(reverse(self.url_name_retrieve, kwargs={"pk": instance.pk}))
