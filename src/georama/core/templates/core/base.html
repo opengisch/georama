@@ -74,7 +74,8 @@
                     <li class="nav-item align-items-center">
                     <li class="nav-item align-items-center">
                         <div class="nav-link ps-0">
-                            {% if request.path != '/login/' %}
+                            {% url 'core:login' as login_url %}
+                            {% if request.path != login_url %}
                                 {% if user.is_authenticated %}
                                     <form method="post" action="{% url 'core:logout' %}"
                                           class="d-inline">
