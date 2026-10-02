@@ -676,13 +676,19 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             ),
         )
 
+    def _get_users_queryset(self):
+        qs = User.objects.filter(~Q(username="AnonymousUser"), is_superuser=False)
+        if self.request.georama_organisation:
+            qs = qs.filter(memberships__organisation=self.request.georama_organisation)
+        return qs
+
     def _build_users_permissions_qs(
         self, pk: str, sort_by_latest: bool, permission_filters: dict, filter_name: str
     ):
         group_perm_model = self.queryset.model.group_object_permissions.rel.related_model
         user_perm_model = self.queryset.model.user_object_permissions.rel.related_model
 
-        qs = User.objects.annotate(
+        qs = self._get_users_queryset().annotate(
             entity_id=F("pk"),
             entity_name=F("username"),
             entity_permissions=JSONObject(
@@ -816,7 +822,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             found_groups = []
 
             # Should we do some validation here (or in the serializers) ?
-            async for user in User.objects.filter(id__in=users):
+            async for user in self._get_users_queryset().filter(id__in=users):
                 found_users.append(str(user.id))
                 for permission_name in permission_names:
                     full_permission = f"{self.queryset.model._meta.app_label}.{permission_name}"
