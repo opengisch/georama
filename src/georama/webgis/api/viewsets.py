@@ -56,6 +56,7 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
     form = ThemeModelForm
+    list_body_partial_template_name = "webgis/drf/theme/partials/list_body.html"
 
     permissions_serializer_class = ThemeObjectPermissionSerializer
     permissions_action_serializer_class = ThemePermissionActionSerializer
@@ -152,6 +153,7 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
     search_fields = ["metadata__title"]
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
+    list_body_partial_template_name = "webgis/drf/theme/partials/list_body.html"
 
     async def get_breadcrumbs(self):
         app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()

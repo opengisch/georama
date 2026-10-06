@@ -1,0 +1,11 @@
+{% extends 'core/drf/default/partials/list_body.html' %}
+{% load i18n %}
+{% block list_item_image %}
+    <img alt="{% trans 'Theme icon' %}"
+         class="rounded img-thumbnail preview-image"
+         src="{{ item.icon_default }}"
+    />
+{% endblock %}
+{% block list_item_actions_additional %}
+    {% include 'webgis/drf/theme/includes/buttons/open_webgis.html' with theme=item %}
+{% endblock %}

@@ -1,4 +1,5 @@
 import uuid
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.db import models
@@ -78,12 +79,16 @@ class Theme(models.Model):
         return reverse(f"{central_app_label}:theme-detail", kwargs={"pk": self.pk})
 
     @property
-    def endpoint_url(self):
+    def endpoint_url(self) -> str | None:
+        if not self.theme_json:
+            return None
         ggtheme = self.as_dataclass()
-        return (
-            f"{settings.WEBGISURL}?themes={self.metadata.title}&map_zoom="
-            f"{ggtheme.zoom}&map_x={ggtheme.location[0]}&map_y={ggtheme.location[1]}"
-        )
+        params = {"themes": ggtheme.name}
+        if ggtheme.zoom is not None:
+            params["map_zoom"] = ggtheme.zoom
+        if len(ggtheme.location) >= 2:
+            params["map_x"], params["map_y"] = ggtheme.location[0], ggtheme.location[1]
+        return f"{settings.WEBGISURL}?{urlencode(params)}"
 
 
 class UserManager(UserObjectPermissionManager, OrganisationalManager): ...
