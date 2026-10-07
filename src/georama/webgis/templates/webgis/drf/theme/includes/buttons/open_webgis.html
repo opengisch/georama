@@ -1,0 +1,18 @@
+{% load i18n %}
+{% with url=theme.endpoint_url %}
+    {% if url %}
+        {% blocktranslate asvar title %}
+            Open theme in WebGIS
+        {% endblocktranslate %}
+        <a href="{{ url }}"
+           target="_blank"
+           rel="noopener"
+           class="btn btn-outline-primary"
+           role="button"
+           title="{{ title }}"
+           aria-label="{{ title }}"
+           data-bs-toggle="tooltip">
+            <i class="fa fa-arrow-up-right-from-square"></i>
+        </a>
+    {% endif %}
+{% endwith %}
