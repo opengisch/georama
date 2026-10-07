@@ -326,6 +326,7 @@ class ManageVectorDatasourceViewSet(GeoramaManagerViewSet):
     search_fields = ["name"]
     ordering_fields = ["name"]
     filterset_fields = ["name"]
+    list_body_partial_template_name: str = "integration/drf/datasource/partials/list_body.html"
 
     async def get_breadcrumbs(self):
         app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()
