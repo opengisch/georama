@@ -21,3 +21,4 @@ compose.override.yml
 tests/resources/projects/global/*
 !tests/resources/projects/global/TestMandant/
 tests/resources/projects/global/TestMandant/TestProject.qgz.json
+src/georama/core/static/core/build-info.json
