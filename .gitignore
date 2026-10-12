@@ -13,6 +13,8 @@ wheels/
 
 # environment
 .env
+.env.dev.local
+
 
 # docker compose overwrites
 compose.override.yml
