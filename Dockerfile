@@ -1,6 +1,6 @@
 ARG PYTHON_VERSION=3.12
 FROM python:${PYTHON_VERSION} AS base
-LABEL org.opencontainers.image.authors="Clemens Rudert <clemens@opengis.ch>"
+LABEL org.opencontainers.image.authors="OPENGIS.ch <info@opengis.ch>"
 LABEL org.opencontainers.image.vendor="opengis.ch"
 LABEL org.opencontainers.image.title="Georama Base Image"
 
