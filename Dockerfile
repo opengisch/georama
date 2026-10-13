@@ -107,6 +107,8 @@ RUN DJANGO_CONFIGURATION=Static \
 FROM base
 ARG USER=1001
 ENV GEORAMA_DATA_INTEGRATION_ROOT=/io
+# georama serves the static files itself (ServeStatic) from here
+ENV GEORAMA_STATIC_ROOT=/static
 
 WORKDIR /static
 WORKDIR $GEORAMA_DATA_INTEGRATION_ROOT

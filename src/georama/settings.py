@@ -537,7 +537,26 @@ class Dev(Base):
 
 
 class Prod(Base):
-    pass
+    INSTALLED_APPS = copy.copy(Base.INSTALLED_APPS)
+    # must be before django.contrib.staticfiles
+    INSTALLED_APPS.insert(INSTALLED_APPS.index("django.contrib.staticfiles"), "servestatic")
+
+    MIDDLEWARE = copy.copy(Base.MIDDLEWARE)
+    # must be right after SecurityMiddleware so static files are served
+    # before any session/auth/organisation handling happens
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index("django.middleware.security.SecurityMiddleware") + 1,
+        "servestatic.middleware.ServeStaticMiddleware",
+    )
+
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "servestatic.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 
 class Test(Base):
@@ -580,3 +599,5 @@ class Static(Base):
     QSL_EXPORTER_URL = None
     WEBGISURL = None
     QSL_REDIS_URL = "redis://"
+    # collectstatic must produce the files served in production
+    STORAGES = Prod.STORAGES
