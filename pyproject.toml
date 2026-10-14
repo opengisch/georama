@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
-    { name = "Clemens Rudert", email = "crud3_rt@posteo.ch" }
+    { name = "OPENGIS.ch", email = "info@opengis.ch" }
 ]
 requires-python = ">=3.12"
 dependencies = [
