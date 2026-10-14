@@ -3,7 +3,6 @@ import logging
 from dataclasses import dataclass, field
 from typing import Union
 
-from django.conf import settings
 from xsdata.formats.dataclass.serializers.json import JsonSerializer
 
 
@@ -259,15 +258,13 @@ class Theme(AbstractSchema):
         return UniqueLayers(elements=layer_list)
 
 
-@dataclass
-class OgcServers:
-    georama_webgis: OgcServer = field(metadata={"name": settings.WEBGIS_OGC_SERVER_NAME})
+type OgcServers = dict[str, OgcServer]
 
 
 @dataclass
 class ThemesJson:
     ogc_servers: OgcServers = field(
-        metadata={"name": "ogcServers", "type": "Element", "required": False}
+        metadata={"name": "ogcServers", "type": "Ignore", "required": False}
     )
     themes: list[Theme] = field(
         default_factory=list, metadata={"type": "Element", "required": False}
@@ -276,10 +273,7 @@ class ThemesJson:
     background_layers: list[WmsLayer | WmtsLayer] = field(default_factory=list)
 
     def get_ogc_server_by_name(self, name: str) -> OgcServer | None:
-        for ogc_server in self.ogc_servers:
-            if name == ogc_server.name:
-                return ogc_server
-        return None
+        return self.ogc_servers.get(name)
 
     def get_theme_by_name(self, name: str) -> Theme | None:
         for theme in self.themes:
