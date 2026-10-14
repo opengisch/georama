@@ -32,9 +32,12 @@
     }
   },
   "search": {
-    "url": "https://empty/###SEARCHTERM###",
-    "objectPreview": true,
-    "layerPreview": true
+    "providers": [
+      {
+        "type": "geoadminch"
+      }
+    ],
+    "objectPreview": true
   },
   "print": {
     "url": "https://empty"
