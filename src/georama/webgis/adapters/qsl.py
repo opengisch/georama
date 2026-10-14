@@ -1,11 +1,21 @@
 import math
+from urllib.parse import unquote
 
 from qgis_server_light.interface.common import BBox
-from qgis_server_light.interface.exporter.extract import Config, DataSet, TreeGroup
+from qgis_server_light.interface.exporter.extract import (
+    Config,
+    DataSet,
+    TreeGroup,
+    WmsSource,
+    WmtsSource,
+)
 
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     LayerGroup,
+    LayerSettings,
     MetaData,
+    OgcServer,
+    OgcServers,
     Theme,
     WmsLayer,
     WmtsLayer,
@@ -32,16 +42,70 @@ async def handle_dataset(
     bbox: BBox,
     wms_layer_index: WmsLayerIndex,
     background_layers: list[WmsLayer | WmtsLayer],
+    ogc_servers: OgcServers,
 ):
     # Vector layers without geometries are skipped during data integration
     if not qsl_dataset.is_spatial:
         return
     wms_layer = wms_layer_index[qsl_dataset.id]
     gg_wms_layer = wms_layer.as_gg_wms_layer
-    gg_wms_layer.metadata.isChecked = qsl_dataset.is_checked
     if qsl_dataset.is_background:
+        source = qsl_dataset.source.definition
+        if source.remote and isinstance(source, (WmsSource, WmtsSource)):
+            source_url = unquote(source.url)
+            source_format = unquote(source.format)
+            ogc_server = OgcServer(
+                name=f"remote_{source_url}_{source_format}",
+                url=source_url,
+                type="WMS",
+                credential=False,
+                imageType=source_format,
+                wfsSupport=False,
+                isSingleTile=False,
+                namespace="",
+            )
+            ogc_servers[ogc_server.name] = ogc_server
+            if isinstance(source, WmtsSource):
+                gg_wms_layer = WmtsLayer(
+                    id=wms_layer.identifier,
+                    name=wms_layer.metadata.title,
+                    url=source_url,
+                    layer=source.layers,
+                    type="WMTS",
+                    imageType=source_format,
+                    style=source.styles or "default",
+                    matrix_set=source.tile_matrix_set,
+                    metadata=MetaData(ogcServer=ogc_server.name),
+                )
+            elif isinstance(source, WmsSource):
+                gg_wms_layer = WmsLayer(
+                    id=wms_layer.identifier,
+                    name=wms_layer.metadata.title,
+                    type="WMS",
+                    layers=source.layers,
+                    imageType=source_format,
+                    minResolutionHint=wms_layer.min_resolution_hint,
+                    maxResolutionHint=wms_layer.max_resolution_hint,
+                    childLayers=[
+                        LayerSettings(
+                            name=wms_layer.identifier,
+                            minResolutionHint=wms_layer.min_resolution_hint,
+                            maxResolutionHint=wms_layer.max_resolution_hint,
+                            queryable=False,
+                        )
+                    ],
+                    ogcServer=ogc_server.name,
+                    editable=False,
+                    style=source.styles or "default",
+                    metadata=MetaData(),
+                )
+            else:
+                # No dataclass for XYZ Sources
+                pass
+        gg_wms_layer.metadata.isChecked = qsl_dataset.is_checked
         background_layers.append(gg_wms_layer)
         return
+    gg_wms_layer.metadata.isChecked = qsl_dataset.is_checked
     if wms_layer.extent is not None:
         extend_bbox(bbox, BBox.from_string(wms_layer.extent))
     gg_children.append(gg_wms_layer)
@@ -54,6 +118,7 @@ async def unwrap_group(
     bbox: BBox,
     wms_layer_index: WmsLayerIndex,
     background_layers: list[WmsLayer | WmtsLayer],
+    ogc_servers: OgcServers,
 ):
     for child in qsl_group.children:
         qsl_tree_match = config.tree.find_by_name(child)
@@ -77,6 +142,7 @@ async def unwrap_group(
                 bbox,
                 wms_layer_index,
                 background_layers,
+                ogc_servers,
             )
         else:
             ds = config.datasets.find_dataset_by_id(child)
@@ -89,6 +155,7 @@ async def unwrap_group(
                 bbox,
                 wms_layer_index,
                 background_layers,
+                ogc_servers,
             )
 
 
@@ -97,10 +164,11 @@ async def theme_json_from_project_config(
     icon: str,
     project_config: Config,
     wms_layer_index: WmsLayerIndex,
-) -> tuple[Theme, list[WmsLayer | WmtsLayer]]:
+) -> tuple[Theme, list[WmsLayer | WmtsLayer], OgcServers]:
     bbox = BBox(math.inf, math.inf, -math.inf, -math.inf)
     children = []
     background_layers: list[WmsLayer | WmtsLayer] = []
+    ogc_servers: OgcServers = {}
     await unwrap_group(
         project_config.tree.root,
         project_config,
@@ -108,6 +176,7 @@ async def theme_json_from_project_config(
         bbox,
         wms_layer_index,
         background_layers,
+        ogc_servers,
     )
     if any(math.isinf(n) for n in bbox.to_2d_list()):
         location = [0.0, 0.0]
@@ -123,4 +192,4 @@ async def theme_json_from_project_config(
         zoom=4,
         location=location,
     )
-    return gg_theme, background_layers
+    return gg_theme, background_layers, ogc_servers

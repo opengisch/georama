@@ -33,6 +33,7 @@ class ThemeFactory(factory.django.DjangoModelFactory):
     public = factory.Iterator([True, False])
     theme_json = {}
     background_layers = []
+    ogc_servers = {}
 
 
 class WmsLayerFactory(factory.django.DjangoModelFactory):
