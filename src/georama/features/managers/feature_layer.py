@@ -15,6 +15,7 @@ class FeatureLayerManager(LayerManager):
             super()
             .get_queryset()
             .prefetch_related(
+                "fields",
                 "metadata",
                 "datasource",
             )
