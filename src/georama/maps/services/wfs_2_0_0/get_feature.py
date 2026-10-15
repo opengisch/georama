@@ -354,7 +354,9 @@ class WfsGetFeature(WfsOperation):
             # layers (this includes permission check and existence check)
             accessible_datasets = []
             for layer in self.obtain_accessible_layers(self.sanitized_typenames(query.type_names)):
-                accessible_datasets.append(layer.datasource.to_qsl_job_layer())
+                accessible_datasets.append(
+                    layer.datasource.to_qsl_job_layer(layer.identifier, layer.metadata.title)
+                )
             if query.filter:
                 if len(accessible_datasets) > 1:
                     # we dont allow that, since its not possible to create filter
@@ -687,6 +689,7 @@ class WfsGetFeature(WfsOperation):
         self, get_feature_parameter: GetFeature, result: JobResult, job: QslJobParameterFeature
     ):
         qsl_query_collection = JsonParser().from_bytes(result.data, QueryCollection)
+        print(qsl_query_collection)
         wfs_feature_collection = FeatureCollection(
             number_returned=0, number_matched=qsl_query_collection.numbers_matched
         )
@@ -698,6 +701,9 @@ class WfsGetFeature(WfsOperation):
             qsl_query_collection.feature_collections
         ):
             wfs_feature_collection.number_returned += len(feature_collection.features)
+            gml_identifier_field = (
+                f"{self.own_namespace}_{feature_collection.name.replace('-', '_')}_identifier"
+            )
             for feature_sequence, feature in enumerate(feature_collection.features):
                 fields = []
                 feature_dict = {}
@@ -724,29 +730,30 @@ class WfsGetFeature(WfsOperation):
                         feature_dict[attribute.name] = ""
                     else:
                         feature_dict[attribute.name] = attribute.value
-                # TODO: This has to be fixed, we need to respect actual PK fields for
-                #  that! Currently a
-                #  feature can have a column with name id which might not
-                #  be the actual primary key
-                #  but it gets treated like one...
-                if "id" not in feature_dict:
-                    fields.append(
-                        (
-                            "id",
-                            str,
-                            field(
-                                default=None,
-                                metadata={
-                                    "type": "Attribute",
-                                    "namespace": "http://www.opengis.net/gml/3.2",
-                                    "nillable": True,
-                                },
-                            ),
-                        )
+                # this field ends up in the xml as attribute gml:id
+                # e.g.:
+                # <member>
+                #         <georama:0977c25f-a3a9-40f4-ab38-3cd80777feef
+                #                 gml:id="georama:0977c25f-a3a9-40f4-ab38-3cd80777feef.0">
+                fields.append(
+                    (
+                        gml_identifier_field,
+                        str,
+                        field(
+                            default=None,
+                            metadata={
+                                "type": "Attribute",
+                                "namespace": "http://www.opengis.net/gml/3.2",
+                                "nillable": True,
+                                "name": "id",
+                            },
+                        ),
                     )
-                    feature_dict["id"] = (
-                        f"{self.own_namespace}:{feature_collection.name}.{feature_sequence}"
-                    )
+                )
+                feature_dict[gml_identifier_field] = (
+                    f"{self.own_namespace}:{feature_collection.name}.{feature_sequence}"
+                )
+                # finally we add the geometry field
                 fields.append(("geometry", GeometryMember | GeometryMembers, field(default=None)))
                 feature_dataclass = make_dataclass(feature_collection.name, fields=fields)
                 feature_dataclass.Meta = GeoramaMeta
