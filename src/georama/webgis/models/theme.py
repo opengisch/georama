@@ -58,6 +58,7 @@ class Theme(models.Model):
     ordering = models.IntegerField()
     theme_json = models.JSONField()
     background_layers = models.JSONField(blank=True)
+    ogc_servers = models.JSONField(blank=True)
 
     objects = ThemeManager()
 
