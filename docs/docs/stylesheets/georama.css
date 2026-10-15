@@ -1,0 +1,125 @@
+/*
+ * Georama brand theme for the Zensical documentation.
+ * Values mirror src/georama/core/static/core/css/variables.css
+ * and bootstrap.overwrites.css — keep them in sync.
+ */
+
+:root {
+    --georama-green: #7c993d;
+    --georama-green-rgb: 124, 153, 61;
+    --georama-green-dark: #4a6317;
+    --georama-green-light: #95b354;
+    --georama-yellow: #d2a444;
+    --georama-yellow-rgb: 210, 164, 68;
+    --georama-yellow-dark: #956d19;
+    --georama-gray: #333333;
+    --georama-border-color: #e6ecd9;
+    --brand-ink: #1f2a1c;
+    --brand-cream: #f7f9f2;
+}
+
+/* Light scheme */
+[data-md-color-scheme="default"] {
+    --md-primary-fg-color: var(--georama-green);
+    --md-primary-fg-color--light: var(--georama-green-light);
+    --md-primary-fg-color--dark: var(--georama-green-dark);
+    --md-primary-bg-color: #ffffff;
+    --md-primary-bg-color--light: rgba(255, 255, 255, 0.7);
+
+    --md-accent-fg-color: var(--georama-yellow);
+    --md-accent-fg-color--transparent: rgba(var(--georama-yellow-rgb), 0.1);
+    --md-accent-bg-color: #ffffff;
+    --md-accent-bg-color--light: rgba(255, 255, 255, 0.7);
+
+    --md-typeset-color: var(--brand-ink);
+    --md-typeset-a-color: var(--georama-green-dark);
+    --md-code-fg-color: var(--georama-gray);
+    --md-typeset-mark-color: rgba(var(--georama-yellow-rgb), 0.3);
+    --md-footer-bg-color: var(--brand-ink);
+    --md-footer-bg-color--dark: #151d13;
+}
+
+/* Dark scheme (matches [data-bs-theme=dark] in the app) */
+[data-md-color-scheme="slate"] {
+    --georama-border-color: rgb(89, 90, 87);
+    --brand-ink: #ffffff;
+    --brand-cream: #333333;
+
+    --md-hue: 80;
+    --md-default-bg-color: #262626;
+    --md-default-fg-color: rgba(241, 241, 241, 0.87);
+
+    --md-primary-fg-color: var(--georama-green);
+    --md-primary-fg-color--light: var(--georama-green-light);
+    --md-primary-fg-color--dark: var(--georama-green-dark);
+    --md-primary-bg-color: #ffffff;
+    --md-primary-bg-color--light: rgba(255, 255, 255, 0.7);
+
+    --md-accent-fg-color: var(--georama-yellow);
+    --md-accent-fg-color--transparent: rgba(var(--georama-yellow-rgb), 0.1);
+    --md-accent-bg-color: #262626;
+    --md-accent-bg-color--light: rgba(38, 38, 38, 0.7);
+
+    --md-typeset-a-color: #b4d28c;
+    --md-code-fg-color: #c1daa0;
+    --md-typeset-mark-color: rgba(var(--georama-yellow-rgb), 0.3);
+    --md-footer-bg-color: #1a1b18;
+    --md-footer-bg-color--dark: #121311;
+}
+
+[data-md-color-scheme="default"] .md-typeset a:hover,
+[data-md-color-scheme="default"] .md-typeset a:focus {
+    color: var(--georama-green);
+}
+
+[data-md-color-scheme="slate"] .md-typeset a:hover,
+[data-md-color-scheme="slate"] .md-typeset a:focus {
+    color: #c3dba3;
+}
+
+/* Headings in brand green, like --bs-heading-color in the app */
+[data-md-color-scheme="default"] .md-typeset h1,
+[data-md-color-scheme="default"] .md-typeset h2,
+[data-md-color-scheme="default"] .md-typeset h3 {
+    color: var(--georama-green);
+}
+
+[data-md-color-scheme="slate"] .md-typeset h1,
+[data-md-color-scheme="slate"] .md-typeset h2,
+[data-md-color-scheme="slate"] .md-typeset h3 {
+    color: var(--georama-green-light);
+}
+
+.md-typeset table:not([class]) th {
+    background-color: rgba(var(--georama-green-rgb), 0.1);
+}
+
+.md-typeset table:not([class]),
+.md-typeset hr {
+    border-color: var(--georama-border-color);
+}
+
+/* Header: logo on a round background, like docs.georama.io */
+[data-md-color-scheme="default"] {
+    --georama-logo-bg-color: #ffffff;
+}
+
+[data-md-color-scheme="slate"] {
+    --georama-logo-bg-color: var(--md-default-bg-color);
+}
+
+.md-header__button.md-logo {
+    background: var(--georama-logo-bg-color);
+    border-radius: 50%;
+}
+
+.md-header__button.md-logo > img {
+    height: 1.6rem;
+}
+
+.md-header__topic {
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    font-size: 1rem;
+}
