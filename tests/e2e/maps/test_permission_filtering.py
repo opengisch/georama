@@ -11,8 +11,8 @@ class TestOgcService:
     a test layer with decent permissions and then analysing the returned capabilities
     content"""
 
-    wms_capabilities_url = "/maps/ows?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0"
-    wfs_capabilities_url = "/maps/ows?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0"
+    wms_capabilities_url = "/maps/ows/?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0"
+    wfs_capabilities_url = "/maps/ows/?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0"
 
     @pytest.mark.django_db
     def test_anonymous_can_see_public_wms_layer(self, client, global_wms_layer_public_queryable):

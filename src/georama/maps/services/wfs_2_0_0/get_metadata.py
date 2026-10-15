@@ -1,7 +1,6 @@
 import logging
 from decimal import Decimal
 
-from guardian.shortcuts import get_objects_for_user
 from qgis_server_light.interface.common import BBox
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
@@ -42,15 +41,10 @@ class WfsGetMetadata(OgcOperation):
     def allowed_formats(self) -> list[str]:
         return ["TEXT/XML", "APPLICATION/JSON"]
 
-    def obtain_accessible_layers(self, layer_names: list[str] | None = None) -> list[WmsLayer]:
-        return get_objects_for_user(self.user, ["view_wmslayer"], self.model).filter(
-            datasource__vector__isnull=False, id=layer_names[0]
-        )
-
     def create_layer_distributioninfo_info(
-        self, layer_name: str, wms_link_png: str, wfs_link_gml3: str
+        self, layer_name: str, wms_link_png: str, wfs_link_gml3: str, layer_queryable: bool
     ) -> list[CiOnlineResourcePropertyType]:
-        return [
+        distribution_info = [
             CiOnlineResourcePropertyType(
                 ci_online_resource=CiOnlineResource(
                     linkage=UrlPropertyType(url=Url(value=wms_link_png)),
@@ -67,23 +61,27 @@ class WfsGetMetadata(OgcOperation):
                     ),
                 )
             ),
-            CiOnlineResourcePropertyType(
-                ci_online_resource=CiOnlineResource(
-                    linkage=UrlPropertyType(url=Url(value=wfs_link_gml3)),
-                    protocol=CharacterStringPropertyType(
-                        localised_character_string=LocalisedCharacterString(
-                            value="WWW:DOWNLOAD-1.0-http--download"
-                        )
-                    ),
-                    name=CharacterStringPropertyType(
-                        localised_character_string=LocalisedCharacterString(value=layer_name)
-                    ),
-                    description=CharacterStringPropertyType(
-                        localised_character_string=LocalisedCharacterString(value="GML3 Format")
-                    ),
-                )
-            ),
         ]
+        if layer_queryable:
+            distribution_info.append(
+                CiOnlineResourcePropertyType(
+                    ci_online_resource=CiOnlineResource(
+                        linkage=UrlPropertyType(url=Url(value=wfs_link_gml3)),
+                        protocol=CharacterStringPropertyType(
+                            localised_character_string=LocalisedCharacterString(
+                                value="WWW:DOWNLOAD-1.0-http--download"
+                            )
+                        ),
+                        name=CharacterStringPropertyType(
+                            localised_character_string=LocalisedCharacterString(value=layer_name)
+                        ),
+                        description=CharacterStringPropertyType(
+                            localised_character_string=LocalisedCharacterString(value="GML3 Format")
+                        ),
+                    )
+                ),
+            )
+        return distribution_info
 
     def create_layer_reference_system_info(self, layer: WmsLayer) -> MdReferenceSystemPropertyType:
         return MdReferenceSystemPropertyType(
@@ -203,7 +201,7 @@ class WfsGetMetadata(OgcOperation):
         metadata.distribution_info.md_distribution.transfer_options[
             0
         ].md_digital_transfer_options.on_line = self.create_layer_distributioninfo_info(
-            found_layer.identifier, wms_link_png, wfs_link_gml3
+            found_layer.identifier, wms_link_png, wfs_link_gml3, found_layer.queryable
         )
         return metadata
 
