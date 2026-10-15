@@ -1,173 +1,53 @@
 ---
-icon: lucide/rocket
+icon: lucide/house
 ---
 
-# Get started
+# Welcome to the Georama Documentation
 
-For full documentation visit [zensical.org](https://zensical.org/docs/).
+![Georama](assets/logo.svg){ style="width: 300px; display: block; margin: auto; padding: 20px;" }
 
-## Commands
+**Georama** is a modular suite of Django apps designed to help you organize, manage, and publish geospatial data directly from your QGIS projects.
 
-* [`zensical new`][new] - Create a new project
-* [`zensical serve`][serve] - Start local web server
-* [`zensical build`][build] - Build your site
+Built for flexibility and integration, Georama streamlines the process of serving geodata through modern web standards while giving you full control over metadata and permissions.
 
-  [new]: https://zensical.org/docs/usage/new/
-  [serve]: https://zensical.org/docs/usage/preview/
-  [build]: https://zensical.org/docs/usage/build/
+---
 
-## Examples
+## :rocket: Core Features
 
-### Admonitions
+- **Seamless QGIS Project Import**
+  Import and manage QGIS projects directly into your Django-based environment.
 
-> Go to [documentation](https://zensical.org/docs/authoring/admonitions/)
+- **WMS Publishing with [qgis-server-light](https://github.com/opengisch/qgis-server-light)**
+  Serve your layers as OGC-compliant **WMS 1.3.0** services using a lightweight QGIS server.
 
-!!! note
+- **WFS 3 Publishing via `pygeoapi`**
+  Share your data using the modern **OGC API - Features** (WFS 3) standard, backed by [pygeoapi](https://github.com/geopython/pygeoapi).
 
-    This is a **note** admonition. Use it to provide helpful information.
+- **Metadata Management**
+  Maintain flexible and extensible metadata for your layers, datasets, and services.
 
-!!! warning
+- **Fine-Grained Permission Control**
+  Control access to layers, attributes, and metadata with a customizable permission system.
 
-    This is a **warning** admonition. Be careful!
+- **Identity Provider Integration**
+  Leverage third-party Django apps to integrate with external authentication providers (e.g., OAuth, SAML, LDAP).
 
-### Details
+---
 
-> Go to [documentation](https://zensical.org/docs/authoring/admonitions/#collapsible-blocks)
+## :compass: Get Started
 
-??? info "Click to expand for more info"
+Ready to dive in? Start with the following resources:
 
-    This content is hidden until you click to expand it.
-    Great for FAQs or long explanations.
+- [Quickstart Tutorial](quick_start.md)
+- [API Reference](api_references/overview.md)
+- [Endpoints](endpoints.md)
 
-## Code Blocks
+---
 
-> Go to [documentation](https://zensical.org/docs/authoring/code-blocks/)
+## :hammer_and_wrench: Built for Extensibility
 
-``` python hl_lines="2" title="Code blocks"
-def greet(name):
-    print(f"Hello, {name}!") # (1)!
+Whether you're building a custom geodata platform or integrating with existing infrastructure, Georama provides the flexibility you need—thanks to its modular Django architecture and compatibility with QGIS.
 
-greet("Python")
-```
+---
 
-1.  > Go to [documentation](https://zensical.org/docs/authoring/code-blocks/#code-annotations)
-
-    Code annotations allow to attach notes to lines of code.
-
-Code can also be highlighted inline: `#!python print("Hello, Python!")`.
-
-## Content tabs
-
-> Go to [documentation](https://zensical.org/docs/authoring/content-tabs/)
-
-=== "Python"
-
-    ``` python
-    print("Hello from Python!")
-    ```
-
-=== "Rust"
-
-    ``` rs
-    println!("Hello from Rust!");
-    ```
-
-## Diagrams
-
-> Go to [documentation](https://zensical.org/docs/authoring/diagrams/)
-
-``` mermaid
-graph LR
-  A[Start] --> B{Error?};
-  B -->|Yes| C[Hmm...];
-  C --> D[Debug];
-  D --> B;
-  B ---->|No| E[Yay!];
-```
-
-## Footnotes
-
-> Go to [documentation](https://zensical.org/docs/authoring/footnotes/)
-
-Here's a sentence with a footnote.[^1]
-
-Hover it, to see a tooltip.
-
-[^1]: This is the footnote.
-
-
-## Formatting
-
-> Go to [documentation](https://zensical.org/docs/authoring/formatting/)
-
-- ==This was marked (highlight)==
-- ^^This was inserted (underline)^^
-- ~~This was deleted (strikethrough)~~
-- H~2~O
-- A^T^A
-- ++ctrl+alt+del++
-
-## Icons, Emojis
-
-> Go to [documentation](https://zensical.org/docs/authoring/icons-emojis/)
-
-* :sparkles: `:sparkles:`
-* :rocket: `:rocket:`
-* :tada: `:tada:`
-* :memo: `:memo:`
-* :eyes: `:eyes:`
-
-## Maths
-
-> Go to [documentation](https://zensical.org/docs/authoring/math/)
-
-$$
-\cos x=\sum_{k=0}^{\infty}\frac{(-1)^k}{(2k)!}x^{2k}
-$$
-
-!!! warning "Needs configuration"
-    Note that MathJax is included via a `script` tag on this page and is not
-    configured in the generated default configuration to avoid including it
-    in a pages that do not need it. See the documentation for details on how
-    to configure it on all your pages if they are more Maths-heavy than these
-    simple starter pages.
-
-<script id="MathJax-script" src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
-<script>
-  window.MathJax = {
-    tex: {
-      inlineMath: [["\\(", "\\)"]],
-      displayMath: [["\\[", "\\]"]],
-      processEscapes: true,
-      processEnvironments: true
-    },
-    options: {
-      ignoreHtmlClass: ".*|",
-      processHtmlClass: "arithmatex"
-    }
-  };
-
-  document$.subscribe(() => {
-    MathJax.startup.output.clearCache()
-    MathJax.typesetClear()
-    MathJax.texReset()
-    MathJax.typesetPromise()
-  })
-</script>
-
-## Task Lists
-
-> Go to [documentation](https://zensical.org/docs/authoring/lists/#using-task-lists)
-
-* [x] Install Zensical
-* [x] Configure `zensical.toml`
-* [x] Write amazing documentation
-* [ ] Deploy anywhere
-
-## Tooltips
-
-> Go to [documentation](https://zensical.org/docs/authoring/tooltips/)
-
-[Hover me][example]
-
-  [example]: https://example.com "I'm a tooltip!"
+**Georama** is your bridge between powerful desktop GIS and scalable, standards-based web publishing.
