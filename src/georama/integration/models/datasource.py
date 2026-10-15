@@ -99,15 +99,17 @@ class Datasource(models.Model):
     def bbox_2d_string(self) -> str:
         return BBox.from_string(self.bbox).to_2d_string()
 
-    def to_qsl_job_layer(self, style_name: str | None = None) -> QslJobLayer:
+    def to_qsl_job_layer(
+        self, identifier: str, layer_name: str, style_name: str | None = None
+    ) -> QslJobLayer:
         source_definition = self.source_to_qsl.definition
         if style_name is not None:
             style = self.get_style_by_name(style_name)
         else:
             style = self.get_default_style()
         return QslJobLayer(
-            id=self.qgis_layer_id,
-            name=self.name,
+            id=identifier,
+            name=layer_name,
             source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
             driver=self.driver,
             style=style,
