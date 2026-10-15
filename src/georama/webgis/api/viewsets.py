@@ -199,6 +199,24 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
         data["ogcServers"] = themes_json.ogc_servers
         return Response(data=data, status=status.HTTP_200_OK)
 
+    @action(
+        detail=False,
+        methods=["GET"],
+        renderer_classes=[renderers.JSONRenderer],
+        url_path="translation/(?P<lang>[^/.]+)",
+    )
+    async def translation(self, request: GeoramaDrfRequest, *args, **kwargs):
+        # Quick fix: whatever the GeoGirafe language, the original titles are returned
+        # (keyed by the requested language so GeoGirafe accepts them).
+        lang = kwargs["lang"]
+        translation = {lang: {}}
+        qs = await self.public_or_object_permission(self.get_queryset())
+        async for theme in qs:
+            translation[lang][theme.identifier] = theme.metadata.title
+            async for layer in theme.wms_layers.all():
+                translation[lang][layer.identifier] = layer.metadata.title
+        return Response(data=translation, status=status.HTTP_200_OK)
+
 
 class UrlShortenerViewSet(ModelViewSet):
     queryset = UrlShortener.objects.all()
