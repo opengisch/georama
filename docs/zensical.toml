@@ -1,6 +1,6 @@
 [project]
 site_url = "https://www.example.com/"
-site_name = "Georama Documentation"
+site_name = "Georama"
 site_description = "Georama"
 site_author = "OPENGIS.ch"
 
@@ -12,7 +12,8 @@ extra_css = ["stylesheets/georama.css"]
 # edit_uri = "edit/main/docs/"
 
 nav = [
-  { "Get started" = "index.md" },
+  { "Welcome" = "index.md" },
+  { "Zensical examples" = "examples.md" },
   { "Markdown in 5min" = "markdown.md" },
 ]
 

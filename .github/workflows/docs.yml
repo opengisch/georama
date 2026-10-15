@@ -2,8 +2,7 @@ name: Documentation
 on:
   push:
     branches:
-      - master
-      - main
+      - zensical-doc
 permissions:
   contents: read
   pages: write
