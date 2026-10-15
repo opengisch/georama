@@ -18,8 +18,17 @@ wheels/
 
 # docker compose overwrites
 compose.override.yml
+docker-compose.override.yml
 
 # TODO: Remove
 tests/resources/projects/global/*
 !tests/resources/projects/global/TestMandant/
 tests/resources/projects/global/TestMandant/TestProject.qgz.json
+
+# Zensical documentation build output
+docs/site/
+docs/.cache/
+
+# Local notes
+commands.md
+commands_refactoring.md
