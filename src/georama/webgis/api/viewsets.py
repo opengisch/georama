@@ -28,7 +28,6 @@ from georama.webgis.api.serializers import (
     UrlShortenerCreateSerializer,
     UrlShortenerRetrieveSerializer,
 )
-from georama.webgis.forms.theme import ThemeModelForm
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     OgcServer as GGOgcServer,
 )
@@ -55,7 +54,6 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
     search_fields = ["metadata__title"]
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
-    form = ThemeModelForm
     list_body_partial_template_name = "webgis/drf/theme/partials/list_body.html"
 
     permissions_serializer_class = ThemeObjectPermissionSerializer

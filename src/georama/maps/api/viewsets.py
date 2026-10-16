@@ -26,7 +26,6 @@ from georama.maps.api.serializers import (
     WmsLayerPermissionActionSerializer,
     WmsLayerSerializer,
 )
-from georama.maps.forms.wms_layer import WmsLayerModelForm
 from georama.maps.models import Metadata, WmsLayer
 
 
@@ -41,7 +40,6 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
     search_fields = ["metadata__title"]
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
-    form = WmsLayerModelForm
     list_body_partial_template_name = "maps/drf/wms_layer/partials/list_body.html"
     show_template_name = "maps/drf/wms_layer/detail.html"
 
