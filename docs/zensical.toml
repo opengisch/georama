@@ -19,8 +19,6 @@ nav = [
     { "Production Deployment" = "get_started/production.md" },
     { "Environment Variables" = "get_started/environment.md" },
   ] },
-  { "Zensical examples" = "examples.md" },
-  { "Markdown in 5min" = "markdown.md" },
 ]
 
 # extra_css = ["stylesheets/extra.css"]
