@@ -100,6 +100,16 @@ RUN uv sync --frozen --no-install-project --no-dev --group prod
 
 COPY ./src ./src
 COPY ./README.md ./
+
+ARG BUILD_BRANCH=
+ARG BUILD_COMMIT=
+
+COPY docker/generate-build-info.py /usr/local/bin/generate-build-info.py
+RUN python3 /usr/local/bin/generate-build-info.py \
+    --output "./src/georama/core/static/core/build-info.json" \
+    --branch "$BUILD_BRANCH" \
+    --commit "$BUILD_COMMIT"
+
 RUN uv sync --frozen --no-dev --no-editable --group prod
 RUN DJANGO_CONFIGURATION=Static \
     uv run --no-sources manage collectstatic --noinput

@@ -47,6 +47,9 @@ jobs:
           context: .
           push: true
           target: ${{ matrix.target }}
+          build-args: &build-args |
+            BUILD_BRANCH=${{ github.head_ref || github.ref_name }}
+            BUILD_COMMIT=${{ github.sha }}
           cache-from: type=local,src=cache
           tags: ghcr.io/${{ github.repository }}:${{ matrix.label }}
 
@@ -85,6 +88,7 @@ jobs:
           context: .
           push: true
           target: prod
+          build-args: *build-args
           cache-from: type=local,src=cache
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -127,6 +131,7 @@ jobs:
           target: ${{ matrix.target }}
           push: false
           load: true
+          build-args: *build-args
           tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}${{ matrix.suffix }}
           cache-from: type=gha,scope=pr${{ matrix.suffix }}
 
@@ -138,6 +143,7 @@ jobs:
           context: .
           target: ${{ matrix.target }}
           push: true
+          build-args: *build-args
           tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}${{ matrix.suffix }}
           cache-from: type=gha,scope=pr${{ matrix.suffix }}
           cache-to: type=gha,mode=max,scope=pr${{ matrix.suffix }}
