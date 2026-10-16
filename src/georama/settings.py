@@ -483,7 +483,6 @@ class Dev(Base):
             "georama.local",
         ],
         separator=LIST_ENV_SEPARATOR,
-        environ_prefix=GEORAMA_ENV_PREFIX,
     )
 
     # https://docs.djangoproject.com/en/6.0/ref/settings/#std-setting-CSRF_TRUSTED_ORIGINS
@@ -511,6 +510,7 @@ class Dev(Base):
             "http://geogirafe.local",
         ],
         separator=LIST_ENV_SEPARATOR,
+        environ_prefix=GEORAMA_ENV_PREFIX,
     )
 
     INSTALLED_APPS = Base.INSTALLED_APPS + [
