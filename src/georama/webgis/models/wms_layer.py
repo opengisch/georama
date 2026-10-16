@@ -71,7 +71,7 @@ class WmsLayer(WmsLayerAbstract):
     def as_gg_wms_layer(self):
         return GGWmsLayer(
             id=self.identifier,
-            name=self.metadata.title,
+            name=self.identifier,
             metadata=GGMetadata(legend=True, isLegendExpanded=True),
             type="WMS",
             layers=self.identifier,

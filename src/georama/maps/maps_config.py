@@ -620,18 +620,16 @@ class Config:
                 {
                     "CI_ResponsibleParty": {
                         "id": "contact",
-                        "individualName": {
-                            "LocalisedCharacterString": {"value": "Fachstelle für Geoinformation"}
-                        },
+                        "individualName": {"LocalisedCharacterString": {"value": "Clemens Rudert"}},
                         "organisationName": {
-                            "LocalisedCharacterString": {"value": "Grundbuch- und Vermessungsamt"}
+                            "LocalisedCharacterString": {"value": "OPENGIS.ch GmbH"}
                         },
                         "contactInfo": {
                             "CI_Contact": {
                                 "phone": {
                                     "CI_Telephone": {
                                         "voice": [
-                                            {"LocalisedCharacterString": {"value": "+41612679953"}}
+                                            {"LocalisedCharacterString": {"value": "+417xyz"}}
                                         ],
                                     },
                                     "type": "simple",
@@ -641,29 +639,33 @@ class Config:
                                         "deliveryPoint": [
                                             {
                                                 "LocalisedCharacterString": {
-                                                    "value": "Dufourstrasse 40/50, Postfach",
+                                                    "value": "Via Geinas 2",
                                                 }
                                             }
                                         ],
-                                        "city": {"LocalisedCharacterString": {"value": "Basel"}},
+                                        "city": {"LocalisedCharacterString": {"value": "Laax"}},
                                         "administrativeArea": {
-                                            "LocalisedCharacterString": {"value": "Basel-Stadt"}
+                                            "LocalisedCharacterString": {"value": "Graubünden"}
                                         },
                                         "postalCode": {
-                                            "LocalisedCharacterString": {"value": "4001"}
+                                            "LocalisedCharacterString": {"value": "7031"}
                                         },
                                         "country": {
                                             "LocalisedCharacterString": {"value": "Schweiz"}
                                         },
                                         "electronicMailAddress": [
-                                            {"LocalisedCharacterString": {"value": "geo@bs.ch"}}
+                                            {
+                                                "LocalisedCharacterString": {
+                                                    "value": "sales@opengis.ch"
+                                                }
+                                            }
                                         ],
                                     },
                                     "type": "simple",
                                 },
                                 "onlineResource": {
                                     "CI_OnlineResource": {
-                                        "linkage": {"URL": {"value": "https://wms.geo.bs.ch"}}
+                                        "linkage": {"URL": {"value": "https://www.opengis.ch"}}
                                     },
                                     "type": "simple",
                                 },
@@ -702,14 +704,10 @@ class Config:
                                     "CI_ResponsibleParty": {
                                         "id": "contact",
                                         "individualName": {
-                                            "LocalisedCharacterString": {
-                                                "value": "Fachstelle für Geoinformation"
-                                            }
+                                            "LocalisedCharacterString": {"value": "Clemens Rudert"}
                                         },
                                         "organisationName": {
-                                            "LocalisedCharacterString": {
-                                                "value": "Grundbuch- und Vermessungsamt"
-                                            }
+                                            "LocalisedCharacterString": {"value": "OPENGIS.ch GmbH"}
                                         },
                                         "contactInfo": {
                                             "CI_Contact": {
@@ -718,7 +716,7 @@ class Config:
                                                         "voice": [
                                                             {
                                                                 "LocalisedCharacterString": {
-                                                                    "value": "+41612679953",
+                                                                    "value": "+417xyz",
                                                                 }
                                                             }
                                                         ],
@@ -731,23 +729,23 @@ class Config:
                                                         "deliveryPoint": [
                                                             {
                                                                 "LocalisedCharacterString": {
-                                                                    "value": "Dufourstrasse 40/50, Postfach",  # noqa: E501
+                                                                    "value": "Via Geinas 2",  # noqa: E501
                                                                 }
                                                             }
                                                         ],
                                                         "city": {
                                                             "LocalisedCharacterString": {
-                                                                "value": "Basel",
+                                                                "value": "Laax",
                                                             },
                                                         },
                                                         "administrativeArea": {
                                                             "LocalisedCharacterString": {
-                                                                "value": "Basel-Stadt",
+                                                                "value": "Graubünden",
                                                             }
                                                         },
                                                         "postalCode": {
                                                             "LocalisedCharacterString": {
-                                                                "value": "4001",
+                                                                "value": "7031",
                                                             },
                                                         },
                                                         "country": {
@@ -758,7 +756,7 @@ class Config:
                                                         "electronicMailAddress": [
                                                             {
                                                                 "LocalisedCharacterString": {
-                                                                    "value": "geo@bs.ch",
+                                                                    "value": "sales@opengis.ch",
                                                                 },
                                                             }
                                                         ],
@@ -769,7 +767,7 @@ class Config:
                                                     "CI_OnlineResource": {
                                                         "linkage": {
                                                             "URL": {
-                                                                "value": "https://wms.geo.bs.ch"
+                                                                "value": "https://www.opengis.ch"
                                                             },
                                                         },
                                                     },

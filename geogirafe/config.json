@@ -5,7 +5,8 @@
   "languages": {
     "translations": {
       "de": [
-        "i18n/de.json"
+        "i18n/de.json",
+        "http://localhost:4242/webgis/themes/translation/de/"
       ]
     },
     "defaultLanguage": "de"

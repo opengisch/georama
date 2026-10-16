@@ -1,6 +1,5 @@
 import logging
 
-from guardian.shortcuts import get_objects_for_user
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 from xsdata.models.enums import FormType
@@ -24,15 +23,11 @@ class WfsDescribeFeatureType(WfsOperation):
     def allowed_formats(self) -> list[str]:
         return [
             "APPLICATION/GML+XML; VERSION=3.2",
-            "GML3TEXT/XML",
+            "GML3",
+            "TEXT/XML",
             "APPLICATION/JSON",
             "TEXT/JSON",
         ]
-
-    def obtain_accessible_layers(self, layer_names: list[str] | None = None):
-        return get_objects_for_user(self.user, ["view_wmslayer"], self.model).filter(
-            datasource__vector__isnull=False
-        )
 
     def prepare_geometry_column(self, datasource: Vector):
         if datasource.geometry_type_wkb in ["Point", "Point25D"]:
@@ -88,13 +83,13 @@ class WfsDescribeFeatureType(WfsOperation):
         for layer in found_layers:
             dft.elements.append(
                 Element(
-                    name=f"{layer.name}",
-                    type=f"{self.own_namespace}:{layer.name}Type",
+                    name=f"{layer.identifier}",
+                    type=f"{self.own_namespace}:{layer.identifier}Type",
                     substitution_group="gml:AbstractFeature",
                 )
             )
             complex_type = ComplexType(
-                name=f"{layer.name}Type",
+                name=f"{layer.identifier}Type",
                 complex_content=ComplexContent(
                     extension=Extension(
                         base="gml:AbstractFeatureType",

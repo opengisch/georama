@@ -4,6 +4,7 @@ from xsdata.formats.dataclass.serializers import XmlSerializer
 
 from georama.core.models import Organisation
 from georama.maps.interfaces.ogc.wfs_2_0_0 import Exception, ExceptionReport
+from georama.maps.models import WmsLayer
 
 
 class OgcOperation:
@@ -48,3 +49,8 @@ class OgcOperation:
                 "xlink": "http://www.w3.org/1999/xlink",
             },
         )
+
+    def obtain_accessible_layers(self, layer_ids: list[str] | None = None) -> list[WmsLayer]:
+        return self.model.objects.accessible_layers(
+            self.organisation, self.user, self.perms, layer_ids, include_public=True
+        ).all()

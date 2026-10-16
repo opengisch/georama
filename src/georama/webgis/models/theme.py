@@ -62,6 +62,10 @@ class Theme(models.Model):
     objects = ThemeManager()
 
     @property
+    def identifier(self):
+        return str(self.id)
+
+    @property
     def icon_default(self):
         return static("webgis/images/georama-logo-geogirafe.svg")
 

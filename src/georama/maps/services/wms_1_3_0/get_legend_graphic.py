@@ -44,10 +44,16 @@ class WmsGetLegendGraphic(WmsOperation):
         ):
             datasource = published_as.datasource
             if requested_style_name == self.default_style_name:
-                qsl_job_layer = datasource.to_qsl_job_layer()
+                qsl_job_layer = datasource.to_qsl_job_layer(
+                    published_as.identifier, published_as.metadata.title
+                )
             else:
                 try:
-                    qsl_job_layer = datasource.to_qsl_job_layer(requested_style_name)
+                    qsl_job_layer = datasource.to_qsl_job_layer(
+                        published_as.identifier,
+                        published_as.metadata.title,
+                        style_name=requested_style_name,
+                    )
                 except LookupError:
                     raise ValueError(  # noqa: B904
                         f"Requested style {requested_style_name} is not"
