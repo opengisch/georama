@@ -64,6 +64,7 @@ GID=1000  # output of `id -g`
 
 Optionally, adjust the other variables (database credentials, `QSL_SOURCE_BRANCH`, …)
 in the `.env` file to match your environment.
+See [Environment Variables](environment.md) for the full list.
 
 !!! note "QGIS projects"
 

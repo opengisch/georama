@@ -16,3 +16,5 @@ Choose the guide matching your use case:
   stack with Docker Compose, live reload and example content.
 - [:material-server: Production Deployment](production.md): build the production image
   and run it against your own infrastructure.
+- [:material-cog: Environment Variables](environment.md): the variables used to
+  configure Georama, in development and in production.

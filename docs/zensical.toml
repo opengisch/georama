@@ -17,6 +17,7 @@ nav = [
     "get_started/index.md",
     { "Local Development" = "get_started/local_development.md" },
     { "Production Deployment" = "get_started/production.md" },
+    { "Environment Variables" = "get_started/environment.md" },
   ] },
   { "Zensical examples" = "examples.md" },
   { "Markdown in 5min" = "markdown.md" },
