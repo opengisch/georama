@@ -23,7 +23,8 @@ class WfsDescribeFeatureType(WfsOperation):
     def allowed_formats(self) -> list[str]:
         return [
             "APPLICATION/GML+XML; VERSION=3.2",
-            "GML3TEXT/XML",
+            "GML3",
+            "TEXT/XML",
             "APPLICATION/JSON",
             "TEXT/JSON",
         ]
