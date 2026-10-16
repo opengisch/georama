@@ -64,8 +64,7 @@ used for signing sessions, CSRF tokens, password reset links, etc.
 ([`ALLOWED_HOSTS`](https://docs.djangoproject.com/en/6.0/ref/settings/#allowed-hosts)),
 space separated. A leading dot matches all subdomains, e.g. `.georama.example.com`.
 
-    - **Dev**: not needed, defaults to `.localhost georama.local`. To change it in `Dev`,
-      use `GEORAMA_ALLOWED_HOSTS` instead (the variable has a different prefix in `Dev`).
+    - **Dev**: not needed, defaults to `.localhost georama.local`.
     - **Prod**: required in practice, e.g. `.georama.example.com`.
 
     !!! warning "Set it in production, including the subdomains"
@@ -151,8 +150,7 @@ with it).
 ([django-cors-headers](https://github.com/adamchainz/django-cors-headers#cors_allowed_origins-sequencestr)),
 space separated. Typically the GeoGirafe URL.
 
-    - **Dev**: optional, defaults to the local GeoGirafe addresses. In `Dev`, the
-      variable is named `DJANGO_CORS_ALLOWED_ORIGINS`.
+    - **Dev**: optional, defaults to the local GeoGirafe addresses.
     - **Prod**: required (may be empty, but then browsers block cross-origin calls,
       e.g. from GeoGirafe).
 
@@ -246,9 +244,9 @@ starting the stack. They have no effect on the production image.
 | ------------------------------------- | ------------------------------------------------ | --------------------------------------- |
 | `DJANGO_CONFIGURATION`                | `Dev`                                            | `Prod` (mandatory)                      |
 | `DJANGO_SECRET_KEY`                   | ignored                                          | **required**, secret                    |
-| `DJANGO_ALLOWED_HOSTS`                | default (`GEORAMA_ALLOWED_HOSTS` in `Dev`)       | **required** in practice                |
+| `DJANGO_ALLOWED_HOSTS`                | default                                          | **required** in practice                |
 | `DJANGO_CSRF_TRUSTED_ORIGINS`         | default                                          | **required**                            |
-| `GEORAMA_CORS_ALLOWED_ORIGINS`        | default (`DJANGO_CORS_ALLOWED_ORIGINS` in `Dev`) | **required**                            |
+| `GEORAMA_CORS_ALLOWED_ORIGINS`        | default                                          | **required**                            |
 | `GEORAMA_DB_*`                        | **required** (`.env.dev` values)                 | **required**                            |
 | `GEORAMA_QSL_EXPORTER_URL`            | set by `compose.yml`                             | **required**                            |
 | `QSL_REDIS_URL`                       | default / `compose.yml`                          | **required**                            |
