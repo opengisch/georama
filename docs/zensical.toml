@@ -13,10 +13,10 @@ extra_css = ["stylesheets/georama.css"]
 
 nav = [
   { "Welcome" = "index.md" },
-  { "Quick Start" = [
-    "quick_start/index.md",
-    { "Local Development" = "quick_start/local_development.md" },
-    { "Production Deployment" = "quick_start/production.md" },
+  { "Get Started" = [
+    "get_started/index.md",
+    { "Local Development" = "get_started/local_development.md" },
+    { "Production Deployment" = "get_started/production.md" },
   ] },
   { "Zensical examples" = "examples.md" },
   { "Markdown in 5min" = "markdown.md" },
