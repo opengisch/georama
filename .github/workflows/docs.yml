@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - zensical-doc
+      - refactoring
 permissions:
   contents: read
   pages: write
