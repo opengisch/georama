@@ -69,6 +69,9 @@ test = [
     "pytest-django>=4.12.0",
     "pytest-lazy-fixtures>=1.4.0",
 ]
+docs = [
+    "zensical>=0.0.70",
+]
 
 [tool.uv.sources]
 qgis-server-light = { path = "/qsl", editable = true }
