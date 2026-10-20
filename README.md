@@ -60,37 +60,7 @@ This architecture keeps each component focused and isolated, and is designed wit
 
 ## Getting started
 
-The full documentation, including setup guides, configuration references, and API docs, is available at [docs.georama.io](https://docs.georama.io).
-
-### Quickstart with Docker Compose
-
-Copy the example environment file and adjust it to your needs:
-
-```shell
-cp .env.dev.example .env
-```
-
-Build Georama:
-
-```shell
-docker compose build georama
-```
-
-Start all services:
-
-```shell
-docker compose up -d
-```
-
-Once the services are up, initialize the Django database:
-
-```shell
-docker compose exec georama make migrate
-docker compose exec georama make create-superuser
-docker compose exec georama make create-example-content
-```
-
-The admin interface is available at [http://localhost:4242/admin/](http://localhost:4242/admin/) (user: `admin`, password: as chosen during setup).
+For quickly getting started with  Georama, check out our detaild documentation: https://opengisch.github.io/georama/get_started/
 
 ## Contributing
 
