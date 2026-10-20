@@ -201,7 +201,7 @@ class WfsGetMetadata(OgcOperation):
         metadata.distribution_info.md_distribution.transfer_options[
             0
         ].md_digital_transfer_options.on_line = self.create_layer_distributioninfo_info(
-            found_layer.identifier, wms_link_png, wfs_link_gml3, found_layer.queryable
+            found_layer.identifier, wms_link_png, wfs_link_gml3, found_layer.is_queryable
         )
         return metadata
 

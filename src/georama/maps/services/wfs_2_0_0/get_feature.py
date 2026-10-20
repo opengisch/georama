@@ -689,7 +689,6 @@ class WfsGetFeature(WfsOperation):
         self, get_feature_parameter: GetFeature, result: JobResult, job: QslJobParameterFeature
     ):
         qsl_query_collection = JsonParser().from_bytes(result.data, QueryCollection)
-        print(qsl_query_collection)
         wfs_feature_collection = FeatureCollection(
             number_returned=0, number_matched=qsl_query_collection.numbers_matched
         )
@@ -759,13 +758,15 @@ class WfsGetFeature(WfsOperation):
                 feature_dataclass.Meta = GeoramaMeta
                 feature_object = feature_dataclass(**feature_dict)
                 start = time.time()
-                if get_feature_parameter.stored_query_or_query[0].srs_name:
+
+                if get_feature_parameter.stored_query_or_query[feature_collection_index].srs_name:
+                    # we use the srs name which is send with the query (stored query in WFS2.0)
                     srs = get_feature_parameter.stored_query_or_query[
                         feature_collection_index
                     ].srs_name
                 else:
+                    # fallback, we use the crs of the layer instead
                     srs = None
-                    # TODO@vvmruder: Patch this logic
                     for dataset in job.queries[feature_collection_index].layers:
                         if dataset == feature_collection.name:
                             srs = dataset.crs.ogc_uri
