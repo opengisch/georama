@@ -190,6 +190,7 @@ class Base(Configuration):
         "django.middleware.csrf.CsrfViewMiddleware",
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "georama.core.middleware.basic_auth.BasicAuthenticationMiddleware",
+        "georama.core.middleware.oidc.GeoGirafeAuthenticationMiddleware",
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
         "allauth.account.middleware.AccountMiddleware",
@@ -534,6 +535,11 @@ class Dev(Base):
         Base.BASE_DIR / "tests/resources/projects", environ_prefix=GEORAMA_ENV_PREFIX
     )
     QSL_REDIS_URL = values.Value(default="redis://qsl-redis:6379", environ_prefix="")
+
+    OIDC_SERVER_URL = values.Value(
+        "http://keycloak:7080/realms/ninjas/.well-known/openid-configuration",
+        environ_prefix="GEORAMA",
+    )
 
 
 class Prod(Base):
