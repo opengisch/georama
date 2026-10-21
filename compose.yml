@@ -95,6 +95,10 @@ services:
     image: geogirafe/viewer:latest
     platform: "linux/amd64"
     restart: unless-stopped
+    healthcheck:
+      # override lighttpd's builtin healthcheck to prevent 1min startup delay
+      # and traefik from masking misconfigurations with return code 404
+      disable: true
     volumes:
       - ./geogirafe/config.json:/var/www/localhost/htdocs/config.json
       - ./geogirafe/config.mobile.json:/var/www/localhost/htdocs/config.mobile.json
