@@ -747,8 +747,7 @@ dependencies = [
     { name = "psycopg", extra = ["binary"] },
     { name = "psycopg2-binary" },
     { name = "pygeoapi" },
-    { name = "qgis-server-light" },
-    { name = "redis" },
+    { name = "qgis-server-light", extra = ["dispatcher"] },
     { name = "servestatic", extra = ["brotli"] },
     { name = "sqlalchemy" },
     { name = "xsdata" },
@@ -764,7 +763,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-django" },
     { name = "pytest-lazy-fixtures" },
-    { name = "qgis-server-light" },
+    { name = "qgis-server-light", extra = ["dispatcher"] },
     { name = "ruff" },
     { name = "shapely" },
     { name = "ty" },
@@ -808,8 +807,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.4" },
     { name = "psycopg2-binary", specifier = ">=2.9.12" },
     { name = "pygeoapi", specifier = "==0.21.0" },
-    { name = "qgis-server-light", extras = ["interface"], editable = "/qsl" },
-    { name = "redis", specifier = "==5.0.8" },
+    { name = "qgis-server-light", extras = ["dispatcher"], editable = "/qsl" },
     { name = "servestatic", extras = ["brotli"], specifier = ">=4.3.4" },
     { name = "sqlalchemy", specifier = ">=2.0.51" },
     { name = "xsdata", specifier = ">=26.2" },
@@ -825,7 +823,7 @@ dev = [
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-django", specifier = ">=4.12.0" },
     { name = "pytest-lazy-fixtures", specifier = ">=1.4.0" },
-    { name = "qgis-server-light", extras = ["interface"], editable = "/qsl" },
+    { name = "qgis-server-light", extras = ["dispatcher"], editable = "/qsl" },
     { name = "ruff", specifier = ">=0.15.15" },
     { name = "shapely", specifier = ">=2.1.2" },
     { name = "ty", specifier = ">=0.0.56" },
@@ -1719,7 +1717,19 @@ name = "qgis-server-light"
 version = "0.1.0"
 source = { editable = "/qsl" }
 
+[package.optional-dependencies]
+dispatcher = [
+    { name = "redis" },
+    { name = "xsdata" },
+]
+
 [package.metadata]
+requires-dist = [
+    { name = "qgis-server-light", extras = ["interface"], marker = "extra == 'dispatcher'" },
+    { name = "redis", marker = "extra == 'dispatcher'", specifier = "==5.0.8" },
+    { name = "xsdata", marker = "extra == 'dispatcher'", specifier = ">=26.2" },
+]
+provides-extras = ["interface", "dispatcher"]
 
 [package.metadata.requires-dev]
 dev = [

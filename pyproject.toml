@@ -24,14 +24,13 @@ dependencies = [
     "django-crispy-forms>=2.6",
     "crispy-bootstrap5>=2026.3",
     "pygeoapi==0.21.0",
-    "qgis_server_light[interface] @ git+https://github.com/opengisch/qgis-server-light.git@refactoring",
+    "qgis_server_light[dispatcher] @ git+https://github.com/opengisch/qgis-server-light.git@refactoring",
     "xsdata>=26.2",
     "sqlalchemy>=2.0.51",
     "geoalchemy2>=0.20.0",
     "psycopg2-binary>=2.9.12",
     "gdal==3.10.3",
     "httpx>=0.28.1",
-    "redis==5.0.8",
     "servestatic[brotli]>=4.3.4",
 ]
 
@@ -58,7 +57,7 @@ dev = [
     "pre-commit",
     "pyproj>=3.7.2",
     "shapely>=2.1.2",
-    "qgis-server-light[interface]",
+    "qgis-server-light[dispatcher]",
     "ty>=0.0.56",
 ]
 lint-format = [

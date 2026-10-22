@@ -1,6 +1,6 @@
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from qgis_server_light.interface.dispatcher.redis_asio import RedisQueue
+from qgis_server_light.dispatcher.redis_asio import RedisQueue
 
 from georama.core.common.apps import GeoramaAbstractConfig
 from georama.maps.maps_config import Config
