@@ -326,7 +326,10 @@ class PygeoapiServer(View):
             "data": {
                 "source_type": driver_lookup[source.ogr.path.split(".")[-1].upper()],
                 "source": os.path.join(
-                    Config().path, feature_layer.datasource.project.collection.name, source.ogr.path
+                    Config().path,
+                    feature_layer.datasource.project.organisation_folder,
+                    os.path.dirname(feature_layer.datasource.project.path),
+                    source.ogr.path,
                 ),
                 "source_capabilities": {"paging": True},
             },
