@@ -179,6 +179,15 @@ class WmtsLayer:
 
 
 @dataclass
+class XyzLayer:
+    id: str = field(metadata={"type": "Element", "required": True})
+    name: str = field(metadata={"type": "Element", "required": True})
+    url: str = field(metadata={"type": "Element", "required": True})
+    type: str = field(metadata={"type": "Element", "required": True})
+    metadata: MetaData = field(metadata={"type": "Element", "required": True})
+
+
+@dataclass
 class LayerGroup:
     id: int | str = field(metadata={"type": "Element", "required": True})
     name: str = field(metadata={"type": "Element", "required": True})

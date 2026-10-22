@@ -8,6 +8,7 @@ from qgis_server_light.interface.exporter.extract import (
     TreeGroup,
     WmsSource,
     WmtsSource,
+    XYZSource,
 )
 
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
@@ -19,6 +20,7 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     Theme,
     WmsLayer,
     WmtsLayer,
+    XyzLayer,
 )
 from georama.webgis.models import WmsLayer as GeoramaWmsLayer
 
@@ -51,57 +53,64 @@ async def handle_dataset(
     gg_wms_layer = wms_layer.as_gg_wms_layer
     if qsl_dataset.is_background:
         source = qsl_dataset.source.definition
-        if source.remote and isinstance(source, (WmsSource, WmtsSource)):
-            source_url = unquote(source.url)
-            source_format = unquote(source.format)
-            ogc_server = OgcServer(
-                name=f"remote_{source_url}_{source_format}",
-                url=source_url,
-                type="WMS",
-                credential=False,
-                imageType=source_format,
-                wfsSupport=False,
-                isSingleTile=False,
-                namespace="",
-            )
-            ogc_servers[ogc_server.name] = ogc_server
-            if isinstance(source, WmtsSource):
-                gg_wms_layer = WmtsLayer(
+        if source.remote:
+            if isinstance(source, XYZSource):
+                source_url = unquote(source.url)
+                gg_wms_layer = XyzLayer(
                     id=wms_layer.identifier,
                     name=wms_layer.metadata.title,
                     url=source_url,
-                    layer=source.layers,
-                    type="WMTS",
-                    imageType=source_format,
-                    style=source.styles or "default",
-                    matrix_set=source.tile_matrix_set,
-                    metadata=MetaData(ogcServer=ogc_server.name),
-                )
-            elif isinstance(source, WmsSource):
-                gg_wms_layer = WmsLayer(
-                    id=wms_layer.identifier,
-                    name=wms_layer.metadata.title,
-                    type="WMS",
-                    layers=source.layers,
-                    imageType=source_format,
-                    minResolutionHint=wms_layer.min_resolution_hint,
-                    maxResolutionHint=wms_layer.max_resolution_hint,
-                    childLayers=[
-                        LayerSettings(
-                            name=wms_layer.identifier,
-                            minResolutionHint=wms_layer.min_resolution_hint,
-                            maxResolutionHint=wms_layer.max_resolution_hint,
-                            queryable=False,
-                        )
-                    ],
-                    ogcServer=ogc_server.name,
-                    editable=False,
-                    style=source.styles or "default",
                     metadata=MetaData(),
+                    type="XYZ",
                 )
-            else:
-                # No dataclass for XYZ Sources
-                pass
+            elif isinstance(source, (WmsSource, WmtsSource)):
+                source_url = unquote(source.url)
+                source_format = unquote(source.format)
+                ogc_server = OgcServer(
+                    name=f"remote_{source_url}_{source_format}",
+                    url=source_url,
+                    type="WMS",
+                    credential=False,
+                    imageType=source_format,
+                    wfsSupport=False,
+                    isSingleTile=False,
+                    namespace="",
+                )
+                ogc_servers[ogc_server.name] = ogc_server
+                if isinstance(source, WmtsSource):
+                    gg_wms_layer = WmtsLayer(
+                        id=wms_layer.identifier,
+                        name=wms_layer.metadata.title,
+                        url=source_url,
+                        layer=source.layers,
+                        type="WMTS",
+                        imageType=source_format,
+                        style=source.styles or "default",
+                        matrix_set=source.tile_matrix_set,
+                        metadata=MetaData(ogcServer=ogc_server.name),
+                    )
+                elif isinstance(source, WmsSource):
+                    gg_wms_layer = WmsLayer(
+                        id=wms_layer.identifier,
+                        name=wms_layer.metadata.title,
+                        type="WMS",
+                        layers=source.layers,
+                        imageType=source_format,
+                        minResolutionHint=wms_layer.min_resolution_hint,
+                        maxResolutionHint=wms_layer.max_resolution_hint,
+                        childLayers=[
+                            LayerSettings(
+                                name=wms_layer.identifier,
+                                minResolutionHint=wms_layer.min_resolution_hint,
+                                maxResolutionHint=wms_layer.max_resolution_hint,
+                                queryable=False,
+                            )
+                        ],
+                        ogcServer=ogc_server.name,
+                        editable=False,
+                        style=source.styles or "default",
+                        metadata=MetaData(),
+                    )
         gg_wms_layer.metadata.isChecked = qsl_dataset.is_checked
         background_layers.append(gg_wms_layer)
         return
