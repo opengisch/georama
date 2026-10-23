@@ -105,6 +105,8 @@ class WfsGetFeature(WfsOperation):
         # layer of each query), collected while building the job, since the QSL job
         # layers don't carry the crs and the response is rendered without db access
         self.feature_collection_srs: list[str] = []
+        # same order as feature_collection_srs, whether x/y of the WKB have to be swapped
+        self.feature_collection_swap_axis: list[bool] = []
         self.name_space_map = {
             "": "http://www.opengis.net/wfs/2.0",
             "xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -357,10 +359,14 @@ class WfsGetFeature(WfsOperation):
             identifiers = [crs.auth_id, crs.ogc_uri, crs.ogc_urn]
             if srs_name.lower() in [identifier.lower() for identifier in identifiers if identifier]:
                 return crs
+        # identifiers might be missing for crs which are not known by an authority
+        supported_identifiers = [
+            crs.ogc_uri or crs.auth_id for crs in supported_crs if crs.ogc_uri or crs.auth_id
+        ]
         raise AttributeError(
             self.render_exception(
                 f"srsName {srs_name} is not supported, supported are:"
-                f" {', '.join(crs.ogc_uri for crs in supported_crs)}"
+                f" {', '.join(supported_identifiers)}"
             )
         )
 
@@ -406,7 +412,11 @@ class WfsGetFeature(WfsOperation):
                     query_crs = self.resolve_srs_name(query.srs_name, self.supported_crs(layer_crs))
                 # we use the srs name which is send with the query (stored query in WFS2.0),
                 # as fallback the crs of the layer
-                self.feature_collection_srs.append(query.srs_name or layer_crs.ogc_uri)
+                srs_name = query.srs_name or layer_crs.ogc_uri
+                self.feature_collection_srs.append(srs_name)
+                self.feature_collection_swap_axis.append(
+                    self.swap_axis(srs_name, query_crs or layer_crs)
+                )
             if query.filter:
                 filter = XmlSerializer().render(
                     query.filter,
@@ -431,8 +441,41 @@ class WfsGetFeature(WfsOperation):
             queries=qsl_feature_queries,
         )
 
+    @staticmethod
+    def swap_axis(srs_name: str, crs: Crs) -> bool:
+        """
+        Decides whether the coordinates, which QSL always delivers as x/y (east/north), have
+        to be written in swapped order. This follows the GeoServer convention as QGIS does:
+        the ``EPSG:<code>`` notation is always x/y, the URN and URI notation follow the axis
+        order of the crs (e.g. lat/lon for EPSG:4326).
+
+        Args:
+            srs_name: The srs name the geometries are labeled with.
+            crs: The crs of the geometries.
+
+        Returns:
+            True if the axis order has to be swapped.
+        """
+        return crs.axis_inverted and not srs_name.upper().startswith("EPSG:")
+
+    @staticmethod
+    def swap_axis_of_coordinates(coordinates: np.ndarray, dimensions: int) -> np.ndarray:
+        """
+        Swaps the first two ordinates of each coordinate in a flat list of coordinates.
+
+        Args:
+            coordinates: The flat coordinates as they are read from WKB.
+            dimensions: The number of ordinates per coordinate.
+
+        Returns:
+            The flat coordinates with swapped x and y.
+        """
+        swapped_coordinates = coordinates.reshape(-1, dimensions).copy()
+        swapped_coordinates[:, [0, 1]] = swapped_coordinates[:, [1, 0]]
+        return swapped_coordinates.reshape(-1)
+
     def parse_wkb_to_gml3(
-        self, wkb: bytes, srs_definition: str
+        self, wkb: bytes, srs_definition: str, swap_axis: bool = False
     ) -> GeometryMember | GeometryMembers:
         """
         This method directly reads the bytes of WKB representation and shreds them into the
@@ -449,6 +492,8 @@ class WfsGetFeature(WfsOperation):
             srs_definition: The definition string of the SRS of the WKB geometry. This is
                 usually something like URN e.g. ``urn:ogc:def:crs:EPSG::2056`` or URL e.g.
                 ``http://www.opengis.net/def/crs/EPSG/0/2056``
+            swap_axis: Whether x and y of the coordinates have to be swapped, see
+                ``swap_axis``.
 
         Returns:
             A GML3 object representing the parsed geometry. The exact type depends on the
@@ -462,6 +507,12 @@ class WfsGetFeature(WfsOperation):
         # read following 4 bytes for geometry type information
         geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
         wkb = wkb[4:]
+
+        def read_coordinates(coordinates_wkb: bytes, dimensions: int) -> np.ndarray:
+            coordinates = np.frombuffer(coordinates_wkb, dtype=endian + "f8")
+            if swap_axis:
+                return self.swap_axis_of_coordinates(coordinates, dimensions)
+            return coordinates
 
         is_multipoint = geometry_type in self.geometry_types["multipoint"]
         if geometry_type in self.geometry_types["point"] or is_multipoint:
@@ -526,7 +577,7 @@ class WfsGetFeature(WfsOperation):
                 points[i] = Point(
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
-                    pos=Pos(value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")),
+                    pos=Pos(value=read_coordinates(wkb[0:geometry_part_offset], dimensions)),
                 )
                 wkb = wkb[geometry_part_offset:]
 
@@ -608,7 +659,7 @@ class WfsGetFeature(WfsOperation):
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
                     pos_list=PosList(
-                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
+                        value=read_coordinates(wkb[0:geometry_part_offset], dimensions)
                     ),
                 )
 
@@ -701,7 +752,7 @@ class WfsGetFeature(WfsOperation):
                     logging.debug(f"  parsing ring:{ring} with: {number_of_points} points")
 
                     pos_list = PosList(
-                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
+                        value=read_coordinates(wkb[0:geometry_part_offset], dimensions)
                     )
                     # slicing wkb be geometry part offset
                     wkb = wkb[geometry_part_offset:]
@@ -803,6 +854,7 @@ class WfsGetFeature(WfsOperation):
                 feature_object.geometry = self.parse_wkb_to_gml3(
                     feature.geometry.value,
                     self.feature_collection_srs[feature_collection_index],
+                    self.feature_collection_swap_axis[feature_collection_index],
                 )
                 logging.debug(f"Rendered GML3 from WKB direct: {time.time() - start}")
                 wfs_feature_collection.member.append(Member(content=[feature_object]))

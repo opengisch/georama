@@ -37,10 +37,14 @@ class Config:
             appname: The simple name of the app, e.g. `maps` or `webgis`.
 
         Returns:
-            The configured crs.
+            The configured crs without duplicates, in the configured order.
         """
-        auth_ids = getattr(settings, f"{appname.upper()}_OGC_OTHER_CRS", [])
-        return [self.crs_from_epsg_auth_id(auth_id) for auth_id in auth_ids]
+        other_crs = []
+        for auth_id in getattr(settings, f"{appname.upper()}_OGC_OTHER_CRS", []):
+            crs = self.crs_from_epsg_auth_id(auth_id)
+            if crs not in other_crs:
+                other_crs.append(crs)
+        return other_crs
 
     @staticmethod
     def crs_from_epsg_auth_id(auth_id: str) -> Crs:
