@@ -6,13 +6,17 @@ from asgiref.sync import sync_to_async
 from django.conf import settings
 from httpx import RequestError
 from httpx._models import Response as HttpxResponse
-from qgis_server_light.interface.common import BBox
+from qgis_server_light.interface.common import BBox, Crs
 from qgis_server_light.interface.dispatcher.common import Status
 from qgis_server_light.interface.exporter.api import ExportParameters
+from qgis_server_light.interface.job.crs.input import QslJobParameterCrs
+from qgis_server_light.interface.job.crs.output import CrsCollection
 from qgis_server_light.interface.job.render.input import QslJobParameterRender
+from xsdata.formats.dataclass.parsers import JsonParser
 from xsdata.formats.dataclass.serializers import JsonSerializer
 
 from georama.maps.apps import qsl_redis_queue
+from georama.maps.exception.job import JobExecutionError
 from georama.maps.maps_config import Config
 from georama.maps.models import WmsLayer
 
@@ -67,3 +71,39 @@ async def generate_preview_image(wms_layer: WmsLayer) -> bytes | None:
     except PermissionError as e:
         logging.exception(f"Permission error while generating preview image: {e}")
     return None
+
+
+async def resolve_other_crs(appname: str) -> list[Crs]:
+    """
+    Resolves the crs configured for the OGC services of an app through QSL, so georama
+    gets the full crs information (identifiers, axis order) without own crs knowledge.
+    The result is cached per process in `Config.resolved_other_crs`.
+
+    Args:
+        appname: The simple name of the app, e.g. `maps` or `webgis`.
+
+    Returns:
+        The resolved crs without duplicates, in the configured order.
+
+    Raises:
+        JobExecutionError: In case QSL could not resolve the configured crs.
+    """
+    config = Config()
+    if appname in config.resolved_other_crs:
+        return config.resolved_other_crs[appname]
+    identifiers = config.other_crs_identifiers(appname)
+    other_crs = []
+    if identifiers:
+        result, status = await qsl_redis_queue.post(
+            QslJobParameterCrs(identifiers=identifiers), config.job_timeout
+        )
+        if status != Status.SUCCESS.value:
+            raise JobExecutionError(
+                f"Resolving the configured crs {identifiers} of the app {appname} failed",
+                job_id=result.id,
+            )
+        for crs in JsonParser().from_bytes(result.data, CrsCollection).crs:
+            if crs not in other_crs:
+                other_crs.append(crs)
+    config.resolved_other_crs[appname] = other_crs
+    return other_crs

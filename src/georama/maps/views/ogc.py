@@ -12,6 +12,7 @@ from xsdata.formats.dataclass.parsers import DictDecoder, XmlParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 
 from georama.core.common.request import GeoramaHttpRequest
+from georama.maps.adapter.qsl import resolve_other_crs
 from georama.maps.apps import MapsConfig, qsl_redis_queue
 from georama.maps.exception.job import JobExecutionError, UnexpectedBehaviourError
 from georama.maps.interfaces.georama.requests import (
@@ -182,6 +183,7 @@ class OgcServer(View):
             )
 
     async def wfs_200_getfeature(self, request: GeoramaHttpRequest, params: dict) -> HttpResponse:
+        await resolve_other_crs(self.appname)
         operation = WfsGetFeature(
             self.appname,
             f"{request.build_absolute_uri('')}?",
@@ -344,6 +346,7 @@ class OgcServer(View):
             else:
                 return HttpResponse("Only VERSION 2.0.0 is available", 400)
             if params["REQUEST"] == "GETCAPABILITIES":
+                await resolve_other_crs(self.appname)
                 return await sync_to_async(self.wfs_200_capabilities, thread_sensitive=True)(
                     request, params
                 )
@@ -371,6 +374,7 @@ class OgcServer(View):
             return HttpResponse("Only WMS|WFS Service is available", 400)
 
     async def post(self, request: GeoramaHttpRequest, *args, **kwargs):
+        await resolve_other_crs(self.appname)
         try:
             operation = WfsGetFeature(
                 self.appname,

@@ -458,8 +458,8 @@ class Base(Configuration):
     # it's the name which will be used in the themes.json response for GeoGirafe
     WEBGIS_OGC_SERVER_NAME = values.Value("georama.webgis", environ_prefix=GEORAMA_ENV_PREFIX)
 
-    # EPSG codes offered in addition to the crs of a layer (WFS OtherCRS), the
-    # transformation is done by QSL. The setting is looked up per app by its name.
+    # crs offered in addition to the crs of a layer (WFS OtherCRS), e.g. EPSG codes. They
+    # are resolved and transformed by QSL. The setting is looked up per app by its name.
     MAPS_OGC_OTHER_CRS = values.ListValue(
         ["EPSG:3857", "EPSG:4326"],
         separator=LIST_ENV_SEPARATOR,

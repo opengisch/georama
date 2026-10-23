@@ -6,6 +6,7 @@ from django.conf import settings
 from faker import Faker
 from faker.utils.loading import find_available_providers
 from guardian.shortcuts import assign_perm
+from qgis_server_light.interface.common import Crs
 
 from georama.core.common.faker.gis import Dataset
 from georama.core.factories import (
@@ -20,6 +21,7 @@ from georama.features.models.feature_layer import FeatureLayerUserObjectPermissi
 from georama.integration.factories import FieldFactory, ProjectFactory, VectorFactory
 from georama.maps.factories import MetadataFactory as MapsWmsLayerMetadataFactory
 from georama.maps.factories import WmsLayerFactory
+from georama.maps.maps_config import Config
 from georama.maps.models.wms_layer import WmsLayerUserObjectPermission
 from georama.webgis.factories import MetadataFactory as WebGisMetadataFactory
 from georama.webgis.factories import ThemeFactory
@@ -455,3 +457,30 @@ def user_with_membership_global_feature_layer_update_permission(
     )
     yield user_with_membership_global
     FeatureLayerUserObjectPermission.objects.all().delete()
+
+
+@pytest.fixture
+def crs_factory():
+    """Creates crs as QSL resolves them, `None` creates a crs without identifiers."""
+
+    def create_crs(code: int | None, axis_inverted: bool = False) -> Crs:
+        if code is None:
+            return Crs()
+        return Crs(
+            auth_id=f"EPSG:{code}",
+            postgis_srid=code,
+            ogc_uri=f"http://www.opengis.net/def/crs/EPSG/0/{code}",
+            ogc_urn=f"urn:ogc:def:crs:EPSG::{code}",
+            axis_inverted=axis_inverted,
+        )
+
+    yield create_crs
+
+
+@pytest.fixture(autouse=True)
+def resolved_other_crs(crs_factory):
+    """The other crs are resolved by QSL at runtime, which is not available in tests."""
+    other_crs = [crs_factory(3857), crs_factory(4326, axis_inverted=True)]
+    Config.resolved_other_crs.update({"maps": other_crs, "webgis": other_crs})
+    yield Config.resolved_other_crs
+    Config.resolved_other_crs.clear()

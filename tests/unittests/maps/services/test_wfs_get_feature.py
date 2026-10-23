@@ -2,8 +2,15 @@ import struct
 
 import numpy as np
 import pytest
-from django.core.exceptions import ImproperlyConfigured
 from qgis_server_light.interface.common import Crs
+from qgis_server_light.interface.job.common.output import JobResult
+from qgis_server_light.interface.job.feature.output import (
+    Feature,
+    FeatureCollection,
+    Geometry,
+    QueryCollection,
+)
+from xsdata.formats.dataclass.serializers import JsonSerializer
 
 from georama.maps.maps_config import Config
 from georama.maps.services.wfs_2_0_0.get_feature import WfsGetFeature
@@ -15,8 +22,8 @@ def wfs_get_feature():
 
 
 @pytest.fixture
-def layer_crs():
-    return Config.crs_from_epsg_auth_id("EPSG:2056")
+def layer_crs(crs_factory):
+    return crs_factory(2056)
 
 
 class TestWfsGetFeatureResolveSrsName:
@@ -32,16 +39,16 @@ class TestWfsGetFeatureResolveSrsName:
     def test_matching_srs_name_returns_layer_crs(self, wfs_get_feature, layer_crs, srs_name):
         assert wfs_get_feature.resolve_srs_name(srs_name, [layer_crs]) is layer_crs
 
-    def test_matching_srs_name_returns_other_crs(self, wfs_get_feature, layer_crs):
-        other_crs = Config.crs_from_epsg_auth_id("EPSG:4326")
+    def test_matching_srs_name_returns_other_crs(self, wfs_get_feature, layer_crs, crs_factory):
+        other_crs = crs_factory(4326, axis_inverted=True)
         resolved_crs = wfs_get_feature.resolve_srs_name(
             "urn:ogc:def:crs:EPSG::4326", [layer_crs, other_crs]
         )
         assert resolved_crs is other_crs
 
-    def test_rejection_with_crs_without_identifiers(self, wfs_get_feature, layer_crs):
+    def test_rejection_with_crs_without_identifiers(self, wfs_get_feature, layer_crs, crs_factory):
         with pytest.raises(AttributeError) as error:
-            wfs_get_feature.resolve_srs_name("EPSG:4326", [layer_crs, Crs()])
+            wfs_get_feature.resolve_srs_name("EPSG:4326", [layer_crs, crs_factory(None)])
         assert "InvalidParameterValue" in str(error.value)
 
     def test_other_srs_name_is_rejected(self, wfs_get_feature, layer_crs):
@@ -52,60 +59,46 @@ class TestWfsGetFeatureResolveSrsName:
 
 
 class TestWfsOperationSupportedCrs:
-    def test_layer_crs_first_then_configured(self, settings, wfs_get_feature, layer_crs):
-        settings.MAPS_OGC_OTHER_CRS = ["EPSG:3857", "EPSG:4326"]
+    def test_layer_crs_first_then_configured(self, wfs_get_feature, layer_crs, crs_factory):
+        Config.resolved_other_crs["maps"] = [crs_factory(3857), crs_factory(4326)]
         supported_crs = wfs_get_feature.supported_crs(layer_crs)
         assert [crs.auth_id for crs in supported_crs] == ["EPSG:2056", "EPSG:3857", "EPSG:4326"]
 
-    def test_layer_crs_is_not_duplicated(self, settings, wfs_get_feature):
-        settings.MAPS_OGC_OTHER_CRS = ["EPSG:3857", "EPSG:4326"]
-        layer_crs = Config.crs_from_epsg_auth_id("EPSG:4326")
-        supported_crs = wfs_get_feature.supported_crs(layer_crs)
+    def test_layer_crs_is_not_duplicated(self, wfs_get_feature, crs_factory):
+        Config.resolved_other_crs["maps"] = [crs_factory(3857), crs_factory(4326)]
+        supported_crs = wfs_get_feature.supported_crs(crs_factory(4326))
         assert [crs.auth_id for crs in supported_crs] == ["EPSG:4326", "EPSG:3857"]
 
-    def test_configured_duplicates_are_removed(self, settings, wfs_get_feature, layer_crs):
-        settings.MAPS_OGC_OTHER_CRS = ["EPSG:4326", "epsg:4326", "EPSG:3857", "EPSG:4326"]
-        supported_crs = wfs_get_feature.supported_crs(layer_crs)
-        assert [crs.auth_id for crs in supported_crs] == ["EPSG:2056", "EPSG:4326", "EPSG:3857"]
-
-    def test_configured_per_app(self, settings, layer_crs):
-        settings.WEBGIS_OGC_OTHER_CRS = ["EPSG:21781"]
+    def test_configured_per_app(self, layer_crs, crs_factory):
+        Config.resolved_other_crs["webgis"] = [crs_factory(21781)]
         wfs_get_feature = WfsGetFeature("webgis", "http://localhost/", None, None, None, [])
         supported_crs = wfs_get_feature.supported_crs(layer_crs)
         assert [crs.auth_id for crs in supported_crs] == ["EPSG:2056", "EPSG:21781"]
 
-
-class TestConfigCrsFromEpsgAuthId:
-    def test_all_identifiers(self):
-        assert Config.crs_from_epsg_auth_id("EPSG:3857") == Crs(
-            auth_id="EPSG:3857",
-            postgis_srid=3857,
-            ogc_uri="http://www.opengis.net/def/crs/EPSG/0/3857",
-            ogc_urn="urn:ogc:def:crs:EPSG::3857",
-        )
-
-    @pytest.mark.parametrize("auth_id", ["CRS:84", "EPSG:abc", "3857"])
-    def test_no_epsg_code_is_rejected(self, auth_id):
-        with pytest.raises(ImproperlyConfigured):
-            Config.crs_from_epsg_auth_id(auth_id)
+    def test_not_resolved(self, wfs_get_feature, layer_crs):
+        del Config.resolved_other_crs["maps"]
+        with pytest.raises(RuntimeError):
+            wfs_get_feature.supported_crs(layer_crs)
 
 
 class TestWfsGetFeatureSwapAxis:
     @pytest.mark.parametrize(
-        "srs_name, auth_id, expected",
+        "code, axis_inverted, expected_srs_name, expected_swap",
         [
-            ("EPSG:4326", "EPSG:4326", False),
-            ("epsg:4326", "EPSG:4326", False),
-            ("urn:ogc:def:crs:EPSG::4326", "EPSG:4326", True),
-            ("http://www.opengis.net/def/crs/EPSG/0/4326", "EPSG:4326", True),
-            ("urn:ogc:def:crs:EPSG::2056", "EPSG:2056", False),
-            ("http://www.opengis.net/def/crs/EPSG/0/3857", "EPSG:3857", False),
+            (4326, True, "http://www.opengis.net/def/crs/EPSG/0/4326", True),
+            (2056, False, "http://www.opengis.net/def/crs/EPSG/0/2056", False),
+            (3857, False, "http://www.opengis.net/def/crs/EPSG/0/3857", False),
         ],
     )
-    def test_decision(self, srs_name, auth_id, expected):
-        crs = Config.crs_from_epsg_auth_id(auth_id)
-        crs.axis_inverted = auth_id == "EPSG:4326"
-        assert WfsGetFeature.swap_axis(srs_name, crs) is expected
+    def test_decision(self, crs_factory, code, axis_inverted, expected_srs_name, expected_swap):
+        crs = crs_factory(code, axis_inverted=axis_inverted)
+        assert WfsGetFeature.srs_name_of(crs) == expected_srs_name
+        assert WfsGetFeature.swap_axis(crs) is expected_swap
+
+    def test_crs_without_uri(self):
+        crs = Crs(auth_id="IGNF:LAMB93", ogc_uri="", axis_inverted=True)
+        assert WfsGetFeature.srs_name_of(crs) == "IGNF:LAMB93"
+        assert WfsGetFeature.swap_axis(crs) is False
 
     def test_swap_keeps_further_ordinates(self):
         coordinates = np.frombuffer(struct.pack("<6d", 8.5, 47.4, 500, 9, 46, 600), dtype="<f8")
@@ -135,3 +128,32 @@ class TestWfsGetFeatureSwapAxis:
             47,
             8,
         ]
+
+
+class TestWfsGetFeatureRendering:
+    def test_inverted_axis_crs_labeled_with_uri_in_authority_order(
+        self, wfs_get_feature, crs_factory
+    ):
+        output_crs = crs_factory(4326, axis_inverted=True)
+        wfs_get_feature.feature_collection_srs = [wfs_get_feature.srs_name_of(output_crs)]
+        wfs_get_feature.feature_collection_swap_axis = [wfs_get_feature.swap_axis(output_crs)]
+        query_collection = QueryCollection(
+            feature_collections=[
+                FeatureCollection(
+                    name="1ddbab8a-ce60-4907-bf13-4f12e573b14d",
+                    features=[
+                        Feature(geometry=Geometry(value=struct.pack("<BI2d", 1, 1, 7.12, 47.05)))
+                    ],
+                )
+            ]
+        )
+        result = JobResult(
+            id="job",
+            data=JsonSerializer().render(query_collection).encode(),
+            content_type="application/json",
+        )
+
+        xml = wfs_get_feature.render_xml(wfs_get_feature.get_feature(result), [])
+
+        assert 'srsName="http://www.opengis.net/def/crs/EPSG/0/4326"' in xml
+        assert "<gml:pos>47.05 7.12</gml:pos>" in xml

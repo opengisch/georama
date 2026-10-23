@@ -1,7 +1,6 @@
 from xml.etree.ElementTree import QName
 
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from qgis_server_light.interface.common import Crs
 
 import georama.maps.interfaces.ogc.wms_1_3_0.capabilities as wms130_capabilities
@@ -28,48 +27,40 @@ class Config:
         """
         return settings.JOB_TIMEOUT
 
-    def other_crs(self, appname: str) -> list[Crs]:
+    # The crs are resolved by QSL and cached per process (settings don't change at
+    # runtime), see `georama.maps.adapter.qsl.resolve_other_crs`. Keyed by app name.
+    resolved_other_crs: dict[str, list[Crs]] = {}
+
+    def other_crs_identifiers(self, appname: str) -> list[str]:
         """
-        The crs which are offered in addition to the crs of a layer, configured per app
-        (e.g. `MAPS_OGC_OTHER_CRS`, `WEBGIS_OGC_OTHER_CRS`).
+        The identifiers of the crs which are offered in addition to the crs of a layer,
+        configured per app (e.g. `MAPS_OGC_OTHER_CRS`, `WEBGIS_OGC_OTHER_CRS`).
 
         Args:
             appname: The simple name of the app, e.g. `maps` or `webgis`.
 
         Returns:
-            The configured crs without duplicates, in the configured order.
+            The configured identifiers.
         """
-        other_crs = []
-        for auth_id in getattr(settings, f"{appname.upper()}_OGC_OTHER_CRS", []):
-            crs = self.crs_from_epsg_auth_id(auth_id)
-            if crs not in other_crs:
-                other_crs.append(crs)
-        return other_crs
+        return getattr(settings, f"{appname.upper()}_OGC_OTHER_CRS", [])
 
-    @staticmethod
-    def crs_from_epsg_auth_id(auth_id: str) -> Crs:
+    def other_crs(self, appname: str) -> list[Crs]:
         """
-        Derives all identifiers of a crs from its EPSG authority id. This is pure string
-        handling, the crs itself is resolved by QSL.
+        The crs which are offered in addition to the crs of a layer as they were resolved
+        by QSL.
 
         Args:
-            auth_id: The authority id, e.g. `EPSG:4326`.
+            appname: The simple name of the app, e.g. `maps` or `webgis`.
 
         Returns:
-            The crs with all identifiers set.
+            The resolved crs without duplicates, in the configured order.
 
         Raises:
-            ImproperlyConfigured: In case the auth_id is not of the form `EPSG:<code>`.
+            RuntimeError: In case the crs were not resolved before.
         """
-        authority, _, code = auth_id.partition(":")
-        if authority.upper() != "EPSG" or not code.isdigit():
-            raise ImproperlyConfigured(f"Only EPSG codes are supported, got: {auth_id}")
-        return Crs(
-            auth_id=f"EPSG:{code}",
-            postgis_srid=int(code),
-            ogc_uri=f"http://www.opengis.net/def/crs/EPSG/0/{code}",
-            ogc_urn=f"urn:ogc:def:crs:EPSG::{code}",
-        )
+        if appname not in self.resolved_other_crs:
+            raise RuntimeError(f"The other crs of the app {appname} were not resolved by QSL")
+        return self.resolved_other_crs[appname]
 
     def wms_1_3_0_service_config(self, url: str) -> wms130_capabilities.Service:
         service_config = wms130_capabilities.Service(

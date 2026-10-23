@@ -410,13 +410,11 @@ class WfsGetFeature(WfsOperation):
                 if query.srs_name:
                     # only one layer per query (joins are rejected above)
                     query_crs = self.resolve_srs_name(query.srs_name, self.supported_crs(layer_crs))
-                # we use the srs name which is send with the query (stored query in WFS2.0),
-                # as fallback the crs of the layer
-                srs_name = query.srs_name or layer_crs.ogc_uri
-                self.feature_collection_srs.append(srs_name)
-                self.feature_collection_swap_axis.append(
-                    self.swap_axis(srs_name, query_crs or layer_crs)
-                )
+                # the crs requested with the query (stored query in WFS2.0), as fallback the
+                # crs of the layer
+                output_crs = query_crs or layer_crs
+                self.feature_collection_srs.append(self.srs_name_of(output_crs))
+                self.feature_collection_swap_axis.append(self.swap_axis(output_crs))
             if query.filter:
                 filter = XmlSerializer().render(
                     query.filter,
@@ -442,21 +440,36 @@ class WfsGetFeature(WfsOperation):
         )
 
     @staticmethod
-    def swap_axis(srs_name: str, crs: Crs) -> bool:
+    def srs_name_of(crs: Crs) -> str:
         """
-        Decides whether the coordinates, which QSL always delivers as x/y (east/north), have
-        to be written in swapped order. This follows the GeoServer convention as QGIS does:
-        the ``EPSG:<code>`` notation is always x/y, the URN and URI notation follow the axis
-        order of the crs (e.g. lat/lon for EPSG:4326).
+        The srs name the geometries are labeled with. The URI is used independent of the
+        requested notation, since the short ``EPSG:<code>`` notation is read differently by
+        clients (x/y by QGIS and GeoServer, authority axis order by OpenLayers), the URI
+        always means the axis order of the crs.
 
         Args:
-            srs_name: The srs name the geometries are labeled with.
+            crs: The crs of the geometries.
+
+        Returns:
+            The URI of the crs, as fallback for crs without URI the authority id.
+        """
+        return crs.ogc_uri or crs.auth_id
+
+    @staticmethod
+    def swap_axis(crs: Crs) -> bool:
+        """
+        Decides whether the coordinates, which QSL always delivers as x/y (east/north), have
+        to be written in swapped order. This is the case for crs with inverted axis order
+        (e.g. lat/lon for EPSG:4326) when they are labeled with their URI (see
+        ``srs_name_of``).
+
+        Args:
             crs: The crs of the geometries.
 
         Returns:
             True if the axis order has to be swapped.
         """
-        return crs.axis_inverted and not srs_name.upper().startswith("EPSG:")
+        return crs.axis_inverted and bool(crs.ogc_uri)
 
     @staticmethod
     def swap_axis_of_coordinates(coordinates: np.ndarray, dimensions: int) -> np.ndarray:

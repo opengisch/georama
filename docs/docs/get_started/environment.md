@@ -178,7 +178,7 @@ same files.
 | `GEORAMA_JOB_TIMEOUT`                                      | `1000`                 | Timeout of the rendering jobs sent to QSL through Redis, **_in seconds_**.                                                           |
 | `GEORAMA_WEBGIS_OGC_SERVER_NAME`                           | `georama.webgis`       | Name of the Georama OGC server in the `themes.json` served to GeoGirafe.                                                             |
 | `GEORAMA_LIST_PAGE_SIZES`                                  | `10 25 50 100 200 500` | Page sizes proposed in the lists of the user interface.                                                                              |
-| `GEORAMA_MAPS_OGC_OTHER_CRS`                               | `EPSG:3857 EPSG:4326`  | Space separated EPSG codes offered by the WFS of the maps app in addition to the layer crs (OtherCRS), transformed by QSL.           |
+| `GEORAMA_MAPS_OGC_OTHER_CRS`                               | `EPSG:3857 EPSG:4326`  | Space separated crs (e.g. EPSG codes) offered by the WFS of the maps app besides the layer crs (OtherCRS), resolved by QSL.          |
 | `GEORAMA_WEBGIS_OGC_OTHER_CRS`                             | `EPSG:3857 EPSG:4326`  | Same as `GEORAMA_MAPS_OGC_OTHER_CRS` for the WFS of the webgis app.                                                                  |
 
 ### Database Tuning
