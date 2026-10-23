@@ -1,8 +1,10 @@
+from qgis_server_light.interface.common import Crs
 from xsdata.formats.dataclass.serializers import XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 
 from georama.maps.interfaces.ogc.wfs_2_0_0 import Exception as Wfs200Exception
 from georama.maps.interfaces.ogc.wfs_2_0_0 import ExceptionReport
+from georama.maps.maps_config import Config
 from georama.maps.models import WmsLayer
 from georama.maps.services import OgcOperation
 
@@ -66,7 +68,7 @@ class WfsOperation(OgcOperation):
                 # no namespace as part of the typename we assume that the
                 # requested typename is out
                 # of the default namespace self.own_namespace
-                sanitized_typenames.append(name_parts[0])
+                sanitized_typenames.append(self.decode_layer_name(name_parts[0]))
             elif len(name_parts) == 2:
                 if self.own_namespace != name_parts[0]:
                     # the requested typename belongs not to our namespace, we do
@@ -74,7 +76,7 @@ class WfsOperation(OgcOperation):
                     wrong_typenames.append(name)
                 else:
                     # the requested typename belongs to our namespace
-                    sanitized_typenames.append(name.replace(f"{self.own_namespace}:", ""))
+                    sanitized_typenames.append(self.decode_layer_name(name_parts[1]))
             else:
                 wrong_typenames.append(
                     f"typename has unexpected format (expected '<namespace>:<name>') got {name}"
@@ -93,3 +95,20 @@ class WfsOperation(OgcOperation):
         return self.model.objects.accessible_layers_queryable(
             self.organisation, self.user, self.perms, layer_ids, include_public=True
         ).all()
+
+    def supported_crs(self, layer_crs: Crs) -> list[Crs]:
+        """
+        The crs a layer is offered in: its own crs (DefaultCRS) first, followed by the
+        crs configured for the app (OtherCRS).
+
+        Args:
+            layer_crs: The crs of the layer.
+
+        Returns:
+            The supported crs without duplicates, the layer crs is always the first.
+        """
+        supported_crs = [layer_crs]
+        for other_crs in Config().other_crs(self.appname):
+            if other_crs.auth_id.lower() != (layer_crs.auth_id or "").lower():
+                supported_crs.append(other_crs)
+        return supported_crs

@@ -39,5 +39,5 @@ urlpatterns = [
         views.SpectacularRedocView.as_view(url_name="maps:schema"),
         name="redoc",
     ),
-    path("ows", OgcServer.as_view(), name="maps_ogc_entry"),
+    path("ows/", OgcServer.as_view(), name="maps_ogc_entry"),
 ]

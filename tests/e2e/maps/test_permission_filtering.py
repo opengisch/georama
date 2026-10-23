@@ -11,8 +11,8 @@ class TestOgcService:
     a test layer with decent permissions and then analysing the returned capabilities
     content"""
 
-    wms_capabilities_url = "/maps/ows?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0"
-    wfs_capabilities_url = "/maps/ows?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0"
+    wms_capabilities_url = "/maps/ows/?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0"
+    wfs_capabilities_url = "/maps/ows/?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0"
 
     @pytest.mark.django_db
     def test_anonymous_can_see_public_wms_layer(self, client, global_wms_layer_public_queryable):
@@ -33,8 +33,8 @@ class TestOgcService:
         assert capabilities.feature_type_list is not None
         assert len(capabilities.feature_type_list.feature_type) == 1
         assert (
-            capabilities.feature_type_list.feature_type[0].name
-            == f"{WfsOperation.own_namespace}:{str(global_wms_layer_public_queryable.id)}"
+            capabilities.feature_type_list.feature_type[0].name == f"{WfsOperation.own_namespace}:"
+            f"{WfsOperation.encode_layer_name(str(global_wms_layer_public_queryable.id))}"
         )
 
     @pytest.mark.django_db
@@ -105,8 +105,8 @@ class TestOgcService:
         assert capabilities.feature_type_list is not None
         assert len(capabilities.feature_type_list.feature_type) == 1
         assert (
-            capabilities.feature_type_list.feature_type[0].name
-            == f"{WfsOperation.own_namespace}:{str(global_wms_layer_non_public_queryable.id)}"
+            capabilities.feature_type_list.feature_type[0].name == f"{WfsOperation.own_namespace}:"
+            f"{WfsOperation.encode_layer_name(str(global_wms_layer_non_public_queryable.id))}"
         )
 
     @pytest.mark.django_db

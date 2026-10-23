@@ -49,6 +49,10 @@ class WmsLayer(WmsLayerAbstract):
     objects = WmsLayerManager()
 
     @property
+    def get_metadata(self) -> Metadata:
+        return self.metadata
+
+    @property
     def get_datasource(self) -> Datasource:
         return self.datasource
 
@@ -69,18 +73,21 @@ class WmsLayer(WmsLayerAbstract):
 
     @property
     def as_gg_wms_layer(self):
+        from georama.maps.services.wfs_2_0_0 import WfsOperation
+
         return GGWmsLayer(
-            id=self.identifier,
-            name=self.metadata.title,
+            id=WfsOperation.encode_layer_name(self.identifier),
+            name=WfsOperation.encode_layer_name(self.identifier),
             metadata=GGMetadata(legend=True, isLegendExpanded=True),
             type="WMS",
-            layers=self.identifier,
+            layers=WfsOperation.encode_layer_name(self.identifier),
             imageType="image/png",
             minResolutionHint=self.min_resolution_hint,
             maxResolutionHint=self.max_resolution_hint,
             childLayers=[
                 GGLayerSettings(
-                    name=self.identifier,
+                    # GeoGirafe uses the child layer name as WFS feature type name
+                    name=WfsOperation.encode_layer_name(self.identifier),
                     minResolutionHint=self.min_resolution_hint,
                     maxResolutionHint=self.max_resolution_hint,
                     queryable=self.is_queryable,

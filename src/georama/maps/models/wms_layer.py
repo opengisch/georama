@@ -1,7 +1,9 @@
 import base64
+import json
 import logging
 import uuid
 from dataclasses import fields
+from pathlib import Path
 
 from django.db import models
 from django.templatetags.static import static
@@ -12,6 +14,7 @@ from guardian.managers import GroupObjectPermissionManager, UserObjectPermission
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
 from osgeo import osr as osgeo_osr
 from qgis_server_light.interface.common import BBox
+from qgis_server_light.interface.job.common.input import QslJobLayer
 
 from georama.core.common.managers import OrganisationalManager
 from georama.integration.models import Datasource
@@ -79,8 +82,31 @@ class WmsLayerAbstract(models.Model):
         return str(self.id)
 
     @property
+    def get_metadata(self) -> Metadata:
+        raise NotImplementedError()
+
+    @property
     def get_datasource(self) -> Datasource:
         raise NotImplementedError()
+
+    @property
+    def extent_in_axis_order(self) -> BBox:
+        """
+        The extent in the axis order of its crs, as WMS 1.3.0 expects it for BBOX and
+        BoundingBox (e.g. lat/lon for EPSG:4326). The stored extent is always x/y as QSL
+        delivers it.
+        """
+        extent = BBox.from_string(self.extent)
+        if not self.get_datasource.crs_to_qsl.axis_inverted:
+            return extent
+        return BBox(
+            x_min=extent.y_min,
+            y_min=extent.x_min,
+            z_min=extent.z_min,
+            x_max=extent.y_max,
+            y_max=extent.x_max,
+            z_max=extent.z_max,
+        )
 
     @property
     def queryable_type(self) -> bool:
@@ -101,7 +127,7 @@ class WmsLayerAbstract(models.Model):
             REQUEST=RequestType.get_map.value,
             VERSION=Version.v_1_3_0.value,
             LAYERS=",".join([self.identifier]),
-            BBOX=BBox.from_string(self.extent).to_string(),
+            BBOX=self.extent_in_axis_order.to_string(),
             CRS=self.get_datasource.crs_to_qsl.auth_id,
             WIDTH=self.preview_dimensions_new_tab[0],
             HEIGHT=self.preview_dimensions_new_tab[1],
@@ -129,7 +155,8 @@ class WmsLayerAbstract(models.Model):
             "SERVICE": "WFS",
             "REQUEST": "GetFeature",
             "VERSION": "2.0.0",
-            "TYPENAMES": f"{WfsOperation.own_namespace}:{self.identifier}",
+            "TYPENAMES": f"{WfsOperation.own_namespace}:"
+            f"{WfsOperation.encode_layer_name(self.identifier)}",
             "SRSNAME": self.get_datasource.crs_to_qsl.ogc_urn,
             "OUTPUTFORMAT": output_format,
         }
@@ -171,10 +198,19 @@ class WmsLayerAbstract(models.Model):
         datasource = self.get_datasource
         if not self.extent:
             self.extent = datasource.bbox_2d_string
-        if datasource.crs_to_qsl.auth_id:
+        if self.has_datasource_extent(datasource):
+            # QSL calculated the wgs84 extent of the datasource already on export
+            self.extent_wgs84 = BBox.from_string(datasource.bbox_wgs84).to_2d_string()
+        elif datasource.crs_to_qsl.auth_id:
             # we do not handle layers which have no CRS definition!
             bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
             self.extent_wgs84 = bbox_wgs84.to_2d_string()
+
+    def has_datasource_extent(self, datasource: Datasource) -> bool:
+        if not datasource.bbox or not datasource.bbox_wgs84:
+            return False
+        extent = BBox.from_string(self.extent).to_2d_list()
+        return extent == BBox.from_string(datasource.bbox).to_2d_list()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self._prepare_save()
@@ -216,11 +252,10 @@ class WmsLayerAbstract(models.Model):
     def _get_spatial_ref(epsg_code: int | str):
         if isinstance(epsg_code, str):
             epsg_code = int(epsg_code.split(":")[1])
-        axis_order = osgeo_osr.OAMS_AUTHORITY_COMPLIANT
-        if epsg_code == 4326:
-            axis_order = osgeo_osr.OAMS_TRADITIONAL_GIS_ORDER
         spatial_ref = osgeo_osr.SpatialReference()
-        spatial_ref.SetAxisMappingStrategy(axis_order)
+        # extents are always x/y (east/north) as QSL delivers them, independent of the
+        # axis order of the crs, the wgs84 extent is lon/lat
+        spatial_ref.SetAxisMappingStrategy(osgeo_osr.OAMS_TRADITIONAL_GIS_ORDER)
         spatial_ref.ImportFromEPSG(epsg_code)
         return spatial_ref
 
@@ -244,6 +279,25 @@ class WmsLayerAbstract(models.Model):
     @property
     def preview_height(self):
         return self.preview_dimensions[1]
+
+    def to_qsl_job_layer(self, style_name: str | None = None) -> QslJobLayer:
+        datasource = self.get_datasource
+        source_definition = datasource.source_to_qsl.definition
+        if style_name is not None:
+            style = datasource.get_style_by_name(style_name)
+        else:
+            style = datasource.get_default_style()
+        return QslJobLayer(
+            id=self.identifier,
+            name=self.get_metadata.title,
+            source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
+            driver=datasource.driver,
+            style=style,
+            remote=source_definition.remote,
+            folder_name=str(
+                Path(datasource.project.organisation_folder) / Path(datasource.project.path).parent
+            ),
+        )
 
 
 class WmsLayer(WmsLayerAbstract):
@@ -287,6 +341,10 @@ class WmsLayer(WmsLayerAbstract):
 
     def __str__(self):
         return self.metadata.title
+
+    @property
+    def get_metadata(self) -> Metadata:
+        return self.metadata
 
     @property
     def get_datasource(self) -> Datasource:

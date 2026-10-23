@@ -48,6 +48,7 @@ class WmsGetCapabilities(WmsOperation):
         bbox_wgs84: BBox,
         styles: list[str],
         queryable: bool,
+        url: str,
     ) -> Layer:
         layer_crs_bboxes = {
             crs: BoundingBox(
@@ -99,7 +100,7 @@ class WmsGetCapabilities(WmsOperation):
                         LegendUrl(
                             format=Format("image/png"),
                             online_resource=OnlineResource(
-                                href="?SERVICE=WMS&REQUEST=GETLEGENDGRAPHIC&VERSION=1.3.0&"
+                                href=f"{url}SERVICE=WMS&REQUEST=GETLEGENDGRAPHIC&VERSION=1.3.0&"
                                 f"LAYERS={name}&STYLES={style_name}&FORMAT=image%2Fpng",
                             ),
                         )
@@ -122,7 +123,8 @@ class WmsGetCapabilities(WmsOperation):
                     f"  styles was added as default style."
                 )
                 style_names.insert(0, "default")
-            extent = BBox.from_string(wms_layer.extent)
+            # BoundingBox of WMS 1.3.0 is in the axis order of the crs
+            extent = wms_layer.extent_in_axis_order
             extent_wgs84 = BBox.from_string(wms_layer.extent_wgs84)
             layer = self.create_layer(
                 wms_layer.identifier,
@@ -133,6 +135,7 @@ class WmsGetCapabilities(WmsOperation):
                 extent_wgs84,
                 style_names,
                 wms_layer.is_queryable,
+                self.url,
             )
             capabilities.capability.layer.layer.append(layer)
         # we use a 0/1 instead True/False here since this also conforms to Chapter 7.2.4.7.1 in
