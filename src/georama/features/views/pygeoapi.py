@@ -326,7 +326,10 @@ class PygeoapiServer(View):
             "data": {
                 "source_type": driver_lookup[source.ogr.path.split(".")[-1].upper()],
                 "source": os.path.join(
-                    Config().path, feature_layer.datasource.project.collection.name, source.ogr.path
+                    Config().path,
+                    feature_layer.datasource.project.organisation_folder,
+                    os.path.dirname(feature_layer.datasource.project.path),
+                    source.ogr.path,
                 ),
                 "source_capabilities": {"paging": True},
             },
@@ -363,18 +366,37 @@ class PygeoapiServer(View):
 
         field_constraints = getDatasetFieldConstraints(features_properties, geom_type)
 
+        # Layers using a pg_service only carry the service name: QSL does not resolve it
+        # at export so that no credentials end up stored in the database. The connection
+        # info is therefore resolved by libpq at connection time.
+        # None values are dropped by SQLAlchemy/psycopg2, so libpq falls back to the
+        # pg_service (PGSERVICEFILE) for everything not set explicitly in the project
+        data = {
+            "host": source.postgres.host,
+            "dbname": source.postgres.dbname,
+            "user": source.postgres.username,
+            "password": source.postgres.password,
+            "search_path": [source.postgres.schema],
+        }
+        if source.postgres.port is not None:
+            data["port"] = source.postgres.port
+
+        # pygeoapi passes "options" as psycopg2 connect args
+        options = {}
+        if source.postgres.ssl_mode_text:
+            options["sslmode"] = source.postgres.ssl_mode_text
+        if source.postgres.service is not None:
+            options["service"] = source.postgres.service
+            if source.postgres.port is None:
+                # pygeoapi defaults a missing port to 5432 which would override the one
+                # of the service, SQLAlchemy omits a port 0 from the connection args
+                data["port"] = 0
+
         provider_definition = {
             "type": "feature",
             "name": "OG_SQL",
-            "data": {
-                "host": source.postgres.host,
-                "port": source.postgres.port,
-                "dbname": source.postgres.dbname,
-                "user": source.postgres.username,
-                "password": source.postgres.password,
-                "search_path": [source.postgres.schema],
-                "options": {"sslmode": source.postgres.sslmode},
-            },
+            "data": data,
+            "options": options,
             "editable": editable,
             "crs": available_crs_list,
             "storage_crs": crs.ogc_uri,
