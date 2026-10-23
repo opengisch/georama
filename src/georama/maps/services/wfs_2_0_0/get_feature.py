@@ -353,6 +353,18 @@ class WfsGetFeature(WfsOperation):
         """
         qsl_feature_queries = []
         for query in get_feature_parameter.stored_query_or_query:
+            if len(query.type_names) > 1:
+                # several typenames in one query are a join in WFS 2.0, which
+                # we do not implement (ImplementsStandardJoins is FALSE). Several layers
+                # have to be requested as several queries, e.g. TYPENAMES=(a)(b)
+                # this a limitation qe have by how QSL handles layers (as an independent
+                # list of objects and without magic interdependency)
+                raise AttributeError(
+                    self.render_exception(
+                        "Joins are not supported, request each typename in its own query:"
+                        f" {', '.join(query.type_names)}"
+                    )
+                )
             # based on the sanitized list of requested layer names we fetch then
             # the definitions of these
             # layers (this includes permission check and existence check)
@@ -365,18 +377,6 @@ class WfsGetFeature(WfsOperation):
                     query.srs_name or layer.datasource.crs_to_qsl.ogc_uri
                 )
             if query.filter:
-                if len(accessible_datasets) > 1:
-                    # we dont allow that, since its not possible to create filter
-                    # from expression on multiple
-                    # layers in QGIS currently.
-                    raise AttributeError(
-                        self.render_exception(
-                            "Currently QGIS-Server-Light does not support querying multiple"
-                            " layers in one"
-                            " query and passing a filter on that. This is a"
-                            " limitation of QGIS."
-                        )
-                    )
                 filter = XmlSerializer().render(
                     query.filter,
                     ns_map={
