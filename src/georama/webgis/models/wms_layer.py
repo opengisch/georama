@@ -49,6 +49,10 @@ class WmsLayer(WmsLayerAbstract):
     objects = WmsLayerManager()
 
     @property
+    def get_metadata(self) -> Metadata:
+        return self.metadata
+
+    @property
     def get_datasource(self) -> Datasource:
         return self.datasource
 

@@ -39,9 +39,7 @@ async def generate_preview_image(wms_layer: WmsLayer) -> bytes | None:
     # We have to call the following @properties a bit awkward because
     # they contain sync django orm actions
     datasource = await sync_to_async(lambda: wms_layer.get_datasource)()
-    qsl_job_layer = await sync_to_async(
-        lambda: datasource.to_qsl_job_layer(wms_layer.identifier, wms_layer.metadata.title)
-    )()
+    qsl_job_layer = await sync_to_async(wms_layer.to_qsl_job_layer)()
     # this way we always set a style, or it will fail if list has no styles
     # we could make that configurable in admin gui easily
     get_map_job = QslJobParameterRender(

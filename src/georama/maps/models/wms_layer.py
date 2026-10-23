@@ -1,7 +1,9 @@
 import base64
+import json
 import logging
 import uuid
 from dataclasses import fields
+from pathlib import Path
 
 from django.db import models
 from django.templatetags.static import static
@@ -12,6 +14,7 @@ from guardian.managers import GroupObjectPermissionManager, UserObjectPermission
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
 from osgeo import osr as osgeo_osr
 from qgis_server_light.interface.common import BBox
+from qgis_server_light.interface.job.common.input import QslJobLayer
 
 from georama.core.common.managers import OrganisationalManager
 from georama.integration.models import Datasource
@@ -77,6 +80,10 @@ class WmsLayerAbstract(models.Model):
     @property
     def identifier(self):
         return str(self.id)
+
+    @property
+    def get_metadata(self) -> Metadata:
+        raise NotImplementedError()
 
     @property
     def get_datasource(self) -> Datasource:
@@ -245,6 +252,25 @@ class WmsLayerAbstract(models.Model):
     def preview_height(self):
         return self.preview_dimensions[1]
 
+    def to_qsl_job_layer(self, style_name: str | None = None) -> QslJobLayer:
+        datasource = self.get_datasource
+        source_definition = datasource.source_to_qsl.definition
+        if style_name is not None:
+            style = datasource.get_style_by_name(style_name)
+        else:
+            style = datasource.get_default_style()
+        return QslJobLayer(
+            id=self.identifier,
+            name=self.get_metadata.title,
+            source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
+            driver=datasource.driver,
+            style=style,
+            remote=source_definition.remote,
+            folder_name=str(
+                Path(datasource.project.organisation_folder) / Path(datasource.project.path).parent
+            ),
+        )
+
 
 class WmsLayer(WmsLayerAbstract):
     ORGANISATION_FIELD_NAME = "datasource__project__organisation"
@@ -287,6 +313,10 @@ class WmsLayer(WmsLayerAbstract):
 
     def __str__(self):
         return self.metadata.title
+
+    @property
+    def get_metadata(self) -> Metadata:
+        return self.metadata
 
     @property
     def get_datasource(self) -> Datasource:

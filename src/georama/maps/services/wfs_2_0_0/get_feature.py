@@ -354,9 +354,7 @@ class WfsGetFeature(WfsOperation):
             # layers (this includes permission check and existence check)
             accessible_datasets = []
             for layer in self.obtain_accessible_layers(self.sanitized_typenames(query.type_names)):
-                accessible_datasets.append(
-                    layer.datasource.to_qsl_job_layer(layer.identifier, layer.metadata.title)
-                )
+                accessible_datasets.append(layer.to_qsl_job_layer())
             if query.filter:
                 if len(accessible_datasets) > 1:
                     # we dont allow that, since its not possible to create filter
