@@ -165,6 +165,58 @@ class WfsGetFeature(WfsOperation):
         else:
             return True
 
+    @staticmethod
+    def prepare_bbox_filter(bbox_definition: str, srs_name: str | None) -> Filter:
+        """
+        Creates the filter for the KVP BBOX parameter.
+
+        Args:
+            bbox_definition: The BBOX parameter, ``minx,miny,maxx,maxy[,crs]`` in the axis
+                order of the crs.
+            srs_name: The SRSNAME parameter, it is the crs of the BBOX if it has none.
+
+        Returns:
+            The filter. Without any crs the envelope has none, it is assigned when the
+            layer is known (see ``assign_default_bbox_crs``).
+        """
+        bbox_list = bbox_definition.split(",")
+        bbox_crs = bbox_list[4] if len(bbox_list) > 4 else srs_name
+        return Filter(
+            choice=[
+                Bbox(
+                    choice=[
+                        # QGIS applies BBOX always on the geometry of the layer, the name
+                        # is the one used in DescribeFeatureType
+                        ValueReference("geometry"),
+                        Envelope(
+                            lower_corner=DirectPositionType(value=bbox_list[0:2]),
+                            upper_corner=DirectPositionType(value=bbox_list[2:4]),
+                            srs_name=bbox_crs,
+                            srs_dimension=2,
+                        ),
+                    ]
+                )
+            ]
+        )
+
+    @staticmethod
+    def assign_default_bbox_crs(fes_filter: Filter | None, layer_crs: Crs) -> None:
+        """
+        A BBOX without crs is in the DefaultCRS of the feature type, which is the crs of the
+        layer. The URI is used so that QGIS reads the BBOX in the axis order of the crs.
+
+        Args:
+            fes_filter: The filter of the query.
+            layer_crs: The crs of the layer.
+        """
+        if fes_filter is None:
+            return
+        for operator in fes_filter.choice:
+            if isinstance(operator, Bbox):
+                for operand in operator.choice:
+                    if isinstance(operand, Envelope) and operand.srs_name is None:
+                        operand.srs_name = layer_crs.ogc_uri
+
     def prepare_queries(self, query_params: dict) -> list[Query]:
         """
         This implements the part of the spec to construct a query object out of simple
@@ -237,36 +289,16 @@ class WfsGetFeature(WfsOperation):
                     )
             else:
                 aliases_value_list = []
+            if filter_definition and bbox_definition:
+                raise AttributeError(
+                    self.render_exception("FILTER and BBOX are mutually exclusive.")
+                )
             if filter_definition:
                 fes_filter = self.prepare_filter_element(filter_definition)
+            elif bbox_definition:
+                fes_filter = self.prepare_bbox_filter(bbox_definition, srs_name)
             else:
                 fes_filter = Filter()
-            if bbox_definition:
-                bbox_list = bbox_definition.split(",")
-                try:
-                    bbox_crs = bbox_list[4]
-                except IndexError:
-                    logging.info(
-                        f"There was no SRS definition in the BBOX parameter, we assume"
-                        f" it has the SRS of the request: {srs_name}"
-                    )
-                    bbox_crs = srs_name
-                # we expect one optional BBOX which is assigned to all passed typenames!
-                # This aligns with spec as it 7.9.2.3 of the spec doc. However, there is
-                # one example wich supports that B.8.5.4
-                # and one which states a conflicting situation B.8.5.5
-                # TODO: Check how the conflict can be explained?
-                fes_filter.bbox = Bbox(
-                    choice=[ValueReference(type_name) for type_name in type_names_value_list]
-                    + [
-                        Envelope(
-                            lower_corner=DirectPositionType(value=bbox_list[0:2]),
-                            upper_corner=DirectPositionType(value=bbox_list[2:4]),
-                            srs_name=bbox_crs,
-                            srs_dimension=2,
-                        )
-                    ]
-                )
             queries.append(
                 Query(
                     srs_name=srs_name,
@@ -407,6 +439,7 @@ class WfsGetFeature(WfsOperation):
             for layer in self.obtain_accessible_layers(self.sanitized_typenames(query.type_names)):
                 accessible_datasets.append(layer.to_qsl_job_layer())
                 layer_crs = layer.datasource.crs_to_qsl
+                self.assign_default_bbox_crs(query.filter, layer_crs)
                 if query.srs_name:
                     # only one layer per query (joins are rejected above)
                     query_crs = self.resolve_srs_name(query.srs_name, self.supported_crs(layer_crs))

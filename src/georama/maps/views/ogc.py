@@ -230,6 +230,9 @@ class OgcServer(View):
                 or key.upper() == "FILTER"
                 or key.upper() == "LAYER"
                 or key.upper() == "STYLE"
+                # crs URIs are case-sensitive for QGIS
+                or key.upper() == "BBOX"
+                or key.upper() == "SRSNAME"
             ):
                 params[str(key).upper()] = str(parameters[key])
             else:

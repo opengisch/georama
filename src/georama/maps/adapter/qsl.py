@@ -6,7 +6,7 @@ from asgiref.sync import sync_to_async
 from django.conf import settings
 from httpx import RequestError
 from httpx._models import Response as HttpxResponse
-from qgis_server_light.interface.common import BBox, Crs
+from qgis_server_light.interface.common import Crs
 from qgis_server_light.interface.dispatcher.common import Status
 from qgis_server_light.interface.exporter.api import ExportParameters
 from qgis_server_light.interface.job.crs.input import QslJobParameterCrs
@@ -44,10 +44,12 @@ async def generate_preview_image(wms_layer: WmsLayer) -> bytes | None:
     # they contain sync django orm actions
     datasource = await sync_to_async(lambda: wms_layer.get_datasource)()
     qsl_job_layer = await sync_to_async(wms_layer.to_qsl_job_layer)()
+    # QSL expects the bbox in the axis order of the crs like WMS 1.3.0
+    bbox = await sync_to_async(lambda: wms_layer.extent_in_axis_order)()
     # this way we always set a style, or it will fail if list has no styles
     # we could make that configurable in admin gui easily
     get_map_job = QslJobParameterRender(
-        bbox=BBox.from_string(wms_layer.extent),
+        bbox=bbox,
         crs=datasource.crs_to_qsl.auth_id,
         width=wms_layer.preview_dimensions[0],
         height=wms_layer.preview_dimensions[1],

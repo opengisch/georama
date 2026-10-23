@@ -90,6 +90,25 @@ class WmsLayerAbstract(models.Model):
         raise NotImplementedError()
 
     @property
+    def extent_in_axis_order(self) -> BBox:
+        """
+        The extent in the axis order of its crs, as WMS 1.3.0 expects it for BBOX and
+        BoundingBox (e.g. lat/lon for EPSG:4326). The stored extent is always x/y as QSL
+        delivers it.
+        """
+        extent = BBox.from_string(self.extent)
+        if not self.get_datasource.crs_to_qsl.axis_inverted:
+            return extent
+        return BBox(
+            x_min=extent.y_min,
+            y_min=extent.x_min,
+            z_min=extent.z_min,
+            x_max=extent.y_max,
+            y_max=extent.x_max,
+            z_max=extent.z_max,
+        )
+
+    @property
     def queryable_type(self) -> bool:
         return self.get_datasource.type in ["vector"]
 
@@ -108,7 +127,7 @@ class WmsLayerAbstract(models.Model):
             REQUEST=RequestType.get_map.value,
             VERSION=Version.v_1_3_0.value,
             LAYERS=",".join([self.identifier]),
-            BBOX=BBox.from_string(self.extent).to_string(),
+            BBOX=self.extent_in_axis_order.to_string(),
             CRS=self.get_datasource.crs_to_qsl.auth_id,
             WIDTH=self.preview_dimensions_new_tab[0],
             HEIGHT=self.preview_dimensions_new_tab[1],
@@ -179,10 +198,19 @@ class WmsLayerAbstract(models.Model):
         datasource = self.get_datasource
         if not self.extent:
             self.extent = datasource.bbox_2d_string
-        if datasource.crs_to_qsl.auth_id:
+        if self.has_datasource_extent(datasource):
+            # QSL calculated the wgs84 extent of the datasource already on export
+            self.extent_wgs84 = BBox.from_string(datasource.bbox_wgs84).to_2d_string()
+        elif datasource.crs_to_qsl.auth_id:
             # we do not handle layers which have no CRS definition!
             bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
             self.extent_wgs84 = bbox_wgs84.to_2d_string()
+
+    def has_datasource_extent(self, datasource: Datasource) -> bool:
+        if not datasource.bbox or not datasource.bbox_wgs84:
+            return False
+        extent = BBox.from_string(self.extent).to_2d_list()
+        return extent == BBox.from_string(datasource.bbox).to_2d_list()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self._prepare_save()
@@ -224,11 +252,10 @@ class WmsLayerAbstract(models.Model):
     def _get_spatial_ref(epsg_code: int | str):
         if isinstance(epsg_code, str):
             epsg_code = int(epsg_code.split(":")[1])
-        axis_order = osgeo_osr.OAMS_AUTHORITY_COMPLIANT
-        if epsg_code == 4326:
-            axis_order = osgeo_osr.OAMS_TRADITIONAL_GIS_ORDER
         spatial_ref = osgeo_osr.SpatialReference()
-        spatial_ref.SetAxisMappingStrategy(axis_order)
+        # extents are always x/y (east/north) as QSL delivers them, independent of the
+        # axis order of the crs, the wgs84 extent is lon/lat
+        spatial_ref.SetAxisMappingStrategy(osgeo_osr.OAMS_TRADITIONAL_GIS_ORDER)
         spatial_ref.ImportFromEPSG(epsg_code)
         return spatial_ref
 

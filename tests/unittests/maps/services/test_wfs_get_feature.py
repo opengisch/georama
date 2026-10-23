@@ -157,3 +157,45 @@ class TestWfsGetFeatureRendering:
 
         assert 'srsName="http://www.opengis.net/def/crs/EPSG/0/4326"' in xml
         assert "<gml:pos>47.05 7.12</gml:pos>" in xml
+
+
+class TestWfsGetFeatureKvpBbox:
+    def bbox_envelope(self, fes_filter):
+        return fes_filter.choice[0].choice[1]
+
+    def test_bbox_with_crs(self, wfs_get_feature):
+        bbox_definition = "45,5,48,11,URN:OGC:DEF:CRS:EPSG::4326"
+        fes_filter = wfs_get_feature.prepare_bbox_filter(bbox_definition, None)
+        envelope = self.bbox_envelope(fes_filter)
+        assert envelope.srs_name == "URN:OGC:DEF:CRS:EPSG::4326"
+        assert envelope.lower_corner.value == ["45", "5"]
+        assert envelope.upper_corner.value == ["48", "11"]
+
+    def test_bbox_takes_srs_name(self, wfs_get_feature):
+        fes_filter = wfs_get_feature.prepare_bbox_filter("5,45,11,48", "EPSG:4326")
+        assert self.bbox_envelope(fes_filter).srs_name == "EPSG:4326"
+
+    def test_bbox_without_any_crs_gets_layer_crs(self, wfs_get_feature, crs_factory):
+        fes_filter = wfs_get_feature.prepare_bbox_filter("2480000,1070000,2840000,1300000", None)
+        assert self.bbox_envelope(fes_filter).srs_name is None
+        wfs_get_feature.assign_default_bbox_crs(fes_filter, crs_factory(2056))
+        assert (
+            self.bbox_envelope(fes_filter).srs_name == "http://www.opengis.net/def/crs/EPSG/0/2056"
+        )
+
+    def test_bbox_crs_is_kept(self, wfs_get_feature, crs_factory):
+        fes_filter = wfs_get_feature.prepare_bbox_filter("5,45,11,48", "EPSG:4326")
+        wfs_get_feature.assign_default_bbox_crs(fes_filter, crs_factory(2056))
+        assert self.bbox_envelope(fes_filter).srs_name == "EPSG:4326"
+
+    def test_bbox_is_a_filter(self, wfs_get_feature):
+        queries = wfs_get_feature.prepare_queries(
+            {"TYPENAMES": "georama:_layer", "BBOX": "5,45,11,48", "SRSNAME": "EPSG:4326"}
+        )
+        assert queries[0].filter is not None
+
+    def test_bbox_and_filter_are_exclusive(self, wfs_get_feature):
+        with pytest.raises(AttributeError, match="mutually exclusive"):
+            wfs_get_feature.prepare_queries(
+                {"TYPENAMES": "georama:_layer", "BBOX": "5,45,11,48", "FILTER": "<Filter/>"}
+            )
