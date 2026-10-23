@@ -475,25 +475,27 @@ class WfsGetFeature(WfsOperation):
     @staticmethod
     def srs_name_of(crs: Crs) -> str:
         """
-        The srs name the geometries are labeled with. The URI is used independent of the
+        The srs name the geometries are labeled with. The URN is used independent of the
         requested notation, since the short ``EPSG:<code>`` notation is read differently by
-        clients (x/y by QGIS and GeoServer, authority axis order by OpenLayers), the URI
-        always means the axis order of the crs.
+        clients (x/y by QGIS and GeoServer, authority axis order by OpenLayers), the URN
+        always means the axis order of the crs. The URN is preferred over the URI, since
+        OpenLayers resolves the URN for every registered ``EPSG:<code>`` projection but the
+        URI only for its built-in EPSG:4326 and EPSG:3857.
 
         Args:
             crs: The crs of the geometries.
 
         Returns:
-            The URI of the crs, as fallback for crs without URI the authority id.
+            The URN of the crs, as fallback the URI and for crs without both the authority id.
         """
-        return crs.ogc_uri or crs.auth_id
+        return crs.ogc_urn or crs.ogc_uri or crs.auth_id
 
     @staticmethod
     def swap_axis(crs: Crs) -> bool:
         """
         Decides whether the coordinates, which QSL always delivers as x/y (east/north), have
         to be written in swapped order. This is the case for crs with inverted axis order
-        (e.g. lat/lon for EPSG:4326) when they are labeled with their URI (see
+        (e.g. lat/lon for EPSG:4326) when they are labeled with their URN or URI (see
         ``srs_name_of``).
 
         Args:
@@ -502,7 +504,7 @@ class WfsGetFeature(WfsOperation):
         Returns:
             True if the axis order has to be swapped.
         """
-        return crs.axis_inverted and bool(crs.ogc_uri)
+        return crs.axis_inverted and bool(crs.ogc_urn or crs.ogc_uri)
 
     @staticmethod
     def swap_axis_of_coordinates(coordinates: np.ndarray, dimensions: int) -> np.ndarray:

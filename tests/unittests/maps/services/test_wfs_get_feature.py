@@ -85,9 +85,9 @@ class TestWfsGetFeatureSwapAxis:
     @pytest.mark.parametrize(
         "code, axis_inverted, expected_srs_name, expected_swap",
         [
-            (4326, True, "http://www.opengis.net/def/crs/EPSG/0/4326", True),
-            (2056, False, "http://www.opengis.net/def/crs/EPSG/0/2056", False),
-            (3857, False, "http://www.opengis.net/def/crs/EPSG/0/3857", False),
+            (4326, True, "urn:ogc:def:crs:EPSG::4326", True),
+            (2056, False, "urn:ogc:def:crs:EPSG::2056", False),
+            (3857, False, "urn:ogc:def:crs:EPSG::3857", False),
         ],
     )
     def test_decision(self, crs_factory, code, axis_inverted, expected_srs_name, expected_swap):
@@ -95,8 +95,18 @@ class TestWfsGetFeatureSwapAxis:
         assert WfsGetFeature.srs_name_of(crs) == expected_srs_name
         assert WfsGetFeature.swap_axis(crs) is expected_swap
 
-    def test_crs_without_uri(self):
-        crs = Crs(auth_id="IGNF:LAMB93", ogc_uri="", axis_inverted=True)
+    def test_crs_without_urn(self):
+        crs = Crs(
+            auth_id="EPSG:4326",
+            ogc_uri="http://www.opengis.net/def/crs/EPSG/0/4326",
+            ogc_urn="",
+            axis_inverted=True,
+        )
+        assert WfsGetFeature.srs_name_of(crs) == "http://www.opengis.net/def/crs/EPSG/0/4326"
+        assert WfsGetFeature.swap_axis(crs) is True
+
+    def test_crs_without_urn_and_uri(self):
+        crs = Crs(auth_id="IGNF:LAMB93", ogc_uri="", ogc_urn="", axis_inverted=True)
         assert WfsGetFeature.srs_name_of(crs) == "IGNF:LAMB93"
         assert WfsGetFeature.swap_axis(crs) is False
 
@@ -131,7 +141,7 @@ class TestWfsGetFeatureSwapAxis:
 
 
 class TestWfsGetFeatureRendering:
-    def test_inverted_axis_crs_labeled_with_uri_in_authority_order(
+    def test_inverted_axis_crs_labeled_with_urn_in_authority_order(
         self, wfs_get_feature, crs_factory
     ):
         output_crs = crs_factory(4326, axis_inverted=True)
@@ -155,7 +165,7 @@ class TestWfsGetFeatureRendering:
 
         xml = wfs_get_feature.render_xml(wfs_get_feature.get_feature(result), [])
 
-        assert 'srsName="http://www.opengis.net/def/crs/EPSG/0/4326"' in xml
+        assert 'srsName="urn:ogc:def:crs:EPSG::4326"' in xml
         assert "<gml:pos>47.05 7.12</gml:pos>" in xml
 
 
