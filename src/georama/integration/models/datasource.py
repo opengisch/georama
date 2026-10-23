@@ -4,9 +4,9 @@ from typing import Literal
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from qgis_server_light.interface.common import BBox
-from qgis_server_light.interface.exporter.extract import Crs, DataSource, Style
+from qgis_server_light.interface.common import BBox, Crs, Style
 from qgis_server_light.interface.exporter.extract import Custom as QslCustom
+from qgis_server_light.interface.exporter.extract import DataSource
 from qgis_server_light.interface.exporter.extract import Field as QSlField
 from qgis_server_light.interface.exporter.extract import Raster as QslRaster
 from qgis_server_light.interface.exporter.extract import Vector as QslVector

@@ -33,6 +33,7 @@ from typing import Any
 
 import numpy as np
 from django.db.models import Model
+from qgis_server_light.interface.common import Crs
 from qgis_server_light.interface.job.common.input import OgcFilterFES20
 from qgis_server_light.interface.job.common.output import JobResult
 from qgis_server_light.interface.job.feature.input import FeatureQuery, QslJobParameterFeature
@@ -336,6 +337,33 @@ class WfsGetFeature(WfsOperation):
                 type_names.extend(query.type_names)
         return type_names
 
+    def resolve_srs_name(self, srs_name: str, supported_crs: list[Crs]) -> Crs:
+        """
+        Matches the srsName of a query against the crs advertised for the layer. This is a
+        pure comparison of the identifiers, the transformation itself is done by QSL.
+
+        Args:
+            srs_name: The srsName as it was passed with the query, e.g. ``EPSG:2056``,
+                ``urn:ogc:def:crs:EPSG::2056`` or ``http://www.opengis.net/def/crs/EPSG/0/2056``
+            supported_crs: The crs advertised for the layer (DefaultCRS and OtherCRS).
+
+        Returns:
+            The matching crs.
+
+        Raises:
+            AttributeError: In case the srsName is not supported for the layer.
+        """
+        for crs in supported_crs:
+            identifiers = [crs.auth_id, crs.ogc_uri, crs.ogc_urn]
+            if srs_name.lower() in [identifier.lower() for identifier in identifiers if identifier]:
+                return crs
+        raise AttributeError(
+            self.render_exception(
+                f"srsName {srs_name} is not supported, supported are:"
+                f" {', '.join(crs.ogc_uri for crs in supported_crs)}"
+            )
+        )
+
     def getfeature_to_qslgetfeaturejob(
         self, get_feature_parameter: GetFeature
     ) -> QslJobParameterFeature:
@@ -369,13 +397,16 @@ class WfsGetFeature(WfsOperation):
             # the definitions of these
             # layers (this includes permission check and existence check)
             accessible_datasets = []
+            query_crs = None
             for layer in self.obtain_accessible_layers(self.sanitized_typenames(query.type_names)):
                 accessible_datasets.append(layer.to_qsl_job_layer())
+                layer_crs = layer.datasource.crs_to_qsl
+                if query.srs_name:
+                    # only one layer per query (joins are rejected above)
+                    query_crs = self.resolve_srs_name(query.srs_name, self.supported_crs(layer_crs))
                 # we use the srs name which is send with the query (stored query in WFS2.0),
                 # as fallback the crs of the layer
-                self.feature_collection_srs.append(
-                    query.srs_name or layer.datasource.crs_to_qsl.ogc_uri
-                )
+                self.feature_collection_srs.append(query.srs_name or layer_crs.ogc_uri)
             if query.filter:
                 filter = XmlSerializer().render(
                     query.filter,
@@ -391,6 +422,7 @@ class WfsGetFeature(WfsOperation):
                     layers=accessible_datasets,
                     aliases=query.aliases,
                     filter=OgcFilterFES20(definition=filter),
+                    crs=query_crs,
                 )
             )
         return QslJobParameterFeature(

@@ -1,6 +1,8 @@
 from xml.etree.ElementTree import QName
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from qgis_server_light.interface.common import Crs
 
 import georama.maps.interfaces.ogc.wms_1_3_0.capabilities as wms130_capabilities
 from georama.maps.interfaces.ogc import wfs_2_0_0
@@ -25,6 +27,45 @@ class Config:
         Timeout in milliseconds
         """
         return settings.JOB_TIMEOUT
+
+    def other_crs(self, appname: str) -> list[Crs]:
+        """
+        The crs which are offered in addition to the crs of a layer, configured per app
+        (e.g. `MAPS_OGC_OTHER_CRS`, `WEBGIS_OGC_OTHER_CRS`).
+
+        Args:
+            appname: The simple name of the app, e.g. `maps` or `webgis`.
+
+        Returns:
+            The configured crs.
+        """
+        auth_ids = getattr(settings, f"{appname.upper()}_OGC_OTHER_CRS", [])
+        return [self.crs_from_epsg_auth_id(auth_id) for auth_id in auth_ids]
+
+    @staticmethod
+    def crs_from_epsg_auth_id(auth_id: str) -> Crs:
+        """
+        Derives all identifiers of a crs from its EPSG authority id. This is pure string
+        handling, the crs itself is resolved by QSL.
+
+        Args:
+            auth_id: The authority id, e.g. `EPSG:4326`.
+
+        Returns:
+            The crs with all identifiers set.
+
+        Raises:
+            ImproperlyConfigured: In case the auth_id is not of the form `EPSG:<code>`.
+        """
+        authority, _, code = auth_id.partition(":")
+        if authority.upper() != "EPSG" or not code.isdigit():
+            raise ImproperlyConfigured(f"Only EPSG codes are supported, got: {auth_id}")
+        return Crs(
+            auth_id=f"EPSG:{code}",
+            postgis_srid=int(code),
+            ogc_uri=f"http://www.opengis.net/def/crs/EPSG/0/{code}",
+            ogc_urn=f"urn:ogc:def:crs:EPSG::{code}",
+        )
 
     def wms_1_3_0_service_config(self, url: str) -> wms130_capabilities.Service:
         service_config = wms130_capabilities.Service(

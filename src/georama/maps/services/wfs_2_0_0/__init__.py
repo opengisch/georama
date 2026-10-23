@@ -1,8 +1,10 @@
+from qgis_server_light.interface.common import Crs
 from xsdata.formats.dataclass.serializers import XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 
 from georama.maps.interfaces.ogc.wfs_2_0_0 import Exception as Wfs200Exception
 from georama.maps.interfaces.ogc.wfs_2_0_0 import ExceptionReport
+from georama.maps.maps_config import Config
 from georama.maps.models import WmsLayer
 from georama.maps.services import OgcOperation
 
@@ -93,3 +95,20 @@ class WfsOperation(OgcOperation):
         return self.model.objects.accessible_layers_queryable(
             self.organisation, self.user, self.perms, layer_ids, include_public=True
         ).all()
+
+    def supported_crs(self, layer_crs: Crs) -> list[Crs]:
+        """
+        The crs a layer is offered in: its own crs (DefaultCRS) first, followed by the
+        crs configured for the app (OtherCRS).
+
+        Args:
+            layer_crs: The crs of the layer.
+
+        Returns:
+            The supported crs without duplicates, the layer crs is always the first.
+        """
+        supported_crs = [layer_crs]
+        for other_crs in Config().other_crs(self.appname):
+            if other_crs.auth_id.lower() != (layer_crs.auth_id or "").lower():
+                supported_crs.append(other_crs)
+        return supported_crs

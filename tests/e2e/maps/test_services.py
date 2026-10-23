@@ -11,6 +11,7 @@ from georama.maps.interfaces.ogc.wfs_2_0_0 import (
 )
 from georama.maps.interfaces.ogc.wms_1_3_0.capabilities import Capability, Service, WmsCapabilities
 from georama.maps.interfaces.opengis.gml_3_2_1 import MdMetadata
+from georama.maps.maps_config import Config
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 
@@ -73,6 +74,16 @@ class TestOgcService:
             .value
             == global_wms_layer_public_queryable.datasource.crs_to_qsl.ogc_uri
         )
+        assert [
+            crs.value
+            for crs in capabilities.feature_type_list.feature_type[
+                0
+            ].default_crs_or_other_crs_or_no_crs[1:]
+        ] == [
+            crs.ogc_uri
+            for crs in Config().other_crs("maps")
+            if crs.ogc_uri != global_wms_layer_public_queryable.datasource.crs_to_qsl.ogc_uri
+        ]
         assert (
             capabilities.feature_type_list.feature_type[0].output_formats.format[0]
             == "application/gml+xml; version=3.2"
