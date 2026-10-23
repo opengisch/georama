@@ -11,6 +11,7 @@ from qgis_server_light.interface.exporter.extract import (
     XYZSource,
 )
 
+from georama.maps.services.wfs_2_0_0 import WfsOperation
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     LayerGroup,
     LayerSettings,
@@ -91,7 +92,7 @@ async def handle_dataset(
                     )
                 elif isinstance(source, WmsSource):
                     gg_wms_layer = WmsLayer(
-                        id=wms_layer.identifier,
+                        id=WfsOperation.encode_layer_name(wms_layer.identifier),
                         name=wms_layer.metadata.title,
                         type="WMS",
                         layers=source.layers,
@@ -100,7 +101,7 @@ async def handle_dataset(
                         maxResolutionHint=wms_layer.max_resolution_hint,
                         childLayers=[
                             LayerSettings(
-                                name=wms_layer.identifier,
+                                name=WfsOperation.encode_layer_name(wms_layer.identifier),
                                 minResolutionHint=wms_layer.min_resolution_hint,
                                 maxResolutionHint=wms_layer.max_resolution_hint,
                                 queryable=False,

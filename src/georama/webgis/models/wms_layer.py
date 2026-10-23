@@ -76,11 +76,11 @@ class WmsLayer(WmsLayerAbstract):
         from georama.maps.services.wfs_2_0_0 import WfsOperation
 
         return GGWmsLayer(
-            id=self.identifier,
-            name=self.identifier,
+            id=WfsOperation.encode_layer_name(self.identifier),
+            name=WfsOperation.encode_layer_name(self.identifier),
             metadata=GGMetadata(legend=True, isLegendExpanded=True),
             type="WMS",
-            layers=self.identifier,
+            layers=WfsOperation.encode_layer_name(self.identifier),
             imageType="image/png",
             minResolutionHint=self.min_resolution_hint,
             maxResolutionHint=self.max_resolution_hint,
