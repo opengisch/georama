@@ -1734,6 +1734,7 @@ provides-extras = ["interface", "dispatcher"]
 [package.metadata.requires-dev]
 dev = [
     { name = "click", specifier = ">=8.4.2" },
+    { name = "debugpy", specifier = ">=1.8.22" },
     { name = "flask", specifier = ">=3.1.3" },
     { name = "fpng-py", specifier = ">=0.0.3" },
     { name = "gunicorn", specifier = "==26.2.0" },
