@@ -100,6 +100,10 @@ class WfsGetFeature(WfsOperation):
         perms: list[str],
     ):
         super().__init__(appname, url, user, model, organisation, perms)
+        # srs per feature collection in the order QSL returns them (one collection per
+        # layer of each query), collected while building the job, since the QSL job
+        # layers don't carry the crs and the response is rendered without db access
+        self.feature_collection_srs: list[str] = []
         self.name_space_map = {
             "": "http://www.opengis.net/wfs/2.0",
             "xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -355,6 +359,11 @@ class WfsGetFeature(WfsOperation):
             accessible_datasets = []
             for layer in self.obtain_accessible_layers(self.sanitized_typenames(query.type_names)):
                 accessible_datasets.append(layer.to_qsl_job_layer())
+                # we use the srs name which is send with the query (stored query in WFS2.0),
+                # as fallback the crs of the layer
+                self.feature_collection_srs.append(
+                    query.srs_name or layer.datasource.crs_to_qsl.ogc_uri
+                )
             if query.filter:
                 if len(accessible_datasets) > 1:
                     # we dont allow that, since its not possible to create filter
@@ -683,9 +692,7 @@ class WfsGetFeature(WfsOperation):
             else:
                 return GeometryMember(polygon=polygons[0])
 
-    def get_feature(
-        self, get_feature_parameter: GetFeature, result: JobResult, job: QslJobParameterFeature
-    ):
+    def get_feature(self, result: JobResult):
         qsl_query_collection = JsonParser().from_bytes(result.data, QueryCollection)
         wfs_feature_collection = FeatureCollection(
             number_returned=0, number_matched=qsl_query_collection.numbers_matched
@@ -761,21 +768,9 @@ class WfsGetFeature(WfsOperation):
                 feature_object = feature_dataclass(**feature_dict)
                 start = time.time()
 
-                if get_feature_parameter.stored_query_or_query[feature_collection_index].srs_name:
-                    # we use the srs name which is send with the query (stored query in WFS2.0)
-                    srs = get_feature_parameter.stored_query_or_query[
-                        feature_collection_index
-                    ].srs_name
-                else:
-                    # fallback, we use the crs of the layer instead
-                    srs = None
-                    for dataset in job.queries[feature_collection_index].layers:
-                        if dataset == feature_collection.name:
-                            srs = dataset.crs.ogc_uri
-                            break
                 feature_object.geometry = self.parse_wkb_to_gml3(
                     feature.geometry.value,
-                    srs,
+                    self.feature_collection_srs[feature_collection_index],
                 )
                 logging.debug(f"Rendered GML3 from WKB direct: {time.time() - start}")
                 wfs_feature_collection.member.append(Member(content=[feature_object]))
