@@ -32,6 +32,7 @@ from georama.maps.interfaces.iso.tc211.gmd.dataclasses import (
 from georama.maps.maps_config import Config
 from georama.maps.models import WmsLayer
 from georama.maps.services import OgcOperation
+from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 
 class WfsGetMetadata(OgcOperation):
@@ -169,9 +170,9 @@ class WfsGetMetadata(OgcOperation):
         namespace_separator = ":"
         layername_parts = layername.split(namespace_separator)
         if len(layername_parts) == 2:
-            return layername_parts[1]
+            return WfsOperation.decode_layer_name(layername_parts[1])
         elif len(layername_parts) == 1:
-            return layername_parts[0]
+            return WfsOperation.decode_layer_name(layername_parts[0])
         raise LookupError(f"Layername had unexpected format: {layername}")
 
     def get_metadata(self, layer_name: str, language: str) -> MdMetadata:

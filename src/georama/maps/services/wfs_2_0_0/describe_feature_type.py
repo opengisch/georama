@@ -81,15 +81,16 @@ class WfsDescribeFeatureType(WfsOperation):
         )
 
         for layer in found_layers:
+            type_name = self.encode_layer_name(layer.identifier)
             dft.elements.append(
                 Element(
-                    name=f"{layer.identifier}",
-                    type=f"{self.own_namespace}:{layer.identifier}Type",
+                    name=f"{type_name}",
+                    type=f"{self.own_namespace}:{type_name}Type",
                     substitution_group="gml:AbstractFeature",
                 )
             )
             complex_type = ComplexType(
-                name=f"{layer.identifier}Type",
+                name=f"{type_name}Type",
                 complex_content=ComplexContent(
                     extension=Extension(
                         base="gml:AbstractFeatureType",

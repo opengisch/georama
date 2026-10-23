@@ -51,6 +51,7 @@ class TestOgcService:
 
     @pytest.mark.django_db
     def test_capabilities_wfs(self, client, global_wms_layer_public_queryable):
+        type_name = WfsOperation.encode_layer_name(global_wms_layer_public_queryable.identifier)
         response = client.get("/maps/ows/?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0")
         capabilities: WfsCapabilities = XmlParser().from_bytes(response.content, WfsCapabilities)
 
@@ -60,7 +61,7 @@ class TestOgcService:
         assert isinstance(capabilities.feature_type_list, FeatureTypeList)
         assert (
             capabilities.feature_type_list.feature_type[0].name
-            == f"{WfsOperation.own_namespace}:{global_wms_layer_public_queryable.identifier}"
+            == f"{WfsOperation.own_namespace}:{type_name}"
         )
         assert (
             capabilities.feature_type_list.feature_type[0].title[0].value
@@ -82,7 +83,7 @@ class TestOgcService:
         )
         assert (
             capabilities.feature_type_list.feature_type[0].metadata_url[0].href
-            == f"http://testserver/maps/ows/?request=GetMetadata&layer={global_wms_layer_public_queryable.identifier}"
+            == f"http://testserver/maps/ows/?request=GetMetadata&layer={type_name}"
         )
 
     @pytest.mark.django_db
@@ -119,16 +120,14 @@ class TestOgcService:
 
     @pytest.mark.django_db
     def test_describe_feature_type(self, client, global_wms_layer_public_queryable):
+        type_name = WfsOperation.encode_layer_name(global_wms_layer_public_queryable.identifier)
         response = client.get(
-            f"/maps/ows/?SERVICE=WFS&VERSION=2.0.0&REQUEST=DescribeFeatureType&TYPENAME={WfsOperation.own_namespace}:{global_wms_layer_public_queryable.identifier}"
+            f"/maps/ows/?SERVICE=WFS&VERSION=2.0.0&REQUEST=DescribeFeatureType&TYPENAME={WfsOperation.own_namespace}:{type_name}"
         )
         schema: Schema = XmlParser().from_bytes(response.content, Schema)
-        assert schema.elements[0].name == global_wms_layer_public_queryable.identifier
-        assert (
-            schema.elements[0].type
-            == f"{WfsOperation.own_namespace}:{global_wms_layer_public_queryable.identifier}Type"
-        )
-        assert schema.complex_types[0].name == f"{global_wms_layer_public_queryable.identifier}Type"
+        assert schema.elements[0].name == type_name
+        assert schema.elements[0].type == f"{WfsOperation.own_namespace}:{type_name}Type"
+        assert schema.complex_types[0].name == f"{type_name}Type"
         assert ["geometry"] + [
             f.name for f in global_wms_layer_public_queryable.datasource.vector.fields.all()
         ] == [e.name for e in schema.complex_types[0].complex_content.extension.sequence.elements]

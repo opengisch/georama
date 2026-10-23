@@ -698,6 +698,7 @@ class WfsGetFeature(WfsOperation):
             qsl_query_collection.feature_collections
         ):
             wfs_feature_collection.number_returned += len(feature_collection.features)
+            feature_type_name = self.encode_layer_name(feature_collection.name)
             gml_identifier_field = (
                 f"{self.own_namespace}_{feature_collection.name.replace('-', '_')}_identifier"
             )
@@ -730,8 +731,8 @@ class WfsGetFeature(WfsOperation):
                 # this field ends up in the xml as attribute gml:id
                 # e.g.:
                 # <member>
-                #         <georama:0977c25f-a3a9-40f4-ab38-3cd80777feef
-                #                 gml:id="georama:0977c25f-a3a9-40f4-ab38-3cd80777feef.0">
+                #         <georama:_0977c25f-a3a9-40f4-ab38-3cd80777feef
+                #                 gml:id="_0977c25f-a3a9-40f4-ab38-3cd80777feef.0">
                 fields.append(
                     (
                         gml_identifier_field,
@@ -747,12 +748,11 @@ class WfsGetFeature(WfsOperation):
                         ),
                     )
                 )
-                feature_dict[gml_identifier_field] = (
-                    f"{self.own_namespace}:{feature_collection.name}.{feature_sequence}"
-                )
+                # gml:id is a xs:ID (NCName), so no namespace prefix with colon here
+                feature_dict[gml_identifier_field] = f"{feature_type_name}.{feature_sequence}"
                 # finally we add the geometry field
                 fields.append(("geometry", GeometryMember | GeometryMembers, field(default=None)))
-                feature_dataclass = make_dataclass(feature_collection.name, fields=fields)
+                feature_dataclass = make_dataclass(feature_type_name, fields=fields)
                 feature_dataclass.Meta = GeoramaMeta
                 feature_object = feature_dataclass(**feature_dict)
                 start = time.time()

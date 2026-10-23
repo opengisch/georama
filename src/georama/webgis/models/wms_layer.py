@@ -73,6 +73,8 @@ class WmsLayer(WmsLayerAbstract):
 
     @property
     def as_gg_wms_layer(self):
+        from georama.maps.services.wfs_2_0_0 import WfsOperation
+
         return GGWmsLayer(
             id=self.identifier,
             name=self.identifier,
@@ -84,7 +86,8 @@ class WmsLayer(WmsLayerAbstract):
             maxResolutionHint=self.max_resolution_hint,
             childLayers=[
                 GGLayerSettings(
-                    name=self.identifier,
+                    # GeoGirafe uses the child layer name as WFS feature type name
+                    name=WfsOperation.encode_layer_name(self.identifier),
                     minResolutionHint=self.min_resolution_hint,
                     maxResolutionHint=self.max_resolution_hint,
                     queryable=self.is_queryable,

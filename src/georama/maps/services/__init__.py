@@ -10,6 +10,9 @@ from georama.maps.models import WmsLayer
 class OgcOperation:
     crs_84 = "CRS:84"
     crs_4326 = "EPSG:4326"
+    # layer identifiers are uuids which may start with a digit, this is not a valid
+    # NCName and breaks the XML (e.g. <georama:1ddbab8a-...> in GetFeature responses)
+    layer_name_prefix = "_"
 
     def __init__(
         self,
@@ -26,6 +29,32 @@ class OgcOperation:
         self.model = model
         self.organisation = organisation
         self.perms = perms
+
+    @classmethod
+    def encode_layer_name(cls, identifier: str) -> str:
+        """
+        Method to bridge layer identifiers which are used in Georama and the
+        layer name which is exposed by the OGC services as valid NCName.
+        Args:
+            identifier: The layer identifier.
+
+        Returns:
+            The layer name.
+        """
+        return f"{cls.layer_name_prefix}{identifier}"
+
+    @classmethod
+    def decode_layer_name(cls, layer_name: str) -> str:
+        """
+        Method to bridge the layer name which is exposed by the OGC services and the
+        layer identifiers which are used in Georama. Plain identifiers pass unchanged.
+        Args:
+            layer_name: The layer name without namespace.
+
+        Returns:
+            The layer identifier.
+        """
+        return layer_name.removeprefix(cls.layer_name_prefix)
 
     @property
     def allowed_formats(self) -> list[str]:

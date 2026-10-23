@@ -215,6 +215,10 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
             translation[lang][theme.identifier] = theme.metadata.title
             async for layer in theme.wms_layers.all():
                 translation[lang][layer.identifier] = layer.metadata.title
+                # the selection grid uses the WFS feature type name as tab title
+                translation[lang][WfsOperation.encode_layer_name(layer.identifier)] = (
+                    layer.metadata.title
+                )
         return Response(data=translation, status=status.HTTP_200_OK)
 
 

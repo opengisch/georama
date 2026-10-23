@@ -136,7 +136,8 @@ class WmsLayerAbstract(models.Model):
             "SERVICE": "WFS",
             "REQUEST": "GetFeature",
             "VERSION": "2.0.0",
-            "TYPENAMES": f"{WfsOperation.own_namespace}:{self.identifier}",
+            "TYPENAMES": f"{WfsOperation.own_namespace}:"
+            f"{WfsOperation.encode_layer_name(self.identifier)}",
             "SRSNAME": self.get_datasource.crs_to_qsl.ogc_urn,
             "OUTPUTFORMAT": output_format,
         }

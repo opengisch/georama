@@ -66,7 +66,7 @@ class WfsOperation(OgcOperation):
                 # no namespace as part of the typename we assume that the
                 # requested typename is out
                 # of the default namespace self.own_namespace
-                sanitized_typenames.append(name_parts[0])
+                sanitized_typenames.append(self.decode_layer_name(name_parts[0]))
             elif len(name_parts) == 2:
                 if self.own_namespace != name_parts[0]:
                     # the requested typename belongs not to our namespace, we do
@@ -74,7 +74,7 @@ class WfsOperation(OgcOperation):
                     wrong_typenames.append(name)
                 else:
                     # the requested typename belongs to our namespace
-                    sanitized_typenames.append(name.replace(f"{self.own_namespace}:", ""))
+                    sanitized_typenames.append(self.decode_layer_name(name_parts[1]))
             else:
                 wrong_typenames.append(
                     f"typename has unexpected format (expected '<namespace>:<name>') got {name}"

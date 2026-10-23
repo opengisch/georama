@@ -33,8 +33,8 @@ class TestOgcService:
         assert capabilities.feature_type_list is not None
         assert len(capabilities.feature_type_list.feature_type) == 1
         assert (
-            capabilities.feature_type_list.feature_type[0].name
-            == f"{WfsOperation.own_namespace}:{str(global_wms_layer_public_queryable.id)}"
+            capabilities.feature_type_list.feature_type[0].name == f"{WfsOperation.own_namespace}:"
+            f"{WfsOperation.encode_layer_name(str(global_wms_layer_public_queryable.id))}"
         )
 
     @pytest.mark.django_db
@@ -105,8 +105,8 @@ class TestOgcService:
         assert capabilities.feature_type_list is not None
         assert len(capabilities.feature_type_list.feature_type) == 1
         assert (
-            capabilities.feature_type_list.feature_type[0].name
-            == f"{WfsOperation.own_namespace}:{str(global_wms_layer_non_public_queryable.id)}"
+            capabilities.feature_type_list.feature_type[0].name == f"{WfsOperation.own_namespace}:"
+            f"{WfsOperation.encode_layer_name(str(global_wms_layer_non_public_queryable.id))}"
         )
 
     @pytest.mark.django_db
