@@ -705,7 +705,7 @@ class WfsGetFeature(WfsOperation):
             for feature_sequence, feature in enumerate(feature_collection.features):
                 fields = []
                 feature_dict = {}
-                for attribute in feature.attributes:
+                for attribute_index, attribute in enumerate(feature.attributes):
                     if attribute.value is not None:  # noqa: SIM108
                         type_name = type(attribute.value)
                     else:
@@ -713,21 +713,25 @@ class WfsGetFeature(WfsOperation):
                         # data in this step we
                         # define all None values to be str, which can be None then -.-
                         type_name = str
-                    field_metadata = {}
+                    # attribute names come from the datasource and are not necessarily valid
+                    # python identifiers (e.g. "my field", "1a", "class", "geometry"), so the
+                    # dataclass field gets a generated name and the element keeps the original
+                    attribute_field = f"attribute_{attribute_index}"
+                    field_metadata = {"name": attribute.name}
                     if isinstance(attribute.value, bytes):
                         field_metadata["format"] = "base64"
                     fields.append(
                         (
-                            attribute.name,
+                            attribute_field,
                             type_name,
                             field(default=None, metadata=field_metadata),
                         )
                     )
                     if attribute.value is None:
                         # related to: https://github.com/tefra/xsdata/issues/408
-                        feature_dict[attribute.name] = ""
+                        feature_dict[attribute_field] = ""
                     else:
-                        feature_dict[attribute.name] = attribute.value
+                        feature_dict[attribute_field] = attribute.value
                 # this field ends up in the xml as attribute gml:id
                 # e.g.:
                 # <member>
