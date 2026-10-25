@@ -11,6 +11,16 @@ class ObjectPermissionSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        return self.drop_empty_inherited_permissions(data)
+
+    async def ato_representation(self, instance):
+        # this has to be overwritten to async JSNO renders the same content
+        # by the serializer
+        data = await super().ato_representation(instance)
+        return self.drop_empty_inherited_permissions(data)
+
+    @staticmethod
+    def drop_empty_inherited_permissions(data):
         if data.get("inherited_permissions", None) is None:
             data.pop("inherited_permissions", None)
         return data

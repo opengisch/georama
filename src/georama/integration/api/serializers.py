@@ -5,7 +5,7 @@ from georama.integration.models.datasource import VectorField
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    organisation_id = serializers.SerializerMethodField()
+    organisation_id = serializers.ReadOnlyField()
 
     class Meta:
         model = Project
@@ -18,9 +18,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
-    def get_organisation_id(self, obj):
-        return obj.organisation_id
-
 
 class FileSystemProjectSerializer(serializers.Serializer):
     project_path = serializers.CharField()
@@ -28,7 +25,7 @@ class FileSystemProjectSerializer(serializers.Serializer):
 
 
 class DatasourceSerializer(serializers.ModelSerializer):
-    organisation_id = serializers.SerializerMethodField()
+    organisation_id = serializers.ReadOnlyField(source="project.organisation_id")
 
     class Meta:
         model = Datasource
@@ -49,12 +46,9 @@ class DatasourceSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
-    def get_organisation_id(self, obj):
-        return obj.project.organisation_id
-
 
 class VectorDatasourceSerializer(serializers.ModelSerializer):
-    organisation_id = serializers.SerializerMethodField()
+    organisation_id = serializers.ReadOnlyField(source="project.organisation_id")
 
     class Meta:
         model = Vector
@@ -77,12 +71,9 @@ class VectorDatasourceSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
-    def get_organisation_id(self, obj):
-        return obj.project.organisation_id
-
 
 class RasterDatasourceSerializer(serializers.ModelSerializer):
-    organisation_id = serializers.SerializerMethodField()
+    organisation_id = serializers.ReadOnlyField(source="project.organisation_id")
 
     class Meta:
         model = Raster
@@ -103,12 +94,9 @@ class RasterDatasourceSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
-    def get_organisation_id(self, obj):
-        return obj.project.organisation_id
-
 
 class CustomDatasourceSerializer(serializers.ModelSerializer):
-    organisation_id = serializers.SerializerMethodField()
+    organisation_id = serializers.ReadOnlyField(source="project.organisation_id")
 
     class Meta:
         model = Custom
@@ -129,13 +117,10 @@ class CustomDatasourceSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
-    def get_organisation_id(self, obj):
-        return obj.project.organisation_id
-
 
 class FieldSerializer(serializers.ModelSerializer):
-    organisation_id = serializers.SerializerMethodField()
-    project_id = serializers.SerializerMethodField()
+    organisation_id = serializers.ReadOnlyField(source="datasource.project.organisation_id")
+    project_id = serializers.ReadOnlyField(source="datasource.project_id")
 
     class Meta:
         model = VectorField
@@ -157,9 +142,3 @@ class FieldSerializer(serializers.ModelSerializer):
             "organisation_id",
         ]
         extra_kwargs = {"id": {"read_only": True}}
-
-    def get_organisation_id(self, obj):
-        return obj.datasource.project.organisation_id
-
-    def get_project_id(self, obj):
-        return obj.datasource.project_id
