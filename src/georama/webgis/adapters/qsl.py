@@ -143,7 +143,6 @@ async def unwrap_group(
                 name=qsl_layer_group.title,
                 metadata=MetaData(isExpanded=qsl_layer_group.is_expanded),
             )
-            gg_children.append(gg_group)
             # its a group again
             await unwrap_group(
                 qsl_tree_match,
@@ -154,6 +153,10 @@ async def unwrap_group(
                 background_layers,
                 ogc_servers,
             )
+            # skip groups left empty because all their layers were background
+            # layers (moved to `background_layers`) or not spatial
+            if gg_group.children:
+                gg_children.append(gg_group)
         else:
             ds = config.datasets.find_dataset_by_id(child)
             if ds is None:

@@ -7,6 +7,7 @@ from faker import Faker
 from faker.utils.loading import find_available_providers
 from guardian.shortcuts import assign_perm
 from qgis_server_light.interface.common import Crs
+from qgis_server_light.interface.exporter.extract import DataSource, Raster, Vector, XYZSource
 
 from georama.core.common.faker.gis import Dataset
 from georama.core.factories import (
@@ -475,6 +476,40 @@ def crs_factory():
         )
 
     yield create_crs
+
+
+@pytest.fixture
+def qsl_vector_factory():
+
+    def create_vector(identifier: str, is_spatial: bool = True) -> Vector:
+        return Vector(
+            id=identifier,
+            name=identifier,
+            is_checked=True,
+            title=identifier,
+            source=DataSource(),
+            driver="ogr",
+            is_spatial=is_spatial,
+        )
+
+    yield create_vector
+
+
+@pytest.fixture
+def qsl_background_factory():
+
+    def create_background(identifier: str) -> Raster:
+        return Raster(
+            id=identifier,
+            name=identifier,
+            is_checked=False,
+            title=identifier,
+            source=DataSource(xyz=XYZSource(url="https://tiles.example.com/{z}/{x}/{y}.png")),
+            driver="wms",
+            is_background=True,
+        )
+
+    yield create_background
 
 
 @pytest.fixture(autouse=True)
