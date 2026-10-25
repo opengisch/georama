@@ -111,9 +111,8 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.5
     environment:
-      KC_HOSTNAME: localhost
-      KC_HOSTNAME_PORT: 7080
-      KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
+      KC_HOSTNAME: http://localhost:7080
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       KC_HEALTH_ENABLED: "true"
       KC_HTTP_MANAGEMENT_SCHEME: http
       KC_LOG_LEVEL: info
@@ -144,7 +143,7 @@ services:
       timeout: 2s
       retries: 15
     restart: unless-stopped
-    command: ["start-dev", "--http-port", "7080", "--https-port", "7443", "--import-realm"]
+    command: [ "start-dev", "--http-port", "7080", "--https-port", "7443", "--import-realm" ]
     ports:
       - "127.0.0.1:7080:7080"
       - "127.0.0.1:7443:7443"
@@ -165,7 +164,7 @@ services:
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      test: [ "CMD-SHELL", "pg_isready -U keycloak -d keycloak" ]
       interval: 10s
       timeout: 2s
       retries: 5

@@ -209,6 +209,9 @@ class Base(Configuration):
     SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
     SOCIALACCOUNT_LOGIN_ON_GET = True
 
+    # important to prevent normal redirect to /account/profile (which we don't have yet)
+    LOGIN_REDIRECT_URL = "/"
+
     OIDC_NAME = values.Value("Keycloak", environ_prefix="GEORAMA")
     OIDC_SERVER_URL = values.Value(environ_prefix="GEORAMA")
     OIDC_CLIENT_ID = values.Value("georama-oidc", environ_prefix="GEORAMA")
