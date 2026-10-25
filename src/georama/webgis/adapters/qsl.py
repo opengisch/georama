@@ -1,6 +1,9 @@
+import base64
 import math
 from urllib.parse import unquote
 
+from django.conf import settings
+from httpx import RequestError
 from qgis_server_light.interface.common import BBox
 from qgis_server_light.interface.exporter.extract import (
     Config,
@@ -11,6 +14,7 @@ from qgis_server_light.interface.exporter.extract import (
     XYZSource,
 )
 
+from georama.maps.adapter.qsl import render_image
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     LayerGroup,
@@ -30,6 +34,8 @@ type WmsLayerIndex = dict[QgisLayerId, GeoramaWmsLayer]
 
 MIN_RESOLUTION_HINT = 0.0
 MAX_RESOLUTION_HINT = 999999999.0
+# size/aspect ratio of the built-in background thumbnails of GeoGirafe
+BACKGROUND_THUMBNAIL_DIMENSIONS = (220, 120)
 
 
 def extend_bbox(bbox: BBox, bbox_extension: BBox):
@@ -37,6 +43,31 @@ def extend_bbox(bbox: BBox, bbox_extension: BBox):
     bbox.y_min = min(bbox_extension.y_min, bbox.y_min)
     bbox.x_max = max(bbox_extension.x_max, bbox.x_max)
     bbox.y_max = max(bbox_extension.y_max, bbox.y_max)
+
+
+async def render_background_thumbnail(wms_layer: GeoramaWmsLayer) -> str | None:
+    """
+    Renders the thumbnail of a background layer through QSL.
+
+    Args:
+        wms_layer: The background layer.
+
+    Returns:
+        The png as data url or `None` if rendering failed.
+    """
+    try:
+        image = await render_image(
+            wms_layer,
+            BBox.from_string(settings.WEBGIS_BACKGROUND_THUMBNAIL_EXTENT),
+            settings.WEBGIS_BACKGROUND_THUMBNAIL_CRS,
+            *BACKGROUND_THUMBNAIL_DIMENSIONS,
+        )
+    except RequestError:
+        # already logged, publishing must not fail because of a missing thumbnail
+        return None
+    if image is None:
+        return None
+    return f"data:image/png;base64,{base64.b64encode(image).decode()}"
 
 
 async def handle_dataset(
@@ -113,6 +144,7 @@ async def handle_dataset(
                         metadata=MetaData(),
                     )
         gg_wms_layer.metadata.isChecked = qsl_dataset.is_checked
+        gg_wms_layer.metadata.thumbnail = await render_background_thumbnail(wms_layer)
         background_layers.append(gg_wms_layer)
         return
     gg_wms_layer.metadata.isChecked = qsl_dataset.is_checked

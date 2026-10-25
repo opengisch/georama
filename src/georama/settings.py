@@ -474,6 +474,13 @@ class Base(Configuration):
         environ_prefix=GEORAMA_ENV_PREFIX,
     )
 
+    # background layers have no natural extent, so all of their thumbnails in the themes.json
+    # are rendered over this extent (in the axis order of the crs) at publishing
+    WEBGIS_BACKGROUND_THUMBNAIL_EXTENT = values.Value(
+        "2457000,1075000,2862000,1296000", environ_prefix=GEORAMA_ENV_PREFIX
+    )
+    WEBGIS_BACKGROUND_THUMBNAIL_CRS = values.Value("EPSG:2056", environ_prefix=GEORAMA_ENV_PREFIX)
+
 
 class Dev(Base):
     # SECURITY WARNING: don't run with debug turned on in production!
