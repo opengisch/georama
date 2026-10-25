@@ -223,8 +223,16 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
 
 
 class UrlShortenerViewSet(ModelViewSet):
+    """Creates and resolves short URLs for GeoGirafe.
+
+    GeoGirafe dont know about CSRF token. `SessionAuthentication`
+    enforces CSRF for logged in users only, so their POSTs were rejected. The shortener
+    does not depend on the user, hence no authentication at all.
+    """
+
     queryset = UrlShortener.objects.all()
     http_method_names = ["get", "post"]
+    authentication_classes = []
 
     def get_serializer_class(self):
         if self.action == "create":
