@@ -6,7 +6,7 @@ services:
       - "GEORAMA_QSL_EXPORTER_URL=http://qsl-exporter:5000/export"
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
       - "GEORAMA_WEBGISURL=https://localhost:9309"
-      - "OIDC_SERVER_URL=http://keycloak:7080/realms/ninjas/.well-known/openid-configuration"
+      - "GEORAMA_OIDC_SERVER_URL=http://keycloak:7080/realms/ninjas/.well-known/openid-configuration"
     image: local/georama:dev
     restart: unless-stopped
     build:
@@ -60,7 +60,7 @@ services:
   qsl-redis:
     image: redis:8.8.0
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 1s
       timeout: 0.5s
       retries: 50
@@ -105,7 +105,7 @@ services:
     environment:
       UID: "${UID:-1000}"
       GID: "${GID:-1000}"
-    command: [ "make", "--no-print-directory", "-C", "/cert_generation" ]
+    command: ["make", "--no-print-directory", "-C", "/cert_generation"]
     restart: "no"
     volumes:
       - ./docker/cert_generation:/cert_generation:ro
@@ -152,15 +152,24 @@ services:
       KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/localhost.key
       KC_HTTPS_MANAGEMENT_CLIENT_AUTH: none
     healthcheck:
-      test: [
-        "CMD-SHELL",
-        "exec 3<>/dev/tcp/localhost/9000; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:9000\r\nConnection: close\r\n\r\n' >&3; if cat <&3 | grep -q UP; then exit 0; else exit 1; fi",
-      ]
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/localhost/9000; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:9000\r\nConnection: close\r\n\r\n' >&3; if cat <&3 | grep -q UP; then exit 0; else exit 1; fi",
+        ]
       interval: 15s
       timeout: 2s
       retries: 15
     restart: unless-stopped
-    command: [ "start-dev", "--http-port", "7080", "--https-port", "7443", "--import-realm" ]
+    command:
+      [
+        "start-dev",
+        "--http-port",
+        "7080",
+        "--https-port",
+        "7443",
+        "--import-realm",
+      ]
     ports:
       - "127.0.0.1:7080:7080"
       - "127.0.0.1:7443:7443"
@@ -181,7 +190,7 @@ services:
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U keycloak -d keycloak" ]
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
       interval: 10s
       timeout: 2s
       retries: 5
