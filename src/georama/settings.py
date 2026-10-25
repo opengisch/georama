@@ -321,7 +321,6 @@ class Base(Configuration):
         "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
         "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
         "django.contrib.auth.hashers.ScryptPasswordHasher",
-        "django.contrib.auth.hashers.MD5PasswordHasher",
     ]
 
     # Internationalization
