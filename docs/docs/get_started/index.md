@@ -12,7 +12,7 @@ Set up **Georama** using Docker with minimal effort, either for local developmen
 
 Choose the guide matching your use case:
 
-- [:material-laptop: Local Development](local_development.md): run the full development
+- [:material-laptop: Local Development](local_development/index.md): run the full development
   stack with Docker Compose, live reload and example content.
 - [:material-server: Production Deployment](production.md): build the production image
   and run it against your own infrastructure.

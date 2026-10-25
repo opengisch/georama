@@ -5,6 +5,8 @@ services:
     environment:
       - "GEORAMA_QSL_EXPORTER_URL=http://qsl-exporter:5000/export"
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
+      - "GEORAMA_WEBGISURL=https://localhost:9309"
+      - "OIDC_SERVER_URL=http://keycloak:7080/realms/ninjas/.well-known/openid-configuration"
     image: local/georama:dev
     restart: unless-stopped
     build:
@@ -93,6 +95,22 @@ services:
       - "serve-exporter-api-outbound"
     volumes:
       - "./tests/resources/projects:/io/data"
+  certs:
+    # oneshot: creates or renews the dev certificates for keycloak and geogirafe and exits
+    image: local/georama-certs:dev
+    build:
+      dockerfile_inline: |
+        FROM alpine:3
+        RUN apk add --no-cache make openssl
+    environment:
+      UID: "${UID:-1000}"
+      GID: "${GID:-1000}"
+    command: [ "make", "--no-print-directory", "-C", "/cert_generation" ]
+    restart: "no"
+    volumes:
+      - ./docker/cert_generation:/cert_generation:ro
+      - ./.certs:/certs
+      - dev-ca:/ca
   geogirafe:
     image: geogirafe/viewer:latest
     platform: "linux/amd64"
@@ -104,14 +122,20 @@ services:
     volumes:
       - ./geogirafe/config.json:/var/www/localhost/htdocs/config.json
       - ./geogirafe/config.mobile.json:/var/www/localhost/htdocs/config.mobile.json
+      # lighttpd reads localhost.pem from there, provided by the certs service
+      - ./.certs:/etc/lighttpd/ssl:ro
     ports:
       - "127.0.0.1:9309:443"
-      - "127.0.0.1:9308:80"
+    depends_on:
+      certs:
+        condition: service_completed_successfully
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.5
     environment:
-      KC_HOSTNAME: http://localhost:7080
+      # browsers reach keycloak with https (geogirafe requires it), georama within the
+      # docker network with http://keycloak:7080 (backchannel)
+      KC_HOSTNAME: https://localhost:7443
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       KC_HEALTH_ENABLED: "true"
       KC_HTTP_MANAGEMENT_SCHEME: http
@@ -124,16 +148,9 @@ services:
       KC_DB_PASSWORD: password
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/tls.crt
-      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/tls.key
-      KC_HTTPS_KEY_STORE_FILE: /etc/x509/https/server.keystore
-      KC_HTTPS_KEY_STORE_PASSWORD: changeit
-      KC_HTTPS_KEY_STORE_TYPE: PKCS12
-      KC_HTTPS_TRUST_STORE_FILE: /etc/x509/https/server.truststore
-      KC_HTTPS_TRUST_STORE_PASSWORD: changeit
-      KC_HTTPS_TRUST_STORE_TYPE: JKS
+      KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/localhost.crt
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/localhost.key
       KC_HTTPS_MANAGEMENT_CLIENT_AUTH: none
-      X509_CA_BUNDLE: /etc/x509/https/rootCA.crt
     healthcheck:
       test: [
         "CMD-SHELL",
@@ -148,12 +165,12 @@ services:
       - "127.0.0.1:7080:7080"
       - "127.0.0.1:7443:7443"
     volumes:
-      - ./keycloak/certs/keycloak.crt:/etc/x509/https/tls.crt
-      - ./keycloak/certs/keycloak.key:/etc/x509/https/tls.key
-      - ./keycloak/certs/rootCA.crt:/etc/x509/https/rootCA.crt
-      - ./keycloak/certs/server.truststore:/etc/x509/https/server.truststore
+      # provided by the certs service
+      - ./.certs:/etc/x509/https:ro
       - ./keycloak/import:/opt/keycloak/data/import
     depends_on:
+      certs:
+        condition: service_completed_successfully
       keycloak-db:
         condition: service_healthy
 
@@ -176,4 +193,5 @@ volumes:
   georama-static:
   georama-db:
   keycloak-db:
+  dev-ca:
   ssh_host_keys:

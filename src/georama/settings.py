@@ -546,15 +546,8 @@ class Dev(Base):
     )
 
     ORGANISATION_DOMAIN = "localhost"
-    WEBGISURL = values.Value("http://localhost:9308", environ_prefix=GEORAMA_ENV_PREFIX)
     DATA_INTEGRATION_ROOT = values.PathValue(
         Base.BASE_DIR / "tests/resources/projects", environ_prefix=GEORAMA_ENV_PREFIX
-    )
-    QSL_REDIS_URL = values.Value(default="redis://qsl-redis:6379", environ_prefix="")
-
-    OIDC_SERVER_URL = values.Value(
-        "http://keycloak:7080/realms/ninjas/.well-known/openid-configuration",
-        environ_prefix="GEORAMA",
     )
 
 

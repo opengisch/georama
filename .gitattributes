@@ -1,0 +1,2 @@
+# the certificate generation runs inside a linux container, also when checked out on windows
+docker/cert_generation/* text eol=lf
