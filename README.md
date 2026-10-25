@@ -25,6 +25,11 @@ It might be uses also directly with in-container-dev capabilities of your IDE.
 The composition is synced with your local user (GID/UID) to ensure, created files in the
 container have the right permissions also outside the container.
 
+Keycloak and GeoGirafe serve HTTPS with locally generated certificates. The oneshot
+service `certs` creates and renews them on start (git-ignored in `.certs/`). Trust
+`.certs/rootCA.crt` once in your system or browser, see the local development
+[docs](https://opengisch.github.io/georama/get_started/local_development/).
+
 ## Commands
 
 ```shell
@@ -128,15 +133,15 @@ docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_c
   however, this
   rarely matches the exact version available installed in random systems, so we remove
   it as a dep
-  from pyproject.toml and make it a dep assumed to be available in the system via (
-  python3-gdal, or similar)
+  from pyproject.toml and make it a dep assumed to be available in the system via
+  (python3-gdal, or similar)
 - Inheritance of templates not working for django
   partials: https://code.djangoproject.com/ticket/37038
 
 # PROD notes
 
-- pooling of DB connections from georama to its own DB has to be handled externally (
-  suggestion: pg_bouncer)
+- pooling of DB connections from georama to its own DB has to be handled externally
+  (suggestion: pg_bouncer)
 
 Build prod image
 

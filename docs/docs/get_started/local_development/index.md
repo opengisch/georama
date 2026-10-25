@@ -23,7 +23,8 @@ Some tools still run on your host:
 - [pre-commit](https://pre-commit.com/#installation): it checks every commit before it
   is created, so that the code is consistently linted and formatted and no Django
   migration is forgotten, catching these issues before the CI does. The git hooks are
-  triggered by your local `git commit`. The hooks themselves (`ruff`, `ruff format`, missing
+  triggered by your local `git commit`. The hooks themselves (`ruff`, `ruff format`,
+  missing
   migrations check) run inside the container through `docker compose run`.
 
   ```shell
@@ -64,7 +65,7 @@ GID=1000  # output of `id -g`
 
 Optionally, adjust the other variables (database credentials, `QSL_SOURCE_BRANCH`, …)
 in the `.env` file to match your environment.
-See [Environment Variables](environment.md) for the full list.
+See [Environment Variables](../environment.md) for the full list.
 
 !!! note "QGIS projects"
 
@@ -91,14 +92,90 @@ docker compose up --watch --remove-orphans
 
 The stack contains the following services:
 
-| Service        | Description                        | Local address           |
-| -------------- | ---------------------------------- | ----------------------- |
-| `georama`      | Django application (uvicorn)       | <http://localhost:4242> |
-| `georama-db`   | PostgreSQL / PostGIS database      | `localhost:5433`        |
-| `qsl`          | QGIS-Server-Light rendering worker | –                       |
-| `qsl-exporter` | QGIS-Server-Light project exporter | <http://localhost:5000> |
-| `qsl-redis`    | Redis queue used by QSL            | –                       |
-| `geogirafe`    | GeoGirafe web viewer               | <http://localhost:9308> |
+| Service        | Description                        | Local address                                      |
+|----------------|------------------------------------|----------------------------------------------------|
+| `georama`      | Django application (uvicorn)       | <http://localhost:4242>                            |
+| `georama-db`   | PostgreSQL / PostGIS database      | `localhost:5433`                                   |
+| `qsl`          | QGIS-Server-Light rendering worker | –                                                  |
+| `qsl-exporter` | QGIS-Server-Light project exporter | <http://localhost:5000>                            |
+| `qsl-redis`    | Redis queue used by QSL            | –                                                  |
+| `geogirafe`    | GeoGirafe web viewer               | <https://localhost:9309> (<http://localhost:9308>) |
+| `keycloak`     | Keycloak OIDC provider             | <https://localhost:7443>                           |
+| `keycloak-db`  | PostgreSQL database of Keycloak    | –                                                  |
+| `certs`        | Oneshot, prepares the certificates | –                                                  |
+
+See [Authentication](authentication.md) to log in with Keycloak.
+
+## Development Certificates
+
+Keycloak and GeoGirafe serve HTTPS with a certificate which is generated on your
+machine.
+GeoGirafe needs it, because browsers only register its service worker (authentication,
+offline maps) on HTTPS with a trusted certificate.
+
+The oneshot service `certs` (`make` with `docker/cert_generation/Makefile`) runs on
+every
+start before Keycloak and GeoGirafe. It creates the certificates when they are missing
+and
+renews them 30 days before they expire or when their config
+(`docker/cert_generation/*.cnf`)
+changed. The files are written to the git-ignored `.certs/` folder, which is mounted
+into
+Keycloak and GeoGirafe:
+
+| File                                    | Description                                                   |
+|-----------------------------------------|---------------------------------------------------------------|
+| `.certs/rootCA.crt`                     | Local certificate authority, to be trusted once (see below)   |
+| `.certs/localhost.crt`, `localhost.key` | Certificate for `localhost`, `app.localhost` and `keycloak`   |
+| `.certs/localhost.pem`                  | Same certificate, key and certificate in one file (GeoGirafe) |
+
+The key of the certificate authority stays in the docker volume `dev-ca`, so a renewed
+certificate is trusted without further action. The certificate authority itself is only
+created again when the volume is removed (e.g. `docker compose down -v`) or after 10
+years.
+Then the new `.certs/rootCA.crt` has to be trusted again, the `certs` service logs it.
+
+!!! note "Scope of the certificate authority"
+
+    The certificate authority is restricted to `localhost`, `*.localhost`, `keycloak` and
+    `127.0.0.0/8`. Trusting it does therefore not allow anybody to issue certificates for
+    other domains, even if its key leaks.
+
+### Trust the Certificate Authority
+
+Accepting the warning of the browser is not sufficient: requests of service workers do
+not
+use these exceptions. After the first start, import `.certs/rootCA.crt` as trusted
+certificate authority:
+
+#### Use the settings of your browser
+
+Chrome and Firefox use their own certificate stores. Import it in the browser settings
+
+- Chrome: *Privacy and security → Security → Manage certificates → Authorities*
+- Firefox: *Privacy & Security → Certificates → View Certificates → Authorities*
+
+#### Or go to import it into your OS directly
+
+_Linux_
+
+```shell
+certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n "Georama Dev" -i .certs/rootCA.crt
+```
+
+_macOS_
+
+```shell
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain .certs/rootCA.crt
+```
+
+_Windows (PowerShell)_
+
+```powershell
+Import-Certificate -FilePath .certs\rootCA.crt -CertStoreLocation Cert:\CurrentUser\Root
+```
+
+Restart the browser afterwards.
 
 ## Prepare the Django Database
 

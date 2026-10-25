@@ -5,6 +5,8 @@ services:
     environment:
       - "GEORAMA_QSL_EXPORTER_URL=http://qsl-exporter:5000/export"
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
+      - "GEORAMA_WEBGISURL=https://localhost:9309"
+      - "GEORAMA_OIDC_SERVER_URL=http://keycloak:7080/realms/ninjas/.well-known/openid-configuration"
     image: local/georama:dev
     restart: unless-stopped
     build:
@@ -36,6 +38,8 @@ services:
         condition: service_healthy
       qsl-redis:
         condition: service_healthy
+      keycloak:
+        condition: service_healthy
   georama-db:
     platform: "linux/amd64"
     restart: unless-stopped
@@ -56,7 +60,7 @@ services:
   qsl-redis:
     image: redis:8.8.0
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 1s
       timeout: 0.5s
       retries: 50
@@ -91,6 +95,22 @@ services:
       - "serve-exporter-api-outbound"
     volumes:
       - "./tests/resources/projects:/io/data"
+  certs:
+    # oneshot: creates or renews the dev certificates for keycloak and geogirafe and exits
+    image: local/georama-certs:dev
+    build:
+      dockerfile_inline: |
+        FROM alpine:3
+        RUN apk add --no-cache make openssl
+    environment:
+      UID: "${UID:-1000}"
+      GID: "${GID:-1000}"
+    command: ["make", "--no-print-directory", "-C", "/cert_generation"]
+    restart: "no"
+    volumes:
+      - ./docker/cert_generation:/cert_generation:ro
+      - ./.certs:/certs
+      - dev-ca:/ca
   geogirafe:
     image: geogirafe/viewer:latest
     platform: "linux/amd64"
@@ -102,11 +122,85 @@ services:
     volumes:
       - ./geogirafe/config.json:/var/www/localhost/htdocs/config.json
       - ./geogirafe/config.mobile.json:/var/www/localhost/htdocs/config.mobile.json
+      # lighttpd reads localhost.pem from there, provided by the certs service
+      - ./.certs:/etc/lighttpd/ssl:ro
     ports:
       - "127.0.0.1:9309:443"
-      - "127.0.0.1:9308:80"
+    depends_on:
+      certs:
+        condition: service_completed_successfully
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5
+    environment:
+      # browsers reach keycloak with https (geogirafe requires it), georama within the
+      # docker network with http://keycloak:7080 (backchannel)
+      KC_HOSTNAME: https://localhost:7443
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_MANAGEMENT_SCHEME: http
+      KC_LOG_LEVEL: info
+      KC_DB: postgres
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_SCHEMA: public
+      KC_DB_URL: jdbc:postgresql://keycloak-db/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/localhost.crt
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/localhost.key
+      KC_HTTPS_MANAGEMENT_CLIENT_AUTH: none
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/localhost/9000; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:9000\r\nConnection: close\r\n\r\n' >&3; if cat <&3 | grep -q UP; then exit 0; else exit 1; fi",
+        ]
+      interval: 15s
+      timeout: 2s
+      retries: 15
+    restart: unless-stopped
+    command:
+      [
+        "start-dev",
+        "--http-port",
+        "7080",
+        "--https-port",
+        "7443",
+        "--import-realm",
+      ]
+    ports:
+      - "127.0.0.1:7080:7080"
+      - "127.0.0.1:7443:7443"
+    volumes:
+      # provided by the certs service
+      - ./.certs:/etc/x509/https:ro
+      - ./keycloak/import:/opt/keycloak/data/import
+    depends_on:
+      certs:
+        condition: service_completed_successfully
+      keycloak-db:
+        condition: service_healthy
+
+  keycloak-db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+    volumes:
+      - keycloak-db:/var/lib/postgresql/data
+
 volumes:
   georama-venv:
   georama-static:
   georama-db:
+  keycloak-db:
+  dev-ca:
   ssh_host_keys:

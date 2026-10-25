@@ -16,6 +16,9 @@ wheels/
 .env.dev.local
 
 
+# local dev certificates, see docker/cert_generation
+.certs/
+
 # docker compose overwrites
 compose.override.yml
 docker-compose.override.yml

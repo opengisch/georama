@@ -190,6 +190,7 @@ class Base(Configuration):
         "django.middleware.csrf.CsrfViewMiddleware",
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "georama.core.middleware.basic_auth.BasicAuthenticationMiddleware",
+        "georama.core.middleware.oidc.GeoGirafeAuthenticationMiddleware",
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
         "allauth.account.middleware.AccountMiddleware",
@@ -207,6 +208,9 @@ class Base(Configuration):
     SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
     SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
     SOCIALACCOUNT_LOGIN_ON_GET = True
+
+    # important to prevent normal redirect to /account/profile (which we don't have yet)
+    LOGIN_REDIRECT_URL = "/"
 
     OIDC_NAME = values.Value("Keycloak", environ_prefix="GEORAMA")
     OIDC_SERVER_URL = values.Value(environ_prefix="GEORAMA")
@@ -542,11 +546,9 @@ class Dev(Base):
     )
 
     ORGANISATION_DOMAIN = "localhost"
-    WEBGISURL = values.Value("http://localhost:9308", environ_prefix=GEORAMA_ENV_PREFIX)
     DATA_INTEGRATION_ROOT = values.PathValue(
         Base.BASE_DIR / "tests/resources/projects", environ_prefix=GEORAMA_ENV_PREFIX
     )
-    QSL_REDIS_URL = values.Value(default="redis://qsl-redis:6379", environ_prefix="")
 
 
 class Prod(Base):
