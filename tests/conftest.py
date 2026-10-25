@@ -7,7 +7,9 @@ from faker import Faker
 from faker.utils.loading import find_available_providers
 from guardian.shortcuts import assign_perm
 from qgis_server_light.interface.common import Crs
-from qgis_server_light.interface.exporter.extract import DataSource, Raster, Vector, XYZSource
+from qgis_server_light.interface.dispatcher.common import Status
+from qgis_server_light.interface.job.common.input import QslJobLayer
+from qgis_server_light.interface.job.common.output import JobResult
 
 from georama.core.common.faker.gis import Dataset
 from georama.core.factories import (
@@ -20,6 +22,7 @@ from georama.features.factories import FeatureLayerFactory
 from georama.features.factories import MetadataFactory as FeatureLayerMetadataFactory
 from georama.features.models.feature_layer import FeatureLayerUserObjectPermission
 from georama.integration.factories import FieldFactory, ProjectFactory, VectorFactory
+from georama.maps.apps import qsl_redis_queue
 from georama.maps.factories import MetadataFactory as MapsWmsLayerMetadataFactory
 from georama.maps.factories import WmsLayerFactory
 from georama.maps.maps_config import Config
@@ -478,40 +481,6 @@ def crs_factory():
     yield create_crs
 
 
-@pytest.fixture
-def qsl_vector_factory():
-
-    def create_vector(identifier: str, is_spatial: bool = True) -> Vector:
-        return Vector(
-            id=identifier,
-            name=identifier,
-            is_checked=True,
-            title=identifier,
-            source=DataSource(),
-            driver="ogr",
-            is_spatial=is_spatial,
-        )
-
-    yield create_vector
-
-
-@pytest.fixture
-def qsl_background_factory():
-
-    def create_background(identifier: str) -> Raster:
-        return Raster(
-            id=identifier,
-            name=identifier,
-            is_checked=False,
-            title=identifier,
-            source=DataSource(xyz=XYZSource(url="https://tiles.example.com/{z}/{x}/{y}.png")),
-            driver="wms",
-            is_background=True,
-        )
-
-    yield create_background
-
-
 @pytest.fixture(autouse=True)
 def resolved_other_crs(crs_factory):
     """The other crs are resolved by QSL at runtime, which is not available in tests."""
@@ -519,3 +488,33 @@ def resolved_other_crs(crs_factory):
     Config.resolved_other_crs.update({"maps": other_crs, "webgis": other_crs})
     yield Config.resolved_other_crs
     Config.resolved_other_crs.clear()
+
+
+@pytest.fixture
+def posted_jobs(monkeypatch):
+    """Replaces the queue, the answer is set by the test via `posted_jobs.answer`."""
+
+    class PostedJobs(list):
+        answer: tuple[JobResult, str]
+
+    jobs = PostedJobs()
+
+    async def post(job_parameter, timeout):
+        jobs.append(job_parameter)
+        return jobs.answer
+
+    monkeypatch.setattr(qsl_redis_queue, "post", post)
+    yield jobs
+
+
+@pytest.fixture
+def render_job_result():
+    """Answer of QSL for render jobs, see `posted_jobs`."""
+    yield JobResult(id="job", data=b"png", content_type="image/png"), Status.SUCCESS.value
+
+
+@pytest.fixture
+def qsl_job_layer():
+    yield QslJobLayer(
+        id="layer", name="layer", source="{}", remote=True, folder_name="", driver="wms"
+    )

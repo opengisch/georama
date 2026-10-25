@@ -1,36 +1,82 @@
 import pytest
 from asgiref.sync import async_to_sync
+from httpx import RequestError
+from qgis_server_light.interface.common import BBox, Crs
 from qgis_server_light.interface.dispatcher.common import Status
 from qgis_server_light.interface.job.common.output import JobResult
 from qgis_server_light.interface.job.crs.input import QslJobParameterCrs
 from qgis_server_light.interface.job.crs.output import CrsCollection
-from xsdata.formats.dataclass.serializers import JsonSerializer
+from qgis_server_light.interface.job.render.input import QslJobParameterRender
+from xsdata.formats.dataclass.serializers import DictEncoder, JsonSerializer
 
+from georama.integration.models import Vector
 from georama.maps.adapter import qsl
 from georama.maps.exception.job import JobExecutionError
 from georama.maps.maps_config import Config
-
-
-@pytest.fixture
-def posted_jobs(monkeypatch):
-    """Replaces the queue, the answer is set by the test via `posted_jobs.answer`."""
-
-    class PostedJobs(list):
-        answer: tuple[JobResult, str]
-
-    jobs = PostedJobs()
-
-    async def post(job_parameter, timeout):
-        jobs.append(job_parameter)
-        return jobs.answer
-
-    monkeypatch.setattr(qsl.qsl_redis_queue, "post", post)
-    yield jobs
+from georama.maps.models import WmsLayer
 
 
 def crs_job_result(crs: list, status: str = Status.SUCCESS.value) -> tuple[JobResult, str]:
     data = JsonSerializer().render(CrsCollection(crs=crs)).encode()
     return JobResult(id="job", data=data, content_type="application/json"), status
+
+
+@pytest.fixture
+def wms_layer(qsl_job_layer, monkeypatch):
+    crs = Crs(auth_id="EPSG:4326", axis_inverted=True)
+    wms_layer = WmsLayer(
+        datasource=Vector(crs=DictEncoder().encode(crs)), extent="5.9,45.8,10.5,47.8"
+    )
+    # the job layer needs the project of the datasource from the DB
+    monkeypatch.setattr(wms_layer, "to_qsl_job_layer", lambda: qsl_job_layer)
+    yield wms_layer
+
+
+@pytest.fixture
+def bbox():
+    yield BBox.from_string("2457000,1075000,2862000,1296000")
+
+
+class TestRenderImage:
+    def test_rendered_through_qsl(
+        self, posted_jobs, render_job_result, qsl_job_layer, wms_layer, bbox
+    ):
+        posted_jobs.answer = render_job_result
+
+        image = async_to_sync(qsl.render_image)(wms_layer, bbox, "EPSG:2056", 220, 120)
+
+        assert image == b"png"
+        assert posted_jobs == [
+            QslJobParameterRender(
+                layers=[qsl_job_layer],
+                bbox=bbox,
+                crs="EPSG:2056",
+                width=220,
+                height=120,
+                dpi=72,
+            )
+        ]
+
+    @pytest.mark.parametrize(
+        "render_job_result",
+        [(JobResult(id="job", data="error", content_type="text/plain"), Status.FAILURE.value)],
+    )
+    def test_failure(self, posted_jobs, render_job_result, wms_layer, bbox):
+        posted_jobs.answer = render_job_result
+
+        with pytest.raises(RequestError):
+            async_to_sync(qsl.render_image)(wms_layer, bbox, "EPSG:2056", 220, 120)
+
+
+class TestGeneratePreviewImage:
+    def test_layer_extent_in_axis_order(self, posted_jobs, render_job_result, wms_layer):
+        posted_jobs.answer = render_job_result
+
+        assert async_to_sync(qsl.generate_preview_image)(wms_layer) == b"png"
+        [job] = posted_jobs
+        assert job.bbox.to_2d_list() == [45.8, 5.9, 47.8, 10.5]
+        assert job.crs == "EPSG:4326"
+        assert (job.width, job.height) == wms_layer.preview_dimensions
 
 
 class TestResolveOtherCrs:
