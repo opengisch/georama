@@ -2,7 +2,8 @@ import json
 from unittest.mock import patch
 
 import pytest
-from rest_framework.status import HTTP_200_OK
+from django.test import Client
+from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 
 from georama.features.models import FeatureLayer
 
@@ -452,3 +453,75 @@ class TestPygeoapiServer:
             assert identifier == test_item_id
             assert action == "delete"
             assert dataset == global_feature_layer_nonpublic.identifier
+
+
+class TestPygeoapiServerCsrf:
+    """
+    External OGC API clients authenticate through session or basic auth they don't know
+    about CSRF token. So with this test we ensure thos clients can reach through anyhow.
+    """
+
+    url = "/features/api"
+    item_id = "1"
+
+    @pytest.fixture
+    def csrf_client(self):
+        return Client(enforce_csrf_checks=True)
+
+    @pytest.mark.django_db
+    def test_permitted_user_can_create_item_without_csrf_token(
+        self,
+        csrf_client,
+        global_feature_layer_nonpublic,
+        user_with_membership_global_feature_layer_create_permission,
+    ):
+        with patch(
+            "pygeoapi.api.itemtypes.manage_collection_item",
+            return_value=({}, 201, ""),
+        ) as mocked_method:
+            csrf_client.force_login(user_with_membership_global_feature_layer_create_permission)
+            response = csrf_client.post(
+                f"{self.url}/collections/{global_feature_layer_nonpublic.identifier}/items?f=json",
+                data=json.dumps({}),
+                content_type="application/geo+json",
+            )
+            assert response.status_code != HTTP_403_FORBIDDEN
+            mocked_method.assert_called_once()
+
+    @pytest.mark.django_db
+    def test_permitted_user_can_update_item_without_csrf_token(
+        self,
+        csrf_client,
+        global_feature_layer_nonpublic,
+        user_with_membership_global_feature_layer_update_permission,
+    ):
+        with patch(
+            "pygeoapi.api.itemtypes.manage_collection_item",
+            return_value=({}, 204, ""),
+        ) as mocked_method:
+            csrf_client.force_login(user_with_membership_global_feature_layer_update_permission)
+            response = csrf_client.put(
+                f"{self.url}/collections/{global_feature_layer_nonpublic.identifier}/items/{self.item_id}?f=json",
+                data=json.dumps({}),
+                content_type="application/geo+json",
+            )
+            assert response.status_code != HTTP_403_FORBIDDEN
+            mocked_method.assert_called_once()
+
+    @pytest.mark.django_db
+    def test_permitted_user_can_delete_item_without_csrf_token(
+        self,
+        csrf_client,
+        global_feature_layer_nonpublic,
+        user_with_membership_global_feature_layer_delete_permission,
+    ):
+        with patch(
+            "pygeoapi.api.itemtypes.manage_collection_item",
+            return_value=({}, 200, ""),
+        ) as mocked_method:
+            csrf_client.force_login(user_with_membership_global_feature_layer_delete_permission)
+            response = csrf_client.delete(
+                f"{self.url}/collections/{global_feature_layer_nonpublic.identifier}/items/{self.item_id}?f=json"
+            )
+            assert response.status_code != HTTP_403_FORBIDDEN
+            mocked_method.assert_called_once()
