@@ -5,7 +5,9 @@ import pygeoapi.api.itemtypes as itemtypes_api
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from guardian.shortcuts import get_perms
 from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
@@ -20,6 +22,7 @@ from georama.integration.models import VectorField as DatasourceField
 api = None
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class PygeoapiServer(View):
     action = None
     model = FeatureLayer
