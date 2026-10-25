@@ -3,7 +3,9 @@ name = "georama"
 version = "0.1.0"
 description = "Scalable Web Publishing for QGIS"
 readme = "README.md"
-license = "LICENSE"
+license-files = [
+    "LICENSE",
+]
 authors = [
     { name = "OPENGIS.ch", email = "info@opengis.ch" }
 ]
