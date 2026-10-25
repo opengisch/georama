@@ -1,9 +1,13 @@
 [project]
 name = "georama"
 version = "0.1.0"
-description = "Add your description here"
+description = "Scalable Web Publishing for QGIS"
 readme = "README.md"
+license = "LICENSE"
 authors = [
+    { name = "OPENGIS.ch", email = "info@opengis.ch" }
+]
+maintainers = [
     { name = "OPENGIS.ch", email = "info@opengis.ch" }
 ]
 requires-python = ">=3.12"
@@ -36,6 +40,12 @@ dependencies = [
 
 [project.scripts]
 manage = "georama.manage:main"
+[project.urls]
+Tracker = "https://github.com/georama/issues"
+CI = "https://github.com/opengisch/georama/actions"
+Documentation = "https://opengisch.github.io/georama"
+Source = "https://github.com/opengisch/georama"
+Contributing = "https://github.com/opengisch/georama/blob/master/CONTRIBUTING.md"
 [build-system]
 requires = ["uv_build>=0.11.15,<0.12.0"]
 build-backend = "uv_build"

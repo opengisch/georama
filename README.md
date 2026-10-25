@@ -1,157 +1,121 @@
-# DEV
+# Welcome to Georama!
 
-## Prerequisites
+<div align="center">
+  <br>
+  <img width="150" height="136" alt="georama_logo" src="https://github.com/user-attachments/assets/abcf1b27-c221-454b-a526-ed086d9a38b8" />
+  <br>
+</div>
 
-Tools used:
+---
 
-- `uv` https://docs.astral.sh/uv/
-- `docker` + `docker compose` https://docs.docker.com/engine/install/
-- `git` https://git-scm.com/install/
-- `pre-commit` https://pre-commit.com/#installation
+> **The open, interoperable platform for any geospatial data publication workflows, from
+complex enterprise workflows down to anyone sharing their first dataset.**
+> Georama is your bridge between powerful desktop GIS and scalable, standards-based web
+> publishing.
 
-they are provided in the container runtime, no need to have them locally
+---
 
-## DEV with the stack
+Georama is an open-source project by [OPENGIS.ch](https://opengis.ch), the team
+behind [QField](https://qfield.org), [QFieldCloud](https://qfield.cloud), and other open
+geospatial tools.
 
-Service georama exposes an ssh server on localhost:4222 which can be used for remote
-development.
+## What is Georama?
 
-Credentials: `appuser:secret`
+Georama bridges the gap between desktop GIS and the web. It lets you take your QGIS
+projects and publish them as standards-compliant web services, complete with metadata
+management, fine-grained access control, and, thanks to its native integration
+with [GeoGirafe](https://geogirafe.org/), a modern web map interface.
 
-The interpreter is located in the container under: `/home/appuser/.venv/bin/python`
+Whether you are a small organization sharing a handful of datasets, or a large
+institution managing hundreds of projects and complex publication workflows, Georama is
+designed to scale with you.
 
-It might be uses also directly with in-container-dev capabilities of your IDE.
+### Documentation
 
-The composition is synced with your local user (GID/UID) to ensure, created files in the
-container have the right permissions also outside the container.
+📔 [Read the project docs](https://opengisch.github.io/georama/) to learn more.
 
-Keycloak and GeoGirafe serve HTTPS with locally generated certificates. The oneshot
-service `certs` creates and renews them on start (git-ignored in `.certs/`). Trust
-`.certs/rootCA.crt` once in your system or browser, see the local development
-[docs](https://opengisch.github.io/georama/get_started/local_development/).
+### Georama impressions
 
-## Commands
+<div align="center">
+  <img width="80%" alt="View maps" src="https://github.com/user-attachments/assets/e86272a1-9e47-4a26-8e31-fd05cd7c27c9" />
+  <hr />
+  <img width="80%" alt="View projects" src="https://github.com/user-attachments/assets/8f433811-82c0-4cfd-bbdb-f25f29a8ed72" />
+</div>
 
-```shell
-# Add a new dependency for georama
-docker compose run --rm --entrypoint bash georama -c "uv add <package-name>"
-# Add a new dev dependency for georama
-docker compose run --rm --entrypoint bash georama -c "uv add --group dev <package-name>"
-```
+### GeoGirafe impressions
 
-```shell
-docker compose up --watch --remove-orphans
-```
+<div align="center">
+  <img width="80%" alt="View GeoGirafe" src="https://github.com/user-attachments/assets/7daf38b0-c81d-4245-b0cd-85cd19b2b297" />
+  <hr />
+  <img width="80%" alt="View GeoGirafe 2D/3D" src="https://github.com/user-attachments/assets/d9bc7610-643f-4ce7-be99-97974b4db62d" />
+</div>
 
-```shell
-docker compose run --rm --entrypoint bash georama -c "uv run manage"
-```
+## Core features
 
-```shell
-docker compose run --rm --entrypoint bash georama -c "uv run pytest"
-```
+- **QGIS-native workflow:** import and manage QGIS projects directly, keeping your
+  existing data and styling intact
+- **WMS publishing:** serve your layers as OGC-compliant WMS 1.3.0 services
+  via [qgis-server-light](https://github.com/opengisch/qgis-server-light)
+- **OGC API Features (WFS 3):** share vector data using modern open standards, powered
+  by [pygeoapi](https://github.com/geopython/pygeoapi)
+- **Metadata management:** maintain flexible, extensible metadata for your layers and
+  datasets
+- **Fine-grained permissions:** control who can see, edit, and publish what, down to the
+  attribute level
+- **Identity provider integration:** connect to external authentication providers
+  (OAuth, SAML, LDAP) via standard Django apps
+- **Modern web map interface:** end users explore your data
+  through [GeoGirafe](https://gitlab.com/geogirafe/gg-viewer), a clean and accessible
+  WebGIS frontend
 
-### Create DEV content
+## How it works
 
-⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
+Georama is a modular suite of [Django](https://www.djangoproject.com) apps. At its core,
+it connects four components:
 
-The following commands are bulk creation tools! They are intended to be used whenever
-you as a DEV need random and more or less functional content in Georama to try things.
-NOTE: FOR CONSISTENCY REASON THESE COMMANDS ARE ALL DELETING THE CONTENT OF THEIR
-RELATED
-TABLES BEFORE THEY INSERT THE RANDOM STUFF!
+- [**QGIS**](https://qgis.org/) as the data integration and styling engine
+- [**Django**](https://www.djangoproject.com/) as the application and permission layer
+- [**pygeoapi**](https://github.com/geopython/pygeoapi) and [
+  **qgis-server-light**](https://github.com/opengisch/qgis-server-light) as the
+  standards-based service backends
+- [**GeoGirafe**](https://gitlab.com/geogirafe/gg-viewer) as the frontend WebGIS
 
-⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
+This architecture keeps each component focused and isolated, and is designed with a
+future plugin and extension system in mind.
 
-#### Core content
+## Getting started
 
-Create users, groups, admin user, memberships, organisations, assigns users randomly to
-organisations (memberships) and to groups.
+For quickly getting started with Georama, check out our detaild
+documentation: https://opengisch.github.io/georama/get_started/
 
-Adminuser: `admin/admin`
+## Contributing
 
-User: `<username>:<username>`
+We welcome contributions of all kinds: bug reports, feature ideas, documentation
+improvements, and pull requests.
 
-```shell
-docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_content_core"
-```
+Before investing time in a new feature or fix, please get in touch first, either
+by [opening an issue](https://github.com/opengisch/georama/issues) or starting a
+conversation in
+our [Discussions space](https://github.com/opengisch/georama/discussions). This helps us
+align early and makes sure your effort has the best chance of being merged.
 
-#### Integration content
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
 
-Creates projects, raster, custom and vector layers (with fields) and binds projects
-randomly to organisations which might exist.
+## License
 
-NOTE: Raster and Custom layers are non-functional random layers, Vector is PostGIS only!
+Georama is open source and dual-licensed
+under [AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) (or later) and
+OPENGIS.ch Commercial licence.
 
-For each vector layer, a corresponding postgis table is created and populated with
-random data.
-The tables can be found in the georama db in the schema `dummy`.
+## About OPENGIS.ch
 
-```shell
-docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_content_integration"
-```
+Georama is built and maintained by [OPENGIS.ch](https://opengis.ch), a Swiss company
+specializing in open-source geospatial software. We are also the team
+behind [QField](https://qfield.org) and [QFieldCloud](https://qfield.cloud). We believe
+open standards and open software are the foundation of a healthy geospatial ecosystem.
 
-#### Features content
-
-Randomly publishes vector layers assigns them to users or groups.
-
-```shell
-docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_content_features"
-```
-
-#### Maps content
-
-Randomly publishes vector datasources as WMS and assigns them to users or groups.
-
-```shell
-docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_content_maps"
-```
-
-#### WebGis content
-
-Randomly publishes Projects as WebGis Themes. Be aware, that only the automatic vector
-datasources
-are working currently. Raster and Custom are generated but have no working
-content/source definition
-yet.
-
-Also, the themes_json is empty currently and so a bound GeoGirafe instance won't work
-currently.
-
-```shell
-docker compose run --rm --entrypoint bash georama -c "uv run manage create_dev_content_webgis"
-```
-
-# pygeoapi
-
-- oapif write only on postgis layers
-- ogr provider does not support layers without fields beside pk & geom
-
-# Problems
-
-- we depend on GDAL, uv always just installs the newest package or the locked on,
-  however, this
-  rarely matches the exact version available installed in random systems, so we remove
-  it as a dep
-  from pyproject.toml and make it a dep assumed to be available in the system via
-  (python3-gdal, or similar)
-- Inheritance of templates not working for django
-  partials: https://code.djangoproject.com/ticket/37038
-
-# PROD notes
-
-- pooling of DB connections from georama to its own DB has to be handled externally
-  (suggestion: pg_bouncer)
-
-Build prod image
-
-```shell
-docker build -t local/georama:prod .
-```
-
-Run prod image ([--init](https://docs.docker.com/reference/compose-file/services/#init)
-replaces tini, it's now included in docker)
-
-```shell
-docker run --rm --env-file .env.prod --init docker.io/local/georama:prod
-```
+<div align="center">
+  <a href="https://opengis.ch">
+    <img width="413" height="162" alt="logo_opengisch_open-source-geoninjas" src="https://github.com/user-attachments/assets/ebdb2d99-48a4-418d-8822-a17ac6f1365b" />
+  </a>
+</div>
