@@ -89,6 +89,14 @@ extend-exclude = [
 ]
 [tool.ruff.lint]
 extend-select = [
+    "I", # isort
+    "B006", # Mutable argument default
+    "BLE001", # Checks for except clauses that catch all exceptions, see https://docs.astral.sh/ruff/rules/blind-except/
+    "UP035", # Checks for uses of deprecated imports based on the minimum supported Python version, see https://docs.astral.sh/ruff/rules/deprecated-import/
+    "TID252", # Bans relative imports, requires absolute imports, see https://docs.astral.sh/ruff/rules/relative-imports/
+    "TC", # Type checking rules, https://docs.astral.sh/ruff/rules/#flake8-type-checking-tc
+    "N", # Naming rules, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
+    "D", # Documentation rules, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
     "E", # pycodestyle errors
     "W", # pycodestyle warnings
     "F", # pyflakes
@@ -96,9 +104,30 @@ extend-select = [
     "UP", # pyupgrade replacement
     "B", # bugbear
     "SIM", # simplify
-    "I", # isort
+]
+ignore = [
+    # No need to force f-strings everywhere, something `"".format()` is more readable
+    # See https://docs.astral.sh/ruff/rules/f-string/
+    "UP032",
+    # Django encourages `Value as V`, so don't flag it as an error
+    # See https://docs.astral.sh/ruff/rules/camelcase-imported-as-acronym/
+    "N817",
+    # We do not require documentation by default
+    "D10",
+    # Multi-line summaries are common in this project
+    # See https://docs.astral.sh/ruff/rules/missing-blank-line-after-summary/
+    "D205",
 ]
 fixable = ["ALL"]
+
+[tool.ruff.lint.per-file-ignores]
+# django-configurations exposes settings as uppercase properties
+"src/georama/settings.py" = ["N802"]
+# Fake data generation falls back to defaults on any failure
+"src/georama/core/common/faker/**" = ["BLE001"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.pytest.ini_options]
 addopts = "-vra --dc=Test"

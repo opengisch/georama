@@ -49,14 +49,15 @@ class WfsOperation(OgcOperation):
         )
 
     def sanitized_typenames(self, type_names: list[str]) -> list[str]:
-        """
-        Method to bridge layer names which are configured in Georama and the
+        """Method to bridge layer names which are configured in Georama and the
         version which is exposed by WFS containing the namespace.
+
         Args:
             type_names: The names which should be sanitized.
 
         Returns:
             The sanitized names.
+
         Raises:
             AttributeError: In case namespace is not in all typenames.
         """
@@ -97,8 +98,7 @@ class WfsOperation(OgcOperation):
         ).all()
 
     def supported_crs(self, layer_crs: Crs) -> list[Crs]:
-        """
-        The crs a layer is offered in: its own crs (DefaultCRS) first, followed by the
+        """The crs a layer is offered in: its own crs (DefaultCRS) first, followed by the
         crs configured for the app (OtherCRS).
 
         Args:

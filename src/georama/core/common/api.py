@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from adrf import mixins, viewsets
 from adrf.mixins import get_data
 from asgiref.sync import sync_to_async
@@ -11,7 +13,6 @@ from django.db import router as djdb_router
 from django.db.models import Exists, F, JSONField, Min, OuterRef, Q, Value
 from django.db.models.functions import JSONObject
 from django.forms import ModelForm
-from django.http.request import QueryDict
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -27,6 +28,9 @@ from georama.core.common.remote_actions import RemoteAction, get_remote_action
 from georama.core.common.request import GeoramaDrfRequest
 from georama.core.common.serializers import ObjectPermissionSerializer, PermissionActionSerializer
 from georama.core.patches.adrf import pagination
+
+if TYPE_CHECKING:
+    from django.http.request import QueryDict
 
 User = get_user_model()
 
@@ -46,7 +50,7 @@ class GeoramaModelPermissions(DjangoModelPermissions):
 
 
 def build_mock_request(method, path, view, original_request, **kwargs):
-    """we need to hook in here since the generator for schemas seem to not
+    """We need to hook in here since the generator for schemas seem to not
     transport all attributes (DRF SPectacular), this method is configured in the
     settings py then!
     """
@@ -57,13 +61,12 @@ def build_mock_request(method, path, view, original_request, **kwargs):
 
 
 class GeoramaOrganisationalMixin:
-    """Mixin class to add organisational filtering to viewsets"""
+    """Mixin class to add organisational filtering to viewsets."""
 
     request: GeoramaDrfRequest
 
     def get_queryset(self):
-        """
-        The queryset is automatically filtered by the organisation.
+        """The queryset is automatically filtered by the organisation.
 
         Returns:
             The filtered queryset.
@@ -75,8 +78,6 @@ class GeoramaOrganisationalMixin:
 class GeoramaTemplateViewSetReadOnly(
     viewsets.ReadOnlyModelViewSet,
 ):
-    """ """
-
     pagination_class = pagination.LimitOffsetPagination
     renderer_classes = [
         renderers.TemplateHTMLRenderer,
@@ -101,6 +102,7 @@ class GeoramaTemplateViewSetReadOnly(
                 information about actions see the
                 [restframework docs](https://www.django-rest-framework.org/api-guide/routers/#simplerouter)
             manager: Switch to create the manager version of the action instead.
+
         Returns:
             The constructed view name.
         """
@@ -140,8 +142,7 @@ class GeoramaTemplateViewSetReadOnly(
 
     @property
     async def bread_crumb_action_context(self):
-        """
-        We leve it to the baseclass here to point to a specific action if needed.
+        """We leve it to the baseclass here to point to a specific action if needed.
 
         Returns:
             Empty action context. So no button will be shown by default.
@@ -371,7 +372,7 @@ class GeoramaTemplateViewSet(
 
     async def aretrieve(self, request: GeoramaDrfRequest, *args, **kwargs):
         """Handles the standard retrieve of a model view
-        but returns a form in case of HTML format
+        but returns a form in case of HTML format.
         """
         if request.accepted_renderer.format == "html":
             context = await self._prepare_single_context()
@@ -422,7 +423,7 @@ class GeoramaTemplateViewSet(
         renderer_classes=[renderers.TemplateHTMLRenderer],
     )
     async def adelete_confirm(self, request, *args, **kwargs):
-        """Shows a confirmation dialog before data is actually deleted"""
+        """Shows a confirmation dialog before data is actually deleted."""
         context = await self._prepare_single_context()
         using = djdb_router.db_for_write(self.queryset.model)
         collector = NestedObjects(using=using)
@@ -457,7 +458,9 @@ class GeoramaTemplateViewSet(
 
 class GeoramaManageableMixin:
     """This mixin adds a dedicated breadcrumb action to viewsets which should offer
-    a manager sidecar api. Convention of the basename of the manager is:
+    a manager sidecar api.
+
+    Convention of the basename of the manager is:
         `manager-<model_name>`
     So for the model Theme it would be:
     `manager-theme`
@@ -530,8 +533,7 @@ class GeoramaObjPermMixin:
 
 
 class OrganisationalModelViewSet(GeoramaOrganisationalMixin, viewsets.ModelViewSet):
-    """
-    A DRF ViewSet which uses organisational bound tables to filter automatically for
+    """A DRF ViewSet which uses organisational bound tables to filter automatically for
     only organisations defined by the request.
 
     Attributes:

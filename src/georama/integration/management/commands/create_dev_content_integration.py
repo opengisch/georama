@@ -1,5 +1,6 @@
 import os
 from importlib import import_module
+from typing import TYPE_CHECKING
 
 import psycopg
 from django.conf import settings
@@ -7,9 +8,11 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 from faker.utils.loading import find_available_providers
 
-from georama.core.common.faker.gis import Dataset
 from georama.integration.factories import CustomFactory, FieldFactory, RasterFactory, VectorFactory
 from georama.integration.models import Datasource, Project, Vector, VectorField
+
+if TYPE_CHECKING:
+    from georama.core.common.faker.gis import Dataset
 
 META_PROVIDERS_MODULES = [
     "georama.core.common.faker",

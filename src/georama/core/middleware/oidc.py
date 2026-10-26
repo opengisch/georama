@@ -75,7 +75,7 @@ class GeoGirafeAuthenticationMiddleware:
 
         try:
             payload = self.verify_token(access_token)
-        except Exception:
+        except Exception:  # noqa: BLE001
             return self.get_response(request)
 
         user = self.get_or_create_user(payload)
@@ -96,7 +96,7 @@ class GeoGirafeAuthenticationMiddleware:
             The newly created user object.
         """
         adapter = get_adapter()
-        User = get_user_model()
+        User = get_user_model()  # noqa: N806
 
         user = User(
             username=payload["preferred_username"],
@@ -164,10 +164,10 @@ class GeoGirafeAuthenticationMiddleware:
 
         Returns:
             The decoded and verified token (basically a dict)
+
         Raises:
             PermissionDenied: In case a token is expired, or invalid in other means.
         """
-
         # This receives the public key from the provider. Be aware that a cache is
         # in place here which is implemented in jwt.PyJWKClient. We could expose
         # settings some day maybe, currently we go with default settings.

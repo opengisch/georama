@@ -16,8 +16,9 @@ from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 
 class TestOgcService:
-    """We test the correct extraction and responses of OGC WXS offered by georama,
-    currently we don't test:
+    """We test the correct extraction and responses of OGC WXS offered by georama.
+
+    Currently we don't test:
         - rendering
         - feature extraction
         - legends

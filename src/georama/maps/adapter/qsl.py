@@ -57,8 +57,7 @@ async def generate_preview_image(wms_layer: WmsLayer) -> bytes | None:
 async def render_image(
     wms_layer: WmsLayerAbstract, bbox: BBox, crs: str, width: int, height: int
 ) -> bytes | None:
-    """
-    Renders a png of the layer through QSL.
+    """Renders a png of the layer through QSL.
 
     Args:
         wms_layer: The layer to render.
@@ -104,8 +103,7 @@ async def render_image(
 
 
 async def resolve_other_crs(appname: str) -> list[Crs]:
-    """
-    Resolves the crs configured for the OGC services of an app through QSL, so georama
+    """Resolves the crs configured for the OGC services of an app through QSL, so georama
     gets the full crs information (identifiers, axis order) without own crs knowledge.
     The result is cached per process in `Config.resolved_other_crs`.
 

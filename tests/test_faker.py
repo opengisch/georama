@@ -1,11 +1,13 @@
 from importlib import import_module
+from typing import TYPE_CHECKING
 
 import pytest
 from faker import Faker
 from faker.utils.loading import find_available_providers
 from shapely import LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon
 
-from georama.core.common.faker.gis import Dataset
+if TYPE_CHECKING:
+    from georama.core.common.faker.gis import Dataset
 
 META_PROVIDERS_MODULES = [
     "georama.core.common.faker",

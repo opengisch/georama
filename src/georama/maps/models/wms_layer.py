@@ -91,8 +91,7 @@ class WmsLayerAbstract(models.Model):
 
     @property
     def extent_in_axis_order(self) -> BBox:
-        """
-        The extent in the axis order of its crs, as WMS 1.3.0 expects it for BBOX and
+        """The extent in the axis order of its crs, as WMS 1.3.0 expects it for BBOX and
         BoundingBox (e.g. lat/lon for EPSG:4326). The stored extent is always x/y as QSL
         delivers it.
         """
@@ -244,9 +243,9 @@ class WmsLayerAbstract(models.Model):
             source = self._get_spatial_ref(self.get_datasource.crs_to_qsl.auth_id)
             target = self._get_spatial_ref(4326)
             self.crs_transform_to_wgs84 = osgeo_osr.CoordinateTransformation(source, target)
-        llCorner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_min, bbox.y_min)
-        urCorner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_max, bbox.y_max)
-        return BBox.from_list([*llCorner, *urCorner])
+        ll_corner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_min, bbox.y_min)
+        ur_corner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_max, bbox.y_max)
+        return BBox.from_list([*ll_corner, *ur_corner])
 
     @staticmethod
     def _get_spatial_ref(epsg_code: int | str):

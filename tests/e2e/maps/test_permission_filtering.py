@@ -9,7 +9,8 @@ from georama.maps.services.wfs_2_0_0 import WfsOperation
 class TestOgcService:
     """We test the correct filtering of accessable layers with a full walk from publishing
     a test layer with decent permissions and then analysing the returned capabilities
-    content"""
+    content.
+    """
 
     wms_capabilities_url = "/maps/ows/?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0"
     wfs_capabilities_url = "/maps/ows/?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=2.0.0"

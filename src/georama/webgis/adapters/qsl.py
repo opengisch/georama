@@ -46,8 +46,7 @@ def extend_bbox(bbox: BBox, bbox_extension: BBox):
 
 
 async def render_background_thumbnail(wms_layer: GeoramaWmsLayer) -> str | None:
-    """
-    Renders the thumbnail of a background layer through QSL.
+    """Renders the thumbnail of a background layer through QSL.
 
     Args:
         wms_layer: The background layer.
@@ -103,9 +102,9 @@ async def handle_dataset(
                     url=source_url,
                     type="WMS",
                     credential=False,
-                    imageType=source_format,
-                    wfsSupport=False,
-                    isSingleTile=False,
+                    image_type=source_format,
+                    wfs_support=False,
+                    is_single_tile=False,
                     namespace="",
                 )
                 ogc_servers[ogc_server.name] = ogc_server
@@ -116,10 +115,10 @@ async def handle_dataset(
                         url=source_url,
                         layer=source.layers,
                         type="WMTS",
-                        imageType=source_format,
+                        image_type=source_format,
                         style=source.styles or "default",
                         matrix_set=source.tile_matrix_set,
-                        metadata=MetaData(ogcServer=ogc_server.name),
+                        metadata=MetaData(ogc_server=ogc_server.name),
                     )
                 elif isinstance(source, WmsSource):
                     gg_wms_layer = WmsLayer(
@@ -127,27 +126,27 @@ async def handle_dataset(
                         name=wms_layer.metadata.title,
                         type="WMS",
                         layers=source.layers,
-                        imageType=source_format,
-                        minResolutionHint=wms_layer.min_resolution_hint,
-                        maxResolutionHint=wms_layer.max_resolution_hint,
-                        childLayers=[
+                        image_type=source_format,
+                        min_resolution_hint=wms_layer.min_resolution_hint,
+                        max_resolution_hint=wms_layer.max_resolution_hint,
+                        child_layers=[
                             LayerSettings(
                                 name=WfsOperation.encode_layer_name(wms_layer.identifier),
-                                minResolutionHint=wms_layer.min_resolution_hint,
-                                maxResolutionHint=wms_layer.max_resolution_hint,
+                                min_resolution_hint=wms_layer.min_resolution_hint,
+                                max_resolution_hint=wms_layer.max_resolution_hint,
                                 queryable=False,
                             )
                         ],
-                        ogcServer=ogc_server.name,
+                        ogc_server=ogc_server.name,
                         editable=False,
                         style=source.styles or "default",
                         metadata=MetaData(),
                     )
-        gg_wms_layer.metadata.isChecked = qsl_dataset.is_checked
+        gg_wms_layer.metadata.is_checked = qsl_dataset.is_checked
         gg_wms_layer.metadata.thumbnail = await render_background_thumbnail(wms_layer)
         background_layers.append(gg_wms_layer)
         return
-    gg_wms_layer.metadata.isChecked = qsl_dataset.is_checked
+    gg_wms_layer.metadata.is_checked = qsl_dataset.is_checked
     if wms_layer.extent is not None:
         extend_bbox(bbox, BBox.from_string(wms_layer.extent))
     gg_children.append(gg_wms_layer)
@@ -173,7 +172,7 @@ async def unwrap_group(
             gg_group = LayerGroup(
                 id=qsl_tree_match.id,
                 name=qsl_layer_group.title,
-                metadata=MetaData(isExpanded=qsl_layer_group.is_expanded),
+                metadata=MetaData(is_expanded=qsl_layer_group.is_expanded),
             )
             # its a group again
             await unwrap_group(
