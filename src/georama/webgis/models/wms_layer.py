@@ -78,22 +78,22 @@ class WmsLayer(WmsLayerAbstract):
         return GGWmsLayer(
             id=WfsOperation.encode_layer_name(self.identifier),
             name=WfsOperation.encode_layer_name(self.identifier),
-            metadata=GGMetadata(legend=True, isLegendExpanded=True),
+            metadata=GGMetadata(legend=True, is_legend_expanded=True),
             type="WMS",
             layers=WfsOperation.encode_layer_name(self.identifier),
-            imageType="image/png",
-            minResolutionHint=self.min_resolution_hint,
-            maxResolutionHint=self.max_resolution_hint,
-            childLayers=[
+            image_type="image/png",
+            min_resolution_hint=self.min_resolution_hint,
+            max_resolution_hint=self.max_resolution_hint,
+            child_layers=[
                 GGLayerSettings(
                     # GeoGirafe uses the child layer name as WFS feature type name
                     name=WfsOperation.encode_layer_name(self.identifier),
-                    minResolutionHint=self.min_resolution_hint,
-                    maxResolutionHint=self.max_resolution_hint,
+                    min_resolution_hint=self.min_resolution_hint,
+                    max_resolution_hint=self.max_resolution_hint,
                     queryable=self.is_queryable,
                 )
             ],
-            ogcServer=settings.WEBGIS_OGC_SERVER_NAME,
+            ogc_server=settings.WEBGIS_OGC_SERVER_NAME,
             dimensions=None,
             editable=False,
             style="default",

@@ -1,5 +1,4 @@
-"""
-This module implements necessary WFS 2.0 handling. It mainly deals with the interfaces
+"""This module implements necessary WFS 2.0 handling. It mainly deals with the interfaces
 of OGC and ISO.
 
 In general, we have to handle 2 incoming request types:
@@ -134,8 +133,7 @@ class WfsGetFeature(WfsOperation):
         ]
 
     def prepare_filter_element(self, filter_definition: str) -> Filter:
-        """
-        Creates an instance of Filter from the passed XML string filter definition.
+        """Creates an instance of Filter from the passed XML string filter definition.
 
         Args:
             filter_definition: The XML string from which the Filter instance will be created.
@@ -143,14 +141,12 @@ class WfsGetFeature(WfsOperation):
         Returns:
             The Filter instance.
         """
-
         parser = XmlParser()
         fes_filter = parser.from_string(filter_definition, Filter)
         return fes_filter
 
     def check_filter_empty(self, filter: Filter) -> bool:
-        """
-        Little helper method to check if a filter does not contain any set
+        """Little helper method to check if a filter does not contain any set
         attributes. This is important,
         since empty filters can cause trouble.
 
@@ -167,8 +163,7 @@ class WfsGetFeature(WfsOperation):
 
     @staticmethod
     def prepare_bbox_filter(bbox_definition: str, srs_name: str | None) -> Filter:
-        """
-        Creates the filter for the KVP BBOX parameter.
+        """Creates the filter for the KVP BBOX parameter.
 
         Args:
             bbox_definition: The BBOX parameter, ``minx,miny,maxx,maxy[,crs]`` in the axis
@@ -201,8 +196,7 @@ class WfsGetFeature(WfsOperation):
 
     @staticmethod
     def assign_default_bbox_crs(fes_filter: Filter | None, layer_crs: Crs) -> None:
-        """
-        A BBOX without crs is in the DefaultCRS of the feature type, which is the crs of the
+        """A BBOX without crs is in the DefaultCRS of the feature type, which is the crs of the
         layer. The URI is used so that QGIS reads the BBOX in the axis order of the crs.
 
         Args:
@@ -218,8 +212,7 @@ class WfsGetFeature(WfsOperation):
                         operand.srs_name = layer_crs.ogc_uri
 
     def prepare_queries(self, query_params: dict) -> list[Query]:
-        """
-        This implements the part of the spec to construct a query object out of simple
+        """This implements the part of the spec to construct a query object out of simple
         KVP (key value pair)
         encoded parameters from GET URL request.
 
@@ -238,7 +231,6 @@ class WfsGetFeature(WfsOperation):
         Returns:
             The prepared queries
         """
-
         type_names_param_value = query_params.get("TYPENAMES")
         aliases_param_value = query_params.get("ALIASES")
         filter_param_value = query_params.get("FILTER")
@@ -310,8 +302,7 @@ class WfsGetFeature(WfsOperation):
         return queries
 
     def query_parameters_to_get_feature_request(self, query_params: dict) -> GetFeature:
-        """
-        Transforms a dictionary of query parameters to a GetFeature object.
+        """Transforms a dictionary of query parameters to a GetFeature object.
 
         Args:
             query_params: The dictionary of query parameters as they are coming from the
@@ -331,8 +322,7 @@ class WfsGetFeature(WfsOperation):
         )
 
     def prepare_feature_collection(self, feature_collection: FeatureCollection):
-        """
-        Used to alter the feature collection with additional runtime configuration.
+        """Used to alter the feature collection with additional runtime configuration.
 
         Args:
             feature_collection: The feature collection which should be altered.
@@ -353,11 +343,12 @@ class WfsGetFeature(WfsOperation):
         return feature_collection
 
     def unwrap_type_names(self, get_feature_params: GetFeature, unique: bool = True) -> list[str]:
-        """
-        Get a list of all typenames
+        """Get a list of all typenames.
+
         Args:
             get_feature_params: The parameter how it was taken from request
             unique: If the list should not contain duplicates
+
         Returns:
             flat list of type names
         """
@@ -372,8 +363,7 @@ class WfsGetFeature(WfsOperation):
         return type_names
 
     def resolve_srs_name(self, srs_name: str, supported_crs: list[Crs]) -> Crs:
-        """
-        Matches the srsName of a query against the crs advertised for the layer. This is a
+        """Matches the srsName of a query against the crs advertised for the layer. This is a
         pure comparison of the identifiers, the transformation itself is done by QSL.
 
         Args:
@@ -405,12 +395,12 @@ class WfsGetFeature(WfsOperation):
     def getfeature_to_qslgetfeaturejob(
         self, get_feature_parameter: GetFeature
     ) -> QslJobParameterFeature:
-        """
-        This method transforms a
+        """This method transforms a
         georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.get_feature.GetFeature
         constructed from the original request towards Georama into a
         qgis_server_light.interface.job.QslGetFeatureJob. This is done to minimize the
         interface and keep control about what we send over to the worker.
+
         Args:
             get_feature_parameter: The query parameters coming in from Django request.
 
@@ -474,8 +464,7 @@ class WfsGetFeature(WfsOperation):
 
     @staticmethod
     def srs_name_of(crs: Crs) -> str:
-        """
-        The srs name the geometries are labeled with. The URN is used independent of the
+        """The srs name the geometries are labeled with. The URN is used independent of the
         requested notation, since the short ``EPSG:<code>`` notation is read differently by
         clients (x/y by QGIS and GeoServer, authority axis order by OpenLayers), the URN
         always means the axis order of the crs. The URN is preferred over the URI, since
@@ -492,8 +481,7 @@ class WfsGetFeature(WfsOperation):
 
     @staticmethod
     def swap_axis(crs: Crs) -> bool:
-        """
-        Decides whether the coordinates, which QSL always delivers as x/y (east/north), have
+        """Decides whether the coordinates, which QSL always delivers as x/y (east/north), have
         to be written in swapped order. This is the case for crs with inverted axis order
         (e.g. lat/lon for EPSG:4326) when they are labeled with their URN or URI (see
         ``srs_name_of``).
@@ -508,8 +496,7 @@ class WfsGetFeature(WfsOperation):
 
     @staticmethod
     def swap_axis_of_coordinates(coordinates: np.ndarray, dimensions: int) -> np.ndarray:
-        """
-        Swaps the first two ordinates of each coordinate in a flat list of coordinates.
+        """Swaps the first two ordinates of each coordinate in a flat list of coordinates.
 
         Args:
             coordinates: The flat coordinates as they are read from WKB.
@@ -525,8 +512,7 @@ class WfsGetFeature(WfsOperation):
     def parse_wkb_to_gml3(
         self, wkb: bytes, srs_definition: str, swap_axis: bool = False
     ) -> GeometryMember | GeometryMembers:
-        """
-        This method directly reads the bytes of WKB representation and shreds them into the
+        """This method directly reads the bytes of WKB representation and shreds them into the
         desired objects from the GML3 interface. This avoids nested iterations where ever
         possible as it often comes by libraries which are parsing WKB in some GeoJSON like
         structure before transforming it to the desired format (GML3 in our case).Some tests

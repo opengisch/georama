@@ -80,8 +80,7 @@ class OrganisationMiddleware:
 
     @staticmethod
     def remove_www(hostname: str) -> str:
-        """
-        Removes www. from the beginning of the address. Only for
+        """Removes www. from the beginning of the address. Only for
         routing purposes. www.test.com/login/ and test.com/login/ should
         find the same tenant.
         """

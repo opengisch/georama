@@ -40,8 +40,7 @@ class OgcServer(View):
     perms: list[str] = ["maps.view_published_wms_layer"]
 
     def wms_130_capabilities(self, request: GeoramaHttpRequest, params: dict) -> HttpResponse:
-        """
-        Handling the wms 1.3.0 capabilities.
+        """Handling the wms 1.3.0 capabilities.
 
         Args:
             request: The django request object.

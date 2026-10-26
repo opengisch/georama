@@ -22,9 +22,7 @@ class Config:
 
     @property
     def job_timeout(self) -> float:
-        """
-        Timeout in milliseconds
-        """
+        """Timeout in milliseconds."""
         return settings.JOB_TIMEOUT
 
     # The crs are resolved by QSL and cached per process (settings don't change at
@@ -32,8 +30,7 @@ class Config:
     resolved_other_crs: dict[str, list[Crs]] = {}
 
     def other_crs_identifiers(self, appname: str) -> list[str]:
-        """
-        The identifiers of the crs which are offered in addition to the crs of a layer,
+        """The identifiers of the crs which are offered in addition to the crs of a layer,
         configured per app (e.g. `MAPS_OGC_OTHER_CRS`, `WEBGIS_OGC_OTHER_CRS`).
 
         Args:
@@ -45,8 +42,7 @@ class Config:
         return getattr(settings, f"{appname.upper()}_OGC_OTHER_CRS", [])
 
     def other_crs(self, appname: str) -> list[Crs]:
-        """
-        The crs which are offered in addition to the crs of a layer as they were resolved
+        """The crs which are offered in addition to the crs of a layer as they were resolved
         by QSL.
 
         Args:

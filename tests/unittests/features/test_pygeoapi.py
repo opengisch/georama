@@ -10,7 +10,7 @@ from georama.features.pygeoapi_providers.sql import GeoramaSqlProvider
 from georama.features.views.pygeoapi import PygeoapiServer
 
 
-class ConnectionIntercepted(Exception):
+class ConnectionInterceptedError(Exception):
     pass
 
 
@@ -38,15 +38,14 @@ def create_provider_definition(source: PostgresSource) -> dict:
 
 @pytest.fixture
 def captured_dsn(monkeypatch):
-    """
-    Replaces psycopg2.connect to capture the connection string libpq would receive,
+    """Replaces psycopg2.connect to capture the connection string libpq would receive,
     without connecting to any database.
     """
     captured = {}
 
     def fake_connect(dsn=None, **kwargs):
         captured.update(parse_dsn(make_dsn(dsn, **kwargs)))
-        raise ConnectionIntercepted()
+        raise ConnectionInterceptedError()
 
     monkeypatch.setattr(psycopg2, "connect", fake_connect)
     sql.get_engine.cache_clear()
@@ -55,14 +54,13 @@ def captured_dsn(monkeypatch):
 
 
 def connect(source: PostgresSource, captured_dsn: dict) -> dict:
-    with pytest.raises(ConnectionIntercepted):
+    with pytest.raises(ConnectionInterceptedError):
         GeoramaSqlProvider(create_provider_definition(source))
     return captured_dsn
 
 
 class TestCreatePostgresProviderConnection:
-    """
-    Checks the connection parameters libpq receives once the provider definition went
+    """Checks the connection parameters libpq receives once the provider definition went
     through pygeoapi, SQLAlchemy and psycopg2.
     """
 

@@ -2,6 +2,7 @@ import logging
 import uuid
 from typing import Literal
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.common import BBox, Crs, Style
@@ -125,7 +126,7 @@ class Datasource(models.Model):
             try:
                 getattr(self, name)
                 return name
-            except Exception as _:
+            except ObjectDoesNotExist:
                 pass
         raise LookupError("Datasource is stale")
 

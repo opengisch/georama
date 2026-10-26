@@ -162,14 +162,14 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
     def georama_ogc_server(self, request: GeoramaDrfRequest) -> GGOgcServer:
         return GGOgcServer(
             url=request.build_absolute_uri(reverse("webgis:ows_entry")),
-            urlWfs=request.build_absolute_uri(reverse("webgis:ows_entry")),
+            url_wfs=request.build_absolute_uri(reverse("webgis:ows_entry")),
             type=settings.WEBGIS_OGC_SERVER_NAME,
             credential=False,
-            imageType="image/png",
-            isSingleTile=False,
+            image_type="image/png",
+            is_single_tile=False,
             name=settings.WEBGIS_OGC_SERVER_NAME,
             namespace=WfsOperation.own_namespace_domain,
-            wfsSupport=True,
+            wfs_support=True,
         )
 
     @action(detail=False, methods=["GET"], renderer_classes=[renderers.JSONRenderer])

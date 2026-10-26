@@ -54,8 +54,7 @@ class Dataset:
 def get_epsg_bounds(
     epsg_code: int,
 ) -> tuple[tuple[float, float, float, float], tuple[float, float, float, float]]:
-    """
-    Retrieve the bounding box (minx, miny, maxx, maxy) for an EPSG code.
+    """Retrieve the bounding box (minx, miny, maxx, maxy) for an EPSG code.
     Works with both geographic (degrees) and projected (meters) CRS.
 
     Returns:
@@ -83,8 +82,7 @@ def get_epsg_bounds(
 
 
 class Provider(BaseProvider):
-    """
-    Faker provider for generating random valid geometries as WKB.
+    """Faker provider for generating random valid geometries as WKB.
 
     Supports all Faker locale variants with intelligent EPSG selection:
     - Uses local projected EPSG codes where available (e.g., EPSG:2056 for Switzerland)
@@ -590,8 +588,7 @@ class Provider(BaseProvider):
         max_attempts: int = 50,
         bounds: tuple | None = None,
     ) -> Polygon | None:
-        """
-        Generate a valid polygon without self-intersections.
+        """Generate a valid polygon without self-intersections.
 
         Args:
             min_points: Minimum number of points
@@ -648,21 +645,18 @@ class Provider(BaseProvider):
 
     def multipoint(self, num_points: int = 5) -> MultiPoint:
         """Generate a random valid MultiPoint as WKB."""
-
         coords = self._random_coordinates(num_points)
         return MultiPoint(coords)
 
     def multilinestring(self, num_lines: int = 3, points_per_line: int = 5) -> MultiLineString:
         """Generate a random valid MultiLineString as WKB."""
-
         lines = [
             LineString(self._random_coordinates(max(2, points_per_line))) for _ in range(num_lines)
         ]
         return MultiLineString(lines)
 
     def multipolygon(self, num_polygons: int = 3) -> MultiPolygon:
-        """
-        Generate a random valid MultiPolygon as WKB.
+        """Generate a random valid MultiPolygon as WKB.
 
         Polygons are generated in separate grid cells to ensure no overlaps.
         This guarantees PostGIS ST_IsValid() returns true.

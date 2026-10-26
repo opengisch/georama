@@ -456,8 +456,7 @@ class TestPygeoapiServer:
 
 
 class TestPygeoapiServerCsrf:
-    """
-    External OGC API clients authenticate through session or basic auth they don't know
+    """External OGC API clients authenticate through session or basic auth they don't know
     about CSRF token. So with this test we ensure thos clients can reach through anyhow.
     """
 

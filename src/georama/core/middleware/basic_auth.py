@@ -16,9 +16,7 @@ log = logging.getLogger(__name__)
 
 
 class BasicAuthenticationMiddleware:
-    """
-    HTTP Basic authentication against username/password.
-    """
+    """HTTP Basic authentication against username/password."""
 
     www_authenticate_realm = "api"
 
@@ -40,13 +38,12 @@ class BasicAuthenticationMiddleware:
                 # but auth failed: consider the user unlogged.
                 log.debug(_("User was not authenticated."))
                 return HttpResponse("Unauthorized", status=401)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 log.error(e)
         return self.get_response(request)
 
     def authenticate(self, request) -> tuple[AbstractUser, None] | None:
-        """
-        Returns a `User` if a correct username and password have been supplied
+        """Returns a `User` if a correct username and password have been supplied
         using HTTP Basic authentication.  Otherwise returns `None`.
         """
         auth = self.get_authorization_header(request).split()
@@ -80,8 +77,7 @@ class BasicAuthenticationMiddleware:
     def authenticate_credentials(
         self, userid, password, request=None
     ) -> tuple[AbstractUser, None] | None:
-        """
-        Authenticate the userid and password against username and password
+        """Authenticate the userid and password against username and password
         with optional request for context.
         """
         credentials = {get_user_model().USERNAME_FIELD: userid, "password": password}
@@ -104,8 +100,7 @@ class BasicAuthenticationMiddleware:
 
     @staticmethod
     def get_authorization_header(request: HttpRequest):
-        """
-        Return request's 'Authorization:' header, as a bytestring.
+        """Return request's 'Authorization:' header, as a bytestring.
 
         Hide some test client ickyness where the header can be unicode.
         """

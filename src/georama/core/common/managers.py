@@ -7,8 +7,7 @@ from georama.core.models.organisation import Organisation
 
 
 class OrganisationalManager(models.Manager.from_queryset(OrganisationalQuerySet)):
-    """
-    Manager to be used in context of models bound to organisations to easy handling
+    """Manager to be used in context of models bound to organisations to easy handling
     of those.
     """
 
@@ -33,15 +32,16 @@ class OrganisationalManager(models.Manager.from_queryset(OrganisationalQuerySet)
 
     @staticmethod
     def validate_organisational(model: models.Model):
-        """
-        Checks if a model can be considered "organisational"
+        """Checks if a model can be considered "organisational".
 
         Args:
             model: The django orm model which must have a
                 georama.core.common.managers.OrganisationalManager bound as default manager
                 and the attribute ORGANISATION_FIELD_NAME defined.
+
         Returns:
             True if conditions are met.
+
         Raises:
             ImproperlyConfigured: if the model is not considered "organisational".
         """

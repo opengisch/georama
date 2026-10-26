@@ -83,7 +83,7 @@ class Project(models.Model):
 
     @property
     def up_to_date(self) -> bool:
-        """Checks if the corresponding"""
+        """Checks if the corresponding QGIS project file was not modified since integration."""
         qp_fmd = self.qgis_project_file_modification_date
         if qp_fmd is None:
             return False

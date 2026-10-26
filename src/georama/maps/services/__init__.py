@@ -1,10 +1,14 @@
-from django.contrib.auth.models import User
+from typing import TYPE_CHECKING
+
 from django.db.models import Model
 from xsdata.formats.dataclass.serializers import XmlSerializer
 
 from georama.core.models import Organisation
 from georama.maps.interfaces.ogc.wfs_2_0_0 import Exception, ExceptionReport
 from georama.maps.models import WmsLayer
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
 
 
 class OgcOperation:
@@ -32,9 +36,9 @@ class OgcOperation:
 
     @classmethod
     def encode_layer_name(cls, identifier: str) -> str:
-        """
-        Method to bridge layer identifiers which are used in Georama and the
+        """Method to bridge layer identifiers which are used in Georama and the
         layer name which is exposed by the OGC services as valid NCName.
+
         Args:
             identifier: The layer identifier.
 
@@ -45,9 +49,9 @@ class OgcOperation:
 
     @classmethod
     def decode_layer_name(cls, layer_name: str) -> str:
-        """
-        Method to bridge the layer name which is exposed by the OGC services and the
+        """Method to bridge the layer name which is exposed by the OGC services and the
         layer identifiers which are used in Georama. Plain identifiers pass unchanged.
+
         Args:
             layer_name: The layer name without namespace.
 
@@ -62,9 +66,7 @@ class OgcOperation:
 
     @staticmethod
     def create_operation_parsing_failed(message: str) -> ExceptionReport:
-        """
-        Generic method to create a valid error response XML.
-        """
+        """Generic method to create a valid error response XML."""
         return ExceptionReport(exception=[Exception(exception_text=[message])])
 
     def render_operation_parsing_failed(self, message: str) -> str:

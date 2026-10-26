@@ -176,11 +176,12 @@ class WfsGetMetadata(OgcOperation):
         raise LookupError(f"Layername had unexpected format: {layername}")
 
     def get_metadata(self, layer_name: str, language: str) -> MdMetadata:
-        """
-        Attibutes:
-            layer_name: name of WMS/WFS Layer
-            language: in the form `en-US`
-            layer_geometry_type: `complex`|`composite`|`curve`|`point`|`solid`|`surface`
+        """Builds the metadata record of a layer.
+
+        Attributes:
+        layer_name: name of WMS/WFS Layer
+        language: in the form `en-US`
+        layer_geometry_type: `complex`|`composite`|`curve`|`point`|`solid`|`surface`
         """
         found_layer = self.obtain_accessible_layers([self.clean_layername(layer_name)])[0]
         wms_link_png = f"{self.url}{found_layer.create_wms_url_params}"

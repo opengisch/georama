@@ -14,8 +14,7 @@ class GeoramaSqlProvider(PostgreSQLProvider):
         self._fields = provider_def.get("field_constraints", {})
 
     def get_fields(self):
-        """
-        Return fields (columns) from PostgreSQL table
+        """Return fields (columns) from PostgreSQL table.
 
         :returns: dict of fields
         """

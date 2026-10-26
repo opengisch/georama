@@ -1,4 +1,5 @@
 import os.path
+from typing import TYPE_CHECKING
 
 import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
@@ -17,7 +18,9 @@ from georama.features.apps import FeaturesConfig
 from georama.features.config_server import ServerConfig
 from georama.features.features_config import Config
 from georama.features.models import FeatureLayer, Field
-from georama.integration.models import VectorField as DatasourceField
+
+if TYPE_CHECKING:
+    from georama.integration.models import VectorField as DatasourceField
 
 api = None
 
@@ -29,10 +32,7 @@ class PygeoapiServer(View):
 
     @classmethod
     def urls(cls):
-        """
-        Prepares a tuple of 2 elements which can be used directly with django.urls.include.
-        """
-
+        """Prepares a tuple of 2 elements which can be used directly with django.urls.include."""
         patterns = []
         return (patterns, FeaturesConfig.label)
 
@@ -86,8 +86,7 @@ class PygeoapiServer(View):
             raise PermissionDenied(e) from e
 
     def landing(self, request: HttpRequest) -> HttpResponse:
-        """
-        OGC API landing page endpoint
+        """OGC API landing page endpoint.
 
         :request Django HTTP Request
 
@@ -96,8 +95,7 @@ class PygeoapiServer(View):
         return self.execute_from_django(core_api.landing_page, request)
 
     def openapi(self, request: HttpRequest) -> HttpResponse:
-        """
-        OpenAPI endpoint
+        """OpenAPI endpoint.
 
         :request Django HTTP Request
 
@@ -106,8 +104,7 @@ class PygeoapiServer(View):
         return self.execute_from_django(core_api.openapi_, request)
 
     def conformance(self, request: HttpRequest) -> HttpResponse:
-        """
-        OGC API conformance endpoint
+        """OGC API conformance endpoint.
 
         :request Django HTTP Request
 
@@ -116,8 +113,7 @@ class PygeoapiServer(View):
         return self.execute_from_django(core_api.conformance, request)
 
     def collections(self, request: HttpRequest, collection_id: str | None = None) -> HttpResponse:
-        """
-        OGC API collections endpoint
+        """OGC API collections endpoint.
 
         :request Django HTTP Request
         :param collection_id: collection identifier
@@ -129,8 +125,7 @@ class PygeoapiServer(View):
     def collection_schema(
         self, request: HttpRequest, collection_id: str | None = None
     ) -> HttpResponse:
-        """
-        OGC API collections schema endpoint
+        """OGC API collections schema endpoint.
 
         :request Django HTTP Request
         :param collection_id: collection identifier
@@ -145,8 +140,7 @@ class PygeoapiServer(View):
     def collection_queryables(
         self, request: HttpRequest, collection_id: str | None = None
     ) -> HttpResponse:
-        """
-        OGC API collections queryables endpoint
+        """OGC API collections queryables endpoint.
 
         :request Django HTTP Request
         :param collection_id: collection identifier
@@ -161,15 +155,13 @@ class PygeoapiServer(View):
         )
 
     def collection_items(self, request: HttpRequest, collection_id: str) -> HttpResponse:
-        """
-        OGC API collections items endpoint
+        """OGC API collections items endpoint.
 
         :request Django HTTP Request
         :param collection_id: collection identifier
 
         :returns: Django HTTP response
         """
-
         if request.method == "GET":
             _ = self.get_collection_or_404_or_403(
                 collection_id, "view_objects_on_published_layer", include_public=True
@@ -222,8 +214,7 @@ class PygeoapiServer(View):
     def collection_item(
         self, request: HttpRequest, collection_id: str, item_id: str
     ) -> HttpResponse:
-        """
-        OGC API collections items endpoint
+        """OGC API collections items endpoint.
 
         :request Django HTTP Request
         :param collection_id: collection identifier
@@ -231,7 +222,6 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP response
         """
-
         if request.method == "GET":
             _ = self.get_collection_or_404_or_403(
                 collection_id, "view_objects_on_published_layer", include_public=True
@@ -312,7 +302,7 @@ class PygeoapiServer(View):
         source = feature_layer.datasource.source_to_qsl
 
         crs = feature_layer.datasource.crs_to_qsl
-        available_crs_list = self.getAvailableCrsList(crs)
+        available_crs_list = self.get_available_crs_list(crs)
 
         # TODO: make this configurable
         driver_lookup = {"SHP": "ESRI Shapefile", "GPKG": "GPKG", "GDB": "OpenFileGDB"}
@@ -321,7 +311,7 @@ class PygeoapiServer(View):
         geom_field = None
         geom_type = feature_layer.datasource.geometry_type_wkb
 
-        field_constraints = getDatasetFieldConstraints(features_properties, geom_type)
+        field_constraints = get_dataset_field_constraints(features_properties, geom_type)
 
         provider_definition = {
             "type": "feature",
@@ -362,12 +352,12 @@ class PygeoapiServer(View):
         source = feature_layer.datasource.source_to_qsl
 
         crs = feature_layer.datasource.crs_to_qsl
-        available_crs_list = self.getAvailableCrsList(crs)
+        available_crs_list = self.get_available_crs_list(crs)
 
         geom_field = source.postgres.geometry_column
         geom_type = feature_layer.datasource.geometry_type_wkb
 
-        field_constraints = getDatasetFieldConstraints(features_properties, geom_type)
+        field_constraints = get_dataset_field_constraints(features_properties, geom_type)
 
         # Layers using a pg_service only carry the service name: QSL does not resolve it
         # at export so that no credentials end up stored in the database. The connection
@@ -463,7 +453,7 @@ class PygeoapiServer(View):
             },
         }
 
-    def getAvailableCrsList(self, crs):
+    def get_available_crs_list(self, crs):
         self.handle_crs_setting(crs.ogc_uri)
         available_crs_list = [
             crs.ogc_uri,
@@ -477,7 +467,7 @@ class PygeoapiServer(View):
         return available_crs_list
 
 
-def getDatasetFieldConstraints(field_properties: list[Field], geom_type: str):
+def get_dataset_field_constraints(field_properties: list[Field], geom_type: str):
     field_constraints: dict[str, dict] = {}
 
     for properties in field_properties:

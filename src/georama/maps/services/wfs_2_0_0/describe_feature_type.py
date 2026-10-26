@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING
 
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
@@ -14,8 +15,10 @@ from xsdata.models.xsd import (
 )
 
 from georama.integration.models import Vector
-from georama.integration.models.datasource import VectorField
 from georama.maps.services.wfs_2_0_0 import WfsOperation
+
+if TYPE_CHECKING:
+    from georama.integration.models.datasource import VectorField
 
 
 class WfsDescribeFeatureType(WfsOperation):

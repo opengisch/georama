@@ -1,7 +1,6 @@
 # !!! THIS is a temporary patch taken from: https://github.com/em1208/adrf/pull/53
 
-"""
-Pagination serializers determine the structure of the output that should
+"""Pagination serializers determine the structure of the output that should
 be used for paginated responses.
 """
 
@@ -16,8 +15,7 @@ from rest_framework.pagination import _reverse_ordering
 
 class PageNumberPagination(DRFPageNumberPagination):
     async def paginate_queryset(self, queryset, request, view=None):
-        """
-        Paginate a queryset if required, either returning a
+        """Paginate a queryset if required, either returning a
         page object, or `None` if pagination is not configured for this view.
         """
         self.request = request
@@ -43,9 +41,7 @@ class PageNumberPagination(DRFPageNumberPagination):
 
 class LimitOffsetPagination(DRFLimitOffsetPagination):
     async def aget_count(self, queryset):
-        """
-        Determine an object count, supporting either querysets or regular lists.
-        """
+        """Determine an object count, supporting either querysets or regular lists."""
         try:
             return await queryset.acount()
         except (AttributeError, TypeError):

@@ -1,4 +1,5 @@
 from importlib import import_module
+from typing import TYPE_CHECKING
 
 import psycopg
 import pytest
@@ -11,7 +12,6 @@ from qgis_server_light.interface.dispatcher.common import Status
 from qgis_server_light.interface.job.common.input import QslJobLayer
 from qgis_server_light.interface.job.common.output import JobResult
 
-from georama.core.common.faker.gis import Dataset
 from georama.core.factories import (
     AdminUserFactory,
     MembershipFactory,
@@ -31,6 +31,9 @@ from georama.webgis.factories import MetadataFactory as WebGisMetadataFactory
 from georama.webgis.factories import ThemeFactory
 from georama.webgis.factories import WmsLayerFactory as WebGisWmsLayerFactory
 from georama.webgis.models.theme import ThemeUserObjectPermission
+
+if TYPE_CHECKING:
+    from georama.core.common.faker.gis import Dataset
 
 
 @pytest.fixture
@@ -204,11 +207,11 @@ def db_schema(schema_name, db_connection):
 
 @pytest.fixture
 def global_vector_dataset(project_global_organisation, db_schema, schema_name, db_connection):
-    META_PROVIDERS_MODULES = [
+    meta_providers_modules = [
         "georama.core.common.faker",
     ]
-    PROVIDERS = find_available_providers([import_module(path) for path in META_PROVIDERS_MODULES])
-    fake = Faker(locale="de_CH", providers=PROVIDERS)
+    providers = find_available_providers([import_module(path) for path in meta_providers_modules])
+    fake = Faker(locale="de_CH", providers=providers)
     dataset: Dataset = fake.vector_datasets(schema_name, amount=1)[0]
     with db_connection.cursor() as cur:
         cur.execute(dataset.create_table_sql)
