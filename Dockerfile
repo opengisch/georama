@@ -56,7 +56,7 @@ ENV UV_PYTHON_CACHE_DIR=/home/$USER/.cache/uv/python
 ENV UV_LINK_MODE=copy
 
 # setting path to the static folder
-ENV GEORAMA_STATIC_ROOT=$STATIC_DIR
+ENV DJANGO_STATIC_ROOT=$STATIC_DIR
 
 # We install only the deps at build time,
 #   not the project itself
@@ -109,7 +109,7 @@ FROM base
 ARG USER=1001
 ENV GEORAMA_DATA_INTEGRATION_ROOT=/io
 # georama serves the static files itself (ServeStatic) from here
-ENV GEORAMA_STATIC_ROOT=/static
+ENV DJANGO_STATIC_ROOT=/static
 
 WORKDIR /static
 WORKDIR $GEORAMA_DATA_INTEGRATION_ROOT
