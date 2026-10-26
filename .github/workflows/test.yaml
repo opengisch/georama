@@ -21,11 +21,11 @@ jobs:
       - uses: actions/checkout@v6
       - name: Prepare Build Environment
         run: |
-          cp .env.dev .env
-          echo "PY_VERSION=${{ matrix.python-version }}" >> .env
+          cp .env.example .env
+          echo "COMPOSE_FILE=compose.yml:compose.dev.yml" >> .env
+          echo "PYTHON_VERSION=${{ matrix.python-version }}" >> .env
           echo "UID=$(id -u)" >> .env
           echo "GID=$(id -g)" >> .env
-          echo "QSL_SOURCE_BRANCH=refactoring" >> .env
           cat .env
       - name: Build Georama Image
         run: |
