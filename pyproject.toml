@@ -66,7 +66,6 @@ dev = [
     "pre-commit",
     "pyproj>=3.7.2",
     "shapely>=2.1.2",
-    "qgis-server-light[dispatcher]",
     "ty>=0.0.56",
 ]
 lint-format = [
@@ -80,9 +79,6 @@ test = [
 docs = [
     "zensical>=0.0.70",
 ]
-
-[tool.uv.sources]
-qgis-server-light = { path = "/qsl", editable = true }
 
 [tool.ruff]
 target-version = "py312"

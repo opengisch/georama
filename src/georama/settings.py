@@ -552,9 +552,6 @@ class Dev(Base):
     )
 
     ORGANISATION_DOMAIN = "localhost"
-    DATA_INTEGRATION_ROOT = values.PathValue(
-        Base.BASE_DIR / "tests/resources/projects", environ_prefix=GEORAMA_ENV_PREFIX
-    )
 
 
 class Prod(Base):

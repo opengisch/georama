@@ -28,24 +28,16 @@ ARG UV_CACHE_DIR_BUILD_TIME=/home/$USER/.cache/uv-build-time
 ARG UV_CACHE_DIR_RUN_TIME=/home/$USER/.cache/uv
 #https://docs.astral.sh/uv/reference/environment/#uv_override
 ENV UV_PROJECT_ENVIRONMENT=/home/$USER/.venv
-ARG QSL_SOURCE_DIR=/qsl
-ARG QSL_SOURCE_BRANCH=master
 
 RUN apt-get update && apt-get install -y \
     binutils \
     libproj-dev \
-    libgdal-dev \
-    openssh-server \
-    sudo
+    libgdal-dev
 
 # Setup a non-root user
 RUN groupadd --system --gid $GID nonroot \
  && useradd --system --gid $GID --uid $UID --create-home $USER \
  && echo "$USER:$USERPWD" | chpasswd
-
-# We allow the non root user sudo access on decent actions
-RUN echo "$USER ALL=(root) NOPASSWD: /usr/sbin/sshd, /etc/ssh/ssh_keygen, /bin/chown, /bin/chmod, /bin/mkdir" >> /etc/sudoers.d/$USER && \
-    chmod 0440 /etc/sudoers.d/$USER
 
 ARG STATIC_DIR="/georama/static"
 # we create a non project content static dir to avoid backfire
@@ -53,13 +45,10 @@ ARG STATIC_DIR="/georama/static"
 WORKDIR $STATIC_DIR
 WORKDIR /app
 
-ADD --unpack https://github.com/opengisch/qgis-server-light/archive/refs/heads/$QSL_SOURCE_BRANCH.tar.gz $QSL_SOURCE_DIR
-RUN mv $QSL_SOURCE_DIR/qgis-server-light-$QSL_SOURCE_BRANCH/* $QSL_SOURCE_DIR
 RUN chown -R $UID:$GID /app \
  && chown -R $UID:$GID $STATIC_DIR \
  && mkdir -p $UV_CACHE_DIR_RUN_TIME \
  && chown -R $UID:$GID $UV_CACHE_DIR_RUN_TIME
-RUN chown -R $UID:$GID $QSL_SOURCE_DIR
 
 # https://docs.astral.sh/uv/reference/environment/#uv_python_cache_dir
 ENV UV_PYTHON_CACHE_DIR=/home/$USER/.cache/uv/python
@@ -73,7 +62,6 @@ ENV GEORAMA_STATIC_ROOT=$STATIC_DIR
 #   not the project itself
 USER $USER
 
-
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=cache,target=$UV_CACHE_DIR_BUILD_TIME,uid=$UID,gid=$GID \
@@ -81,9 +69,12 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
  && uv sync --frozen --no-install-project --group dev \
  && cp -r $UV_CACHE_DIR_BUILD_TIME/. $UV_CACHE_DIR_RUN_TIME
 
-COPY docker/dev.entrypoint.sh /bin/dev.entrypoint.sh
+COPY ./docker/dev.debug.entrypoint.sh /usr/local/bin/dev.debug.entrypoint.sh
+COPY ./docker/dev.start.georama.sh /usr/local/bin/dev.start.georama.sh
 
-ENTRYPOINT ["/bin/dev.entrypoint.sh"]
+ENTRYPOINT [ "/usr/local/bin/dev.debug.entrypoint.sh" ]
+
+CMD [ "/usr/local/bin/dev.start.georama.sh" ]
 
 FROM builder-base AS prod-builder
 
@@ -95,7 +86,7 @@ WORKDIR /static
 WORKDIR /app
 
 COPY pyproject.toml ./
-RUN uv lock --no-sources
+COPY uv.lock ./
 RUN uv sync --frozen --no-install-project --no-dev --group prod
 
 COPY ./src ./src
@@ -112,7 +103,7 @@ RUN python3 /usr/local/bin/generate-build-info.py \
 
 RUN uv sync --frozen --no-dev --no-editable --group prod
 RUN DJANGO_CONFIGURATION=Static \
-    uv run --no-sources manage collectstatic --noinput
+    uv run manage collectstatic --noinput
 
 FROM base
 ARG USER=1001
