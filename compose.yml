@@ -1,38 +1,35 @@
 services:
   georama:
-    env_file:
-      - .env
+    init: true
     environment:
       - "GEORAMA_QSL_EXPORTER_URL=http://qsl-exporter:5000/export"
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
       - "GEORAMA_WEBGISURL=https://localhost:9309"
       - "GEORAMA_OIDC_SERVER_URL=http://keycloak:7080/realms/ninjas/.well-known/openid-configuration"
-    image: local/georama:dev
+      - "GEORAMA_DATA_INTEGRATION_ROOT=/io/data"
+      - "GEORAMA_DB_NAME=${GEORAMA_DB_NAME?}"
+      - "GEORAMA_DB_USER=${GEORAMA_DB_USER?}"
+      - "GEORAMA_DB_PW=${GEORAMA_DB_PW?}"
+      - "GEORAMA_DB_HOST=georama-db"
+      - "GEORAMA_DB_PORT=5432"
+      - "GEORAMA_DB_OPTIONS=${GEORAMA_DB_OPTIONS?}"
+      - "DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY?}"
+      - "DJANGO_CORS_ALLOWED_ORIGINS=${DJANGO_CORS_ALLOWED_ORIGINS?}"
+      - "DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS?}"
+      - "DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS?}"
+      - "GEORAMA_ORGANISATION_DOMAIN=${GEORAMA_ORGANISATION_DOMAIN?}"
+      - "DJANGO_CONFIGURATION=Prod"
+      - "PGSERVICEFILE=/io/pg_service.conf"
+    platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
-      target: dev
-      args:
-        PYTHON_VERSION: "${PY_VERSION:-3.12}"
-        UID: "${UID:-1000}"
-        GID: "${GID:-1000}"
-        QSL_SOURCE_BRANCH: "${QSL_SOURCE_BRANCH:-master}"
-    develop:
-      watch:
-        - action: rebuild
-          path: uv.lock
-        - action: rebuild
-          path: Dockerfile
     ports:
       - "127.0.0.1:4242:4242"
-      - "127.0.0.1:4222:2222"
     volumes:
-      - ./:/app
-      - georama-venv:/.venv
-      - georama-static:/georama/static
-      - ssh_host_keys:/etc/ssh
-      - ./docker/dev.sshd_config.conf:/etc/ssh/sshd_config
+      - "${LOCAL_PROJECTS:-./tests/resources/projects}:/io/data"
+      - "${PG_SERVICE_CONF:-./docker/pg_service.conf}:/io/pg_service.conf"
     depends_on:
       georama-db:
         condition: service_healthy
@@ -46,8 +43,6 @@ services:
     image: postgis/postgis:17-3.5
     volumes:
       - "georama-db:/var/lib/postgresql/data"
-    ports:
-      - "127.0.0.1:5433:5432"
     environment:
       - "POSTGRES_USER=${GEORAMA_DB_USER?}"
       - "POSTGRES_PASSWORD=${GEORAMA_DB_PW?}"
@@ -58,46 +53,48 @@ services:
       timeout: 1s
       retries: 50
   qsl-redis:
+    platform: "${PLATFORM:-linux/amd64}"
     image: redis:8.8.0
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 1s
       timeout: 0.5s
       retries: 50
-  qsl:
-    platform: "linux/amd64"
+  qsl-worker:
+    platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
-    image: opengisch/qgis-server-light-dev:latest
-    env_file:
-      - .env
+    image: opengisch/qgis-server-light:pr-95-worker
     environment:
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
       - "QSL_SVG_PATH=/io/svg"
       - "QSL_DATA_ROOT=/io/data"
+      - "QSL_LOG_LEVEL=${QSL_LOG_LEVEL:-info}"
+      - "PGSERVICEFILE=/io/pg_service.conf"
     volumes:
-      - "./tests/resources/projects:/io/data:ro"
+      - "${LOCAL_PROJECTS:-./tests/resources/projects}:/io/data"
+      - "${PG_SERVICE_CONF:-./docker/pg_service.conf}:/io/pg_service.conf"
     deploy:
-      replicas: 1
+      replicas: "${QSL_REPLICAS:-4}"
     depends_on:
       qsl-redis:
         condition: service_healthy
   qsl-exporter:
-    platform: "linux/amd64"
+    platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
-    image: opengisch/qgis-server-light-dev:latest
-    env_file:
-      - .env
+    image: opengisch/qgis-server-light:pr-95-exporter
     environment:
       - "QSL_DATA_ROOT=/io/data"
+      - "QSL_LOG_LEVEL=${QSL_LOG_LEVEL:-info}"
+      - "PGSERVICEFILE=/io/pg_service.conf"
     ports:
       - "127.0.0.1:5000:5000"
-    command:
-      - "serve-exporter-api-outbound"
     volumes:
-      - "./tests/resources/projects:/io/data"
+      - "${LOCAL_PROJECTS:-./tests/resources/projects}:/io/data"
+      - "${PG_SERVICE_CONF:-./docker/pg_service.conf}:/io/pg_service.conf"
   certs:
     # oneshot: creates or renews the dev certificates for keycloak and geogirafe and exits
     image: local/georama-certs:dev
+    platform: "${PLATFORM:-linux/amd64}"
     build:
       dockerfile_inline: |
         FROM alpine:3
@@ -105,23 +102,23 @@ services:
     environment:
       UID: "${UID:-1000}"
       GID: "${GID:-1000}"
-    command: ["make", "--no-print-directory", "-C", "/cert_generation"]
+    command: [ "make", "--no-print-directory", "-C", "/cert_generation" ]
     restart: "no"
     volumes:
       - ./docker/cert_generation:/cert_generation:ro
       - ./.certs:/certs
       - dev-ca:/ca
   geogirafe:
-    image: geogirafe/viewer:latest
-    platform: "linux/amd64"
+    image: geogirafe/viewer:1.2.1
+    platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
     healthcheck:
       # override lighttpd's builtin healthcheck to prevent 1min startup delay
       # and traefik from masking misconfigurations with return code 404
       disable: true
     volumes:
-      - ./geogirafe/config.json:/var/www/localhost/htdocs/config.json
-      - ./geogirafe/config.mobile.json:/var/www/localhost/htdocs/config.mobile.json
+      - ./geogirafe/config.json:/var/www/localhost/htdocs/config.json:ro
+      - ./geogirafe/config.mobile.json:/var/www/localhost/htdocs/config.mobile.json:ro
       # lighttpd reads localhost.pem from there, provided by the certs service
       - ./.certs:/etc/lighttpd/ssl:ro
     ports:
@@ -132,6 +129,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.5
+    platform: "${PLATFORM:-linux/amd64}"
     environment:
       # browsers reach keycloak with https (geogirafe requires it), georama within the
       # docker network with http://keycloak:7080 (backchannel)
@@ -185,12 +183,13 @@ services:
 
   keycloak-db:
     image: postgres:14
+    platform: "${PLATFORM:-linux/amd64}"
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      test: [ "CMD-SHELL", "pg_isready -U keycloak -d keycloak" ]
       interval: 10s
       timeout: 2s
       retries: 5
@@ -198,8 +197,6 @@ services:
       - keycloak-db:/var/lib/postgresql/data
 
 volumes:
-  georama-venv:
-  georama-static:
   georama-db:
   keycloak-db:
   dev-ca:

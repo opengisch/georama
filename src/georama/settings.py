@@ -19,6 +19,9 @@ from django.utils.translation import gettext_lazy as _
 
 LIST_ENV_SEPARATOR = " "
 GEORAMA_ENV_PREFIX = "GEORAMA"
+# settings of third party apps already start with the name of their app
+# (e.g. QSL_*), so the setting name is used as is for the env var
+THIRD_PARTY_ENV_PREFIX = None
 
 
 class Base(Configuration):
@@ -28,7 +31,7 @@ class Base(Configuration):
 
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR = Path(__file__).resolve().parent.parent.parent
-    STATIC_ROOT = values.Value(BASE_DIR / ".static", environ_prefix=GEORAMA_ENV_PREFIX)
+    STATIC_ROOT = values.Value(BASE_DIR / ".static")
 
     # Quick-start development settings - unsuitable for production
     # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -49,12 +52,8 @@ class Base(Configuration):
     CORS_ALLOWED_ORIGINS = values.ListValue(
         environ_required=True,
         separator=LIST_ENV_SEPARATOR,
-        environ_prefix=GEORAMA_ENV_PREFIX,
     )
-    CORS_ALLOW_CREDENTIALS = values.BooleanValue(
-        True,
-        environ_prefix=GEORAMA_ENV_PREFIX,
-    )
+    CORS_ALLOW_CREDENTIALS = values.BooleanValue(True)
     CORS_ALLOW_METHODS = values.ListValue(
         [
             "DELETE",
@@ -66,7 +65,6 @@ class Base(Configuration):
             "PUT",
         ],
         separator=LIST_ENV_SEPARATOR,
-        environ_prefix=GEORAMA_ENV_PREFIX,
     )
     CORS_ALLOW_HEADERS = values.ListValue(
         [
@@ -74,7 +72,6 @@ class Base(Configuration):
             "content-crs",
         ],
         separator=LIST_ENV_SEPARATOR,
-        environ_prefix=GEORAMA_ENV_PREFIX,
     )
 
     # Proxy "X-Forwarded-..." headers
@@ -85,57 +82,63 @@ class Base(Configuration):
 
     # Django logging settings
     # See https://docs.djangoproject.com/en/6.0/topics/logging/
-    LOGGING = {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            "verbose": {
-                "format": "{levelname} {asctime} {module} {message}",
-                "style": "{",
+    # log level of georama, might be DEBUG, INFO, WARNING, ERROR, CRITICAL
+    LOG_LEVEL = values.Value("INFO", environ_prefix=GEORAMA_ENV_PREFIX)
+
+    @property
+    def LOGGING(self):
+        log_level = self.LOG_LEVEL.upper()
+        return {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "verbose": {
+                    "format": "{levelname} {asctime} {module} {message}",
+                    "style": "{",
+                },
+                "simple": {
+                    "format": "{levelname} {message}",
+                    "style": "{",
+                },
             },
-            "simple": {
-                "format": "{levelname} {message}",
-                "style": "{",
+            "handlers": {
+                "console": {
+                    "class": "logging.StreamHandler",
+                    "formatter": "verbose",
+                },
             },
-        },
-        "handlers": {
-            "console": {
-                "class": "logging.StreamHandler",
-                "formatter": "verbose",
-            },
-        },
-        "root": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-        },
-        "loggers": {
-            "core": {
+            "root": {
                 "handlers": ["console"],
-                "level": "DEBUG",
-                "propagate": False,
+                "level": log_level,
             },
-            "data_integration": {
-                "handlers": ["console"],
-                "level": "DEBUG",
-                "propagate": False,
+            "loggers": {
+                "core": {
+                    "handlers": ["console"],
+                    "level": log_level,
+                    "propagate": False,
+                },
+                "data_integration": {
+                    "handlers": ["console"],
+                    "level": log_level,
+                    "propagate": False,
+                },
+                "features": {
+                    "handlers": ["console"],
+                    "level": log_level,
+                    "propagate": False,
+                },
+                "maps": {
+                    "handlers": ["console"],
+                    "level": log_level,
+                    "propagate": False,
+                },
+                "webgis": {
+                    "handlers": ["console"],
+                    "level": log_level,
+                    "propagate": False,
+                },
             },
-            "features": {
-                "handlers": ["console"],
-                "level": "DEBUG",
-                "propagate": False,
-            },
-            "maps": {
-                "handlers": ["console"],
-                "level": "DEBUG",
-                "propagate": False,
-            },
-            "webgis": {
-                "handlers": ["console"],
-                "level": "DEBUG",
-                "propagate": False,
-            },
-        },
-    }
+        }
 
     # Application definition
 
@@ -212,12 +215,12 @@ class Base(Configuration):
     # important to prevent normal redirect to /account/profile (which we don't have yet)
     LOGIN_REDIRECT_URL = "/"
 
-    OIDC_NAME = values.Value("Keycloak", environ_prefix="GEORAMA")
-    OIDC_SERVER_URL = values.Value(environ_prefix="GEORAMA")
-    OIDC_CLIENT_ID = values.Value("georama-oidc", environ_prefix="GEORAMA")
-    OIDC_OAUTH_PKCE_ENABLED = values.BooleanValue(True, environ_prefix="GEORAMA")
-    OIDC_SECRET = values.Value("secret", environ_prefix="GEORAMA")
-    OIDC_PROVIDER_ID = values.Value("keycloak", environ_prefix="GEORAMA")
+    OIDC_NAME = values.Value("Keycloak", environ_prefix=GEORAMA_ENV_PREFIX)
+    OIDC_SERVER_URL = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
+    OIDC_CLIENT_ID = values.Value("georama-oidc", environ_prefix=GEORAMA_ENV_PREFIX)
+    OIDC_OAUTH_PKCE_ENABLED = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+    OIDC_SECRET = values.Value("secret", environ_prefix=GEORAMA_ENV_PREFIX)
+    OIDC_PROVIDER_ID = values.Value("keycloak", environ_prefix=GEORAMA_ENV_PREFIX)
 
     @property
     def SOCIALACCOUNT_PROVIDERS(self):
@@ -277,8 +280,8 @@ class Base(Configuration):
         environ_prefix=GEORAMA_ENV_PREFIX,
     )
     DB_CONN_MAX_AGE = values.IntegerValue(default=0, environ_prefix=GEORAMA_ENV_PREFIX)
-    DB_CONN_HEALTH_CHECKS = values.BooleanValue(True, environ_prefix="GEORAMA")
-    DB_DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(True, environ_prefix="GEORAMA")
+    DB_CONN_HEALTH_CHECKS = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+    DB_DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
 
     @property
     def DATABASES(self):
@@ -406,7 +409,8 @@ class Base(Configuration):
     )
     QSL_EXPORTER_URL = values.Value(environ_required=True, environ_prefix=GEORAMA_ENV_PREFIX)
 
-    QSL_REDIS_URL = values.Value(environ_required=True, environ_prefix="")
+    # shared with the QSL workers, which read the same env var
+    QSL_REDIS_URL = values.Value(environ_required=True, environ_prefix=THIRD_PARTY_ENV_PREFIX)
 
     # GeoGirafe stuff
     WEBGISURL = values.Value(environ_required=True, environ_prefix=GEORAMA_ENV_PREFIX)
@@ -486,15 +490,13 @@ class Dev(Base):
     # SECURITY WARNING: don't run with debug turned on in production!
     DEBUG = True
     SECRET_KEY = "django-insecure-62uf==xpvgw)y-s#+0g8w4vorazvp3k8_-zewl829h-49^#1#8"
+    LOG_LEVEL = values.Value("DEBUG", environ_prefix=GEORAMA_ENV_PREFIX)
 
     TEMPLATES = copy.deepcopy(Base.TEMPLATES)
 
     TEMPLATES[0]["OPTIONS"]["loaders"] = [
         "django.template.loaders.filesystem.Loader",
         "django.template.loaders.app_directories.Loader",
-    ]
-    TEMPLATES[0]["OPTIONS"]["context_processors"] += [
-        "django.template.context_processors.request",
     ]
     del TEMPLATES[0]["APP_DIRS"]
 
@@ -533,7 +535,6 @@ class Dev(Base):
             "http://geogirafe.local",
         ],
         separator=LIST_ENV_SEPARATOR,
-        environ_prefix=GEORAMA_ENV_PREFIX,
     )
 
     INSTALLED_APPS = Base.INSTALLED_APPS + [
@@ -545,16 +546,7 @@ class Dev(Base):
         "silk.middleware.SilkyMiddleware",
     ]
 
-    GEORAMA_AUTHENTICATION_METHODS = values.ListValue(
-        ["BASIC_HTTP"],
-        separator=LIST_ENV_SEPARATOR,
-        environ_prefix=None,
-    )
-
     ORGANISATION_DOMAIN = "localhost"
-    DATA_INTEGRATION_ROOT = values.PathValue(
-        Base.BASE_DIR / "tests/resources/projects", environ_prefix=GEORAMA_ENV_PREFIX
-    )
 
 
 class Prod(Base):
@@ -596,10 +588,6 @@ class Test(Base):
     ORGANISATION_DOMAIN = Dev.ORGANISATION_DOMAIN
     CORS_ALLOWED_ORIGINS = Dev.CORS_ALLOWED_ORIGINS
     CSRF_TRUSTED_ORIGINS = Dev.CSRF_TRUSTED_ORIGINS
-    DATA_INTEGRATION_ROOT = Dev.DATA_INTEGRATION_ROOT
-    QSL_EXPORTER_URL = Dev.QSL_EXPORTER_URL
-    WEBGISURL = Dev.WEBGISURL
-    QSL_REDIS_URL = Dev.QSL_REDIS_URL
 
 
 class Static(Base):

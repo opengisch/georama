@@ -1,0 +1,39 @@
+services:
+  georama:
+    environment:
+      - "UV_NO_SYNC=1"
+      - "DEV_QSL_SOURCES=/qsl"
+    volumes:
+      - type: bind
+        source: "${LOCAL_QSL_SOURCES:?set LOCAL_QSL_SOURCES to your local qgis-server-light checkout}"
+        target: "/qsl"
+        read_only: true
+        bind:
+          create_host_path: false
+  qsl-worker:
+    image: local/qsl-worker:dev
+    environment:
+      - "QSL_LOG_LEVEL=${QSL_LOG_LEVEL:-debug}"
+      - "DEV_AUTOSTART=${QSL_DEV_AUTOSTART:-1}"
+    deploy:
+      replicas: 1
+    build:
+      context: "${LOCAL_QSL_SOURCES}"
+      target: dev
+      args:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    develop:
+      watch:
+        - action: rebuild
+          path: "${LOCAL_QSL_SOURCES}/Dockerfile"
+        # scripts are baked into the dev image
+        - action: rebuild
+          path: "${LOCAL_QSL_SOURCES}/docker/dev.debug.entrypoint.sh"
+        - action: rebuild
+          path: "${LOCAL_QSL_SOURCES}/docker/dev.start.worker.sh"
+    volumes:
+      - "${LOCAL_QSL_SOURCES}:/app:cached"
+      - "qsl-venv:/home/appuser/.venv"
+volumes:
+  qsl-venv:

@@ -22,19 +22,28 @@ several configuration classes, and `DJANGO_CONFIGURATION` selects which one is a
 | `Static`      | Only used while building the production image, to run `collectstatic`    |
 
 `Base` holds the restrictive defaults shared by all configurations, so most values have
-to be set explicitly in production, while `Dev` provides defaults for many of them.
+to be set explicitly in production. `Dev` provides defaults for the values which are the
+same on every developer machine (e.g. allowed hosts and origins), the values which
+depend on the services of the stack (e.g. the QSL and database addresses) are set by
+`compose.yml`.
 
 Each setting reads an environment variable named `<PREFIX>_<SETTING>`. The prefix is
-`DJANGO` for standard Django settings (e.g. `DJANGO_SECRET_KEY`) and `GEORAMA` for
-Georama settings (e.g. `GEORAMA_DB_NAME`).
+`DJANGO` for settings of Django and Django apps (e.g. `DJANGO_SECRET_KEY`,
+`DJANGO_CORS_ALLOWED_ORIGINS` for django-cors-headers) and `GEORAMA` for Georama
+settings (e.g. `GEORAMA_DB_NAME`). Settings shared with other applications are read
+without prefix (e.g. `QSL_REDIS_URL`, also read by QSL).
 
 ### Environment Files
 
-| File        | Purpose                                                                  |
-| ----------- | ------------------------------------------------------------------------ |
-| `.env.dev`  | Template for local development                                           |
-| `.env.prod` | Template for production                                                  |
-| `.env`      | Your actual configuration, read by Docker Compose (not committed to git) |
+| File           | Purpose                                                                         |
+| -------------- | ------------------------------------------------------------------------------- |
+| `.env.example` | Template for the Docker Compose stack, prod like (default) or dev variants      |
+| `.env`         | Your actual configuration, read by Docker Compose (not committed to git)        |
+
+Docker Compose only passes the variables to the containers which the compose files
+reference. The values of the stack (e.g. `GEORAMA_QSL_EXPORTER_URL`) are set directly in
+`compose.yml`, `.env` provides the secrets and the variant specific values. For
+production, see the [example](#production-example) below.
 
 ## Required Variables
 
@@ -43,9 +52,10 @@ Georama settings (e.g. `GEORAMA_DB_NAME`).
 `DJANGO_CONFIGURATION`
 : Selects the configuration class (`Dev` or `Prod`).
 
-    - **Dev**: `Dev`. Set it explicitly: the ASGI server defaults to `Dev`, but the
-      `manage` command defaults to `Prod`, so `uv run manage …` would fail without it.
-      The `create_dev_content_*` commands also only run when it is `Dev`.
+    - **Dev**: `Dev`, set by `compose.dev.yml` (`compose.yml` sets `Prod` for the prod
+      like stack). Outside of the stack set it explicitly: the ASGI server defaults to
+      `Dev`, but the `manage` command defaults to `Prod`, so `uv run manage …` would fail
+      without it. The `create_dev_content_*` commands also only run when it is `Dev`.
     - **Prod**: `Prod`. **Mandatory**: the production image starts Gunicorn on the ASGI
       application, which falls back to `Dev` (with `DEBUG` enabled) when this variable
       is missing.
@@ -88,22 +98,22 @@ space separated, with scheme, e.g. `https://georama.example.com`.
 
 ### Database
 
-The connection to the PostgreSQL / PostGIS database. In development, `compose.yml` also
+The connection to the PostgreSQL / PostGIS database. In the stack, `compose.yml` also
 uses `GEORAMA_DB_USER`, `GEORAMA_DB_PW` and `GEORAMA_DB_NAME` to initialise the
-`georama-db` service, and refuses to start if they are missing.
+`georama-db` service, and refuses to start if they (or `GEORAMA_DB_OPTIONS`) are missing.
 
-| Variable          | Purpose           | Dev (`.env.dev`)                    | Prod               |
-| ----------------- | ----------------- | ----------------------------------- | ------------------ |
-| `GEORAMA_DB_NAME` | Database name     | `postgres`                          | Your database name |
-| `GEORAMA_DB_USER` | Database user     | `postgres`                          | Your database user |
-| `GEORAMA_DB_PW`   | Database password | `test`                              | A strong password  |
-| `GEORAMA_DB_HOST` | Database host     | `georama-db` (the compose service)  | Your database host |
-| `GEORAMA_DB_PORT` | Database port     | `5432` (inside the compose network) | Usually `5432`     |
+| Variable          | Purpose           | Stack                                                 | Prod               |
+| ----------------- | ----------------- | ----------------------------------------------------- | ------------------ |
+| `GEORAMA_DB_NAME` | Database name     | `postgres` (`.env.example`)                           | Your database name |
+| `GEORAMA_DB_USER` | Database user     | `postgres` (`.env.example`)                           | Your database user |
+| `GEORAMA_DB_PW`   | Database password | `test` (`.env.example`)                               | A strong password  |
+| `GEORAMA_DB_HOST` | Database host     | `georama-db`, the compose service (`compose.yml`)     | Your database host |
+| `GEORAMA_DB_PORT` | Database port     | `5432`, inside the compose network (`compose.yml`)    | Usually `5432`     |
 
 !!! warning
 
-    The values of `.env.prod` are placeholders copied from development: replace them,
-    in particular the password, before deploying.
+    The values of `.env.example` are placeholders for development: don't use them, in
+    particular the password, for a deployment.
 
 ### QGIS-Server-Light
 
@@ -111,17 +121,18 @@ uses `GEORAMA_DB_USER`, `GEORAMA_DB_PW` and `GEORAMA_DB_NAME` to initialise the
 : Full URL of the QSL exporter endpoint. Georama `POST`s the path of a QGIS project to
 it when a project is imported, and receives the project description back.
 
-    - **Dev**: set by `compose.yml` to `http://qsl-exporter:8000/export`, no need to
+    - **Dev**: set by `compose.yml` to `http://qsl-exporter:5000/export`, no need to
       put it in `.env`.
     - **Prod**: required. Use the full endpoint, including the `/export` path, e.g.
-      `http://qsl-exporter:8000/export`.
+      `http://qsl-exporter:5000/export`.
 
 `QSL_REDIS_URL`
 : URL of the Redis instance used as job queue between Georama and the QSL rendering
-workers (`qsl`). Note that this variable has **no** `GEORAMA_` prefix: it is shared
-with QSL, which reads the same name.
+workers (`qsl-worker`). Note that this variable has **no** `GEORAMA_` prefix: it is
+shared with QSL, which reads the same name.
 
-    - **Dev**: defaults to `redis://qsl-redis:6379`, also set by `compose.yml`.
+    - **Dev**: set by `compose.yml` to `redis://qsl-redis:6379`, for Georama and the
+      QSL workers.
     - **Prod**: required, e.g. `redis://qsl-redis:6379`. It must point to the same Redis
       as the QSL workers.
 
@@ -142,10 +153,11 @@ include it, e.g. `sub.example.com`.
 build the theme URLs, and to validate URLs given to the WebGIS API (they must start
 with it).
 
-    - **Dev**: defaults to `http://localhost:9308`, the `geogirafe` compose service.
+    - **Dev**: set by `compose.yml` to `https://localhost:9309`, the `geogirafe` compose
+      service.
     - **Prod**: required, e.g. `https://map.example.com`.
 
-`GEORAMA_CORS_ALLOWED_ORIGINS`
+`DJANGO_CORS_ALLOWED_ORIGINS`
 : Origins allowed to call the API from a browser
 ([django-cors-headers](https://github.com/adamchainz/django-cors-headers#cors_allowed_origins-sequencestr)),
 space separated. Typically the GeoGirafe URL.
@@ -159,8 +171,8 @@ space separated. Typically the GeoGirafe URL.
 organisation (the global organisation folder is created at startup). QSL must see the
 same files.
 
-    - **Dev**: defaults to `tests/resources/projects`, which is also mounted as `/io/data`
-      in the QSL services.
+    - **Dev**: set by `compose.yml` to `/io/data`, where `LOCAL_PROJECTS` (default
+      `./tests/resources/projects`) is mounted in Georama and the QSL services.
     - **Prod**: required, but already set to `/io` by the production image: mount your
       projects volume there, or override the variable.
 
@@ -170,6 +182,7 @@ same files.
 
 | Variable                                                   | Default                | Purpose                                                                                                                              |
 | ---------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `GEORAMA_LOG_LEVEL`                                        | `INFO` (Dev: `DEBUG`)  | Log level of Georama (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`, case insensitive).                                            |
 | `GEORAMA_SITE_TITLE`                                       | `Georama`              | Title displayed in the templates.                                                                                                    |
 | `GEORAMA_ORGANISATION_GLOBAL_PUBLIC_ACCESS`                | `true`                 | Whether the global organisation (the bare `GEORAMA_ORGANISATION_DOMAIN`) is accessible without being logged in.                      |
 | `GEORAMA_ORGANISATION_NOT_AUTHENTICATED_TARGET`            | `core:login`           | Name of the view anonymous users are redirected to when they access a non public organisation.                                       |
@@ -183,83 +196,90 @@ same files.
 
 ### Database Tuning
 
-| Variable                                 | Default                                  | Purpose                                                                                                                                                                            |
-| ---------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GEORAMA_DB_OPTIONS`                     | `{"pool": False}`                        | Driver [`OPTIONS`](https://docs.djangoproject.com/en/6.0/ref/databases/#postgresql-notes), e.g. `{"pool": True}` to enable psycopg connection pooling. `.env.dev` sets it to `{}`. |
-| `GEORAMA_DB_CONN_MAX_AGE`                | `0`                                      | Lifetime of a database connection in seconds (`0` closes it after each request).                                                                                                   |
-| `GEORAMA_DB_CONN_HEALTH_CHECKS`          | `true`                                   | Check persistent connections before reusing them.                                                                                                                                  |
-| `GEORAMA_DB_DISABLE_SERVER_SIDE_CURSORS` | `true`                                   | Disable server side cursors, needed behind a transaction pooler such as PgBouncer.                                                                                                 |
-| `GEORAMA_DB_ENGINE`                      | `django.contrib.gis.db.backends.postgis` | Django database backend. PostGIS is required, there is normally no reason to change it.                                                                                            |
+| Variable                                 | Default                                  | Purpose                                                                                                                                                                                |
+| ---------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GEORAMA_DB_OPTIONS`                     | `{"pool": False}`                        | Driver [`OPTIONS`](https://docs.djangoproject.com/en/6.0/ref/databases/#postgresql-notes), e.g. `{"pool": True}` to enable psycopg connection pooling. `.env.example` sets it to `{}`. |
+| `GEORAMA_DB_CONN_MAX_AGE`                | `0`                                      | Lifetime of a database connection in seconds (`0` closes it after each request).                                                                                                       |
+| `GEORAMA_DB_CONN_HEALTH_CHECKS`          | `true`                                   | Check persistent connections before reusing them.                                                                                                                                      |
+| `GEORAMA_DB_DISABLE_SERVER_SIDE_CURSORS` | `true`                                   | Disable server side cursors, needed behind a transaction pooler such as PgBouncer.                                                                                                     |
+| `GEORAMA_DB_ENGINE`                      | `django.contrib.gis.db.backends.postgis` | Django database backend. PostGIS is required, there is normally no reason to change it.                                                                                                |
 
 ### Security and CORS
 
 | Variable                         | Default                                      | Purpose                                                                                                                                                                                                                                                 |
 | -------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `DJANGO_SECURE_PROXY_SSL_HEADER` | _unset_                                      | **Prod**, behind a reverse proxy terminating TLS: set it to `HTTP_X_FORWARDED_PROTO,https` (comma separated) so that Django knows the original request was HTTPS ([docs](https://docs.djangoproject.com/en/6.0/ref/settings/#secure-proxy-ssl-header)). |
-| `GEORAMA_CORS_ALLOW_CREDENTIALS` | `true`                                       | Allow cookies in cross-origin requests.                                                                                                                                                                                                                 |
-| `GEORAMA_CORS_ALLOW_METHODS`     | `DELETE HEAD GET OPTIONS PATCH POST PUT`     | HTTP methods allowed in cross-origin requests.                                                                                                                                                                                                          |
-| `GEORAMA_CORS_ALLOW_HEADERS`     | django-cors-headers defaults + `content-crs` | Headers allowed in cross-origin requests.                                                                                                                                                                                                               |
+| `DJANGO_CORS_ALLOW_CREDENTIALS`  | `true`                                       | Allow cookies in cross-origin requests.                                                                                                                                                                                                                 |
+| `DJANGO_CORS_ALLOW_METHODS`      | `DELETE HEAD GET OPTIONS PATCH POST PUT`     | HTTP methods allowed in cross-origin requests.                                                                                                                                                                                                          |
+| `DJANGO_CORS_ALLOW_HEADERS`      | django-cors-headers defaults + `content-crs` | Headers allowed in cross-origin requests.                                                                                                                                                                                                               |
 
 ### Authentication with OpenID Connect
 
 Georama can delegate the login to an OpenID Connect provider (e.g. Keycloak) through
 [django-allauth](https://docs.allauth.org/en/dev/socialaccount/providers/openid_connect.html).
 
-| Variable                          | Default        | Purpose                                                                                              |
-| --------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
-| `GEORAMA_OIDC_SERVER_URL`         | _unset_        | URL of the provider, e.g. `https://sso.example.com/realms/<realm>/.well-known/openid-configuration`. |
-| `GEORAMA_OIDC_CLIENT_ID`          | `georama-oidc` | Client id registered at the provider.                                                                |
-| `GEORAMA_OIDC_SECRET`             | `secret`       | Client secret. **Prod**: always set it to the real secret.                                           |
-| `GEORAMA_OIDC_NAME`               | `Keycloak`     | Name of the provider displayed on the login page.                                                    |
-| `GEORAMA_OIDC_PROVIDER_ID`        | `keycloak`     | Internal identifier of the provider, used in the callback URLs.                                      |
-| `GEORAMA_OIDC_OAUTH_PKCE_ENABLED` | `true`         | Use PKCE for the authorization code flow.                                                            |
+| Variable                          | Default        | Purpose                                                                                                                                              |
+| --------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GEORAMA_OIDC_SERVER_URL`         | _unset_        | URL of the provider, e.g. `https://sso.example.com/realms/<realm>/.well-known/openid-configuration`. Set by `compose.yml` to the `keycloak` service. |
+| `GEORAMA_OIDC_CLIENT_ID`          | `georama-oidc` | Client id registered at the provider.                                                                                                                |
+| `GEORAMA_OIDC_SECRET`             | `secret`       | Client secret. **Prod**: always set it to the real secret.                                                                                           |
+| `GEORAMA_OIDC_NAME`               | `Keycloak`     | Name of the provider displayed on the login page.                                                                                                    |
+| `GEORAMA_OIDC_PROVIDER_ID`        | `keycloak`     | Internal identifier of the provider, used in the callback URLs.                                                                                      |
+| `GEORAMA_OIDC_OAUTH_PKCE_ENABLED` | `true`         | Use PKCE for the authorization code flow.                                                                                                            |
 
 !!! note
 
-    The development stack does not include an identity provider. To test OIDC locally,
-    run one (e.g. Keycloak) and point `GEORAMA_OIDC_SERVER_URL` to it.
+    The stack includes a Keycloak instance and `compose.yml` points
+    `GEORAMA_OIDC_SERVER_URL` to it, see
+    [Authentication](local_development/authentication.md).
 
 ### QGIS-Server-Light
 
 `QSL_LOG_LEVEL`
-: Log level of the QSL services (`debug`, `info`, …). Georama does not read it: in
-development it reaches the `qsl` and `qsl-exporter` services through the shared
-`.env`. In production, set it on the QSL containers.
+: Log level of the QSL services (`debug`, `info`, …). Georama does not read it: in the
+stack, `compose.yml` passes it to the `qsl-worker` and `qsl-exporter` services (default
+`info`, `debug` for the worker of `compose.dev_with_qsl.yml`). In production, set it on
+the QSL containers.
 
-### Docker Compose (Development Only)
+### Docker Compose
 
-These variables are only used by Docker Compose, when building the development image or
-starting the stack. They have no effect on the production image.
+These variables are only used by Docker Compose, when building the images or starting
+the stack. They have no effect on the production image itself.
 
-| Variable               | Default  | Purpose                                                                                                                                                                                                                    |
-| ---------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `UID`                  | `1000`   | **Required on Linux** when your ids differ from the default: user id (`id -u`) of the container user, so that files created in the mounted repository belong to you.                                                       |
-| `GID`                  | `1000`   | **Required on Linux**, as above: group id (`id -g`) of the container user.                                                                                                                                                 |
-| `QSL_SOURCE_BRANCH`    | `master` | Branch of [qgis-server-light](https://github.com/opengisch/qgis-server-light) downloaded into the `georama` image (`/qsl`), which provides the `qgis-server-light` Python dependency. Rebuild the image after changing it. |
-| `QSL_IMAGE_TAG_SUFFIX` | _empty_  | Suffix appended to the `qsl` (`latest`) and `qsl-exporter` (`latest-exporter`) image tags, to run images built for a QSL pull request, e.g. `-pr-66`.                                                                      |
-| `QSL_SOURCE_ROOT`      | _unset_  | Path (absolute or relative) to a local clone of qgis-server-light, to develop it alongside Georama. Only used by `compose.override.yml.with_qsl_sources`, which you need to copy to `compose.override.yml`.                |
-| `PY_VERSION`           | `3.12`   | Python version of the development images.                                                                                                                                                                                  |
+| Variable                | Default                        | Purpose                                                                                                                                                                       |
+| ----------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `COMPOSE_FILE`          | `compose.yml`                  | Variant of the stack: prod like (unset), dev (`compose.yml:compose.dev.yml`) or dev with local QSL sources (`compose.yml:compose.dev.yml:compose.dev_with_qsl.yml`).          |
+| `PLATFORM`              | `linux/amd64`                  | Platform of the services.                                                                                                                                                     |
+| `LOCAL_PROJECTS`        | `./tests/resources/projects`   | Directory with the QGIS projects, mounted as `/io/data` in Georama and the QSL services.                                                                                      |
+| `PG_SERVICE_CONF`       | `./docker/pg_service.conf`     | PostgreSQL service file, mounted in Georama and the QSL services (`PGSERVICEFILE`).                                                                                           |
+| `QSL_REPLICAS`          | `4`                            | Number of QSL workers (`compose.dev_with_qsl.yml` always runs 1).                                                                                                             |
+| `UID`                   | `1000`                         | **Dev**, **required on Linux** when your ids differ from the default: user id (`id -u`) of the container user, so that files created in the mounted repository belong to you. |
+| `GID`                   | `1000`                         | **Dev**, **required on Linux**, as above: group id (`id -g`) of the container user.                                                                                           |
+| `PYTHON_VERSION`        | `3.12`                         | **Dev**: Python version of the development image.                                                                                                                             |
+| `GEORAMA_DEV_AUTOSTART` | `1`                            | **Dev**: start Georama in the container (`1`) or let it idle (`0`), e.g. to start it yourself for debugging or in a devcontainer.                                             |
+| `LOCAL_QSL_SOURCES`     | _unset_                        | **Dev with local QSL sources**, mandatory: absolute path to your local qgis-server-light checkout.                                                                            |
+| `QSL_DEV_AUTOSTART`     | `1`                            | **Dev with local QSL sources**: same as `GEORAMA_DEV_AUTOSTART` for the QSL worker.                                                                                           |
 
 ## Summary: Dev vs Prod
 
 | Variable                              | Dev                                              | Prod                                    |
 | ------------------------------------- | ------------------------------------------------ | --------------------------------------- |
-| `DJANGO_CONFIGURATION`                | `Dev`                                            | `Prod` (mandatory)                      |
+| `DJANGO_CONFIGURATION`                | `Dev`, set by `compose.dev.yml`                  | `Prod` (mandatory)                      |
 | `DJANGO_SECRET_KEY`                   | ignored                                          | **required**, secret                    |
 | `DJANGO_ALLOWED_HOSTS`                | default                                          | **required** in practice                |
 | `DJANGO_CSRF_TRUSTED_ORIGINS`         | default                                          | **required**                            |
-| `GEORAMA_CORS_ALLOWED_ORIGINS`        | default                                          | **required**                            |
-| `GEORAMA_DB_*`                        | **required** (`.env.dev` values)                 | **required**                            |
+| `DJANGO_CORS_ALLOWED_ORIGINS`         | default                                          | **required**                            |
+| `GEORAMA_DB_*`                        | **required** (`.env.example` values)             | **required**                            |
 | `GEORAMA_QSL_EXPORTER_URL`            | set by `compose.yml`                             | **required**                            |
-| `QSL_REDIS_URL`                       | default / `compose.yml`                          | **required**                            |
+| `QSL_REDIS_URL`                       | set by `compose.yml`                             | **required**                            |
 | `GEORAMA_ORGANISATION_DOMAIN`         | ignored (`localhost`)                            | **required**                            |
-| `GEORAMA_WEBGISURL`                   | default                                          | **required**                            |
-| `GEORAMA_DATA_INTEGRATION_ROOT`       | default                                          | **required**, set to `/io` by the image |
-| `UID`, `GID`, `QSL_*` build variables | Linux / optional                                 | not used                                |
+| `GEORAMA_WEBGISURL`                   | set by `compose.yml`                             | **required**                            |
+| `GEORAMA_DATA_INTEGRATION_ROOT`       | set by `compose.yml`                             | **required**, set to `/io` by the image |
+| Docker Compose variables              | Linux (`UID`, `GID`) / optional                  | not used                                |
 
 ### Production Example
 
-```shell title=".env.prod"
+```shell title=".env"
 DJANGO_CONFIGURATION=Prod
 DJANGO_SECRET_KEY=<long-random-secret>
 DJANGO_ALLOWED_HOSTS=.georama.example.com
@@ -274,8 +294,8 @@ GEORAMA_DB_PORT=5432
 
 GEORAMA_ORGANISATION_DOMAIN=georama.example.com
 GEORAMA_WEBGISURL=https://map.example.com
-GEORAMA_CORS_ALLOWED_ORIGINS=https://map.example.com
+DJANGO_CORS_ALLOWED_ORIGINS=https://map.example.com
 
-GEORAMA_QSL_EXPORTER_URL=http://qsl-exporter:8000/export
+GEORAMA_QSL_EXPORTER_URL=http://qsl-exporter:5000/export
 QSL_REDIS_URL=redis://qsl-redis:6379
 ```

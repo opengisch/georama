@@ -1,30 +1,16 @@
 repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # keep in sync with the ruff version in uv.lock
+    rev: v0.15.20
+    hooks:
+      - id: ruff-check
+        args: [ --fix ]
+      - id: ruff-format
   - repo: local
     hooks:
-      - id: ruff
-        name: ruff
-        entry: docker compose run --rm --remove-orphans --entrypoint bash georama -c "uv run ruff check --fix"
-        language: system
-        types: [ python ]
-        # unfortunately we need to redefine excludes
-        exclude: |
-          (?x)^(
-            src/georama/maps/interfaces/.*|
-            src/georama/.*/migrations/.*
-          )$
-      - id: ruff-format
-        name: ruff-format
-        entry: docker compose run --rm --remove-orphans --entrypoint bash georama -c "uv run ruff format"
-        language: system
-        types: [ python ]
-        exclude: |
-          (?x)^(
-            src/georama/maps/interfaces/.*|
-            src/georama/.*/migrations/.*
-          )$
       - id: forgotten-migrations
         name: Django migrations not applied
-        entry: docker compose run --rm --remove-orphans --entrypoint bash georama -c "uv run manage makemigrations --check --dry-run"
+        entry: docker compose -f compose.yml -f compose.dev.yml run --rm --remove-orphans --entrypoint bash georama -c "uv run manage makemigrations --check --dry-run"
         language: system
         pass_filenames: false
         types: [ python ]

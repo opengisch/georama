@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -763,7 +763,6 @@ dev = [
     { name = "pytest" },
     { name = "pytest-django" },
     { name = "pytest-lazy-fixtures" },
-    { name = "qgis-server-light", extra = ["dispatcher"] },
     { name = "ruff" },
     { name = "shapely" },
     { name = "ty" },
@@ -807,7 +806,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.4" },
     { name = "psycopg2-binary", specifier = ">=2.9.12" },
     { name = "pygeoapi", specifier = "==0.21.0" },
-    { name = "qgis-server-light", extras = ["dispatcher"], editable = "/qsl" },
+    { name = "qgis-server-light", extras = ["dispatcher"], git = "https://github.com/opengisch/qgis-server-light.git?rev=refactoring" },
     { name = "servestatic", extras = ["brotli"], specifier = ">=4.3.4" },
     { name = "sqlalchemy", specifier = ">=2.0.51" },
     { name = "xsdata", specifier = ">=26.2" },
@@ -823,7 +822,6 @@ dev = [
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-django", specifier = ">=4.12.0" },
     { name = "pytest-lazy-fixtures", specifier = ">=1.4.0" },
-    { name = "qgis-server-light", extras = ["dispatcher"], editable = "/qsl" },
     { name = "ruff", specifier = ">=0.15.15" },
     { name = "shapely", specifier = ">=2.1.2" },
     { name = "ty", specifier = ">=0.0.56" },
@@ -1714,76 +1712,13 @@ wheels = [
 
 [[package]]
 name = "qgis-server-light"
-version = "0.1.0"
-source = { editable = "/qsl" }
+version = "0.0.0"
+source = { git = "https://github.com/opengisch/qgis-server-light.git?rev=refactoring#89f6a3ee6a1023b1ffaf94705955ae734c42736c" }
 
 [package.optional-dependencies]
 dispatcher = [
     { name = "redis" },
     { name = "xsdata" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "qgis-server-light", extras = ["interface"], marker = "extra == 'dispatcher'" },
-    { name = "redis", marker = "extra == 'dispatcher'", specifier = "==5.0.8" },
-    { name = "xsdata", marker = "extra == 'dispatcher'", specifier = ">=26.2" },
-]
-provides-extras = ["interface", "dispatcher"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "click", specifier = ">=8.4.2" },
-    { name = "debugpy", specifier = ">=1.8.22" },
-    { name = "flask", specifier = ">=3.1.3" },
-    { name = "fpng-py", specifier = ">=0.0.3" },
-    { name = "gunicorn", specifier = "==26.2.0" },
-    { name = "hupper", specifier = ">=1.12.1" },
-    { name = "mkdocs", specifier = ">=1.6,<2.0" },
-    { name = "mkdocs-autorefs", specifier = ">=1.4.4" },
-    { name = "mkdocs-gen-files", specifier = ">=0.6.1" },
-    { name = "mkdocs-literate-nav", specifier = ">=0.6.3" },
-    { name = "mkdocs-material", specifier = ">=9,<10" },
-    { name = "mkdocs-section-index", specifier = ">=0.3.12" },
-    { name = "mkdocstrings", specifier = ">=1.0.4" },
-    { name = "mkdocstrings-python", specifier = ">=2.0.5" },
-    { name = "pillow", specifier = ">=12.3.0" },
-    { name = "pixelmatch", specifier = ">=0.4.0" },
-    { name = "pyprof2calltree", specifier = ">=1.4.5" },
-    { name = "pytest", specifier = ">=9.1.1" },
-    { name = "redis", specifier = "==5.0.8" },
-    { name = "ruff", specifier = ">=0.15.20" },
-    { name = "ty", specifier = ">=0.0.56" },
-    { name = "xsdata", specifier = ">=26.2" },
-]
-docs = [
-    { name = "mkdocs", specifier = ">=1.6,<2.0" },
-    { name = "mkdocs-autorefs", specifier = ">=1.4.4" },
-    { name = "mkdocs-gen-files", specifier = ">=0.6.1" },
-    { name = "mkdocs-literate-nav", specifier = ">=0.6.3" },
-    { name = "mkdocs-material", specifier = ">=9,<10" },
-    { name = "mkdocs-section-index", specifier = ">=0.3.12" },
-    { name = "mkdocstrings", specifier = ">=1.0.4" },
-    { name = "mkdocstrings-python", specifier = ">=2.0.5" },
-]
-exporter = [
-    { name = "click", specifier = ">=8.4.2" },
-    { name = "flask", specifier = ">=3.1.3" },
-    { name = "gunicorn", specifier = "==26.2.0" },
-    { name = "xsdata", specifier = ">=26.2" },
-]
-interface = []
-lint-format = [{ name = "ruff", specifier = ">=0.15.20" }]
-test = [
-    { name = "pillow", specifier = ">=12.3.0" },
-    { name = "pixelmatch", specifier = ">=0.4.0" },
-    { name = "pytest", specifier = ">=9.1.1" },
-]
-worker = [
-    { name = "fpng-py", specifier = ">=0.0.3" },
-    { name = "hupper", specifier = ">=1.12.1" },
-    { name = "redis", specifier = "==5.0.8" },
-    { name = "xsdata", specifier = ">=26.2" },
 ]
 
 [[package]]

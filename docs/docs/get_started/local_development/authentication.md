@@ -22,7 +22,7 @@ scenarios:
 
 Other scenarios require their address in the allowed redirect URIs and web origins of
 the `georama-oidc` client (see [Testing authentication](#testing-authentication)) and in
-`GEORAMA_CORS_ALLOWED_ORIGINS` (see [Environment Variables](../environment.md)).
+`DJANGO_CORS_ALLOWED_ORIGINS` (see [Environment Variables](../environment.md)).
 
 !!! warning "HTTPS for GeoGirafe"
 

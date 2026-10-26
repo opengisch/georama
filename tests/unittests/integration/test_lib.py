@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from django.conf import settings
 
 from georama.integration.lib.qgis_project_file_structure import QgisProject, QgisProjectCollection
@@ -48,10 +50,10 @@ class TestQgisProjectFileStructure:
 
     def test_qgis_project_has_correct_root_path(self, orga_a_project_file):
         p = QgisProject(orga_a_project_file, orga_a_project_file.parent.name)
-        assert p.root_path == settings.DATA_INTEGRATION_ROOT
+        assert p.root_path == Path(settings.DATA_INTEGRATION_ROOT)
 
     def test_qgis_project_assembles_integration_root_correctly(self, orga_a_project_file):
-        test_path = settings.DATA_INTEGRATION_ROOT / orga_a_project_file.parent.name
+        test_path = Path(settings.DATA_INTEGRATION_ROOT) / orga_a_project_file.parent.name
         p = QgisProject(orga_a_project_file, orga_a_project_file.parent.name)
         assert p.integration_root == test_path
 
