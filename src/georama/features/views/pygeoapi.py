@@ -1,4 +1,7 @@
+import json
 import os.path
+from functools import partial
+from http import HTTPStatus
 from typing import TYPE_CHECKING
 
 import pygeoapi.api as core_api
@@ -13,6 +16,7 @@ from guardian.shortcuts import get_perms
 from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
+from pygeoapi.util import to_json
 
 from georama.features.apps import FeaturesConfig
 from georama.features.config_server import ServerConfig
@@ -23,6 +27,37 @@ if TYPE_CHECKING:
     from georama.integration.models import VectorField as DatasourceField
 
 api = None
+
+
+def get_geometry_format(geom_type: str) -> str:
+    return f"geometry-{geom_type.lower() if geom_type != 'UNSET' else 'any'}"
+
+
+def get_collection_schema_with_geometry_format(
+    api: API, request: APIRequest, dataset: str, geometry_format: str
+) -> tuple[dict, int, str]:
+    """THIS IS A TEMPORARY FIX TO ALLOW PYGEOAPI EXPOSE CORRECT GEOMETRY TYPES IN SCHEMA.
+
+    Wraps the pygeoapi collection schema to expose the actual geometry type.
+
+    pygeoapi always exposes the primary geometry as `geometry` with
+    `geometry-any`. It can't be passed through the provider fields: pygeoapi 0.21
+    requires a `type` for each field, and clients like QGIS treat every property
+    with a `type` as attribute.
+
+    We let pygeoapi generate the schema (result is a JSON string). After that we
+    dict encode it again to change the "format" of geometry if exists to the correct
+    type.
+    """
+    headers, status, content = core_api.get_collection_schema(api, request, dataset)
+    if status != HTTPStatus.OK or headers.get("Content-Type") != "application/schema+json":
+        return headers, status, content
+
+    schema = json.loads(content)
+    geometry = schema["properties"].get("geometry")
+    if geometry is not None:
+        geometry["format"] = geometry_format
+    return headers, status, to_json(schema, api.pretty_print)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -132,10 +167,18 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP Response
         """
-        _ = self.get_collection_or_404_or_403(
+        feature_layer = self.get_collection_or_404_or_403(
             collection_id, "view_objects_on_published_layer", include_public=True
+        ).get()
+        geometry_format = get_geometry_format(feature_layer.datasource.geometry_type_wkb)
+        return self.execute_from_django(
+            # a bit hacky, but we use
+            # https://docs.python.org/3/library/functools.html#functools.partial
+            # to force wat we want
+            partial(get_collection_schema_with_geometry_format, geometry_format=geometry_format),
+            request,
+            collection_id,
         )
-        return self.execute_from_django(core_api.get_collection_schema, request, collection_id)
 
     def collection_queryables(
         self, request: HttpRequest, collection_id: str | None = None
@@ -511,12 +554,4 @@ def get_dataset_field_constraints(field_properties: list[Field], geom_type: str)
 
         field_constraints[str(properties.name)] = schema
 
-    # In the schema, the geometry column is always called
-    # `geometry`, independent of the actual column name in the DB
-    api_geom_type = f"geometry-{geom_type if geom_type != 'UNSET' else 'any'}"
-    field_constraints["geometry"] = {
-        "type": api_geom_type,
-        "format": api_geom_type,
-        "x-ogc-role": "primary-geometry",
-    }
     return field_constraints
