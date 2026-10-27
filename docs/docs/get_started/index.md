@@ -18,3 +18,5 @@ Choose the guide matching your use case:
   and run it against your own infrastructure.
 - [:material-cog: Environment Variables](environment.md): the variables used to
   configure Georama, in development and in production.
+- [:material-link: User Endpoints](endpoints.md): the WMS and OGC API - Features
+  endpoints Georama publishes.
