@@ -65,6 +65,7 @@ class FieldSerializer(serializers.ModelSerializer):
 
 class FeatureLayerSerializer(serializers.ModelSerializer):
     metadata = MetadataSerializer()
+    datasource = serializers.ReadOnlyField()
     fields = FieldSerializer(
         many=True,
         required=False,
@@ -76,6 +77,7 @@ class FeatureLayerSerializer(serializers.ModelSerializer):
         model = FeatureLayer
         fields = [
             "id",
+            "public",
             "datasource",
             "default_items",
             "max_items",

@@ -24,11 +24,13 @@ class MetadataSerializer(serializers.ModelSerializer):
 
 class WmsLayerSerializer(serializers.ModelSerializer):
     metadata = MetadataSerializer()
+    datasource = serializers.ReadOnlyField()
 
     class Meta:
         model = WmsLayer
         fields = [
             "id",
+            "public",
             "datasource",
             "extent",
             "is_queryable",
