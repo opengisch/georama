@@ -18,6 +18,8 @@ services:
       - "DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS?}"
       - "DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS?}"
       - "GEORAMA_ORGANISATION_DOMAIN=${GEORAMA_ORGANISATION_DOMAIN?}"
+      - "GEORAMA_MAPS_OGC_OTHER_CRS=EPSG:3857 EPSG:4326 EPSG:2056"
+      - "GEORAMA_WEBGIS_OGC_OTHER_CRS=EPSG:3857 EPSG:4326 EPSG:2056"
       - "DJANGO_CONFIGURATION=Prod"
       - "PGSERVICEFILE=/io/pg_service.conf"
     platform: "${PLATFORM:-linux/amd64}"
@@ -63,7 +65,7 @@ services:
   qsl-worker:
     platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
-    image: opengisch/qgis-server-light:pr-95-worker
+    image: opengisch/qgis-server-light:pr-66-worker
     environment:
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
       - "QSL_SVG_PATH=/io/svg"
@@ -81,7 +83,7 @@ services:
   qsl-exporter:
     platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
-    image: opengisch/qgis-server-light:pr-95-exporter
+    image: opengisch/qgis-server-light:pr-66-exporter
     environment:
       - "QSL_DATA_ROOT=/io/data"
       - "QSL_LOG_LEVEL=${QSL_LOG_LEVEL:-info}"
