@@ -9,7 +9,8 @@ fi
 
 # installs mounted qsl sources editable over the locked version
 if [ -n "${DEV_QSL_SOURCES:-}" ]; then
-  uv pip install -e "${DEV_QSL_SOURCES}[dispatcher]"
+  # uv pip ignores UV_PROJECT_ENVIRONMENT and would pick up a host .venv mounted in /app
+  uv pip install --python "${UV_PROJECT_ENVIRONMENT}" -e "${DEV_QSL_SOURCES}[dispatcher]"
 fi
 
 # this just starts the container without a service in it
