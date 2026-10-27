@@ -21,6 +21,7 @@ nav = [
         ] },
         { "Production Deployment" = "get_started/production.md" },
         { "Environment Variables" = "get_started/environment.md" },
+        { "User Endpoints" = "get_started/endpoints.md" },
     ] },
     { "Update Doc" = "update_doc.md" },
 ]
