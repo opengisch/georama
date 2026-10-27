@@ -30,7 +30,7 @@ api = None
 
 
 def get_geometry_format(geom_type: str) -> str:
-    return f"geometry-{geom_type if geom_type != 'UNSET' else 'any'}"
+    return f"geometry-{geom_type.lower() if geom_type != 'UNSET' else 'any'}"
 
 
 def get_collection_schema_with_geometry_format(
