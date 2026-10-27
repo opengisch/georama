@@ -20,7 +20,7 @@ from drf_spectacular.plumbing import build_mock_request as original_build_mock_r
 from guardian.shortcuts import assign_perm, get_objects_for_user, remove_perm
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, DjangoModelPermissions
+from rest_framework.permissions import AllowAny, BasePermission, DjangoModelPermissions
 from rest_framework.response import Response
 
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
@@ -33,6 +33,13 @@ if TYPE_CHECKING:
     from django.http.request import QueryDict
 
 User = get_user_model()
+
+
+class IsSuperuser(BasePermission):
+    """Allows access only to super users."""
+
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_superuser)
 
 
 class GeoramaModelPermissions(DjangoModelPermissions):

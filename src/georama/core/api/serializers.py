@@ -66,7 +66,7 @@ class UserSerializer(serializers.ModelSerializer):
             "user_permissions",
             "memberships",
         ]
-        extra_kwargs = {"id": {"read_only": True}, "is_superuser": {"read_only": True}}
+        extra_kwargs = {"id": {"read_only": True}}
 
 
 class OrganisationSerializer(serializers.ModelSerializer):
