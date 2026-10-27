@@ -1,7 +1,7 @@
 {
   "project": {
-    "version": "TestProject",
-    "name": ""
+    "version": "3.40.15-Bratislava",
+    "name": "TestProject"
   },
   "meta_data": {
     "service": {
@@ -21,16 +21,59 @@
     "language": "",
     "categories": [],
     "creationDateTime": "2025-06-25T21:15:29",
-    "author": ""
+    "author": "Olivier"
   },
   "tree": {
     "members": [
       {
         "id": "",
         "name": "",
+        "is_checked": true,
         "children": [
-          "TestPointLayer_e7b906c8_9404_4393_b05e_e72af3eb976b"
-        ]
+          "donnees",
+          "groupe_vide",
+          "TestVectorTiles_57b2c234_c74c_4b46_978d_110cdababd7e",
+          "fonds_de_plan"
+        ],
+        "is_expanded": true
+      },
+      {
+        "id": "donnees",
+        "name": "donnees",
+        "is_checked": true,
+        "children": [
+          "TestPointLayer_e7b906c8_9404_4393_b05e_e72af3eb976b",
+          "TestLineLayer_518493c1_a766_4f4a_9c30_dc0c5b8e5c1c",
+          "donnees.surfaces",
+          "TestAttributeTable_c10c69c3_f209_40c5_ba90_61b0a35402cf"
+        ],
+        "is_expanded": true
+      },
+      {
+        "id": "donnees.surfaces",
+        "name": "donnees.surfaces",
+        "is_checked": false,
+        "children": [
+          "TestPolygonLayer_b0b03ac4_18a6_4a9e_a06d_a107298517f3"
+        ],
+        "is_expanded": false
+      },
+      {
+        "id": "groupe_vide",
+        "name": "groupe_vide",
+        "is_checked": true,
+        "children": [],
+        "is_expanded": true
+      },
+      {
+        "id": "fonds_de_plan",
+        "name": "fonds_de_plan",
+        "is_checked": true,
+        "children": [
+          "OSM_Standard_04e6d439_1de9_482a_a763_e6ed1aefcea6",
+          "TestRaster_1190835c_2e3c_4c6d_b72d_abeae62d124c"
+        ],
+        "is_expanded": true
       }
     ]
   },
@@ -39,6 +82,7 @@
       {
         "id": "TestPointLayer_e7b906c8_9404_4393_b05e_e72af3eb976b",
         "name": "TestPointLayer_e7b906c8_9404_4393_b05e_e72af3eb976b",
+        "is_checked": true,
         "title": "TestPointLayer",
         "source": {
           "postgres": null,
@@ -82,13 +126,14 @@
         "styles": [
           {
             "name": "default",
-            "definition": "eJztW3tv27YW_9-fQvMFbrsLy5Il-dUpAdqk3S2QLOmS7mIYBoEWKZurJKoU5dQd9t3vISlZku2ldpJ13Za0SMRDnkOeB8_56UH_q9OLk-sfL18a7-c0Ny7fvjh7fWI8WQiRPbOshIdhP2SJJTv7WOAnxpOrH6-uX54_Oe74igMVgn1PIk7yxTVNyFHX7hqcIHyRxivVyFfJjMVsvoJRhJM0JFchimGgOYBOmmQxjVanHN3QdP5fmopcc7U7rll81IXxS8JzytKjrtv37P7UfMGRoHmMlqhrJOhDKbnBf74mAvcC5arxAuUE_0BzOqMxFatXMZq3mJ7Hc8apWCSaKlYxOUGCSCKB5T2P46s2DSanaTWPXf50m7Y5Zxj6TmmOZjHB9VRnDLjU4mI0I3H-MlUD5MTHHcOPYGk5XBj-a0xSQSMqu48HvtVqywHfk4Qtq966IbuuCOLhouprtGTnJadLUOTY9q3qEia2qpl9QZKMcRQbEf1A8GkhLS49oCyDuHhFSQzr7RqkXrqBwrBIihiEqWaitLflGLwer7hffsjAPNqnXQOX0ssxEQVLxTSh4rwhYDfL25SKoy64oau0Uov9HqVzpaThq8mOfUv_VSQQBQT5WzJYLQ7fqtSWDRKTpZrE-MiiKCdCLSWMUZJBbB51rwnnCGY2ZjTFinICzuFMLj9fsJtzxN8RfqU2wuv0quARCsllzKpYr3bIUfeMpgSU_CB4IRVsRENNLLdYnpFQnKFVJVgF0cd8HexilcHFa1jQkuICxa8IEgWwaftgJJCJSQTzYTPjLCNcQCBry1xkSlkt4RxliqWmp0juc_kbNiSKCyL9oAe_uRIcDNC1dnHU0-zulyLWEkMWx6Ag9O6W7VuaVzvvFnV8aEY0JtK02lJlRKhrA8XZAimD0TxAKU0gZrXB9aK6RsR4SAK-4IoacSAHXEX2QEUBzQLBAnAP-Lxh-Vi6slRTLi8olxdsWPv37X0Xi3_a5veyetvuleV_VzU_lvFpZCjPqy0jr65k8iNlrFchLlMgC9-Vxqfw59fpyBmP8ASZU2eATW-KIxNNI8-MQjsMUYhDb2T_1j3Qiiim8zTAKF8EGRKC8HStvb2nUUOUqaKwZszfF4iTfbmLXLBELmDNP_zGOZg5SFAWFJD1ArXn17LcD8_s3vrf4WKlyLWw8_M9BTTtGegkebBZd8h4UCV3yb-jtoBKAprmFJMgY_Fqzg4Pol8YCGhF0YwsSbwnt8wuAexWxtfsA2_Ymzg9-O0Mhz0-nz2z-8PRBPaQN7SnE9uFXeT17L7rDJpkzwHaYDzyxvZwMnHcoTP1Bm5vcMhCNnYDi2Xl25_9hmJRbwa7PzqY-Y5-vGOg_gGxea9wlH0B1DgI7IN1gc4kwBRwESDzANDQ_SU8qGG2pd_NRm05CgbeU1Ml4w_UVcu_o7Y3BL0L2gkvhXzBU7iBOljvIodcoypE0Cpb-_LrLXovS7Vhx6cQ1S1g4E6Yag9QdT9UtaXfJ3CVpYBVCYTzNar1rZ1gt4LAryjcuX5GCAxzxo8Q-BYILB1yOwR2HA_uFd2hifAoMr3RzDOnAwDDY4KJR4gXTvHoYAg8YxwTHjzAttyEkV8AILkfrtpEBIcW8C8GE7BC7MKIttcbTnuu03CJZ48G3tSdDCeO54IfRmB-x5mOxpPxdDycTG3wiytd4ozAZUPHhiHjgeN5e7ukWsvdYWIlYRMp7nvb1OK_o0UPWP1jtTqoWrXrUlWtmk_NPk-9StSMjxXrloqlnXJ7zRoQ1x7bTmRCep-YHnEdc2oPbDOCfG57rjt0o-jwxzbpvLH7DnhSs5l1DnpU8wXUswXj9CNLBYoh1kNoBRlUuDp_fZ662ApjTFHC0r1z92NJ_fuX1Ad10kMUa7mMICFiwXArbol6SLKfDPqxockBTA9qDSXwbkZYyrQeHpw4HtHLQehlA6f41vp1oWxxksK9FuHm0imLprr5mumX4wqocJRDUJav9cp35HnjHbmSHMtknTcqX05lRdTT6nd6emB-EFayH8HSnwuWvOnEHdkTYmJCQtOb2VNz4kWhaYdDPBw7rmu7s78iWHIGUBPtntcsi5Ma_0g8NBrKEriJjCStTRmM_8pgKaQ8jPe14d8dKzmTHnjTaSFoezAd2eOJ5w7csTP0JhAA9qj9M5a0EmFX0HrwBWAl7xEr7cJK-76_e8RK_xis1MAmPmdCwSNLoxbwmXK9bv5jPkzyrQY0lO2clHLLz-VOSYSKWJTYruo8kQnVoCmshipEYbX7H5-XPUDYf14IOBkMyWDqzcxo6NjyMyfXBKREzFFExgiNUTh08V8SAkKNl9m7qvUD1XqEcn8LKOcOe_p_jeQ0fpuu8Zx6wrUX7U9Hco84bheO2_dR4COO--fguC2c0aDJlv5OaOMT7N3Wamskv1FfUnJjZZzIv_Vn_nml1RnNxQbkKy3w7_cFE99EFOuLTyOzjclJMiMYE_w_iudE5FbIinTH92EylKwd7EvE1UGM76CV14MVRruV4Qc5wW6Oxmp9a4dVfWBPsTwYIY9u1A15akR_6v-iOWCL1imBy0WGQipW8mRIqw39c8Igd_CVXkhuVO1LTkLaOIqQsCU5LbIY9p0g34HwvDy_YvgIAmNJThYkfJdrtUJ5fcLSiM7LoxuWUnFjMrU-MofVqiMUZ_J0zJlqN_yBNUQ2lxB_UJuUoEieHWnJV9Mqcml9da4kbA6RR4Bg0d8xeVFGJ8FU6HgoZ7sGAPwSiFUIagltXFbdP1iNTt-qRWnPqsUorXeu1ocoQHm5d9Q1AH5MPrQxe31GRhuwZvJz8IW4hLIYrg9ByMbK0H_g3qLy1g45m8w-rgbfVeIuAX7pOy2sbBgoy-LVRfo2w9XRIdI67bMtupYi_ZELeRCnFFq3pRQADXDDNRcLbUUm0iKOG8SBColKgHrh05jNgGr0viCt8XoF7VkbkzYS2I7lbGhjwKYJgbYpsy3Er62heNWW8pGALDcrBEGhWM9WGua5vqN8R8BFJwjyS_3156_VQTVzx6_q57cquLbnqOcVMpXpgDdyxsWFfMNRngOTo3XoqzNz8tt5lp2yGyhVcmjrMFdpprhI0vKGXzea23ZBIU-njRygDNE1FHBSL0ysFms1fl35SwW2OKTVq5kb-jZ0K90LexkEoFiB0OqJxo1uWXWuqQnKn1tcPmR0TnDtUT1Wpgq4HU8MwWLCkb7fPtYpRNKbYyggJGuTEMr8ywq4oZdp_3d6Nnjka6wMicVxm2FN3jHFsf_VTyenz6-f__Qvw_yPCXtHnnx7ZhQiMieS0ul2u503376-kk8XktwIETgDLYmBjMsVQNTUiIpUR6dYIGFQOQRwDDZuFkTSiGIEegeqHqCUfqfzNifQASNrVmYgjNXhOAQ31nMaStIKtNTTAtPLFOCvkifDyGCRll1JoHqubrmo16DfurPbUa7sd56nMAWSN_QgNo7B3c-UfhFniTo5279cvRH9N2WWh3wtTw8K441udzqwHY1kFcg1BVKdp4DLYbk9Q9XcnlGW56-fqfIha6FxVBH7VWl8-rXqhWgSnMUwQAvpA4jDJwsa46flfD2je76S3wCrcvV15-efj7dDoUIKyk5FpsKwQgotWul9xmGtcJ9yDEWYyKdDWLe15HVvOXp9vnSr8Fa9dQptjPfVMdiL9JplDe6a2CiBdRFo8ficFDk5Q7lQ4Kohpd2xU9IWr7oRONUwWZ1KvVxjMMVxUwJGeb0FXI-VZH8b0crRcL90TbPmgyHwkSausdm3peOvIXNJ12wTO746m33c-T_0Xo46"
+            "definition": "eJztW21z2zYS_q5fwepmLu2NKJISJUsp7ZnUTnqZsWMndnrT6XQ0EAFKaECCAUE7Sqf__RYAXyU5kWyn10vtZGxigV3sLha7D18QfHNyfnz188Vz6_2CZtbF2x9OXx5bT5ZSpk8dJxZh2A957KjOPpb4ifXk8ufLq-dnT446gebIaJwyGq1OBLqhyeKKs8Ou163IpzxEhoJyyd-QSJBseUVjcth1u1ZMk0voh4bnFj9di6E5YdnzBM0ZwXrY2hz_ponMdMc1ERnlyWF32Pf9vje0LznjcpmLBGSjD4VstzX5GcdAO6GZlg_CV_EcuBYr6CeCJCEp2OyGGWeVMCAKgvB5wlZGN7li5BhJsuCCElDrGWOXbVrXWqJMs_-AMoJ_ohmdU0bl6gVDi5aBz5jikMtYUY86VhDBiAwurOAlJomkEVVaH3mB02qrAW9IzK_L3rqhui4JEuGy7Gu0VOeFoNeg6pEbOOUlTOyUMweSxCkXiFmMxlQa72m7kZAvKGGwRF2LJPj5hxTca5YDHB6GeZwzkKZHQ381NqIfCD7JBZJ6rAqDUiguqG8TKg-7EB01qWCPKFbSGrGh9GjNra3Sk7xByUIbaQV62FHgmL-aBDoBQf1WDE6LI3BKs1WDMHKtlbDIBynyrNQ7ZChOISAPu1dECKTUlasUTHmZYHpNcY7YC4JkLlQMfORRlBFp3FGKaUV5GYiH3VOaEBCfZ5LHsKOIQBCWzbEgMSWhPEUrIi41n47Mj1kVpNmS35wh8a7sf5lc5iJCIbmAHWJ2z5yCmkr7YwglwcGz2hMYSWRjEoEO2E4FT4mQEMXGaeep9oMx8wylmmWd_vpSChDctRKkNrr6DXsVsRwaXafNYYbU06z3b5WoiJXEkDMGvoDBBW_gGF6zrp8wJ4BmRBlR7jZeKoJFXxdTM70WNJuhhMYQz2YBjB4QzFyEZCaWQlMjAeSZ0FHvqbTD0iXSyxEyms4kn8HKg7MVqTBTqTcr1Juteft2f9_F45_3-b283vZ76flbTQuYil2Lgjt_n44HB2M8QfZ04GHbn-LIRtPIt6PQDUMU4tAfu390rRRlWbnv1NWlyprE7JUqJYCvGQ_fmWW6nxcRo4tkhlG2nKVISqKqSmG9u6PLQpTqAlExZu9zJMiu3DoBKAUq_tH3g72ZZzFKZzmk1JlOD5Ws4Yenbq_6t79YJbISdna2o4CmP2cmJ-7t1i0yHtTIbfLvaC1AlhlNMorJLOVsteD7B9FvHAS0omhOrgnbkVvlrxnsVi4qds8f9SaDHvwejEY9sZg_dfuj8QR24ajn9ocDTzXgyjsY-wfuuOftM9VavHMGdWUP9huKZR3ubn-8N_MdV-qOofgFou9eAaeuZ1DUIHT3tgUa8QxTwEgAN2aAjO4v4UEdsyn9bj5qy9GQ8J6Wahlf0FYj_47W3hD0btZOaQlkBJHA3dPeducZZBNdA2atwrQrv9mi-3mqDSw-h5k-Ue7vhJp2gE33w00b9n0GOTkaOhVQN6twa-BshbMlyH1B4cb0NpALA9gjyP2iIHcw8OHuaziyER5Htj-e-_bUA7h7QDDxCfHDKR7fCnJf6PX5EiB3zgUmYnaXbfkZoPinQI77YaP1mr9vif7LVH2ey204z_V7o2lvOGg43XfHnj_1wdWDwXR8MJkopw_G7nA62tnp5Wx3h3qlhHW0t-vNTYv_jj77lPaPFWevitOuLWXFaT5-2lJzYt39WHW-aNXxyNA9cAeRPfD8ie2T4cCeup5rR-5o4vrD4WgYRbdWnbNihb7Iw5Vk0dh9ezxPWc86ez1Q-VNq0pIL-pEnEjEI7BBacOdPkzpD_Tm1rRWomKKYJztn58ey-DWUxQddhocouEqNWUzkkuNWZBL1sGJHGfRjw5I9mB7UG1rg3ZxwrTJ1-PnU8IhA9kIga1gjcKp3dqolSAI3OUTY14NC3Yyq-mPGq9dpxavfrH71q-GHQBnEZuP1HFMZOCveaaqqqG-f5quyIBYQJ9sb77iPgOdBAI8_nQzH7oTYmJDQ9ufu1J74UWi74QiPDgbDoTuc_10Bz8CDquf2_Gbhm4wmk8FQAR5P4xxPXSm8AxXy_xjwhFSEbFcvfe14ZzDpeQew5k2c63pT2Caw2O5Y_Ryoq-kE8M7gL4B3_Ee8sw3v7Pou7BHvfL14p4EvAsGlhjiOQR6wSHqtTfNv8xlP4DTgnWpnpBBUfFh2QiKUM1ngs7LzWOVIiyYwPcVVJNb9j8-tHiDs7wzjJt6IeFN_bkejgas-CRragFSIPY7IAUIHKBwN8d8WxkEVV9m7rOaebj2Cta8CrAEUN_9rrOYNDwYjf9rbdvU_x2qPSG0bUtv1gd0jUvuKkdoGkmjQVMt8RrP2SfJ2b7XJpzST1QeGOWLXlNw4qSDqb_0pfPZpUFd44J_vcy6_jyg2F1uw15oAHRRmbhLPCcYE_4fiBZGZE_I82fySap1dA64q6JDQRxheQSvbh-EnNUnB0dA2cLZ4NYDxCVZHF9Qph7qhDliY7_N_aA7YoHUKaHKeopDKlTpE0WpD_4JwSBZiZRTJrLJ9IUhIqwMDQh3LICd5ymCjSfIKhGfVk0MEgXFNjpckfJcZs0J1fcyTiC6KUxCONnFtMq0fWYC2hcuwAbz2NcSaKi3qLMCpOlVzqkeVSxNUjz2xPkiQtYgQJA1qpI5ftFTRGmpysTL6aEbYHKLOt4B9r7i6KAKZYCpNvBTKXgH-fQ7EMlqNhDZIK28mnEZn4NSiTBBoZTbUMnlkf70eTp_iat17AYQ1yoptr6_hbgSTD-2bifrYi7M50NsYqK01UVKLD4qAMFMVDYu0Duw0JrJQmrLVefI2xcX5HefzjMbNWzkhg9bzK39mUh2WKdSp21ajS73cURMBYIFgXMil8QqXSc5Yg-i1NYfK9z4nrX7nk7O4O83irpm5MU1paNu4xqyNtLyuD8y_vgCQFsKy6N0-1OjSGNucvz1hUK-ZZjabGkmoBfNcEhTKSrNirZ6ZO-h3ZHXYPUaQg-tPRX8vz-rZW36VP3-UUbg5Rz2vVJnc7CEr40Keq5cp5m0LXzvVZRl-s7_0ATv1cT1PT_hN0i38xPI4KR5wmEb1dSOY3G2mKQ0WzXueJYUSljTKVYu10HorRxlbTj1zw96GbUUoQHoAWYhpDF4-wbkxLafOWzVBr-cGVwD1TRBcr6gZq7JPxEVsSXNgzDxRMFlJ0ZtjKABEZ50QqmrEcxHqInhLzxqPevWWIrk8ajNU5C1THAXf_HJ88uzq2S__sOx_2bAd1SG0p1YuI3uiKJ1ut9t5_ePLS_UkJc6sECXWEl0TC1kXK0DoiRXliYlOuUTSomoIwDhs3SyJohHNCPQOYADAbP1O521GoANG1qzcQhjrk3jIYnxBQ0VagZVmWmB6ngD61_JU5Fg8MrJLCdTM1S2Uegn2VZ3djl7KfueZOjOI1EMJEMsYLPdTbV8keKyP3PYvVq9l_3VROCCzq2OH0npt2p0ObEcrXs2UTjNlzrdwWwLq9iyNQHpWAVa-e6orkkIG1mFJ7JdA4dvvdC9EkxScwQAjpA-QFh8vKcPfFvP1rO7ZSn0_rCvyd51ffz3aDIUSN2k_5akOwxI3tWjF6nMBusJt2hGAD6KehGHTNpKr3mJ0dTB1A1uUveXOM_zF-EAfGz5Prni6nbvur9N1iweQT56RU5RJjS23S2mPqSVt8OrbohNz06DPrl5UiFRz3BSYWV1vQPcjPVmwienVaLhdvKJp8-EWrJEhVkj1x2LhryCJqaXZJHYCfaj7qPNfDui6MQ=="
           }
         ],
         "minimum_scale": 100000000.0,
         "maximum_scale": 0.0,
         "style_name": "default",
         "is_spatial": true,
+        "is_background": false,
         "fields": [
           {
             "name": "fid",
@@ -106,19 +151,620 @@
             "editor_widget_type_wfs": null,
             "editor_widget_type_oapif": null,
             "editor_widget_type_oapif_format": null
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "is_primary_key": false,
+            "type_wfs": "string",
+            "type_oapif": "string",
+            "type_oapif_format": null,
+            "alias": "Name",
+            "comment": "",
+            "nullable": false,
+            "length": 10,
+            "precision": null,
+            "editor_widget_type": "",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
           }
         ],
         "geometry_type_simple": "Point",
         "geometry_type_wkb": "Point"
+      },
+      {
+        "id": "TestLineLayer_518493c1_a766_4f4a_9c30_dc0c5b8e5c1c",
+        "name": "TestLineLayer_518493c1_a766_4f4a_9c30_dc0c5b8e5c1c",
+        "is_checked": true,
+        "title": "TestLineLayer",
+        "source": {
+          "postgres": null,
+          "wmts": null,
+          "wms": null,
+          "ogr": {
+            "path": "data/TestLayers.gpkg",
+            "layer_name": "TestLineLayer",
+            "vsi_prefix": null,
+            "layer_id": null,
+            "subset": null
+          },
+          "gdal": null,
+          "wfs": null,
+          "vector_tile": null,
+          "xyz": null
+        },
+        "driver": "ogr",
+        "bbox": {
+          "x_min": 2595000.0,
+          "x_max": 2605000.0,
+          "y_min": 1195000.0,
+          "y_max": 1204000.0,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "bbox_wgs84": {
+          "x_min": 7.373007607690566,
+          "x_max": 7.504356418083746,
+          "y_min": 46.90608737368674,
+          "y_max": 46.98704503724979,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "crs": {
+          "auth_id": "EPSG:2056",
+          "postgis_srid": 2056,
+          "ogc_uri": "http://www.opengis.net/def/crs/EPSG/0/2056",
+          "ogc_urn": "urn:ogc:def:crs:EPSG::2056"
+        },
+        "styles": [
+          {
+            "name": "default",
+            "definition": "eJztXG1v2zgS_t5fofWXfrFiye_JKQbapL0WSJpck-5hsVgItEjZvEqiSlFO3MX99xu-SJZsJ7GduOjuuQu04nBmOBwOOQ9fvN4v51dnt79dv7O-TWhmXX95e_HxzHo9FSI9abViHgRHAYtbsvIIC_zaen3z283tu8vXo1eekshonEY0nJ9zdEeTyS2LThtuoyRfsABpCsoF-0xCTrLpLY3JacNpWDFNbqAeCq5j_jSsCI1JlL1L0DgiWLEttfGBJiJTOmeEZ5Qlp43OUbd75HbsGxYxMc15ArrRvdHt1Bq_ZBho5zRT-kH5PB6D1GQO9YSTJCBGzK5047JUBkROEL5Korm2TcwjcoYEmTBOCZj1Jopu6rSGNUWZEn-LMoJ_pRkd04iK-fsITWodfBNJCTGNJXX0yvJC4Mjgw_I-YpIIGlJp9cj1WrWyZPhMYjYrahcFWXVDEA-mRV2lJCuvOZ2BqSPHaxWf0HCraNkTJE4ZR5EV0ZgK7T3Vb8TFe0oiGKKGRRL87j4F9-rhAIcHQR7nEWhT3FBf8ob0nuDznCOheGUYFEqxoX5JqDhtQHQsSJWmKoEhjag1rLqkWviMkonqoeUptpHX0v8qEhgEBPm3FGjVJLxW0WdZIBGZKQssci94nhVGBxGKU4jG08Yt4RxJW8U8hX58TDCdUZyj6D1BIucyAL6zMMyI0L4o1NRCvIjC08YFTQiozzPBYphOhCOIySovaExJIC7QnPAbJafC8ntWRmg2ZXeXiH8t6j8mNzkPUUCuYXpkSsmYgpnS-jOII84o1q7DSCAbkxBswHbKWUq4gBDWTrtKlR90Ny9RqkSW6f-6ERwUN6wEyVku_4aJiqIcCo1WXUKzLJpZrl-rURJLjQGLIvAFMBtZr6Vl9bg-0h0PiiGNiHS39pIJFvVtmo7UWNDMRwmNIZj1AGg7IJIZD4jPp1xRQw5kn6uQd-WaE6VTpIYjiGjqC-bDyIOzJcl0U5rnG_P8JW8_7O9dPP60z5_l9brfC88_2DUvkrFrUXDnn0F_4KJh79gedI-7drfnhvaQOB17TDByXRR2OoPgvw0rRVlWzDv5dSOXTKLnSrkkgK8jFnzVw_Q8L6KIThIfo2zqp0gIIlOK6b2zocsClKrsUApm33LEyabSagGQBpTyvX-0txb2Y5T6OaynvloeSl2d-xOnWf63vVqpslR2ebmhgqo_fb0mbu3WNTpetJPr9O_YW8ArPk0yiomfsmg-YdsH0X8YKKhF0ZjMSLShtFy_fJitjJfibr_bdN1Oczhstnu9Jp-MT5yjfrfjdgadpgM4qvjqdHvO8bDpbtPUUryzCPLKFuJ3FItFuINZWwvvOFI7huIeou9ZASe_fUhqELpb9wUKsY8pYCSAGz4go-dreFHHrGrfzUd1PQoSPrOnSsce-6r179jbO4K--vUlLYEVgSewddq633kGq4nKAX4tMW0qr6fodp6qA4unMNMj6X4n1LQBbHoeblrp3xPIqaWgk4G6WYlbvdZaOFuA3PcUdqUPgVxgiA4gd68gt-sOw6Ddx3Y47rbtLnGwjXDYsQkZjoe9nuv2ur0HQe57NT77ALljxjHh_i7T8gmg-EMgx_Ow0XLO3zZF_zRZn-ViHc5zB82h2-x3Kj7v9o47g_ax9LTb73U6bfhqd_uw8Wpv7PSitd2hXqFhGe1turmpye_os8esP2ScrTJOPbcUGad6_LQm58Sq-pB19pp1OmOnS9xgbJMuGthdxxnax0G3Zw-64bA_xIPAcYcPZp1LM0J7OVxJJpXZt8V5yvKqs9WByg_JSVPG6XeWCBRBYAdQgp0_TRYr1I_JbbVAxRTFLNl4dT6kxb9DWnzRYXiJhCvN8GMipgzXIpPIw4oNddDvlZ5sIfSi3lAKd3PCTK7UwdNLwwGBbIVAlrCG1yrv7GSJkwQ2OYTbs7YxN6My_2h-eZ1m7n2zxb2vgh8cZRCbleu5SK7AmbnQlFlRbZ_G8yIhGoiTbXmR5BzgzovAnXZ4jHF73LZRH8Eme4CxfdzpOHaIcGdI-gQTxzncJB1ukg43SS9zk9RxmkOn2XacCpQCeNXvDlwFpQBTAd05GgwVmD7cJP2FwPPhJmlbPYebpMNN0t8DVVdQrMeZUEC6pfEtbH2Uq3Xx_-axmNeqbCJkOSNGkXm7eE5ClEfC7AKKyjOZLi2aQPMUF_s78G9RL0t6Eiw9TdNWae41DB5g1ATLp5jy1eaiIB-M6ieHb6sMK7RXBjZfpSigYi4fhdbKUD8hDHbmfK4tyayifM1JQMs3kFw-MyXneRrBrlaQT6A8KzdDCPo4I2dTEnzNzODosbmA5aixJkjKoasFgNeqKlKUQH6esSSkE_M6VLtqyWjVTzKBXpsGsB4lewbulzhGPpO8kK-NLxRXsfp45Y4QqzeWWY0oO7CghvJZas0UZaEimxAMAblYQZVFvvsFP31i8sN4gmAq_k3xhAhjbDFftGR9C1JEfqtSCbveUoX2mzJixRw9x34eewKWyzOQn8egMZ34P51RyoRdDFKPmh-z6sntLGb5WCZXbcglul8cWD2YrZdk6Aa7FXUSpvnLRaaUenC3Wm_oRpC0enLae_BQYYchkIc3aiX6meIi4ESeJvnSV9tbdQ6y8scYz4qPMZOnaMVBhUwySJ5spvliKATPNz2sAKyaQjLyQ8ZjtICpc_hjX17aeNNdoHLSBlpeIDDyFKsxQDutGH_FMbA-fDiJ45Ns0yO_JwZjVd1Oo2K-lrOxB-gLZQZZqW-AZJjc1--b9c9LwuKUoc7oFoyfWFzyqkS6hrldYR5zUvLrnLJGoLNixiIFrWHvFuyfdU4wMjpDrOHvrahfrGRr2Psr7JU1Zg3_YIW_Mh80LlsMgGcgmB4MU7BI7adDlaGwUJpG86vki9JYJo_HBTXA2UXSZP1dRCugYRdxk953Ea2kpZ36XEkgu8hXF7-18rCvWoy5XN0yIX8tZUJgUbYqVWpOQHM-EEgyEVM9V5lI8iiqEN16tOQJ_ZaTWn3r0VbcLVvRobXSjPNEM85GzTjLcbj3dipBu_e2TITvvZ3KdNj_OFXmzt4bq060BxpTebIyvSptL34kuTLvwIrlZRe28UG5_36QVc-GzXhNmG3GXInLzQRMcG3GXImQDW2vDPNmEtWxqkhUx6c-IN5ibVUq9OECEoCixrkgSB0XLRGFvKrUwMjKGBdX8jJa31azpV_FWlqBBk3q18nySoml5-wuaZiuRHlsWmita8KEE0AvUIQidT1THBHe6VJrgYwXBNXnFSkvE4wTvOi15pXITqJES-jfveobbo34JL3KQxMqWsuEQJ5AsZwH6uDrgZolGfmCIEViOqoLlOQ1TYy8X34_O39z--b3P_4YrbYzMgdxkpblqepjcRBXoxnVjAPaZrkYTUhC5LU_1mWtuaw13HJMVMfVD-WvkluWmgOqPCMXKBO_SnytSPJE81wfaKrfT1-Xp4iq-k7Fg_4Gg2aU3C3CZiSfVyzTgDFG6S1NqzflwKmJo-Jg8Z_mIO4WNgPl6WKN-MpT_0-B0av_ATKaphg="
+          }
+        ],
+        "minimum_scale": 100000000.0,
+        "maximum_scale": 0.0,
+        "style_name": "default",
+        "is_spatial": true,
+        "is_background": false,
+        "fields": [
+          {
+            "name": "fid",
+            "type": "Integer64",
+            "is_primary_key": true,
+            "type_wfs": "long",
+            "type_oapif": "integer",
+            "type_oapif_format": "int64",
+            "alias": "Fid",
+            "comment": "",
+            "nullable": true,
+            "length": null,
+            "precision": null,
+            "editor_widget_type": "",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "is_primary_key": false,
+            "type_wfs": "string",
+            "type_oapif": "string",
+            "type_oapif_format": null,
+            "alias": "Nom",
+            "comment": "Nom de la ligne",
+            "nullable": false,
+            "length": 50,
+            "precision": null,
+            "editor_widget_type": "",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
+          },
+          {
+            "name": "count",
+            "type": "Integer",
+            "is_primary_key": false,
+            "type_wfs": "int",
+            "type_oapif": "integer",
+            "type_oapif_format": null,
+            "alias": "Nombre",
+            "comment": "",
+            "nullable": false,
+            "length": null,
+            "precision": null,
+            "editor_widget_type": "",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
+          },
+          {
+            "name": "big_count",
+            "type": "Integer64",
+            "is_primary_key": false,
+            "type_wfs": "long",
+            "type_oapif": "integer",
+            "type_oapif_format": "int64",
+            "alias": "Big_Count",
+            "comment": "",
+            "nullable": false,
+            "length": null,
+            "precision": null,
+            "editor_widget_type": "",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
+          },
+          {
+            "name": "ratio",
+            "type": "Real",
+            "is_primary_key": false,
+            "type_wfs": "decimal",
+            "type_oapif": "number",
+            "type_oapif_format": "double",
+            "alias": "Ratio",
+            "comment": "",
+            "nullable": false,
+            "length": null,
+            "precision": null,
+            "editor_widget_type": "Range",
+            "editor_widget_type_wfs": "decimal",
+            "editor_widget_type_oapif": "number",
+            "editor_widget_type_oapif_format": "double"
+          },
+          {
+            "name": "is_active",
+            "type": "Boolean",
+            "is_primary_key": false,
+            "type_wfs": "boolean",
+            "type_oapif": "boolean",
+            "type_oapif_format": null,
+            "alias": "Is_Active",
+            "comment": "",
+            "nullable": false,
+            "length": null,
+            "precision": null,
+            "editor_widget_type": "",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
+          },
+          {
+            "name": "created_on",
+            "type": "Date",
+            "is_primary_key": false,
+            "type_wfs": "date",
+            "type_oapif": "string",
+            "type_oapif_format": "date",
+            "alias": "Created_On",
+            "comment": "",
+            "nullable": false,
+            "length": null,
+            "precision": null,
+            "editor_widget_type": "DateTime",
+            "editor_widget_type_wfs": "date",
+            "editor_widget_type_oapif": "string",
+            "editor_widget_type_oapif_format": "date"
+          },
+          {
+            "name": "updated_at",
+            "type": "DateTime",
+            "is_primary_key": false,
+            "type_wfs": "dateTime",
+            "type_oapif": "string",
+            "type_oapif_format": "date-time",
+            "alias": "Updated_At",
+            "comment": "",
+            "nullable": false,
+            "length": null,
+            "precision": null,
+            "editor_widget_type": "DateTime",
+            "editor_widget_type_wfs": "dateTime",
+            "editor_widget_type_oapif": "string",
+            "editor_widget_type_oapif_format": "date-time"
+          }
+        ],
+        "geometry_type_simple": "Line",
+        "geometry_type_wkb": "LineString"
+      },
+      {
+        "id": "TestPolygonLayer_b0b03ac4_18a6_4a9e_a06d_a107298517f3",
+        "name": "TestPolygonLayer_b0b03ac4_18a6_4a9e_a06d_a107298517f3",
+        "is_checked": true,
+        "title": "TestPolygonLayer",
+        "source": {
+          "postgres": null,
+          "wmts": null,
+          "wms": null,
+          "ogr": {
+            "path": "data/TestLayers.gpkg",
+            "layer_name": "TestPolygonLayer",
+            "vsi_prefix": null,
+            "layer_id": null,
+            "subset": null
+          },
+          "gdal": null,
+          "wfs": null,
+          "vector_tile": null,
+          "xyz": null
+        },
+        "driver": "ogr",
+        "bbox": {
+          "x_min": 2595000.0,
+          "x_max": 2606000.0,
+          "y_min": 1207000.0,
+          "y_max": 1210000.0,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "bbox_wgs84": {
+          "x_min": 7.372873595973333,
+          "x_max": 7.5175797969713765,
+          "y_min": 47.014029205721485,
+          "y_max": 47.04100722604683,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "crs": {
+          "auth_id": "EPSG:2056",
+          "postgis_srid": 2056,
+          "ogc_uri": "http://www.opengis.net/def/crs/EPSG/0/2056",
+          "ogc_urn": "urn:ogc:def:crs:EPSG::2056"
+        },
+        "styles": [
+          {
+            "name": "contour",
+            "definition": "eJztWm1v2zgS_p5fofWXfokjyS-x3VMMtEl7WyDZZOt0D4vFQqAlyuaVElWScuIe7r_v8EWy5DiN7STtYS8JkIhDznBmOOQzlCb46ezy9Pr3q3fOlxkRztWnt-cfTp1Xcynz166b8ig6iljqqs6jWMavnFeT3yfX7y5ejQ8CzSFImlOSLM84uiHZ7JrRk5bfqsjnLEKGggrJPuKEYzG_Jik-aXktJyXZBPqh4Xv2p-VQNMVUvMvQlOJYD1ub42eSSaFlLjAXhGUnre5Rr3fkd9sTRpmcFzwD2ejWyvYak1-wGGhnRGj5IHyZToFrtoR-zHEWYcvWrplxUQkDIscovszo0ugmlxSfIolnjBMMar2hdNKktZw5Epr9LRI4_o0IMiWUyOV7imYNA99QxSHnqaKOD5wggRECHpzgQ4wzSRKitB77gdtoqwEfccoWZe-qobomGPFoXvbVWqrzipMFqDr2Ard8hIndcuZA4jRnHFGHkpRI4z1tN-LyPcEUlqjl4Cx-d5uDe81ygMOjqEgLCtL0aOivxibkFsdnBUdSj1VhUAqNLfVTRuRJC6JjRapNVQsMpURjYm2SnuEjymbaQifQw8aBa_5rEigEBPVXMbgNjsAtbVYNTPFCa-DgW8kLUSodUZTmEI0nrWvMOVK6ymUOdnzIYrIgcYHoe4xkwVUAfGVJIrA0vijFNEK8jMKT1jnJMIgvhGQpbCfMEcRkfSxIzHEkz9ES84nm02H5VVQRKubs5gLxz2X_h2xS8ARF-Aq2h9BCpgTUVNqfQhxxRmLjuhhJ1I5xAjrE7ZyzHHMJIWycdplrPxgzL1CuWdbpv04kB8EtJ0Nql6u_sFERLaDRcpscZshqmvX-jRIVsZIYMUrBFzDY8gau4TXr-g1zAmgmhGLlbuMlGyz62U5N9VoQEaKMpBDMZgGMHhDJjEc45HOuqQkHcsh1yPvqzKH5HOnliCjJQ8lCWHlwtiJZM5V6oVUvXPP2_f7ex-MP-_xRXm_6vfT8vaYFVMWuQ8Cd__ET3Bt0ukk77nmjdm_ai9rDqT9o9_r9UQdPp91OPPpvy8mREOW-U08TdWRis1eqIwF8TVn02SzT47yIKJllYYzEPMyRlFhBirXe29JlEco1OlSM4kuBON6WWx8ASoGKv_-Pzs7MYYrysIDzNNTHQyWre_vaO6x-dxerRFbCLi62FFD3Z2jOxJ3dukHGkxq5Sf6e1kK-EpJMkBiHOaPLGds9iP7NQEAjiqZ4gemW3Or8CmG3Ml6x-37v0O_3D33fP-zAfz6bvvYgfRp4_eHw0Ds69gbDXteHp1633xn1_EN_l8nWIp5RQJYd2G9ILFcBD9rszLznWu0ZjM8Qf48KOfUcAqxB8O5sCzTSMCaQJUHCEUJu9HgJT-qYu9L381FTjk4KH2mplvGMthr5e1p7g9HnsHmoZXAm8AwuTzvbXQg4TzQKhA1o2pbfbNHdPNVMLR7Kmr4B-HvlTVskTo_LnO7Y90Du5OrkySa7ospcA3djQlumue8J3EvvS3NhAH1Jc581zR0A5vpePGz34-m03evGuD06nvbbo67vTYfxNPKH96e57_X6PEeaO2U8xjzcZ1s-kCp-p6TjcfnROurvCtL_M7jPCrkh1xv62uODUc3pXX_U7fSPtat7_nH_UJG8kT8Ybu3zcrL9c71Swnq6t-39psG_p8u-pf0L5OwEOU1wKSGn_gZqA-ikuvsFdp4VdrzOoNvtoFG7j5KOgh2vjY6PO20Pj4b9fjce9v3je2Hnwq7Qs7xfyWa13bfDK5X1U2endyrfCZTmjJOvLJOIQmhH0ILrP8lWZ9T3AbdGqMYEpSzb-nx-wcW_AS4-6So8BeIqNcIUyzmLG4GJ1euKLWWQrzVLdmB6Um9ogfs5YaGO6ujhk-ElBdkpBVlLNgK3-m6nWhxncM3BvL3oWHUFUQBkxqtPavbbr1h9-9X5B0cCYrP2iY6qA1jYj5oKFvUFarosEdHmOGLHW7b3ku880TV71BsNIN8ZHveidu94gNvT0XDU9oZJMhggz4Mz_e97zVacCtEqVIP2y1X6SVKGjmdUWCUMOjnsDjT1x2cIwx92c87YC2btiFk1jAg4kxqmXIMekFjoDWCa_zflGIFbg2jVFtgKstVBZzhBBZUWY8vOU7VHHZLB9CQusyfwb9mvWuZzxVrxh9HKjN4wIAAEyGJV7KTqolYNVZJlinre1gfcoR1YULrMUUTkUpVdNdrQP8MM8l6-NJoIp2xfcRyRqsqIq0IufFbkFHJGiX8B4aJKNRDYuMCncxx9FnZxzNqcE2E8dd_SNQIgcOuCNCVSj6csS8jM1l8ZV60pre3EM7DaThCbVWovwP3q8FSFSOeqnu9cjyov-kGVb8W6ikk0iMqAFTVRhV8NVbSGmmxDMIHT04nqQ1RlHfjpF6YerCdwTOS_SDzD0ipb7hfD2QT4MvLdWifklJUI4zetxB11dAHjj1XIPq27LYBtgoTdAvoZ9k6Mb5vv3UylXVJCUnOgf2egMdfEx0p-YEPBzGUbDm4UCdZmclCe0-Vl9imPbc2g-zCjdfRGVjhsVgoojwqpivSsPqu2U-tSF0o1E8AzxOFMzo1fmMwKSmtEv6k6gOiXAjf63W_O4m01i7du5515Skub1tWmXZVG3jEbFFhfAjhaoupMuHeoVaY2uK5Ac8ZgtWya2-xoJOEUmhYSI31GrxGlyr5NkDuCcXmpMmdzAWNrxZ6OEWA2gC66VTU3LD9jN1nLWkGL1M7gbprC-gu2EQhCVGc2JS7fmJa72uArgrb5DlcAQMJxvLLajFW7FG53qSNNOae5tJndq-j1MQQyMnedEKljnxVwP1Roc0_PGo-6FOdIzsdNhoq8YYpx8NMfp2dvrt_88eef47vzlOinaKLItY0l-jVoVjTjgHmQb47h6MfqJhubtpFc9drRak1cA5wQYJfZNcstKhQCn8M1_DeFWZqk0ogzk0XosuCrCrp1942OB_MMCi0IvlmFzVi9MVinwUC4flyTvH75g5GGWKH5Py36XcNpPe5YSG8QDwJdKj8--AvqoRtf"
+          },
+          {
+            "name": "default",
+            "definition": "eJztWl9v2zgSf8-n0PqlL1Ek-b97ioE2aW4LJJtcne5hsVgIlETZvFKiSlJO3MN99xuSkiw5SWM7SW_vLi0Qi0POcGY45Pwojf_T6eXJ9W9XH6yvcyKsq8_vzz-eWG8WUuZvHSflUXQUsdRRnUexjN9Yb2a_za4_XLyZHviaQ5A0pyRZnXJ0Q7L5NaPHHa9Tk89ZhAwFFZJ9wgnHYnFNUnzccTtWSrIZ9EPDc9W_jkVRiKn4kKGQ4liP2ZjgZ5JJoQUuMReEZced3lG_f-T17BmjTC4KnoFgdNsQ3Jr8gsVAPiVCTwHyV2kIjPMV9GOOswiXnHbDjIu1vI7FMYovM7oy6skVxSdI4jnjBINm7yidtWkda4GEZn-PBI5_JYKEhBK5OqNo3vLWO6o45CJVoqcHlp_ACAEPlv8xxpkkCVFaTz3fabXVgE84Zcuqd91QXTOMeLSo-hot1XnFyRJUnbq-Uz3CxE41sy9xmjOOqEVJSqTxnrYbcXlGMIVV6lg4iz_c5uBesyLg8Cgq0oKCND0a-uuxCbnF8WnBkdRjVRhUQuOS-jkj8rgD0bEmNaZqxIZSojWxNknP8Allc22h5ethU98xv5oECgFB_VUMTovDdyqbVQNTvNQaWPhW8kJUSkcUpTkE5HHnGnOOlK5ylYMdH7OYLElcIHqGkSy4CoBvLEkElsYXlZhWlFdReNw5JxkG8YWQLIXthDmCmGyOBYk5juQ5WmE-03w6iL6JOkLFgt1cIP6l6v-YzQqeoAhfwQ4RWkhIQE2l_QnEEWckNq6LkUR2jBPQIbZzznLMJYSwcdplrv1gzLxAuWbZpP9tJjkI7lgZUrtc_YW9imgBjY7T5jBD1tNs9t8rURFriRGjFHwBg0te3zG8Zl2_Y44PzYRQrNxtvFQGi34up6Z6LYgIUEZSCGazAEYPiGTGIxzwBdfUhAM54DrkPXXm0HyB9HJElOSBZAGsPDhbkUozlXpBqV6w4e2H_b2Pxx_3-ZO83vZ75fkHTfOpil2LgDv_6SW4P-r2EjvuuxO7H_Yjexx6I7s_GEy6OAx73Xjyr46VIyGqfaeeZurIxGav1EcC-Jqy6ItZpqd5EVEyz4IYiUWQIymxyiql9e6WLotQrrNDzSi-Fojjbbn1AaAUqPkHf-nuzBykKA8KOE8DfTzUsnq3b93D-v_uYpXIWtjFxZYCmv4MzJm4s1vvkfGsRt4nf09rAbIEJBMkxkHO6GrOdg-ifzAQ0IqiEC8x3ZJbnV8B7FbGa3bP6x96g8Gh53mHXfjl8_CtCwhq5A7G40P3aOiOxv2eB0_93qA76XuH3i6TbUQ8o5BZdmC_IbFcBzxoszPznmu1ZzC-QPw9KeTUcwBpDYJ3Z1ugkQYxAZQEgCMAbPR0Cc_qmLvS9_NRW44GhU-0VMt4QVuN_D2tvcHoS9A-1DI4E3gG96ed7S4EnCc6CwSt1LQtv9miu3mqDS0eQ03fSfh74aYtgNPTkNMd-x7BTo4GTyXYFTVy9Z17AW0Fc88I3EsfgrkwgL7C3BeFuSPIuZ4bj-1BHIZ2vxdjezIMB_ak57nhOA4jb_wwzD3T6_MSMDdkPMY82GdbPgIVfxDoeBo-2sz6uybpP03eZ4W8B-uNPe3x0aTh9J436XUHQ-3qvjccHCqSO_FG4619Xk22P9arJGzCvW3vNy3-PV32Pe1fU85OKaedXKqU03wDdU_SSXX3a9p50bTjdke9XhdN7AFKuirtuDYaDru2iyfjwaAXjwfe8MG0c1Gu0Iu8X8nmjd23wyuVzVNnp3cqPygpLRgn31gmEYXQjqAF13-Src-oH5PcWqEaE5SybOvz-TUv_g_kxWddhefIuEqNIMVyweJWYGL1umJLGeRbw5IdmJ7VG1rgfk5YqqM6evxkeIUgO0GQDbDhO_V3O9XiOINrDub2sluqK4hKQGa8-qRWfvsV62-_Gn9wJCA2G5_oqDqARflRU6VFfYEKV1VGLDGO2PGW7b7inefBO57r9uMktNEAe3Y_nPTssI-wnSBv5E66o3E3eRjv_Pdfs7vuoTd2DyfmpwQ0Gs90IZ-Zh77KbBrPNGivt-2no4q-dnzPbYAKbzAcD7ujlsc9bzTsj7YHky-IKrb9uvJ63f5z5LpGbvE5kzq9OSbrACDRu8I0_2_KOHynkdpVW-BSUFlVdIoTVFBZ5uaq80RtXItkMD2JK9QF_q36Vct85tgoGjFamdH3DPAhc2SxKpJS9VTrhirlMsVA75sD7tAOymR2maOIyJUq12q1oX-OGeBlvjKaCKtqX3Eckbo6iasCMHxa5BSwpsS_gHBRQxQENi7xyQJHX0S5OGZtzokwnnpo6VoB4DtNQZoSqccTliVkXtZtGVdtKK3txHOwupwgNqtkL8H96kRVBUznqhTwXI-qXhD4NU6LdfWTaBGVAWtqogrGWqpoDTW5DMEEjiArag5RFXngp1-Yeig9gWMi_07iOZalstV-MZxtYFBFvtPoBCxaizB-00rcUUfXPv5nFSqfNt3mwzZBotwC-hn2Toxv2-_rTIVeUp3r7YHenYHGXBMfa_l-GQpmrrJh4VZxYWMmC-U5XV1mn_O4rDV0HmcsHX0vKxw2awWUR4VUxX2lPuu21ehSF1E1E6RoiMO5XBi_MJkVlDaIXlt1yKNfC9zqd747i7vVLO6mnXfmqSxtW9eYdl1SecdsUGBzCeBoieoz4cGhpTKNwU0F2jP662XT3GZHIwmnUFhIjPQZvUGUCrWbILcE4_JSIW5zcWMbRaKWEWA2gC7WVbU6LD9lN1mntIIWaTmDc98Upb9gG4EgRDW4qfLyjWk56w2-Jmib73D5kEg4jtdWm7Fql8KtMLWkKQM1lz2zexW9OYYAKHM2CZE69lkB90qVbR7o2eBRl-kcycW0zVCT75li6v_0-8npu-t3v__xx_TuPFX2UzRR5NrGKvu1aKVoxiHnAeScwtGP1Q04Nm0jue4tR6s1cUzihAC7zK5ZXmaFQuBzuL7_qnKWJikYcWpQhC4nvqpTt-6-0fFgnkGhJcE367CZqjcNmzQYCHeSa5I3L40w0hDrbP7XMvtdw2k97ZYpvUU88HWJ_fTg30DZKBE="
+          }
+        ],
+        "minimum_scale": 100000.0,
+        "maximum_scale": 1000.0,
+        "style_name": "default",
+        "is_spatial": true,
+        "is_background": false,
+        "fields": [
+          {
+            "name": "fid",
+            "type": "Integer64",
+            "is_primary_key": true,
+            "type_wfs": "long",
+            "type_oapif": "integer",
+            "type_oapif_format": "int64",
+            "alias": "Fid",
+            "comment": "",
+            "nullable": true,
+            "length": null,
+            "precision": null,
+            "editor_widget_type": "",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
+          },
+          {
+            "name": "label",
+            "type": "String",
+            "is_primary_key": false,
+            "type_wfs": "string",
+            "type_oapif": "string",
+            "type_oapif_format": null,
+            "alias": "Label",
+            "comment": "",
+            "nullable": false,
+            "length": 20,
+            "precision": null,
+            "editor_widget_type": "",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
+          }
+        ],
+        "geometry_type_simple": "Polygon",
+        "geometry_type_wkb": "MultiPolygon"
+      },
+      {
+        "id": "TestAttributeTable_c10c69c3_f209_40c5_ba90_61b0a35402cf",
+        "name": "TestAttributeTable_c10c69c3_f209_40c5_ba90_61b0a35402cf",
+        "is_checked": true,
+        "title": "TestAttributeTable",
+        "source": {
+          "postgres": null,
+          "wmts": null,
+          "wms": null,
+          "ogr": {
+            "path": "data/TestLayers.gpkg",
+            "layer_name": "TestAttributeTable",
+            "vsi_prefix": null,
+            "layer_id": null,
+            "subset": null
+          },
+          "gdal": null,
+          "wfs": null,
+          "vector_tile": null,
+          "xyz": null
+        },
+        "driver": "ogr",
+        "bbox": null,
+        "bbox_wgs84": null,
+        "crs": null,
+        "styles": [
+          {
+            "name": "default",
+            "definition": "eJztWlFv2zgSfu-v0PqlDxdHku3YcU8x0E2aRYFkk6vdPSwWC4EWKZtXSlRJyom72P--Q1KyJdlpbCe5WxyCAik5nBnOfDPijEUFP1zcnE9-vf3gfJ1R6dx-_vHq47nzdq5U9s51ExFFxxFPXL14jBV-67wd_zqefLh-O3oTGAmUK_6JxILI-YQm5KzltZyEpuMIMZj45B_eactZECEpT89a3eNe79jvtseccTXPRQrM6L5gBsmKtmuOgXZBJZoygluOIAjfpGxp-KRaMnKOFJlxQYk8a71nbFyntZw5kkbzj0gS_AuVdEoZVctLhmZayeiNE8QwljBwgo-YpIrGVO828gO3NtcMn0jCF-XqeqKXxgSJaF6uVWZ68VbQBRg18gK3HMLGbrlzoEiScYGYw2hClfXaeIiEuqSE4bNWyyEp_nCfASwWRgAqivIkZ6DNcMP6ijem9wRf5AIpw6vjUSrFBfVzStVZC8K0JlW2MoCvjahtbFwyO3xC6cx46ASGbRS49n9DAoOAoP9qAbcmEbilz3pCGFkYCxxyr0QuS6MjhpKMphCqCRECaVvVMgM_PqaYLijOEbskSOVCh_obj2NJlMWiVPOh6skymULOzSB9rmhKQH0uFU8mnBGB0ohUeUFjRiJ1hZZEjI0cJDLsIYucBm1zfneNxJdy_WM6zkWMInILaS2NkikFM7X155BHglNsocNIoTYmMdiA25ngGREKktWCdpMZHKyb1ygzIk36v8ZKgOKWkyL9uOm_8IAhlsOk5dYlLMt6m-b6Vo2auNIYccYAC2AuZAPXytq4fsedAKYxZUTDbVEqksWMi62ZiQWVIUppAslsA2DtgEzmIiKhmAtDjQWQQ2FS3tdnBcvmyIQjYjQLFQ8h8gC2JhVuavPCwrywgfbDeB-C-OOYPwn1Ou4l8g-6FjCduw4FOP_oeD7Cp4NhG_Wx3-4R_7Q97Q9O26fYH-CI-N1pd_pny8mQlOVzp0djmmQ2eJUjAbBmPPpiw_Q0FBGjszTESM7DDClFdCkovPd2hCxCmakDK0H5NUeC7CptDgBtwEr-5J-dvYXDBGVhDudpaI6Hla7u_TvvaPVvf7Va5UrZ9fWOCqp4hvZM3BvWLTqe1clt-g_0VqC7kKaSYhJmnC1nfP8k-g8HBbUsmpIFYTtK6_MrhKeVi5V45-TkyD85Pep0j_RQzKbv_CPvuO8P-97gFEbe0IOxf-Tvs0cj0TmDgrKH-B3Fap3nYM3ewgeG6MAcfIG0e1Km6XEI1Qxydm9fYJKEmEJzBH1GCC3R0zU8KzCb2g_DqK7H9IJP9NToeEFfrf4Dvb0j6EtYP8tSOApECr919vY7l3CMmMM_rFWkXeXtI7ofUvWO4rFm6Tt1_qB2aYd-6WkN04Z_j7RMrumZih5XrhrWwN3ax5bd7SWFH54PdbfAwF672xftbk_6PRwN42kbDXqo3UNdv428GLcj3O_Gnc4A9fyTB7vbSxOfl-hup1xgIsJDHstHOsSX7TWe1g01i_2-tflvU-55rrZ0dv5p58j3u0d-f4W2dzzwe51BT2Pd63VOOv2hRr0P425_Z9TL7Q5v8koNzT5v198zNfkDQfue9a-1Zq9aU68qZa2pvnHaUm0Ss_xab1603gyGEcJoittepxfpetNvD7vYb8f-cOBFXoSHPfRgvbkuIvQi71PSWeXp2-MVSvPU2esdystWozkX9BtPFWKQ0RHM4Fc-TddH03-nqtUyFFOU8HTnY_m1IP5fFMRnjcNzlFptRpgQNee4lppEv6DYUQf9VvFkD6FnRcMoPAyEhT6jo8fPhtfeY6_eo9FlBO7qgk7P7EuKxk2P3d813FsYghnhkJliafmkU85vBYno6sJP6DtVcpFnDKKqyM8cE1nWxQCB0wtyPifRF1ngZGG6olLZCD2AYi0igVtVZCiRHp7zNKaz4irUOtIwWtMYmZEUFxsAwChnqr2AeOgzUd8JXqEpYVeGq6zBgSAxESSNCDYXirJG1A6sqbG-g62ZYiw05CIbYjgBnajKoq-zAaefuR4USBBM1b8pnhFVGFu2cFay3mmUd4JuZRGivlJhcTNGbJgTQZD-TvaYYP9vDSpGzTAGiFEkiwfGjB2aYnJfb9HtJXxclrk6o7_BaODfwtnZ4LTA2MxeWxIUSWytKiYOqX1pULHJQVnGljfp5wwXHx64jwvaFDlEsgjmVlE45dam66hJpb8RKDxZz53Kki5zeidoK-DZm6m5xZ6rNGesQvTrTkN1-pqT2rr73V28nXbxGghtbOM98zYFnA_sY7K7AmJl2_UHIBvoggHNHIFTO1odtw-yWp934y0MrzBXja1bF6wzyUjbgxUpKAbTXBFkameDqPSvMftsO5ILdaPf3dmvRnjj8xfHKrDPvfngSN9C8uyC36WtwguWJ8UO7rYtCmzh9ABFiJkW1-Iq-J2duetzbU0wPm9IBVBtBcFrry2vPpzg937iKPuBi_0Zbw8tTa_yUOi-3CZBx0fyXETmw6UHVhoyunvIkJqP6gIr8pYtRsEPv51fvJ-8_-3330eb-5iiSJChyTwzPmp7NmiFai6guYEGewQVmOh3G9jOrebVasGtY2IcZ7ps36QTnhXFOZfkCkn1i048Q9It1YXtqMyHUrer_sYs35l8sGMwaEHJ3TptRrq1atKAEdroCc2qLwOA0xKtUdAX_FQ0IRMoUqNe0bvViG8C83He6M1fzpG-Ug=="
+          }
+        ],
+        "minimum_scale": 100000000.0,
+        "maximum_scale": 0.0,
+        "style_name": "default",
+        "is_spatial": false,
+        "is_background": false,
+        "fields": [
+          {
+            "name": "fid",
+            "type": "Integer64",
+            "is_primary_key": true,
+            "type_wfs": "long",
+            "type_oapif": "integer",
+            "type_oapif_format": "int64",
+            "alias": "Fid",
+            "comment": "",
+            "nullable": true,
+            "length": null,
+            "precision": null,
+            "editor_widget_type": "",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
+          },
+          {
+            "name": "code",
+            "type": "String",
+            "is_primary_key": false,
+            "type_wfs": "string",
+            "type_oapif": "string",
+            "type_oapif_format": null,
+            "alias": "Code",
+            "comment": "",
+            "nullable": false,
+            "length": 10,
+            "precision": null,
+            "editor_widget_type": "",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
+          },
+          {
+            "name": "value",
+            "type": "Real",
+            "is_primary_key": false,
+            "type_wfs": "decimal",
+            "type_oapif": "number",
+            "type_oapif_format": "double",
+            "alias": "Value",
+            "comment": "",
+            "nullable": false,
+            "length": null,
+            "precision": null,
+            "editor_widget_type": "",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
+          }
+        ],
+        "geometry_type_simple": "Null",
+        "geometry_type_wkb": "NoGeometry"
       }
     ],
-    "raster": [],
-    "custom": [],
+    "raster": [
+      {
+        "id": "OSM_Standard_04e6d439_1de9_482a_a763_e6ed1aefcea6",
+        "name": "OSM_Standard_04e6d439_1de9_482a_a763_e6ed1aefcea6",
+        "is_checked": true,
+        "title": "OSM Standard",
+        "source": {
+          "postgres": null,
+          "wmts": null,
+          "wms": null,
+          "ogr": null,
+          "gdal": null,
+          "wfs": null,
+          "vector_tile": null,
+          "xyz": {
+            "url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            "zmin": "0",
+            "zmax": "19",
+            "type": "xyz"
+          }
+        },
+        "driver": "wms",
+        "bbox": {
+          "x_min": -20037508.342789244,
+          "x_max": 20037508.342789244,
+          "y_min": -20037508.342789248,
+          "y_max": 20037508.342789248,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "bbox_wgs84": {
+          "x_min": -180.0,
+          "x_max": 180.0,
+          "y_min": -85.0511287798066,
+          "y_max": 85.0511287798066,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "crs": {
+          "auth_id": "EPSG:3857",
+          "postgis_srid": 3857,
+          "ogc_uri": "http://www.opengis.net/def/crs/EPSG/0/3857",
+          "ogc_urn": "urn:ogc:def:crs:EPSG::3857"
+        },
+        "styles": [
+          {
+            "name": "default",
+            "definition": "eJztWd9T2zgQfuev8OWFh0tw4iQQeiYzBcpNZ6BwBK7TJ49sbxJdZcmVZCC9uf_9VvKPxCFAEsrNPXRgQCtpV7ufVtoviv_L6eXJzZerD863CVXO1e3x-ccTZ3eqdfrOdRMZRXuRSFwzuBfreNfZHX0Z3Xy42B3u-FaDZFpcw1iCmt7QBI4a7YaTUD6KCEOhA7-2Bw3nDqSigh81unu93l6n2xoJJvQ0kxwnk4diMmouWLsQMfadUkVCBnHDUXrG4IRomAhJQR013jM2qvc1nClR1tgxURD_SRUNKaN6dsbIxNgf7jj-GNsKG47_MQau6ZiaBYYd363JZsI1JOKuHJ0LZmgEREbTcmxBMoNXkt6hU8O275ZNXNgtV_Y1JKmQhDkh4fGnLAlBIlQIhQ0ZYRiDjgoAUAJuISgCwAjoA8TXhE_sao6vNJF66Lv5f9sFPMYO89couDUN3y3XNwIwQAdxc6wz1o3vYjxWoO3aapaEuFeT2VHjnHIofbyGFPcI4VIfSv1RJsckwhnfVbH3jz2PiSatGMZoKW6lUqQgNe5b7vNlat3QsxSVL0hqVZb7_xhpSfmk4XBiks38xfQiLEOh4dY18inzZZbHV1o0nZXFSDAGkZlc6PpurpvD-kw4PopjysCANrIYFntl28XSzCJKVUA4TTBLLFCFH5gEQkYQyKnMU0JidyBxFiJrTgpLp8SCHDGaBloE8KBxQ0xXEaZxLyjcC5bQfhrvbRB_GfNXoV7HvUT-ydB8RmYgHYpw_j2I96HX8cJWOBh4rV7_8KAVtkmvNTjsed5BJ4L-Ifmn4aREKQtzxGxrRJM037yFJEasmYi-zvN5exQJoxMexERNg5RoDeYiLKJvrwlZRFJ7JVaK6ltGJKyrnSktEuNApd__zdtYOUhIGmSc6sAe-spW9-Fdu1n9bG7WmKyMXVysaWARzyC_xDaGdYWNHxrkKvtbRivJfUC5ojEEqWCzidg8if4SaKCWRSHcAVtT29xfAZ5WISv1zn6v2el0m4NB0-v3m3ISvmvv7fe6ne5Bt9nG6l-2ur1--3DQ7Gyy1FK-C0bjTdTvaazn6Y5ubay85U5tmYpvkH2vSjjTDrCoYepuHAsKSRBTpCgcixoSk9db-KHAPLa-HUZ1O5aRvTJSa-MNY83tbxntPZCvQf1K43gjSI6Ef-O4M4W3ia0BQa0wraufH9HNkKoTi5c40zPlfivWtAZteh1vehTfC8zJtdSpoLqq4q2-u5LOliT3jOJHsadILk5gP0nu25Lcrue1e-F-K_QOuq0edHst0h_3WnHfi5H9kkOI4UmSe2b35y1IbihkDDLY5li-QBT_E8rxOm60XPM3LdH_m6ovMr2C53X7zfx3Djmi7PV7h81VrXUxLxer487FhurLTM9bl-rVDGwJ2HMs9We52ajc1AqL71ZvVUbKmcLSq8tqvOrdoRCsDOjzxeiYRF8nUmQ8PjfOVOFpmZUfpp_Vv8pCRtX0FAMdiQyr2a1klZExYWq1Fcp1aQSSEOIY4s80noBWboTOPGaNz24MzZ8uZy7WUyyylfItL7DPjSxsj--uANDHW-eGpovVYOi7eacZTmkKredevdbBf41cfSFPt8_RGgAvRGOjLWnOHSJcJKoERbBw4pLm7frSvG0X8lHDM6-nIoH4MtPX1bwL0FOBaHIgqKw_AZ1MQ8yVhbKbJ0qh_JGvoetWJ6XyzZdEIQmX-PEFJJKDHB-FVhiY1117hZuAG_PHXkuxjq3UQlGkJKJ6Zoe4MHNPjBLuTBG8XeFGEq5SdIhHs2JLEsovEA1JJ7QkMIwmVKvhJ8EBT3ou5CM5ixt-ngoG19YiHu68L5-AH0r0-yjKJIlmww9K58zRPnHP-_OpUZZkDG-FOzjJ9Lm4Ryjae23P5PejgRUat2lqNQ4HSxr5QOlOfAp3ZyTSQg4948aCnN9ey_H7bn0zbF-Iw1PNQalIcG0mOPMuS80mJEkKxlvMqG4Af5phVmiM3SY_5Zh52u5OwepMk36H45wVeYOGM5-eG5dkZulE9dVCqYNHCPhETw3tXui-NqmJFX7ec8lrer9LAJ4v5tYy0KYvpuCKE1JMrDJ8pMkEhnP5zL4wIH5LM8ojaxp4aHhsojDfscyFHd9-UzXc-RfhuZSu"
+          }
+        ],
+        "minimum_scale": 100000000.0,
+        "maximum_scale": 0.0,
+        "style_name": "default",
+        "is_spatial": true,
+        "is_background": true
+      },
+      {
+        "id": "TestRaster_1190835c_2e3c_4c6d_b72d_abeae62d124c",
+        "name": "TestRaster_1190835c_2e3c_4c6d_b72d_abeae62d124c",
+        "is_checked": true,
+        "title": "TestRaster",
+        "source": {
+          "postgres": null,
+          "wmts": null,
+          "wms": null,
+          "ogr": null,
+          "gdal": {
+            "path": "data/TestRaster.tif",
+            "layer_name": null,
+            "vsi_prefix": null
+          },
+          "wfs": null,
+          "vector_tile": null,
+          "xyz": null
+        },
+        "driver": "gdal",
+        "bbox": {
+          "x_min": 2590000.0,
+          "x_max": 2610000.0,
+          "y_min": 1190000.0,
+          "y_max": 1210000.0,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "bbox_wgs84": {
+          "x_min": 7.307492655656091,
+          "x_max": 7.570212368172779,
+          "y_min": 46.86105406658543,
+          "y_max": 47.040959356192886,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "crs": {
+          "auth_id": "EPSG:2056",
+          "postgis_srid": 2056,
+          "ogc_uri": "http://www.opengis.net/def/crs/EPSG/0/2056",
+          "ogc_urn": "urn:ogc:def:crs:EPSG::2056"
+        },
+        "styles": [
+          {
+            "name": "default",
+            "definition": "eJztWV1z27YSfc-vYPWSh1qmREuWnUtrpnbsTmbsOrXcdvrEgciliAYEWAC0rdy5_70LgKREWbIlubnTh04yFvGxi92Dxe4hGH738fbi_vfPl96fM6q8z7-cX3-68N5nWhcffD-XcXwYi9w3g4eJTt577ye_T-4vb96P34VWgpRa3EEqQWX3NIezTq_j5ZRPYsKw0Yfveycd7wGkooKfdY4OB4PD_lF3IpjQWSk5TiZP1WSUXNJ2IxLs-0gVmTJIOp7ScwYXRMNMSArqrPMDY5N2X8fLiLLKzomC5Feq6JQyqudXjMyM_vE7L0zxWeGDF35KgGuaUrPAuB_6rbaZcAe5eKhHFw0zNAEi46weW2qZwc-SPqBR417o14-4sF-vHGrICyEJ86aEJz-V-RQkQoVQWJcRhhR0XAGALeAWgsoB9IA-QXJH-Myu5oVKE6nHoe9-bRfwBDvMXyPgtyRCv17fNIABGoibY42xZnwVaapA27XVPJ_iXs3mZ51ryqG28Q4K3COES13W8pNSpiTGGV9VtffPLU-IJt0EUtSUdAspCpAa983ZfFtYM_S8QOEbUliR1f6fJ1pSPut4nJhgM38xvAgrsdHx2xJuymKZ1fG1Gk1nozEWjEFsJleyoe9kHawvuBNiM6UMDGgTi2G1V_a5WppZRKmKCKc5RokFqrIDg0DIGCKZSRcSErsjibMQWXNSWJERC3LMaBFpEcGTxg0xXZWbxryoMi9aQXsz3vsg_jrmb0K9jXuN_EbXQkbmID2KcP4XTtNRHJ-MusfJ8aA7mCYn3ZNeHHTTeHhK0uMghdPe_zpeQZSyMMfMPk1oXrjNWwpixJqJ-MsinvdHkTA641FCVBYVRGswibDyvrclZDEpbEpsBNWfJZGwrXSptMiNAY388D_BzsJRToqo5FRH9tA3uo6ePvQOmn-7qzUqG2U3N1sqWMYzcklsZ1jX6PhbnVynf09vJXmMKFc0gagQbD4TuwfRHwIVtKJoCg_AtpQ2-SvC0ypkI94_OToYBQej4UEwHB7I2fRD73DUHx0PRv2D3mFwEhwNg1PzdDroY_dBf5elVuJdMJrsIv5IE70I997h8c7Ce-7UnqH4DaLvTQFnniMsahi6O_uCjTxKKFIUjkUNicnbNfytwDzXvh9GbT2Wkb3RU6vjG_rq9O_p7SOQL1E7pXHMCJIj4d_Z71JhNrE1IGoVpm3l3RHdDak2sXiNM71Q7vdiTVvQprfxpmf-vcKcfEudKqqrGt4a-mvpbE1yryi-im0iuTiB_UtyvynJPU6T4DQOpt3RIE27g2Q07JI4Id3TozTtkxQG_WC0keRe2f35FiR3KmQCMtrnWL5CFP8vlONt3Gi15u9aov8xVV-Ueg3POxoeuP8LzPtHo2A4MEg_f9oW83qxNu5c7Ci-yvSCbaleS8GegL3EUv8tNzuVm1ZhCf3mrsq0HFNYuXVZj9eLPlF36zf3sRRhfWrc-9X8OM-WvAr9NeuGeFjvabGcRMeh7zrNcEEL6L50WbSH2eu2-JXt3X9rWwC84o31tmYHD4hutb8SFMF6g0uaK99bcyVctc86gbl0FDkkt6W-a-bdgM4EosmBoLD-Cegsm4pSLlWrlDAFtfAnvoWs3wRYY1soiULuKpH1g8Sa6vBRqIWBuRSdSTKvuMi5vSPtYpHEzoRaKnLOSPzlXvyWUY2miILEVM9tIeXCwHRhEqfhOkbPeXXJWmFiF76XhKsC7eTxvNqpnPIbBEnSGa3pAKM51Wp8Y0fw5LimG3OsaPxbJhjcWZ14WFyfm4AkX_8Qx6Uk8Xx8qbRjYvbKeNHvpsZlXjI8ZQ9wUepr8YgY9Q57gQn8ZwNrJH4pCitxerIi4QZqc5KP8HBFYi3kODBmLLVdNniGQBgLrg1glzwzLy75wjuca0-ruXBvnqsh8uSaWKfMkXxaHiTMfDfQWT7Gs2Cu3O8FwkvzMselzU_oL6Y4szYZgVuZF9cwwxiagNYYO8oz3yS4tgnLhngh8bw8mUhIqHTHy9IxfO-5QLWUl6JUTof7HOCMuCZTYEZKlWklnzsr65HKHV7mIGl8ZfOYZYZTomi8K4ujHLMA1qz6mglijBYWKcAQJbhBm8og5XpFZvEKuLH-LglJUfLEXDG0UtFGjjMVgjUlNxOPUcHKxYIuMWwrirmiVHgyl5ysFWlZ7qBHEmqyT_QVpNjSmBW415iy6f2gtd9VfD4PQ5fv2inO9k3xbGWag1J1UHuLLhuYM5Ln1etXNaPZjzArMddqTBzWFXQCC4DNdNUrhnmkX-HcUfTgBMO3me6UYza03Lb5zlXLmMPIZzoz74BL3Xcm4eMxXvTc8pbcjxKAu8X8Vl63RQET-5q6U01s6sZEkxmMF-0re92F-K3MqAuhecBSxBPjhck_i8a70H42Hb_7Cz8Oa_U="
+          }
+        ],
+        "minimum_scale": 100000000.0,
+        "maximum_scale": 0.0,
+        "style_name": "default",
+        "is_spatial": true,
+        "is_background": false
+      }
+    ],
+    "custom": [
+      {
+        "id": "TestVectorTiles_57b2c234_c74c_4b46_978d_110cdababd7e",
+        "name": "TestVectorTiles_57b2c234_c74c_4b46_978d_110cdababd7e",
+        "is_checked": false,
+        "title": "TestVectorTiles",
+        "source": {
+          "postgres": null,
+          "wmts": null,
+          "wms": null,
+          "ogr": null,
+          "gdal": null,
+          "wfs": null,
+          "vector_tile": {
+            "type": "mbtiles",
+            "zmin": null,
+            "zmax": null,
+            "url": null,
+            "path": "data/TestVectorTiles.mbtiles",
+            "style_url": null
+          },
+          "xyz": null
+        },
+        "driver": "mbtilesvectortiles",
+        "bbox": {
+          "x_min": 820740.7945002791,
+          "x_max": 836853.1775976955,
+          "y_min": 5944359.528227187,
+          "y_max": 5948768.885578365,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "bbox_wgs84": {
+          "x_min": 7.37284,
+          "x_max": 7.517579999999981,
+          "y_min": 47.013999999999996,
+          "y_max": 47.041,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "crs": {
+          "auth_id": "EPSG:3857",
+          "postgis_srid": 3857,
+          "ogc_uri": "http://www.opengis.net/def/crs/EPSG/0/3857",
+          "ogc_urn": "urn:ogc:def:crs:EPSG::3857"
+        },
+        "styles": [
+          {
+            "name": "default",
+            "definition": "eJztWW1v2zYQ_p5foelLNtSKRMmyrM4Otr4BBWokq7MB_SRQEmVzpUSVopO4w_77jpRfEyeVZacosMBAwhN5d7wX3T0iBz-9uXh99enyrfFlQivj8s9XH96_Nk6nUpYvbTsXSXKW8NxWk2epTE-N0_Gn8dXb0en5yUBz4JnkH0kmSDW9ojkZmo5p5LQYJ5gBgcgLp28a10RUlBdD0zvrds-QZ40543I6EwUsxreLxcC5IW3EU3j2hlY4ZiQ1jUrOGXmNJZlwQUk1NH9nbLz9zDSmuNLCXuGKpH_RisaUUTl_x_BEyT8_MQYZjCsYGIP3KSkkzahScI4G9hatFnwkOb9ezq4JNTUmWCTT5dwGpSYvBb2GTZ07A3s5BMX2UvMgmVWS56XgJRES9q2ZLkoJLrL1yh0LBoIUKRFEGHJegmNiXNHE1JzaM1rIYmwUWEXikrP5hBeVDoj1lfN8aFpIe3yDYnhOxNA0DXJbgt_rOE0Iz4kU80gp-_m3JfnL8HQh9BTWFzoyEGTTWC4Ymq7ek9rJPI85q7e1IhebzyhjpkGrCBc0B_ekOvj1rmGQcZGQSExFTQl4HglYBqpUjrByirXWhNEykjwitxIipx4ttBmDFEscpSSjBUmjbU_XC2p3L_YzwuWK9e7cH2MpaDFZbk_9hYTGbAaEad_nqpetVe5as1OyeriSnHDGSKIWb_AP7Jp_ZaX9DTMHOrgGBf_-Q8K4l6QIWxlyXavrJJ4VZj6xuiHK4n4XwS_81zRKXFXa7QnTozHNS0be6YBtRpzx5HMdt8N9GnMBqR3d0FROoxyX0aygMqrUi7xyiHf70umsfo2dCn7kYiXE9VAHIa8TuB3kOB0xiV86Z6Hj9_tut-NAbfKQF3gwcvuu57shjLzQRX4vbKzwb04L_RKulMbkmrDG_DzLKiJXzPvYWrMe2YELoUrgStRo1Jx9JhkkZ_RgHFzfbxAHtLfC7RhUnNF0bxk6IdehOHN77US09t7jRtwtB9-ueo--oi3rXqPCd2jl22HrN2ufrYvfsv_YdQNaNCd7szsBpfx8v4F-ANHH7Z5K4oOtEzVpnSqrnlvn922dHg5i3Mc9C2fIt7pBiK3Y7WOri7xeSDw3w172YOv8oAP2VK0TMzopohRX06jEUhKFqJf1qnmTxOWdSvNlhgVpzq_hqtrESoL_q9uC_djNfy24bQXe9Gx0tzcfIuXIpu7S0NpmgW8iQDE0JVFZw_0WNh8KhHbABuQDbnP9Dup7G7jBD3tO0Ne4IXRQ2EMwClDQ6wZoD9xwMGg4FDEcAS60zs8fETmqcQQfipDRLSwCIo9SWklcQD-ET-djyDiyg-7Lb-urbUnwT7TJgh1SntTiWkNrm28I_hxt170CCoYoiKhaWD-roNzohhFtdbLmEtp9vz6j-CdG8ZfQiOSxD8FA5IM43mmC43MsPqvK9ozkvyeSD_3YDYIktUKCHKvbC1wrxklsuZjgwHWdzE8fPgQbLUL2ZFi-mGwUjL3g-13ksid-30ZZodNxnaDTdzYOyYKu74R9QFZ9pKGVOhlDXqBQ2P5nZFMu6FdeSMwg9xOgAGbCC7XewXcDmVuJnFCRsOZe-1-c1G0kwxpxP5IMP8RBXctTuiOH4zgngGorETSWKV9D2JTCnMLFjaXQr2t7mn-YK7Yje0WLbOuMa1XYkyZV4xlUHR1ULYb6LtJeXkYqAnphkarbWnXfuSZOFo33osQJlXN1TbpFnwz0rfL5yX_5yFwN"
+          }
+        ],
+        "minimum_scale": 100000000.0,
+        "maximum_scale": 0.0,
+        "style_name": "default",
+        "is_spatial": true,
+        "is_background": false
+      }
+    ],
     "group": [
       {
         "id": "",
         "name": "",
-        "title": ""
+        "is_checked": true,
+        "title": "",
+        "is_expanded": true
+      },
+      {
+        "id": "donnees",
+        "name": "donnees",
+        "is_checked": true,
+        "title": "Donn\u00e9es",
+        "is_expanded": true
+      },
+      {
+        "id": "donnees.surfaces",
+        "name": "donnees.surfaces",
+        "is_checked": false,
+        "title": "Surfaces",
+        "is_expanded": false
+      },
+      {
+        "id": "groupe_vide",
+        "name": "groupe_vide",
+        "is_checked": true,
+        "title": "Groupe vide",
+        "is_expanded": true
+      },
+      {
+        "id": "fonds_de_plan",
+        "name": "fonds_de_plan",
+        "is_checked": true,
+        "title": "Fonds de plan",
+        "is_expanded": true
       }
     ]
   }
