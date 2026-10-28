@@ -1,6 +1,8 @@
 services:
   georama:
     environment:
+      # prevent `uv run` from re-syncing the venv against uv.lock,
+      # which would replace the editable qsl install from the entrypoint
       - "UV_NO_SYNC=1"
       - "DEV_QSL_SOURCES=/qsl"
     volumes:
@@ -13,8 +15,8 @@ services:
   qsl-worker:
     image: local/qsl-worker:dev
     environment:
-      - "QSL_LOG_LEVEL=${QSL_LOG_LEVEL:-debug}"
-      - "DEV_AUTOSTART=${QSL_DEV_AUTOSTART:-1}"
+      - "QSL_LOG_LEVEL=${QSL_WORKER_LOG_LEVEL:-debug}"
+      - "DEV_AUTOSTART=${QSL_WORKER_DEV_AUTOSTART:-1}"
     deploy:
       replicas: 1
     build:
@@ -35,5 +37,32 @@ services:
     volumes:
       - "${LOCAL_QSL_SOURCES}:/app:cached"
       - "qsl-venv:/home/appuser/.venv"
+  qsl-exporter:
+    image: local/qsl-exporter:dev
+    environment:
+      - "QSL_LOG_LEVEL=${QSL_EXPORTER_LOG_LEVEL:-debug}"
+      - "DEV_AUTOSTART=${QSL_EXPORTER_DEV_AUTOSTART:-1}"
+    build:
+      context: "${LOCAL_QSL_SOURCES}"
+      target: dev
+      args:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    develop:
+      watch:
+        - action: rebuild
+          path: "${LOCAL_QSL_SOURCES}/Dockerfile"
+        # scripts are baked into the dev image
+        - action: rebuild
+          path: "${LOCAL_QSL_SOURCES}/docker/dev.debug.entrypoint.sh"
+        - action: rebuild
+          path: "${LOCAL_QSL_SOURCES}/docker/dev.start.exporter_api.sh"
+    volumes:
+      - "${LOCAL_QSL_SOURCES}:/app:cached"
+      - "qsl-venv:/home/appuser/.venv"
+    command:
+      # standard command in the dev image is the worker start
+      # so we overwrite that by the exporterapi start
+      - "/usr/local/bin/dev.start.exporter_api.sh"
 volumes:
   qsl-venv:
