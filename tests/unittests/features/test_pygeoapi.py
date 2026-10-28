@@ -3,11 +3,12 @@ from types import SimpleNamespace
 import psycopg2
 import pytest
 from psycopg2.extensions import make_dsn, parse_dsn
+from pygeoapi import l10n
 from pygeoapi.provider import sql
 from qgis_server_light.interface.exporter.extract import Crs, DataSource, PostgresSource
 
 from georama.features.pygeoapi_providers.sql import GeoramaSqlProvider
-from georama.features.views.pygeoapi import PygeoapiServer
+from georama.features.views.pygeoapi import PygeoapiServer, _NoCache
 
 
 class ConnectionInterceptedError(Exception):
@@ -112,3 +113,39 @@ class TestCreatePostgresProviderConnection:
     def test_credentials_without_port_use_default_port(self, captured_dsn):
         dsn = connect(postgres_source(host="db", dbname="gis", username="user"), captured_dsn)
         assert dsn["port"] == "5432"
+
+
+class TestL10nConfigCache:
+    """Checks that pygeoapi's per locale config cache never hands out a config which was
+    translated for another request.
+    """
+
+    @pytest.mark.parametrize(
+        "cache, config_of_user_a, config_of_user_b, locale, expected_resources",
+        [
+            (
+                {},
+                {"resources": {"layer_of_user_a": {"title": {"en": "Layer A"}}}},
+                {"resources": {"layer_of_user_b": {"title": {"en": "Layer B"}}}},
+                "en",
+                ["layer_of_user_a"],
+            ),
+            (
+                _NoCache(),
+                {"resources": {"layer_of_user_a": {"title": {"en": "Layer A"}}}},
+                {"resources": {"layer_of_user_b": {"title": {"en": "Layer B"}}}},
+                "en",
+                ["layer_of_user_b"],
+            ),
+        ],
+    )
+    def test_second_request_gets_own_config(
+        self, monkeypatch, cache, config_of_user_a, config_of_user_b, locale, expected_resources
+    ):
+        monkeypatch.setattr(l10n, "_cfg_cache", cache)
+        l10n.translate_struct(config_of_user_a, l10n.str2locale(locale), True)
+        translated = l10n.translate_struct(config_of_user_b, l10n.str2locale(locale), True)
+        assert list(translated["resources"]) == expected_resources
+
+    def test_module_patch_is_applied(self):
+        assert isinstance(l10n._cfg_cache, _NoCache)

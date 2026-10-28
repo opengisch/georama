@@ -11,8 +11,8 @@ from django.http import Http404, HttpRequest, HttpResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
-from guardian.core import ObjectPermissionChecker
 from django.views.decorators.csrf import csrf_exempt
+from guardian.core import ObjectPermissionChecker
 from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
@@ -27,6 +27,16 @@ if TYPE_CHECKING:
     from georama.integration.models import VectorField as DatasourceField
 
 api = None
+
+
+# THIS IS A HACK, WE CREATE DICT WHICH BASICALLY NEVER STORES ANYTHING ON SET
+# SO ITS THREAD SAFE
+class _NoCache(dict):
+    def __setitem__(self, key, value):
+        pass
+
+
+l10n._cfg_cache = _NoCache()
 
 
 def get_geometry_format(geom_type: str) -> str:
@@ -92,10 +102,6 @@ class PygeoapiServer(View):
             request, collection_id, with_openapi
         )
         api = API(server_config, openapi_config)
-        # pygeoapi caches the translated config per locale only, the config differs per
-        # user and request, so the cache has to be reset on every request.
-        # NOTE: this is not thread safe, threads of one process share the cache.
-        l10n._cfg_cache = {}
 
         api_request = APIRequest.from_django(request, api.locales)
         content: str | bytes
@@ -340,8 +346,7 @@ class PygeoapiServer(View):
     def handle_runtime_config(
         self, request: HttpRequest, collection_id: str | None = None, with_openapi=False
     ) -> tuple[dict, dict]:
-        """
-        Builds the pygeoapi config for the accessible feature layers of the request.
+        """Builds the pygeoapi config for the accessible feature layers of the request.
 
 
         Args:
