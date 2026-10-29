@@ -736,11 +736,29 @@ class Provider(BaseProvider):
     def bounds_wgs84(self):
         return self._bounds_wgs84
 
-    def vector_dataset(self, db_schema: str, min_records=10, max_records=50):
-        schema: Schema = random.choice(self.schemas)
-        fields: list[Field] = random.sample(schema.fields, random.randint(1, len(schema.fields)))
+    def vector_dataset(
+        self,
+        db_schema: str,
+        min_records=10,
+        max_records=50,
+        schema_name: str | None = None,
+        field_names: list[str] | None = None,
+        geometry_field_name: str | None = None,
+    ):
+        """Every structural choice left to None is drawn at random."""
+        if schema_name is None:
+            schema: Schema = random.choice(self.schemas)
+        else:
+            schema = next(schema for schema in self.schemas if schema.name == schema_name)
+        if field_names is None:
+            fields: list[Field] = random.sample(
+                schema.fields, random.randint(1, len(schema.fields))
+            )
+        else:
+            fields = [field for field in schema.fields if field.name in field_names]
         table_name = f"{schema.name}_{self.sub_faker.unique.word()}"
-        geometry_field_name = self.geometry_column_name()
+        if geometry_field_name is None:
+            geometry_field_name = self.geometry_column_name()
         create_sql = self._produce_create_sql(
             fields, table_name, schema.geom_gen, db_schema, geometry_field_name
         )
