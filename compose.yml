@@ -70,13 +70,13 @@ services:
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
       - "QSL_SVG_PATH=/io/svg"
       - "QSL_DATA_ROOT=/io/data"
-      - "QSL_LOG_LEVEL=${QSL_LOG_LEVEL:-info}"
+      - "QSL_LOG_LEVEL=${QSL_WORKER_LOG_LEVEL:-info}"
       - "PGSERVICEFILE=/io/pg_service.conf"
     volumes:
       - "${LOCAL_PROJECTS:-./tests/resources/projects}:/io/data"
       - "${PG_SERVICE_CONF:-./docker/pg_service.conf}:/io/pg_service.conf"
     deploy:
-      replicas: "${QSL_REPLICAS:-4}"
+      replicas: "${QSL_WORKER_REPLICAS:-4}"
     depends_on:
       qsl-redis:
         condition: service_healthy
@@ -86,7 +86,7 @@ services:
     image: opengisch/qgis-server-light:pr-66-exporter
     environment:
       - "QSL_DATA_ROOT=/io/data"
-      - "QSL_LOG_LEVEL=${QSL_LOG_LEVEL:-info}"
+      - "QSL_EXPORTER_LOG_LEVEL=${QSL_LOG_LEVEL:-info}"
       - "PGSERVICEFILE=/io/pg_service.conf"
     ports:
       - "127.0.0.1:5000:5000"
