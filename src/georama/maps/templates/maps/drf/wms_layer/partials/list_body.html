@@ -7,6 +7,7 @@
 {% endblock %}
 {% block list_item_actions_additional %}
     {% include 'maps/drf/wms_layer/includes/buttons/generate_preview.html' with layer=item %}
+    {% include 'maps/drf/wms_layer/includes/buttons/open_wms_layer.html' with layer=item %}
 {% endblock %}
 {% block list_item_image %}
     {% include "maps/drf/wms_layer/partials/preview.html" %}

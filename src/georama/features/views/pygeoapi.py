@@ -64,9 +64,15 @@ def get_collection_schema_with_geometry_format(
         return headers, status, content
 
     schema = json.loads(content)
+    schema["required"] = []
     geometry = schema["properties"].get("geometry")
     if geometry is not None:
         geometry["format"] = geometry_format
+    for key in schema["properties"]:
+        v = schema["properties"][key]
+        if v.get("required"):
+            schema["required"].append(key)
+
     return headers, status, to_json(schema, api.pretty_print)
 
 
@@ -186,7 +192,8 @@ class PygeoapiServer(View):
         feature_layer = self.get_collection_or_404_or_403(
             collection_id, "view_objects_on_published_layer", include_public=True
         ).get()
-        geometry_format = get_geometry_format(feature_layer.datasource.geometry_type_wkb)
+        geom_type = feature_layer.datasource.geometry_type_wkb
+        geometry_format = get_geometry_format(geom_type)
         return self.execute_from_django(
             # a bit hacky, but we use
             # https://docs.python.org/3/library/functools.html#functools.partial
