@@ -8,7 +8,8 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 from faker.utils.loading import find_available_providers
 
-from georama.integration.factories import CustomFactory, FieldFactory, RasterFactory, VectorFactory
+from georama.integration.builders import create_dataset_table, create_vector_from_dataset
+from georama.integration.factories import CustomFactory, RasterFactory
 from georama.integration.models import Datasource, Project, Vector, VectorField
 
 if TYPE_CHECKING:
@@ -27,14 +28,14 @@ class Command(BaseCommand):
     help = "Flushes db content of integration app and adds a lot of demo content"
 
     @property
-    def get_psycopg_context(self):
-        return psycopg.connect(
-            dbname=settings.DB_NAME,
-            user=settings.DB_USER,
-            password=settings.DB_PW,
-            host=settings.DB_HOST,
-            port=settings.DB_PORT,
-        )
+    def db_settings(self) -> dict:
+        return {
+            "dbname": settings.DB_NAME,
+            "user": settings.DB_USER,
+            "password": settings.DB_PW,
+            "host": settings.DB_HOST,
+            "port": settings.DB_PORT,
+        }
 
     def handle(self, *args, **options):
         current_config = os.environ.get("DJANGO_CONFIGURATION")
@@ -50,76 +51,18 @@ class Command(BaseCommand):
 
             schema_name = "dummy"
             datasets: list[Dataset] = fake.vector_datasets(schema_name, amount=150)
-            with self.get_psycopg_context as conn, conn.cursor() as cur:
+            with psycopg.connect(**self.db_settings) as conn, conn.cursor() as cur:
                 cur.execute(f"DROP SCHEMA IF EXISTS {schema_name} CASCADE;")
                 conn.commit()
                 cur.execute(f"CREATE SCHEMA {schema_name};")
                 conn.commit()
                 for dataset in datasets:
-                    cur.execute(dataset.create_table_sql)
-                    cur.execute(dataset.insert_values_sql)
+                    create_dataset_table(cur, dataset)
                     conn.commit()
             for dataset in datasets:
-                vd = VectorFactory.create(
-                    name=dataset.name,
-                    geometry_type_wkb=dataset.geometry_type_wkb,
-                    geometry_type_simple=dataset.geometry_type_simple,
-                    crs={
-                        "auth_id": f"EPSG:{dataset.epsg_id}",
-                        "ogc_uri": f"http://www.opengis.net/def/crs/EPSG/0/{dataset.epsg_id}",
-                        "ogc_urn": f"urn:ogc:def:crs:EPSG::{dataset.epsg_id}",
-                        "postgis_srid": dataset.epsg_id,
-                    },
-                    driver="postgres",
-                    source={
-                        "ogr": None,
-                        "wfs": None,
-                        "wms": None,
-                        "xyz": None,
-                        "gdal": None,
-                        "wmts": None,
-                        "postgres": {
-                            "key": "id",
-                            "sql": None,
-                            "host": settings.DB_HOST,
-                            "port": settings.DB_PORT,
-                            "srid": f"{dataset.epsg_id}",
-                            "type": None,
-                            "table": dataset.table_name.lower(),
-                            "dbname": settings.DB_NAME,
-                            "schema": schema_name,
-                            "service": None,
-                            "sslmode": 0,
-                            "password": settings.DB_PW,
-                            "username": settings.DB_USER,
-                            "ssl_mode_text": "prefer",
-                            "geometry_column": dataset.geometry_field_name,
-                            "check_primary_key_unicity": None,
-                        },
-                        "vector_tile": None,
-                    },
-                    bbox="{},{},{},{}".format(*fake.bounds()),
-                    bbox_wgs84="{},{},{},{}".format(*fake.bounds_wgs84()),
-                    fields=[],
+                create_vector_from_dataset(
+                    dataset, schema_name, self.db_settings, fake.bounds(), fake.bounds_wgs84()
                 )
-                fields = []
-                for field in dataset.selected_fields:
-                    fields.append(
-                        FieldFactory(
-                            datasource=vd,
-                            name=field.name,
-                            type=field.type,
-                            alias=field.alias,
-                            nullable=field.nullable,
-                            type_oapif=field.type_oapif,
-                            is_primary_key=field.is_primary_key,
-                            length=field.length,
-                            precision=field.precision,
-                            type_oapif_format=field.type_oapif_format,
-                            type_wfs=field.type_wfs,
-                            comment=field.comment,
-                        )
-                    )
 
             RasterFactory.create_batch(150)
             CustomFactory.create_batch(150)
