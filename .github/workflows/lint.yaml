@@ -17,7 +17,5 @@ jobs:
       - name: Build Georama Image
         run: |
           docker compose build georama
-      - name: Start Docker composition
-        run: docker compose up -d
       - name: Run Ruff
-        run: docker compose exec georama uv run ruff check --output-format=github .
+        run: docker compose run --rm --no-deps georama uv run ruff check --output-format=github .

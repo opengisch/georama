@@ -39,3 +39,6 @@ commands_refactoring.md
 
 # compiled translation catalogs, built from the *.po files
 *.mo
+
+# Coverage data
+.coverage
