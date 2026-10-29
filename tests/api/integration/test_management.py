@@ -1,6 +1,5 @@
 import pytest
 from rest_framework import status
-from rest_framework.test import APIClient
 
 from georama.integration.factories import (
     CustomFactory,
@@ -16,48 +15,32 @@ ORGANISATIONAL_FORMATS = ["json", "api"]
 
 @pytest.fixture
 def organisation_project(organisation):
-    project = ProjectFactory.create(organisation=organisation)
-    yield project
-    project.delete()
+    return ProjectFactory.create(organisation=organisation)
 
 
 @pytest.fixture
 def organisation_vector(organisation_project):
-    vector = VectorFactory.create(project=organisation_project, fields=[])
-    yield vector
-    vector.delete()
+    return VectorFactory.create(project=organisation_project, fields=[])
 
 
 @pytest.fixture
 def organisation_vector_field(organisation_vector):
-    field = FieldFactory.create(datasource=organisation_vector)
-    yield field
-    field.delete()
+    return FieldFactory.create(datasource=organisation_vector)
 
 
 @pytest.fixture
 def organisation_raster(organisation_project):
-    raster = RasterFactory.create(project=organisation_project)
-    yield raster
-    raster.delete()
+    return RasterFactory.create(project=organisation_project)
 
 
 @pytest.fixture
 def organisation_custom(organisation_project):
-    custom = CustomFactory.create(project=organisation_project)
-    yield custom
-    custom.delete()
+    return CustomFactory.create(project=organisation_project)
 
 
 @pytest.fixture
-def organisation_admin_client(admin_user, admin_user_name, admin_password):
-    client = APIClient()
-    client.login(username=admin_user_name, password=admin_password)
-    yield client
-
-
-def server_name(organisation):
-    return f"{organisation.domain}.localhost"
+def superuser_client(client_as, organisation):
+    return client_as("superuser", organisation)
 
 
 ENDPOINTS = [
@@ -88,15 +71,13 @@ class TestRendering:
         self,
         request,
         organisation,
-        organisation_admin_client,
+        superuser_client,
         path,
         instance_fixture,
         response_format,
     ):
         request.getfixturevalue(instance_fixture)
-        response = organisation_admin_client.get(
-            path, {"f": response_format}, SERVER_NAME=server_name(organisation)
-        )
+        response = superuser_client.get(path, {"f": response_format})
         assert response.status_code == status.HTTP_200_OK
 
     @pytest.mark.django_db
@@ -104,27 +85,21 @@ class TestRendering:
         self,
         request,
         organisation,
-        organisation_admin_client,
+        superuser_client,
         path,
         instance_fixture,
         response_format,
     ):
         instance = request.getfixturevalue(instance_fixture)
-        response = organisation_admin_client.get(
-            f"{path}{instance.pk}/",
-            {"f": response_format},
-            SERVER_NAME=server_name(organisation),
-        )
+        response = superuser_client.get(f"{path}{instance.pk}/", {"f": response_format})
         assert response.status_code == status.HTTP_200_OK
 
 
 class TestJsonRepresentation:
     @pytest.mark.django_db
-    def test_project(self, organisation, organisation_admin_client, organisation_project):
-        response = organisation_admin_client.get(
-            f"/integration/manage/projects/{organisation_project.pk}/",
-            {"f": "json"},
-            SERVER_NAME=server_name(organisation),
+    def test_project(self, organisation, superuser_client, organisation_project):
+        response = superuser_client.get(
+            f"/integration/manage/projects/{organisation_project.pk}/", {"f": "json"}
         )
         assert response.json()["organisation_id"] == str(organisation.pk)
 
@@ -142,17 +117,13 @@ class TestJsonRepresentation:
         self,
         request,
         organisation,
-        organisation_admin_client,
+        superuser_client,
         organisation_project,
         path,
         instance_fixture,
     ):
         instance = request.getfixturevalue(instance_fixture)
-        response = organisation_admin_client.get(
-            f"{path}{instance.pk}/",
-            {"f": "json"},
-            SERVER_NAME=server_name(organisation),
-        )
+        response = superuser_client.get(f"{path}{instance.pk}/", {"f": "json"})
         data = response.json()
         assert data["organisation_id"] == str(organisation.pk)
         assert data["project_id"] == str(organisation_project.pk)
@@ -161,15 +132,14 @@ class TestJsonRepresentation:
     def test_vector_field(
         self,
         organisation,
-        organisation_admin_client,
+        superuser_client,
         organisation_project,
         organisation_vector,
         organisation_vector_field,
     ):
-        response = organisation_admin_client.get(
+        response = superuser_client.get(
             f"/integration/manage/vector_datasource_fields/{organisation_vector_field.pk}/",
             {"f": "json"},
-            SERVER_NAME=server_name(organisation),
         )
         data = response.json()
         assert data["organisation_id"] == str(organisation.pk)

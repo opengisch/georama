@@ -26,13 +26,13 @@ class TestPygeoapiServerSchema:
     def test_succeeds_rewrites_geometry_format(
         self,
         client,
-        global_vector_dataset,
+        global_postgis_vector,
         global_feature_layer_public,
         geometry_type_wkb,
         expected_format,
     ):
-        global_vector_dataset.geometry_type_wkb = geometry_type_wkb
-        global_vector_dataset.save()
+        global_postgis_vector.geometry_type_wkb = geometry_type_wkb
+        global_postgis_vector.save()
         response = client.get(
             f"{self.url}/collections/{global_feature_layer_public.identifier}/schema?f=json"
         )
@@ -57,10 +57,10 @@ class TestPygeoapiServerSchema:
         ],
     )
     def test_fails_on_unsupported_geometry_type(
-        self, client, global_vector_dataset, global_feature_layer_public, geometry_type_wkb
+        self, client, global_postgis_vector, global_feature_layer_public, geometry_type_wkb
     ):
-        global_vector_dataset.geometry_type_wkb = geometry_type_wkb
-        global_vector_dataset.save()
+        global_postgis_vector.geometry_type_wkb = geometry_type_wkb
+        global_postgis_vector.save()
         response = client.get(
             f"{self.url}/collections/{global_feature_layer_public.identifier}/schema?f=json"
         )

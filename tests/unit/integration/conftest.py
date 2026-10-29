@@ -9,29 +9,25 @@ from django.conf import settings
 def organisation_a_folder():
     orga_path = Path(settings.DATA_INTEGRATION_ROOT) / str(uuid4())
     orga_path.mkdir()
-    yield orga_path
-    orga_path.rmdir()
+    return orga_path
 
 
 @pytest.fixture
 def organisation_b_folder():
     orga_path = Path(settings.DATA_INTEGRATION_ROOT) / str(uuid4())
     orga_path.mkdir()
-    yield orga_path
-    orga_path.rmdir()
+    return orga_path
 
 
 @pytest.fixture
 def orga_a_project_file(organisation_a_folder):
     project_path = organisation_a_folder / "test.qgs"
     project_path.touch()
-    yield project_path
-    project_path.unlink()
+    return project_path
 
 
 @pytest.fixture
 def orga_b_project_file(organisation_b_folder):
     project_path = organisation_b_folder / "test.qgz"
     project_path.touch()
-    yield project_path
-    project_path.unlink()
+    return project_path
