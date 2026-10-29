@@ -1,0 +1,19 @@
+core:
+  - changed-files:
+      - any-glob-to-any-file: src/georama/core/**
+
+integration:
+  - changed-files:
+      - any-glob-to-any-file: src/georama/integration/**
+
+features:
+  - changed-files:
+      - any-glob-to-any-file: src/georama/features/**
+
+maps:
+  - changed-files:
+      - any-glob-to-any-file: src/georama/maps/**
+
+webgis:
+  - changed-files:
+      - any-glob-to-any-file: src/georama/webgis/**

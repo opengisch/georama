@@ -229,7 +229,7 @@ async def theme_json_from_project_config(
 
     gg_theme = Theme(
         id=theme_id,
-        name=project_config.project.name,
+        name=theme_id,
         icon=icon,
         metadata=MetaData(),
         children=children,

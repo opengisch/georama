@@ -1,18 +1,22 @@
+import json
 import os.path
+from functools import partial
+from http import HTTPStatus
 from typing import TYPE_CHECKING
 
 import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
-from django.core.exceptions import BadRequest, PermissionDenied
+from django.core.exceptions import BadRequest, PermissionDenied, ValidationError
 from django.http import Http404, HttpRequest, HttpResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from guardian.shortcuts import get_perms
+from guardian.core import ObjectPermissionChecker
 from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
+from pygeoapi.util import to_json
 
 from georama.features.apps import FeaturesConfig
 from georama.features.config_server import ServerConfig
@@ -23,6 +27,47 @@ if TYPE_CHECKING:
     from georama.integration.models import VectorField as DatasourceField
 
 api = None
+
+
+# THIS IS A HACK, WE CREATE DICT WHICH BASICALLY NEVER STORES ANYTHING ON SET
+# SO ITS THREAD SAFE
+class _NoCache(dict):
+    def __setitem__(self, key, value):
+        pass
+
+
+l10n._cfg_cache = _NoCache()
+
+
+def get_geometry_format(geom_type: str) -> str:
+    return f"geometry-{geom_type.lower() if geom_type != 'UNSET' else 'any'}"
+
+
+def get_collection_schema_with_geometry_format(
+    api: API, request: APIRequest, dataset: str, geometry_format: str
+) -> tuple[dict, int, str]:
+    """THIS IS A TEMPORARY FIX TO ALLOW PYGEOAPI EXPOSE CORRECT GEOMETRY TYPES IN SCHEMA.
+
+    Wraps the pygeoapi collection schema to expose the actual geometry type.
+
+    pygeoapi always exposes the primary geometry as `geometry` with
+    `geometry-any`. It can't be passed through the provider fields: pygeoapi 0.21
+    requires a `type` for each field, and clients like QGIS treat every property
+    with a `type` as attribute.
+
+    We let pygeoapi generate the schema (result is a JSON string). After that we
+    dict encode it again to change the "format" of geometry if exists to the correct
+    type.
+    """
+    headers, status, content = core_api.get_collection_schema(api, request, dataset)
+    if status != HTTPStatus.OK or headers.get("Content-Type") != "application/schema+json":
+        return headers, status, content
+
+    schema = json.loads(content)
+    geometry = schema["properties"].get("geometry")
+    if geometry is not None:
+        geometry["format"] = geometry_format
+    return headers, status, to_json(schema, api.pretty_print)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -45,14 +90,18 @@ class PygeoapiServer(View):
         raise Http404(f"Unknown action: {self.action!r}")
 
     def execute_from_django(
-        self, api_function, request: HttpRequest, *args, skip_valid_check=False
+        self,
+        api_function,
+        request: HttpRequest,
+        *args,
+        skip_valid_check=False,
+        collection_id: str | None = None,
+        with_openapi=False,
     ) -> HttpResponse:
-        # TODO: This has to be stored somewhere, maybe a session store might be good
-        server_config, openapi_config = self.handle_runtime_config(request)
+        server_config, openapi_config = self.handle_runtime_config(
+            request, collection_id, with_openapi
+        )
         api = API(server_config, openapi_config)
-        # TODO: this only needs to be done once the config actually changes aka
-        #  published features are added or deleted!
-        l10n._cfg_cache = {}
 
         api_request = APIRequest.from_django(request, api.locales)
         content: str | bytes
@@ -101,7 +150,7 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP Response
         """
-        return self.execute_from_django(core_api.openapi_, request)
+        return self.execute_from_django(core_api.openapi_, request, with_openapi=True)
 
     def conformance(self, request: HttpRequest) -> HttpResponse:
         """OGC API conformance endpoint.
@@ -120,7 +169,9 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP Response
         """
-        return self.execute_from_django(core_api.describe_collections, request, collection_id)
+        return self.execute_from_django(
+            core_api.describe_collections, request, collection_id, collection_id=collection_id
+        )
 
     def collection_schema(
         self, request: HttpRequest, collection_id: str | None = None
@@ -132,10 +183,18 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP Response
         """
-        _ = self.get_collection_or_404_or_403(
+        feature_layer = self.get_collection_or_404_or_403(
             collection_id, "view_objects_on_published_layer", include_public=True
+        ).get()
+        geometry_format = get_geometry_format(feature_layer.datasource.geometry_type_wkb)
+        return self.execute_from_django(
+            # a bit hacky, but we use
+            # https://docs.python.org/3/library/functools.html#functools.partial
+            # to force wat we want
+            partial(get_collection_schema_with_geometry_format, geometry_format=geometry_format),
+            request,
+            collection_id,
         )
-        return self.execute_from_django(core_api.get_collection_schema, request, collection_id)
 
     def collection_queryables(
         self, request: HttpRequest, collection_id: str | None = None
@@ -151,7 +210,10 @@ class PygeoapiServer(View):
             collection_id, "view_objects_on_published_layer", include_public=True
         )
         return self.execute_from_django(
-            itemtypes_api.get_collection_queryables, request, collection_id
+            itemtypes_api.get_collection_queryables,
+            request,
+            collection_id,
+            collection_id=collection_id,
         )
 
     def collection_items(self, request: HttpRequest, collection_id: str) -> HttpResponse:
@@ -171,6 +233,7 @@ class PygeoapiServer(View):
                 request,
                 collection_id,
                 skip_valid_check=True,
+                collection_id=collection_id,
             )
         elif request.method == "POST":
             _ = self.get_collection_or_404_or_403(
@@ -184,6 +247,7 @@ class PygeoapiServer(View):
                         "create",
                         collection_id,
                         skip_valid_check=True,
+                        collection_id=collection_id,
                     )
                 else:
                     response_ = self.execute_from_django(
@@ -192,6 +256,7 @@ class PygeoapiServer(View):
                         "create",
                         collection_id,
                         skip_valid_check=True,
+                        collection_id=collection_id,
                     )
             else:
                 raise BadRequest()
@@ -205,6 +270,7 @@ class PygeoapiServer(View):
                 "options",
                 collection_id,
                 skip_valid_check=True,
+                collection_id=collection_id,
             )
         else:
             raise BadRequest()
@@ -227,7 +293,11 @@ class PygeoapiServer(View):
                 collection_id, "view_objects_on_published_layer", include_public=True
             )
             response_ = self.execute_from_django(
-                itemtypes_api.get_collection_item, request, collection_id, item_id
+                itemtypes_api.get_collection_item,
+                request,
+                collection_id,
+                item_id,
+                collection_id=collection_id,
             )
         elif request.method == "PUT":
             _ = self.get_collection_or_404_or_403(
@@ -240,6 +310,7 @@ class PygeoapiServer(View):
                 collection_id,
                 item_id,
                 skip_valid_check=True,
+                collection_id=collection_id,
             )
         elif request.method == "DELETE":
             _ = self.get_collection_or_404_or_403(
@@ -252,6 +323,7 @@ class PygeoapiServer(View):
                 collection_id,
                 item_id,
                 skip_valid_check=True,
+                collection_id=collection_id,
             )
         elif request.method == "OPTIONS":
             _ = self.get_collection_or_404_or_403(
@@ -264,27 +336,59 @@ class PygeoapiServer(View):
                 collection_id,
                 item_id,
                 skip_valid_check=True,
+                collection_id=collection_id,
             )
         else:
             raise BadRequest()
 
         return response_
 
-    def handle_runtime_config(self, request: HttpRequest) -> tuple[dict, dict]:
+    def handle_runtime_config(
+        self, request: HttpRequest, collection_id: str | None = None, with_openapi=False
+    ) -> tuple[dict, dict]:
+        """Builds the pygeoapi config for the accessible feature layers of the request.
+
+
+        Args:
+            request: Django HTTP Request
+            collection_id: restricts the config to this collection if set
+            with_openapi: builds the OpenAPI document, it is only read by the openapi
+                endpoint and loads every provider
+
+        Returns:
+            pygeoapi server config and OpenAPI document
+        """
         server_config = ServerConfig().get()
         server_config["server"]["url"] = (
             f"{request.scheme}://{request.get_host()}{reverse('features:landing')}"
         )
-        for feature_layer in self.model.objects.accessible_layers(
+        feature_layers = self.accessible_feature_layers(request, collection_id)
+        permission_checker = ObjectPermissionChecker(request.user)
+        if feature_layers:
+            permission_checker.prefetch_perms(feature_layers)
+        for feature_layer in feature_layers:
+            server_config["resources"][feature_layer.identifier] = self.create_resource(
+                feature_layer, permission_checker
+            )
+        openapi_config = get_oas(server_config) if with_openapi else {}
+        return server_config, openapi_config
+
+    def accessible_feature_layers(
+        self, request: HttpRequest, collection_id: str | None = None
+    ) -> list[FeatureLayer]:
+        feature_layers = self.model.objects.accessible_layers(
             self.request.georama_organisation,
             request.user,
             ["view_objects_on_published_layer"],
             include_public=True,
-        ):
-            server_config["resources"][feature_layer.identifier] = self.create_resource(
-                feature_layer, request
-            )
-        return server_config, get_oas(server_config)
+        ).prefetch_related("fields__datasource_field")
+        if collection_id is not None:
+            try:
+                feature_layers = feature_layers.filter(id=collection_id)
+            except ValidationError:
+                # not a valid identifier, pygeoapi answers with 404
+                return []
+        return list(feature_layers)
 
     @staticmethod
     def handle_crs_setting(crs: str):
@@ -403,9 +507,11 @@ class PygeoapiServer(View):
 
         return provider_definition
 
-    def create_resource(self, feature_layer: FeatureLayer, request: HttpRequest) -> dict:
+    def create_resource(
+        self, feature_layer: FeatureLayer, permission_checker: ObjectPermissionChecker
+    ) -> dict:
         editable = any(
-            p in get_perms(request.user, feature_layer)
+            p in permission_checker.get_perms(feature_layer)
             for p in (
                 "create_objects_on_published_layer",
                 "update_objects_on_published_layer",
@@ -511,12 +617,4 @@ def get_dataset_field_constraints(field_properties: list[Field], geom_type: str)
 
         field_constraints[str(properties.name)] = schema
 
-    # In the schema, the geometry column is always called
-    # `geometry`, independent of the actual column name in the DB
-    api_geom_type = f"geometry-{geom_type if geom_type != 'UNSET' else 'any'}"
-    field_constraints["geometry"] = {
-        "type": api_geom_type,
-        "format": api_geom_type,
-        "x-ogc-role": "primary-geometry",
-    }
     return field_constraints
