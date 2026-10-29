@@ -74,8 +74,8 @@ class UserFactory(AdminUserFactory):
     def groups(self, create, extracted, **kwargs):
         if not create or self.is_superuser:
             return
-        if extracted:
-            # A list of types were passed in, use them
+        if extracted is not None:
+            # A list of types were passed in, use them (an empty list means no group)
             for group in extracted:
                 self.groups.add(group)
         else:

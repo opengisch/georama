@@ -1,39 +1,54 @@
-from importlib import import_module
-from typing import TYPE_CHECKING
+import random
+from collections.abc import Callable, Iterable
+from pathlib import Path
 
-import psycopg
+import factory.random
 import pytest
+from django.apps import apps
 from django.conf import settings
-from faker import Faker
-from faker.utils.loading import find_available_providers
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Model, Q
 from guardian.shortcuts import assign_perm
-from qgis_server_light.interface.common import Crs
-from qgis_server_light.interface.dispatcher.common import Status
-from qgis_server_light.interface.job.common.input import QslJobLayer
-from qgis_server_light.interface.job.common.output import JobResult
+from rest_framework.test import APIClient
 
 from georama.core.factories import (
     AdminUserFactory,
+    GroupFactory,
     MembershipFactory,
     OrganisationFactory,
     UserFactory,
 )
-from georama.features.factories import FeatureLayerFactory
-from georama.features.factories import MetadataFactory as FeatureLayerMetadataFactory
-from georama.features.models.feature_layer import FeatureLayerUserObjectPermission
-from georama.integration.factories import FieldFactory, ProjectFactory, VectorFactory
-from georama.maps.apps import qsl_redis_queue
-from georama.maps.factories import MetadataFactory as MapsWmsLayerMetadataFactory
-from georama.maps.factories import WmsLayerFactory
-from georama.maps.maps_config import Config
-from georama.maps.models.wms_layer import WmsLayerUserObjectPermission
-from georama.webgis.factories import MetadataFactory as WebGisMetadataFactory
-from georama.webgis.factories import ThemeFactory
-from georama.webgis.factories import WmsLayerFactory as WebGisWmsLayerFactory
-from georama.webgis.models.theme import ThemeUserObjectPermission
+from georama.core.models.organisation import Organisation
+from georama.core.models.user import GeoramaUser
+from georama.features.models import FeatureLayer
+from georama.integration.factories import ProjectFactory
+from georama.maps.models.wms_layer import WmsLayer
+from georama.webgis.models import Theme
+from tests.fixtures import SEED
 
-if TYPE_CHECKING:
-    from georama.core.common.faker.gis import Dataset
+pytest_plugins = [
+    "tests.fixtures.gis",
+    "tests.fixtures.layers",
+    "tests.fixtures.qsl",
+    "tests.fixtures.testmandant",
+]
+
+
+@pytest.fixture(autouse=True)
+def seed():
+    """Factories draw from `random` directly, factory_boy and Faker share another generator."""
+    random.seed(SEED)
+    factory.random.reseed_random(SEED)
+
+
+@pytest.fixture(autouse=True)
+def data_integration_root(settings, tmp_path) -> Path:
+    """Keeps the folders created by the code (organisations, projects) out of the repository."""
+    root = tmp_path / "projects"
+    (root / settings.DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER).mkdir(parents=True)
+    settings.DATA_INTEGRATION_ROOT = root
+    return root
 
 
 @pytest.fixture
@@ -53,64 +68,53 @@ def admin_email():
 
 @pytest.fixture
 def admin_user(admin_user_name, admin_password, admin_email):
-    admin = AdminUserFactory.create(
+    return AdminUserFactory.create(
         username=admin_user_name,
         email=admin_email,
         is_staff=True,
         is_superuser=True,
         password=admin_password,
     )
-    yield admin
-    admin.delete()
 
 
 @pytest.fixture
 def organisation():
-    organisation = OrganisationFactory.create()
-    yield organisation
-    organisation.delete()
+    return OrganisationFactory.create()
 
 
 @pytest.fixture
 def organisation_public_access():
-    organisation = OrganisationFactory.create(public_access=True)
-    yield organisation
-    organisation.delete()
+    return OrganisationFactory.create(public_access=True)
 
 
 @pytest.fixture
 def organisation_non_public_access():
-    organisation = OrganisationFactory.create(public_access=False)
-    yield organisation
-    organisation.delete()
+    return OrganisationFactory.create(public_access=False)
+
+
+@pytest.fixture
+def project_global_organisation(db):
+    return ProjectFactory.create(organisation=None, path="Global/GlobalProject.qgz")
 
 
 @pytest.fixture
 def membership(organisation):
-    membership = MembershipFactory.create(organisation=organisation)
-    yield membership
-    membership.delete()
+    return MembershipFactory.create(organisation=organisation)
 
 
 @pytest.fixture
 def membership_public_organisation(organisation_public_access):
-    membership = MembershipFactory.create(organisation=organisation_public_access)
-    yield membership
-    membership.delete()
+    return MembershipFactory.create(organisation=organisation_public_access)
 
 
 @pytest.fixture
-def membership_global():
-    membership = MembershipFactory.create(organisation=None)
-    yield membership
-    membership.delete()
+def membership_global(db):
+    return MembershipFactory.create(organisation=None)
 
 
 @pytest.fixture
 def membership_non_public_organisation(organisation_non_public_access):
-    membership = MembershipFactory.create(organisation=organisation_non_public_access)
-    yield membership
-    membership.delete()
+    return MembershipFactory.create(organisation=organisation_non_public_access)
 
 
 @pytest.fixture
@@ -140,7 +144,7 @@ def user_email(user_user_name):
 
 @pytest.fixture
 def user(user_user_name, user_first_name, user_last_name, user_email, user_password):
-    user = UserFactory.create(
+    return UserFactory.create(
         username=user_user_name,
         password=user_password,
         first_name=user_first_name,
@@ -148,9 +152,8 @@ def user(user_user_name, user_first_name, user_last_name, user_email, user_passw
         email=user_email,
         is_staff=False,
         is_superuser=False,
+        groups=[],
     )
-    yield user
-    user.delete()
 
 
 @pytest.fixture
@@ -167,357 +170,90 @@ def user_with_dedicated_membership_non_public(user, membership_non_public_organi
     yield user
 
 
-@pytest.fixture
-def project_global_organisation():
-    project = ProjectFactory.create(organisation=None)
-    yield project
-    project.delete()
+PERSONAS = ["anonymous", "member", "viewer", "editor", "staff", "superuser"]
+PERSONA_PASSWORD = "persona-secret"
+# apps whose models the editor manages
+EDITOR_APPS = ["integration", "maps", "webgis", "features"]
+# permission a viewer gets on each object given to `persona`
+VIEW_PERMISSIONS = {
+    WmsLayer: "view_published_wms_layer",
+    Theme: "view_published_theme",
+    FeatureLayer: "view_objects_on_published_layer",
+}
 
 
 @pytest.fixture
-def schema_name():
-    return "test_data"
+def editor_group(db) -> Group:
+    """Group with the view, add, change and delete permissions on the models of `EDITOR_APPS`."""
+    query = Q()
+    for app_label in EDITOR_APPS:
+        for model in apps.get_app_config(app_label).get_models():
+            query |= Q(
+                content_type=ContentType.objects.get_for_model(model),
+                codename__in=[
+                    f"{action}_{model._meta.model_name}"
+                    for action in ("view", "add", "change", "delete")
+                ],
+            )
+    group = GroupFactory.create(name="Editor")
+    group.permissions.set(Permission.objects.filter(query))
+    return group
 
 
 @pytest.fixture
-def db_connection():
-    conn = psycopg.connect(
-        dbname=settings.DB_NAME,
-        user=settings.DB_USER,
-        password=settings.DB_PW,
-        host=settings.DB_HOST,
-        port=settings.DB_PORT,
-    )
-    try:
-        yield conn
-    finally:
-        conn.close()
+def persona(editor_group) -> Callable[..., GeoramaUser | None]:
+    """Creates the user of a persona, member of `organisation` (None for the global one).
 
+    Personas:
 
-@pytest.fixture
-def db_schema(schema_name, db_connection):
-    with db_connection.cursor() as cur:
-        cur.execute(f"CREATE SCHEMA {schema_name};")
-    db_connection.commit()
-    yield
-    with db_connection.cursor() as cur:
-        cur.execute(f"DROP SCHEMA IF EXISTS {schema_name} CASCADE;")
-    db_connection.commit()
+    - anonymous: no user;
+    - member: a membership, nothing else;
+    - viewer: a member with the view permission on each of `objects`;
+    - editor: a member of `editor_group`;
+    - staff: a member with `is_staff`;
+    - superuser: a member with `is_superuser`.
+    """
 
-
-@pytest.fixture
-def global_vector_dataset(project_global_organisation, db_schema, schema_name, db_connection):
-    meta_providers_modules = [
-        "georama.core.common.faker",
-    ]
-    providers = find_available_providers([import_module(path) for path in meta_providers_modules])
-    fake = Faker(locale="de_CH", providers=providers)
-    dataset: Dataset = fake.vector_datasets(schema_name, amount=1)[0]
-    with db_connection.cursor() as cur:
-        cur.execute(dataset.create_table_sql)
-        cur.execute(dataset.insert_values_sql)
-    db_connection.commit()
-    vector = VectorFactory.create(
-        project=project_global_organisation,
-        name=dataset.name,
-        geometry_type_wkb=dataset.geometry_type_wkb,
-        geometry_type_simple=dataset.geometry_type_simple,
-        crs={
-            "auth_id": f"EPSG:{dataset.epsg_id}",
-            "ogc_uri": f"http://www.opengis.net/def/crs/EPSG/0/{dataset.epsg_id}",
-            "ogc_urn": f"urn:ogc:def:crs:EPSG::{dataset.epsg_id}",
-            "postgis_srid": dataset.epsg_id,
-        },
-        driver="postgres",
-        source={
-            "ogr": None,
-            "wfs": None,
-            "wms": None,
-            "xyz": None,
-            "gdal": None,
-            "wmts": None,
-            "postgres": {
-                "key": "id",
-                "sql": None,
-                "host": settings.DB_HOST,
-                "port": settings.DB_PORT,
-                "srid": f"{dataset.epsg_id}",
-                "type": None,
-                "table": dataset.table_name.lower(),
-                "dbname": settings.DB_NAME,
-                "schema": schema_name,
-                "service": None,
-                "sslmode": 0,
-                "password": settings.DB_PW,
-                "username": settings.DB_USER,
-                "ssl_mode_text": "prefer",
-                "geometry_column": dataset.geometry_field_name,
-                "check_primary_key_unicity": None,
-            },
-            "vector_tile": None,
-        },
-        bbox="{},{},{},{}".format(*fake.bounds()),
-        bbox_wgs84="{},{},{},{}".format(*fake.bounds_wgs84()),
-    )
-    for field in dataset.selected_fields:
-        FieldFactory.create(
-            datasource=vector,
-            name=field.name,
-            type=field.type,
-            alias=field.alias,
-            nullable=field.nullable,
-            type_oapif=field.type_oapif,
-            is_primary_key=field.is_primary_key,
-            length=field.length,
-            precision=field.precision,
-            type_oapif_format=field.type_oapif_format,
-            type_wfs=field.type_wfs,
-            comment=field.comment,
+    def create(
+        name: str, organisation: Organisation | None = None, objects: Iterable[Model] = ()
+    ) -> GeoramaUser | None:
+        if name not in PERSONAS:
+            raise ValueError(f"Unknown persona {name}, expected one of {PERSONAS}")
+        if name == "anonymous":
+            return None
+        if (name == "viewer") != bool(objects):
+            raise ValueError("Objects are given to the viewer, and only to the viewer")
+        user = UserFactory.create(
+            username=f"{name}-{organisation.domain if organisation else 'global'}",
+            password=PERSONA_PASSWORD,
+            is_staff=name in ("staff", "superuser"),
+            is_superuser=name == "superuser",
+            groups=[editor_group] if name == "editor" else [],
         )
-    yield vector
-    vector.delete()
+        MembershipFactory.create(user=user, organisation=organisation)
+        for obj in objects:
+            assign_perm(VIEW_PERMISSIONS[type(obj)], user, obj)
+        return user
+
+    return create
 
 
 @pytest.fixture
-def global_wms_layer_public_queryable(global_vector_dataset):
-    layer = WmsLayerFactory.create(
-        public=True,
-        queryable=True,
-        datasource=global_vector_dataset,
-        metadata=MapsWmsLayerMetadataFactory.create(title="Global Public Queryable"),
-    )
-    yield layer
-    layer.delete()
+def client_as(persona) -> Callable[..., APIClient]:
+    """Creates a client logged in as a persona (see `persona`), whose requests target the
+    host of `organisation`. The user is available as `client.persona`.
+    """
 
-
-@pytest.fixture
-def global_wms_layer_public_non_queryable(global_vector_dataset):
-    layer = WmsLayerFactory.create(
-        public=True,
-        queryable=False,
-        datasource=global_vector_dataset,
-        metadata=MapsWmsLayerMetadataFactory.create(title="Global Public NonQueryable"),
-    )
-    yield layer
-    layer.delete()
-
-
-@pytest.fixture
-def global_wms_layer_non_public_queryable(global_vector_dataset):
-    layer = WmsLayerFactory.create(
-        public=False,
-        queryable=True,
-        datasource=global_vector_dataset,
-        metadata=MapsWmsLayerMetadataFactory.create(title="Global NonPublic Queryable"),
-    )
-    yield layer
-    layer.delete()
-
-
-@pytest.fixture
-def user_with_membership_global_wms_layer_permission(
-    user_with_membership_global, global_wms_layer_non_public_queryable
-):
-    assign_perm(
-        "view_published_wms_layer",
-        user_with_membership_global,
-        global_wms_layer_non_public_queryable,
-    )
-    yield user_with_membership_global
-    WmsLayerUserObjectPermission.objects.all().delete()
-
-
-@pytest.fixture
-def global_webgis_theme_public(project_global_organisation):
-    theme = ThemeFactory.create(
-        project=project_global_organisation,
-        public=True,
-        metadata=WebGisMetadataFactory.create(title="Global Public Theme"),
-    )
-    yield theme
-    theme.delete()
-
-
-@pytest.fixture
-def global_webgis_theme_non_public(project_global_organisation):
-    theme = ThemeFactory.create(
-        project=project_global_organisation,
-        public=False,
-        metadata=WebGisMetadataFactory.create(title="Global NonPublic Theme"),
-    )
-    yield theme
-    theme.delete()
-
-
-@pytest.fixture
-def global_webgis_wms_layer_public_theme(global_vector_dataset, global_webgis_theme_public):
-    layer = WebGisWmsLayerFactory.create(
-        queryable=True,
-        datasource=global_vector_dataset,
-        metadata=WebGisMetadataFactory.create(title="Global Public Theme Layer"),
-        theme=global_webgis_theme_public,
-    )
-    yield layer
-    layer.delete()
-
-
-@pytest.fixture
-def global_webgis_wms_layer_non_public_theme(global_vector_dataset, global_webgis_theme_non_public):
-    layer = WebGisWmsLayerFactory.create(
-        queryable=True,
-        datasource=global_vector_dataset,
-        metadata=WebGisMetadataFactory.create(title="Global NonPublic Theme Layer"),
-        theme=global_webgis_theme_non_public,
-    )
-    yield layer
-    layer.delete()
-
-
-@pytest.fixture
-def user_with_membership_global_webgis_theme_permission(
-    user_with_membership_global, global_webgis_wms_layer_non_public_theme
-):
-    assign_perm(
-        "view_published_theme",
-        user_with_membership_global,
-        global_webgis_wms_layer_non_public_theme.theme,
-    )
-    yield user_with_membership_global
-    ThemeUserObjectPermission.objects.all().delete()
-
-
-@pytest.fixture
-def global_feature_layer_public(global_vector_dataset):
-    layer = FeatureLayerFactory.create(
-        public=True,
-        datasource=global_vector_dataset,
-        metadata=FeatureLayerMetadataFactory.create(title="Global Public"),
-    )
-    yield layer
-    layer.delete()
-
-
-@pytest.fixture
-def global_feature_layer_nonpublic(global_vector_dataset):
-    layer = FeatureLayerFactory.create(
-        public=False,
-        datasource=global_vector_dataset,
-        metadata=FeatureLayerMetadataFactory.create(title="Global NonPublic"),
-    )
-    yield layer
-    layer.delete()
-
-
-@pytest.fixture
-def user_with_membership_global_feature_layer_view_permission(
-    user_with_membership_global, global_feature_layer_nonpublic
-):
-    assign_perm(
-        "view_objects_on_published_layer",
-        user_with_membership_global,
-        global_feature_layer_nonpublic,
-    )
-    yield user_with_membership_global
-    FeatureLayerUserObjectPermission.objects.all().delete()
-
-
-@pytest.fixture
-def user_with_membership_global_feature_layer_create_permission(
-    user_with_membership_global,
-    global_feature_layer_nonpublic,
-    user_with_membership_global_feature_layer_view_permission,
-):
-    assign_perm(
-        "create_objects_on_published_layer",
-        user_with_membership_global,
-        global_feature_layer_nonpublic,
-    )
-    yield user_with_membership_global
-    FeatureLayerUserObjectPermission.objects.all().delete()
-
-
-@pytest.fixture
-def user_with_membership_global_feature_layer_delete_permission(
-    user_with_membership_global,
-    global_feature_layer_nonpublic,
-    user_with_membership_global_feature_layer_view_permission,
-):
-    assign_perm(
-        "delete_objects_on_published_layer",
-        user_with_membership_global,
-        global_feature_layer_nonpublic,
-    )
-    yield user_with_membership_global
-    FeatureLayerUserObjectPermission.objects.all().delete()
-
-
-@pytest.fixture
-def user_with_membership_global_feature_layer_update_permission(
-    user_with_membership_global,
-    global_feature_layer_nonpublic,
-    user_with_membership_global_feature_layer_view_permission,
-):
-    assign_perm(
-        "update_objects_on_published_layer",
-        user_with_membership_global,
-        global_feature_layer_nonpublic,
-    )
-    yield user_with_membership_global
-    FeatureLayerUserObjectPermission.objects.all().delete()
-
-
-@pytest.fixture
-def crs_factory():
-    """Creates crs as QSL resolves them, `None` creates a crs without identifiers."""
-
-    def create_crs(code: int | None, axis_inverted: bool = False) -> Crs:
-        if code is None:
-            return Crs()
-        return Crs(
-            auth_id=f"EPSG:{code}",
-            postgis_srid=code,
-            ogc_uri=f"http://www.opengis.net/def/crs/EPSG/0/{code}",
-            ogc_urn=f"urn:ogc:def:crs:EPSG::{code}",
-            axis_inverted=axis_inverted,
+    def create(
+        name: str, organisation: Organisation | None = None, objects: Iterable[Model] = ()
+    ) -> APIClient:
+        domain = settings.ORGANISATION_DOMAIN
+        client = APIClient(
+            SERVER_NAME=f"{organisation.domain}.{domain}" if organisation else domain
         )
+        client.persona = persona(name, organisation, objects)
+        if client.persona is not None:
+            client.force_login(client.persona)
+        return client
 
-    yield create_crs
-
-
-@pytest.fixture(autouse=True)
-def resolved_other_crs(crs_factory):
-    """The other crs are resolved by QSL at runtime, which is not available in tests."""
-    other_crs = [crs_factory(3857), crs_factory(4326, axis_inverted=True)]
-    Config.resolved_other_crs.update({"maps": other_crs, "webgis": other_crs})
-    yield Config.resolved_other_crs
-    Config.resolved_other_crs.clear()
-
-
-@pytest.fixture
-def posted_jobs(monkeypatch):
-    """Replaces the queue, the answer is set by the test via `posted_jobs.answer`."""
-
-    class PostedJobs(list):
-        answer: tuple[JobResult, str]
-
-    jobs = PostedJobs()
-
-    async def post(job_parameter, timeout):
-        jobs.append(job_parameter)
-        return jobs.answer
-
-    monkeypatch.setattr(qsl_redis_queue, "post", post)
-    yield jobs
-
-
-@pytest.fixture
-def render_job_result():
-    """Answer of QSL for render jobs, see `posted_jobs`."""
-    yield JobResult(id="job", data=b"png", content_type="image/png"), Status.SUCCESS.value
-
-
-@pytest.fixture
-def qsl_job_layer():
-    yield QslJobLayer(
-        id="layer", name="layer", source="{}", remote=True, folder_name="", driver="wms"
-    )
+    return create
