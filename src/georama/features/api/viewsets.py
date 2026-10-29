@@ -36,6 +36,7 @@ class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
     search_fields = ["metadata__title"]
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
+    list_body_partial_template_name = "features/drf/feature_layer/partials/list_body.html"
 
     permissions_serializer_class = FeatureLayerObjectPermissionSerializer
     permissions_action_serializer_class = FeatureLayerPermissionActionSerializer
@@ -98,3 +99,4 @@ class FeatureLayerViewSet(GeoramaObjPermViewSetReadOnly):
     search_fields = ["metadata__title"]
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
+    list_body_partial_template_name = "features/drf/feature_layer/partials/list_body.html"
