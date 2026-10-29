@@ -574,6 +574,8 @@ class Prod(Base):
 
 class Test(Base):
     SECRET_KEY = "django-testing-secret-key"
+    # the OIDC middleware fetches the discovery document at start, tests must not need keycloak
+    OIDC_SERVER_URL = None
 
     @property
     def DATABASES(self):

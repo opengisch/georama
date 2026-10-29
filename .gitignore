@@ -36,3 +36,6 @@ docs/.cache/
 # Local notes
 commands.md
 commands_refactoring.md
+
+# Coverage data
+.coverage

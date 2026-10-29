@@ -30,7 +30,7 @@ jobs:
       - name: Build Georama Image
         run: |
           docker compose build georama
-      - name: Start Docker composition
-        run: docker compose up -d
+      - name: Start database and redis
+        run: docker compose up -d --wait georama-db qsl-redis
       - name: Run tests
-        run: docker compose exec georama uv run pytest
+        run: docker compose run --rm --no-deps georama uv run pytest --cov
