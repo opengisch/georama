@@ -378,6 +378,8 @@ class ManageJobViewSet(GeoramaManagerViewSet):
     ordering_fields = []
     filterset_fields = []
 
+    list_body_partial_template_name: str = "processes/drf/job/partials/list_body.html"
+
     async def get_breadcrumbs(self):
         breadcrumbs = await super().get_breadcrumbs()
         breadcrumbs[0].view_name = reverse("processes:api-landing")
@@ -398,7 +400,6 @@ class JobViewSet(GeoramaObjPermViewSetReadOnly):
     filterset_fields = []
 
     list_body_partial_template_name: str = "processes/drf/job/partials/list_body.html"
-    # show_template_name = "processes/drf/job/detail.html"
 
     async def get_breadcrumbs(self):
         breadcrumbs = await super().get_breadcrumbs()

@@ -7,7 +7,7 @@ class WmsOperation(OgcOperation):
         if layer_ids is not None:
             # GeoGirafe requests filtered layers by their WFS feature type name
             layer_ids = [self.decode_layer_name(layer_id) for layer_id in layer_ids]
-        layers = self.model.objects.accessible_layers(
+        layers = self.model.objects.accessible_objects(
             self.organisation, self.user, self.perms, layer_ids, include_public=True
         ).all()
         if layer_ids is None:
