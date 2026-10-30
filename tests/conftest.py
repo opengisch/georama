@@ -23,6 +23,7 @@ from georama.core.models.organisation import Organisation
 from georama.core.models.user import GeoramaUser
 from georama.features.models import FeatureLayer
 from georama.integration.factories import ProjectFactory
+from georama.integration.models import Project
 from georama.maps.models.wms_layer import WmsLayer
 from georama.webgis.models import Theme
 from tests.fixtures import SEED
@@ -92,9 +93,13 @@ def organisation_non_public_access():
     return OrganisationFactory.create(public_access=False)
 
 
+def create_global_project() -> Project:
+    return ProjectFactory.create(organisation=None, path="Global/GlobalProject.qgz")
+
+
 @pytest.fixture
 def project_global_organisation(db):
-    return ProjectFactory.create(organisation=None, path="Global/GlobalProject.qgz")
+    return create_global_project()
 
 
 @pytest.fixture

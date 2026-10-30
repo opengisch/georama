@@ -23,22 +23,26 @@ from georama.core.models.fence import Fence
 from georama.core.models.membership import Membership
 from georama.core.models.organisation import Organisation
 from georama.core.models.user import GeoramaUser
-from georama.features.factories import FeatureLayerFactory
-from georama.features.factories import MetadataFactory as FeatureLayerMetadataFactory
 from georama.features.models import FeatureLayer
-from georama.integration.builders import create_vector_from_dataset
-from georama.integration.factories import CustomFactory, ProjectFactory, RasterFactory
+from georama.integration.factories import CustomFactory, RasterFactory
 from georama.integration.models import Custom, Datasource, Project, Raster, Vector, VectorField
-from georama.maps.factories import MetadataFactory as WmsLayerMetadataFactory
-from georama.maps.factories import WmsLayerFactory
 from georama.maps.models import WmsLayer
-from georama.webgis.factories import MetadataFactory as ThemeMetadataFactory
-from georama.webgis.factories import ThemeFactory
 from georama.webgis.models import Theme, UrlShortener
 from tests.api.routes import ROUTES, Bug
-from tests.conftest import PERSONAS, create_editor_group, create_persona, persona_client
+from tests.conftest import (
+    PERSONAS,
+    create_editor_group,
+    create_global_project,
+    create_persona,
+    persona_client,
+)
 from tests.fixtures import SEED
-from tests.fixtures.gis import GIS_SCHEMA
+from tests.fixtures.gis import GIS_SCHEMA, create_global_vector
+from tests.fixtures.layers import (
+    create_global_feature_layer,
+    create_global_theme,
+    create_global_wms_layer,
+)
 
 # routes of third party apps, not tested here
 EXCLUDED_PREFIXES = ("admin/", "accounts/", "silk/")
@@ -153,15 +157,8 @@ class MatrixData(NamedTuple):
 
 def create_addressed(gis_dataset, gis_db_settings, gis_faker) -> dict[type[Model], Model]:
     """Creates the objects addressed by the routes, of the global organisation, not public."""
-    vector = create_vector_from_dataset(
-        gis_dataset,
-        GIS_SCHEMA,
-        gis_db_settings,
-        gis_faker.bounds(),
-        gis_faker.bounds_wgs84(),
-        project=ProjectFactory.create(organisation=None, path="Global/GlobalProject.qgz"),
-    )
-    project = vector.project
+    project = create_global_project()
+    vector = create_global_vector(project, gis_dataset, gis_db_settings, gis_faker)
     user = UserFactory.create(username="addressed", groups=[])
     return {
         GeoramaUser: user,
@@ -178,21 +175,9 @@ def create_addressed(gis_dataset, gis_db_settings, gis_faker) -> dict[type[Model
         VectorField: vector.fields.first(),
         Raster: RasterFactory.create(project=project),
         Custom: CustomFactory.create(project=project),
-        WmsLayer: WmsLayerFactory.create(
-            public=False,
-            datasource=vector,
-            metadata=WmsLayerMetadataFactory.create(title="Addressed"),
-        ),
-        FeatureLayer: FeatureLayerFactory.create(
-            public=False,
-            datasource=vector,
-            metadata=FeatureLayerMetadataFactory.create(title="Addressed"),
-        ),
-        Theme: ThemeFactory.create(
-            project=project,
-            public=False,
-            metadata=ThemeMetadataFactory.create(title="Addressed"),
-        ),
+        WmsLayer: create_global_wms_layer(vector, public=False, queryable=True),
+        FeatureLayer: create_global_feature_layer(vector, public=False),
+        Theme: create_global_theme(project, public=False),
         UrlShortener: UrlShortener.objects.create(id="addressed", url="https://example.org"),
     }
 
