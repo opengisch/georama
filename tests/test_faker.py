@@ -6,6 +6,9 @@ from faker import Faker
 from faker.utils.loading import find_available_providers
 from shapely import LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon
 
+from georama.core.common.faker.gis import GEOMETRY_TYPES_WKB, Provider
+from georama.features.geometry_type import geojson_geometry_type
+
 if TYPE_CHECKING:
     from georama.core.common.faker.gis import Dataset
 
@@ -127,3 +130,12 @@ class TestGeomFaker:
         ds: Dataset = fake.vector_dataset("dummy", min_records=min_records, max_records=max_records)
         assert ds.amount <= max_records
         assert ds.amount >= min_records
+
+    @pytest.mark.parametrize(
+        "schema",
+        Provider.schemas,
+        ids=lambda schema: schema.name,
+    )
+    def test_schema_geometry_type_wkb_has_geojson_equivalent(self, schema):
+        geometry_type_wkb = GEOMETRY_TYPES_WKB[schema.geom_gen]
+        assert geojson_geometry_type(geometry_type_wkb)
