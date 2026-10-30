@@ -47,9 +47,6 @@ FENCE_ASAVE = "FenceSerializer is not an adrf serializer, the async update calls
 MEMBERSHIP_FIELDS = "`user_id` and `organisation_id` are read-only, creation hits the database"
 SHORT_LIST = "the url shortener routes `list` without supporting it"
 OWS_STATUS = "OgcServer passes the status of its errors as the content type of HttpResponse"
-SCHEMA_STAFF = "the schema of the core API is open to staff, the API to superusers only"
-SCHEMA_PUBLIC = "the schema of the maps management API is public"
-HIDDEN_COLLECTION = "a collection the user cannot view answers 403, revealing it exists"
 
 ROUTES: dict[str, dict[str, dict[str, int | Bug]]] = {
     # core
@@ -106,9 +103,10 @@ ROUTES: dict[str, dict[str, dict[str, int | Bug]]] = {
         "patch": allow(SUPERUSER, 200),
         "delete": allow(SUPERUSER, 204),
     },
-    "core:schema": {"get": {**allow(SUPERUSER, 200), "staff": Bug(403, SCHEMA_STAFF)}},
-    "core:swagger": {"get": {**allow(SUPERUSER, 200), "staff": Bug(403, SCHEMA_STAFF)}},
-    "core:redoc": {"get": {**allow(SUPERUSER, 200), "staff": Bug(403, SCHEMA_STAFF)}},
+    # the schema is open to staff, and lists only the endpoints the user can call
+    "core:schema": {"get": allow(SUPERUSER | {"staff"}, 200)},
+    "core:swagger": {"get": allow(SUPERUSER | {"staff"}, 200)},
+    "core:redoc": {"get": allow(SUPERUSER | {"staff"}, 200)},
     # integration
     "integration:manager-project-list": {"get": allow(EDITORS, 200), "post": allow(EDITORS, 400)},
     "integration:manager-project-aadd": {"get": allow(EDITORS, Bug(200, AADD_FORM))},
@@ -219,22 +217,19 @@ ROUTES: dict[str, dict[str, dict[str, int | Bug]]] = {
     "features:api-conformance": {"get": allow(EVERYONE, 200)},
     "features:api-openapi": {"get": allow(EVERYONE, 200)},
     "features:api-collections": {"get": allow(EVERYONE, 200)},
+    # the pygeoapi config holds only the accessible collections, the other routes check the
+    # permissions of an existing collection, like the OGC services of maps
     "features:api-collection-detail": {"get": allow(VIEWERS, 200, denied=404)},
-    "features:api-collection-schema": {
-        "get": allow(VIEWERS, 200, denied=Bug(404, HIDDEN_COLLECTION)),
-    },
-    "features:api-collection-queryables": {
-        "get": allow(VIEWERS, 200, denied=Bug(404, HIDDEN_COLLECTION)),
-    },
+    "features:api-collection-schema": {"get": allow(VIEWERS, 200)},
+    "features:api-collection-queryables": {"get": allow(VIEWERS, 200)},
     "features:api-collection-items": {
-        "get": allow(VIEWERS, 200, denied=Bug(404, HIDDEN_COLLECTION)),
-        # the viewer sees the collection, without the permission to create items
-        "post": {**allow(SUPERUSER, 200, denied=Bug(404, HIDDEN_COLLECTION)), "viewer": 403},
+        "get": allow(VIEWERS, 200),
+        "post": allow(SUPERUSER, 200),
     },
     "features:api-collection-item": {
-        "get": allow(VIEWERS, 200, denied=Bug(404, HIDDEN_COLLECTION)),
-        "put": {**allow(SUPERUSER, 200, denied=Bug(404, HIDDEN_COLLECTION)), "viewer": 403},
-        "delete": {**allow(SUPERUSER, 200, denied=Bug(404, HIDDEN_COLLECTION)), "viewer": 403},
+        "get": allow(VIEWERS, 200),
+        "put": allow(SUPERUSER, 200),
+        "delete": allow(SUPERUSER, 200),
     },
     # maps
     "maps:maplayer-list": {"get": allow(VIEWERS, Bug(200, LAYER_JSON), denied=200)},
@@ -273,9 +268,10 @@ ROUTES: dict[str, dict[str, dict[str, int | Bug]]] = {
             "editor": Bug(403, PERMISSIONS_UNCHECKED),
         },
     },
-    "maps:schema": {"get": allow(EDITORS, 200, denied=Bug(403, SCHEMA_PUBLIC))},
-    "maps:swagger": {"get": allow(EDITORS, 200, denied=Bug(403, SCHEMA_PUBLIC))},
-    "maps:redoc": {"get": allow(EDITORS, 200, denied=Bug(403, SCHEMA_PUBLIC))},
+    # the schema is public, and lists only the endpoints the user can call
+    "maps:schema": {"get": allow(EVERYONE, 200)},
+    "maps:swagger": {"get": allow(EVERYONE, 200)},
+    "maps:redoc": {"get": allow(EVERYONE, 200)},
     "maps:maps_ogc_entry": {
         "get": allow(EVERYONE, Bug(400, OWS_STATUS)),
         "post": allow(EVERYONE, 400),

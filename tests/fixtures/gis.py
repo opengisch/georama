@@ -11,6 +11,7 @@ from faker.utils.loading import find_available_providers
 
 from georama.core.common.faker.gis import Dataset
 from georama.integration.builders import create_dataset_table, create_vector_from_dataset
+from georama.integration.models import Project, Vector
 from tests.fixtures import SEED
 
 GIS_SCHEMA = "test_data"
@@ -74,18 +75,27 @@ def gis_dataset(gis_db_settings, gis_dataset_definition) -> Dataset:
         conn.execute(f"DROP SCHEMA IF EXISTS {GIS_SCHEMA} CASCADE;")
 
 
+def create_global_vector(
+    project: Project, dataset: Dataset, gis_db_settings: dict, gis_faker: Faker
+) -> Vector:
+    """The Vector of `dataset` in the global `project`, its table is created by `gis_dataset`."""
+    return create_vector_from_dataset(
+        dataset,
+        GIS_SCHEMA,
+        gis_db_settings,
+        gis_faker.bounds(),
+        gis_faker.bounds_wgs84(),
+        project=project,
+    )
+
+
 @pytest.fixture
 def global_vector(project_global_organisation, gis_db_settings, gis_dataset_definition, gis_faker):
     """A Vector of the global organisation whose table is not guaranteed to exist: enough for
     everything built from the models (Capabilities, DescribeFeatureType, permissions, QSL jobs).
     """
-    return create_vector_from_dataset(
-        gis_dataset_definition,
-        GIS_SCHEMA,
-        gis_db_settings,
-        gis_faker.bounds(),
-        gis_faker.bounds_wgs84(),
-        project=project_global_organisation,
+    return create_global_vector(
+        project_global_organisation, gis_dataset_definition, gis_db_settings, gis_faker
     )
 
 
