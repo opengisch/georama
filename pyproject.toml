@@ -27,7 +27,7 @@ dependencies = [
     "django-crispy-forms>=2.6",
     "crispy-bootstrap5>=2026.3",
     "pygeoapi==0.21.0",
-    "qgis_server_light[dispatcher] @ git+https://github.com/opengisch/qgis-server-light.git@refactoring",
+    "qgis_server_light[dispatcher] @ git+https://github.com/opengisch/qgis-server-light.git@v26.1",
     "xsdata>=26.2",
     "sqlalchemy>=2.0.51",
     "geoalchemy2>=0.20.0",
@@ -44,7 +44,7 @@ Tracker = "https://github.com/georama/issues"
 CI = "https://github.com/opengisch/georama/actions"
 Documentation = "https://opengisch.github.io/georama"
 Source = "https://github.com/opengisch/georama"
-Contributing = "https://github.com/opengisch/georama/blob/master/CONTRIBUTING.md"
+Contributing = "https://github.com/opengisch/georama/blob/main/CONTRIBUTING.md"
 [build-system]
 requires = ["uv_build>=0.11.15,<0.12.0"]
 build-backend = "uv_build"

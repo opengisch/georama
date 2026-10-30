@@ -77,7 +77,7 @@ class WmsGetCapabilities(WmsOperation):
         return Layer(
             # we use a 0/1 instead True/False here since this also conforms
             # to Chapter 7.2.4.7.1 in
-            # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens  # noqa: E501
+            # https://github.com/opengisch/georama/blob/main/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens  # noqa: E501
             # compatibility with older versions of WMS spec
             queryable=1 if queryable else 0,
             opaque=0,
@@ -139,7 +139,7 @@ class WmsGetCapabilities(WmsOperation):
             )
             capabilities.capability.layer.layer.append(layer)
         # we use a 0/1 instead True/False here since this also conforms to Chapter 7.2.4.7.1 in
-        # https://github.com/opengisch/georama/blob/master/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens  # noqa: E501
+        # https://github.com/opengisch/georama/blob/main/tests/maps/resources/wms/06-042_OpenGIS_Web_Map_Service_WMS_Implementation_Specification.pdf and opens  # noqa: E501
         # compatibility with older versions of WMS spec
         capabilities.capability.layer.queryable = 0
         capabilities.capability.layer.opaque = 0

@@ -19,10 +19,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check tag is on master
+      - name: Check tag is on main
         run: |
-          if ! git merge-base --is-ancestor "${GITHUB_SHA}" origin/master; then
-            echo "::error::${GITHUB_REF_NAME} is not reachable from master, releases are cut from master only"
+          if ! git merge-base --is-ancestor "${GITHUB_SHA}" origin/main; then
+            echo "::error::${GITHUB_REF_NAME} is not reachable from main, releases are cut from main only"
             exit 1
           fi
       - name: Check tag is a final release
