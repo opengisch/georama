@@ -182,8 +182,7 @@ VIEW_PERMISSIONS = {
 }
 
 
-@pytest.fixture
-def editor_group(db) -> Group:
+def create_editor_group() -> Group:
     """Group with the view, add, change and delete permissions on the models of `EDITOR_APPS`."""
     query = Q()
     for app_label in EDITOR_APPS:
@@ -200,8 +199,12 @@ def editor_group(db) -> Group:
     return group
 
 
-@pytest.fixture
-def persona(editor_group) -> Callable[..., GeoramaUser | None]:
+def create_persona(
+    name: str,
+    editor_group: Group,
+    organisation: Organisation | None = None,
+    objects: Iterable[Model] = (),
+) -> GeoramaUser | None:
     """Creates the user of a persona, member of `organisation` (None for the global one).
 
     Personas:
@@ -213,47 +216,61 @@ def persona(editor_group) -> Callable[..., GeoramaUser | None]:
     - staff: a member with `is_staff`;
     - superuser: a member with `is_superuser`.
     """
+    if name not in PERSONAS:
+        raise ValueError(f"Unknown persona {name}, expected one of {PERSONAS}")
+    if name == "anonymous":
+        return None
+    if (name == "viewer") != bool(objects):
+        raise ValueError("Objects are given to the viewer, and only to the viewer")
+    user = UserFactory.create(
+        username=f"{name}-{organisation.domain if organisation else 'global'}",
+        password=PERSONA_PASSWORD,
+        is_staff=name in ("staff", "superuser"),
+        is_superuser=name == "superuser",
+        groups=[editor_group] if name == "editor" else [],
+    )
+    MembershipFactory.create(user=user, organisation=organisation)
+    for obj in objects:
+        assign_perm(VIEW_PERMISSIONS[type(obj)], user, obj)
+    return user
+
+
+def persona_client(user: GeoramaUser | None, organisation: Organisation | None = None) -> APIClient:
+    """Creates a client logged in as `user` (anonymous for None), whose requests target the
+    host of `organisation`. The user is available as `client.persona`.
+    """
+    domain = settings.ORGANISATION_DOMAIN
+    client = APIClient(SERVER_NAME=f"{organisation.domain}.{domain}" if organisation else domain)
+    client.persona = user
+    if user is not None:
+        client.force_login(user)
+    return client
+
+
+@pytest.fixture
+def editor_group(db) -> Group:
+    return create_editor_group()
+
+
+@pytest.fixture
+def persona(editor_group) -> Callable[..., GeoramaUser | None]:
+    """Creates the user of a persona, see `create_persona`."""
 
     def create(
         name: str, organisation: Organisation | None = None, objects: Iterable[Model] = ()
     ) -> GeoramaUser | None:
-        if name not in PERSONAS:
-            raise ValueError(f"Unknown persona {name}, expected one of {PERSONAS}")
-        if name == "anonymous":
-            return None
-        if (name == "viewer") != bool(objects):
-            raise ValueError("Objects are given to the viewer, and only to the viewer")
-        user = UserFactory.create(
-            username=f"{name}-{organisation.domain if organisation else 'global'}",
-            password=PERSONA_PASSWORD,
-            is_staff=name in ("staff", "superuser"),
-            is_superuser=name == "superuser",
-            groups=[editor_group] if name == "editor" else [],
-        )
-        MembershipFactory.create(user=user, organisation=organisation)
-        for obj in objects:
-            assign_perm(VIEW_PERMISSIONS[type(obj)], user, obj)
-        return user
+        return create_persona(name, editor_group, organisation, objects)
 
     return create
 
 
 @pytest.fixture
 def client_as(persona) -> Callable[..., APIClient]:
-    """Creates a client logged in as a persona (see `persona`), whose requests target the
-    host of `organisation`. The user is available as `client.persona`.
-    """
+    """Creates a client logged in as a persona, see `create_persona` and `persona_client`."""
 
     def create(
         name: str, organisation: Organisation | None = None, objects: Iterable[Model] = ()
     ) -> APIClient:
-        domain = settings.ORGANISATION_DOMAIN
-        client = APIClient(
-            SERVER_NAME=f"{organisation.domain}.{domain}" if organisation else domain
-        )
-        client.persona = persona(name, organisation, objects)
-        if client.persona is not None:
-            client.force_login(client.persona)
-        return client
+        return persona_client(persona(name, organisation, objects), organisation)
 
     return create
