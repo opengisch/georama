@@ -56,7 +56,7 @@ class OrganisationalManager(models.Manager.from_queryset(OrganisationalQuerySet)
             )
 
 
-class LayerManager(OrganisationalManager):
+class PublicOrProtectedManager(OrganisationalManager):
     def get_public_or_permitted(
         self, organisation: Organisation, user, perms
     ) -> OrganisationalQuerySet:
@@ -67,31 +67,33 @@ class LayerManager(OrganisationalManager):
         qs = self.get_queryset().organisation_objects(organisation)
         return get_objects_for_user(user, perms, qs)
 
-    def accessible_layers(
+    def accessible_objects(
         self,
         organisation: Organisation,
         user,
         perms: list[str],
-        layer_ids: list[str] | None = None,
+        object_ids: list[str] | None = None,
         include_public: bool = False,
     ) -> OrganisationalQuerySet:
         perm_qs = self.get_public_or_permitted if include_public else self.get_permitted
-        if layer_ids is None:
+        if object_ids is None:
             # most notably this is the case on capability requests
             return perm_qs(organisation, user, perms)
 
-        # first check is about the layer names (raising if missmatch is found)
-        qs = self.get_queryset().organisation_objects(organisation).filter(id__in=layer_ids)
-        found_difference = set(layer_ids) - {layer.identifier for layer in qs}
+        # first check is about the object names (raising if missmatch is found)
+        qs = self.get_queryset().organisation_objects(organisation).filter(id__in=object_ids)
+        found_difference = set(object_ids) - {obj.identifier for obj in qs}
         if len(found_difference) > 0:
-            raise qs.model.DoesNotExist(f"Layer(s) not found: {list(found_difference)}")
+            raise qs.model.DoesNotExist(
+                f"{qs.model._meta.verbose_name}(s) not found: {list(found_difference)}"
+            )
 
         # continue with the available list checking for permissions
-        accessible_layers = {}
-        qs = perm_qs(organisation, user, perms).filter(id__in=layer_ids)
-        for layer in qs:
-            accessible_layers[layer.identifier] = layer
-        permission_difference = set(layer_ids) - set(accessible_layers)
+        qs = perm_qs(organisation, user, perms).filter(id__in=object_ids)
+        accessible_objects = {obj.identifier: obj for obj in qs}
+        permission_difference = set(object_ids) - set(accessible_objects)
         if len(permission_difference) > 0:
-            raise PermissionError(f"Layer(s) not permitted: {list(permission_difference)}")
+            raise PermissionError(
+                f"{qs.model._meta.verbose_name}(s) not permitted: {list(permission_difference)}"
+            )
         return qs

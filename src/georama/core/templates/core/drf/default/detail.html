@@ -9,7 +9,7 @@
         <div class="btn-group" role="group" aria-label="Layer actions">
             {% if can_change %}
                 {% blocktranslate asvar title %}Edit instance{% endblocktranslate %}
-                <a href="{% url view.url_name_retrieve object.pk %}"
+                <a href="{% url view.url_name_update object.pk %}"
                    class="btn btn-outline-primary" role="button"
                    data-bs-toggle="tooltip"
                    title="{{ title }}"

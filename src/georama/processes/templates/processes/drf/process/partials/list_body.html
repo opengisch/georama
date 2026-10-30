@@ -1,0 +1,28 @@
+{% extends 'core/drf/default/partials/list_body.html' %}
+{% load static i18n %}
+{% block list_item_pills %}
+{% endblock %}
+
+{% block list_item_title %}
+    {{ item.title }}
+{% endblock %}
+{% block list_item_name %}
+{% endblock %}
+
+{% block list_item_image %}
+{% endblock %}
+
+{% block list_item_actions_additional %}
+    {% blocktranslate asvar title %}
+        Execute process
+    {% endblocktranslate %}
+
+    <a href="{% url 'processes:process-execution' item.pk %}"
+        class="btn btn-outline-primary"
+        role="button"
+        title="{{ title }}"
+        aria-label="{{ title }}"
+        data-bs-toggle="tooltip">
+        <i class="fa fa-play"></i>
+    </a>
+{% endblock %}

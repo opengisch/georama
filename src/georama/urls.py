@@ -27,6 +27,7 @@ urlpatterns = [
     path("features/", include("georama.features.urls")),
     path("maps/", include("georama.maps.urls")),
     path("webgis/", include("georama.webgis.urls")),
+    path("processes/", include("georama.processes.urls")),
     path("accounts/", include("allauth.urls")),
 ]
 

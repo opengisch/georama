@@ -82,6 +82,6 @@ class OgcOperation:
         )
 
     def obtain_accessible_layers(self, layer_ids: list[str] | None = None) -> list[WmsLayer]:
-        return self.model.objects.accessible_layers(
+        return self.model.objects.accessible_objects(
             self.organisation, self.user, self.perms, layer_ids, include_public=True
         ).all()
