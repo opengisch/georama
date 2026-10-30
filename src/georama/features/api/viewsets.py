@@ -1,4 +1,5 @@
 from asgiref.sync import sync_to_async
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -19,6 +20,7 @@ from georama.features.api.serializers import (
     FeatureLayerPermissionActionSerializer,
     FeatureLayerSerializer,
 )
+from georama.features.geometry_type import UnsupportedGeometryTypeError, geojson_geometry_type
 from georama.features.models import FeatureLayer, Metadata
 from georama.integration.models import Vector
 
@@ -75,6 +77,13 @@ class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
     async def publish_from_vector(self, request: GeoramaDrfRequest, *args, **kwargs):
         qs = Vector.objects.organisation_objects(request.georama_organisation)
         vector = await qs.aget(id=request.data["pk"])
+        try:
+            geojson_geometry_type(vector.geometry_type_wkb)
+        except UnsupportedGeometryTypeError as e:
+            messages.error(
+                request, _("Publishing '{name}' failed: {error}").format(name=vector.name, error=e)
+            )
+            return redirect(reverse("integration:manager-vector-list"))
         md = Metadata(title=vector.name)
         await md.asave()
         fl = FeatureLayer(datasource=vector, metadata=md)
