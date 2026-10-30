@@ -1,10 +1,10 @@
 from django.db import models, transaction
 
-from georama.core.common.managers import LayerManager
+from georama.core.common.managers import PublicOrProtectedManager
 from georama.features.models.field import Field
 
 
-class FeatureLayerManager(LayerManager):
+class FeatureLayerManager(PublicOrProtectedManager):
     def get_queryset(self) -> models.QuerySet:
         """Always prefetch bound fields to reduce queries.
 
