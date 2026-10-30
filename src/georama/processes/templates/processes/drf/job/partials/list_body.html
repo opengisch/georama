@@ -1,0 +1,14 @@
+{% extends 'core/drf/default/partials/list_body.html' %}
+{% load static i18n %}
+{% block list_item_pills %}
+{% endblock %}
+
+{% block list_item_title %}
+    {{ item.redis_job_id }}
+{% endblock %}
+{% block list_item_name %}
+    {{ item.process }}, {{item.created_at}} by {{item.created_by}}
+{% endblock %}
+
+{% block list_item_image %}
+{% endblock %}

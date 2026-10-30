@@ -1,0 +1,34 @@
+{% extends 'core/drf/default/partials/list_body.html' %}
+{% load static i18n %}
+{% block list_item_pills %}
+{% endblock %}
+
+{% block list_item_title %}
+    {{ item.display_name }}
+{% endblock %}
+{% block list_item_name %}
+{% endblock %}
+
+{% block list_item_image %}
+{% endblock %}
+
+{% block list_item_actions %}
+    {% blocktranslate asvar title %}
+        Publish QGIS algorithm
+    {% endblocktranslate %}
+    <form id="process-{{ item.id }}"
+        action="{% url view.url_name_list %}" method="post">
+        {% csrf_token %}
+        <input name="id" value="{{ item.id }}" hidden>
+    </form>
+    <button form="process-{{ item.id }}"
+            type="submit"
+            class="btn btn-outline-primary"
+            role="button"
+            title="{{ title }}"
+            aria-label="{{ title }}"
+            data-bs-toggle="tooltip">
+        <i class="fa fa-link"></i>
+    </button>
+
+{% endblock %}

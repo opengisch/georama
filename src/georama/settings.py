@@ -137,6 +137,11 @@ class Base(Configuration):
                     "level": log_level,
                     "propagate": False,
                 },
+                "processes": {
+                    "handlers": ["console"],
+                    "level": log_level,
+                    "propagate": False,
+                },
             },
         }
 
@@ -176,6 +181,7 @@ class Base(Configuration):
         "georama.features.apps.FeaturesConfig",
         "georama.maps.apps.MapsConfig",
         "georama.webgis.apps.WebGisConfig",
+        "georama.processes.apps.ProcessConfig",
         "allauth",
         "allauth.account",
         "allauth.socialaccount",

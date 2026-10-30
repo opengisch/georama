@@ -20,6 +20,7 @@ from drf_spectacular.plumbing import build_mock_request as original_build_mock_r
 from guardian.shortcuts import assign_perm, get_objects_for_user, remove_perm
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotAcceptable
 from rest_framework.permissions import AllowAny, BasePermission, DjangoModelPermissions
 from rest_framework.response import Response
 
@@ -264,18 +265,14 @@ class GeoramaTemplateViewSetReadOnly(
 
     @property
     def url_name_show(self):
-        return self.url_name("ashow")
+        return self.url_name("detail")
 
-    @action(
-        detail=True,
-        methods=["get"],
-        name="Show instance read only",
-        renderer_classes=[renderers.TemplateHTMLRenderer],
-    )
-    async def ashow(self, request, *args, **kwargs):
-        """Shows a read only representation of the detail."""
-        context = await self._prepare_single_context()
-        return Response(context, template_name=self.show_template_name)
+    async def aretrieve(self, request: GeoramaDrfRequest, *args, **kwargs):
+        """Render HTML detail requests as the read-only show page."""
+        if request.accepted_renderer.format == "html":
+            context = await self._prepare_single_context()
+            return Response(context, template_name=self.show_template_name)
+        return await super().aretrieve(request, *args, **kwargs)
 
     async def get_breadcrumbs(self):
         app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()
@@ -377,28 +374,25 @@ class GeoramaTemplateViewSet(
     def url_name_retrieve(self):
         return self.url_name("detail")
 
-    async def aretrieve(self, request: GeoramaDrfRequest, *args, **kwargs):
-        """Handles the standard retrieve of a model view
-        but returns a form in case of HTML format.
-        """
-        if request.accepted_renderer.format == "html":
-            context = await self._prepare_single_context()
-            context["serializer"] = self.get_serializer(context["object"])
-            return Response(context, template_name=self.form_template_name)
-        else:
-            return await super().aretrieve(request, *args, **kwargs)
-
     @property
     def url_name_update(self):
         return self.url_name("aform-update")
 
     @action(
         detail=True,
-        methods=["post"],
-        name="Update instance with a form request",
+        methods=["get", "post"],
+        url_path="update",
+        name="Update instance",
         renderer_classes=[renderers.TemplateHTMLRenderer],
     )
     async def aform_update(self, request, *args, **kwargs):
+        if request.method == "GET":
+            if request.accepted_renderer.format == "html":
+                context = await self._prepare_single_context()
+                context["serializer"] = self.get_serializer(context["object"])
+                return Response(context, template_name=self.form_template_name)
+            else:
+                raise NotAcceptable("This endpoint GET method only supports HTML.")
         await self.aupdate(request, *args, **kwargs)
         instance = await self.aget_object()
         return redirect(reverse(self.url_name_retrieve, kwargs={"pk": instance.pk}))
