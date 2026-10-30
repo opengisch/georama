@@ -1,0 +1,10 @@
+### GET request to example server
+POST http://localhost:5000/export
+Content-Type: application/json
+
+{
+  "id": 999,
+  "value": "content"
+}
+
+###

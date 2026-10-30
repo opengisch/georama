@@ -1,0 +1,11 @@
+{% load i18n %}
+{% blocktranslate asvar title %}
+    There is a newer version of this project available, you may
+    want to integrate it again
+{% endblocktranslate %}
+<span class="badge rounded-pill text-bg-warning"
+      data-bs-toggle="tooltip"
+      title="{{ title }}"
+      aria-label="{{ title }}">
+    outdated
+</span>

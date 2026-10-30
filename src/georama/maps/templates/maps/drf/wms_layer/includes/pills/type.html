@@ -1,0 +1,9 @@
+{% load i18n %}
+{% blocktranslate asvar type_tooltip %}
+    The datasource type this layer is based on
+{% endblocktranslate %}
+<i data-bs-toggle="tooltip"
+   title="{{ type_tooltip }}: {{ layer.datasource.type }}"
+   aria-label="{{ type_tooltip }}: {{ layer.datasource.type }}"
+   class="{{ layer.datasource.icon }} text-primary"
+   style="width: 1.5em;"></i>

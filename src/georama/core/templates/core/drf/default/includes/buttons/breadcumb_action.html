@@ -1,0 +1,17 @@
+<li class="breadcrumb-item breadcrumb-action">
+    <a
+            href="{{ breadcrumb_action.url }}"
+            class="btn btn-outline-primary"
+            role="button"
+            data-bs-toggle="tooltip"
+            title="{{ breadcrumb_action.tooltip }}"
+            aria-label="{{ breadcrumb_action.tooltip }}"
+    >
+        {% if breadcrumb_action.icon %}
+            <i class="{{ breadcrumb_action.icon }}"></i>
+            <span class="ps-1">{{ breadcrumb_action.title }}</span>
+        {% else %}
+            {{ breadcrumb_action.title }}
+        {% endif %}
+    </a>
+</li>

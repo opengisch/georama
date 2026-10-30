@@ -1,0 +1,242 @@
+from django.apps import apps
+from django.conf import settings
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, renderers, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+from xsdata.formats.dataclass.serializers import DictEncoder
+
+from georama.core.common.api import (
+    GeoramaManagerWithPermissionsViewSet,
+    GeoramaModelPermissions,
+    GeoramaObjPermViewSetReadOnly,
+)
+from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
+from georama.core.common.request import GeoramaDrfRequest
+from georama.integration.models import Project
+from georama.maps.services.wfs_2_0_0 import WfsOperation
+from georama.webgis.adapters.qsl import WmsLayerIndex, theme_json_from_project_config
+from georama.webgis.api.serializers import (
+    ThemeObjectPermissionSerializer,
+    ThemePermissionActionSerializer,
+    ThemeSerializer,
+    UrlShortenerCreateSerializer,
+    UrlShortenerRetrieveSerializer,
+)
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    OgcServer as GGOgcServer,
+)
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    ThemesJson as GGThemesJson,
+)
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.parsers import CustomDictDecoder
+from georama.webgis.models import Metadata, Theme, UrlShortener, WmsLayer
+
+
+class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
+    queryset = Theme.objects.all()
+    serializer_class = ThemeSerializer
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend,
+    ]
+    search_fields = ["metadata__title"]
+    ordering_fields = ["metadata__title", "public"]
+    filterset_fields = []
+    list_body_partial_template_name = "webgis/drf/theme/partials/list_body.html"
+
+    permissions_serializer_class = ThemeObjectPermissionSerializer
+    permissions_action_serializer_class = ThemePermissionActionSerializer
+
+    @property
+    async def bread_crumb_action_context(self):
+        """Prepares the breadcrumb action to add a theme.
+
+        Returns:
+            The context with an action to add a new theme in case the user has add-permission
+            on the theme model and is permitted to view projects.
+        """
+        context = {}
+        perm_checker = GeoramaModelPermissions()
+        # post is the DRF method which is used for add/create a new object
+        local_perms = perm_checker.get_required_permissions("POST", self.queryset.model)
+        # we also check if the remote data can be used (view)
+        remote_perms = perm_checker.get_required_permissions("GET", Project)
+        if all(
+            [
+                await self.request.user.ahas_perms(local_perms),
+                await self.request.user.ahas_perms(remote_perms),
+            ]
+        ):
+            context["breadcrumb_action"] = BreadcrumbAction(
+                url=reverse("integration:manager-project-list"),
+                tooltip=_("Publish a Project as Theme"),
+                hint=_("Select a project to publish it as a new Theme"),
+                title=_("Theme"),
+                type=ActionType.EMBEDDED,
+                icon="fa fa-circle-plus",
+            )
+        return context
+
+    @staticmethod
+    async def transfer_to_theme(project: Project) -> Theme:
+        highest_theme = await Theme.objects.order_by("ordering").alast()
+        metadata = Metadata(title=project.name)
+        await metadata.asave()
+
+        theme = Theme(
+            project=project,
+            metadata=metadata,
+            public=False,
+            ordering=highest_theme.ordering + 1 if highest_theme else 1,
+            # temporarily we set this
+            theme_json={},
+            background_layers=[],
+            ogc_servers={},
+        )
+        await theme.asave()
+        return theme
+
+    @property
+    def publish_from_project_url_name(self):
+        return self.url_name("publish-from-project")
+
+    @action(detail=False, methods=["post"], url_path="publish_from_project")
+    async def publish_from_project(self, request: GeoramaDrfRequest, *args, **kwargs):
+        qs = Project.objects.organisation_objects(request.georama_organisation)
+        project = await qs.aget(id=request.data["pk"])
+        wms_layer_index: WmsLayerIndex = {}
+        theme = await self.transfer_to_theme(project)
+        async for ds in project.datasources.all():
+            wl = WmsLayer(
+                datasource=ds,
+                extent=ds.bbox,
+                extent_wgs84=ds.bbox_wgs84,
+                metadata=Metadata(title=ds.name),
+                theme=theme,
+            )
+            wms_layer_index[ds.qgis_layer_id] = wl
+        await Metadata.objects.abulk_create(
+            [wms_layer.metadata for wms_layer in wms_layer_index.values()]
+        )
+        await WmsLayer.objects.abulk_create(wms_layer_index.values())
+        gg_theme, background_layers, ogc_servers = await theme_json_from_project_config(
+            str(theme.id), theme.icon_default, project.config_as_dataclass, wms_layer_index
+        )
+        theme.theme_json = DictEncoder().encode(gg_theme)
+        theme.background_layers = DictEncoder().encode(background_layers)
+        theme.ogc_servers = {
+            name: DictEncoder().encode(server) for name, server in ogc_servers.items()
+        }
+        await theme.asave()
+        return redirect(reverse(self.url_name_list))
+
+
+class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
+    queryset = Theme.objects.all()
+    serializer_class = ThemeSerializer
+    required_obj_perms = ["webgis.view_published_theme"]
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend,
+    ]
+    search_fields = ["metadata__title"]
+    ordering_fields = ["metadata__title", "public"]
+    filterset_fields = []
+    list_body_partial_template_name = "webgis/drf/theme/partials/list_body.html"
+
+    async def get_breadcrumbs(self):
+        app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()
+        return [
+            Breadcrumb(app_menu.title),
+            Breadcrumb(self.queryset.model._meta.verbose_name_plural),
+        ]
+
+    def georama_ogc_server(self, request: GeoramaDrfRequest) -> GGOgcServer:
+        return GGOgcServer(
+            url=request.build_absolute_uri(reverse("webgis:ows_entry")),
+            url_wfs=request.build_absolute_uri(reverse("webgis:ows_entry")),
+            type=settings.WEBGIS_OGC_SERVER_NAME,
+            credential=False,
+            image_type="image/png",
+            is_single_tile=False,
+            name=settings.WEBGIS_OGC_SERVER_NAME,
+            namespace=WfsOperation.own_namespace_domain,
+            wfs_support=True,
+        )
+
+    @action(detail=False, methods=["GET"], renderer_classes=[renderers.JSONRenderer])
+    async def geogirafe(self, request: GeoramaDrfRequest, *args, **kwargs):
+        qs = await self.public_or_object_permission(self.get_queryset())
+
+        themes_json = GGThemesJson(
+            ogc_servers={
+                settings.WEBGIS_OGC_SERVER_NAME: DictEncoder().encode(
+                    self.georama_ogc_server(request)
+                )
+            },
+            themes=[],
+            background_layers=[],
+        )
+
+        async for theme in qs.all():
+            # this is necessary, since the automatically generated demo data has no valid json
+            if theme.theme_json != {}:
+                # NOTE: We use a special extended encoder here, not the default XSData variant!
+                gg_theme = CustomDictDecoder().decode(theme.theme_json, GGTheme)
+                gg_theme.icon = request.build_absolute_uri(gg_theme.icon)
+                themes_json.themes.append(gg_theme)
+                themes_json.background_layers.extend(theme.background_layers)
+                themes_json.ogc_servers.update(theme.ogc_servers)
+        data = DictEncoder().encode(themes_json)
+        data["ogcServers"] = themes_json.ogc_servers
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        renderer_classes=[renderers.JSONRenderer],
+        url_path="translation/(?P<lang>[^/.]+)",
+    )
+    async def translation(self, request: GeoramaDrfRequest, *args, **kwargs):
+        # Quick fix: whatever the GeoGirafe language, the original titles are returned
+        # (keyed by the requested language so GeoGirafe accepts them).
+        lang = kwargs["lang"]
+        translation = {lang: {}}
+        qs = await self.public_or_object_permission(self.get_queryset())
+        async for theme in qs:
+            translation[lang][theme.identifier] = theme.metadata.title
+            async for layer in theme.wms_layers.all():
+                translation[lang][layer.identifier] = layer.metadata.title
+                # the selection grid uses the WFS feature type name as tab title
+                translation[lang][WfsOperation.encode_layer_name(layer.identifier)] = (
+                    layer.metadata.title
+                )
+        return Response(data=translation, status=status.HTTP_200_OK)
+
+
+class UrlShortenerViewSet(ModelViewSet):
+    """Creates and resolves short URLs for GeoGirafe.
+
+    GeoGirafe dont know about CSRF token. `SessionAuthentication`
+    enforces CSRF for logged in users only, so their POSTs were rejected. The shortener
+    does not depend on the user, hence no authentication at all.
+    """
+
+    queryset = UrlShortener.objects.all()
+    http_method_names = ["get", "post"]
+    authentication_classes = []
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return UrlShortenerCreateSerializer
+        if self.action == "retrieve":
+            return UrlShortenerRetrieveSerializer
+        raise AssertionError(f"Unsupported action: {self.action}")

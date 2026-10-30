@@ -1,0 +1,14 @@
+{% extends 'core/drf/default/partials/list_body.html' %}
+{% load i18n %}
+{% block list_item_pills_additional %}
+    {% include "integration/drf/datasource/includes/pills/driver.html" with datasource=item.datasource %}
+    {% include "maps/drf/wms_layer/includes/pills/type.html" with layer=item %}
+    {% include "maps/drf/wms_layer/includes/pills/queryable.html" with layer=item %}
+{% endblock %}
+{% block list_item_actions_additional %}
+    {% include 'maps/drf/wms_layer/includes/buttons/generate_preview.html' with layer=item %}
+    {% include 'maps/drf/wms_layer/includes/buttons/open_wms_layer.html' with layer=item %}
+{% endblock %}
+{% block list_item_image %}
+    {% include "maps/drf/wms_layer/partials/preview.html" %}
+{% endblock %}

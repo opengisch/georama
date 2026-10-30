@@ -1,0 +1,14 @@
+{% load i18n %}
+{% blocktranslate asvar title %}
+    Open collection endpoint
+{% endblocktranslate %}
+<a href="{% url 'features:api-collection-detail' layer.identifier %}"
+   target="_blank"
+   rel="noopener"
+   class="btn btn-outline-primary"
+   role="button"
+   title="{{ title }}"
+   aria-label="{{ title }}"
+   data-bs-toggle="tooltip">
+    <i class="fa fa-arrow-up-right-from-square"></i>
+</a>

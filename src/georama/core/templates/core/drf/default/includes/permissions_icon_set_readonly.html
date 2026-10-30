@@ -1,0 +1,35 @@
+{% comment %}
+    list of non-clickable icons describing available permissions for an entity
+{% endcomment %}
+
+{% if 'can_view' in available_permissions %}
+    <div class="flex-grow-1 text-center">
+        <a class="p-1 px-lg-3 btn btn-outline-primary btn-permission inherited {% if not readonly_permission.can_view %} inactive {% endif %} disabled" disabled>
+            {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="view" %}
+        </a>
+    </div>
+{% endif %}
+
+{% if 'can_create' in available_permissions %}
+    <div class="flex-grow-1 text-center">
+        <a class="p-1 px-lg-3 btn btn-outline-primary btn-permission inherited {% if not readonly_permission.can_create %} inactive {% endif %} disabled" disabled>
+            {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="create" %}
+        </a>
+    </div>
+{% endif %}
+
+{% if 'can_update' in available_permissions %}
+    <div class="flex-grow-1 text-center">
+        <a class="p-1 px-lg-3 btn btn-outline-primary btn-permission inherited {% if not readonly_permission.can_update %} inactive {% endif %} disabled" disabled>
+            {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="update" %}
+        </a>
+    </div>
+{% endif %}
+
+{% if 'can_delete' in available_permissions %}
+    <div class="flex-grow-1 text-center">
+        <a class="p-1 px-lg-3 btn btn-outline-primary btn-permission inherited {% if not readonly_permission.can_delete %} inactive {% endif %} disabled" disabled>
+            {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission="delete" %}
+        </a>
+    </div>
+{% endif %}

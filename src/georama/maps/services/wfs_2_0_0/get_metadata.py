@@ -6,8 +6,6 @@ from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 
-from georama.data_integration.models import VectorDataSet
-from georama.maps.admin import PublishedAsWmsAdmin
 from georama.maps.interfaces.iso.tc211.gmd.dataclasses import (
     CharacterStringPropertyType,
     CiCitation,
@@ -32,34 +30,22 @@ from georama.maps.interfaces.iso.tc211.gmd.dataclasses import (
     UrlPropertyType,
 )
 from georama.maps.maps_config import Config
-from georama.maps.models import PublishedAsWms
+from georama.maps.models import WmsLayer
 from georama.maps.services import OgcOperation
+from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 
 class WfsGetMetadata(OgcOperation):
+    model: WmsLayer
+
     @property
     def allowed_formats(self) -> list[str]:
         return ["TEXT/XML", "APPLICATION/JSON"]
 
-    def obtain_accessible_layers(
-        self, layer_names: list[str] | None = None
-    ) -> list[PublishedAsWms]:
-        accessible_layers = []
-        published_as = PublishedAsWms.objects.get(name=layer_names[0])
-        if published_as.has_read_permission(self.user, self.appname):
-            if isinstance(published_as.vector_dataset, VectorDataSet):
-                accessible_layers.append(published_as)
-            else:
-                logging.debug(
-                    "linked dataset has to be VectorDataSet for"
-                    " WFS 2.0.0, all others are ignored!"
-                )
-        return accessible_layers
-
     def create_layer_distributioninfo_info(
-        self, layer_name: str, wms_link_png: str, wfs_link_gml3: str
+        self, layer_name: str, wms_link_png: str, wfs_link_gml3: str, layer_queryable: bool
     ) -> list[CiOnlineResourcePropertyType]:
-        return [
+        distribution_info = [
             CiOnlineResourcePropertyType(
                 ci_online_resource=CiOnlineResource(
                     linkage=UrlPropertyType(url=Url(value=wms_link_png)),
@@ -76,36 +62,36 @@ class WfsGetMetadata(OgcOperation):
                     ),
                 )
             ),
-            CiOnlineResourcePropertyType(
-                ci_online_resource=CiOnlineResource(
-                    linkage=UrlPropertyType(url=Url(value=wfs_link_gml3)),
-                    protocol=CharacterStringPropertyType(
-                        localised_character_string=LocalisedCharacterString(
-                            value="WWW:DOWNLOAD-1.0-http--download"
-                        )
-                    ),
-                    name=CharacterStringPropertyType(
-                        localised_character_string=LocalisedCharacterString(value=layer_name)
-                    ),
-                    description=CharacterStringPropertyType(
-                        localised_character_string=LocalisedCharacterString(
-                            value="GML3 Format"
-                        )
-                    ),
-                )
-            ),
         ]
+        if layer_queryable:
+            distribution_info.append(
+                CiOnlineResourcePropertyType(
+                    ci_online_resource=CiOnlineResource(
+                        linkage=UrlPropertyType(url=Url(value=wfs_link_gml3)),
+                        protocol=CharacterStringPropertyType(
+                            localised_character_string=LocalisedCharacterString(
+                                value="WWW:DOWNLOAD-1.0-http--download"
+                            )
+                        ),
+                        name=CharacterStringPropertyType(
+                            localised_character_string=LocalisedCharacterString(value=layer_name)
+                        ),
+                        description=CharacterStringPropertyType(
+                            localised_character_string=LocalisedCharacterString(value="GML3 Format")
+                        ),
+                    )
+                ),
+            )
+        return distribution_info
 
-    def create_layer_reference_system_info(
-        self, layer: PublishedAsWms
-    ) -> MdReferenceSystemPropertyType:
+    def create_layer_reference_system_info(self, layer: WmsLayer) -> MdReferenceSystemPropertyType:
         return MdReferenceSystemPropertyType(
             md_reference_system=MdReferenceSystem(
                 reference_system_identifier=RsIdentifierPropertyType(
                     rs_identifier=RsIdentifier(
                         code=CharacterStringPropertyType(
                             localised_character_string=LocalisedCharacterString(
-                                value=layer.bound_dataset.crs_to_qsl.auth_id
+                                value=layer.datasource.crs_to_qsl.auth_id
                             )
                         ),
                         code_space=CharacterStringPropertyType(
@@ -122,24 +108,24 @@ class WfsGetMetadata(OgcOperation):
         )
 
     def create_layer_identification_info(
-        self, layer: PublishedAsWms, language: str
+        self, layer: WmsLayer, language: str
     ) -> MdIdentificationPropertyType:
-        layer_bbox = BBox.from_string(layer.bound_dataset.bbox_wgs84)
+        layer_bbox = BBox.from_string(layer.datasource.bbox_wgs84)
         return MdIdentificationPropertyType(
             md_data_identification=MdDataIdentification(
-                id=layer.name,
+                id=layer.identifier,
                 citation=CiCitationPropertyType(
                     ci_citation=CiCitation(
                         title=CharacterStringPropertyType(
                             localised_character_string=LocalisedCharacterString(
-                                value=layer.title
+                                value=layer.metadata.title
                             )
                         )
                     )
                 ),
                 abstract=CharacterStringPropertyType(
                     localised_character_string=LocalisedCharacterString(
-                        value=layer.description
+                        value=layer.metadata.description
                     )
                 ),
                 language=[
@@ -154,24 +140,16 @@ class WfsGetMetadata(OgcOperation):
                                 ExGeographicExtentPropertyType(
                                     ex_geographic_bounding_box=ExGeographicBoundingBox(
                                         west_bound_longitude=DecimalPropertyType(
-                                            decimal=DecimalType(
-                                                value=Decimal(layer_bbox.x_min)
-                                            )
+                                            decimal=DecimalType(value=Decimal(layer_bbox.x_min))
                                         ),
                                         east_bound_longitude=DecimalPropertyType(
-                                            decimal=DecimalType(
-                                                value=Decimal(layer_bbox.x_max)
-                                            )
+                                            decimal=DecimalType(value=Decimal(layer_bbox.x_max))
                                         ),
                                         south_bound_latitude=DecimalPropertyType(
-                                            decimal=DecimalType(
-                                                value=Decimal(layer_bbox.y_min)
-                                            )
+                                            decimal=DecimalType(value=Decimal(layer_bbox.y_min))
                                         ),
                                         north_bound_latitude=DecimalPropertyType(
-                                            decimal=DecimalType(
-                                                value=Decimal(layer_bbox.y_max)
-                                            )
+                                            decimal=DecimalType(value=Decimal(layer_bbox.y_max))
                                         ),
                                     )
                                 )
@@ -187,25 +165,37 @@ class WfsGetMetadata(OgcOperation):
             localised_character_string=LocalisedCharacterString(value=layer_name)
         )
 
+    @staticmethod
+    def clean_layername(layername: str) -> str:
+        namespace_separator = ":"
+        layername_parts = layername.split(namespace_separator)
+        if len(layername_parts) == 2:
+            return WfsOperation.decode_layer_name(layername_parts[1])
+        elif len(layername_parts) == 1:
+            return WfsOperation.decode_layer_name(layername_parts[0])
+        raise LookupError(f"Layername had unexpected format: {layername}")
+
     def get_metadata(self, layer_name: str, language: str) -> MdMetadata:
+        """Builds the metadata record of a layer.
+
+        Attributes:
+        layer_name: name of WMS/WFS Layer
+        language: in the form `en-US`
+        layer_geometry_type: `complex`|`composite`|`curve`|`point`|`solid`|`surface`
         """
-        Attibutes:
-            layer_name: name of WMS/WFS Layer
-            language: in the form `en-US`
-            layer_geometry_type: `complex`|`composite`|`curve`|`point`|`solid`|`surface`
-        """
-        found_layer = self.obtain_accessible_layers([layer_name])[0]
-        wms_link_png = f"{self.url}{PublishedAsWmsAdmin.create_wms_url_params(found_layer)}"
+        found_layer = self.obtain_accessible_layers([self.clean_layername(layer_name)])[0]
+        wms_link_png = f"{self.url}{found_layer.create_wms_url_params}"
         wfs_link_gml3 = (
             f"{self.url}"
-            f"{PublishedAsWmsAdmin.create_wfs_url_params(found_layer, output_format='APPLICATION/GML+XML; VERSION=3.2')}"  # noqa: E501
+            f"{found_layer.create_wfs_url_params(output_format='APPLICATION/GML+XML; VERSION=3.2')}"
+            # noqa: E501
         )
-        BBox.from_string(found_layer.bound_dataset.bbox_wgs84)
+        BBox.from_string(found_layer.datasource.bbox_wgs84)
         # TODO: Make that catched from configuration as we do for WMS already!
         config = Config().wfs_get_metadata_config(self.url)
         decoder = DictDecoder()
         metadata = decoder.decode(config, MdMetadata)
-        metadata.file_identifier = self.create_file_identification_info(found_layer.name)
+        metadata.file_identifier = self.create_file_identification_info(found_layer.identifier)
         metadata.identification_info = [
             self.create_layer_identification_info(found_layer, language)
         ]
@@ -213,16 +203,14 @@ class WfsGetMetadata(OgcOperation):
         metadata.distribution_info.md_distribution.transfer_options[
             0
         ].md_digital_transfer_options.on_line = self.create_layer_distributioninfo_info(
-            found_layer.name, wms_link_png, wfs_link_gml3
+            found_layer.identifier, wms_link_png, wfs_link_gml3, found_layer.is_queryable
         )
         return metadata
 
     @staticmethod
     def render_xml(metadata: MdMetadata) -> str:
         serializer = XmlSerializer(
-            config=SerializerConfig(
-                schema_location="gmd http://www.isotc211.org/2005/gmd/gmd.xsd"
-            )
+            config=SerializerConfig(schema_location="gmd http://www.isotc211.org/2005/gmd/gmd.xsd")
         )
         return serializer.render(
             metadata,

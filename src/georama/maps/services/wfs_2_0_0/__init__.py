@@ -1,17 +1,17 @@
-import logging
-
+from qgis_server_light.interface.common import Crs
 from xsdata.formats.dataclass.serializers import XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 
-from georama.data_integration.models import VectorDataSet
 from georama.maps.interfaces.ogc.wfs_2_0_0 import Exception as Wfs200Exception
 from georama.maps.interfaces.ogc.wfs_2_0_0 import ExceptionReport
-from georama.maps.models import PublishedAsWms
+from georama.maps.maps_config import Config
+from georama.maps.models import WmsLayer
 from georama.maps.services import OgcOperation
 
 
 class WfsOperation(OgcOperation):
     own_namespace = "georama"
+    own_namespace_domain = "https://www.opengis.ch/georama"
 
     @staticmethod
     def create_exception(message: str) -> ExceptionReport:
@@ -23,9 +23,7 @@ class WfsOperation(OgcOperation):
                     exception_text=["It was not possible to process the request"],
                     locator="GetFeature",
                 ),
-                Wfs200Exception(
-                    exception_code="InvalidParameterValue", exception_text=[message]
-                ),
+                Wfs200Exception(exception_code="InvalidParameterValue", exception_text=[message]),
             ],
         )
 
@@ -51,14 +49,15 @@ class WfsOperation(OgcOperation):
         )
 
     def sanitized_typenames(self, type_names: list[str]) -> list[str]:
-        """
-        Method to bridge layer names which are configured in Georama and the
+        """Method to bridge layer names which are configured in Georama and the
         version which is exposed by WFS containing the namespace.
+
         Args:
             type_names: The names which should be sanitized.
 
         Returns:
             The sanitized names.
+
         Raises:
             AttributeError: In case namespace is not in all typenames.
         """
@@ -70,7 +69,7 @@ class WfsOperation(OgcOperation):
                 # no namespace as part of the typename we assume that the
                 # requested typename is out
                 # of the default namespace self.own_namespace
-                sanitized_typenames.append(name_parts[0])
+                sanitized_typenames.append(self.decode_layer_name(name_parts[0]))
             elif len(name_parts) == 2:
                 if self.own_namespace != name_parts[0]:
                     # the requested typename belongs not to our namespace, we do
@@ -78,11 +77,10 @@ class WfsOperation(OgcOperation):
                     wrong_typenames.append(name)
                 else:
                     # the requested typename belongs to our namespace
-                    sanitized_typenames.append(name.replace(f"{self.own_namespace}:", ""))
+                    sanitized_typenames.append(self.decode_layer_name(name_parts[1]))
             else:
                 wrong_typenames.append(
-                    f"typename has unexpected format (expected '<namespace>:<name>')"
-                    f" got {name}"
+                    f"typename has unexpected format (expected '<namespace>:<name>') got {name}"
                 )
         if len(wrong_typenames) > 0:
             raise AttributeError(
@@ -94,23 +92,23 @@ class WfsOperation(OgcOperation):
             )
         return sanitized_typenames
 
-    def obtain_accessible_layers(
-        self, layer_names: list[str] | None = None
-    ) -> list[PublishedAsWms]:
-        accessible_layers = []
-        for published_as in self.model.objects.all():
-            # published_as.extent_wgs84 is provided only by layers which contain geometries
-            # but we can have geometry less layers in QGIS Projects. This way we ignore them
-            if (
-                published_as.has_read_permission(self.user, self.appname)
-                and published_as.queryable
-                and published_as.extent_wgs84
-            ):
-                if isinstance(published_as.vector_dataset, VectorDataSet):
-                    accessible_layers.append(published_as)
-                else:
-                    logging.debug(
-                        "linked dataset has to be VectorDataSet"
-                        " for WFS 2.0.0, all others are ignored!"
-                    )
-        return accessible_layers
+    def obtain_accessible_layers(self, layer_ids: list[str] | None = None) -> list[WmsLayer]:
+        return self.model.objects.accessible_layers_queryable(
+            self.organisation, self.user, self.perms, layer_ids, include_public=True
+        ).all()
+
+    def supported_crs(self, layer_crs: Crs) -> list[Crs]:
+        """The crs a layer is offered in: its own crs (DefaultCRS) first, followed by the
+        crs configured for the app (OtherCRS).
+
+        Args:
+            layer_crs: The crs of the layer.
+
+        Returns:
+            The supported crs without duplicates, the layer crs is always the first.
+        """
+        supported_crs = [layer_crs]
+        for other_crs in Config().other_crs(self.appname):
+            if other_crs.auth_id.lower() != (layer_crs.auth_id or "").lower():
+                supported_crs.append(other_crs)
+        return supported_crs

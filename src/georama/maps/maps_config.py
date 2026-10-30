@@ -1,6 +1,7 @@
 from xml.etree.ElementTree import QName
 
 from django.conf import settings
+from qgis_server_light.interface.common import Crs
 
 import georama.maps.interfaces.ogc.wms_1_3_0.capabilities as wms130_capabilities
 from georama.maps.interfaces.ogc import wfs_2_0_0
@@ -21,10 +22,41 @@ class Config:
 
     @property
     def job_timeout(self) -> float:
-        """
-        Timeout in milliseconds
-        """
+        """Timeout in milliseconds."""
         return settings.JOB_TIMEOUT
+
+    # The crs are resolved by QSL and cached per process (settings don't change at
+    # runtime), see `georama.maps.adapter.qsl.resolve_other_crs`. Keyed by app name.
+    resolved_other_crs: dict[str, list[Crs]] = {}
+
+    def other_crs_identifiers(self, appname: str) -> list[str]:
+        """The identifiers of the crs which are offered in addition to the crs of a layer,
+        configured per app (e.g. `MAPS_OGC_OTHER_CRS`, `WEBGIS_OGC_OTHER_CRS`).
+
+        Args:
+            appname: The simple name of the app, e.g. `maps` or `webgis`.
+
+        Returns:
+            The configured identifiers.
+        """
+        return getattr(settings, f"{appname.upper()}_OGC_OTHER_CRS", [])
+
+    def other_crs(self, appname: str) -> list[Crs]:
+        """The crs which are offered in addition to the crs of a layer as they were resolved
+        by QSL.
+
+        Args:
+            appname: The simple name of the app, e.g. `maps` or `webgis`.
+
+        Returns:
+            The resolved crs without duplicates, in the configured order.
+
+        Raises:
+            RuntimeError: In case the crs were not resolved before.
+        """
+        if appname not in self.resolved_other_crs:
+            raise RuntimeError(f"The other crs of the app {appname} were not resolved by QSL")
+        return self.resolved_other_crs[appname]
 
     def wms_1_3_0_service_config(self, url: str) -> wms130_capabilities.Service:
         service_config = wms130_capabilities.Service(
@@ -34,9 +66,7 @@ class Config:
             keyword_list=wms130_capabilities.KeywordList(
                 keyword=[
                     wms130_capabilities.Keyword(value="fast", vocabulary="ISO"),
-                    wms130_capabilities.Keyword(
-                        value="infoMapAccessService", vocabulary="ISO"
-                    ),
+                    wms130_capabilities.Keyword(value="infoMapAccessService", vocabulary="ISO"),
                 ]
             ),
             contact_information=wms130_capabilities.ContactInformation(
@@ -78,9 +108,7 @@ class Config:
                         wms130_capabilities.Dcptype(
                             http=wms130_capabilities.Http(
                                 get=wms130_capabilities.Get(
-                                    online_resource=wms130_capabilities.OnlineResource(
-                                        href=url
-                                    )
+                                    online_resource=wms130_capabilities.OnlineResource(href=url)
                                 )
                             )
                         )
@@ -92,9 +120,7 @@ class Config:
                         wms130_capabilities.Dcptype(
                             http=wms130_capabilities.Http(
                                 get=wms130_capabilities.Get(
-                                    online_resource=wms130_capabilities.OnlineResource(
-                                        href=url
-                                    )
+                                    online_resource=wms130_capabilities.OnlineResource(href=url)
                                 )
                             )
                         )
@@ -117,9 +143,7 @@ class Config:
                 keyword_list=wms130_capabilities.KeywordList(
                     keyword=[
                         wms130_capabilities.Keyword(value="fast", vocabulary="ISO"),
-                        wms130_capabilities.Keyword(
-                            value="infoMapAccessService", vocabulary="ISO"
-                        ),
+                        wms130_capabilities.Keyword(value="infoMapAccessService", vocabulary="ISO"),
                     ]
                 ),
                 crs=[
@@ -495,9 +519,7 @@ class Config:
                                 name="outputFormat",
                                 choice=wfs_2_0_0.AllowedValues(
                                     value_or_range=[
-                                        wfs_2_0_0.Value1(
-                                            value="application/gml+xml; version=3.2"
-                                        ),
+                                        wfs_2_0_0.Value1(value="application/gml+xml; version=3.2"),
                                         wfs_2_0_0.Value1(value="text/xml; subtype=gml/3.2.1"),
                                         wfs_2_0_0.Value1(value="text/json"),
                                     ]
@@ -522,9 +544,7 @@ class Config:
                                 name="outputFormat",
                                 choice=wfs_2_0_0.AllowedValues(
                                     value_or_range=[
-                                        wfs_2_0_0.Value1(
-                                            value="application/gml+xml; version=3.2"
-                                        ),
+                                        wfs_2_0_0.Value1(value="application/gml+xml; version=3.2"),
                                         wfs_2_0_0.Value1(value="text/xml; subtype=gml/3.2.1"),
                                         wfs_2_0_0.Value1(value="text/json"),
                                     ]
@@ -549,9 +569,7 @@ class Config:
                                 name="outputFormat",
                                 choice=wfs_2_0_0.AllowedValues(
                                     value_or_range=[
-                                        wfs_2_0_0.Value1(
-                                            value="application/gml+xml; version=3.2"
-                                        ),
+                                        wfs_2_0_0.Value1(value="application/gml+xml; version=3.2"),
                                         wfs_2_0_0.Value1(value="text/xml; subtype=gml/3.2.1"),
                                         wfs_2_0_0.Value1(value="text/json"),
                                     ]
@@ -603,9 +621,7 @@ class Config:
                             postal_code="7031",
                         ),
                         hours_of_service="09:00 - 16:00",
-                        online_resource=wfs_2_0_0.OnlineResourceType(
-                            href="https://opengis.ch"
-                        ),
+                        online_resource=wfs_2_0_0.OnlineResourceType(href="https://opengis.ch"),
                     ),
                     individual_name=wfs_2_0_0.IndividualName(
                         value="Rudert, Clemens",
@@ -636,26 +652,16 @@ class Config:
                 {
                     "CI_ResponsibleParty": {
                         "id": "contact",
-                        "individualName": {
-                            "LocalisedCharacterString": {
-                                "value": "Fachstelle für Geoinformation"
-                            }
-                        },
+                        "individualName": {"LocalisedCharacterString": {"value": "Clemens Rudert"}},
                         "organisationName": {
-                            "LocalisedCharacterString": {
-                                "value": "Grundbuch- und Vermessungsamt"
-                            }
+                            "LocalisedCharacterString": {"value": "OPENGIS.ch GmbH"}
                         },
                         "contactInfo": {
                             "CI_Contact": {
                                 "phone": {
                                     "CI_Telephone": {
                                         "voice": [
-                                            {
-                                                "LocalisedCharacterString": {
-                                                    "value": "+41612679953"
-                                                }
-                                            }
+                                            {"LocalisedCharacterString": {"value": "+417xyz"}}
                                         ],
                                     },
                                     "type": "simple",
@@ -665,20 +671,16 @@ class Config:
                                         "deliveryPoint": [
                                             {
                                                 "LocalisedCharacterString": {
-                                                    "value": "Dufourstrasse 40/50, Postfach",
+                                                    "value": "Via Geinas 2",
                                                 }
                                             }
                                         ],
-                                        "city": {
-                                            "LocalisedCharacterString": {"value": "Basel"}
-                                        },
+                                        "city": {"LocalisedCharacterString": {"value": "Laax"}},
                                         "administrativeArea": {
-                                            "LocalisedCharacterString": {
-                                                "value": "Basel-Stadt"
-                                            }
+                                            "LocalisedCharacterString": {"value": "Graubünden"}
                                         },
                                         "postalCode": {
-                                            "LocalisedCharacterString": {"value": "4001"}
+                                            "LocalisedCharacterString": {"value": "7031"}
                                         },
                                         "country": {
                                             "LocalisedCharacterString": {"value": "Schweiz"}
@@ -686,7 +688,7 @@ class Config:
                                         "electronicMailAddress": [
                                             {
                                                 "LocalisedCharacterString": {
-                                                    "value": "geo@bs.ch"
+                                                    "value": "sales@opengis.ch"
                                                 }
                                             }
                                         ],
@@ -695,7 +697,7 @@ class Config:
                                 },
                                 "onlineResource": {
                                     "CI_OnlineResource": {
-                                        "linkage": {"URL": {"value": "https://wms.geo.bs.ch"}}
+                                        "linkage": {"URL": {"value": "https://www.opengis.ch"}}
                                     },
                                     "type": "simple",
                                 },
@@ -734,14 +736,10 @@ class Config:
                                     "CI_ResponsibleParty": {
                                         "id": "contact",
                                         "individualName": {
-                                            "LocalisedCharacterString": {
-                                                "value": "Fachstelle für Geoinformation"
-                                            }
+                                            "LocalisedCharacterString": {"value": "Clemens Rudert"}
                                         },
                                         "organisationName": {
-                                            "LocalisedCharacterString": {
-                                                "value": "Grundbuch- und Vermessungsamt"
-                                            }
+                                            "LocalisedCharacterString": {"value": "OPENGIS.ch GmbH"}
                                         },
                                         "contactInfo": {
                                             "CI_Contact": {
@@ -750,7 +748,7 @@ class Config:
                                                         "voice": [
                                                             {
                                                                 "LocalisedCharacterString": {
-                                                                    "value": "+41612679953",
+                                                                    "value": "+417xyz",
                                                                 }
                                                             }
                                                         ],
@@ -763,23 +761,23 @@ class Config:
                                                         "deliveryPoint": [
                                                             {
                                                                 "LocalisedCharacterString": {
-                                                                    "value": "Dufourstrasse 40/50, Postfach",  # noqa: E501
+                                                                    "value": "Via Geinas 2",  # noqa: E501
                                                                 }
                                                             }
                                                         ],
                                                         "city": {
                                                             "LocalisedCharacterString": {
-                                                                "value": "Basel",
+                                                                "value": "Laax",
                                                             },
                                                         },
                                                         "administrativeArea": {
                                                             "LocalisedCharacterString": {
-                                                                "value": "Basel-Stadt",
+                                                                "value": "Graubünden",
                                                             }
                                                         },
                                                         "postalCode": {
                                                             "LocalisedCharacterString": {
-                                                                "value": "4001",
+                                                                "value": "7031",
                                                             },
                                                         },
                                                         "country": {
@@ -790,7 +788,7 @@ class Config:
                                                         "electronicMailAddress": [
                                                             {
                                                                 "LocalisedCharacterString": {
-                                                                    "value": "geo@bs.ch",
+                                                                    "value": "sales@opengis.ch",
                                                                 },
                                                             }
                                                         ],
@@ -801,7 +799,7 @@ class Config:
                                                     "CI_OnlineResource": {
                                                         "linkage": {
                                                             "URL": {
-                                                                "value": "https://wms.geo.bs.ch"
+                                                                "value": "https://www.opengis.ch"
                                                             },
                                                         },
                                                     },

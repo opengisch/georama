@@ -1,0 +1,24 @@
+# categories of the generated release notes, a PR is listed in the first matching category
+changelog:
+  categories:
+    - title: Core changes
+      labels:
+        - core
+    - title: Integration changes
+      labels:
+        - integration
+    - title: Maps changes
+      labels:
+        - maps
+    - title: Features changes
+      labels:
+        - features
+    - title: WebGis changes
+      labels:
+        - webgis
+    - title: Dependency Changes
+      labels:
+        - dependencies
+    - title: Other changes
+      labels:
+        - "*"

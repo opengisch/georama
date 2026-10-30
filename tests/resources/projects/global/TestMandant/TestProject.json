@@ -1,0 +1,125 @@
+{
+  "project": {
+    "version": "TestProject",
+    "name": ""
+  },
+  "meta_data": {
+    "service": {
+      "contact_organization": "",
+      "contact_mail": "",
+      "contact_person": "",
+      "contact_phone": "",
+      "contact_position": "",
+      "fees": "conditions unknown",
+      "keyword_list": "",
+      "online_resource": "",
+      "service_abstract": "",
+      "service_title": "",
+      "resource_url": ""
+    },
+    "links": [],
+    "language": "",
+    "categories": [],
+    "creationDateTime": "2025-06-25T21:15:29",
+    "author": ""
+  },
+  "tree": {
+    "members": [
+      {
+        "id": "",
+        "name": "",
+        "children": [
+          "TestPointLayer_e7b906c8_9404_4393_b05e_e72af3eb976b"
+        ]
+      }
+    ]
+  },
+  "datasets": {
+    "vector": [
+      {
+        "id": "TestPointLayer_e7b906c8_9404_4393_b05e_e72af3eb976b",
+        "name": "TestPointLayer_e7b906c8_9404_4393_b05e_e72af3eb976b",
+        "title": "TestPointLayer",
+        "source": {
+          "postgres": null,
+          "wmts": null,
+          "wms": null,
+          "ogr": {
+            "path": "data/TestPointLayer.gpkg",
+            "layer_name": "TestPointLayer",
+            "vsi_prefix": null,
+            "layer_id": null,
+            "subset": null
+          },
+          "gdal": null,
+          "wfs": null,
+          "vector_tile": null,
+          "xyz": null
+        },
+        "driver": "ogr",
+        "bbox": {
+          "x_min": 6.2305498123169,
+          "x_max": 10.2997055053711,
+          "y_min": 46.0072288513184,
+          "y_max": 47.7490196228027,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "bbox_wgs84": {
+          "x_min": 6.2305498123169,
+          "x_max": 10.2997055053711,
+          "y_min": 46.0072288513184,
+          "y_max": 47.7490196228027,
+          "z_min": 0.0,
+          "z_max": 0.0
+        },
+        "crs": {
+          "auth_id": "EPSG:4326",
+          "postgis_srid": 4326,
+          "ogc_uri": "http://www.opengis.net/def/crs/EPSG/0/4326",
+          "ogc_urn": "urn:ogc:def:crs:EPSG::4326"
+        },
+        "styles": [
+          {
+            "name": "default",
+            "definition": "eJztW3tv27YW_9-fQvMFbrsLy5Il-dUpAdqk3S2QLOmS7mIYBoEWKZurJKoU5dQd9t3vISlZku2ldpJ13Za0SMRDnkOeB8_56UH_q9OLk-sfL18a7-c0Ny7fvjh7fWI8WQiRPbOshIdhP2SJJTv7WOAnxpOrH6-uX54_Oe74igMVgn1PIk7yxTVNyFHX7hqcIHyRxivVyFfJjMVsvoJRhJM0JFchimGgOYBOmmQxjVanHN3QdP5fmopcc7U7rll81IXxS8JzytKjrtv37P7UfMGRoHmMlqhrJOhDKbnBf74mAvcC5arxAuUE_0BzOqMxFatXMZq3mJ7Hc8apWCSaKlYxOUGCSCKB5T2P46s2DSanaTWPXf50m7Y5Zxj6TmmOZjHB9VRnDLjU4mI0I3H-MlUD5MTHHcOPYGk5XBj-a0xSQSMqu48HvtVqywHfk4Qtq966IbuuCOLhouprtGTnJadLUOTY9q3qEia2qpl9QZKMcRQbEf1A8GkhLS49oCyDuHhFSQzr7RqkXrqBwrBIihiEqWaitLflGLwer7hffsjAPNqnXQOX0ssxEQVLxTSh4rwhYDfL25SKoy64oau0Uov9HqVzpaThq8mOfUv_VSQQBQT5WzJYLQ7fqtSWDRKTpZrE-MiiKCdCLSWMUZJBbB51rwnnCGY2ZjTFinICzuFMLj9fsJtzxN8RfqU2wuv0quARCsllzKpYr3bIUfeMpgSU_CB4IRVsRENNLLdYnpFQnKFVJVgF0cd8HexilcHFa1jQkuICxa8IEgWwaftgJJCJSQTzYTPjLCNcQCBry1xkSlkt4RxliqWmp0juc_kbNiSKCyL9oAe_uRIcDNC1dnHU0-zulyLWEkMWx6Ag9O6W7VuaVzvvFnV8aEY0JtK02lJlRKhrA8XZAimD0TxAKU0gZrXB9aK6RsR4SAK-4IoacSAHXEX2QEUBzQLBAnAP-Lxh-Vi6slRTLi8olxdsWPv37X0Xi3_a5veyetvuleV_VzU_lvFpZCjPqy0jr65k8iNlrFchLlMgC9-Vxqfw59fpyBmP8ASZU2eATW-KIxNNI8-MQjsMUYhDb2T_1j3Qiiim8zTAKF8EGRKC8HStvb2nUUOUqaKwZszfF4iTfbmLXLBELmDNP_zGOZg5SFAWFJD1ArXn17LcD8_s3vrf4WKlyLWw8_M9BTTtGegkebBZd8h4UCV3yb-jtoBKAprmFJMgY_Fqzg4Pol8YCGhF0YwsSbwnt8wuAexWxtfsA2_Ymzg9-O0Mhz0-nz2z-8PRBPaQN7SnE9uFXeT17L7rDJpkzwHaYDzyxvZwMnHcoTP1Bm5vcMhCNnYDi2Xl25_9hmJRbwa7PzqY-Y5-vGOg_gGxea9wlH0B1DgI7IN1gc4kwBRwESDzANDQ_SU8qGG2pd_NRm05CgbeU1Ml4w_UVcu_o7Y3BL0L2gkvhXzBU7iBOljvIodcoypE0Cpb-_LrLXovS7Vhx6cQ1S1g4E6Yag9QdT9UtaXfJ3CVpYBVCYTzNar1rZ1gt4LAryjcuX5GCAxzxo8Q-BYILB1yOwR2HA_uFd2hifAoMr3RzDOnAwDDY4KJR4gXTvHoYAg8YxwTHjzAttyEkV8AILkfrtpEBIcW8C8GE7BC7MKIttcbTnuu03CJZ48G3tSdDCeO54IfRmB-x5mOxpPxdDycTG3wiytd4ozAZUPHhiHjgeN5e7ukWsvdYWIlYRMp7nvb1OK_o0UPWP1jtTqoWrXrUlWtmk_NPk-9StSMjxXrloqlnXJ7zRoQ1x7bTmRCep-YHnEdc2oPbDOCfG57rjt0o-jwxzbpvLH7DnhSs5l1DnpU8wXUswXj9CNLBYoh1kNoBRlUuDp_fZ662ApjTFHC0r1z92NJ_fuX1Ad10kMUa7mMICFiwXArbol6SLKfDPqxockBTA9qDSXwbkZYyrQeHpw4HtHLQehlA6f41vp1oWxxksK9FuHm0imLprr5mumX4wqocJRDUJav9cp35HnjHbmSHMtknTcqX05lRdTT6nd6emB-EFayH8HSnwuWvOnEHdkTYmJCQtOb2VNz4kWhaYdDPBw7rmu7s78iWHIGUBPtntcsi5Ma_0g8NBrKEriJjCStTRmM_8pgKaQ8jPe14d8dKzmTHnjTaSFoezAd2eOJ5w7csTP0JhAA9qj9M5a0EmFX0HrwBWAl7xEr7cJK-76_e8RK_xis1MAmPmdCwSNLoxbwmXK9bv5jPkzyrQY0lO2clHLLz-VOSYSKWJTYruo8kQnVoCmshipEYbX7H5-XPUDYf14IOBkMyWDqzcxo6NjyMyfXBKREzFFExgiNUTh08V8SAkKNl9m7qvUD1XqEcn8LKOcOe_p_jeQ0fpuu8Zx6wrUX7U9Hco84bheO2_dR4COO--fguC2c0aDJlv5OaOMT7N3Wamskv1FfUnJjZZzIv_Vn_nml1RnNxQbkKy3w7_cFE99EFOuLTyOzjclJMiMYE_w_iudE5FbIinTH92EylKwd7EvE1UGM76CV14MVRruV4Qc5wW6Oxmp9a4dVfWBPsTwYIY9u1A15akR_6v-iOWCL1imBy0WGQipW8mRIqw39c8Igd_CVXkhuVO1LTkLaOIqQsCU5LbIY9p0g34HwvDy_YvgIAmNJThYkfJdrtUJ5fcLSiM7LoxuWUnFjMrU-MofVqiMUZ_J0zJlqN_yBNUQ2lxB_UJuUoEieHWnJV9Mqcml9da4kbA6RR4Bg0d8xeVFGJ8FU6HgoZ7sGAPwSiFUIagltXFbdP1iNTt-qRWnPqsUorXeu1ocoQHm5d9Q1AH5MPrQxe31GRhuwZvJz8IW4hLIYrg9ByMbK0H_g3qLy1g45m8w-rgbfVeIuAX7pOy2sbBgoy-LVRfo2w9XRIdI67bMtupYi_ZELeRCnFFq3pRQADXDDNRcLbUUm0iKOG8SBColKgHrh05jNgGr0viCt8XoF7VkbkzYS2I7lbGhjwKYJgbYpsy3Er62heNWW8pGALDcrBEGhWM9WGua5vqN8R8BFJwjyS_3156_VQTVzx6_q57cquLbnqOcVMpXpgDdyxsWFfMNRngOTo3XoqzNz8tt5lp2yGyhVcmjrMFdpprhI0vKGXzea23ZBIU-njRygDNE1FHBSL0ysFms1fl35SwW2OKTVq5kb-jZ0K90LexkEoFiB0OqJxo1uWXWuqQnKn1tcPmR0TnDtUT1Wpgq4HU8MwWLCkb7fPtYpRNKbYyggJGuTEMr8ywq4oZdp_3d6Nnjka6wMicVxm2FN3jHFsf_VTyenz6-f__Qvw_yPCXtHnnx7ZhQiMieS0ul2u503376-kk8XktwIETgDLYmBjMsVQNTUiIpUR6dYIGFQOQRwDDZuFkTSiGIEegeqHqCUfqfzNifQASNrVmYgjNXhOAQ31nMaStIKtNTTAtPLFOCvkifDyGCRll1JoHqubrmo16DfurPbUa7sd56nMAWSN_QgNo7B3c-UfhFniTo5279cvRH9N2WWh3wtTw8K441udzqwHY1kFcg1BVKdp4DLYbk9Q9XcnlGW56-fqfIha6FxVBH7VWl8-rXqhWgSnMUwQAvpA4jDJwsa46flfD2je76S3wCrcvV15-efj7dDoUIKyk5FpsKwQgotWul9xmGtcJ9yDEWYyKdDWLe15HVvOXp9vnSr8Fa9dQptjPfVMdiL9JplDe6a2CiBdRFo8ficFDk5Q7lQ4Kohpd2xU9IWr7oRONUwWZ1KvVxjMMVxUwJGeb0FXI-VZH8b0crRcL90TbPmgyHwkSausdm3peOvIXNJ12wTO746m33c-T_0Xo46"
+          }
+        ],
+        "minimum_scale": 100000000.0,
+        "maximum_scale": 0.0,
+        "style_name": "default",
+        "is_spatial": true,
+        "fields": [
+          {
+            "name": "fid",
+            "type": "Integer64",
+            "is_primary_key": true,
+            "type_wfs": "long",
+            "type_oapif": "integer",
+            "type_oapif_format": "int64",
+            "alias": "Fid",
+            "comment": "",
+            "nullable": true,
+            "length": null,
+            "precision": null,
+            "editor_widget_type": "TextEdit",
+            "editor_widget_type_wfs": null,
+            "editor_widget_type_oapif": null,
+            "editor_widget_type_oapif_format": null
+          }
+        ],
+        "geometry_type_simple": "Point",
+        "geometry_type_wkb": "Point"
+      }
+    ],
+    "raster": [],
+    "custom": [],
+    "group": [
+      {
+        "id": "",
+        "name": "",
+        "title": ""
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+services:
+  georama:
+    environment:
+      - "DEV_AUTOSTART=${GEORAMA_DEV_AUTOSTART:-1}"
+      - "DJANGO_CONFIGURATION=Dev"
+    build:
+      target: dev
+      args:
+        PYTHON_VERSION: "${PYTHON_VERSION:-3.12}"
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    develop:
+      watch:
+        - action: rebuild
+          path: Dockerfile
+        - action: rebuild
+          path: ./docker/dev.debug.entrypoint.sh
+        - action: rebuild
+          path: ./docker/dev.start.georama.sh
+    volumes:
+      - ./:/app:cached
+      - georama-venv:/home/appuser/.venv
+      - georama-static:/georama/static
+volumes:
+  georama-venv:
+  georama-static:

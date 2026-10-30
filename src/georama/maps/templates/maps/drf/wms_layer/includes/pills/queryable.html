@@ -1,0 +1,12 @@
+{% if layer.is_queryable %}
+    {% load i18n %}
+    {% blocktranslate asvar queryable_tooltip %}
+        The layer supports WFS Queries
+    {% endblocktranslate %}
+    <span data-bs-toggle="tooltip"
+          title="{{ queryable_tooltip }}"
+          aria-label="{{ queryable_tooltip }}"
+          class="badge rounded-pill text-bg-primary">
+    {% trans 'Queryable' %}
+</span>
+{% endif %}

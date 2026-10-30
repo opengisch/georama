@@ -1,0 +1,10 @@
+{% extends 'core/base.html' %}
+{% load static i18n %}
+
+{% block content %}
+    
+    <div id="list_partial{% if is_modal %}_modal{% endif %}" class="h-100 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height:0">
+        {% include permissions_list %}
+    </div>
+
+{% endblock %}

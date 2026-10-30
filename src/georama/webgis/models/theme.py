@@ -1,0 +1,122 @@
+import uuid
+from urllib.parse import urlencode
+
+from django.conf import settings
+from django.db import models
+from django.templatetags.static import static
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
+from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
+from xsdata.formats.dataclass.parsers import DictDecoder
+from xsdata.formats.dataclass.parsers.config import ParserConfig
+from xsdata.formats.dataclass.serializers import DictEncoder
+
+from georama.core.common.managers import OrganisationalManager
+from georama.integration.models import Project
+from georama.maps.apps import central_app_label
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
+from georama.webgis.managers.theme import ThemeManager
+from georama.webgis.models.metadata import Metadata
+
+
+class Theme(models.Model):
+    ORGANISATION_FIELD_NAME = "project__organisation"
+
+    PERMISSIONS = {
+        "can_view": "view_published_theme",
+    }
+
+    ACTION_MAP = {
+        "grant": (True, [PERMISSIONS["can_view"]], "grant access"),
+        "revoke": (False, list(PERMISSIONS.values()), "revoke access"),
+    }
+
+    class Meta:
+        ordering = ["ordering"]
+        verbose_name = _("Theme")
+        verbose_name_plural = _("Themes")
+        permissions = [
+            # permission which is used on the model
+            ("manage_object_permissions", "Can manage object permissions"),
+            # permission which is used for the object permission evaluation on the published themes
+            ("view_published_theme", "Can view published theme"),
+        ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    project = models.ForeignKey(
+        Project,
+        related_name="themes",
+        on_delete=models.CASCADE,
+    )
+    metadata = models.ForeignKey(
+        Metadata,
+        related_name="themes",
+        on_delete=models.CASCADE,
+    )
+    public = models.BooleanField(default=False)
+    ordering = models.IntegerField()
+    theme_json = models.JSONField()
+    background_layers = models.JSONField(blank=True)
+    ogc_servers = models.JSONField(blank=True)
+
+    objects = ThemeManager()
+
+    @property
+    def identifier(self):
+        return str(self.id)
+
+    @property
+    def icon_default(self):
+        return static("webgis/images/georama-logo-geogirafe.svg")
+
+    def __str__(self):
+        return self.metadata.title
+
+    def as_dataclass(self) -> GGTheme:
+        config = ParserConfig(fail_on_unknown_properties=False)
+        return DictDecoder(config).decode(self.theme_json, GGTheme)
+
+    def set_from_dataclass(self, theme: GGTheme):
+        self.theme_json = DictEncoder().encode(theme)
+
+    def get_absolute_url(self):
+        return reverse(f"{central_app_label}:theme-detail", kwargs={"pk": self.pk})
+
+    @property
+    def endpoint_url(self) -> str | None:
+        if not self.theme_json:
+            return None
+        ggtheme = self.as_dataclass()
+        params = {"themes": ggtheme.name}
+        if ggtheme.zoom is not None:
+            params["map_zoom"] = ggtheme.zoom
+        if len(ggtheme.location) >= 2:
+            params["map_x"], params["map_y"] = ggtheme.location[0], ggtheme.location[1]
+        return f"{settings.WEBGISURL}?{urlencode(params)}"
+
+
+class UserManager(UserObjectPermissionManager, OrganisationalManager): ...
+
+
+class GroupManager(GroupObjectPermissionManager, OrganisationalManager): ...
+
+
+class ThemeUserObjectPermission(UserObjectPermissionBase):
+    ORGANISATION_FIELD_NAME = "content_object__project__organisation"
+    content_object = models.ForeignKey(
+        Theme, on_delete=models.CASCADE, related_name="user_object_permissions"
+    )
+    time_created = models.DateTimeField(auto_now_add=True)
+
+    objects = UserManager()
+
+
+class ThemeGroupObjectPermission(GroupObjectPermissionBase):
+    ORGANISATION_FIELD_NAME = "content_object__project__organisation"
+    content_object = models.ForeignKey(
+        Theme, on_delete=models.CASCADE, related_name="group_object_permissions"
+    )
+    time_created = models.DateTimeField(auto_now_add=True)
+
+    objects = GroupManager()

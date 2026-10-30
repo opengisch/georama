@@ -1,0 +1,30 @@
+from django.db import models, transaction
+
+from georama.core.common.managers import LayerManager
+from georama.features.models.field import Field
+
+
+class FeatureLayerManager(LayerManager):
+    def get_queryset(self) -> models.QuerySet:
+        """Always prefetch bound fields to reduce queries.
+
+        Returns:
+            the filtered QuerySet
+        """
+        return (
+            super()
+            .get_queryset()
+            .prefetch_related(
+                "fields",
+                "metadata",
+                "datasource",
+            )
+        )
+
+    def bulk_create(self, *args, **kwargs):
+        with transaction.atomic():
+            feature_layers = super().bulk_create(*args, **kwargs)
+            Field.objects.bulk_create(
+                field for layer in feature_layers for field in layer.datasource_related_fields()
+            )
+            return feature_layers

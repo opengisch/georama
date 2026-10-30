@@ -1,11 +1,27 @@
-from georama.core.apps import GeoramaAbstractConfig
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
-central_app_label = "webgis"
+from georama.core.common.apps import GeoramaAbstractConfig
 
 
-class WebgisConfig(GeoramaAbstractConfig):
-    default_auto_field = "django.db.models.BigAutoField"
-    verbose_name = "Webgis"
-    name = f"georama.{central_app_label}"
-    label = central_app_label
-    menu_order: int = 20
+class WebGisConfig(GeoramaAbstractConfig):
+    label = "webgis"
+    name = "georama.webgis"
+    menu_order: int = 10
+    description = _("Publish your Layers in a WebGIS.")
+    app_index_page = "webgis:theme-list"
+
+    def ready(self):
+        from georama.core.common.remote_actions import RemoteAction, register_remote_action
+        from georama.integration.models import Project
+
+        super().ready()
+        rma = RemoteAction(
+            target=reverse("webgis:theme-manager-publish-from-project"),
+            name=_("Theme"),
+            icon_classes="fa fa-circle-plus",
+            help_text=_("Publishes this Project as a Theme in the WebGis app."),
+            origin=self.name,
+            permissions=["webgis.add_theme"],
+        )
+        register_remote_action(Project, rma)

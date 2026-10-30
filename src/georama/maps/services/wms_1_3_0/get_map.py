@@ -4,7 +4,7 @@ from qgis_server_light.interface.common import BBox
 from qgis_server_light.interface.job.common.input import OgcFilter110
 from qgis_server_light.interface.job.render.input import QslJobParameterRender
 
-from georama.data_integration.models import VectorDataSet
+from georama.core.models import Organisation
 from georama.maps.interfaces.georama.requests import GetMapRequestParams
 from georama.maps.services.wms_1_3_0 import WmsOperation
 
@@ -12,16 +12,16 @@ from georama.maps.services.wms_1_3_0 import WmsOperation
 class WmsGetMap(WmsOperation):
     default_style_name = "default"
 
-    def __init__(self, appname: str, url: str, user, model):
-        super().__init__(appname, url, user, model)
+    def __init__(
+        self, appname: str, url: str, user, model, organisation: Organisation, perms: list[str]
+    ):
+        super().__init__(appname, url, user, model, organisation, perms)
 
-    def prepare_job_content(
-        self, service_params: GetMapRequestParams
-    ) -> QslJobParameterRender:
+    def prepare_job_content(self, service_params: GetMapRequestParams) -> QslJobParameterRender:
         # we pass the requested layers to filter DB objects
         # (this includes permission checks and fails for
         # all request when only one layer is not permitted!)
-        accessible_published_as = self.obtain_accessible_layers(service_params.layer_list)
+        accessible_wms_layers = self.obtain_accessible_layers(service_params.layer_list)
 
         if service_params.DPI:
             dpi = service_params.DPI
@@ -42,26 +42,26 @@ class WmsGetMap(WmsOperation):
             format=service_params.FORMAT,
             layers=[],
         )
-        for published_as, requested_style_name, filter_definition in zip(
-            accessible_published_as,
+        for wms_layer, requested_style_name, filter_definition in zip(
+            accessible_wms_layers,
             service_params.style_list,
-            service_params.filter_list or [None] * len(accessible_published_as),
+            service_params.filter_list or [None] * len(accessible_wms_layers),
             strict=True,
         ):
-            dataset = published_as.bound_dataset
             if requested_style_name == self.default_style_name:
-                qsl_job_layer = dataset.to_qsl_job_layer()
+                qsl_job_layer = wms_layer.to_qsl_job_layer()
             else:
                 try:
-                    qsl_job_layer = dataset.to_qsl_job_layer(requested_style_name)
+                    qsl_job_layer = wms_layer.to_qsl_job_layer(style_name=requested_style_name)
                 except LookupError:
                     raise ValueError(  # noqa: B904
                         f"Requested style {requested_style_name} is not"
-                        f"defined for layer {dataset.name}"
+                        f"defined for layer {wms_layer.datasource.name}"
                     )
 
             logging.debug(f"Set style for layer to: {qsl_job_layer.style.name}")
-            if isinstance(dataset, VectorDataSet) and filter_definition:
+            # TODO@maps: implement check for vector
+            if wms_layer.datasource.type == "vector" and filter_definition:
                 # since we will use this in the on a plain
                 # list of layers, the largest extent buffer
                 # should be applied

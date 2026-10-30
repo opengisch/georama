@@ -1,0 +1,45 @@
+{% extends 'core/drf/default/partials/list_body.html' %}
+{% load static i18n %}
+
+{% block list_actions %}
+
+{% endblock %}
+{% block ordering_include %}
+{% endblock %}
+{% block search_include %}
+{% endblock %}
+
+
+{% block list_item_image %}
+    <img alt="{% trans 'Logo' %}"
+         class="rounded img-thumbnail preview-image"
+         src="{% static 'integration/images/qgis_grey.png' %}"
+    />
+{% endblock %}
+{% block list_item_title_and_name %}
+    <h4 class="mb-2">
+        {% block list_item_title %}
+            {{ item.path_from_orga }}
+        {% endblock %}
+    </h4>
+    <div class="mb-1">
+        {% block list_item_name %}
+            {{ item.config_path_from_orga }}
+        {% endblock %}
+    </div>
+{% endblock %}
+{% block list_item_actions %}
+    {% include 'integration/drf/project/includes/buttons/link.html' with project_file=item %}
+{% endblock %}
+{% block list_item_pills %}
+    <div class="align-content-bottom">
+        {% blocktranslate asvar title %}
+            The name of the organisation
+        {% endblocktranslate %}
+        <span class="badge rounded-pill text-bg-primary"
+              data-bs-toggle="tooltip"
+              title="{{ title }}"
+              aria-label="{{ title }}">
+        {{ organisation }}</span>
+    </div>
+{% endblock %}

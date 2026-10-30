@@ -1,0 +1,16 @@
+# local certificate authority of the dev stack, see Makefile
+[req]
+distinguished_name = dn
+prompt = no
+x509_extensions = ca_ext
+
+[dn]
+O = Georama Dev
+CN = Georama Dev Certificate Authority
+
+[ca_ext]
+basicConstraints = critical, CA:TRUE, pathlen:0
+keyUsage = critical, keyCertSign, cRLSign
+subjectKeyIdentifier = hash
+# the CA can only sign certificates for local names, even if its key leaks
+nameConstraints = critical, permitted;DNS:localhost, permitted;DNS:keycloak, permitted;IP:127.0.0.0/255.0.0.0

@@ -1,77 +1,36 @@
-name: CI/CD Pipeline
+name: TestSuite
 on:
   push:
     branches:
       - "*"
     tags:
       - v*
-
 jobs:
-
-  gitattributes:
-    name: Check style (git-attributes)
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v7
-      - run: sudo rm /etc/apt/sources.list.d/*.list
-      - name: Run make git-attributes
-        run: make git-attributes
-
-  # TODO: Add linting here when we decided what approach we go for.
-
   test-py:
     name: Test Python
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      # CI-only secret. Consumed by the Dev configuration when make targets that
-      # run manage.py (e.g. make check-migrations) fall back to
-      # DJANGO_CONFIGURATION=Dev. The Test configuration hardcodes its own key
-      # and ignores this value. Never reuse this string outside CI.
-      DJANGO_SECRET_KEY: ci-only-not-a-real-secret-do-not-reuse
     strategy:
       matrix:
         python-version:
-          - '3.11'
           - '3.12'
           - '3.13'
     steps:
-      - uses: actions/checkout@v7
-      - name: Set up Python v${{ matrix.python-version }}
-        uses: actions/setup-python@v7
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-      - run: sudo rm /etc/apt/sources.list.d/*.list
-      - run: sudo apt update
-      - run: sudo apt-get install -y python3-venv python3-dev unixodbc odbc-mdbtools gdal-bin libgdal-dev libpq-dev build-essential make git curl
-      - run: touch .env
-      - name: Start services
-        run: docker compose up -d --wait georama-db qsl-exporter
-      - name: Set up test environment
-        run: make install-test
-      - name: Install system libs
-        run: make install-system
-      - name: Run migration checks
-        run: make check-migrations
-      - name: Run tests for Python ${{ matrix.python-version }}
-        run: DJANGO_CONFIGURATION=Test make tests
-      - name: Test Coverage
-        shell: bash
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Prepare Build Environment
         run: |
-          make coverage
-          cp .coverage.xml coverage-${{ matrix.python-version }}.xml
-      - name: Stop services
-        if: always()
-        run: docker compose down georama-db qsl-exporter
-# TODO: Uncomment this once we have decided if we use codecov?
-#      - name: Upload coverage to Codecov
-#        uses: codecov/codecov-action@v5
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          env_vars: OS,PYTHON
-#          fail_ci_if_error: true
-#          files: coverage-${{ matrix.platform }}-${{ matrix.python-version }}.final_combined.xml
-#          flags: unittests
-#          name: codecov-unittest
-#          verbose: true
+          cp .env.example .env
+          echo "COMPOSE_FILE=compose.yml:compose.dev.yml" >> .env
+          echo "PYTHON_VERSION=${{ matrix.python-version }}" >> .env
+          echo "UID=$(id -u)" >> .env
+          echo "GID=$(id -g)" >> .env
+          cat .env
+      - name: Build Georama Image
+        run: |
+          docker compose build georama
+      - name: Start Docker composition
+        run: docker compose up -d
+      - name: Run tests
+        run: docker compose exec georama uv run pytest

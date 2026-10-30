@@ -1,6 +1,7 @@
 import logging
 from xml.etree.ElementTree import QName
 
+from qgis_server_light.interface.common import Crs
 from qgis_server_light.interface.exporter.extract import BBox
 from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 
@@ -8,10 +9,12 @@ from georama.maps.interfaces.ogc.wfs_2_0_0 import (
     DefaultCrs,
     FeatureTypeType,
     MetadataUrltype,
+    OtherCrs,
     OutputFormatListType,
+    WfsCapabilities,
+    Wgs84BoundingBox,
 )
 from georama.maps.interfaces.ogc.wfs_2_0_0 import Title2 as Title
-from georama.maps.interfaces.ogc.wfs_2_0_0 import WfsCapabilities, Wgs84BoundingBox
 from georama.maps.maps_config import Config
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 
@@ -26,11 +29,13 @@ class WfsGetCapabilities(WfsOperation):
         return config.wfs_2_0_0_capabilities_config(self.url)
 
     @staticmethod
-    def create_feature_type(name: str, title: str, crs: str, bbox: BBox, url: str):
+    def create_feature_type(name: str, title: str, crs: list[Crs], bbox: BBox, url: str):
+        default_crs, *other_crs = crs
         return FeatureTypeType(
             name=QName(name),
             title=[Title(value=title)],
-            default_crs_or_other_crs_or_no_crs=[DefaultCrs(value=crs)],
+            default_crs_or_other_crs_or_no_crs=[DefaultCrs(value=default_crs.ogc_uri)]
+            + [OtherCrs(value=other.ogc_uri) for other in other_crs],
             output_formats=OutputFormatListType(
                 format=["application/gml+xml; version=3.2", "text/xml; subtype=gml/3.2.1"]
             ),
@@ -47,14 +52,13 @@ class WfsGetCapabilities(WfsOperation):
 
     def get_capabilities(self) -> WfsCapabilities:
         wfs_capabilities = self.get_capabilities_body()
-        for published_as in self.obtain_accessible_layers():
-            dataset = published_as.vector_dataset
-            bbox = BBox.from_string(published_as.extent_wgs84)
+        for wms_layer in self.obtain_accessible_layers():
+            bbox = BBox.from_string(wms_layer.extent_wgs84)
             wfs_capabilities.feature_type_list.feature_type.append(
                 self.create_feature_type(
-                    f"{self.own_namespace}:{published_as.name}",
-                    published_as.title,
-                    dataset.crs_to_qsl.ogc_uri,
+                    f"{self.own_namespace}:{self.encode_layer_name(wms_layer.identifier)}",
+                    wms_layer.metadata.title,
+                    self.supported_crs(wms_layer.datasource.crs_to_qsl),
                     bbox,
                     self.url,
                 )

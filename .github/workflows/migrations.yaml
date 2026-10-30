@@ -1,0 +1,32 @@
+name: MissingDjangoMigrations
+on:
+  push:
+    branches:
+      - "*"
+    tags:
+      - v*
+jobs:
+  test-migrations:
+    name: Test no migrations were left behind
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Prepare Build Environment
+        run: |
+          cp .env.example .env
+          echo "COMPOSE_FILE=compose.yml:compose.dev.yml" >> .env
+          echo "UID=$(id -u)" >> .env
+          echo "GID=$(id -g)" >> .env
+          cat .env
+      - name: Build Georama Image
+        run: |
+          docker compose build georama
+      - name: Start Docker composition
+        run: docker compose up -d
+      - name: Check migrations
+        env:
+          DJANGO_CONFIGURATION: Dev
+        run: docker compose exec georama uv run manage makemigrations --check --dry-run

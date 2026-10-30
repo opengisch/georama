@@ -1,9 +1,9 @@
-from georama.features.models import PublishedAsVectorFeature
+from georama.features.models import FeatureLayer
 
 
 class ServerConfig:
     def get(self) -> dict:
-        on_exceed_key, on_exceed_value = PublishedAsVectorFeature.ON_EXCEED_CHOICES[0]
+        on_exceed_key, on_exceed_value = FeatureLayer.ON_EXCEED_CHOICES[0]
         return {
             "server": {
                 "url": "OVERWRITTEN AT RUNTIME",

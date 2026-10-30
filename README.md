@@ -8,18 +8,31 @@
 
 ---
 
-> **The open, interoperable platform for any geospatial data publication workflows, from complex enterprise workflows down to anyone sharing their first dataset.**
-> Georama is your bridge between powerful desktop GIS and scalable, standards-based web publishing.
+> **The open, interoperable platform for any geospatial data publication workflows, from
+complex enterprise workflows down to anyone sharing their first dataset.**
+> Georama is your bridge between powerful desktop GIS and scalable, standards-based web
+> publishing.
 
 ---
 
-Georama is an open-source project by [OPENGIS.ch](https://opengis.ch), the team behind [QField](https://qfield.org), [QFieldCloud](https://qfield.cloud), and other open geospatial tools.
+Georama is an open-source project by [OPENGIS.ch](https://opengis.ch), the team
+behind [QField](https://qfield.org), [QFieldCloud](https://qfield.cloud), and other open
+geospatial tools.
 
 ## What is Georama?
 
-Georama bridges the gap between desktop GIS and the web. It lets you take your QGIS projects and publish them as standards-compliant web services, complete with metadata management, fine-grained access control, and, thanks to its native integration with [GeoGirafe](https://geogirafe.org/), a modern web map interface.
+Georama bridges the gap between desktop GIS and the web. It lets you take your QGIS
+projects and publish them as standards-compliant web services, complete with metadata
+management, fine-grained access control, and, thanks to its native integration
+with [GeoGirafe](https://geogirafe.org/), a modern web map interface.
 
-Whether you are a small organization sharing a handful of datasets, or a large institution managing hundreds of projects and complex publication workflows, Georama is designed to scale with you.
+Whether you are a small organization sharing a handful of datasets, or a large
+institution managing hundreds of projects and complex publication workflows, Georama is
+designed to scale with you.
+
+### Documentation
+
+📔 [Read the project docs](https://opengisch.github.io/georama/) to learn more.
 
 ### Georama impressions
 
@@ -39,48 +52,70 @@ Whether you are a small organization sharing a handful of datasets, or a large i
 
 ## Core features
 
-- **QGIS-native workflow:** import and manage QGIS projects directly, keeping your existing data and styling intact
-- **WMS publishing:** serve your layers as OGC-compliant WMS 1.3.0 services via [qgis-server-light](https://github.com/opengisch/qgis-server-light)
-- **OGC API Features (WFS 3):** share vector data using modern open standards, powered by [pygeoapi](https://github.com/geopython/pygeoapi)
-- **Metadata management:** maintain flexible, extensible metadata for your layers and datasets
-- **Fine-grained permissions:** control who can see, edit, and publish what, down to the attribute level
-- **Identity provider integration:** connect to external authentication providers (OAuth, SAML, LDAP) via standard Django apps
-- **Modern web map interface:** end users explore your data through [GeoGirafe](https://gitlab.com/geogirafe/gg-viewer), a clean and accessible WebGIS frontend
+- **QGIS-native workflow:** import and manage QGIS projects directly, keeping your
+  existing data and styling intact
+- **WMS publishing:** serve your layers as OGC-compliant WMS 1.3.0 services
+  via [qgis-server-light](https://github.com/opengisch/qgis-server-light)
+- **OGC API Features (WFS 3):** share vector data using modern open standards, powered
+  by [pygeoapi](https://github.com/geopython/pygeoapi)
+- **Metadata management:** maintain flexible, extensible metadata for your layers and
+  datasets
+- **Fine-grained permissions:** control who can see, edit, and publish what, down to the
+  attribute level
+- **Identity provider integration:** connect to external authentication providers
+  (OAuth, SAML, LDAP) via standard Django apps
+- **Modern web map interface:** end users explore your data
+  through [GeoGirafe](https://gitlab.com/geogirafe/gg-viewer), a clean and accessible
+  WebGIS frontend
 
 ## How it works
 
-Georama is a modular suite of [Django](https://www.djangoproject.com) apps. At its core, it connects four components:
+Georama is a modular suite of [Django](https://www.djangoproject.com) apps. At its core,
+it connects four components:
 
 - [**QGIS**](https://qgis.org/) as the data integration and styling engine
 - [**Django**](https://www.djangoproject.com/) as the application and permission layer
-- [**pygeoapi**](https://github.com/geopython/pygeoapi) and [**qgis-server-light**](https://github.com/opengisch/qgis-server-light) as the standards-based service backends
+- [**pygeoapi**](https://github.com/geopython/pygeoapi) and [
+  **qgis-server-light**](https://github.com/opengisch/qgis-server-light) as the
+  standards-based service backends
 - [**GeoGirafe**](https://gitlab.com/geogirafe/gg-viewer) as the frontend WebGIS
 
-This architecture keeps each component focused and isolated, and is designed with a future plugin and extension system in mind.
+This architecture keeps each component focused and isolated, and is designed with a
+future plugin and extension system in mind.
 
 ## Getting started
 
-For quickly getting started with  Georama, check out our detaild documentation: https://opengisch.github.io/georama/get_started/
+For quickly getting started with Georama, check out our detaild
+documentation: https://opengisch.github.io/georama/get_started/
 
 ## Contributing
 
-We welcome contributions of all kinds: bug reports, feature ideas, documentation improvements, and pull requests.
+We welcome contributions of all kinds: bug reports, feature ideas, documentation
+improvements, and pull requests.
 
-Before investing time in a new feature or fix, please get in touch first, either by [opening an issue](https://github.com/opengisch/georama/issues) or starting a conversation in our [Discussions space](https://github.com/opengisch/georama/discussions). This helps us align early and makes sure your effort has the best chance of being merged.
+Before investing time in a new feature or fix, please get in touch first, either
+by [opening an issue](https://github.com/opengisch/georama/issues) or starting a
+conversation in
+our [Discussions space](https://github.com/opengisch/georama/discussions). This helps us
+align early and makes sure your effort has the best chance of being merged.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
 
 ## License
 
-Georama is open source and dual-licensed under [AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) (or later) and OPENGIS.ch Commercial licence.
+Georama is open source and dual-licensed
+under [AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) (or later) and
+OPENGIS.ch Commercial licence.
 
 ## About OPENGIS.ch
 
-Georama is built and maintained by [OPENGIS.ch](https://opengis.ch), a Swiss company specializing in open-source geospatial software. We are also the team behind [QField](https://qfield.org) and [QFieldCloud](https://qfield.cloud). We believe open standards and open software are the foundation of a healthy geospatial ecosystem.
+Georama is built and maintained by [OPENGIS.ch](https://opengis.ch), a Swiss company
+specializing in open-source geospatial software. We are also the team
+behind [QField](https://qfield.org) and [QFieldCloud](https://qfield.cloud). We believe
+open standards and open software are the foundation of a healthy geospatial ecosystem.
 
 <div align="center">
   <a href="https://opengis.ch">
     <img width="413" height="162" alt="logo_opengisch_open-source-geoninjas" src="https://github.com/user-attachments/assets/ebdb2d99-48a4-418d-8822-a17ac6f1365b" />
   </a>
 </div>
-

@@ -1,0 +1,972 @@
+import random
+import uuid
+import zlib
+from base64 import urlsafe_b64encode
+
+import factory
+from django.conf import settings
+from faker import Faker
+from qgis_server_light.interface.common import Style
+from xsdata.formats.dataclass.serializers import DictEncoder
+
+from georama.core.factories import OrganisationFactory
+from georama.integration import models
+
+fake = Faker()
+
+COLUMNS = [
+    # name,type,alias,nullable,type_oapif,is_primary_key,length,precision,type_oapif_format,type_wfs,comment # noqa E501
+    (
+        "AREA",
+        "float8",
+        "Area",
+        False,
+        "number",
+        False,
+        None,
+        None,
+        "double",
+        "decimal",
+        "",
+    ),
+    (
+        "author",
+        "String",
+        "Author",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "baujahr",
+        "String",
+        "Baujahr",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "bundes_schutz",
+        "String",
+        "Bundes_Schutz",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "bund_schutz_datum",
+        "String",
+        "Bund_Schutz_Datum",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "bund_schutz_nr",
+        "String",
+        "Bund_Schutz_Nr",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "canton",
+        "String",
+        "Canton",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    ("cat", "Integer", "Cat", False, "integer", False, None, None, "", "int", ""),
+    ("Code", "String", "Code", False, "string", False, 50, None, "", "string", ""),
+    (
+        "Code_Bu",
+        "Integer64",
+        "Code_Bu",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "int64",
+        "long",
+        "",
+    ),
+    (
+        "Code_Fi",
+        "Integer64",
+        "Code_Fi",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "int64",
+        "long",
+        "",
+    ),
+    (
+        "comment",
+        "String",
+        "Comment",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "date",
+        "DateTime",
+        "Date",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "date-time",
+        "dateTime",
+        "",
+    ),
+    (
+        "DATEOFCHNG",
+        "date",
+        "Dateofchng",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "date",
+        "date",
+        "",
+    ),
+    (
+        "description",
+        "String",
+        "Description",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "description_hole",
+        "String",
+        "Description hole",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "description_tee",
+        "String",
+        "Description tee",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "distance",
+        "double",
+        "Distance",
+        False,
+        "number",
+        False,
+        None,
+        None,
+        "double",
+        "decimal",
+        "",
+    ),
+    ("fid", "Integer64", "Fid", True, "integer", True, None, None, "int64", "long", ""),
+    ("FNODE_", "int4", "Fnode_", False, "integer", False, None, None, "", "int", ""),
+    (
+        "gemeinde",
+        "String",
+        "Gemeinde",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "gemeinde_id_bfs",
+        "Integer",
+        "Gemeinde_Id_Bfs",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "",
+        "int",
+        "",
+    ),
+    (
+        "gemeinde_name",
+        "String",
+        "Gemeinde_Name",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "gemeindename",
+        "String",
+        "Gemeindename",
+        False,
+        "string",
+        False,
+        1000,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    ("id", "Integer", "Id", False, "integer", False, None, None, "", "int", ""),
+    (
+        "informationen",
+        "String",
+        "Informationen",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "InLine_FID",
+        "int4",
+        "Inline_Fid",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "",
+        "int",
+        "",
+    ),
+    (
+        "is_extension",
+        "Boolean",
+        "Is extention",
+        False,
+        "boolean",
+        False,
+        None,
+        None,
+        "",
+        "boolean",
+        "",
+    ),
+    (
+        "is_extention",
+        "Boolean",
+        "Is extension",
+        False,
+        "boolean",
+        False,
+        None,
+        None,
+        "",
+        "boolean",
+        "",
+    ),
+    (
+        "kantonaler_schutz",
+        "String",
+        "Kantonaler_Schutz",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "kanton_id_bfs",
+        "Integer",
+        "Kanton_Id_Bfs",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "",
+        "int",
+        "",
+    ),
+    (
+        "kantonsname",
+        "String",
+        "Kantonsname",
+        False,
+        "string",
+        False,
+        1000,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "LENGTH",
+        "float8",
+        "Length",
+        False,
+        "number",
+        False,
+        None,
+        None,
+        "double",
+        "decimal",
+        "",
+    ),
+    (
+        "LHG_FLU_50",
+        "int4",
+        "Lhg_Flu_50",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "",
+        "int",
+        "",
+    ),
+    (
+        "LHG_FLU_51",
+        "int4",
+        "Lhg_Flu_51",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "",
+        "int",
+        "",
+    ),
+    (
+        "LHG_SEE_50",
+        "int4",
+        "Lhg_See_50",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "",
+        "int",
+        "",
+    ),
+    (
+        "LHG_SEE_51",
+        "int4",
+        "Lhg_See_51",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "",
+        "int",
+        "",
+    ),
+    ("LPOLY_", "int4", "Lpoly_", False, "integer", False, None, None, "", "int", ""),
+    (
+        "mit_bewilligung",
+        "String",
+        "Mit_Bewilligung",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    ("name", "String", "Name", False, "string", False, None, None, "", "string", ""),
+    ("Name2", "String", "Name2", False, "string", False, 30, None, "", "string", ""),
+    (
+        "NAMN1",
+        "varchar",
+        "Namn1",
+        False,
+        "string",
+        False,
+        254,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "NAMN2",
+        "varchar",
+        "Namn2",
+        False,
+        "string",
+        False,
+        254,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    ("NLN1", "varchar", "Nln1", False, "string", False, 50, None, "", "string", ""),
+    ("NLN2", "varchar", "Nln2", False, "string", False, 50, None, "", "string", ""),
+    ("number", "Integer", "Number", False, "integer", False, None, None, "", "int", ""),
+    (
+        "OBJECTID",
+        "int8",
+        "Objectid",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "int64",
+        "long",
+        "",
+    ),
+    (
+        "objektart",
+        "String",
+        "Objektart",
+        False,
+        "string",
+        False,
+        1000,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "objektname",
+        "String",
+        "Objektname",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "objekttyp",
+        "String",
+        "Objekttyp",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "OBJORIG",
+        "varchar",
+        "Objorig",
+        False,
+        "string",
+        False,
+        20,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "OBJORIG_YE",
+        "varchar",
+        "Objorig_Ye",
+        False,
+        "string",
+        False,
+        14,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "OBJVAL",
+        "varchar",
+        "Objval",
+        False,
+        "string",
+        False,
+        50,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "PERIMETER",
+        "float8",
+        "Perimeter",
+        False,
+        "number",
+        False,
+        None,
+        None,
+        "double",
+        "decimal",
+        "",
+    ),
+    (
+        "picture",
+        "String",
+        "Picture",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "picture_hole",
+        "String",
+        "Picture hole",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "picture_tee",
+        "String",
+        "Picture tee",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "priority",
+        "Integer",
+        "Priority",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "",
+        "int",
+        "",
+    ),
+    (
+        "Region_de",
+        "String",
+        "Region_De",
+        False,
+        "string",
+        False,
+        50,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "Region_en",
+        "String",
+        "Region_En",
+        False,
+        "string",
+        False,
+        100,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "Region_fr",
+        "String",
+        "Region_Fr",
+        False,
+        "string",
+        False,
+        50,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "Region_it",
+        "String",
+        "Region_It",
+        False,
+        "string",
+        False,
+        100,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "REGION_NR",
+        "Integer",
+        "Region_Nr",
+        False,
+        "integer",
+        False,
+        9,
+        None,
+        "",
+        "int",
+        "",
+    ),
+    ("RPOLY_", "int4", "Rpoly_", False, "integer", False, None, None, "", "int", ""),
+    (
+        "rrb_datum",
+        "String",
+        "Rrb_Datum",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "rrb_nr",
+        "String",
+        "Rrb_Nr",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "Shape_Area",
+        "Real",
+        "Shape_Area",
+        False,
+        "number",
+        False,
+        None,
+        None,
+        "double",
+        "decimal",
+        "",
+    ),
+    (
+        "Shape_Leng",
+        "Real",
+        "Shape_Leng",
+        False,
+        "number",
+        False,
+        None,
+        None,
+        "double",
+        "decimal",
+        "",
+    ),
+    (
+        "SimLnFLag",
+        "int4",
+        "Simlnflag",
+        False,
+        "integer",
+        False,
+        None,
+        None,
+        "",
+        "int",
+        "",
+    ),
+    (
+        "Subcode",
+        "String",
+        "Subcode",
+        False,
+        "string",
+        False,
+        50,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    (
+        "tempic",
+        "String",
+        "Tempic",
+        False,
+        "string",
+        False,
+        None,
+        None,
+        "",
+        "string",
+        "",
+    ),
+    ("T_Id", "Integer", "T_Id", False, "integer", False, None, None, "", "int", ""),
+    ("TNODE_", "int4", "Tnode_", False, "integer", False, None, None, "", "int", ""),
+    ("UUID", "varchar", "Uuid", False, "string", False, 40, None, "", "string", ""),
+    ("video", "String", "Video", False, "string", False, None, None, "", "string", ""),
+]
+
+GEOMETRY_TYPES = [
+    # geometry_type_simple, geometry_type_wkb
+    # 2D Geometry Types
+    ("Point", "Point"),
+    ("Line", "LineString"),
+    ("Polygon", "Polygon"),
+    ("Point", "MultiPoint"),
+    ("Line", "MultiLineString"),
+    ("Polygon", "MultiPolygon"),
+    # ("GeometryCollection", "GeometryCollection"),
+    # 2D Curve Types
+    ("Line", "CircularString"),
+    ("Line", "CompoundCurve"),
+    ("Polygon", "CurvePolygon"),
+    ("Line", "MultiCurve"),
+    ("Polygon", "MultiSurface"),
+    # 3D Types (Z)
+    ("Point", "PointZ"),
+    ("Line", "LineStringZ"),
+    ("Polygon", "PolygonZ"),
+    ("Point", "MultiPointZ"),
+    ("Line", "MultiLineStringZ"),
+    ("Polygon", "MultiPolygonZ"),
+    # ("GeometryCollection", "GeometryCollectionZ"),
+    ("Line", "CircularStringZ"),
+    ("Line", "CompoundCurveZ"),
+    ("Polygon", "CurvePolygonZ"),
+    ("Line", "MultiCurveZ"),
+    ("Polygon", "MultiSurfaceZ"),
+    # M Types
+    ("Point", "PointM"),
+    ("Line", "LineStringM"),
+    ("Polygon", "PolygonM"),
+    ("Point", "MultiPointM"),
+    ("Line", "MultiLineStringM"),
+    ("Polygon", "MultiPolygonM"),
+    # ("GeometryCollection", "GeometryCollectionM"),
+    ("Line", "CircularStringM"),
+    ("Line", "CompoundCurveM"),
+    ("Polygon", "CurvePolygonM"),
+    ("Line", "MultiCurveM"),
+    ("Polygon", "MultiSurfaceM"),
+    # ZM Types
+    ("Point", "PointZM"),
+    ("Line", "LineStringZM"),
+    ("Polygon", "PolygonZM"),
+    ("Point", "MultiPointZM"),
+    ("Line", "MultiLineStringZM"),
+    ("Polygon", "MultiPolygonZM"),
+    # ("GeometryCollection", "GeometryCollectionZM"),
+    ("Line", "CircularStringZM"),
+    ("Line", "CompoundCurveZM"),
+    ("Polygon", "CurvePolygonZM"),
+    ("Line", "MultiCurveZM"),
+    ("Polygon", "MultiSurfaceZM"),
+]
+
+STYLES = {
+    geometry_type: DictEncoder().encode(
+        [
+            Style(
+                name="default",
+                definition=urlsafe_b64encode(
+                    zlib.compress(
+                        (
+                            settings.BASE_DIR
+                            / f"tests/resources/styles/{geometry_type.lower()}.qml"
+                        ).read_bytes()
+                    )
+                ).decode(),
+            )
+        ]
+    )
+    for geometry_type in ["Point", "Line", "Polygon"]
+}
+
+glob_org_folder = settings.DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER
+
+
+class ProjectFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Project
+        django_get_or_create = ("organisation", "path")
+
+    name = factory.LazyAttribute(lambda a: fake.word().capitalize())
+    qgis_version = random.choice(["Qgis 3.44", "Qgis 3.40", "Qgis 3.28"])
+    config = {}
+    path = factory.LazyAttribute(
+        lambda a: fake.file_path(
+            depth=random.randint(0, 4), absolute=False, extension=["qgs", "qgz"]
+        )
+    )
+    organisation = factory.LazyFunction(lambda: random.choice([OrganisationFactory(), None]))
+
+
+class DatasourceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Datasource
+        django_get_or_create = ("qgis_layer_id", "project")
+
+    qgis_layer_id = factory.LazyAttribute(lambda a: f"{a.name.lower()}_{uuid.uuid4()}")
+    name = factory.Faker("word")
+    bbox = factory.LazyFunction(
+        lambda: ",".join(
+            [str(float(x)) for x in fake.latlng()] + [str(float(x)) for x in fake.latlng()]
+        )
+    )
+    bbox_wgs84 = factory.LazyFunction(
+        lambda: ",".join(
+            [str(float(x)) for x in fake.latlng()] + [str(float(x)) for x in fake.latlng()]
+        )
+    )
+    source = {}
+    styles = []
+    driver = factory.Iterator(["ogr", "gdal", "postgres"])
+    crs = {}
+    minimum_scale = factory.Faker("pyfloat", min_value=10.0, max_value=80000.0, positive=True)
+    maximum_scale = factory.Faker("pyfloat", min_value=85000.0, max_value=1000000.0, positive=True)
+    project = factory.SubFactory(ProjectFactory)
+
+
+class VectorFactory(DatasourceFactory):
+    class Meta:
+        model = models.Vector
+
+    geometry_type_simple = factory.Sequence(lambda n: GEOMETRY_TYPES[n % len(GEOMETRY_TYPES)][0])
+    geometry_type_wkb = factory.Sequence(lambda n: GEOMETRY_TYPES[n % len(GEOMETRY_TYPES)][1])
+    styles = factory.LazyAttribute(lambda self: STYLES[self.geometry_type_simple])
+
+    @factory.post_generation
+    def fields(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted is not None:
+            for field in extracted:
+                self.fields.add(field)
+        else:
+            fields = []
+            for _ in range(random.randint(0, 10)):
+                fields.append(FieldFactory(datasource=self))
+            self.fields.set(tuple(fields))
+
+
+class FieldFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.VectorField
+        django_get_or_create = ("name", "datasource")
+
+    name = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][0])
+    type = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][1])
+    alias = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][2])
+    nullable = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][3])
+    type_oapif = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][4])
+    is_primary_key = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][5])
+    length = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][6])
+    precision = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][7])
+    type_oapif_format = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][8])
+    type_wfs = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][9])
+    comment = factory.Sequence(lambda n: COLUMNS[n % len(COLUMNS)][10])
+
+
+class RasterFactory(DatasourceFactory):
+    class Meta:
+        model = models.Raster
+
+
+class CustomFactory(DatasourceFactory):
+    class Meta:
+        model = models.Custom

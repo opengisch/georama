@@ -1,0 +1,12 @@
+{% load i18n %}
+{% blocktranslate asvar title %}
+    The project file on the file system is missing, Georama will
+    continue to work, but this is an unexpected inconsistency!
+{% endblocktranslate %}
+<span
+        class="badge rounded-pill text-bg-danger"
+        data-bs-toggle="tooltip"
+        title="{{ title }}"
+        aria-label="{{ title }}">
+                stale
+</span>

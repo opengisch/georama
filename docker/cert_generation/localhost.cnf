@@ -1,0 +1,16 @@
+# certificate of the dev stack (keycloak, geogirafe), see Makefile
+[req]
+distinguished_name = dn
+prompt = no
+
+[dn]
+O = Georama Dev
+CN = localhost
+
+[localhost_ext]
+basicConstraints = critical, CA:FALSE
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid
+subjectAltName = DNS:localhost, DNS:app.localhost, DNS:keycloak, IP:127.0.0.1

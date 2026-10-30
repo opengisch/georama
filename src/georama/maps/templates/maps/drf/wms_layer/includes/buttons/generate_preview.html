@@ -1,0 +1,19 @@
+{% load i18n %}
+{% if can_change %}
+    {% blocktranslate asvar title %}
+        Generate preview image of this layer directly from the QSL
+    {% endblocktranslate %}
+    <button name="preview-generator-{{ item.id }}"
+            hx-post="{% url view.url_name_generate_preview_image layer.id %}"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-trigger="click"
+            hx-swap="outerHTML"
+            hx-target="#preview-{{ item.id }}"
+            class="btn btn-outline-primary"
+            role="button"
+            title="{{ title }}"
+            aria-label="{{ title }}"
+            data-bs-toggle="tooltip">
+        <i class="fa fa-file-image"></i>
+    </button>
+{% endif %}

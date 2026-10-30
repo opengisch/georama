@@ -1,3 +1,0 @@
-```mermaid
-graph LR;
-```

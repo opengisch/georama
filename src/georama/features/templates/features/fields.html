@@ -1,0 +1,30 @@
+{% load i18n %}
+
+<fieldset>
+    <legend>
+        {{ field.label }}
+    </legend>
+    <ul class="list-unstyled">
+        {% for item in field.value %}
+            <li>
+                <label class="text-break">
+                    <input type="checkbox" class="form-check-input" name="{{ field.name }}[{{ forloop.counter0 }}]visible" value="true"{% if item.visible %} checked{% endif %}>
+                    {{ item.name }}
+                </label>
+                <input type="hidden" name="{{ field.name }}[{{ forloop.counter0 }}]name" value="{{ item.name }}">
+            </li>
+        {% empty %}
+            <li>{% translate "No fields" %}</li>
+        {% endfor %}
+    </ul>
+    {% for error in field.errors.non_field_errors %}
+        <span class="help-block">{{ error }}</span>
+    {% endfor %}
+    {% for errors in field.errors %}
+        {% for name, messages in errors.items %}
+            {% for error in messages %}
+                <span class="help-block">{{ name }}: {{ error }}</span>
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+</fieldset>

@@ -1,5 +1,0 @@
-*.gpkg-wal
-*.gpkg-shm
-*
-!TestMandant/*
-TestMandant/TestProject.json

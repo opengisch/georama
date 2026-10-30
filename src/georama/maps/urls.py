@@ -1,60 +1,43 @@
-from django.urls import path
+from adrf import routers
+from django.urls import include, path
+from django.utils.translation import gettext as _
+from drf_spectacular import views
 
-from georama.maps import views
-from georama.maps.apps import central_app_label
+from georama.maps.api.viewsets import ManageWmsLayerViewSet, WmsLayerViewSet
+from georama.maps.views.ogc import OgcServer
 
-app_name = central_app_label
+app_name = "maps"
+
+management_router = routers.SimpleRouter()
+management_router.register(r"map_layers", ManageWmsLayerViewSet, basename="maplayer-manager")
+
+router = routers.SimpleRouter()
+router.register(r"map_layers", WmsLayerViewSet, basename="maplayer")
 
 urlpatterns = [
-    path("/ows", views.OgcServer.as_view(), name="maps_ogc_entry"),
+    path("", include(router.urls)),
+    path("manage/", include(management_router.urls)),
     path(
-        "",
-        views.Index.as_view(),
-        name="index",
+        "manage/schema/",
+        views.SpectacularAPIView.as_view(
+            urlconf=management_router.urls,
+            custom_settings={
+                "TITLE": _("Management API of the Maps app."),
+                "SCHEMA_PATH_PREFIX": "",
+                "SCHEMA_PATH_PREFIX_INSERT": "maps/manage",
+            },
+        ),
+        name="schema",
     ),
     path(
-        "/layer",
-        views.LayerListView.as_view(),
-        name="layer-list",
+        "manage/schema/swagger/",
+        views.SpectacularSwaggerView.as_view(url_name="maps:schema"),
+        name="swagger",
     ),
     path(
-        "/layer/add",
-        views.PublishListView.as_view(),
-        name="layer-add-list",
+        "manage/schema/redoc/",
+        views.SpectacularRedocView.as_view(url_name="maps:schema"),
+        name="redoc",
     ),
-    path(
-        "/layer/add/<str:dataset_type>/<str:dataset_id>",
-        views.PublishLayer.as_view(),
-        name="layer-add",
-    ),
-    path(
-        "/layer/<str:pk>",
-        views.MapDetailView.as_view(),
-        name="layer-detail",
-    ),
-    path(
-        "/layer/<str:pk>/update",
-        views.MapUpdateView.as_view(),
-        name="layer-update",
-    ),
-    path(
-        "/layer/<str:pk>/delete",
-        views.MapDeleteView.as_view(),
-        name="layer-delete",
-    ),
-    path(
-        "/layer/<str:pk>/permission",
-        views.PermissionView.as_view(),
-        name="layer-permission-list",
-    ),
-    path(
-        "/layer/<str:pk>/permission/user",
-        views.UserListView.as_view(),
-        name="layer-permission-user-list",
-    ),
-    path(
-        "/layer/<str:pk>/permission/group",
-        views.GroupListView.as_view(),
-        name="layer-permission-group-list",
-    ),
+    path("ows/", OgcServer.as_view(), name="maps_ogc_entry"),
 ]

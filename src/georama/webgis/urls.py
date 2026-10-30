@@ -1,86 +1,23 @@
-"""
-URL configuration for core project.
+from adrf.routers import DefaultRouter, SimpleRouter
+from django.urls import include, path
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+from georama.webgis.api.viewsets import ManageThemeViewSet, ThemeViewSet, UrlShortenerViewSet
+from georama.webgis.views.ogc import OgcServerWebGis
 
-from django.urls import path
+app_name = "webgis"
 
-from georama.webgis import views
-from georama.webgis.apps import central_app_label
+management_router = SimpleRouter()
+management_router.register(r"themes", ManageThemeViewSet, basename="theme-manager")
 
-app_name = central_app_label
+router = DefaultRouter()
+router.register(r"themes", ThemeViewSet, basename="theme")
+
+short_router = SimpleRouter(trailing_slash=False)
+short_router.register(r"short", UrlShortenerViewSet, basename="short")
 
 urlpatterns = [
-    path("", views.Index.as_view(), name="index"),
-    path("/theme", views.ThemesListView.as_view(), name="theme-list"),
-    path(
-        "/theme/add/project/<str:pk>",
-        views.PublishThemeFromProject.as_view(),
-        name="theme-add",
-    ),
-    path(
-        "/theme/add/project",
-        views.PublishProjectListView.as_view(),
-        name="theme-add-list",
-    ),
-    path(
-        "/theme/<str:pk>",
-        views.ThemeDetailView.as_view(),
-        name="theme-detail",
-    ),
-    path(
-        "/theme/<str:pk>/update",
-        views.ThemeUpdateView.as_view(),
-        name="theme-update",
-    ),
-    path(
-        "/theme/<str:pk>/delete",
-        views.ThemeDeleteView.as_view(),
-        name="theme-delete",
-    ),
-    path(
-        "/theme/<str:pk>/permission",
-        views.PermissionView.as_view(),
-        name="theme-permission-list",
-    ),
-    path(
-        "/theme/<str:pk>/permission/user",
-        views.UserListView.as_view(),
-        name="theme-permission-user-list",
-    ),
-    path(
-        "/theme/<str:pk>/permission/group",
-        views.GroupListView.as_view(),
-        name="theme-permission-group-list",
-    ),
-    path("/themes.<str:format>", views.Themes.as_view(), name="themes"),
-    path("/<str:folder_name>/", views.GeoGirafe.as_view(), name="geogirafe"),
-    path("/<str:folder_name>/config.json", views.Config.as_view(), name="config"),
-    path("/maps", views.OgcServerWebgis.as_view(), name="ogc_entry"),
-    path(
-        "/publish_dataset_as/wms/<str:dataset_type>/<str:dataset_id>",
-        views.AdminPublishDatasetAsWms.as_view(),
-        name="publish_dataset_as_wms",
-    ),
-    path(
-        "/translations/<str:lang>.json",
-        views.translation_json,
-        name="translation_json",
-    ),
-    path(
-        "/short/get/<str:id>", views.UrlShortenerRetrieve.as_view(), name="get_shortened_url"
-    ),
-    path("/short/create", views.UrlShortenerCreate.as_view(), name="shorten_url"),
+    path("", include(router.urls)),
+    path("", include(short_router.urls)),
+    path("manage/", include(management_router.urls)),
+    path("ows/", OgcServerWebGis.as_view(), name="ows_entry"),
 ]

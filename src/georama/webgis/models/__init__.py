@@ -1,21 +1,6 @@
-from georama.webgis.models.short import UrlShortener
-from georama.webgis.models.themes import (
-    Interface,
-    Layer,
-    LayerGroupMp,
-    OgcServer,
-    PublishedAsLayerWms,
-    PublishedAsLayerWmts,
-    PublishedAsTheme,
-)
+from georama.webgis.models.metadata import Metadata
+from georama.webgis.models.theme import Theme
+from georama.webgis.models.url_shortener import UrlShortener
+from georama.webgis.models.wms_layer import WmsLayer
 
-__all__ = [
-    "Interface",
-    "Layer",
-    "LayerGroupMp",
-    "OgcServer",
-    "PublishedAsLayerWms",
-    "PublishedAsLayerWmts",
-    "PublishedAsTheme",
-    "UrlShortener",
-]
+__all__ = ["Theme", "Metadata", "WmsLayer", "UrlShortener"]

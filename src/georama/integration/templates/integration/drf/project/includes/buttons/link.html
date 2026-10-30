@@ -1,0 +1,20 @@
+{% load static i18n %}
+
+{% blocktranslate asvar title %}
+    Integrate QGIS project in Georama by loading it from disk
+{% endblocktranslate %}
+<form id="{{ project_file.path_from_orga }}-link"
+      action="{% url view.non_integrated_url_name %}" method="post">
+    {% csrf_token %}
+    <input id="{{ project_file.path_from_orga }}" name="path"
+           value="{{ project_file.path_from_orga }}" hidden>
+</form>
+<button form="{{ project_file.path_from_orga }}-link"
+        type="submit"
+        class="btn btn-outline-primary"
+        role="button"
+        title="{{ title }}"
+        aria-label="{{ title }}"
+        data-bs-toggle="tooltip">
+    <i class="fa fa-link"></i>
+</button>

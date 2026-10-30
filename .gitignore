@@ -1,50 +1,38 @@
-.idea/
-.vscode/
-.env
-docker-compose.override.yml
-*.egg-info/
-*.pyc
-*\.bak
-\.fuse*
-.coverage
-.coverage.*
-.DS_Store
-*__pycache__
-reqs.txt
-
-docs/_build/
-dist/
+# Python-generated files
+__pycache__/
+*.py[oc]
 build/
-htmlcov/
-src/georama/.static
+dist/
+wheels/
+*.egg-info
+.idea
 
-.tox/
-node_modules
-
-dependency-graphs/
-test-results/
-uml-diagrams/
-pydoer-graphs/
-
-poetry.lock
-
-# LOGS
-
-cookie-py.log
-georama.log
-src/georama/georama.log
-
+# Virtual environments
 .venv
-docs/site
+.static
+
+# environment
+.env
+.env.dev.local
 
 
-# GeoGirafe themes.json examples
-map.cartoriviera.ch.json
-mapnv.c.json
-test.py
-dict.py
+# local dev certificates, see docker/cert_generation
+.certs/
 
-tests/resources
-!tests/resources/TestMandant
+# docker compose overwrites
+compose.override.yml
+docker-compose.override.yml
 
-.profile
+# TODO: Remove
+tests/resources/projects/global/*
+!tests/resources/projects/global/TestMandant/
+tests/resources/projects/global/TestMandant/TestProject.qgz.json
+src/georama/core/static/core/build-info.json
+
+# Zensical documentation build output
+docs/site/
+docs/.cache/
+
+# Local notes
+commands.md
+commands_refactoring.md

@@ -1,5 +1,4 @@
-"""
-This module implements necessary WFS 2.0 handling. It mainly deals with the interfaces
+"""This module implements necessary WFS 2.0 handling. It mainly deals with the interfaces
 of OGC and ISO.
 
 In general, we have to handle 2 incoming request types:
@@ -33,12 +32,10 @@ from typing import Any
 
 import numpy as np
 from django.db.models import Model
+from qgis_server_light.interface.common import Crs
 from qgis_server_light.interface.job.common.input import OgcFilterFES20
 from qgis_server_light.interface.job.common.output import JobResult
-from qgis_server_light.interface.job.feature.input import (
-    FeatureQuery,
-    QslJobParameterFeature,
-)
+from qgis_server_light.interface.job.feature.input import FeatureQuery, QslJobParameterFeature
 from qgis_server_light.interface.job.feature.output import QueryCollection
 from xsdata.formats.converter import Converter, converter
 from xsdata.formats.dataclass.parsers import JsonParser, XmlParser
@@ -46,6 +43,7 @@ from xsdata.formats.dataclass.serializers import JsonSerializer, XmlSerializer
 from xsdata.formats.dataclass.serializers.config import SerializerConfig
 from xsdata.models.datatype import XmlDateTime
 
+from georama.core.models import Organisation
 from georama.maps.interfaces.georama.requests import handle_list_encoding
 from georama.maps.interfaces.ogc.wfs_2_0_0 import (
     Bbox,
@@ -76,7 +74,6 @@ from georama.maps.interfaces.opengis.gml_3_2_1 import (
     PosList,
     SurfaceMembers,
 )
-from georama.maps.models import PublishedAsWms
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 
 
@@ -93,13 +90,27 @@ converter.register_converter(np.ndarray, NumpyArrayConverter())
 
 
 class WfsGetFeature(WfsOperation):
-    def __init__(self, appname: str, url: str, user, model: Model):
-        super().__init__(appname, url, user, model)
+    def __init__(
+        self,
+        appname: str,
+        url: str,
+        user,
+        model: Model,
+        organisation: Organisation,
+        perms: list[str],
+    ):
+        super().__init__(appname, url, user, model, organisation, perms)
+        # srs per feature collection in the order QSL returns them (one collection per
+        # layer of each query), collected while building the job, since the QSL job
+        # layers don't carry the crs and the response is rendered without db access
+        self.feature_collection_srs: list[str] = []
+        # same order as feature_collection_srs, whether x/y of the WKB have to be swapped
+        self.feature_collection_swap_axis: list[bool] = []
         self.name_space_map = {
             "": "http://www.opengis.net/wfs/2.0",
             "xsi": "http://www.w3.org/2001/XMLSchema-instance",
             "gml": "http://www.opengis.net/gml/3.2",
-            self.own_namespace: "https://www.opengis.ch/georama",
+            self.own_namespace: self.own_namespace_domain,
         }
         self.geometry_types = {
             "point": [1, 1001, 2001, 3001],
@@ -121,49 +132,8 @@ class WfsGetFeature(WfsOperation):
             "TEXT/JSON",
         ]
 
-    def obtain_accessible_layers(
-        self, layer_names: list[str] | None = None
-    ) -> list[PublishedAsWms]:
-        """
-        This method derives the layers which are available for WFS operation.
-        This Method solves multiple purposes:
-            1. Find configured VECTOR layers from Georama database
-            2. Check if layers queried in request but not configured in Georama database
-            3. Check permissions of layers
-        Args:
-            layer_names: Optional list of layer names which are checked against the
-                Georama database (default: None)
-
-        Returns:
-            List of accessible layers.
-        """
-        accessible_layers = []
-        # we do want only published vector datasets!
-        query = self.model.objects.exclude(vector_dataset__isnull=True)
-        if layer_names:
-            query = query.filter(name__in=layer_names)
-        found_layers = query.all()
-        found_difference = set(layer_names) - {layer.name for layer in found_layers}
-        if len(found_difference) > 0:
-            raise AttributeError(
-                self.render_exception(f"Layer(s) not found: {list(found_difference)}")
-            )
-        for published_as in found_layers:
-            if (
-                published_as.has_read_permission(self.user, self.appname)
-                and published_as.queryable
-            ):
-                accessible_layers.append(published_as)
-        permission_difference = set(layer_names) - {layer.name for layer in accessible_layers}
-        if len(permission_difference) > 0:
-            raise PermissionError(
-                self.render_exception(f"Layer(s) not permitted: {list(permission_difference)}")
-            )
-        return accessible_layers
-
     def prepare_filter_element(self, filter_definition: str) -> Filter:
-        """
-        Creates an instance of Filter from the passed XML string filter definition.
+        """Creates an instance of Filter from the passed XML string filter definition.
 
         Args:
             filter_definition: The XML string from which the Filter instance will be created.
@@ -171,14 +141,12 @@ class WfsGetFeature(WfsOperation):
         Returns:
             The Filter instance.
         """
-
         parser = XmlParser()
         fes_filter = parser.from_string(filter_definition, Filter)
         return fes_filter
 
     def check_filter_empty(self, filter: Filter) -> bool:
-        """
-        Little helper method to check if a filter does not contain any set
+        """Little helper method to check if a filter does not contain any set
         attributes. This is important,
         since empty filters can cause trouble.
 
@@ -193,9 +161,58 @@ class WfsGetFeature(WfsOperation):
         else:
             return True
 
-    def prepare_queries(self, query_params: dict) -> list[Query]:
+    @staticmethod
+    def prepare_bbox_filter(bbox_definition: str, srs_name: str | None) -> Filter:
+        """Creates the filter for the KVP BBOX parameter.
+
+        Args:
+            bbox_definition: The BBOX parameter, ``minx,miny,maxx,maxy[,crs]`` in the axis
+                order of the crs.
+            srs_name: The SRSNAME parameter, it is the crs of the BBOX if it has none.
+
+        Returns:
+            The filter. Without any crs the envelope has none, it is assigned when the
+            layer is known (see ``assign_default_bbox_crs``).
         """
-        This implements the part of the spec to construct a query object out of simple
+        bbox_list = bbox_definition.split(",")
+        bbox_crs = bbox_list[4] if len(bbox_list) > 4 else srs_name
+        return Filter(
+            choice=[
+                Bbox(
+                    choice=[
+                        # QGIS applies BBOX always on the geometry of the layer, the name
+                        # is the one used in DescribeFeatureType
+                        ValueReference("geometry"),
+                        Envelope(
+                            lower_corner=DirectPositionType(value=bbox_list[0:2]),
+                            upper_corner=DirectPositionType(value=bbox_list[2:4]),
+                            srs_name=bbox_crs,
+                            srs_dimension=2,
+                        ),
+                    ]
+                )
+            ]
+        )
+
+    @staticmethod
+    def assign_default_bbox_crs(fes_filter: Filter | None, layer_crs: Crs) -> None:
+        """A BBOX without crs is in the DefaultCRS of the feature type, which is the crs of the
+        layer. The URI is used so that QGIS reads the BBOX in the axis order of the crs.
+
+        Args:
+            fes_filter: The filter of the query.
+            layer_crs: The crs of the layer.
+        """
+        if fes_filter is None:
+            return
+        for operator in fes_filter.choice:
+            if isinstance(operator, Bbox):
+                for operand in operator.choice:
+                    if isinstance(operand, Envelope) and operand.srs_name is None:
+                        operand.srs_name = layer_crs.ogc_uri
+
+    def prepare_queries(self, query_params: dict) -> list[Query]:
+        """This implements the part of the spec to construct a query object out of simple
         KVP (key value pair)
         encoded parameters from GET URL request.
 
@@ -214,7 +231,6 @@ class WfsGetFeature(WfsOperation):
         Returns:
             The prepared queries
         """
-
         type_names_param_value = query_params.get("TYPENAMES")
         aliases_param_value = query_params.get("ALIASES")
         filter_param_value = query_params.get("FILTER")
@@ -265,36 +281,16 @@ class WfsGetFeature(WfsOperation):
                     )
             else:
                 aliases_value_list = []
+            if filter_definition and bbox_definition:
+                raise AttributeError(
+                    self.render_exception("FILTER and BBOX are mutually exclusive.")
+                )
             if filter_definition:
                 fes_filter = self.prepare_filter_element(filter_definition)
+            elif bbox_definition:
+                fes_filter = self.prepare_bbox_filter(bbox_definition, srs_name)
             else:
                 fes_filter = Filter()
-            if bbox_definition:
-                bbox_list = bbox_definition.split(",")
-                try:
-                    bbox_crs = bbox_list[4]
-                except IndexError:
-                    logging.info(
-                        f"There was no SRS definition in the BBOX parameter, we assume"
-                        f" it has the SRS of the request: {srs_name}"
-                    )
-                    bbox_crs = srs_name
-                # we expect one optional BBOX which is assigned to all passed typenames!
-                # This aligns with spec as it 7.9.2.3 of the spec doc. However, there is
-                # one example wich supports that B.8.5.4
-                # and one which states a conflicting situation B.8.5.5
-                # TODO: Check how the conflict can be explained?
-                fes_filter.bbox = Bbox(
-                    choice=[ValueReference(type_name) for type_name in type_names_value_list]
-                    + [
-                        Envelope(
-                            lower_corner=DirectPositionType(value=bbox_list[0:2]),
-                            upper_corner=DirectPositionType(value=bbox_list[2:4]),
-                            srs_name=bbox_crs,
-                            srs_dimension=2,
-                        )
-                    ]
-                )
             queries.append(
                 Query(
                     srs_name=srs_name,
@@ -306,8 +302,7 @@ class WfsGetFeature(WfsOperation):
         return queries
 
     def query_parameters_to_get_feature_request(self, query_params: dict) -> GetFeature:
-        """
-        Transforms a dictionary of query parameters to a GetFeature object.
+        """Transforms a dictionary of query parameters to a GetFeature object.
 
         Args:
             query_params: The dictionary of query parameters as they are coming from the
@@ -327,8 +322,7 @@ class WfsGetFeature(WfsOperation):
         )
 
     def prepare_feature_collection(self, feature_collection: FeatureCollection):
-        """
-        Used to alter the feature collection with additional runtime configuration.
+        """Used to alter the feature collection with additional runtime configuration.
 
         Args:
             feature_collection: The feature collection which should be altered.
@@ -348,14 +342,13 @@ class WfsGetFeature(WfsOperation):
         feature_collection.number_returned = len(feature_collection.member)
         return feature_collection
 
-    def unwrap_type_names(
-        self, get_feature_params: GetFeature, unique: bool = True
-    ) -> list[str]:
-        """
-        Get a list of all typenames
+    def unwrap_type_names(self, get_feature_params: GetFeature, unique: bool = True) -> list[str]:
+        """Get a list of all typenames.
+
         Args:
             get_feature_params: The parameter how it was taken from request
             unique: If the list should not contain duplicates
+
         Returns:
             flat list of type names
         """
@@ -369,15 +362,45 @@ class WfsGetFeature(WfsOperation):
                 type_names.extend(query.type_names)
         return type_names
 
+    def resolve_srs_name(self, srs_name: str, supported_crs: list[Crs]) -> Crs:
+        """Matches the srsName of a query against the crs advertised for the layer. This is a
+        pure comparison of the identifiers, the transformation itself is done by QSL.
+
+        Args:
+            srs_name: The srsName as it was passed with the query, e.g. ``EPSG:2056``,
+                ``urn:ogc:def:crs:EPSG::2056`` or ``http://www.opengis.net/def/crs/EPSG/0/2056``
+            supported_crs: The crs advertised for the layer (DefaultCRS and OtherCRS).
+
+        Returns:
+            The matching crs.
+
+        Raises:
+            AttributeError: In case the srsName is not supported for the layer.
+        """
+        for crs in supported_crs:
+            identifiers = [crs.auth_id, crs.ogc_uri, crs.ogc_urn]
+            if srs_name.lower() in [identifier.lower() for identifier in identifiers if identifier]:
+                return crs
+        # identifiers might be missing for crs which are not known by an authority
+        supported_identifiers = [
+            crs.ogc_uri or crs.auth_id for crs in supported_crs if crs.ogc_uri or crs.auth_id
+        ]
+        raise AttributeError(
+            self.render_exception(
+                f"srsName {srs_name} is not supported, supported are:"
+                f" {', '.join(supported_identifiers)}"
+            )
+        )
+
     def getfeature_to_qslgetfeaturejob(
         self, get_feature_parameter: GetFeature
     ) -> QslJobParameterFeature:
-        """
-        This method transforms a
+        """This method transforms a
         georama.maps.interfaces.ogc.wfs_2_0_0.net.opengis.wfs.pkg_2.get_feature.GetFeature
         constructed from the original request towards Georama into a
         qgis_server_light.interface.job.QslGetFeatureJob. This is done to minimize the
         interface and keep control about what we send over to the worker.
+
         Args:
             get_feature_parameter: The query parameters coming in from Django request.
 
@@ -386,27 +409,36 @@ class WfsGetFeature(WfsOperation):
         """
         qsl_feature_queries = []
         for query in get_feature_parameter.stored_query_or_query:
+            if len(query.type_names) > 1:
+                # several typenames in one query are a join in WFS 2.0, which
+                # we do not implement (ImplementsStandardJoins is FALSE). Several layers
+                # have to be requested as several queries, e.g. TYPENAMES=(a)(b)
+                # this a limitation qe have by how QSL handles layers (as an independent
+                # list of objects and without magic interdependency)
+                raise AttributeError(
+                    self.render_exception(
+                        "Joins are not supported, request each typename in its own query:"
+                        f" {', '.join(query.type_names)}"
+                    )
+                )
             # based on the sanitized list of requested layer names we fetch then
             # the definitions of these
             # layers (this includes permission check and existence check)
             accessible_datasets = []
-            for layer in self.obtain_accessible_layers(
-                self.sanitized_typenames(query.type_names)
-            ):
-                accessible_datasets.append(layer.vector_dataset.to_qsl_job_layer())
+            query_crs = None
+            for layer in self.obtain_accessible_layers(self.sanitized_typenames(query.type_names)):
+                accessible_datasets.append(layer.to_qsl_job_layer())
+                layer_crs = layer.datasource.crs_to_qsl
+                self.assign_default_bbox_crs(query.filter, layer_crs)
+                if query.srs_name:
+                    # only one layer per query (joins are rejected above)
+                    query_crs = self.resolve_srs_name(query.srs_name, self.supported_crs(layer_crs))
+                # the crs requested with the query (stored query in WFS2.0), as fallback the
+                # crs of the layer
+                output_crs = query_crs or layer_crs
+                self.feature_collection_srs.append(self.srs_name_of(output_crs))
+                self.feature_collection_swap_axis.append(self.swap_axis(output_crs))
             if query.filter:
-                if len(accessible_datasets) > 1:
-                    # we dont allow that, since its not possible to create filter
-                    # from expression on multiple
-                    # layers in QGIS currently.
-                    raise AttributeError(
-                        self.render_exception(
-                            "Currently QGIS-Server-Light does not support querying multiple"
-                            " layers in one"
-                            " query and passing a filter on that. This is a"
-                            " limitation of QGIS."
-                        )
-                    )
                 filter = XmlSerializer().render(
                     query.filter,
                     ns_map={
@@ -421,6 +453,7 @@ class WfsGetFeature(WfsOperation):
                     layers=accessible_datasets,
                     aliases=query.aliases,
                     filter=OgcFilterFES20(definition=filter),
+                    crs=query_crs,
                 )
             )
         return QslJobParameterFeature(
@@ -429,11 +462,57 @@ class WfsGetFeature(WfsOperation):
             queries=qsl_feature_queries,
         )
 
-    def parse_wkb_to_gml3(
-        self, wkb: bytes, srs_definition: str
-    ) -> GeometryMember | GeometryMembers:
+    @staticmethod
+    def srs_name_of(crs: Crs) -> str:
+        """The srs name the geometries are labeled with. The URN is used independent of the
+        requested notation, since the short ``EPSG:<code>`` notation is read differently by
+        clients (x/y by QGIS and GeoServer, authority axis order by OpenLayers), the URN
+        always means the axis order of the crs. The URN is preferred over the URI, since
+        OpenLayers resolves the URN for every registered ``EPSG:<code>`` projection but the
+        URI only for its built-in EPSG:4326 and EPSG:3857.
+
+        Args:
+            crs: The crs of the geometries.
+
+        Returns:
+            The URN of the crs, as fallback the URI and for crs without both the authority id.
         """
-        This method directly reads the bytes of WKB representation and shreds them into the
+        return crs.ogc_urn or crs.ogc_uri or crs.auth_id
+
+    @staticmethod
+    def swap_axis(crs: Crs) -> bool:
+        """Decides whether the coordinates, which QSL always delivers as x/y (east/north), have
+        to be written in swapped order. This is the case for crs with inverted axis order
+        (e.g. lat/lon for EPSG:4326) when they are labeled with their URN or URI (see
+        ``srs_name_of``).
+
+        Args:
+            crs: The crs of the geometries.
+
+        Returns:
+            True if the axis order has to be swapped.
+        """
+        return crs.axis_inverted and bool(crs.ogc_urn or crs.ogc_uri)
+
+    @staticmethod
+    def swap_axis_of_coordinates(coordinates: np.ndarray, dimensions: int) -> np.ndarray:
+        """Swaps the first two ordinates of each coordinate in a flat list of coordinates.
+
+        Args:
+            coordinates: The flat coordinates as they are read from WKB.
+            dimensions: The number of ordinates per coordinate.
+
+        Returns:
+            The flat coordinates with swapped x and y.
+        """
+        swapped_coordinates = coordinates.reshape(-1, dimensions).copy()
+        swapped_coordinates[:, [0, 1]] = swapped_coordinates[:, [1, 0]]
+        return swapped_coordinates.reshape(-1)
+
+    def parse_wkb_to_gml3(
+        self, wkb: bytes, srs_definition: str, swap_axis: bool = False
+    ) -> GeometryMember | GeometryMembers:
+        """This method directly reads the bytes of WKB representation and shreds them into the
         desired objects from the GML3 interface. This avoids nested iterations where ever
         possible as it often comes by libraries which are parsing WKB in some GeoJSON like
         structure before transforming it to the desired format (GML3 in our case).Some tests
@@ -447,6 +526,8 @@ class WfsGetFeature(WfsOperation):
             srs_definition: The definition string of the SRS of the WKB geometry. This is
                 usually something like URN e.g. ``urn:ogc:def:crs:EPSG::2056`` or URL e.g.
                 ``http://www.opengis.net/def/crs/EPSG/0/2056``
+            swap_axis: Whether x and y of the coordinates have to be swapped, see
+                ``swap_axis``.
 
         Returns:
             A GML3 object representing the parsed geometry. The exact type depends on the
@@ -460,6 +541,12 @@ class WfsGetFeature(WfsOperation):
         # read following 4 bytes for geometry type information
         geometry_type = np.frombuffer(wkb[0:4], dtype=endian + "I")[0]
         wkb = wkb[4:]
+
+        def read_coordinates(coordinates_wkb: bytes, dimensions: int) -> np.ndarray:
+            coordinates = np.frombuffer(coordinates_wkb, dtype=endian + "f8")
+            if swap_axis:
+                return self.swap_axis_of_coordinates(coordinates, dimensions)
+            return coordinates
 
         is_multipoint = geometry_type in self.geometry_types["multipoint"]
         if geometry_type in self.geometry_types["point"] or is_multipoint:
@@ -524,9 +611,7 @@ class WfsGetFeature(WfsOperation):
                 points[i] = Point(
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
-                    pos=Pos(
-                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
-                    ),
+                    pos=Pos(value=read_coordinates(wkb[0:geometry_part_offset], dimensions)),
                 )
                 wkb = wkb[geometry_part_offset:]
 
@@ -608,7 +693,7 @@ class WfsGetFeature(WfsOperation):
                     srs_name=srs_definition,
                     srs_dimension=dimensions,
                     pos_list=PosList(
-                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
+                        value=read_coordinates(wkb[0:geometry_part_offset], dimensions)
                     ),
                 )
 
@@ -701,7 +786,7 @@ class WfsGetFeature(WfsOperation):
                     logging.debug(f"  parsing ring:{ring} with: {number_of_points} points")
 
                     pos_list = PosList(
-                        value=np.frombuffer(wkb[0:geometry_part_offset], dtype=endian + "f8")
+                        value=read_coordinates(wkb[0:geometry_part_offset], dimensions)
                     )
                     # slicing wkb be geometry part offset
                     wkb = wkb[geometry_part_offset:]
@@ -710,9 +795,7 @@ class WfsGetFeature(WfsOperation):
                         polygon.exterior = Exterior(linear_ring=LinearRing(pos_list=pos_list))
                     else:
                         # all others are interior rings
-                        polygon.interior.append(
-                            Interior(linear_ring=LinearRing(pos_list=pos_list))
-                        )
+                        polygon.interior.append(Interior(linear_ring=LinearRing(pos_list=pos_list)))
                 polygons[i] = polygon
 
             if is_multipolygon:
@@ -726,25 +809,27 @@ class WfsGetFeature(WfsOperation):
             else:
                 return GeometryMember(polygon=polygons[0])
 
-    def get_feature(
-        self, get_feature_parameter: GetFeature, result: JobResult, job: QslJobParameterFeature
-    ):
+    def get_feature(self, result: JobResult):
         qsl_query_collection = JsonParser().from_bytes(result.data, QueryCollection)
         wfs_feature_collection = FeatureCollection(
             number_returned=0, number_matched=qsl_query_collection.numbers_matched
         )
 
         class GeoramaMeta:
-            namespace = "https://www.opengis.ch/georama"
+            namespace = self.own_namespace_domain
 
         for feature_collection_index, feature_collection in enumerate(
             qsl_query_collection.feature_collections
         ):
             wfs_feature_collection.number_returned += len(feature_collection.features)
+            feature_type_name = self.encode_layer_name(feature_collection.name)
+            gml_identifier_field = (
+                f"{self.own_namespace}_{feature_collection.name.replace('-', '_')}_identifier"
+            )
             for feature_sequence, feature in enumerate(feature_collection.features):
                 fields = []
                 feature_dict = {}
-                for attribute in feature.attributes:
+                for attribute_index, attribute in enumerate(feature.attributes):
                     if attribute.value is not None:  # noqa: SIM108
                         type_name = type(attribute.value)
                     else:
@@ -752,64 +837,58 @@ class WfsGetFeature(WfsOperation):
                         # data in this step we
                         # define all None values to be str, which can be None then -.-
                         type_name = str
-                    field_metadata = {}
+                    # attribute names come from the datasource and are not necessarily valid
+                    # python identifiers (e.g. "my field", "1a", "class", "geometry"), so the
+                    # dataclass field gets a generated name and the element keeps the original
+                    attribute_field = f"attribute_{attribute_index}"
+                    field_metadata = {"name": attribute.name}
                     if isinstance(attribute.value, bytes):
                         field_metadata["format"] = "base64"
                     fields.append(
                         (
-                            attribute.name,
+                            attribute_field,
                             type_name,
                             field(default=None, metadata=field_metadata),
                         )
                     )
                     if attribute.value is None:
                         # related to: https://github.com/tefra/xsdata/issues/408
-                        feature_dict[attribute.name] = ""
+                        feature_dict[attribute_field] = ""
                     else:
-                        feature_dict[attribute.name] = attribute.value
-                # TODO: This has to be fixed, we need to respect actual PK fields for
-                #  that! Currently a
-                #  feature can have a column with name id which might not
-                #  be the actual primary key
-                #  but it gets treated like one...
-                if "id" not in feature_dict:
-                    fields.append(
-                        (
-                            "id",
-                            str,
-                            field(
-                                default=None,
-                                metadata={
-                                    "type": "Attribute",
-                                    "namespace": "http://www.opengis.net/gml/3.2",
-                                    "nillable": True,
-                                },
-                            ),
-                        )
-                    )
-                    feature_dict["id"] = (
-                        f"{self.own_namespace}:{feature_collection.name}.{feature_sequence}"
-                    )
+                        feature_dict[attribute_field] = attribute.value
+                # this field ends up in the xml as attribute gml:id
+                # e.g.:
+                # <member>
+                #         <georama:_0977c25f-a3a9-40f4-ab38-3cd80777feef
+                #                 gml:id="_0977c25f-a3a9-40f4-ab38-3cd80777feef.0">
                 fields.append(
-                    ("geometry", GeometryMember | GeometryMembers, field(default=None))
+                    (
+                        gml_identifier_field,
+                        str,
+                        field(
+                            default=None,
+                            metadata={
+                                "type": "Attribute",
+                                "namespace": "http://www.opengis.net/gml/3.2",
+                                "nillable": True,
+                                "name": "id",
+                            },
+                        ),
+                    )
                 )
-                feature_dataclass = make_dataclass(feature_collection.name, fields=fields)
+                # gml:id is a xs:ID (NCName), so no namespace prefix with colon here
+                feature_dict[gml_identifier_field] = f"{feature_type_name}.{feature_sequence}"
+                # finally we add the geometry field
+                fields.append(("geometry", GeometryMember | GeometryMembers, field(default=None)))
+                feature_dataclass = make_dataclass(feature_type_name, fields=fields)
                 feature_dataclass.Meta = GeoramaMeta
                 feature_object = feature_dataclass(**feature_dict)
                 start = time.time()
-                if get_feature_parameter.stored_query_or_query[0].srs_name:
-                    srs = get_feature_parameter.stored_query_or_query[
-                        feature_collection_index
-                    ].srs_name
-                else:
-                    srs = None
-                    for dataset in job.queries[feature_collection_index].datasets:
-                        if dataset == feature_collection.name:
-                            srs = dataset.crs.ogc_uri
-                            break
+
                 feature_object.geometry = self.parse_wkb_to_gml3(
                     feature.geometry.value,
-                    srs,
+                    self.feature_collection_srs[feature_collection_index],
+                    self.feature_collection_swap_axis[feature_collection_index],
                 )
                 logging.debug(f"Rendered GML3 from WKB direct: {time.time() - start}")
                 wfs_feature_collection.member.append(Member(content=[feature_object]))
@@ -825,7 +904,7 @@ class WfsGetFeature(WfsOperation):
                 ignore_default_attributes=True,
                 schema_location=" ".join(
                     [
-                        "https://www.opengis.ch/georama",
+                        self.own_namespace_domain,
                         f"{self.url}SERVICE=WFS&VERSION=2.0.0&REQUEST=DescribeFeatureType&TYPENAME={','.join(requested_typenames)}",
                         "http://www.opengis.net/wfs/2.0",
                         "http://schemas.opengis.net/wfs/2.0/wfs.xsd",
@@ -848,10 +927,7 @@ class WfsGetFeature(WfsOperation):
         feature_collection: FeatureCollection,
         requested_typenames: list[str],
     ) -> tuple[str, str, bool]:
-        if (
-            requested_format == "TEXT/XML"
-            or requested_format == "APPLICATION/GML+XML; VERSION=3.2"
-        ):
+        if requested_format == "TEXT/XML" or requested_format == "APPLICATION/GML+XML; VERSION=3.2":
             return (
                 self.render_xml(feature_collection, requested_typenames),
                 f"{requested_format.lower()}; charset=utf-8",
@@ -873,8 +949,7 @@ class WfsGetFeature(WfsOperation):
             logging.debug("No matching Format was found.")
             return (
                 self.render_operation_parsing_failed(
-                    f"Format {requested_format} is not allowed."
-                    f"Allowed is {self.allowed_formats}"
+                    f"Format {requested_format} is not allowed.Allowed is {self.allowed_formats}"
                 ),
                 "text/xml; charset=utf-8",
                 False,

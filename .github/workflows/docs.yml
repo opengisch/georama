@@ -1,55 +1,30 @@
-name: Build docs
-
+name: Documentation
 on:
   push:
     branches:
-      - master
-  pull_request:
-    branches:
-      - master
-
-
+      - zensical-doc
+      - refactoring
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
 jobs:
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    env:
-      TX_TOKEN: ${{ secrets.TX_TOKEN }}
     steps:
-      - run: sudo rm /etc/apt/sources.list.d/*.list
-      - run: sudo apt update
-      - run: sudo apt-get install -y python3-venv python3-dev unixodbc odbc-mdbtools gdal-bin libgdal-dev libpq-dev build-essential make git curl
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Checkout Python
-        uses: actions/setup-python@v7
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - run: uv run --frozen --only-group docs zensical build --clean
+        working-directory: docs
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          python-version: '3.11'
-
-      - name: Install Python requirements
-        run: make install-docs
-
-      - name: Build Docs
-        run: make doc-html
-
-      - name: Zip the site
-        run: |
-          cd docs/site
-          zip -r ../docs.zip .
-
-      - name: Upload docs YIP
-        uses: actions/upload-artifact@v7
-        with:
-          name: docs-zip
-          path: docs/docs.zip
-
-      - name: Upload docs
-        uses: actions/upload-artifact@v7
-        with:
-          name: docs
           path: docs/site
-          if-no-files-found: error
-
-# We disable that currently, since we deploy docs manually to docs.georama.io
-#      - name: Deploy to GitHub Pages
-#        run: make doc-gh-deploy
+      - uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        id: deployment

@@ -2,6 +2,7 @@ import logging
 
 from qgis_server_light.interface.job.legend.input import QslJobParameterLegend
 
+from georama.core.models import Organisation
 from georama.maps.interfaces.georama.requests import GetLegendGraphicRequestParams
 from georama.maps.services.wms_1_3_0 import WmsOperation
 
@@ -9,8 +10,10 @@ from georama.maps.services.wms_1_3_0 import WmsOperation
 class WmsGetLegendGraphic(WmsOperation):
     default_style_name = "default"
 
-    def __init__(self, appname: str, url: str, user, model):
-        super().__init__(appname, url, user, model)
+    def __init__(
+        self, appname: str, url: str, user, model, organisation: Organisation, perms: list[str]
+    ):
+        super().__init__(appname, url, user, model, organisation, perms)
 
     def prepare_job_content(
         self, service_params: GetLegendGraphicRequestParams
@@ -39,16 +42,16 @@ class WmsGetLegendGraphic(WmsOperation):
             service_params.style_list,
             strict=True,
         ):
-            dataset = published_as.bound_dataset
+            datasource = published_as.datasource
             if requested_style_name == self.default_style_name:
-                qsl_job_layer = dataset.to_qsl_job_layer()
+                qsl_job_layer = published_as.to_qsl_job_layer()
             else:
                 try:
-                    qsl_job_layer = dataset.to_qsl_job_layer(requested_style_name)
+                    qsl_job_layer = published_as.to_qsl_job_layer(style_name=requested_style_name)
                 except LookupError:
                     raise ValueError(  # noqa: B904
                         f"Requested style {requested_style_name} is not"
-                        f"defined for layer {dataset.name}"
+                        f"defined for layer {datasource.name}"
                     )
 
             logging.debug(f"Set style for layer to: {qsl_job_layer.style.name}")

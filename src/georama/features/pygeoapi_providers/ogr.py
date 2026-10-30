@@ -12,8 +12,7 @@ class GeoramaOgcProvider(OGRProvider):
         self._fields = provider_def.get("field_constraints", {})
 
     def get_fields(self):
-        """
-        Return fields (columns) from PostgreSQL table
+        """Return fields (columns) from PostgreSQL table.
 
         :returns: dict of fields
         """
@@ -25,13 +24,10 @@ class GeoramaOgcProvider(OGRProvider):
         skip_geometry=False,
         crs_transform_out=None,
     ):
-        """
-        Overwrite to filter out non-defined properties. Can be removed in
+        """Overwrite to filter out non-defined properties. Can be removed in
         pygeoapi 0.21.
         """
-        json_feature = super()._ogr_feature_to_json(
-            ogr_feature, skip_geometry, crs_transform_out
-        )
+        json_feature = super()._ogr_feature_to_json(ogr_feature, skip_geometry, crs_transform_out)
 
         # Drop non-defined properties
         if self.properties:

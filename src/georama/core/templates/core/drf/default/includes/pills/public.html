@@ -1,0 +1,12 @@
+{% if item.public %}
+    {% load i18n %}
+    {% blocktranslate asvar public_tooltip_title %}
+        The item is publicly available
+    {% endblocktranslate %}
+    <span class="badge rounded-pill text-bg-primary"
+          data-bs-toggle="tooltip"
+          title="{{ public_tooltip_title }}"
+          aria-label="{{ public_tooltip_title }}">
+        public
+    </span>
+{% endif %}
