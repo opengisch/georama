@@ -21,6 +21,7 @@ from pygeoapi.util import to_json
 from georama.features.apps import FeaturesConfig
 from georama.features.config_server import ServerConfig
 from georama.features.features_config import Config
+from georama.features.geometry_type import UnsupportedGeometryTypeError, geojson_geometry_type
 from georama.features.models import FeatureLayer, Field
 
 if TYPE_CHECKING:
@@ -39,12 +40,8 @@ class _NoCache(dict):
 l10n._cfg_cache = _NoCache()
 
 
-def get_geometry_format(geom_type: str) -> str:
-    return f"geometry-{geom_type.lower() if geom_type != 'UNSET' else 'any'}"
-
-
 def get_collection_schema_with_geometry_format(
-    api: API, request: APIRequest, dataset: str, geometry_format: str
+    api: API, request: APIRequest, dataset: str, geometry_type_wkb: str
 ) -> tuple[dict, int, str]:
     """THIS IS A TEMPORARY FIX TO ALLOW PYGEOAPI EXPOSE CORRECT GEOMETRY TYPES IN SCHEMA.
 
@@ -58,7 +55,20 @@ def get_collection_schema_with_geometry_format(
     We let pygeoapi generate the schema (result is a JSON string). After that we
     dict encode it again to change the "format" of geometry if exists to the correct
     type.
+
+    The geometry type of QSL is mapped to its GeoJSON type.
     """
+    try:
+        geometry_format = f"geometry-{geojson_geometry_type(geometry_type_wkb).lower()}"
+    except UnsupportedGeometryTypeError as e:
+        return api.get_exception(
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+            request.get_response_headers(**api.api_headers),
+            request.format,
+            "NoApplicableCode",
+            str(e),
+        )
+
     headers, status, content = core_api.get_collection_schema(api, request, dataset)
     if status != HTTPStatus.OK or headers.get("Content-Type") != "application/schema+json":
         return headers, status, content
@@ -193,12 +203,11 @@ class PygeoapiServer(View):
             collection_id, "view_objects_on_published_layer", include_public=True
         ).get()
         geom_type = feature_layer.datasource.geometry_type_wkb
-        geometry_format = get_geometry_format(geom_type)
         return self.execute_from_django(
             # a bit hacky, but we use
             # https://docs.python.org/3/library/functools.html#functools.partial
             # to force wat we want
-            partial(get_collection_schema_with_geometry_format, geometry_format=geometry_format),
+            partial(get_collection_schema_with_geometry_format, geometry_type_wkb=geom_type),
             request,
             collection_id,
         )

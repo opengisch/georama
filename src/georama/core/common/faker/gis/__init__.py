@@ -13,6 +13,17 @@ from shapely.geometry import LineString, MultiLineString, MultiPoint, MultiPolyg
 localized = True
 default_locale = "de_CH"
 
+# Maps the geometry generator names of the provider to the WKB type names (Qgis.WkbType)
+# QSL delivers in `geometry_type_wkb`.
+GEOMETRY_TYPES_WKB: dict[str, str] = {
+    "point": "Point",
+    "linestring": "LineString",
+    "polygon": "Polygon",
+    "multipoint": "MultiPoint",
+    "multilinestring": "MultiLineString",
+    "multipolygon": "MultiPolygon",
+}
+
 
 @dataclass
 class Field:
@@ -755,7 +766,7 @@ class Provider(BaseProvider):
             table_name,
             geometry_field_name,
             amount,
-            schema.geom_gen,
+            GEOMETRY_TYPES_WKB[schema.geom_gen],
             self.geom_type_simple(schema.geom_gen),
             schema.name,
             self.epsg_code,
@@ -763,11 +774,11 @@ class Provider(BaseProvider):
 
     def geom_type_simple(self, geom_gen: str):
         if geom_gen in ["point", "multipoint"]:
-            return "point"
+            return "Point"
         elif geom_gen in ["linestring", "multilinestring"]:
-            return "line"
+            return "Line"
         elif geom_gen in ["polygon", "multipolygon"]:
-            return "polygon"
+            return "Polygon"
         else:
             raise LookupError(f"Geomtry type not available for simplifiaciton: {geom_gen}")
 

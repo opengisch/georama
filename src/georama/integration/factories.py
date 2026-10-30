@@ -804,58 +804,58 @@ COLUMNS = [
 GEOMETRY_TYPES = [
     # geometry_type_simple, geometry_type_wkb
     # 2D Geometry Types
-    ("point", "point"),
-    ("line", "linestring"),
-    ("polygon", "polygon"),
-    ("point", "multipoint"),
-    ("line", "multilinestring"),
-    ("polygon", "multipolygon"),
-    # ("geometrycollection", "geometrycollection"),
+    ("Point", "Point"),
+    ("Line", "LineString"),
+    ("Polygon", "Polygon"),
+    ("Point", "MultiPoint"),
+    ("Line", "MultiLineString"),
+    ("Polygon", "MultiPolygon"),
+    # ("GeometryCollection", "GeometryCollection"),
     # 2D Curve Types
-    ("line", "circularstring"),
-    ("line", "compoundcurve"),
-    ("polygon", "curvepolygon"),
-    ("line", "multicurve"),
-    ("polygon", "multisurface"),
+    ("Line", "CircularString"),
+    ("Line", "CompoundCurve"),
+    ("Polygon", "CurvePolygon"),
+    ("Line", "MultiCurve"),
+    ("Polygon", "MultiSurface"),
     # 3D Types (Z)
-    ("point", "pointz"),
-    ("line", "linestringz"),
-    ("polygon", "polygonz"),
-    ("point", "multipointz"),
-    ("line", "multilinestringz"),
-    ("polygon", "multipolygonz"),
-    # ("geometrycollection", "geometrycollectionz"),
-    ("line", "circularstringz"),
-    ("line", "compoundcurvez"),
-    ("polygon", "curvepolygonz"),
-    ("line", "multicurvez"),
-    ("polygon", "multisurfacez"),
+    ("Point", "PointZ"),
+    ("Line", "LineStringZ"),
+    ("Polygon", "PolygonZ"),
+    ("Point", "MultiPointZ"),
+    ("Line", "MultiLineStringZ"),
+    ("Polygon", "MultiPolygonZ"),
+    # ("GeometryCollection", "GeometryCollectionZ"),
+    ("Line", "CircularStringZ"),
+    ("Line", "CompoundCurveZ"),
+    ("Polygon", "CurvePolygonZ"),
+    ("Line", "MultiCurveZ"),
+    ("Polygon", "MultiSurfaceZ"),
     # M Types
-    ("point", "pointm"),
-    ("line", "linestringm"),
-    ("polygon", "polygonm"),
-    ("point", "multipointm"),
-    ("line", "multilinestringm"),
-    ("polygon", "multipolygonm"),
-    # ("geometrycollection", "geometrycollectionm"),
-    ("line", "circularstringm"),
-    ("line", "compoundcurvem"),
-    ("polygon", "curvepolygonm"),
-    ("line", "multicurvem"),
-    ("polygon", "multisurfacem"),
+    ("Point", "PointM"),
+    ("Line", "LineStringM"),
+    ("Polygon", "PolygonM"),
+    ("Point", "MultiPointM"),
+    ("Line", "MultiLineStringM"),
+    ("Polygon", "MultiPolygonM"),
+    # ("GeometryCollection", "GeometryCollectionM"),
+    ("Line", "CircularStringM"),
+    ("Line", "CompoundCurveM"),
+    ("Polygon", "CurvePolygonM"),
+    ("Line", "MultiCurveM"),
+    ("Polygon", "MultiSurfaceM"),
     # ZM Types
-    ("point", "pointzm"),
-    ("line", "linestringzm"),
-    ("polygon", "polygonzm"),
-    ("point", "multipointzm"),
-    ("line", "multilinestringzm"),
-    ("polygon", "multipolygonzm"),
-    # ("geometrycollection", "geometrycollectionzm"),
-    ("line", "circularstringzm"),
-    ("line", "compoundcurvezm"),
-    ("polygon", "curvepolygonzm"),
-    ("line", "multicurvezm"),
-    ("polygon", "multisurfacezm"),
+    ("Point", "PointZM"),
+    ("Line", "LineStringZM"),
+    ("Polygon", "PolygonZM"),
+    ("Point", "MultiPointZM"),
+    ("Line", "MultiLineStringZM"),
+    ("Polygon", "MultiPolygonZM"),
+    # ("GeometryCollection", "GeometryCollectionZM"),
+    ("Line", "CircularStringZM"),
+    ("Line", "CompoundCurveZM"),
+    ("Polygon", "CurvePolygonZM"),
+    ("Line", "MultiCurveZM"),
+    ("Polygon", "MultiSurfaceZM"),
 ]
 
 STYLES = {
@@ -866,14 +866,15 @@ STYLES = {
                 definition=urlsafe_b64encode(
                     zlib.compress(
                         (
-                            settings.BASE_DIR / f"tests/resources/styles/{geometry_type}.qml"
+                            settings.BASE_DIR
+                            / f"tests/resources/styles/{geometry_type.lower()}.qml"
                         ).read_bytes()
                     )
                 ).decode(),
             )
         ]
     )
-    for geometry_type in ["point", "line", "polygon"]
+    for geometry_type in ["Point", "Line", "Polygon"]
 }
 
 glob_org_folder = settings.DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER

@@ -10,7 +10,7 @@ repos:
     hooks:
       - id: forgotten-migrations
         name: Django migrations not applied
-        entry: docker compose -f compose.yml run --rm --remove-orphans --entrypoint bash georama -c "python src/georama/manage.py migrate"
+        entry: docker compose -f compose.yml -f compose.dev.yml run --rm --remove-orphans --entrypoint bash georama -c "uv run manage makemigrations --check --dry-run"
         language: system
         pass_filenames: false
         types: [ python ]
