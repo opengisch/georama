@@ -197,9 +197,127 @@ services:
       retries: 5
     volumes:
       - keycloak-db:/var/lib/postgresql/data
+  gn:
+    # based on https://github.com/geonetwork/docker-geonetwork/tree/main/4.4.12
+    image: geonetwork:4.4.12
+    platform: "${PLATFORM:-linux/amd64}"
+    restart: unless-stopped
+    environment:
+      WEBAPP_CONTEXT_PATH: /geonetwork
+      DATA_DIR: /catalogue-data
+      GEONETWORK_DB_TYPE: postgres
+      GEONETWORK_DB_HOST: gn-db
+      GEONETWORK_DB_PORT: 5432
+      GEONETWORK_DB_NAME: geonetwork
+      GEONETWORK_DB_USERNAME: geonetwork
+      GEONETWORK_DB_PASSWORD: geonetwork
+      GN_CONFIG_PROPERTIES: >-
+        -Dgeonetwork.dir=/catalogue-data
+        -Dgeonetwork.formatter.dir=/catalogue-data/data/formatter
+        -Dgeonetwork.schema.dir=/opt/geonetwork/WEB-INF/data/config/schema_plugins
+        -Dgeonetwork.indexConfig.dir=/opt/geonetwork/WEB-INF/data/config/index
+        -Dgeonetwork.schemapublication.dir=/opt/geonetwork/WEB-INF/data/resources/schemapublication
+        -Dgeonetwork.htmlcache.dir=/opt/geonetwork/WEB-INF/data/resources/htmlcache
+        -Des.host=gn-elasticsearch
+        -Des.protocol=http
+        -Des.port=9200
+        -Des.url=http://gn-elasticsearch:9200
+        -Des.username=
+        -Des.password=
+        -Dkb.url=http://gn-kibana:5601
+        -Dgeonetwork.ESFeaturesProxy.targetUri=http://gn-elasticsearch:9200/gn-features/{_}
+        -Dgeonetwork.HttpDashboardProxy.targetUri=http://gn-kibana:5601
+        -Dgeonetwork.security.type=openidconnect
+      # users log in through keycloak, same pattern as georama: browsers reach keycloak
+      # with https://localhost:7443, geonetwork within the docker network with
+      # http://keycloak:7080 (backchannel). The metadata is fetched once on startup.
+      OPENIDCONNECT_SERVERMETADATA_CONFIG_URL: http://keycloak:7080/realms/ninjas/.well-known/openid-configuration
+      # has to match the geonetwork-oidc client in keycloak/import/ninjas-realm.json
+      OPENIDCONNECT_CLIENTID: geonetwork-oidc
+      OPENIDCONNECT_CLIENTSECRET: geonetwork-dev-secret
+      # roles are read from the id token, a role is either a geonetwork profile
+      # (e.g. Administrator) or {group}:{profile} (e.g. sample:Editor)
+      OPENIDCONNECT_IDTOKENROLELOCATION: resource_access.geonetwork-oidc.roles
+      OPENIDCONNECT_USERNAME_ATTRIBUTE: preferred_username
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fs -o /dev/null http://localhost:8080/geonetwork/srv/api/site" ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    ports:
+      - "127.0.0.1:8180:8080"
+    volumes:
+      - gn-data:/catalogue-data
+    depends_on:
+      gn-db:
+        condition: service_healthy
+      gn-elasticsearch:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+  gn-db:
+    image: postgis/postgis:17-3.5
+    platform: "${PLATFORM:-linux/amd64}"
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: geonetwork
+      POSTGRES_USER: geonetwork
+      POSTGRES_PASSWORD: geonetwork
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U geonetwork -d geonetwork" ]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    volumes:
+      - gn-db:/var/lib/postgresql/data
+  gn-elasticsearch:
+    # search index of geonetwork, internal only (no record permissions in elasticsearch)
+    image: elasticsearch:8.19.23
+    platform: "${PLATFORM:-linux/amd64}"
+    restart: unless-stopped
+    environment:
+      - "cluster.name=gn-cluster"
+      - "discovery.type=single-node"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "xpack.security.enabled=false"
+      - "xpack.security.enrollment.enabled=false"
+      # dev only: above 90% host disk usage (high watermark) no shards are allocated,
+      # geonetwork then times out creating its indices on startup
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fs -o /dev/null http://localhost:9200" ]
+      interval: 10s
+      timeout: 2s
+      retries: 10
+    volumes:
+      - gn-esdata:/usr/share/elasticsearch/data
+  gn-kibana:
+    # geonetwork admin dashboards, reached through geonetwork at /geonetwork/dashboards
+    image: kibana:8.19.23
+    platform: "${PLATFORM:-linux/amd64}"
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: gn-kibana
+      ELASTICSEARCH_HOSTS: http://gn-elasticsearch:9200
+      SERVER_BASEPATH: /geonetwork/dashboards
+      SERVER_REWRITEBASEPATH: "false"
+    depends_on:
+      gn-elasticsearch:
+        condition: service_healthy
 
 volumes:
   georama-db:
   keycloak-db:
   dev-ca:
   ssh_host_keys:
+  gn-data:
+  gn-db:
+  gn-esdata:
