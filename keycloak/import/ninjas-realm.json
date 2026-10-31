@@ -91,6 +91,17 @@
     ],
     "client": {
       "georama-oidc": [],
+      "geonetwork-oidc": [
+        {
+          "id": "5d0f91a5-d119-4046-8de9-2a9a911d14b3",
+          "name": "Administrator",
+          "description": "GeoNetwork profile Administrator",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0ccd2f0d-4b11-49da-8d44-f381a091902c",
+          "attributes": {}
+        }
+      ],
       "realm-management": [
         {
           "id": "dd7bd14e-57c5-4a63-9a23-f22f83a23326",
@@ -486,6 +497,11 @@
       "realmRoles": [
         "default-roles-ninjas"
       ],
+      "clientRoles": {
+        "geonetwork-oidc": [
+          "Administrator"
+        ]
+      },
       "notBefore": 0,
       "groups": []
     }
@@ -755,6 +771,81 @@
       "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "id": "0ccd2f0d-4b11-49da-8d44-f381a091902c",
+      "clientId": "geonetwork-oidc",
+      "name": "GeoNetwork OIDC Client",
+      "description": "",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "geonetwork-dev-secret",
+      "redirectUris": [
+        "http://localhost:8180/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8180"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "frontchannel.logout.session.required": "true",
+        "post.logout.redirect.uris": "+",
+        "use.refresh.tokens": "true",
+        "realm_client": "false",
+        "backchannel.logout.session.required": "true",
+        "display.on.consent.screen": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "protocolMappers": [
+        {
+          "id": "8f0b29f8-1bff-40e0-a318-61eae3c84ad5",
+          "name": "client roles in id token",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "usermodel.clientRoleMapping.clientId": "geonetwork-oidc",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "claim.name": "resource_access.${client_id}.roles",
+            "jsonType.label": "String",
+            "multivalued": "true"
+          }
+        }
+      ],
       "defaultClientScopes": [
         "web-origins",
         "acr",
