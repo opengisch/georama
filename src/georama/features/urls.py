@@ -1,6 +1,8 @@
 from adrf import routers
 from adrf.routers import DefaultRouter
 from django.urls import include, path
+from django.utils.translation import gettext as _
+from drf_spectacular import views
 
 from georama.features.api.viewsets import FeatureLayerViewSet, ManageFeatureLayerViewSet
 from georama.features.views.pygeoapi import PygeoapiServer
@@ -16,6 +18,28 @@ router.register(r"feature_layers", FeatureLayerViewSet, basename="feature")
 urlpatterns = [
     path("", include(router.urls)),
     path("manage/", include(management_router.urls)),
+    path(
+        "manage/schema/",
+        views.SpectacularAPIView.as_view(
+            urlconf=management_router.urls,
+            custom_settings={
+                "TITLE": _("Management API of the Features app."),
+                "SCHEMA_PATH_PREFIX": "",
+                "SCHEMA_PATH_PREFIX_INSERT": "features/manage",
+            },
+        ),
+        name="schema",
+    ),
+    path(
+        "manage/schema/swagger/",
+        views.SpectacularSwaggerView.as_view(url_name="features:schema"),
+        name="swagger",
+    ),
+    path(
+        "manage/schema/redoc/",
+        views.SpectacularRedocView.as_view(url_name="features:schema"),
+        name="redoc",
+    ),
     path("api", PygeoapiServer.as_view(action="landing"), name="landing"),
     path(
         "api/conformance",

@@ -210,6 +210,10 @@ ROUTES: dict[str, dict[str, dict[str, int | Bug]]] = {
             "editor": Bug(403, PERMISSIONS_UNCHECKED),
         },
     },
+    # the schema is public, and lists only the endpoints the user can call
+    "features:schema": {"get": allow(EVERYONE, 200)},
+    "features:swagger": {"get": allow(EVERYONE, 200)},
+    "features:redoc": {"get": allow(EVERYONE, 200)},
     # OGC API Features: `PygeoapiServer` dispatches on its action whatever the method, so these
     # methods are the ones the actions handle, and are not checked against the view. The writes
     # on items are mocked: they only reach pygeoapi when the permissions are granted.
@@ -310,6 +314,10 @@ ROUTES: dict[str, dict[str, dict[str, int | Bug]]] = {
             "editor": Bug(403, PERMISSIONS_UNCHECKED),
         },
     },
+    # the schema is public, and lists only the endpoints the user can call
+    "webgis:schema": {"get": allow(EVERYONE, 200)},
+    "webgis:swagger": {"get": allow(EVERYONE, 200)},
+    "webgis:redoc": {"get": allow(EVERYONE, 200)},
     "webgis:ows_entry": {
         "get": allow(EVERYONE, Bug(400, OWS_STATUS)),
         "post": allow(EVERYONE, 400),
