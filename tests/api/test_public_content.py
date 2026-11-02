@@ -13,7 +13,7 @@ from django.urls import reverse
 from georama.features.models import FeatureLayer
 from georama.maps.models import WmsLayer
 from georama.webgis.models import Theme
-from tests.api.routes import LAYER_JSON, VIEWERS
+from tests.api.routes import LAYER_JSON, VIEWERS, Bug, expected
 from tests.conftest import PERSONAS
 from tests.fixtures.layers import (
     create_feature_layer,
@@ -69,7 +69,7 @@ def published(project_global_organisation, global_vector) -> dict[type[Model], t
 
 def cases():
     for name in ENDPOINTS:
-        marks = [pytest.mark.xfail(strict=True, reason=LAYER_JSON)] if name in BROKEN else []
+        _, marks = expected(Bug(200, LAYER_JSON)) if name in BROKEN else (200, [])
         for persona_name in PERSONAS:
             yield pytest.param(name, persona_name, marks=marks, id=f"{name}-{persona_name}")
 

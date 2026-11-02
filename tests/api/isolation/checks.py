@@ -135,9 +135,9 @@ class Object(NamedTuple):
 class Creation(NamedTuple):
     """The route creates an object: a `create` action.
 
-    Example: POST on `integration:manager-project-list`.
+    Example: POST on `core:fence-list`.
 
-    Checked by the CRUD tests, which check the organisation of the object created.
+    Checked by `crud/test_crud.py`, which checks the organisation of the object created.
     """
 
 
