@@ -12,15 +12,14 @@ from django.urls import reverse
 
 from georama.features.models import FeatureLayer
 from georama.maps.models import WmsLayer
-from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import MetaData
-from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
 from georama.webgis.models import Theme
 from tests.api.routes import LAYER_JSON, VIEWERS
 from tests.conftest import PERSONAS
 from tests.fixtures.layers import (
-    create_global_feature_layer,
-    create_global_theme,
-    create_global_wms_layer,
+    create_feature_layer,
+    create_theme,
+    create_wms_layer,
+    with_geogirafe_json,
 )
 
 
@@ -51,34 +50,19 @@ ENDPOINTS = {
 BROKEN = {"maps-list", "features-list"}
 
 
-def create_geogirafe_theme(project, public: bool) -> Theme:
-    """A theme with the minimal GeoGirafe JSON: `geogirafe` leaves out the themes without."""
-    theme = create_global_theme(project, public)
-    theme.set_from_dataclass(
-        GGTheme(
-            id=theme.identifier,
-            name=theme.metadata.title,
-            icon=theme.icon_default,
-            metadata=MetaData(),
-        )
-    )
-    theme.save()
-    return theme
-
-
 @pytest.fixture
 def published(project_global_organisation, global_vector) -> dict[type[Model], tuple[Model, Model]]:
     """The public and the non public object of each model."""
     return {
         WmsLayer: tuple(
-            create_global_wms_layer(global_vector, public, queryable=True)
-            for public in (True, False)
+            create_wms_layer(global_vector, public, queryable=True) for public in (True, False)
         ),
         FeatureLayer: tuple(
-            create_global_feature_layer(global_vector, public) for public in (True, False)
+            create_feature_layer(global_vector, public) for public in (True, False)
         ),
         Theme: tuple(
-            create_geogirafe_theme(project_global_organisation, public) for public in (True, False)
+            with_geogirafe_json(create_theme(project_global_organisation, public))
+            for public in (True, False)
         ),
     }
 
