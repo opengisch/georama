@@ -37,7 +37,7 @@ from georama.integration.models import Datasource, Project, Vector
 from georama.maps.models import WmsLayer
 from georama.webgis.models import WmsLayer as WebGisWmsLayer
 from tests.api.isolation.checks import Global, Isolation, Listing, Ogc, Payload, Unchecked
-from tests.conftest import PERSONAS
+from tests.fixtures.personas import PERSONAS
 
 
 @dataclass(frozen=True)

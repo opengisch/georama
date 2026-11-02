@@ -10,13 +10,13 @@ import pytest
 from django.db.models import Model
 from rest_framework.test import APIClient
 
-from georama.core.factories import OrganisationFactory
 from georama.core.models.organisation import Organisation
 from georama.core.models.user import GeoramaUser
 from georama.integration.models import Vector
-from tests.api.addressed import create_organisation_objects, first_feature_id, module_transaction
+from tests.api.addressed import create_organisation, create_organisation_objects, module_transaction
 from tests.api.routing import application_routes, url_kwargs
-from tests.conftest import create_editor_group, create_persona, persona_client
+from tests.fixtures.gis import Gis
+from tests.fixtures.personas import create_editor_group, create_persona, persona_client
 
 GLOBAL, ALPHA, BETA = "global", "alpha", "beta"
 # host and the organisation of an object the host must not reach
@@ -50,21 +50,11 @@ class IsolationData(NamedTuple):
 
 
 @pytest.fixture(scope="module")
-def isolation_data(
-    django_db_setup, django_db_blocker, tmp_path_factory, gis_dataset, gis_db_settings, gis_faker
-) -> IsolationData:
+def isolation_data(django_db_setup, django_db_blocker, tmp_path_factory, gis: Gis) -> IsolationData:
     with module_transaction(django_db_blocker, tmp_path_factory):
-        organisations = {
-            GLOBAL: None,
-            **{
-                key: OrganisationFactory.create(
-                    name=key.capitalize(), domain=key, public_access=False
-                )
-                for key in (ALPHA, BETA)
-            },
-        }
+        organisations = {GLOBAL: None, **{key: create_organisation(key) for key in (ALPHA, BETA)}}
         objects = {
-            key: create_organisation_objects(organisation, gis_dataset, gis_db_settings, gis_faker)
+            key: create_organisation_objects(organisation, gis)
             for key, organisation in organisations.items()
         }
         editor_group = create_editor_group()
@@ -73,5 +63,5 @@ def isolation_data(
             objects,
             create_persona("superuser", editor_group),
             create_persona("member", editor_group, organisations[BETA]),
-            first_feature_id(objects[GLOBAL][Vector], gis_db_settings),
+            gis.first_feature_id(objects[GLOBAL][Vector]),
         )

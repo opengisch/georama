@@ -14,13 +14,13 @@ from georama.features.models import FeatureLayer
 from georama.maps.models import WmsLayer
 from georama.webgis.models import Theme
 from tests.api.routes import LAYER_JSON, VIEWERS, Bug, expected
-from tests.conftest import PERSONAS
 from tests.fixtures.layers import (
     create_feature_layer,
     create_theme,
     create_wms_layer,
     with_geogirafe_json,
 )
+from tests.fixtures.personas import PERSONAS
 
 
 class Endpoint(NamedTuple):

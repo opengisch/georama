@@ -12,10 +12,11 @@ from georama.features.models import FeatureLayer
 from georama.integration.models import Vector
 from georama.maps.models import WmsLayer
 from georama.webgis.models import Theme
-from tests.api.addressed import create_addressed, first_feature_id, module_transaction
+from tests.api.addressed import create_addressed, module_transaction
 from tests.api.routes import ROUTES, expected
 from tests.api.routing import application_routes, call, url_kwargs
-from tests.conftest import PERSONAS, create_editor_group, create_persona, persona_client
+from tests.fixtures.gis import Gis
+from tests.fixtures.personas import PERSONAS, create_editor_group, create_persona, persona_client
 
 
 def test_every_route_is_declared():
@@ -74,11 +75,9 @@ class MatrixData(NamedTuple):
 
 
 @pytest.fixture(scope="module")
-def matrix_data(
-    django_db_setup, django_db_blocker, tmp_path_factory, gis_dataset, gis_db_settings, gis_faker
-) -> MatrixData:
+def matrix_data(django_db_setup, django_db_blocker, tmp_path_factory, gis: Gis) -> MatrixData:
     with module_transaction(django_db_blocker, tmp_path_factory):
-        addressed = create_addressed(gis_dataset, gis_db_settings, gis_faker)
+        addressed = create_addressed(gis)
         editor_group = create_editor_group()
         view_objects = [addressed[WmsLayer], addressed[Theme], addressed[FeatureLayer]]
         users = {
@@ -87,7 +86,7 @@ def matrix_data(
             )
             for name in PERSONAS
         }
-        yield MatrixData(addressed, users, first_feature_id(addressed[Vector], gis_db_settings))
+        yield MatrixData(addressed, users, gis.first_feature_id(addressed[Vector]))
 
 
 @pytest.mark.django_db
