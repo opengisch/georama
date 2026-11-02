@@ -1,7 +1,7 @@
 """PostGIS data, created in the test database of pytest-django."""
 
-import random
 from importlib import import_module
+from typing import NamedTuple
 
 import psycopg
 import pytest
@@ -10,9 +10,11 @@ from faker import Faker
 from faker.utils.loading import find_available_providers
 
 from georama.core.common.faker.gis import Dataset
+from georama.core.models.organisation import Organisation
 from georama.integration.builders import create_dataset_table, create_vector_from_dataset
+from georama.integration.factories import ProjectFactory
 from georama.integration.models import Project, Vector
-from tests.fixtures import SEED
+from tests.fixtures import reseed
 
 GIS_SCHEMA = "test_data"
 
@@ -50,8 +52,7 @@ def gis_dataset_definition(gis_faker) -> Dataset:
 
     It seeds on its own: session fixtures run before the autouse seeding fixture.
     """
-    random.seed(SEED)
-    Faker.seed(SEED)
+    reseed()
     return gis_faker.vector_dataset(
         GIS_SCHEMA,
         min_records=10,
@@ -73,6 +74,34 @@ def gis_dataset(gis_db_settings, gis_dataset_definition) -> Dataset:
     yield gis_dataset_definition
     with psycopg.connect(**gis_db_settings) as conn:
         conn.execute(f"DROP SCHEMA IF EXISTS {GIS_SCHEMA} CASCADE;")
+
+
+class Gis(NamedTuple):
+    """The dataset with its table, and what creates the Vectors reading it."""
+
+    dataset: Dataset
+    db_settings: dict
+    faker: Faker
+
+    def create_vector(self, project: Project) -> Vector:
+        return create_vector(project, self.dataset, self.db_settings, self.faker)
+
+    def first_feature_id(self, vector: Vector) -> str:
+        """The id of a feature of the table of `vector`."""
+        table = vector.source["postgres"]["table"]
+        with psycopg.connect(**self.db_settings) as conn:
+            return str(conn.execute(f"SELECT id FROM {GIS_SCHEMA}.{table} LIMIT 1").fetchone()[0])
+
+
+@pytest.fixture(scope="session")
+def gis(gis_dataset, gis_db_settings, gis_faker) -> Gis:
+    return Gis(gis_dataset, gis_db_settings, gis_faker)
+
+
+def create_project(organisation: Organisation | None = None) -> Project:
+    """A project of `organisation`, None for the global one."""
+    path = f"{organisation.domain}/Project.qgz" if organisation else "Global/GlobalProject.qgz"
+    return ProjectFactory.create(organisation=organisation, path=path)
 
 
 def create_vector(

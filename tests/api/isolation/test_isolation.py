@@ -21,7 +21,7 @@ from tests.api.isolation.conftest import ALPHA, FOREIGN, HOSTS
 from tests.api.isolation.ogc import CAPABILITIES, LAYER_REQUESTS, layer_request
 from tests.api.routes import ROUTES, expected
 from tests.api.routing import application_routes, call, is_organisational, route_model
-from tests.conftest import persona_client
+from tests.fixtures.personas import persona_client
 
 
 def isolation(name: str, method: str) -> Isolation | None:

@@ -1,10 +1,7 @@
 """The objects addressed by the routes, created once per test module."""
 
-import random
 from contextlib import contextmanager
 
-import factory.random
-import psycopg
 from django.contrib.auth.models import Group, Permission
 from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.db import transaction
@@ -22,9 +19,8 @@ from georama.integration.models import Custom, Datasource, Project, Raster, Vect
 from georama.maps.models import WmsLayer
 from georama.webgis.models import Theme, UrlShortener
 from georama.webgis.models import WmsLayer as WebGisWmsLayer
-from tests.conftest import create_project
-from tests.fixtures import SEED
-from tests.fixtures.gis import GIS_SCHEMA, create_vector
+from tests.fixtures import reseed
+from tests.fixtures.gis import Gis, create_project
 from tests.fixtures.layers import (
     create_feature_layer,
     create_theme,
@@ -47,21 +43,25 @@ def module_transaction(django_db_blocker, tmp_path_factory):
         transaction.atomic(),
     ):
         # module fixtures run before the autouse seeding fixture
-        random.seed(SEED)
-        factory.random.reseed_random(SEED)
+        reseed()
         yield
         transaction.set_rollback(True)
 
 
+def create_organisation(key: str) -> Organisation:
+    """A non public organisation, whose domain is `key`."""
+    return OrganisationFactory.create(name=key.capitalize(), domain=key, public_access=False)
+
+
 def create_organisation_objects(
-    organisation: Organisation | None, gis_dataset, gis_db_settings, gis_faker
+    organisation: Organisation | None, gis: Gis
 ) -> dict[type[Model], Model]:
     """Creates an object of each organisational model in `organisation` (None for the global
-    one), not public. The Vector reads the table of `gis_dataset`.
+    one), not public. The Vector reads the table of `gis`.
     """
     name = organisation.domain if organisation else "global"
     project = create_project(organisation)
-    vector = create_vector(project, gis_dataset, gis_db_settings, gis_faker)
+    vector = gis.create_vector(project)
     theme = with_geogirafe_json(create_theme(project, public=False))
     return {
         Fence: Fence.objects.create(
@@ -86,22 +86,23 @@ def create_organisation_objects(
     }
 
 
-def create_addressed(gis_dataset, gis_db_settings, gis_faker) -> dict[type[Model], Model]:
-    """Creates the objects addressed by the routes: the organisational ones in the global
-    organisation, not public, and the others.
-    """
-    objects = create_organisation_objects(None, gis_dataset, gis_db_settings, gis_faker)
-    return objects | {
-        GeoramaUser: objects[Membership].user,
+def create_shared_objects() -> dict[type[Model], Model]:
+    """Creates an object of each model shared by the organisations, except the users."""
+    return {
         Group: GroupFactory.create(name="Addressed"),
         Permission: Permission.objects.get(codename="view_project"),
         Organisation: OrganisationFactory.create(),
-        UrlShortener: UrlShortener.objects.create(id="addressed", url="https://example.org"),
     }
 
 
-def first_feature_id(vector: Vector, gis_db_settings: dict) -> str:
-    """The id of a feature of the table of `vector`."""
-    table = vector.source["postgres"]["table"]
-    with psycopg.connect(**gis_db_settings) as conn:
-        return str(conn.execute(f"SELECT id FROM {GIS_SCHEMA}.{table} LIMIT 1").fetchone()[0])
+def create_addressed(gis: Gis) -> dict[type[Model], Model]:
+    """Creates the objects addressed by the routes: the organisational ones in the global
+    organisation, not public, and the others.
+    """
+    objects = create_organisation_objects(None, gis)
+    return (
+        objects
+        | {GeoramaUser: objects[Membership].user}
+        | create_shared_objects()
+        | {UrlShortener: UrlShortener.objects.create(id="addressed", url="https://example.org")}
+    )
