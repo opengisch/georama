@@ -75,10 +75,10 @@ def gis_dataset(gis_db_settings, gis_dataset_definition) -> Dataset:
         conn.execute(f"DROP SCHEMA IF EXISTS {GIS_SCHEMA} CASCADE;")
 
 
-def create_global_vector(
+def create_vector(
     project: Project, dataset: Dataset, gis_db_settings: dict, gis_faker: Faker
 ) -> Vector:
-    """The Vector of `dataset` in the global `project`, its table is created by `gis_dataset`."""
+    """The Vector of `dataset` in `project`, its table is created by `gis_dataset`."""
     return create_vector_from_dataset(
         dataset,
         GIS_SCHEMA,
@@ -94,7 +94,7 @@ def global_vector(project_global_organisation, gis_db_settings, gis_dataset_defi
     """A Vector of the global organisation whose table is not guaranteed to exist: enough for
     everything built from the models (Capabilities, DescribeFeatureType, permissions, QSL jobs).
     """
-    return create_global_vector(
+    return create_vector(
         project_global_organisation, gis_dataset_definition, gis_db_settings, gis_faker
     )
 

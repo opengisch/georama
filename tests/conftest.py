@@ -93,13 +93,15 @@ def organisation_non_public_access():
     return OrganisationFactory.create(public_access=False)
 
 
-def create_global_project() -> Project:
-    return ProjectFactory.create(organisation=None, path="Global/GlobalProject.qgz")
+def create_project(organisation: Organisation | None = None) -> Project:
+    """A project of `organisation`, None for the global one."""
+    path = f"{organisation.domain}/Project.qgz" if organisation else "Global/GlobalProject.qgz"
+    return ProjectFactory.create(organisation=organisation, path=path)
 
 
 @pytest.fixture
 def project_global_organisation(db):
-    return create_global_project()
+    return create_project()
 
 
 @pytest.fixture
