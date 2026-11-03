@@ -1,5 +1,15 @@
 import pytest
 
+from tests.api.data import ApiData, create_api_data, module_transaction
+from tests.fixtures.gis import Gis
+
+
+@pytest.fixture(scope="module")
+def api_data(django_db_setup, django_db_blocker, tmp_path_factory, gis: Gis) -> ApiData:
+    """The data shared by the tests of a module, see `data.py`."""
+    with module_transaction(django_db_blocker, tmp_path_factory):
+        yield create_api_data(gis)
+
 
 @pytest.fixture
 def backends(monkeypatch, posted_jobs, render_job_result):

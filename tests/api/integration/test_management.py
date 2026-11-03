@@ -1,147 +1,81 @@
+"""The manage endpoints of integration render the objects of alpha, in every format. The data
+is `api_data`, see `tests/api/data.py`.
+"""
+
 import pytest
 from rest_framework import status
 
-from georama.integration.factories import (
-    CustomFactory,
-    FieldFactory,
-    ProjectFactory,
-    RasterFactory,
-    VectorFactory,
-)
+from georama.integration.models import Custom, Project, Raster, Vector, VectorField
+from tests.api.data import ALPHA
 
 MANAGER_FORMATS = ["html", "json", "api"]
 ORGANISATIONAL_FORMATS = ["json", "api"]
 
-
-@pytest.fixture
-def organisation_project(organisation):
-    return ProjectFactory.create(organisation=organisation)
-
-
-@pytest.fixture
-def organisation_vector(organisation_project):
-    return VectorFactory.create(project=organisation_project, fields=[])
-
-
-@pytest.fixture
-def organisation_vector_field(organisation_vector):
-    return FieldFactory.create(datasource=organisation_vector)
-
-
-@pytest.fixture
-def organisation_raster(organisation_project):
-    return RasterFactory.create(project=organisation_project)
-
-
-@pytest.fixture
-def organisation_custom(organisation_project):
-    return CustomFactory.create(project=organisation_project)
-
-
-@pytest.fixture
-def superuser_client(client_as, organisation):
-    return client_as("superuser", organisation)
-
-
 ENDPOINTS = [
-    # path, fixture of the listed instance, formats
-    ("/integration/manage/projects/", "organisation_project", MANAGER_FORMATS),
-    ("/integration/manage/datasources/", "organisation_vector", MANAGER_FORMATS),
-    ("/integration/manage/vector_datasources/", "organisation_vector", MANAGER_FORMATS),
-    (
-        "/integration/manage/vector_datasource_fields/",
-        "organisation_vector_field",
-        ORGANISATIONAL_FORMATS,
-    ),
-    ("/integration/manage/raster_datasources/", "organisation_raster", ORGANISATIONAL_FORMATS),
-    ("/integration/manage/custom_datasources/", "organisation_custom", ORGANISATIONAL_FORMATS),
+    # path, model of the object rendered, formats
+    ("/integration/manage/projects/", Project, MANAGER_FORMATS),
+    ("/integration/manage/datasources/", Vector, MANAGER_FORMATS),
+    ("/integration/manage/vector_datasources/", Vector, MANAGER_FORMATS),
+    ("/integration/manage/vector_datasource_fields/", VectorField, ORGANISATIONAL_FORMATS),
+    ("/integration/manage/raster_datasources/", Raster, ORGANISATIONAL_FORMATS),
+    ("/integration/manage/custom_datasources/", Custom, ORGANISATIONAL_FORMATS),
 ]
 
 ENDPOINT_FORMATS = [
-    pytest.param(path, instance_fixture, response_format, id=f"{path}?f={response_format}")
-    for path, instance_fixture, formats in ENDPOINTS
+    pytest.param(path, model, response_format, id=f"{path}?f={response_format}")
+    for path, model, formats in ENDPOINTS
     for response_format in formats
 ]
 
-
-@pytest.mark.parametrize("path,instance_fixture,response_format", ENDPOINT_FORMATS)
-class TestRendering:
-    @pytest.mark.django_db
-    def test_list_renders(
-        self,
-        request,
-        organisation,
-        superuser_client,
-        path,
-        instance_fixture,
-        response_format,
-    ):
-        request.getfixturevalue(instance_fixture)
-        response = superuser_client.get(path, {"f": response_format})
-        assert response.status_code == status.HTTP_200_OK
-
-    @pytest.mark.django_db
-    def test_detail_renders(
-        self,
-        request,
-        organisation,
-        superuser_client,
-        path,
-        instance_fixture,
-        response_format,
-    ):
-        instance = request.getfixturevalue(instance_fixture)
-        response = superuser_client.get(f"{path}{instance.pk}/", {"f": response_format})
-        assert response.status_code == status.HTTP_200_OK
+DATASOURCES = [
+    pytest.param(path, model, id=path)
+    for path, model, _ in ENDPOINTS
+    if model in (Vector, Raster, Custom)
+]
 
 
-class TestJsonRepresentation:
-    @pytest.mark.django_db
-    def test_project(self, organisation, superuser_client, organisation_project):
-        response = superuser_client.get(
-            f"/integration/manage/projects/{organisation_project.pk}/", {"f": "json"}
-        )
-        assert response.json()["organisation_id"] == str(organisation.pk)
+@pytest.mark.django_db
+@pytest.mark.parametrize("path, model, response_format", ENDPOINT_FORMATS)
+def test_list_renders(api_data, path, model, response_format):
+    response = api_data.client("superuser", ALPHA).get(path, {"f": response_format})
+    assert response.status_code == status.HTTP_200_OK
 
-    @pytest.mark.parametrize(
-        "path,instance_fixture",
-        [
-            ("/integration/manage/datasources/", "organisation_vector"),
-            ("/integration/manage/vector_datasources/", "organisation_vector"),
-            ("/integration/manage/raster_datasources/", "organisation_raster"),
-            ("/integration/manage/custom_datasources/", "organisation_custom"),
-        ],
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("path, model, response_format", ENDPOINT_FORMATS)
+def test_detail_renders(api_data, path, model, response_format):
+    instance = api_data.objects[ALPHA][model]
+    response = api_data.client("superuser", ALPHA).get(
+        f"{path}{instance.pk}/", {"f": response_format}
     )
-    @pytest.mark.django_db
-    def test_datasource(
-        self,
-        request,
-        organisation,
-        superuser_client,
-        organisation_project,
-        path,
-        instance_fixture,
-    ):
-        instance = request.getfixturevalue(instance_fixture)
-        response = superuser_client.get(f"{path}{instance.pk}/", {"f": "json"})
-        data = response.json()
-        assert data["organisation_id"] == str(organisation.pk)
-        assert data["project_id"] == str(organisation_project.pk)
+    assert response.status_code == status.HTTP_200_OK
 
-    @pytest.mark.django_db
-    def test_vector_field(
-        self,
-        organisation,
-        superuser_client,
-        organisation_project,
-        organisation_vector,
-        organisation_vector_field,
-    ):
-        response = superuser_client.get(
-            f"/integration/manage/vector_datasource_fields/{organisation_vector_field.pk}/",
-            {"f": "json"},
-        )
-        data = response.json()
-        assert data["organisation_id"] == str(organisation.pk)
-        assert data["project_id"] == str(organisation_project.pk)
-        assert data["datasource_id"] == str(organisation_vector.pk)
+
+@pytest.mark.django_db
+def test_project_json(api_data):
+    project = api_data.objects[ALPHA][Project]
+    response = api_data.client("superuser", ALPHA).get(
+        f"/integration/manage/projects/{project.pk}/", {"f": "json"}
+    )
+    assert response.json()["organisation_id"] == str(api_data.organisations[ALPHA].pk)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("path, model", DATASOURCES)
+def test_datasource_json(api_data, path, model):
+    instance = api_data.objects[ALPHA][model]
+    data = api_data.client("superuser", ALPHA).get(f"{path}{instance.pk}/", {"f": "json"}).json()
+    assert data["organisation_id"] == str(api_data.organisations[ALPHA].pk)
+    assert data["project_id"] == str(api_data.objects[ALPHA][Project].pk)
+
+
+@pytest.mark.django_db
+def test_vector_field_json(api_data):
+    field = api_data.objects[ALPHA][VectorField]
+    response = api_data.client("superuser", ALPHA).get(
+        f"/integration/manage/vector_datasource_fields/{field.pk}/", {"f": "json"}
+    )
+    data = response.json()
+    assert data["organisation_id"] == str(api_data.organisations[ALPHA].pk)
+    assert data["project_id"] == str(api_data.objects[ALPHA][Project].pk)
+    assert data["datasource_id"] == str(api_data.objects[ALPHA][Vector].pk)
