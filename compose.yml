@@ -6,6 +6,13 @@ services:
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
       - "GEORAMA_WEBGISURL=https://localhost:9309"
       - "GEORAMA_OIDC_SERVER_URL=http://keycloak:7080/realms/ninjas/.well-known/openid-configuration"
+      # has to match the georama-catalogue client in keycloak/import/ninjas-realm.json
+      - "GEORAMA_GEONETWORK_URL=http://gn:8080/geonetwork/srv"
+      - "GEORAMA_GEONETWORK_TOKEN_URL=http://keycloak:7080/realms/ninjas/protocol/openid-connect/token"
+      - "GEORAMA_GEONETWORK_CLIENT_ID=georama-catalogue"
+      - "GEORAMA_GEONETWORK_CLIENT_SECRET=georama-catalogue-dev-secret"
+      # group "sample" of a fresh geonetwork
+      - "GEORAMA_GEONETWORK_GROUP=2"
       - "GEORAMA_DATA_INTEGRATION_ROOT=/io/data"
       - "GEORAMA_DB_NAME=${GEORAMA_DB_NAME?}"
       - "GEORAMA_DB_USER=${GEORAMA_DB_USER?}"
@@ -227,7 +234,11 @@ services:
         -Dkb.url=http://gn-kibana:5601
         -Dgeonetwork.ESFeaturesProxy.targetUri=http://gn-elasticsearch:9200/gn-features/{_}
         -Dgeonetwork.HttpDashboardProxy.targetUri=http://gn-kibana:5601
-        -Dgeonetwork.security.type=openidconnect
+        -Dgeonetwork.security.type=openidconnectbearer
+      # openidconnectbearer = browser login as with openidconnect plus bearer tokens on the
+      # api. Georama pushes records with a token of the georama-catalogue service account.
+      # The token is checked through the userinfo endpoint, roles are read from
+      # OPENIDCONNECT_IDTOKENROLELOCATION in userinfo or the access token.
       # users log in through keycloak, same pattern as georama: browsers reach keycloak
       # with https://localhost:7443, geonetwork within the docker network with
       # http://keycloak:7080 (backchannel). The metadata is fetched once on startup.

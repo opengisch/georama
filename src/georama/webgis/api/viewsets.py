@@ -1,3 +1,6 @@
+import logging
+from dataclasses import dataclass
+
 from django.apps import apps
 from django.conf import settings
 from django.shortcuts import redirect
@@ -18,6 +21,14 @@ from georama.core.common.api import (
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.models import Project
+from georama.maps.adapter.geonetwork import (
+    PROTOCOL_LINK,
+    OnlineResource,
+    RecordContent,
+    search_records,
+)
+from georama.maps.api.geonetwork import GeoNetworkRecordActionsMixin, wms_layer_online_resources
+from georama.maps.exception.geonetwork import GeoNetworkError
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 from georama.webgis.adapters.qsl import WmsLayerIndex, theme_json_from_project_config
 from georama.webgis.api.serializers import (
@@ -38,7 +49,7 @@ from georama.webgis.interfaces.geomapfish.themes_json_2_8.parsers import CustomD
 from georama.webgis.models import Metadata, Theme, UrlShortener, WmsLayer
 
 
-class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
+class ManageThemeViewSet(GeoNetworkRecordActionsMixin, GeoramaManagerWithPermissionsViewSet):
     queryset = Theme.objects.all()
     serializer_class = ThemeSerializer
     filter_backends = [
@@ -53,6 +64,26 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
 
     permissions_serializer_class = ThemeObjectPermissionSerializer
     permissions_action_serializer_class = ThemePermissionActionSerializer
+
+    def catalogue_records(self, theme: Theme) -> list[RecordContent]:
+        """The record of the theme (link to the WebGIS) and the records of its layers
+        (WMS / WFS of the WebGIS OGC endpoint).
+        """
+        theme_links = []
+        if theme.theme_json:
+            theme_links.append(
+                OnlineResource(
+                    url=theme.endpoint_url,
+                    protocol=PROTOCOL_LINK,
+                    name=theme.theme_json["name"],
+                    description="WebGIS",
+                )
+            )
+        url = self.request.build_absolute_uri(reverse("webgis:ows_entry"))
+        return [RecordContent(theme.metadata, theme_links)] + [
+            RecordContent(layer.metadata, wms_layer_online_resources(layer, url))
+            for layer in theme.wms_layers.all()
+        ]
 
     @property
     async def bread_crumb_action_context(self):
@@ -138,6 +169,21 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
         return redirect(reverse(self.url_name_list))
 
 
+@dataclass
+class SearchTarget:
+    """What GeoGirafe does with a search result of a record.
+
+    Attributes:
+        label: Title shown in the result list.
+        action: `add_theme` or `add_layer`.
+        data: Name of the theme / layer as in themes.json.
+    """
+
+    label: str
+    action: str
+    data: str
+
+
 class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
     queryset = Theme.objects.all()
     serializer_class = ThemeSerializer
@@ -198,6 +244,69 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
         data = DictEncoder().encode(themes_json)
         data["ogcServers"] = themes_json.ogc_servers
         return Response(data=data, status=status.HTTP_200_OK)
+
+    search_default_limit = 20
+    search_max_limit = 50
+
+    async def search_targets(self) -> dict[str, SearchTarget]:
+        """The records the requesting user may find, keyed by record uuid: the visible
+        themes and their layers.
+        """
+        targets = {}
+        qs = await self.public_or_object_permission(self.get_queryset())
+        async for theme in qs.select_related("metadata"):
+            # this is necessary, since the automatically generated demo data has no valid json
+            if theme.theme_json == {}:
+                continue
+            targets[str(theme.metadata_id)] = SearchTarget(
+                theme.metadata.title, "add_theme", theme.theme_json["name"]
+            )
+            async for layer in theme.wms_layers.all():
+                targets[str(layer.metadata_id)] = SearchTarget(
+                    layer.metadata.title,
+                    "add_layer",
+                    WfsOperation.encode_layer_name(layer.identifier),
+                )
+        return targets
+
+    @action(detail=False, methods=["GET"], renderer_classes=[renderers.JSONRenderer])
+    async def search(self, request: GeoramaDrfRequest, *args, **kwargs):
+        """POC: Searches the GeoNetwork records of the themes and layers the user may see.
+
+        Answers in the GeoMapFish full text search format, which the `geomapfish` search
+        provider of GeoGirafe reads. A result adds its theme or layer to the tree; results
+        have no geometry since the records carry no extent. The labels are the titles in
+        Georama, GeoNetwork only ranks.
+        """
+        feature_collection = {"type": "FeatureCollection", "features": []}
+        term = request.query_params.get("query", "").strip()
+        if not term:
+            return Response(data=feature_collection, status=status.HTTP_200_OK)
+        limit = min(
+            int(request.query_params.get("limit", self.search_default_limit)),
+            self.search_max_limit,
+        )
+        targets = await self.search_targets()
+        if not targets:
+            return Response(data=feature_collection, status=status.HTTP_200_OK)
+        try:
+            hits = await search_records(term, list(targets), limit)
+        except GeoNetworkError as e:
+            logging.warning(f"Search in GeoNetwork failed: {e}")
+            return Response(data=feature_collection, status=status.HTTP_200_OK)
+        for hit in hits:
+            target = targets[hit.uuid]
+            feature_collection["features"].append(
+                {
+                    "type": "Feature",
+                    "geometry": None,
+                    "properties": {
+                        "label": target.label,
+                        "actions": [{"action": target.action, "data": target.data}],
+                    },
+                }
+            )
+        return Response(data=feature_collection, status=status.HTTP_200_OK)
 
     @action(
         detail=False,

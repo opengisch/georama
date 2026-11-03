@@ -16,7 +16,12 @@ from georama.core.common.api import (
 from georama.core.common.menu import ActionType, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.models import Datasource
+from georama.maps.adapter.geonetwork import RecordContent
 from georama.maps.adapter.qsl import generate_preview_image
+from georama.maps.api.geonetwork import (
+    GeoNetworkRecordActionsMixin,
+    wms_layer_online_resources,
+)
 from georama.maps.api.serializers import (
     PreviewGeneratorBulkResult,
     PreviewGeneratorInput,
@@ -29,7 +34,7 @@ from georama.maps.api.serializers import (
 from georama.maps.models import Metadata, WmsLayer
 
 
-class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
+class ManageWmsLayerViewSet(GeoNetworkRecordActionsMixin, GeoramaManagerWithPermissionsViewSet):
     queryset = WmsLayer.objects.all()
     serializer_class = WmsLayerSerializer
     filter_backends = [
@@ -100,6 +105,10 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
             return redirect(reverse(self.url_name_list))
         else:
             raise PermissionDenied()
+
+    def catalogue_records(self, layer: WmsLayer) -> list[RecordContent]:
+        url = self.request.build_absolute_uri(reverse("maps:maps_ogc_entry"))
+        return [RecordContent(layer.metadata, wms_layer_online_resources(layer, url))]
 
     def url_name_generate_preview_image(self):
         return self.url_name("generate_preview_image")
