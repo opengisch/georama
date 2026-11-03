@@ -3,6 +3,7 @@
 
 {% block list_item_actions_additional %}
     {% include 'features/drf/feature_layer/includes/buttons/open_feature_layer.html' with layer=item %}
+    {% include 'maps/drf/geonetwork/load_record.html' %}
 {% endblock %}
 {% block list_item_image %}
     {% include "features/drf/feature_layer/partials/preview.html" %}

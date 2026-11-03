@@ -1,0 +1,68 @@
+{% comment %}
+POC: state of the GeoNetwork record of an item and the actions fitting it. Every action
+answers with this partial again, it replaces itself.
+item: WmsLayer, FeatureLayer or Theme
+record: georama.maps.adapter.geonetwork.RecordState, None if GeoNetwork has no record
+error: message in case GeoNetwork failed
+{% endcomment %}
+{% load i18n %}
+<div id="geonetwork-record-{{ item.id }}"
+     class="btn-group"
+     role="group"
+     hx-target="this"
+     hx-swap="outerHTML"
+     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    {% if error %}
+        {% blocktranslate asvar title %}
+            GeoNetwork failed, click to retry: {{ error }}
+        {% endblocktranslate %}
+        <button type="button"
+                hx-get="{% url view.url_name_geonetwork_record item.id %}"
+                class="btn btn-outline-danger"
+                title="{{ title }}"
+                aria-label="{{ title }}"
+                data-bs-toggle="tooltip">
+            <i class="fa fa-triangle-exclamation"></i>
+        </button>
+    {% elif record %}
+        {% if record.public != item.public %}
+            {% blocktranslate asvar title %}
+                The visibility of the record in GeoNetwork differs from this item, toggle public of the item to align it. Click to delete the records in GeoNetwork
+            {% endblocktranslate %}
+        {% elif record.public %}
+            {% blocktranslate asvar title %}
+                The record is public in GeoNetwork, click to delete the records there
+            {% endblocktranslate %}
+        {% else %}
+            {% blocktranslate asvar title %}
+                The record is hidden in GeoNetwork, click to delete the records there
+            {% endblocktranslate %}
+        {% endif %}
+        {% blocktranslate asvar confirm %}
+            Delete the records of this item in GeoNetwork?
+        {% endblocktranslate %}
+        <button type="button"
+                hx-post="{% url view.url_name_delete_metadata_from_geonetwork item.id %}"
+                hx-confirm="{{ confirm }}"
+                class="btn {% if record.public != item.public %}btn-outline-warning{% else %}btn-outline-danger{% endif %}"
+                title="{{ title }}"
+                aria-label="{{ title }}"
+                data-bs-toggle="tooltip">
+            <i class="fa {% if record.public %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
+            {% translate "Remove" %}
+        </button>
+    {% else %}
+        {% blocktranslate asvar title %}
+            Pushes the metadata of this item (and its layers) as records to GeoNetwork, visible for all if the item is public
+        {% endblocktranslate %}
+        <button type="button"
+                hx-post="{% url view.url_name_push_metadata_to_geonetwork item.id %}"
+                class="btn btn-outline-primary"
+                title="{{ title }}"
+                aria-label="{{ title }}"
+                data-bs-toggle="tooltip">
+            <i class="fa fa-book"></i>
+            {% translate "GeoNetwork" %}
+        </button>
+    {% endif %}
+</div>

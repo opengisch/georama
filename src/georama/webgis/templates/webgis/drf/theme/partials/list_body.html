@@ -8,4 +8,5 @@
 {% endblock %}
 {% block list_item_actions_additional %}
     {% include 'webgis/drf/theme/includes/buttons/open_webgis.html' with theme=item %}
+    {% include 'maps/drf/geonetwork/load_record.html' %}
 {% endblock %}

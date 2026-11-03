@@ -1,0 +1,21 @@
+{% comment %}
+POC: placeholder which loads the GeoNetwork record state of the item as soon as the
+list is rendered (one request per item, run in parallel by the browser).
+item: WmsLayer, FeatureLayer or Theme
+{% endcomment %}
+{% load i18n %}
+{% if can_change %}
+    <div id="geonetwork-record-{{ item.id }}"
+         class="btn-group"
+         role="group"
+         hx-get="{% url view.url_name_geonetwork_record item.id %}"
+         hx-trigger="load"
+         hx-swap="outerHTML">
+        <button type="button"
+                class="btn btn-outline-secondary"
+                disabled
+                aria-label="{% translate 'Loading GeoNetwork record state' %}">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        </button>
+    </div>
+{% endif %}
