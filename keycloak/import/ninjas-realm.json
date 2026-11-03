@@ -504,6 +504,28 @@
       },
       "notBefore": 0,
       "groups": []
+    },
+    {
+      "id": "3c8e2f61-7a4d-4b9e-9f15-6d2a0b7c1e48",
+      "username": "service-account-georama-catalogue",
+      "emailVerified": false,
+      "createdTimestamp": 1793440000000,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "georama-catalogue",
+      "credentials": [],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-ninjas"
+      ],
+      "clientRoles": {
+        "geonetwork-oidc": [
+          "Administrator"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
     }
   ],
   "scopeMappings": [
@@ -861,6 +883,78 @@
         "offline_access",
         "microprofile-jwt"
       ]
+    },
+    {
+      "id": "b41d7c2e-58a3-4f0b-8e6d-2c9f1a3e7d50",
+      "clientId": "georama-catalogue",
+      "name": "Georama Catalogue Client",
+      "description": "Service account of Georama to write records to GeoNetwork",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "georama-catalogue-dev-secret",
+      "redirectUris": [],
+      "webOrigins": [],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "display.on.consent.screen": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "protocolMappers": [
+        {
+          "id": "e2a6f4b8-1c3d-4e5f-9a7b-8c0d2e4f6a19",
+          "name": "geonetwork audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "geonetwork-oidc",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "id": "f7c3a9d1-4b2e-4f6a-8d5c-1e9b3a7f2c64",
+          "name": "geonetwork client roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "usermodel.clientRoleMapping.clientId": "geonetwork-oidc",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "true",
+            "claim.name": "resource_access.${client_id}.roles",
+            "jsonType.label": "String",
+            "multivalued": "true"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "acr",
+        "roles",
+        "profile",
+        "basic"
+      ],
+      "optionalClientScopes": []
     },
     {
       "id": "faa0cb54-bdd3-4ebf-b035-e50b598190a3",

@@ -239,6 +239,16 @@ class Base(Configuration):
             },
         }
 
+    # POC: the GeoNetwork records are written by a keycloak service account (client
+    # credentials). GEONETWORK_URL is the portal url, e.g. http://gn:8080/geonetwork/srv
+    GEONETWORK_URL = values.Value(None, environ_prefix=GEORAMA_ENV_PREFIX)
+    GEONETWORK_TOKEN_URL = values.Value(None, environ_prefix=GEORAMA_ENV_PREFIX)
+    GEONETWORK_CLIENT_ID = values.Value("georama-catalogue", environ_prefix=GEORAMA_ENV_PREFIX)
+    GEONETWORK_CLIENT_SECRET = values.Value(None, environ_prefix=GEORAMA_ENV_PREFIX)
+    # id of the GeoNetwork group owning the records, GeoNetwork 4.4.12 rejects records
+    # without group although the api declares it optional
+    GEONETWORK_GROUP = values.Value(None, environ_prefix=GEORAMA_ENV_PREFIX)
+
     ROOT_URLCONF = "georama.urls"
 
     TEMPLATES = [

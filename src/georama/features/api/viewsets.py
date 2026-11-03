@@ -24,10 +24,15 @@ from georama.features.geometry_type import UnsupportedGeometryTypeError, geojson
 from georama.features.models import FeatureLayer, Metadata
 from georama.integration.models import Vector
 
+# POC: the GeoNetwork actions live in maps (owner of the ISO dataclasses), the planned
+# metadata app replaces this import.
+from georama.maps.adapter.geonetwork import PROTOCOL_OAPIF, OnlineResource, RecordContent
+from georama.maps.api.geonetwork import GeoNetworkRecordActionsMixin
+
 User = get_user_model()
 
 
-class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
+class ManageFeatureLayerViewSet(GeoNetworkRecordActionsMixin, GeoramaManagerWithPermissionsViewSet):
     queryset = FeatureLayer.objects.all()
     serializer_class = FeatureLayerSerializer
     filter_backends = [
@@ -72,6 +77,15 @@ class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
                 icon="fa fa-circle-plus",
             )
         return context
+
+    def catalogue_records(self, layer: FeatureLayer) -> list[RecordContent]:
+        online_resource = OnlineResource(
+            url=self.request.build_absolute_uri(reverse("features:landing")),
+            protocol=PROTOCOL_OAPIF,
+            name=layer.identifier,
+            description="OGC API - Features",
+        )
+        return [RecordContent(layer.metadata, [online_resource])]
 
     @action(detail=False, methods=["post"], url_path="publish_from_vector")
     async def publish_from_vector(self, request: GeoramaDrfRequest, *args, **kwargs):

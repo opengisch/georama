@@ -34,6 +34,7 @@ class WmsLayerSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "public",
+            "queryable",
             "datasource",
             "extent",
             "is_queryable",
