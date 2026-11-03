@@ -1,10 +1,8 @@
 """Content of the public read-only endpoints: `AllowAny` lets every persona in, the object
 permissions filter what each one sees. A public and a non public object are published, the
-viewer has the view permission on the non public one.
+viewer has the view permission on the non public one. The endpoints are declared in
+`declarations.py`.
 """
-
-from collections.abc import Callable
-from typing import NamedTuple
 
 import pytest
 from django.db.models import Model
@@ -13,7 +11,8 @@ from django.urls import reverse
 from georama.features.models import FeatureLayer
 from georama.maps.models import WmsLayer
 from georama.webgis.models import Theme
-from tests.api.routes import LAYER_JSON, VIEWERS, Bug, expected
+from tests.api.public_content.declarations import BROKEN, ENDPOINTS
+from tests.api.routes.declarations import LAYER_JSON, VIEWERS, Bug, expected
 from tests.fixtures.layers import (
     create_feature_layer,
     create_theme,
@@ -21,33 +20,6 @@ from tests.fixtures.layers import (
     with_geogirafe_json,
 )
 from tests.fixtures.personas import PERSONAS
-
-
-class Endpoint(NamedTuple):
-    model: type[Model]
-    route: str
-    # ids of the objects in the JSON answered
-    ids: Callable[[dict], set[str]]
-    kwargs: dict[str, str] = {}
-
-
-def results(data: dict) -> set[str]:
-    return {str(item["id"]) for item in data["results"]}
-
-
-ENDPOINTS = {
-    "maps-list": Endpoint(WmsLayer, "maps:maplayer-list", results),
-    "features-list": Endpoint(FeatureLayer, "features:feature-list", results),
-    "webgis-list": Endpoint(Theme, "webgis:theme-list", results),
-    "webgis-geogirafe": Endpoint(
-        Theme, "webgis:theme-geogirafe", lambda data: {str(theme["id"]) for theme in data["themes"]}
-    ),
-    "webgis-translation": Endpoint(
-        Theme, "webgis:theme-translation", lambda data: set(data["en"]), {"lang": "en"}
-    ),
-}
-# endpoints whose JSON cannot be rendered as soon as they list an object
-BROKEN = {"maps-list", "features-list"}
 
 
 @pytest.fixture

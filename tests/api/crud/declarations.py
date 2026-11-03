@@ -16,14 +16,14 @@ from operator import attrgetter
 from typing import NamedTuple
 
 from django.conf import settings
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
 
 from georama.features.models import FeatureLayer
 from georama.integration.models import Project
-from tests.api.crud.conftest import CrudData
-from tests.api.routes import (
+from tests.api.data import ApiData
+from tests.api.routes.declarations import (
     FENCE_ASAVE,
     HOST_ORGANISATION,
     MEMBERSHIP_FIELDS,
@@ -39,9 +39,9 @@ Payload = dict | Callable[[Model], dict]
 class Creation(NamedTuple):
     """A POST on a list route, answering 201."""
 
-    payload: Callable[[CrudData], dict]
+    payload: Callable[[ApiData], dict]
     # identifies the object created
-    lookup: Callable[[CrudData], dict]
+    lookup: Callable[[ApiData], dict]
     # the rules and bugs the payload hits beyond the ones of the matrix
     known: tuple[Rule | Bug, ...] = ()
 
@@ -71,20 +71,20 @@ SQUARE = [[[[0, 0], [0, 1], [1, 1], [0, 0]]]]
 SHORTENED = f"{settings.WEBGISURL}?theme=created"
 
 # by list route; only the objects of core and the short urls are created through the API, see
-# `CREATION` in `routes.py`
+# `CREATION` in `routes/declarations.py`
 CREATIONS = {
     "core:georamauser-list": Creation(
         lambda data: {
             "username": "created",
-            "groups": [data.group.pk],
+            "groups": [data.shared[Group].pk],
             "user_permissions": [],
             "memberships": [],
         },
-        lambda data: {"username": "created", "groups": data.group},
+        lambda data: {"username": "created", "groups": data.shared[Group]},
     ),
     "core:group-list": Creation(
-        lambda data: {"name": "Created", "permissions": [data.objects[Permission].pk]},
-        lambda data: {"name": "Created", "permissions": data.objects[Permission]},
+        lambda data: {"name": "Created", "permissions": [data.shared[Permission].pk]},
+        lambda data: {"name": "Created", "permissions": data.shared[Permission]},
     ),
     "core:permission-list": Creation(
         lambda data: {
@@ -134,7 +134,7 @@ NOT_EDITED = {
 }
 
 # by detail route, then by what is written. The integrated objects are not edited, see
-# `INTEGRATED` in `routes.py`. The title of a theme is not editable for now
+# `INTEGRATED` in `routes/declarations.py`. The title of a theme is not editable for now
 UPDATES = {
     "core:georamauser-detail": {
         "attributes": Update(
