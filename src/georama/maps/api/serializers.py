@@ -1,5 +1,8 @@
 from adrf import serializers
+from asgiref.sync import sync_to_async
+from django.db import transaction
 from django.utils.translation import gettext as _
+from rest_framework.serializers import PrimaryKeyRelatedField
 
 from georama.core.common.serializers import (
     ObjectPermissionSerializer,
@@ -24,7 +27,7 @@ class MetadataSerializer(serializers.ModelSerializer):
 
 class WmsLayerSerializer(serializers.ModelSerializer):
     metadata = MetadataSerializer()
-    datasource = serializers.ReadOnlyField()
+    datasource = PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = WmsLayer
@@ -37,6 +40,17 @@ class WmsLayerSerializer(serializers.ModelSerializer):
             "metadata",
         ]
         extra_kwargs = {"id": {"read_only": True}}
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        metadata_data = validated_data.pop("metadata", None)
+        instance = super().update(instance, validated_data)
+        if metadata_data is not None:
+            self.fields["metadata"].update(instance.metadata, metadata_data)
+        return instance
+
+    async def aupdate(self, instance, validated_data):
+        return await sync_to_async(self.update)(instance, validated_data)
 
 
 class PreviewGeneratorResult(serializers.Serializer):

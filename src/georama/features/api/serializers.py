@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
+from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.utils import html
 
 from georama.core.common.serializers import (
@@ -65,7 +66,7 @@ class FieldSerializer(serializers.ModelSerializer):
 
 class FeatureLayerSerializer(serializers.ModelSerializer):
     metadata = MetadataSerializer()
-    datasource = serializers.ReadOnlyField()
+    datasource = PrimaryKeyRelatedField(read_only=True)
     fields = FieldSerializer(
         many=True,
         required=False,
