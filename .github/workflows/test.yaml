@@ -2,7 +2,7 @@ name: TestSuite
 on:
   push:
     branches:
-      - "*"
+      - "**"
     tags:
       - v*
 jobs:

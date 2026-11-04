@@ -2,7 +2,7 @@ name: MissingDjangoMigrations
 on:
   push:
     branches:
-      - "*"
+      - "**"
     tags:
       - v*
 jobs:
