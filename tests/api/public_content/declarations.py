@@ -33,5 +33,3 @@ ENDPOINTS = {
         Theme, "webgis:theme-translation", lambda data: set(data["en"]), {"lang": "en"}
     ),
 }
-# endpoints whose JSON cannot be rendered as soon as they list an object
-BROKEN = {"maps-list", "features-list"}

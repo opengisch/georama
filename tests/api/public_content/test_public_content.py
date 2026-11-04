@@ -11,8 +11,8 @@ from django.urls import reverse
 from georama.features.models import FeatureLayer
 from georama.maps.models import WmsLayer
 from georama.webgis.models import Theme
-from tests.api.public_content.declarations import BROKEN, ENDPOINTS
-from tests.api.routes.declarations import LAYER_JSON, VIEWERS, Bug, expected
+from tests.api.public_content.declarations import ENDPOINTS
+from tests.api.routes.declarations import VIEWERS
 from tests.fixtures.layers import (
     create_feature_layer,
     create_theme,
@@ -41,9 +41,8 @@ def published(project_global_organisation, global_vector) -> dict[type[Model], t
 
 def cases():
     for name in ENDPOINTS:
-        _, marks = expected(Bug(200, LAYER_JSON)) if name in BROKEN else (200, [])
         for persona_name in PERSONAS:
-            yield pytest.param(name, persona_name, marks=marks, id=f"{name}-{persona_name}")
+            yield pytest.param(name, persona_name, id=f"{name}-{persona_name}")
 
 
 @pytest.mark.django_db
