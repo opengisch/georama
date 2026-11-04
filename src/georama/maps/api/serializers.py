@@ -1,5 +1,6 @@
 from adrf import serializers
 from django.utils.translation import gettext as _
+from rest_framework.serializers import PrimaryKeyRelatedField
 
 from georama.core.common.serializers import (
     ObjectPermissionSerializer,
@@ -24,7 +25,7 @@ class MetadataSerializer(serializers.ModelSerializer):
 
 class WmsLayerSerializer(serializers.ModelSerializer):
     metadata = MetadataSerializer()
-    datasource = serializers.ReadOnlyField()
+    datasource = PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = WmsLayer
