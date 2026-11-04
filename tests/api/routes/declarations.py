@@ -139,7 +139,6 @@ ADD_FORM = "aadd renders a form creating an object from scratch, and crashes wit
 
 # bugs
 
-LAYER_JSON = "`datasource` is a ReadOnlyField returning the model, which JSON cannot render"
 PUBLISH_PK = "publish actions read `pk` without validating the payload"
 PREVIEW_BULK = "generate_preview_image_bulk reads `layer_ids` without validating the payload"
 PREVIEW_RESULT = "generate_preview_image passes a serializer instead of its data to Response"
@@ -151,6 +150,7 @@ NON_INTEGRATED_JSON = "non_integrated reads `request.POST`, a JSON payload falls
 FENCE_ASAVE = "FenceSerializer is not an adrf serializer, the async update calls `asave`"
 MEMBERSHIP_FIELDS = "`user_id` and `organisation_id` are read-only, creation hits the database"
 NESTED_METADATA = "WmsLayerSerializer writes its nested metadata without overriding `aupdate`"
+QUERYABLE_READ_ONLY = "`is_queryable` is a property of WmsLayer, the serializer ignores its write"
 SHORT_LIST = "the url shortener routes `list` without supporting it"
 OWS_STATUS = "OgcServer passes the status of its errors as the content type of HttpResponse"
 
@@ -307,11 +307,11 @@ ROUTES: dict[str, Statuses] = {
     ),
     # features
     "features:api-root": route(get=allow(EVERYONE, 200)),
-    "features:feature-list": route(get=allow(VIEWERS, Bug(200, LAYER_JSON), denied=PUBLIC_LISTED)),
-    "features:feature-detail": route(get=allow(VIEWERS, Bug(200, LAYER_JSON), denied=HIDDEN)),
+    "features:feature-list": route(get=allow(VIEWERS, 200, denied=PUBLIC_LISTED)),
+    "features:feature-detail": route(get=allow(VIEWERS, 200, denied=HIDDEN)),
     "features:feature-ashow": route(get=allow(VIEWERS, 200, denied=HIDDEN)),
     "features:feature-manager-list": route(
-        get=allow(EDITORS, Bug(200, LAYER_JSON)),
+        get=allow(EDITORS, 200),
         post=allow(EDITORS, Rule(405, CREATION)),
     ),
     "features:feature-manager-aadd": route(get=allow(EDITORS, Rule(405, ADD_FORM))),
@@ -319,9 +319,9 @@ ROUTES: dict[str, Statuses] = {
         post=allow(EDITORS, Bug(400, PUBLISH_PK)),
     ),
     "features:feature-manager-detail": route(
-        get=allow(EDITORS, Bug(200, LAYER_JSON)),
+        get=allow(EDITORS, 200),
         put=allow(EDITORS, 400),
-        patch=allow(EDITORS, Bug(200, LAYER_JSON)),
+        patch=allow(EDITORS, 200),
         delete=allow(EDITORS, 204),
     ),
     "features:feature-manager-adelete-confirm": route(
@@ -363,11 +363,11 @@ ROUTES: dict[str, Statuses] = {
         delete=allow(SUPERUSER, 200),
     ),
     # maps
-    "maps:maplayer-list": route(get=allow(VIEWERS, Bug(200, LAYER_JSON), denied=PUBLIC_LISTED)),
-    "maps:maplayer-detail": route(get=allow(VIEWERS, Bug(200, LAYER_JSON), denied=HIDDEN)),
+    "maps:maplayer-list": route(get=allow(VIEWERS, 200, denied=PUBLIC_LISTED)),
+    "maps:maplayer-detail": route(get=allow(VIEWERS, 200, denied=HIDDEN)),
     "maps:maplayer-ashow": route(get=allow(VIEWERS, 200, denied=HIDDEN)),
     "maps:maplayer-manager-list": route(
-        get=allow(EDITORS, Bug(200, LAYER_JSON)),
+        get=allow(EDITORS, 200),
         post=allow(EDITORS, Rule(405, CREATION)),
     ),
     "maps:maplayer-manager-aadd": route(get=allow(EDITORS, Rule(405, ADD_FORM))),
@@ -378,9 +378,9 @@ ROUTES: dict[str, Statuses] = {
         post=allow(EDITORS, Bug(400, PUBLISH_PK)),
     ),
     "maps:maplayer-manager-detail": route(
-        get=allow(EDITORS, Bug(200, LAYER_JSON)),
+        get=allow(EDITORS, 200),
         put=allow(EDITORS, 400),
-        patch=allow(EDITORS, Bug(200, LAYER_JSON)),
+        patch=allow(EDITORS, 200),
         delete=allow(EDITORS, 204),
     ),
     "maps:maplayer-manager-adelete-confirm": route(

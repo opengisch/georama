@@ -28,6 +28,7 @@ from tests.api.routes.declarations import (
     HOST_ORGANISATION,
     MEMBERSHIP_FIELDS,
     NESTED_METADATA,
+    QUERYABLE_READ_ONLY,
     Bug,
     Rule,
 )
@@ -160,12 +161,12 @@ UPDATES = {
             {"public": True, "is_queryable": False, "extent": "0,0,1,1"},
             attrgetter("public", "is_queryable", "extent"),
             (True, False, "0,0,1,1"),
+            (Bug(200, QUERYABLE_READ_ONLY),),
         ),
         "metadata": Update(
             {"metadata": {"title": "Patched", "description": "Patched"}},
             attrgetter("metadata.title", "metadata.description"),
             ("Patched", "Patched"),
-            (Bug(200, NESTED_METADATA),),
         ),
     },
     "features:feature-manager-detail": {
