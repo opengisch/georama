@@ -1,16 +1,93 @@
 version: 2
+
 updates:
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "weekly"
-      
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python:uv"
+    cooldown:
+      default-days: 5
+      semver-major-days: 30
+      semver-minor-days: 7
+      #security updates are activated on repo settings
+      semver-patch-days: 3
+    groups:
+      python-dev:
+        patterns:
+          - "ruff"
+          - "ty"
+          - "pre-commit"
+          - "pytest"
+          - "pytest-*"
+          - "factory-boy"
+          - "django-silk"
+          - "zensical"
+        update-types:
+          - "minor"
+          - "patch"
+      python-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Dockerfile (FROM lines)
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
+    cooldown:
+      default-days: 5
+    groups:
+      docker-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # compose.yml, compose.dev.yml, compose.dev_with_qsl.yml (service images)
+  - package-ecosystem: "docker-compose"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
+    cooldown:
+      default-days: 5
+    groups:
+      docker-compose-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github_actions"
+    cooldown:
+      default-days: 5
+    groups:
+      github-actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
