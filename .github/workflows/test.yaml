@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - "**"
-    tags:
-      - v*
+  # release.yml calls the suite before the image is published
+  workflow_call:
 jobs:
   test-py:
     name: Test Python
