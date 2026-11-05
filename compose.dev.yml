@@ -1,4 +1,7 @@
 services:
+  georama-db:
+    ports:
+      - "127.0.0.1:${HOST_GEORAMA_DB_PORT:-5432}:5432"
   georama:
     environment:
       - "DEV_AUTOSTART=${GEORAMA_DEV_AUTOSTART:-1}"
