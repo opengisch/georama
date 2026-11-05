@@ -106,7 +106,9 @@ RUN DJANGO_CONFIGURATION=Static \
     uv run manage collectstatic --noinput
 
 FROM base
-ARG USER=1001
+ARG UID=1001
+ARG USER=app
+
 ENV GEORAMA_DATA_INTEGRATION_ROOT=/io
 # georama serves the static files itself (ServeStatic) from here
 ENV DJANGO_STATIC_ROOT=/static
@@ -122,13 +124,13 @@ COPY docker/prod.run.sh /usr/local/bin/
 
 RUN useradd \
       --system \
-      --uid $USER \
+      --uid $UID \
       --gid 0 \
       --shell /bin/bash \
       --no-create-home \
       --no-user-group \
       --password '*' \
-      app && \
+      $USER && \
     mkdir -p /data && \
     chown $USER:0 /data && \
     chmod g=u /data && \
