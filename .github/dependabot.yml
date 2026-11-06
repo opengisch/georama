@@ -15,6 +15,10 @@ updates:
       semver-minor-days: 7
       #security updates are activated on repo settings
       semver-patch-days: 3
+    ignore:
+      # Python bindings are compiled against the libgdal-dev installed by apt in
+      # the Dockerfile: to be bumped manually.
+      - dependency-name: "gdal"
     groups:
       python-dev:
         patterns:
