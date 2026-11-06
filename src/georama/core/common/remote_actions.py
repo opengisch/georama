@@ -26,6 +26,8 @@ class RemoteAction:
 
     Attributes:
         target: The fully qualified view name. This means
+        count_relation: Used to show a count of this action (e.g. number of published themes for
+            a project).
     """
 
     target: str
@@ -34,6 +36,7 @@ class RemoteAction:
     origin: str
     icon_classes: str | None = field(default=None)
     permissions: list[str] = field(default_factory=list)
+    count_relation: str | None = field(default=None)
 
 
 def register_remote_action(model: type[models.Model], action: RemoteAction):
