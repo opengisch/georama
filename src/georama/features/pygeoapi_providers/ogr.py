@@ -27,7 +27,14 @@ class GeoramaOgcProvider(OGRProvider):
         """Overwrite to filter out non-defined properties. Can be removed in
         pygeoapi 0.21.
         """
-        json_feature = super()._ogr_feature_to_json(ogr_feature, skip_geometry, crs_transform_out)
+        if ogr_feature.GetGeometryRef() is None:
+            # pygeoapi reprojects and unassigns the geometry, which fails without one
+            json_feature = ogr_feature.ExportToJson(as_object=True)
+            json_feature["geometry"] = None
+        else:
+            json_feature = super()._ogr_feature_to_json(
+                ogr_feature, skip_geometry, crs_transform_out
+            )
 
         # Drop non-defined properties
         if self.properties:

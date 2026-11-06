@@ -44,27 +44,6 @@ class BaseDatasource(models.Model):
         self.driver = qsl_object.driver
 
 
-class NonGeometricDatasource(BaseDatasource):
-    ORGANISATION_FIELD_NAME = "project__organisation"
-
-    class Meta:
-        verbose_name = _("Non-Geometric Datasource")
-        verbose_name_plural = _("Non-Geometric Datasources")
-        unique_together = (
-            "qgis_layer_id",
-            "project",
-        )
-
-    project = models.ForeignKey(
-        Project,
-        on_delete=models.CASCADE,
-        related_name="non_geomtric_datasources",
-        help_text=_("Project the non geometric datasource belongs to."),
-    )
-
-    objects = OrganisationalManager()
-
-
 class Datasource(BaseDatasource):
     ORGANISATION_FIELD_NAME = "project__organisation"
 
@@ -78,16 +57,27 @@ class Datasource(BaseDatasource):
 
     bbox = models.CharField(
         max_length=1000,
+        null=True,
+        blank=True,
         help_text=_("Bounding box of the datasource in the source coordinate reference system."),
     )
     bbox_wgs84 = models.CharField(
-        max_length=1000, help_text=_("Bounding box of the datasource transformed to WGS84.")
+        max_length=1000,
+        null=True,
+        blank=True,
+        help_text=_("Bounding box of the datasource transformed to WGS84."),
     )
     styles = models.JSONField(
         default=list, help_text=_("Rendered style definitions associated with this datasource.")
     )
     crs = models.JSONField(
-        default=dict, help_text=_("Coordinate reference system of the datasource.")
+        default=dict,
+        null=True,
+        help_text=_("Coordinate reference system of the datasource."),
+    )
+    is_spatial = models.BooleanField(
+        default=True,
+        help_text=_("Whether the datasource has geometries."),
     )
     minimum_scale = models.FloatField(
         null=True, help_text=_("Minimum scale at which the datasource is visible.")
@@ -118,15 +108,23 @@ class Datasource(BaseDatasource):
         return datasource
 
     @property
-    def crs_to_qsl(self) -> Crs:
+    def crs_to_qsl(self) -> Crs | None:
+        if not self.crs:
+            # geometryless datasources have no CRS
+            return None
         return DictDecoder(config=self.get_parser_config).decode(self.crs, Crs)
 
     @property
-    def bbox_to_list(self) -> list:
+    def bbox_to_list(self) -> list | None:
+        if not self.bbox:
+            # geometryless datasources have no bbox
+            return None
         return BBox.from_string(self.bbox).to_list()
 
     @property
-    def bbox_2d_string(self) -> str:
+    def bbox_2d_string(self) -> str | None:
+        if not self.bbox:
+            return None
         return BBox.from_string(self.bbox).to_2d_string()
 
     def get_default_style(self) -> Style:
@@ -165,6 +163,8 @@ class Datasource(BaseDatasource):
     @property
     def icon(self):
         match self.type:
+            case "vector" if not self.is_spatial:
+                return "fa fa-table"
             case "vector":
                 return "fa fa-bezier-curve"
             case "raster":
@@ -180,13 +180,14 @@ class Datasource(BaseDatasource):
         db_objct: "Vector|Raster|Custom",
     ):
         db_objct.name = qsl_object.title
-        db_objct.bbox = qsl_object.bbox.to_string()
-        db_objct.bbox_wgs84 = qsl_object.bbox_wgs84.to_string()
+        db_objct.bbox = qsl_object.bbox.to_string() if qsl_object.bbox else None
+        db_objct.bbox_wgs84 = qsl_object.bbox_wgs84.to_string() if qsl_object.bbox_wgs84 else None
         db_objct.styles = DictEncoder().encode(qsl_object.styles)
         db_objct.source = DictEncoder().encode(qsl_object.source)
         db_objct.driver = qsl_object.driver
         db_objct.qgis_layer_id = qsl_object.id
-        db_objct.crs = DictEncoder().encode(qsl_object.crs)
+        db_objct.crs = DictEncoder().encode(qsl_object.crs) if qsl_object.crs else None
+        db_objct.is_spatial = qsl_object.is_spatial
         db_objct.minimum_scale = qsl_object.minimum_scale
         db_objct.maximum_scale = qsl_object.maximum_scale
 
@@ -200,12 +201,17 @@ class Vector(Datasource):
 
     geometry_type_simple = models.CharField(
         max_length=1000,
+        null=True,
+        blank=True,
         help_text=_(
             "Simplified geometry type of the vector datasource (eg. point, line, polygon)."
         ),
     )
     geometry_type_wkb = models.CharField(
-        max_length=1000, help_text=_("Geometry type of the vector datasource.")
+        max_length=1000,
+        null=True,
+        blank=True,
+        help_text=_("Geometry type of the vector datasource."),
     )
 
     async def set_values_from_qsl(self, qsl_object: QslVector):
@@ -229,31 +235,11 @@ class BaseField(models.Model):
 
     @property
     def field_definition_qsl(self) -> QSlField:
-        return DictDecoder().decode(self.definition, QSlField)
+        config = ParserConfig(fail_on_unknown_attributes=False, fail_on_unknown_properties=False)
+        return DictDecoder(config).decode(self.definition, QSlField)
 
     def set_definition_from_qsl(self, field: QSlField):
         self.definition = DictEncoder().encode(field)
-
-
-class NonGeometricFields(BaseField):
-    ORGANISATION_FIELD_NAME = "datasource__project__organisation"
-
-    class Meta:
-        unique_together = (
-            "definition",
-            "datasource",
-        )
-        verbose_name = _("Non-Geometric Field")
-        verbose_name_plural = _("Non-Geometric Fields")
-
-    datasource = models.ForeignKey(
-        NonGeometricDatasource,
-        on_delete=models.CASCADE,
-        help_text=_("Non-Geometric datasource this field belongs to."),
-        related_name="fields",
-    )
-
-    objects = OrganisationalManager()
 
 
 class VectorField(BaseField):

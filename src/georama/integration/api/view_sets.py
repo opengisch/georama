@@ -13,7 +13,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from qgis_server_light.interface.exporter.api import ExportResult
 from qgis_server_light.interface.exporter.extract import Config
 from qgis_server_light.interface.exporter.extract import Custom as QslCustom
-from qgis_server_light.interface.exporter.extract import Field as QslField
 from qgis_server_light.interface.exporter.extract import Raster as QslRaster
 from qgis_server_light.interface.exporter.extract import Vector as QslVector
 from rest_framework import filters, status
@@ -42,8 +41,6 @@ from georama.integration.lib.qgis_project_file_structure import QgisProject, Qgi
 from georama.integration.models import Custom, Project, Raster, Vector, VectorField
 from georama.integration.models.datasource import (
     Datasource,
-    NonGeometricDatasource,
-    NonGeometricFields,
 )
 from georama.maps.adapter.qsl import call_qsl_exporter
 
@@ -97,136 +94,73 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             + project_json.datasets.custom
         )
         for layer in project_json_datasets:
-            if layer.is_spatial:
-                if isinstance(layer, QslVector):
-                    datasource_model = Vector
-                elif isinstance(layer, QslRaster):
-                    datasource_model = Raster
-                elif isinstance(layer, QslCustom):
-                    datasource_model = Custom
-                else:
-                    raise LookupError("Unexpected datasource type was passed")
-                # We don't need to filter for organisation here again, since the project_db
-                # is bound to it already.
-                qs = datasource_model.objects.filter(qgis_layer_id=layer.id, project=project_db)
-                if await qs.aexists():
-                    logging.debug(
-                        f" Dataset was found and will be updated {layer.name}"
-                        f" (qgis-layer-id: {layer.id})"
-                    )
-                    datasource = await qs.aget()
-                else:
-                    logging.debug(
-                        f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
-                    )
-                    datasource = datasource_model(qgis_layer_id=layer.id, project=project_db)
-                await datasource.set_values_from_qsl(layer)
-                await datasource.asave()
-                logging.debug(
-                    f" ✓ Dataset {layer.name} (qgis-layer-id: {layer.id})"
-                    f" was written to DB successfully."
-                )
-                if isinstance(datasource, Vector):
-                    logging.debug(" Handling of related fields.")
-                    layer: QslVector
-                    for qsl_field in layer.fields:
-                        field_qs = VectorField.objects.filter(
-                            name=qsl_field.name,
-                            datasource=datasource,
-                        )
-                        if not await field_qs.aexists():
-                            logging.debug(
-                                f"   New Field {qsl_field.name} "
-                                f"(type: {qsl_field.type}) will be added."
-                            )
-                            field = VectorField(
-                                datasource=datasource,
-                            )
-                        else:
-                            logging.debug(
-                                f"   Field {qsl_field.name} (type: {qsl_field.type})"
-                                f" was found and will be updated."
-                            )
-                            field: VectorField = await field_qs.aget()
-                        await field.set_values_from_qsl(qsl_field)
-                        await field.asave()
-                        logging.debug(
-                            f"   ✓ Field {field.name} (type: {field.type})"
-                            f" was written to DB successfully."
-                        )
-                    logging.debug("   Cleaning out old fields...")
-                    async for field_db in VectorField.objects.filter(datasource=datasource).all():
-                        field_match = layer.get_field_by_name(field_db.name)
-                        if field_match is None:
-                            logging.debug(
-                                f'    Deleting field "{field_db.name}" of vector '
-                                f"dataset {datasource.name}"
-                                f" since it was"
-                                " not in project config anymore"
-                            )
-                            await field_db.adelete()
-                    logging.debug("   ✓ Finished - Cleaning out old fields...")
+            if isinstance(layer, QslVector):
+                datasource_model = Vector
+            elif isinstance(layer, QslRaster):
+                datasource_model = Raster
+            elif isinstance(layer, QslCustom):
+                datasource_model = Custom
             else:
-                datasource_model = NonGeometricDatasource
-                qs = datasource_model.objects.filter(qgis_layer_id=layer.id, project=project_db)
-                if await qs.aexists():
-                    logging.debug(
-                        f" Dataset was found and will be updated {layer.name}"
-                        f" (qgis-layer-id: {layer.id})"
+                raise LookupError("Unexpected datasource type was passed")
+            # We don't need to filter for organisation here again, since the project_db
+            # is bound to it already.
+            qs = datasource_model.objects.filter(qgis_layer_id=layer.id, project=project_db)
+            if await qs.aexists():
+                logging.debug(
+                    f" Dataset was found and will be updated {layer.name}"
+                    f" (qgis-layer-id: {layer.id})"
+                )
+                datasource = await qs.aget()
+            else:
+                logging.debug(
+                    f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
+                )
+                datasource = datasource_model(qgis_layer_id=layer.id, project=project_db)
+            await datasource.set_values_from_qsl(layer)
+            await datasource.asave()
+            logging.debug(
+                f" ✓ Dataset {layer.name} (qgis-layer-id: {layer.id})"
+                f" was written to DB successfully."
+            )
+            if isinstance(datasource, Vector):
+                logging.debug(" Handling of related fields.")
+                layer: QslVector
+                for qsl_field in layer.fields:
+                    field_qs = VectorField.objects.filter(
+                        name=qsl_field.name,
+                        datasource=datasource,
                     )
-                    datasource = await qs.aget()
-                else:
-                    logging.debug(
-                        f" New dataset will be added {layer.name} (qgis-layer-id: {layer.id}) "
-                    )
-                    datasource = datasource_model(qgis_layer_id=layer.id, project=project_db)
-                datasource.set_values_from_qsl(layer)
-                await datasource.asave()
-                if isinstance(datasource, NonGeometricDatasource):
-                    logging.debug(" Handling of related fields.")
-                    layer: QslVector
-                    for qsl_field in layer.fields:
-                        field_qs = NonGeometricFields.objects.filter(
-                            definition__name=qsl_field.name,
+                    if not await field_qs.aexists():
+                        logging.debug(
+                            f"   New Field {qsl_field.name} (type: {qsl_field.type}) will be added."
+                        )
+                        field = VectorField(
                             datasource=datasource,
                         )
-                        if not await field_qs.aexists():
-                            logging.debug(
-                                f"   New Field {qsl_field.name} "
-                                f"(type: {qsl_field.type}) will be added."
-                            )
-                            field = NonGeometricFields(
-                                datasource=datasource,
-                            )
-                        else:
-                            logging.debug(
-                                f"   Field {qsl_field.name} (type: {qsl_field.type})"
-                                f" was found and will be updated."
-                            )
-                            field: NonGeometricFields = await field_qs.aget()
-                        field.set_definition_from_qsl(qsl_field)
-                        await field.asave()
-                        definition: QslField = field.field_definition_qsl
+                    else:
                         logging.debug(
-                            f"   ✓ Field {definition.name} (type: {definition.type})"
-                            f" was written to DB successfully."
+                            f"   Field {qsl_field.name} (type: {qsl_field.type})"
+                            f" was found and will be updated."
                         )
-                    logging.debug("   Cleaning out old fields...")
-                    async for field_db in NonGeometricFields.objects.filter(
-                        datasource=datasource
-                    ).all():
-                        definition: QslField = field_db.field_definition_qsl
-                        field_match = layer.get_field_by_name(definition.name)
-                        if field_match is None:
-                            logging.debug(
-                                f'    Deleting field "{definition.name}" of vector '
-                                f"dataset {datasource.name}"
-                                f" since it was"
-                                " not in project config anymore"
-                            )
-                            await field_db.adelete()
-                    logging.debug("   ✓ Finished - Cleaning out old fields...")
-
+                        field: VectorField = await field_qs.aget()
+                    await field.set_values_from_qsl(qsl_field)
+                    await field.asave()
+                    logging.debug(
+                        f"   ✓ Field {field.name} (type: {field.type})"
+                        f" was written to DB successfully."
+                    )
+                logging.debug("   Cleaning out old fields...")
+                async for field_db in VectorField.objects.filter(datasource=datasource).all():
+                    field_match = layer.get_field_by_name(field_db.name)
+                    if field_match is None:
+                        logging.debug(
+                            f'    Deleting field "{field_db.name}" of vector '
+                            f"dataset {datasource.name}"
+                            f" since it was"
+                            " not in project config anymore"
+                        )
+                        await field_db.adelete()
+                logging.debug("   ✓ Finished - Cleaning out old fields...")
         logging.debug(" Cleaning out old datasources.")
         async for datasource_db in Datasource.objects.filter(project=project_db).all():
             dataset_match = project_json.datasets.find_dataset_by_id(datasource_db.qgis_layer_id)

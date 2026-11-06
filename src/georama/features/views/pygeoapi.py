@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
 from django.core.exceptions import BadRequest, PermissionDenied, ValidationError
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -17,6 +17,7 @@ from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
 from pygeoapi.util import to_json
+from qgis_server_light.interface.exporter.extract import Range, ValueMap
 
 from georama.features.apps import FeaturesConfig
 from georama.features.config_server import ServerConfig
@@ -40,6 +41,10 @@ class _NoCache(dict):
 l10n._cfg_cache = _NoCache()
 
 
+WORLD_BBOX = [-180.0, -90.0, 180.0, 90.0]
+CRS84_URI = "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+
+
 def get_collection_schema_with_geometry_format(
     api: API, request: APIRequest, dataset: str, geometry_type_wkb: str
 ) -> tuple[dict, int, str]:
@@ -58,16 +63,18 @@ def get_collection_schema_with_geometry_format(
 
     The geometry type of QSL is mapped to its GeoJSON type.
     """
-    try:
-        geometry_format = f"geometry-{geojson_geometry_type(geometry_type_wkb).lower()}"
-    except UnsupportedGeometryTypeError as e:
-        return api.get_exception(
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-            request.get_response_headers(**api.api_headers),
-            request.format,
-            "NoApplicableCode",
-            str(e),
-        )
+    geometry_format = None
+    if geometry_type_wkb is not None:
+        try:
+            geometry_format = f"geometry-{geojson_geometry_type(geometry_type_wkb).lower()}"
+        except UnsupportedGeometryTypeError as e:
+            return api.get_exception(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                request.get_response_headers(**api.api_headers),
+                request.format,
+                "NoApplicableCode",
+                str(e),
+            )
 
     headers, status, content = core_api.get_collection_schema(api, request, dataset)
     if status != HTTPStatus.OK or headers.get("Content-Type") != "application/schema+json":
@@ -76,7 +83,10 @@ def get_collection_schema_with_geometry_format(
     schema = json.loads(content)
     schema["required"] = []
     geometry = schema["properties"].get("geometry")
-    if geometry is not None:
+    if geometry is not None and geometry_format is None:
+        # geometryless datasources have no geometry property at all
+        del schema["properties"]["geometry"]
+    elif geometry is not None:
         geometry["format"] = geometry_format
     for key in schema["properties"]:
         v = schema["properties"][key]
@@ -206,7 +216,11 @@ class PygeoapiServer(View):
         feature_layer = self.get_collection_or_404_or_403(
             collection_id, self.perm_view, include_public=True
         ).get()
-        geom_type = feature_layer.datasource.geometry_type_wkb
+        geom_type = (
+            feature_layer.datasource.geometry_type_wkb
+            if feature_layer.datasource.is_spatial
+            else None
+        )
         return self.execute_from_django(
             # a bit hacky, but we use
             # https://docs.python.org/3/library/functools.html#functools.partial
@@ -255,6 +269,9 @@ class PygeoapiServer(View):
             )
         elif request.method == "POST":
             _ = self.get_collection_or_404_or_403(collection_id, self.perm_create)
+            violation = self.get_value_violation(request, collection_id)
+            if violation is not None:
+                return violation
             if request.content_type is not None:
                 if request.content_type == "application/geo+json":
                     response_ = self.execute_from_django(
@@ -317,6 +334,9 @@ class PygeoapiServer(View):
             )
         elif request.method == "PUT":
             _ = self.get_collection_or_404_or_403(collection_id, self.perm_update)
+            violation = self.get_value_violation(request, collection_id)
+            if violation is not None:
+                return violation
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
                 request,
@@ -354,6 +374,44 @@ class PygeoapiServer(View):
             raise BadRequest()
 
         return response_
+
+    def get_value_violation(self, request: HttpRequest, collection_id: str) -> HttpResponse | None:
+        """Answers 400 if a property of the written item is not in the `oneOf` / `enum`
+        list of its field. The database does not check value lists, so this is the check.
+
+        :returns: Django HTTP Response on violation, None otherwise
+        """
+        try:
+            payload = json.loads(request.body)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            # malformed bodies are answered by pygeoapi
+            return None
+        feature_layers = self.accessible_feature_layers(request, collection_id)
+        if not feature_layers or not isinstance(payload, dict):
+            return None
+
+        feature_layer = feature_layers[0]
+        constraints = get_dataset_field_constraints(
+            self.get_visible_fields(feature_layer), feature_layer.datasource.geometry_type_wkb
+        )
+        properties = payload.get("properties") or {}
+        for name, schema in constraints.items():
+            value = properties.get(name)
+            if value is None:
+                continue
+            if "oneOf" in schema:
+                allowed = [option["const"] for option in schema["oneOf"]]
+            else:
+                allowed = schema.get("enum")
+            if allowed is not None and value not in allowed:
+                return JsonResponse(
+                    {
+                        "code": "InvalidParameterValue",
+                        "description": f"Value {value!r} is not allowed for {name}",
+                    },
+                    status=HTTPStatus.BAD_REQUEST,
+                )
+        return None
 
     def handle_runtime_config(
         self, request: HttpRequest, collection_id: str | None = None, with_openapi=False
@@ -409,6 +467,16 @@ class PygeoapiServer(View):
         if crs not in runtime_api.DEFAULT_CRS_LIST:
             runtime_api.DEFAULT_CRS_LIST.append(crs)
 
+    @staticmethod
+    def get_primary_key_name(feature_layer: FeatureLayer) -> str:
+        """The OGR provider needs the name of the identifier column. OGR sources have no key
+        in the QSL export, so it is taken from the primary key field of the datasource.
+        """
+        for vector_field in feature_layer.datasource.fields.all():
+            if vector_field.definition and vector_field.field_definition_qsl.is_primary_key:
+                return vector_field.name
+        return "fid"
+
     def create_ogr_provider(
         self,
         feature_layer: FeatureLayer,
@@ -444,8 +512,8 @@ class PygeoapiServer(View):
             },
             "editable": editable,
             "crs": available_crs_list,
-            "storage_crs": crs.ogc_uri,
-            "id_field": "fid",
+            "storage_crs": crs.ogc_uri if crs is not None else CRS84_URI,
+            "id_field": self.get_primary_key_name(feature_layer),
             "layer": (
                 source.ogr.layer_name
                 if source.ogr.layer_name is not None
@@ -470,7 +538,9 @@ class PygeoapiServer(View):
         crs = feature_layer.datasource.crs_to_qsl
         available_crs_list = self.get_available_crs_list(crs)
 
-        geom_field = source.postgres.geometry_column
+        geom_field = (
+            source.postgres.geometry_column if feature_layer.datasource.is_spatial else None
+        )
         geom_type = feature_layer.datasource.geometry_type_wkb
 
         field_constraints = get_dataset_field_constraints(features_properties, geom_type)
@@ -508,7 +578,7 @@ class PygeoapiServer(View):
             "options": options,
             "editable": editable,
             "crs": available_crs_list,
-            "storage_crs": crs.ogc_uri,
+            "storage_crs": crs.ogc_uri if crs is not None else CRS84_URI,
             "id_field": source.postgres.key,
             "table": source.postgres.table,
             "geom_field": geom_field,
@@ -559,7 +629,8 @@ class PygeoapiServer(View):
             "links": [],
             "extents": {
                 "spatial": {
-                    "bbox": feature_layer.datasource.bbox_to_list,
+                    # geometryless datasources have no bbox, pygeoapi needs an extent anyway
+                    "bbox": feature_layer.datasource.bbox_to_list or WORLD_BBOX,
                     "crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
                 }
             },
@@ -578,9 +649,12 @@ class PygeoapiServer(View):
         }
 
     def get_available_crs_list(self, crs):
-        self.handle_crs_setting(crs.ogc_uri)
-        available_crs_list = [
-            crs.ogc_uri,
+        if crs is None:
+            available_crs_list = []
+        else:
+            self.handle_crs_setting(crs.ogc_uri)
+            available_crs_list = [crs.ogc_uri]
+        available_crs_list += [
             "http://www.opengis.net/def/crs/OGC/0/CRS84",
             "https://www.opengis.net/def/crs/OGC/0/CRS84",
         ]
@@ -633,6 +707,46 @@ def get_dataset_field_constraints(field_properties: list[Field], geom_type: str)
             except KeyError:
                 pass
 
+        if field.definition:
+            widget = field.field_definition_qsl.editor_widget
+            if widget is not None and widget.value_map is not None:
+                schema.update(value_map_constraints(widget.value_map, field.type_oapif))
+            if widget is not None and widget.range is not None:
+                schema.update(range_constraints(widget.range))
+
         field_constraints[str(properties.name)] = schema
 
     return field_constraints
+
+
+VALUE_MAP_CASTS = {"integer": int, "number": float}
+
+
+def value_map_constraints(value_map: "ValueMap", type_oapif: str) -> dict:
+    """Maps a QGIS ValueMap to `oneOf`, `enum` only where key and description are equal.
+
+    Keys are cast to the schema type, a key which does not fit is left out of the list.
+    """
+    cast = VALUE_MAP_CASTS.get(type_oapif, str)
+    entries = []
+    for entry in value_map.entries:
+        try:
+            entries.append((cast(entry.key), entry))
+        except ValueError:
+            continue
+
+    constraints: dict = {
+        "oneOf": [{"const": key, "title": entry.description} for key, entry in entries],
+    }
+    if entries and all(entry.key == entry.description for _, entry in entries):
+        constraints["enum"] = [key for key, _ in entries]
+    return constraints
+
+
+def range_constraints(widget_range: "Range") -> dict:
+    constraints = {}
+    if widget_range.minimum is not None:
+        constraints["minimum"] = widget_range.minimum
+    if widget_range.maximum is not None:
+        constraints["maximum"] = widget_range.maximum
+    return constraints
