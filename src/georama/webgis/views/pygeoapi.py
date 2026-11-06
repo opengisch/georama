@@ -5,7 +5,9 @@ from django.http import HttpRequest
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
+from georama.features.references import ReferenceTarget
 from georama.features.views.pygeoapi import PygeoapiServer
+from georama.integration.models import Vector
 from georama.integration.models.datasource import VectorField
 from georama.webgis.models import WmsLayer
 
@@ -24,6 +26,7 @@ class PublishedField:
 class PygeoapiServerWebGIS(PygeoapiServer):
     action = None
     model = WmsLayer
+    landing_url_name = "webgis:landing"
     perm_view = "webgis.view_published_theme"
 
     def accessible_feature_layers(
@@ -37,7 +40,7 @@ class PygeoapiServerWebGIS(PygeoapiServer):
                 include_public=True,
             )
             .filter(datasource__vector__isnull=False)
-            .prefetch_related("datasource__vector__fields__datasource_field")
+            .prefetch_related("datasource__vector__fields")
         )
         if collection_id is not None:
             try:
@@ -46,6 +49,35 @@ class PygeoapiServerWebGIS(PygeoapiServer):
                 # not a valid identifier, pygeoapi answers with 404
                 return []
         return list(feature_layers)
+
+    @staticmethod
+    def get_reference_targets(project) -> dict[str, ReferenceTarget]:
+        """The published WMS layers of the project, keyed by QGIS layer id. Their collection
+        is the WMS layer itself, with the primary key of its vector datasource.
+        """
+        targets: dict[str, ReferenceTarget] = {}
+        layers = (
+            WmsLayer.objects.filter(datasource__project=project, datasource__vector__isnull=False)
+            .select_related("datasource")
+            .prefetch_related("datasource__vector__fields")
+        )
+        for layer in layers:
+            key_field = next(
+                (
+                    f.name
+                    for f in layer.datasource.vector.fields.all()
+                    if f.definition and f.field_definition_qsl.is_primary_key
+                ),
+                None,
+            )
+            if key_field is not None:
+                targets[layer.datasource.qgis_layer_id] = ReferenceTarget(
+                    str(layer.identifier), key_field
+                )
+        return targets
+
+    def get_vector(self, feature_layer: WmsLayer) -> Vector:
+        return feature_layer.datasource.vector
 
     def get_visible_fields(self, feature_layer: WmsLayer) -> list[PublishedField]:
         return [
