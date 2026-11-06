@@ -17,13 +17,14 @@ from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
 from pygeoapi.util import to_json
-from qgis_server_light.interface.exporter.extract import Range, ValueMap
+from qgis_server_light.interface.exporter.extract import Range, Relation, ValueMap
 
 from georama.features.apps import FeaturesConfig
 from georama.features.config_server import ServerConfig
 from georama.features.features_config import Config
 from georama.features.geometry_type import UnsupportedGeometryTypeError, geojson_geometry_type
 from georama.features.models import FeatureLayer, Field
+from georama.features.references import ReferenceTarget, reference_keywords
 
 if TYPE_CHECKING:
     from georama.integration.models import VectorField as DatasourceField
@@ -495,7 +496,7 @@ class PygeoapiServer(View):
         geom_field = None
         geom_type = feature_layer.datasource.geometry_type_wkb
 
-        field_constraints = get_dataset_field_constraints(features_properties, geom_type)
+        field_constraints = self.get_field_constraints(feature_layer, features_properties)
 
         provider_definition = {
             "type": "feature",
@@ -543,7 +544,7 @@ class PygeoapiServer(View):
         )
         geom_type = feature_layer.datasource.geometry_type_wkb
 
-        field_constraints = get_dataset_field_constraints(features_properties, geom_type)
+        field_constraints = self.get_field_constraints(feature_layer, features_properties)
 
         # Layers using a pg_service only carry the service name: QSL does not resolve it
         # at export so that no credentials end up stored in the database. The connection
@@ -638,6 +639,47 @@ class PygeoapiServer(View):
             "limits": self.get_limits(feature_layer),
         }
 
+    def get_field_constraints(self, feature_layer: FeatureLayer, features_properties: list) -> dict:
+        datasource = feature_layer.datasource
+        return get_dataset_field_constraints(
+            features_properties,
+            datasource.geometry_type_wkb,
+            datasource.qgis_layer_id,
+            self.get_relations(datasource.project),
+            self.get_reference_targets(datasource.project),
+        )
+
+    @staticmethod
+    def get_relations(project) -> list[Relation]:
+        if not project.config:
+            # a project without export has no relations
+            return []
+        return project.config_as_dataclass.relations
+
+    @staticmethod
+    def get_reference_targets(project) -> dict[str, ReferenceTarget]:
+        """The feature layers of the project published on this mount, keyed by QGIS layer id.
+        Only layers with a primary key field can be referenced.
+        """
+        targets: dict[str, ReferenceTarget] = {}
+        layers = (
+            FeatureLayer.objects.filter(datasource__project=project)
+            .select_related("datasource")
+            .prefetch_related("datasource__fields")
+        )
+        for layer in layers:
+            key_field = next(
+                (
+                    f.name
+                    for f in layer.datasource.fields.all()
+                    if f.definition and f.field_definition_qsl.is_primary_key
+                ),
+                None,
+            )
+            if key_field is not None:
+                targets[layer.datasource.qgis_layer_id] = ReferenceTarget(str(layer.id), key_field)
+        return targets
+
     def get_visible_fields(self, feature_layer: FeatureLayer) -> list[Field]:
         return [p for p in feature_layer.fields.all() if p.visible]
 
@@ -665,7 +707,13 @@ class PygeoapiServer(View):
         return available_crs_list
 
 
-def get_dataset_field_constraints(field_properties: list[Field], geom_type: str):
+def get_dataset_field_constraints(
+    field_properties: list[Field],
+    geom_type: str,
+    layer_id: str,
+    relations: list[Relation],
+    targets: dict[str, ReferenceTarget],
+):
     field_constraints: dict[str, dict] = {}
 
     for properties in field_properties:
@@ -713,6 +761,9 @@ def get_dataset_field_constraints(field_properties: list[Field], geom_type: str)
                 schema.update(value_map_constraints(widget.value_map, field.type_oapif))
             if widget is not None and widget.range is not None:
                 schema.update(range_constraints(widget.range))
+            schema.update(
+                reference_keywords(str(properties.name), layer_id, widget, relations, targets)
+            )
 
         field_constraints[str(properties.name)] = schema
 
