@@ -68,6 +68,10 @@ class Project(models.Model):
         return self.datasources.order_by("name").all()
 
     @property
+    def non_geometric_datasources_sorted_by_name(self) -> QuerySet:
+        return self.non_geomtric_datasources.order_by("name").all()
+
+    @property
     def organisation_folder(self) -> str:
         if self.organisation:
             return self.organisation.domain

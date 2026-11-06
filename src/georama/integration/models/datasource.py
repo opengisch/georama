@@ -20,7 +20,52 @@ from georama.integration.managers.datasource import DatasourceManager, VectorMan
 from georama.integration.models.project import Project
 
 
-class Datasource(models.Model):
+class BaseDatasource(models.Model):
+    class Meta:
+        abstract = True
+
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the datasource.")
+    )
+    qgis_layer_id = models.CharField(
+        max_length=1000, help_text=_("Layer identifier from the source QGIS project.")
+    )
+    name = models.CharField(max_length=1000, help_text=_("Name of the datasource."))
+    source = models.JSONField(
+        default=dict, help_text=_("Source configuration and connection metadata of the datasource.")
+    )
+    driver = models.CharField(
+        max_length=50, help_text=_("Provider driver name used to access the datasource.")
+    )
+
+    def set_values_from_qsl(self, qsl_object: QslVector):
+        self.name = qsl_object.title
+        self.source = DictEncoder().encode(qsl_object.source)
+        self.driver = qsl_object.driver
+
+
+class NonGeometricDatasource(BaseDatasource):
+    ORGANISATION_FIELD_NAME = "project__organisation"
+
+    class Meta:
+        verbose_name = _("Non-Geometric Datasource")
+        verbose_name_plural = _("Non-Geometric Datasources")
+        unique_together = (
+            "qgis_layer_id",
+            "project",
+        )
+
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="non_geomtric_datasources",
+        help_text=_("Project the non geometric datasource belongs to."),
+    )
+
+    objects = OrganisationalManager()
+
+
+class Datasource(BaseDatasource):
     ORGANISATION_FIELD_NAME = "project__organisation"
 
     class Meta:
@@ -31,13 +76,6 @@ class Datasource(models.Model):
             "project",
         )
 
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the datasource.")
-    )
-    qgis_layer_id = models.CharField(
-        max_length=1000, help_text=_("Layer identifier from the source QGIS project.")
-    )
-    name = models.CharField(max_length=1000, help_text=_("Name of the datasource."))
     bbox = models.CharField(
         max_length=1000,
         help_text=_("Bounding box of the datasource in the source coordinate reference system."),
@@ -45,14 +83,8 @@ class Datasource(models.Model):
     bbox_wgs84 = models.CharField(
         max_length=1000, help_text=_("Bounding box of the datasource transformed to WGS84.")
     )
-    source = models.JSONField(
-        default=dict, help_text=_("Source configuration and connection metadata of the datasource.")
-    )
     styles = models.JSONField(
         default=list, help_text=_("Rendered style definitions associated with this datasource.")
-    )
-    driver = models.CharField(
-        max_length=50, help_text=_("Provider driver name used to access the datasource.")
     )
     crs = models.JSONField(
         default=dict, help_text=_("Coordinate reference system of the datasource.")
@@ -151,8 +183,8 @@ class Datasource(models.Model):
         db_objct.bbox = qsl_object.bbox.to_string()
         db_objct.bbox_wgs84 = qsl_object.bbox_wgs84.to_string()
         db_objct.styles = DictEncoder().encode(qsl_object.styles)
-        db_objct.driver = qsl_object.driver
         db_objct.source = DictEncoder().encode(qsl_object.source)
+        db_objct.driver = qsl_object.driver
         db_objct.qgis_layer_id = qsl_object.id
         db_objct.crs = DictEncoder().encode(qsl_object.crs)
         db_objct.minimum_scale = qsl_object.minimum_scale
@@ -182,7 +214,49 @@ class Vector(Datasource):
         self.geometry_type_wkb = qsl_object.geometry_type_wkb
 
 
-class VectorField(models.Model):
+class BaseField(models.Model):
+    class Meta:
+        abstract = True
+
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the field.")
+    )
+    definition = models.JSONField(
+        blank=True,
+        help_text=_("The JSON definition as defined by the QSL intreface dataclasses"),
+        default=dict,
+    )
+
+    @property
+    def field_definition_qsl(self) -> QSlField:
+        return DictDecoder().decode(self.definition, QSlField)
+
+    def set_definition_from_qsl(self, field: QSlField):
+        self.definition = DictEncoder().encode(field)
+
+
+class NonGeometricFields(BaseField):
+    ORGANISATION_FIELD_NAME = "datasource__project__organisation"
+
+    class Meta:
+        unique_together = (
+            "definition",
+            "datasource",
+        )
+        verbose_name = _("Non-Geometric Field")
+        verbose_name_plural = _("Non-Geometric Fields")
+
+    datasource = models.ForeignKey(
+        NonGeometricDatasource,
+        on_delete=models.CASCADE,
+        help_text=_("Non-Geometric datasource this field belongs to."),
+        related_name="fields",
+    )
+
+    objects = OrganisationalManager()
+
+
+class VectorField(BaseField):
     ORGANISATION_FIELD_NAME = "datasource__project__organisation"
 
     class Meta:
@@ -193,9 +267,6 @@ class VectorField(models.Model):
         verbose_name = _("field")
         verbose_name_plural = _("fields")
 
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the field.")
-    )
     name = models.CharField(
         max_length=1000, help_text=_("Original field name from the source datasource.")
     )
@@ -245,6 +316,7 @@ class VectorField(models.Model):
         self.nullable = qsl_object.nullable
         self.length = qsl_object.length
         self.precision = qsl_object.precision
+        self.set_definition_from_qsl(qsl_object)
 
 
 class Raster(Datasource):
