@@ -36,9 +36,17 @@ jobs:
           fi
 
 
+  test:
+    needs: check
+    uses: ./.github/workflows/test.yaml
+
+  migrations:
+    needs: check
+    uses: ./.github/workflows/migrations.yaml
+
   docker-image-release:
     runs-on: ubuntu-latest
-    needs: check
+    needs: [ check, test, migrations ]
     permissions:
       packages: write
     steps:
