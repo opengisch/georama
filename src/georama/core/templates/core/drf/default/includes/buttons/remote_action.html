@@ -1,6 +1,8 @@
+{% load model_extras %}
 {% comment %}
 action: georama.core.common.remote_actions.RemoteAction
-item: the primary key which the form should be sent to
+pk: the primary key which the form should be sent to
+item: the instance the action applies to, used to show how many objects the action created
 {% endcomment %}
 <form id="{{ action.name }}-{{ pk }}"
       action="{{ action.target }}"
@@ -12,7 +14,7 @@ item: the primary key which the form should be sent to
 </form>
 <button form="{{ action.name }}-{{ pk }}"
         type="submit"
-        class="btn btn-outline-primary"
+        class="btn btn-outline-primary position-relative"
         role="button"
         title="{{ action.help_text }}"
         aria-label="{{ action.help_text }}"
@@ -21,4 +23,8 @@ item: the primary key which the form should be sent to
         <i class="{{ action.icon_classes }}"></i>
     {% endif %}
     {{ action.name }}
+    {% remote_action_count action item as count %}
+    {% if count %}
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-primary">{{ count }}</span>
+    {% endif %}
 </button>
