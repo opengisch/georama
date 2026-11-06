@@ -87,6 +87,19 @@
                 </li>
 
             {% endfor %}
+            {% for ds in object.non_geometric_datasources_sorted_by_name %}
+                <li class="list-group-item d-flex align-items-center gap-2">
+                    <i class="fa fa-table text-primary" style="width: 1.5em;"></i>
+                    <div
+                            class="me-auto"
+                            data-bs-toggle="tooltip"
+                            title="{{ ds.qgis_layer_id }}"
+                            aria-label="{{ ds.qgis_layer_id }}">
+                        {{ ds.name }} ({% trans 'geometryless' %})
+                    </div>
+                    {% include "integration/drf/datasource/includes/pills/driver.html" with datasource=ds %}
+                </li>
+            {% endfor %}
 
         </ul>
     </div>

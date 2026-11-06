@@ -1,26 +1,85 @@
 import logging
 import uuid
-from typing import Literal
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from qgis_server_light.interface.common import BBox, Crs, Style
+from qgis_server_light.interface.common import BBox
+from qgis_server_light.interface.common import Crs
+from qgis_server_light.interface.common import Style
 from qgis_server_light.interface.exporter.extract import Custom as QslCustom
 from qgis_server_light.interface.exporter.extract import DataSource
 from qgis_server_light.interface.exporter.extract import Field as QSlField
 from qgis_server_light.interface.exporter.extract import Raster as QslRaster
 from qgis_server_light.interface.exporter.extract import Vector as QslVector
+from typing import Literal
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.common.managers import OrganisationalManager
-from georama.integration.managers.datasource import DatasourceManager, VectorManager
+from georama.integration.managers.datasource import DatasourceManager
+from georama.integration.managers.datasource import VectorManager
 from georama.integration.models.project import Project
 
 
-class Datasource(models.Model):
+class BaseDatasource(models.Model):
+    class Meta:
+        abstract = True
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the datasource.")
+    )
+    qgis_layer_id = models.CharField(
+        max_length=1000,
+        help_text=_("Layer identifier from the source QGIS project."),
+        verbose_name=_("QGIS layer ID"),
+    )
+    name = models.CharField(
+        max_length=1000,
+        help_text=_("Name of the datasource."),
+        verbose_name=_("name"),
+    )
+    source = models.JSONField(
+        default=dict,
+        help_text=_("Source configuration and connection metadata of the datasource."),
+        verbose_name=_("source"),
+    )
+    driver = models.CharField(
+        max_length=50,
+        help_text=_("Provider driver name used to access the datasource."),
+        verbose_name=_("driver"),
+    )
+
+    def set_values_from_qsl(self, qsl_object: QslVector):
+        self.name = qsl_object.title
+        self.source = DictEncoder().encode(qsl_object.source)
+        self.driver = qsl_object.driver
+
+
+class NonGeometricDatasource(BaseDatasource):
+    ORGANISATION_FIELD_NAME = "project__organisation"
+
+    class Meta:
+        verbose_name = _("Non-Geometric Datasource")
+        verbose_name_plural = _("Non-Geometric Datasources")
+        unique_together = (
+            "qgis_layer_id",
+            "project",
+        )
+
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="non_geomtric_datasources",
+        help_text=_("Project the non geometric datasource belongs to."),
+    )
+
+    objects = OrganisationalManager()
+
+
+class Datasource(BaseDatasource):
     ORGANISATION_FIELD_NAME = "project__organisation"
 
     class Meta:
@@ -31,22 +90,11 @@ class Datasource(models.Model):
             "project",
         )
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        help_text=_("Identifier of the datasource."),
-    )
-    qgis_layer_id = models.CharField(
-        max_length=1000,
-        help_text=_("Layer identifier from the source QGIS project."),
-        verbose_name=_("QGIS layer ID"),
-    )
-    name = models.CharField(
-        max_length=1000, help_text=_("Name of the datasource."), verbose_name=_("name")
-    )
     bbox = models.CharField(
         max_length=1000,
-        help_text=_("Bounding box of the datasource in the source coordinate reference system."),
+        help_text=_(
+            "Bounding box of the datasource in the source coordinate reference system."
+        ),
         verbose_name=_("bounding box"),
     )
     bbox_wgs84 = models.CharField(
@@ -54,20 +102,10 @@ class Datasource(models.Model):
         help_text=_("Bounding box of the datasource transformed to WGS84."),
         verbose_name=_("bounding box (WGS 84)"),
     )
-    source = models.JSONField(
-        default=dict,
-        help_text=_("Source configuration and connection metadata of the datasource."),
-        verbose_name=_("source"),
-    )
     styles = models.JSONField(
         default=list,
         help_text=_("Rendered style definitions associated with this datasource."),
         verbose_name=_("styles"),
-    )
-    driver = models.CharField(
-        max_length=50,
-        help_text=_("Provider driver name used to access the datasource."),
-        verbose_name=_("driver"),
     )
     crs = models.JSONField(
         default=dict,
@@ -99,12 +137,16 @@ class Datasource(models.Model):
 
     @property
     def get_parser_config(self):
-        return ParserConfig(fail_on_unknown_attributes=False, fail_on_unknown_properties=False)
+        return ParserConfig(
+            fail_on_unknown_attributes=False, fail_on_unknown_properties=False
+        )
 
     @property
     def source_to_qsl(self) -> DataSource:
         # TODO: Implement an ENV Django app to manipulate datasources in a hookable way
-        datasource = DictDecoder(config=self.get_parser_config).decode(self.source, DataSource)
+        datasource = DictDecoder(config=self.get_parser_config).decode(
+            self.source, DataSource
+        )
         return datasource
 
     @property
@@ -140,7 +182,9 @@ class Datasource(models.Model):
 
     @property
     def styles_to_qsl(self) -> list[Style]:
-        return DictDecoder(config=self.get_parser_config).decode(self.styles, list[Style])
+        return DictDecoder(config=self.get_parser_config).decode(
+            self.styles, list[Style]
+        )
 
     @property
     def type(self) -> Literal["vector", "raster", "custom"]:
@@ -173,8 +217,8 @@ class Datasource(models.Model):
         db_objct.bbox = qsl_object.bbox.to_string()
         db_objct.bbox_wgs84 = qsl_object.bbox_wgs84.to_string()
         db_objct.styles = DictEncoder().encode(qsl_object.styles)
-        db_objct.driver = qsl_object.driver
         db_objct.source = DictEncoder().encode(qsl_object.source)
+        db_objct.driver = qsl_object.driver
         db_objct.qgis_layer_id = qsl_object.id
         db_objct.crs = DictEncoder().encode(qsl_object.crs)
         db_objct.minimum_scale = qsl_object.minimum_scale
@@ -207,7 +251,49 @@ class Vector(Datasource):
         self.geometry_type_wkb = qsl_object.geometry_type_wkb
 
 
-class VectorField(models.Model):
+class BaseField(models.Model):
+    class Meta:
+        abstract = True
+
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the field.")
+    )
+    definition = models.JSONField(
+        blank=True,
+        help_text=_("The JSON definition as defined by the QSL intreface dataclasses"),
+        default=dict,
+    )
+
+    @property
+    def field_definition_qsl(self) -> QSlField:
+        return DictDecoder().decode(self.definition, QSlField)
+
+    def set_definition_from_qsl(self, field: QSlField):
+        self.definition = DictEncoder().encode(field)
+
+
+class NonGeometricFields(BaseField):
+    ORGANISATION_FIELD_NAME = "datasource__project__organisation"
+
+    class Meta:
+        unique_together = (
+            "definition",
+            "datasource",
+        )
+        verbose_name = _("Non-Geometric Field")
+        verbose_name_plural = _("Non-Geometric Fields")
+
+    datasource = models.ForeignKey(
+        NonGeometricDatasource,
+        on_delete=models.CASCADE,
+        help_text=_("Non-Geometric datasource this field belongs to."),
+        related_name="fields",
+    )
+
+    objects = OrganisationalManager()
+
+
+class VectorField(BaseField):
     ORGANISATION_FIELD_NAME = "datasource__project__organisation"
 
     class Meta:
@@ -218,11 +304,6 @@ class VectorField(models.Model):
         verbose_name = _("field")
         verbose_name_plural = _("fields")
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        help_text=_("Identifier of the field."),
-    )
     name = models.CharField(
         max_length=1000,
         help_text=_("Original field name from the source datasource."),
@@ -296,6 +377,7 @@ class VectorField(models.Model):
         self.nullable = qsl_object.nullable
         self.length = qsl_object.length
         self.precision = qsl_object.precision
+        self.set_definition_from_qsl(qsl_object)
 
 
 class Raster(Datasource):
