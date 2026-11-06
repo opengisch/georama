@@ -77,13 +77,15 @@ class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
     async def publish_from_vector(self, request: GeoramaDrfRequest, *args, **kwargs):
         qs = Vector.objects.organisation_objects(request.georama_organisation)
         vector = await qs.aget(id=request.data["pk"])
-        try:
-            geojson_geometry_type(vector.geometry_type_wkb)
-        except UnsupportedGeometryTypeError as e:
-            messages.error(
-                request, _("Publishing '{name}' failed: {error}").format(name=vector.name, error=e)
-            )
-            return redirect(reverse("integration:manager-vector-list"))
+        if vector.is_spatial:
+            try:
+                geojson_geometry_type(vector.geometry_type_wkb)
+            except UnsupportedGeometryTypeError as e:
+                messages.error(
+                    request,
+                    _("Publishing '{name}' failed: {error}").format(name=vector.name, error=e),
+                )
+                return redirect(reverse("integration:manager-vector-list"))
         md = Metadata(title=vector.name)
         await md.asave()
         fl = FeatureLayer(datasource=vector, metadata=md)

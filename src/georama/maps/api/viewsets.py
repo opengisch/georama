@@ -88,7 +88,9 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
         if perms["can_add"]:
             pfdi = PublishFromDatasourceInput(data=request.data)
             pfdi.is_valid()
-            qs = Datasource.objects.organisation_objects(request.georama_organisation)
+            qs = Datasource.objects.organisation_objects(request.georama_organisation).filter(
+                is_spatial=True
+            )
             ds: Datasource = await qs.aget(id=pfdi.validated_data["pk"])
             md = Metadata(title=ds.name)
             await md.asave()
