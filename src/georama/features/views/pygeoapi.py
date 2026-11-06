@@ -90,6 +90,10 @@ def get_collection_schema_with_geometry_format(
 class PygeoapiServer(View):
     action = None
     model = FeatureLayer
+    perm_view = "view_objects_on_published_layer"
+    perm_create = "create_objects_on_published_layer"
+    perm_update = "update_objects_on_published_layer"
+    perm_delete = "delete_objects_on_published_layer"
 
     @classmethod
     def urls(cls):
@@ -200,7 +204,7 @@ class PygeoapiServer(View):
         :returns: Django HTTP Response
         """
         feature_layer = self.get_collection_or_404_or_403(
-            collection_id, "view_objects_on_published_layer", include_public=True
+            collection_id, self.perm_view, include_public=True
         ).get()
         geom_type = feature_layer.datasource.geometry_type_wkb
         return self.execute_from_django(
@@ -222,9 +226,7 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP Response
         """
-        _ = self.get_collection_or_404_or_403(
-            collection_id, "view_objects_on_published_layer", include_public=True
-        )
+        _ = self.get_collection_or_404_or_403(collection_id, self.perm_view, include_public=True)
         return self.execute_from_django(
             itemtypes_api.get_collection_queryables,
             request,
@@ -242,7 +244,7 @@ class PygeoapiServer(View):
         """
         if request.method == "GET":
             _ = self.get_collection_or_404_or_403(
-                collection_id, "view_objects_on_published_layer", include_public=True
+                collection_id, self.perm_view, include_public=True
             )
             response_ = self.execute_from_django(
                 itemtypes_api.get_collection_items,
@@ -252,9 +254,7 @@ class PygeoapiServer(View):
                 collection_id=collection_id,
             )
         elif request.method == "POST":
-            _ = self.get_collection_or_404_or_403(
-                collection_id, "create_objects_on_published_layer"
-            )
+            _ = self.get_collection_or_404_or_403(collection_id, self.perm_create)
             if request.content_type is not None:
                 if request.content_type == "application/geo+json":
                     response_ = self.execute_from_django(
@@ -278,7 +278,7 @@ class PygeoapiServer(View):
                 raise BadRequest()
         elif request.method == "OPTIONS":
             _ = self.get_collection_or_404_or_403(
-                collection_id, "view_objects_on_published_layer", include_public=True
+                collection_id, self.perm_view, include_public=True
             )
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
@@ -306,7 +306,7 @@ class PygeoapiServer(View):
         """
         if request.method == "GET":
             _ = self.get_collection_or_404_or_403(
-                collection_id, "view_objects_on_published_layer", include_public=True
+                collection_id, self.perm_view, include_public=True
             )
             response_ = self.execute_from_django(
                 itemtypes_api.get_collection_item,
@@ -316,9 +316,7 @@ class PygeoapiServer(View):
                 collection_id=collection_id,
             )
         elif request.method == "PUT":
-            _ = self.get_collection_or_404_or_403(
-                collection_id, "update_objects_on_published_layer"
-            )
+            _ = self.get_collection_or_404_or_403(collection_id, self.perm_update)
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
                 request,
@@ -329,9 +327,7 @@ class PygeoapiServer(View):
                 collection_id=collection_id,
             )
         elif request.method == "DELETE":
-            _ = self.get_collection_or_404_or_403(
-                collection_id, "delete_objects_on_published_layer"
-            )
+            _ = self.get_collection_or_404_or_403(collection_id, self.perm_delete)
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
                 request,
@@ -343,7 +339,7 @@ class PygeoapiServer(View):
             )
         elif request.method == "OPTIONS":
             _ = self.get_collection_or_404_or_403(
-                collection_id, "view_objects_on_published_layer", include_public=True
+                collection_id, self.perm_view, include_public=True
             )
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
@@ -395,7 +391,7 @@ class PygeoapiServer(View):
         feature_layers = self.model.objects.accessible_layers(
             self.request.georama_organisation,
             request.user,
-            ["view_objects_on_published_layer"],
+            [self.perm_view],
             include_public=True,
         ).prefetch_related("fields__datasource_field")
         if collection_id is not None:
@@ -529,13 +525,13 @@ class PygeoapiServer(View):
         editable = any(
             p in permission_checker.get_perms(feature_layer)
             for p in (
-                "create_objects_on_published_layer",
-                "update_objects_on_published_layer",
-                "delete_objects_on_published_layer",
+                self.perm_create,
+                self.perm_update,
+                self.perm_delete,
             )
         )
 
-        features_properties = [p for p in feature_layer.fields.all() if p.visible]
+        features_properties = self.get_visible_fields(feature_layer)
 
         if feature_layer.datasource.driver.upper() == "POSTGRES":
             provider = self.create_postgres_provider(feature_layer, editable, features_properties)
@@ -568,11 +564,17 @@ class PygeoapiServer(View):
                 }
             },
             "providers": [provider],
-            "limits": {
-                "on_exceed": feature_layer.on_exceed,
-                "max_items": feature_layer.max_items,
-                "default_items": feature_layer.default_items,
-            },
+            "limits": self.get_limits(feature_layer),
+        }
+
+    def get_visible_fields(self, feature_layer: FeatureLayer) -> list[Field]:
+        return [p for p in feature_layer.fields.all() if p.visible]
+
+    def get_limits(self, feature_layer: FeatureLayer) -> dict:
+        return {
+            "on_exceed": feature_layer.on_exceed,
+            "max_items": feature_layer.max_items,
+            "default_items": feature_layer.default_items,
         }
 
     def get_available_crs_list(self, crs):
