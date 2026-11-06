@@ -681,19 +681,31 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             ),
         )
 
-    def _get_users_queryset(self):
-        qs = User.objects.filter(~Q(username="AnonymousUser"), is_superuser=False)
-        if self.request.georama_organisation:
-            qs = qs.filter(memberships__organisation=self.request.georama_organisation)
-        return qs
+    async def _get_object_organisation_id(self, pk: str):
+        """The organisation of the object, the users offered for permissions are members of it."""
+        field = self.queryset.model.ORGANISATION_FIELD_NAME
+        return await self.queryset.model.objects.filter(pk=pk).values_list(field, flat=True).aget()
+
+    @staticmethod
+    def _get_users_queryset(organisation_id):
+        return User.objects.filter(
+            ~Q(username="AnonymousUser"),
+            is_superuser=False,
+            memberships__organisation_id=organisation_id,
+        )
 
     def _build_users_permissions_qs(
-        self, pk: str, sort_by_latest: bool, permission_filters: dict, filter_name: str
+        self,
+        pk: str,
+        organisation_id,
+        sort_by_latest: bool,
+        permission_filters: dict,
+        filter_name: str,
     ):
         group_perm_model = self.queryset.model.group_object_permissions.rel.related_model
         user_perm_model = self.queryset.model.user_object_permissions.rel.related_model
 
-        qs = self._get_users_queryset().annotate(
+        qs = self._get_users_queryset(organisation_id).annotate(
             entity_id=F("pk"),
             entity_name=F("username"),
             entity_permissions=JSONObject(
@@ -827,7 +839,8 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
             found_groups = []
 
             # Should we do some validation here (or in the serializers) ?
-            async for user in self._get_users_queryset().filter(id__in=users):
+            organisation_id = await self._get_object_organisation_id(pk)
+            async for user in self._get_users_queryset(organisation_id).filter(id__in=users):
                 found_users.append(str(user.id))
                 for permission_name in permission_names:
                     full_permission = f"{self.queryset.model._meta.app_label}.{permission_name}"
@@ -864,8 +877,9 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         entity = request.query_params.get("entity", "groups")
 
         if entity == "users":
+            organisation_id = await self._get_object_organisation_id(pk)
             qs = self._build_users_permissions_qs(
-                pk, sort_by_latest, permission_filters, filter_name
+                pk, organisation_id, sort_by_latest, permission_filters, filter_name
             )
             entity_field = "users"
             search_fields_hint = _("searchable fields: user name")
