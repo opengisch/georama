@@ -113,7 +113,7 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
         project = await qs.aget(id=request.data["pk"])
         wms_layer_index: WmsLayerIndex = {}
         theme = await self.transfer_to_theme(project)
-        async for ds in project.datasources.all():
+        async for ds in project.datasources.filter(is_spatial=True):
             wl = WmsLayer(
                 datasource=ds,
                 extent=ds.bbox,
