@@ -19,6 +19,9 @@ updates:
       # Python bindings are compiled against the libgdal-dev installed by apt in
       # the Dockerfile: to be bumped manually.
       - dependency-name: "gdal"
+      # Must stay aligned with the opengisch/qgis-server-light images in compose.yml:
+      # to be bumped manually.
+      - dependency-name: "qgis-server-light"
     groups:
       python-dev:
         patterns:
@@ -30,6 +33,9 @@ updates:
           - "factory-boy"
           - "django-silk"
           - "zensical"
+          - "pyproj"
+          - "shapely"
+          - "uvicorn"
         update-types:
           - "minor"
           - "patch"
@@ -70,6 +76,19 @@ updates:
       - "docker"
     cooldown:
       default-days: 5
+    ignore:
+      - dependency-name: "local/*"
+      # Must stay aligned with the qgis_server_light version in pyproject.toml:
+      # to be bumped manually.
+      - dependency-name: "opengisch/qgis-server-light"
+      # A major upgrade requires a dump/restore of the database, which is not
+      # tooled yet.
+      - dependency-name: "postgres"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "postgis/postgis"
+        update-types:
+          - "version-update:semver-major"
     groups:
       docker-compose-minor-patch:
         patterns:
@@ -90,6 +109,24 @@ updates:
       default-days: 5
     groups:
       github-actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "pre-commit"
+    cooldown:
+      default-days: 3
+    groups:
+      pre-commit-minor-patch:
         patterns:
           - "*"
         update-types:
