@@ -25,6 +25,7 @@ from georama.features.features_config import Config
 from georama.features.geometry_type import UnsupportedGeometryTypeError, geojson_geometry_type
 from georama.features.models import FeatureLayer, Field
 from georama.features.references import ReferenceTarget, reference_keywords
+from georama.integration.models import Vector
 
 if TYPE_CHECKING:
     from georama.integration.models import VectorField as DatasourceField
@@ -101,6 +102,7 @@ def get_collection_schema_with_geometry_format(
 class PygeoapiServer(View):
     action = None
     model = FeatureLayer
+    landing_url_name = "features:landing"
     perm_view = "view_objects_on_published_layer"
     perm_create = "create_objects_on_published_layer"
     perm_update = "update_objects_on_published_layer"
@@ -218,8 +220,8 @@ class PygeoapiServer(View):
             collection_id, self.perm_view, include_public=True
         ).get()
         geom_type = (
-            feature_layer.datasource.geometry_type_wkb
-            if feature_layer.datasource.is_spatial
+            self.get_vector(feature_layer).geometry_type_wkb
+            if self.get_vector(feature_layer).is_spatial
             else None
         )
         return self.execute_from_django(
@@ -393,7 +395,7 @@ class PygeoapiServer(View):
 
         feature_layer = feature_layers[0]
         constraints = get_dataset_field_constraints(
-            self.get_visible_fields(feature_layer), feature_layer.datasource.geometry_type_wkb
+            self.get_visible_fields(feature_layer), self.get_vector(feature_layer).geometry_type_wkb
         )
         properties = payload.get("properties") or {}
         for name, schema in constraints.items():
@@ -431,7 +433,7 @@ class PygeoapiServer(View):
         """
         server_config = ServerConfig().get()
         server_config["server"]["url"] = (
-            f"{request.scheme}://{request.get_host()}{reverse('features:landing')}"
+            f"{request.scheme}://{request.get_host()}{reverse(self.landing_url_name)}"
         )
         feature_layers = self.accessible_feature_layers(request, collection_id)
         permission_checker = ObjectPermissionChecker(request.user)
@@ -469,11 +471,11 @@ class PygeoapiServer(View):
             runtime_api.DEFAULT_CRS_LIST.append(crs)
 
     @staticmethod
-    def get_primary_key_name(feature_layer: FeatureLayer) -> str:
+    def get_primary_key_name(vector: Vector) -> str:
         """The OGR provider needs the name of the identifier column. OGR sources have no key
         in the QSL export, so it is taken from the primary key field of the datasource.
         """
-        for vector_field in feature_layer.datasource.fields.all():
+        for vector_field in vector.fields.all():
             if vector_field.definition and vector_field.field_definition_qsl.is_primary_key:
                 return vector_field.name
         return "fid"
@@ -484,9 +486,9 @@ class PygeoapiServer(View):
         editable: bool,
         features_properties: list[Field],
     ) -> dict:
-        source = feature_layer.datasource.source_to_qsl
+        source = self.get_vector(feature_layer).source_to_qsl
 
-        crs = feature_layer.datasource.crs_to_qsl
+        crs = self.get_vector(feature_layer).crs_to_qsl
         available_crs_list = self.get_available_crs_list(crs)
 
         # TODO: make this configurable
@@ -494,7 +496,7 @@ class PygeoapiServer(View):
 
         # The geometry column name may differ, setting it to None works for all cases
         geom_field = None
-        geom_type = feature_layer.datasource.geometry_type_wkb
+        geom_type = self.get_vector(feature_layer).geometry_type_wkb
 
         field_constraints = self.get_field_constraints(feature_layer, features_properties)
 
@@ -505,8 +507,8 @@ class PygeoapiServer(View):
                 "source_type": driver_lookup[source.ogr.path.split(".")[-1].upper()],
                 "source": os.path.join(
                     Config().path,
-                    feature_layer.datasource.project.organisation_folder,
-                    os.path.dirname(feature_layer.datasource.project.path),
+                    self.get_vector(feature_layer).project.organisation_folder,
+                    os.path.dirname(self.get_vector(feature_layer).project.path),
                     source.ogr.path,
                 ),
                 "source_capabilities": {"paging": True},
@@ -514,7 +516,7 @@ class PygeoapiServer(View):
             "editable": editable,
             "crs": available_crs_list,
             "storage_crs": crs.ogc_uri if crs is not None else CRS84_URI,
-            "id_field": self.get_primary_key_name(feature_layer),
+            "id_field": self.get_primary_key_name(self.get_vector(feature_layer)),
             "layer": (
                 source.ogr.layer_name
                 if source.ogr.layer_name is not None
@@ -534,15 +536,15 @@ class PygeoapiServer(View):
         editable: bool,
         features_properties: list[Field],
     ) -> dict:
-        source = feature_layer.datasource.source_to_qsl
+        source = self.get_vector(feature_layer).source_to_qsl
 
-        crs = feature_layer.datasource.crs_to_qsl
+        crs = self.get_vector(feature_layer).crs_to_qsl
         available_crs_list = self.get_available_crs_list(crs)
 
         geom_field = (
-            source.postgres.geometry_column if feature_layer.datasource.is_spatial else None
+            source.postgres.geometry_column if self.get_vector(feature_layer).is_spatial else None
         )
-        geom_type = feature_layer.datasource.geometry_type_wkb
+        geom_type = self.get_vector(feature_layer).geometry_type_wkb
 
         field_constraints = self.get_field_constraints(feature_layer, features_properties)
 
@@ -604,9 +606,9 @@ class PygeoapiServer(View):
 
         features_properties = self.get_visible_fields(feature_layer)
 
-        if feature_layer.datasource.driver.upper() == "POSTGRES":
+        if self.get_vector(feature_layer).driver.upper() == "POSTGRES":
             provider = self.create_postgres_provider(feature_layer, editable, features_properties)
-        elif feature_layer.datasource.driver.upper() == "OGR":
+        elif self.get_vector(feature_layer).driver.upper() == "OGR":
             provider = self.create_ogr_provider(feature_layer, editable, features_properties)
         else:
             raise NotImplementedError
@@ -631,7 +633,7 @@ class PygeoapiServer(View):
             "extents": {
                 "spatial": {
                     # geometryless datasources have no bbox, pygeoapi needs an extent anyway
-                    "bbox": feature_layer.datasource.bbox_to_list or WORLD_BBOX,
+                    "bbox": self.get_vector(feature_layer).bbox_to_list or WORLD_BBOX,
                     "crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
                 }
             },
@@ -639,8 +641,12 @@ class PygeoapiServer(View):
             "limits": self.get_limits(feature_layer),
         }
 
+    def get_vector(self, feature_layer) -> Vector:
+        """The vector datasource the collection is served from."""
+        return feature_layer.datasource
+
     def get_field_constraints(self, feature_layer: FeatureLayer, features_properties: list) -> dict:
-        datasource = feature_layer.datasource
+        datasource = self.get_vector(feature_layer)
         return get_dataset_field_constraints(
             features_properties,
             datasource.geometry_type_wkb,
@@ -756,7 +762,12 @@ def get_dataset_field_constraints(
                 pass
 
         if field.definition:
-            widget = field.field_definition_qsl.editor_widget
+            qsl_field = field.field_definition_qsl
+            if qsl_field.is_primary_key and qsl_field.is_generated:
+                # generated identifier, the client must not send it
+                schema.pop("required", None)
+                schema["readOnly"] = True
+            widget = qsl_field.editor_widget
             if widget is not None and widget.value_map is not None:
                 schema.update(value_map_constraints(widget.value_map, field.type_oapif))
             if widget is not None and widget.range is not None:
