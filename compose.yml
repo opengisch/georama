@@ -111,7 +111,8 @@ services:
       - ./.certs:/certs
       - dev-ca:/ca
   geogirafe:
-    image: geogirafe/viewer:1.2.1
+    # image: geogirafe/viewer:1.2.1
+    image: docker.io/local/gg-viewer
     platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
     healthcheck:
