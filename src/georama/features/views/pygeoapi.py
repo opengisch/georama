@@ -154,12 +154,18 @@ class PygeoapiServer(View):
     def get_collection_or_404_or_403(
         self, collection_id: str, perm: str, include_public: bool = False
     ):
+        print(
+            self.request.user,
+            self.request.georama_organisation,
+            perm,
+            self.collection_identifier(collection_id),
+        )
         try:
             return self.model.objects.accessible_layers(
                 self.request.georama_organisation,
                 self.request.user,
                 [perm],
-                [collection_id],
+                [self.collection_identifier(collection_id)],
                 include_public,
             )
         except self.model.DoesNotExist as e:
@@ -394,8 +400,8 @@ class PygeoapiServer(View):
             return None
 
         feature_layer = feature_layers[0]
-        constraints = get_dataset_field_constraints(
-            self.get_visible_fields(feature_layer), self.get_vector(feature_layer).geometry_type_wkb
+        constraints = self.get_field_constraints(
+            feature_layer, self.get_visible_fields(feature_layer)
         )
         properties = payload.get("properties") or {}
         for name, schema in constraints.items():
@@ -440,7 +446,7 @@ class PygeoapiServer(View):
         if feature_layers:
             permission_checker.prefetch_perms(feature_layers)
         for feature_layer in feature_layers:
-            server_config["resources"][feature_layer.identifier] = self.create_resource(
+            server_config["resources"][self.collection_key(feature_layer)] = self.create_resource(
                 feature_layer, permission_checker
             )
         openapi_config = get_oas(server_config) if with_openapi else {}
@@ -595,14 +601,7 @@ class PygeoapiServer(View):
     def create_resource(
         self, feature_layer: FeatureLayer, permission_checker: ObjectPermissionChecker
     ) -> dict:
-        editable = any(
-            p in permission_checker.get_perms(feature_layer)
-            for p in (
-                self.perm_create,
-                self.perm_update,
-                self.perm_delete,
-            )
-        )
+        editable = self.is_editable(feature_layer, permission_checker)
 
         features_properties = self.get_visible_fields(feature_layer)
 
@@ -640,6 +639,20 @@ class PygeoapiServer(View):
             "providers": [provider],
             "limits": self.get_limits(feature_layer),
         }
+
+    def collection_identifier(self, collection_id: str) -> str:
+        """The identifier of the layer behind a collection id, the same by default."""
+        return collection_id
+
+    def collection_key(self, feature_layer) -> str:
+        """The collection id a layer is served with."""
+        return str(feature_layer.identifier)
+
+    def is_editable(self, feature_layer, permission_checker: ObjectPermissionChecker) -> bool:
+        return any(
+            p in permission_checker.get_perms(feature_layer)
+            for p in (self.perm_create, self.perm_update, self.perm_delete)
+        )
 
     def get_vector(self, feature_layer) -> Vector:
         """The vector datasource the collection is served from."""

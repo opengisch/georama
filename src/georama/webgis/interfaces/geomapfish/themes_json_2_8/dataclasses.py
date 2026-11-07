@@ -45,6 +45,19 @@ class LinkedLayer(AbstractSchema):
 
 
 @dataclass
+class OgcServerService(AbstractSchema):
+    protocol: str = field(metadata={"type": "Element", "required": True})
+    url: str = field(metadata={"type": "Element", "required": True})
+
+
+@dataclass
+class OgcServerUses(AbstractSchema):
+    edit: OgcServerService | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+
+
+@dataclass
 class OgcServer(AbstractSchema):
     url: str = field(metadata={"type": "Element", "required": True})
     type: str = field(metadata={"type": "Element", "required": True})
@@ -58,6 +71,9 @@ class OgcServer(AbstractSchema):
     name: str = field(default=None, metadata={"type": "Element", "required": False})
     url_wfs: str = field(
         default=None, metadata={"name": "urlWfs", "type": "Element", "required": False}
+    )
+    uses: OgcServerUses | None = field(
+        default=None, metadata={"type": "Element", "required": False}
     )
     # TODO: make this correctly typed
     attributes: list[LinkedLayer] = field(
