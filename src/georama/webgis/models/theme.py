@@ -16,6 +16,7 @@ from georama.core.common.managers import OrganisationalManager
 from georama.integration.models import Project
 from georama.maps.apps import central_app_label
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import WmsLayer as GGWmsLayer
 from georama.webgis.managers.theme import ThemeManager
 from georama.webgis.models.metadata import Metadata
 
@@ -118,6 +119,14 @@ class Theme(models.Model):
         if len(ggtheme.location) >= 2:
             params["map_x"], params["map_y"] = ggtheme.location[0], ggtheme.location[1]
         return f"{settings.WEBGISURL}?{urlencode(params)}"
+
+
+def set_editable(children, editable_ids: set[str]) -> None:
+    for child in children:
+        if hasattr(child, "children"):
+            set_editable(child.children, editable_ids)
+        elif isinstance(child, GGWmsLayer):
+            child.editable = child.id in editable_ids
 
 
 class UserManager(UserObjectPermissionManager, OrganisationalManager): ...
