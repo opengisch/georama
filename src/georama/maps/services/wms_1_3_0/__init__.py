@@ -9,8 +9,12 @@ class WmsOperation(OgcOperation):
             layer_ids = [self.decode_layer_name(layer_id) for layer_id in layer_ids]
         layers = self.model.objects.accessible_layers(
             self.organisation, self.user, self.perms, layer_ids, include_public=True
-        ).all()
+        ).filter(datasource__is_spatial=True)
         if layer_ids is None:
             return list(layers)
         layers_revmap = {layer.identifier: layer for layer in layers}
+        missing = [layer_id for layer_id in layer_ids if layer_id not in layers_revmap]
+        if missing:
+            # geometryless layers have no map, they are unknown to the WMS
+            raise self.model.DoesNotExist(f"Layer(s) not found: {missing}")
         return [layers_revmap[layer_id] for layer_id in layer_ids]
