@@ -29,5 +29,6 @@ class MapsConfig(GeoramaAbstractConfig):
             help_text=_("Publishes this Datasource as a new WmsLayer in the Maps app."),
             origin=self.name,
             permissions=["maps.add_wmslayer"],
+            count_relation="wms_layers",
         )
         register_remote_action(Datasource, rma)

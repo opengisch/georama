@@ -26,6 +26,13 @@ def field_name_and_value(obj):
     return result
 
 
+@register.simple_tag
+def remote_action_count(action, item):
+    if action.count_relation is None:
+        return None
+    return getattr(item, action.count_relation).count()
+
+
 @register.simple_tag(takes_context=True)
 def querystring_remove(context, *keys):
     params = context["request"].GET.copy()

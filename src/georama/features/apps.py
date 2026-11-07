@@ -28,6 +28,7 @@ class FeaturesConfig(GeoramaAbstractConfig):
             ),
             origin=self.name,
             permissions=["features.add_featurelayer"],
+            count_relation="feature_layers",
         )
         register_remote_action(Vector, rma)
 

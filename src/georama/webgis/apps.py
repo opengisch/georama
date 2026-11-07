@@ -23,5 +23,6 @@ class WebGisConfig(GeoramaAbstractConfig):
             help_text=_("Publishes this Project as a Theme in the WebGis app."),
             origin=self.name,
             permissions=["webgis.add_theme"],
+            count_relation="themes",
         )
         register_remote_action(Project, rma)

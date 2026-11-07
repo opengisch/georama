@@ -15,7 +15,7 @@
             {% include "integration/drf/project/includes/buttons/unlink.html" with project=object %}
         {% endif %}
         {% for action in remote_actions %}
-            {% include 'core/drf/default/includes/buttons/remote_action.html' with action=action pk=object.pk %}
+            {% include 'core/drf/default/includes/buttons/remote_action.html' with action=action pk=object.pk item=object %}
         {% endfor %}
     </div>
 
