@@ -33,4 +33,8 @@ class WmsLayerManager(LayerManager):
         include_public: bool = True,
     ) -> OrganisationalQuerySet:
         qs = super().accessible_layers(organisation, user, perms, layer_names, include_public)
-        return qs.filter(datasource__vector__isnull=False).filter(queryable=True)
+        return (
+            qs.filter(datasource__vector__isnull=False)
+            .filter(datasource__is_spatial=True)
+            .filter(queryable=True)
+        )

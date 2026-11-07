@@ -1,9 +1,11 @@
+from asgiref.sync import sync_to_async
 from django.apps import apps
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
+from guardian.core import ObjectPermissionChecker
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -30,12 +32,17 @@ from georama.webgis.api.serializers import (
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     OgcServer as GGOgcServer,
 )
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    OgcServerService,
+    OgcServerUses,
+)
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     ThemesJson as GGThemesJson,
 )
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.parsers import CustomDictDecoder
 from georama.webgis.models import Metadata, Theme, UrlShortener, WmsLayer
+from georama.webgis.models.theme import set_editable
 
 
 class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
@@ -113,6 +120,8 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
         project = await qs.aget(id=request.data["pk"])
         wms_layer_index: WmsLayerIndex = {}
         theme = await self.transfer_to_theme(project)
+        # geometryless datasources get a WMS layer too, it only backs their OAPIF collection:
+        # the theme json and the OGC services leave them out
         async for ds in project.datasources.all():
             wl = WmsLayer(
                 datasource=ds,
@@ -170,7 +179,40 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
             name=settings.WEBGIS_OGC_SERVER_NAME,
             namespace=WfsOperation.own_namespace_domain,
             wfs_support=True,
+            uses=OgcServerUses(
+                edit=OgcServerService(
+                    protocol="OGC API - Features",
+                    url=request.build_absolute_uri(reverse("webgis:landing")),
+                ),
+            ),
+            oapif_support=True,
+            url_oapif=request.build_absolute_uri(reverse("webgis:landing")),
         )
+
+    @staticmethod
+    async def set_editable_layers(
+        permission_checker: ObjectPermissionChecker, theme: Theme, gg_theme: GGTheme
+    ):
+        """Marks the vector backed WMS layers of the theme editable if the requesting user may
+        write to the theme. Evaluated per request, the stored theme json is shared by all users.
+        """
+        write_perms = [
+            f"webgis.{Theme.PERMISSIONS['can_create']}",
+            f"webgis.{Theme.PERMISSIONS['can_update']}",
+            f"webgis.{Theme.PERMISSIONS['can_delete']}",
+        ]
+        can_write = await sync_to_async(
+            lambda: any(permission_checker.has_perm(perm, theme) for perm in write_perms)
+        )()
+        editable_ids = (
+            {
+                WfsOperation.encode_layer_name(wms_layer.identifier)
+                async for wms_layer in theme.wms_layers.filter(datasource__vector__isnull=False)
+            }
+            if can_write
+            else set()
+        )
+        set_editable(gg_theme.children, editable_ids)
 
     @action(detail=False, methods=["GET"], renderer_classes=[renderers.JSONRenderer])
     async def geogirafe(self, request: GeoramaDrfRequest, *args, **kwargs):
@@ -186,12 +228,14 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
             background_layers=[],
         )
 
+        permission_checker = ObjectPermissionChecker(request.user)
         async for theme in qs.all():
             # this is necessary, since the automatically generated demo data has no valid json
             if theme.theme_json != {}:
                 # NOTE: We use a special extended encoder here, not the default XSData variant!
                 gg_theme = CustomDictDecoder().decode(theme.theme_json, GGTheme)
                 gg_theme.icon = request.build_absolute_uri(gg_theme.icon)
+                await self.set_editable_layers(permission_checker, theme, gg_theme)
                 themes_json.themes.append(gg_theme)
                 themes_json.background_layers.extend(theme.background_layers)
                 themes_json.ogc_servers.update(theme.ogc_servers)

@@ -73,6 +73,11 @@ class Base(Configuration):
         ],
         separator=LIST_ENV_SEPARATOR,
     )
+    # clients like GeoGirafe read the allowed OAPIF write methods from the `Allow` header
+    CORS_EXPOSE_HEADERS = values.ListValue(
+        ["Allow"],
+        separator=LIST_ENV_SEPARATOR,
+    )
 
     # Proxy "X-Forwarded-..." headers
     # https://docs.djangoproject.com/en/6.0/ref/settings/#secure-proxy-ssl-header
