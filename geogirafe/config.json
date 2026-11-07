@@ -53,6 +53,9 @@
     "EPSG:4326": "WGS84",
     "EPSG:2056": "LV95"
   },
+  "edit": {
+    "onlyListLayersInTree": true
+  },
   "map": {
     "srid": "EPSG:2056",
     "startZoom": "0",
