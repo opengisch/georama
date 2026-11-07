@@ -30,6 +30,10 @@ from georama.webgis.api.serializers import (
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     OgcServer as GGOgcServer,
 )
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    OgcServerService,
+    OgcServerUses,
+)
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     ThemesJson as GGThemesJson,
@@ -170,6 +174,12 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
             name=settings.WEBGIS_OGC_SERVER_NAME,
             namespace=WfsOperation.own_namespace_domain,
             wfs_support=True,
+            uses=OgcServerUses(
+                edit=OgcServerService(
+                    protocol="OGC API - Features",
+                    url=request.build_absolute_uri(reverse("webgis:landing")),
+                ),
+            ),
         )
 
     @action(detail=False, methods=["GET"], renderer_classes=[renderers.JSONRenderer])
