@@ -75,6 +75,12 @@ class OgcServer(AbstractSchema):
     uses: OgcServerUses | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
+    oapif_support: bool | None = field(
+        default=None, metadata={"name": "oapifSupport", "type": "Element", "required": False}
+    )
+    url_oapif: str | None = field(
+        default=None, metadata={"name": "urlOapif", "type": "Element", "required": False}
+    )
     # TODO: make this correctly typed
     attributes: list[LinkedLayer] = field(
         default_factory=list, metadata={"type": "Element", "required": False}
