@@ -9,6 +9,7 @@ from georama.features.references import ReferenceTarget
 from georama.features.views.pygeoapi import PygeoapiServer
 from georama.integration.models import Vector
 from georama.integration.models.datasource import VectorField
+from georama.maps.services.wfs_2_0_0 import WfsOperation
 from georama.webgis.models import WmsLayer
 
 
@@ -28,6 +29,9 @@ class PygeoapiServerWebGIS(PygeoapiServer):
     model = WmsLayer
     landing_url_name = "webgis:landing"
     perm_view = "webgis.view_published_theme"
+    perm_create = "webgis.create_objects_theme_vector_layer"
+    perm_update = "webgis.update_objects_theme_vector_layer"
+    perm_delete = "webgis.delete_objects_theme_vector_layer"
 
     def accessible_feature_layers(
         self, request: HttpRequest, collection_id: str | None = None
@@ -44,7 +48,7 @@ class PygeoapiServerWebGIS(PygeoapiServer):
         )
         if collection_id is not None:
             try:
-                feature_layers = feature_layers.filter(id=collection_id)
+                feature_layers = feature_layers.filter(id=self.collection_identifier(collection_id))
             except ValidationError:
                 # not a valid identifier, pygeoapi answers with 404
                 return []
@@ -72,9 +76,23 @@ class PygeoapiServerWebGIS(PygeoapiServer):
             )
             if key_field is not None:
                 targets[layer.datasource.qgis_layer_id] = ReferenceTarget(
-                    str(layer.identifier), key_field
+                    WfsOperation.encode_layer_name(layer.identifier), key_field
                 )
         return targets
+
+    def collection_identifier(self, collection_id: str) -> str:
+        return WfsOperation.decode_layer_name(collection_id)
+
+    def collection_key(self, feature_layer: WmsLayer) -> str:
+        # the GeoGirafe layer id, the editable check compares against it
+        return WfsOperation.encode_layer_name(feature_layer.identifier)
+
+    def is_editable(self, feature_layer: WmsLayer, permission_checker) -> bool:
+        # write permissions are granted on the theme, not on its layers
+        return any(
+            permission_checker.has_perm(perm, feature_layer.theme)
+            for perm in (self.perm_create, self.perm_update, self.perm_delete)
+        )
 
     def get_vector(self, feature_layer: WmsLayer) -> Vector:
         return feature_layer.datasource.vector
@@ -87,4 +105,4 @@ class PygeoapiServerWebGIS(PygeoapiServer):
 
     def get_limits(self, feature_layer: WmsLayer) -> dict:
         # defaults of features.FeatureLayer, WmsLayer has no limits yet
-        return {"on_exceed": "error", "max_items": 500, "default_items": 10}
+        return {"on_exceed": "throttle", "max_items": 500, "default_items": 10}
