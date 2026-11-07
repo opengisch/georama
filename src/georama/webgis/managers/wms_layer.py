@@ -39,3 +39,17 @@ class WmsLayerManager(MapsWmsLayerManager):
         themes_qs = Theme.objects.organisation_objects(organisation)
         themes_qs = get_objects_for_user(user, perms, themes_qs) | themes_qs.filter(public=True)
         return self.organisation_objects(organisation).filter(theme__in=themes_qs)
+
+    def get_permitted(
+        self,
+        organisation: Organisation,
+        user,
+        perms: list[str],
+    ) -> OrganisationalQuerySet:
+        # same as above, without the public themes: writes are never public
+        from georama.webgis.models.theme import Theme
+
+        themes_qs = get_objects_for_user(
+            user, perms, Theme.objects.organisation_objects(organisation)
+        )
+        return self.organisation_objects(organisation).filter(theme__in=themes_qs)
