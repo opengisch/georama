@@ -22,6 +22,8 @@ updates:
       # Must stay aligned with the opengisch/qgis-server-light images in compose.yml:
       # to be bumped manually.
       - dependency-name: "qgis-server-light"
+      # We cant move simply since even minor updates break current configs and api
+      - dependency-name: "pygeoapi"
     groups:
       python-dev:
         patterns:
