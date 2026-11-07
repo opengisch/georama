@@ -82,7 +82,7 @@ class GeoGirafeAuthenticationMiddleware:
         # login the user and assign a session cookie
         # so on subsequent requests request.user.is_authenticated is
         # True already.
-        login(request, user)
+        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
         return self.get_response(request)
 
