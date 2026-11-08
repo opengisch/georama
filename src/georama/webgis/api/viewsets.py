@@ -228,7 +228,8 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
             background_layers=[],
         )
 
-        permission_checker = ObjectPermissionChecker(request.user)
+        # guardian looks up the anonymous user synchronously, so the checker must be built off the event loop
+        permission_checker = await sync_to_async(ObjectPermissionChecker)(request.user)
         async for theme in qs.all():
             # this is necessary, since the automatically generated demo data has no valid json
             if theme.theme_json != {}:
