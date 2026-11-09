@@ -42,11 +42,15 @@ class ProcessSerializer(serializers.ModelSerializer):
         model = Process
         fields = [
             "id",
+            "algorithm_id",
             "public",
             "title",
             "description",
             "help",
         ]
+        extra_kwargs = {
+            "id": {"read_only": True},
+        }
 
 
 class ProcessPermissionSerializer(serializers.Serializer):

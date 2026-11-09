@@ -19,7 +19,7 @@
     <form id="process-{{ item.id }}"
         action="{% url view.url_name_list %}" method="post">
         {% csrf_token %}
-        <input name="id" value="{{ item.id }}" hidden>
+        <input name="algorithm_id" value="{{ item.id }}" hidden>
     </form>
     <button form="process-{{ item.id }}"
             type="submit"
