@@ -169,6 +169,26 @@ class Datasource(models.Model):
     def styles_to_qsl(self) -> list[Style]:
         return DictDecoder(config=self.get_parser_config).decode(self.styles, list[Style])
 
+    def to_qsl_job_layer(
+        self, identifier: str, name: str, style_name: str | None = None
+    ) -> QslJobLayer:
+        source_definition = self.source_to_qsl.definition
+        if style_name is not None:
+            style = self.get_style_by_name(style_name)
+        else:
+            style = self.get_default_style()
+        return QslJobLayer(
+            id=identifier,
+            name=name,
+            source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
+            driver=self.driver,
+            style=style,
+            remote=source_definition.remote,
+            folder_name=str(
+                Path(self.project.organisation_folder) / Path(self.project.path).parent
+            ),
+        )
+
     @property
     def type(self) -> Literal["vector", "raster", "custom"]:
         for name in ["vector", "raster", "custom"]:

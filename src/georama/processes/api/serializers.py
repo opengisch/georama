@@ -1,6 +1,8 @@
 from adrf import serializers
 from django.contrib.auth import get_user_model
+from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
+from rest_framework.serializers import PrimaryKeyRelatedField
 
 from georama.core.common.serializers import (
     ObjectPermissionSerializer,
@@ -8,6 +10,7 @@ from georama.core.common.serializers import (
 )
 from georama.processes.models.job import Job
 from georama.processes.models.process import Process
+from georama.processes.models.process_input import ProcessInput
 
 User = get_user_model()
 
@@ -81,4 +84,43 @@ class ProcessObjectPermissionSerializer(ObjectPermissionSerializer):
 class ProcessPermissionActionSerializer(PermissionActionSerializer):
     action = serializers.ChoiceField(
         choices=[(key, value[2]) for key, value in Process.ACTION_MAP.items()]
+    )
+
+
+class ProcessInputSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(read_only=True)
+    datasource = PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = ProcessInput
+        fields = [
+            "id",
+            "public",
+            "title",
+            "datasource",
+        ]
+        extra_kwargs = {"id": {"read_only": True}}
+
+
+class PublishFromDatasourceInput(serializers.Serializer):
+    pk = serializers.UUIDField(
+        required=True,
+        help_text=_(
+            "UUIDs (primary key) of the datasource the process input should be published from."
+        ),
+    )
+
+
+class ProcessInputPermissionSerializer(serializers.Serializer):
+    can_view = serializers.BooleanField()
+
+
+class ProcessInputObjectPermissionSerializer(ObjectPermissionSerializer):
+    entity_permissions = ProcessInputPermissionSerializer()
+    inherited_permissions = ProcessInputPermissionSerializer()
+
+
+class ProcessInputPermissionActionSerializer(PermissionActionSerializer):
+    action = serializers.ChoiceField(
+        choices=[(key, value[2]) for key, value in ProcessInput.ACTION_MAP.items()]
     )
