@@ -36,7 +36,6 @@ class JobSerializer(serializers.ModelSerializer):
 
 class ProcessSerializer(serializers.ModelSerializer):
     title = serializers.CharField(read_only=True)
-    help = serializers.CharField(read_only=True)
     description = serializers.CharField(read_only=True)
 
     class Meta:
@@ -47,7 +46,6 @@ class ProcessSerializer(serializers.ModelSerializer):
             "public",
             "title",
             "description",
-            "help",
         ]
         extra_kwargs = {
             "id": {"read_only": True},
@@ -60,6 +58,10 @@ class ProcessSerializer(serializers.ModelSerializer):
         return extra_kwargs
 
     def validate_algorithm_id(self, value):
+        try:
+            self.context["process_descriptions"].process_by_id(value)
+        except LookupError as e:
+            raise ValidationError("Algorithm is not served by any process-worker.") from e
         organisation = self.context["request"].georama_organisation
         published = Process.objects.organisation_objects(organisation).filter(algorithm_id=value)
         if published.exists():

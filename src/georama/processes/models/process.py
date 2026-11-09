@@ -11,11 +11,14 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
-from qgis_server_light.interface.exporter.extract import Algorithm, ProcessingParameterType
+from qgis_server_light.interface.job.process.description import (
+    ProcessDescription,
+    ProcessDescriptions,
+)
 
 from georama.core.common.managers import OrganisationalManager
 from georama.core.models.organisation import Organisation
-from georama.processes.apps import central_app_label, qsl_available_processes
+from georama.processes.apps import central_app_label
 from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     JobControlOptions,
     Link,
@@ -23,7 +26,7 @@ from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     TransmissionMode,
 )
 from georama.processes.managers.process import ProcessManager
-from georama.processes.mappers.parameter_types import HtmlInputMapper, JsonSchemaMapper
+from georama.processes.mappers.parameter_types import HtmlInputMapper
 
 User = get_user_model()
 
@@ -76,39 +79,34 @@ class Process(models.Model):
         help_text=_("Organisation this process belongs to."),
     )
 
+    process_description: ProcessDescription | None = None
+
     def __str__(self):
         return f"{self.title} ({self.algorithm_id})"
 
     def get_absolute_url(self):
         return reverse(f"{central_app_label}:process-detail", kwargs={"pk": self.pk})
 
-    @property
-    def qsl_algorithm(self) -> Algorithm:
-        return qsl_available_processes.algorithm_by_id(self.algorithm_id)
+    def describe(self, process_descriptions: ProcessDescriptions):
+        try:
+            self.process_description = process_descriptions.process_by_id(self.algorithm_id)
+        except LookupError:
+            self.process_description = None
 
     @property
-    def qsl_algorithm_params_jsonschema(self) -> list[tuple[ProcessingParameterType, dict]]:
-        mapper = JsonSchemaMapper()
-        parameter_and_schema = []
-        for p in self.qsl_algorithm.parameters:
-            parameter_and_schema.append(
-                (
-                    p,
-                    mapper.map(p),
-                )
-            )
-        return parameter_and_schema
+    def served(self) -> bool:
+        return self.process_description is not None
 
     @property
-    def qsl_algorithm_params_html_form(self) -> forms.Form:
+    def inputs_html_form(self) -> type[forms.Form]:
         mapper = HtmlInputMapper()
         attrs = {}
         switch_fields = []
-        for p in self.qsl_algorithm.parameters:
-            field = mapper.map(p)
-            attrs[p.name] = field
+        for input_description in self.process_description.inputs:
+            field = mapper.map(input_description)
+            attrs[input_description.id] = field
             if isinstance(field, fields.BooleanField):
-                switch_fields.append(Switch(p.name))
+                switch_fields.append(Switch(input_description.id))
         attrs["helper"] = FormHelper()
         attrs["helper"].layout = Layout(*tuple(switch_fields))
 
@@ -116,25 +114,25 @@ class Process(models.Model):
         return form
 
     @property
-    def title(self):
-        return self.qsl_algorithm.display_name
+    def title(self) -> str:
+        if self.process_description is None:
+            return self.algorithm_id
+        return self.process_description.title
 
     @property
-    def description(self) -> str:
-        return self.qsl_algorithm.short_description
-
-    @property
-    def help(self) -> str:
-        return self.qsl_algorithm.short_help_string
+    def description(self) -> str | None:
+        if self.process_description is None:
+            return None
+        return self.process_description.description
 
     @property
     def dataclass(self):
         return ProcessBase(
             id=self.algorithm_id,
-            description=self.qsl_algorithm.short_help_string,
+            description=self.description,
             job_control_options=[JobControlOptions.SYNC],
             output_transmission=[TransmissionMode.VALUE],
-            title=self.qsl_algorithm.display_name,
+            title=self.title,
             version="1.0.0",
             links=[
                 Link(

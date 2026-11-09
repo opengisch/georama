@@ -3,8 +3,10 @@
 
 {% block detail_content %}
 <h1> {{ object.title }}</h1>
-<h2> {{ object.description }}</h2>
-<p> {{ object.help }}</p>
+{% if not object.served %}
+    {% include 'processes/drf/process/includes/pills/stale.html' %}
+{% endif %}
+<p> {{ object.description|default_if_none:'' }}</p>
 
 <table class="table table-striped">
     <thead>
@@ -18,14 +20,14 @@
         </tr>
     </thead>
     <tbody>
-    {% for p, schema in object.qsl_algorithm_params_jsonschema %}
+    {% for input in object.process_description.inputs %}
         <tr>
-            <td>{{ p.name }}</td>
-            <td>{{ p.name }}</td>
-            <td>{{ schema.type }}</td>
-            <td>{{ p.description }}</td>
-            <td>{% if p.default %}{{ p.default }}{% endif %}</td>
-            <td>{% if p.type.options %}{{ p.type.options }}{% endif %}</td>
+            <td>{{ input.id }}</td>
+            <td>{{ input.title }}</td>
+            <td>{{ input.schema.type }}</td>
+            <td>{{ input.description|default_if_none:'' }}</td>
+            <td>{{ input.schema.default|default_if_none:'' }}</td>
+            <td>{% for option in input.schema.one_of %}{{ option.title }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
         </tr>
     {% endfor %}
     </tbody>

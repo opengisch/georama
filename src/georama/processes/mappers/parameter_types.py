@@ -1,289 +1,127 @@
 import logging
-from typing import Any
 
 from django.forms import fields, widgets
-from qgis_server_light.interface.exporter import extract
+from qgis_server_light.interface.job.process.description import InputDescription, Schema
 
 
 class BaseStrategy:
-    def map_schema(
-        self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterType,
-        **context,
-    ) -> dict:
-        raise NotImplementedError
-
     def map_form_field(
         self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterType,
+        input_description: InputDescription,
+        schema: Schema,
         **context,
     ) -> fields.Field:
         raise NotImplementedError
 
-    def schema(self, parameter: extract.Parameter, **context):
-        schema = {
-            "title": parameter.name,
-            "description": parameter.description,
-            "maxOccurs": 1,
-            "minOccurs": 0 if parameter.optional else 1,
-            "default": parameter.default,
-        }
-        schema.update(self.map_schema(parameter, parameter.type, **context))
-        return schema
-
-    def required(self, parameter: extract.Parameter):
-        if not parameter.optional:
-            return parameter.default is None
+    def required(self, input_description: InputDescription):
+        if input_description.min_occurs > 0:
+            return input_description.schema.default is None
         else:
             return False
 
-    def form_field(self, parameter: extract.Parameter, **context):
-        return self.map_form_field(parameter, parameter.type, **context)
+    def form_field(self, input_description: InputDescription, **context):
+        return self.map_form_field(input_description, input_description.schema, **context)
 
 
 class StringStrategy(BaseStrategy):
-    def length(self, parameter_type: extract.ProcessingParameterTypeString):
-        k = {}
-        if hasattr(parameter_type, "length") and isinstance(parameter_type.length, int):
-            k["length"] = parameter_type.length
-        return k
-
-    def map_schema(
-        self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeString,
-        **context,
-    ) -> dict:
-        type_schema = {"type": "string"}
-        type_schema.update(self.length(parameter_type))
-        return type_schema
-
     def map_form_field(
         self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeString,
+        input_description: InputDescription,
+        schema: Schema,
         **context,
     ) -> fields.CharField:
         return fields.CharField(
-            initial=parameter.default,
-            required=self.required(parameter),
-            max_length=self.length(parameter_type).get("length"),
-        )
-
-
-class MultiStringStrategy(BaseStrategy):
-    def map_schema(
-        self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeString,  # TODO is it multistring ?
-        **context,
-    ) -> dict:
-        type_schema = {"type": "string"}
-        if parameter_type.allow_multiple:
-            return {"type": "array", "items": type_schema}
-        return type_schema
-
-    def map_form_field(
-        self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeBand | extract.ProcessingParameterTypeField,
-        **context,
-    ) -> fields.CharField | fields.JSONField:
-        if parameter_type.allow_multiple:
-            return fields.JSONField(
-                initial=parameter.default,
-                required=self.required(parameter),
-            )
-        return fields.CharField(
-            initial=parameter.default,
-            required=self.required(parameter),
+            initial=schema.default,
+            required=self.required(input_description),
         )
 
 
 class BooleanStrategy(BaseStrategy):
-    def map_schema(
-        self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeBoolean,
-        **context,
-    ) -> dict:
-        return {"type": "boolean"}
-
     def map_form_field(
         self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeBoolean,
+        input_description: InputDescription,
+        schema: Schema,
         **context,
     ) -> fields.BooleanField:
         return fields.BooleanField(
-            initial=parameter.default,
-            required=self.required(parameter),
+            initial=schema.default,
+            required=self.required(input_description),
             widget=widgets.CheckboxInput(),
         )
 
 
 class NumberStrategy(BaseStrategy):
-    def map_schema(
-        self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeFloat | extract.ProcessingParameterTypeInt,
-        **context,
-    ) -> dict:
-        type_schema: dict[str, Any] = {"type": "number"}
-        if isinstance(parameter_type.minimum, (int, float)):
-            type_schema["minimum"] = parameter_type.minimum
-        if isinstance(parameter_type.maximum, (int, float)):
-            type_schema["maximum"] = parameter_type.maximum
-        return type_schema
-
     def map_form_field(
         self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeFloat | extract.ProcessingParameterTypeInt,
+        input_description: InputDescription,
+        schema: Schema,
         **context,
-    ) -> fields.FloatField | fields.IntegerField:
-        if isinstance(parameter_type, extract.ProcessingParameterTypeFloat):
-            return fields.FloatField(
-                initial=parameter.default,
-                required=self.required(parameter),
-                min_value=parameter_type.minimum,
-                max_value=parameter_type.maximum,
-            )
-        else:
-            return fields.IntegerField(
-                initial=parameter.default,
-                required=self.required(parameter),
-                min_value=parameter_type.minimum,
-                max_value=parameter_type.maximum,
-            )
+    ) -> fields.FloatField:
+        return fields.FloatField(
+            initial=schema.default,
+            required=self.required(input_description),
+            min_value=schema.minimum,
+            max_value=schema.maximum,
+        )
 
 
-class ExtentStrategy(BaseStrategy):
-    def map_schema(
-        self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeExtent,
-        **context,
-    ) -> dict:
-        return {
-            "type": "array",
-            "prefixItems": [
-                {"type": "number", "title": "minX"},
-                {"type": "number", "title": "minY"},
-                {"type": "number", "title": "maxX"},
-                {"type": "number", "title": "maxY"},
-            ],
-            "items": False,
-        }
-
+class IntegerStrategy(BaseStrategy):
     def map_form_field(
         self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeExtent,
+        input_description: InputDescription,
+        schema: Schema,
         **context,
-    ) -> fields.JSONField:
-        return fields.JSONField(
-            required=self.required(parameter),
+    ) -> fields.IntegerField:
+        return fields.IntegerField(
+            initial=schema.default,
+            required=self.required(input_description),
+            min_value=schema.minimum,
+            max_value=schema.maximum,
         )
 
 
 class EnumStrategy(BaseStrategy):
-    def map_schema(
-        self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeEnum,
-        **context,
-    ) -> dict:
-
-        type_schema = {"type": "string", "enum": parameter_type.options}
-        if parameter_type.allow_multiple:
-            return {"type": "array", "items": type_schema}
-        return type_schema
+    coerce_by_type = {
+        "string": str,
+        "integer": int,
+    }
 
     def map_form_field(
         self,
-        parameter: extract.Parameter,
-        parameter_type: extract.ProcessingParameterTypeEnum,
+        input_description: InputDescription,
+        schema: Schema,
         **context,
-    ) -> fields.ChoiceField:
-        return fields.ChoiceField(
-            initial=parameter.default,
-            required=self.required(parameter),
-            choices={k: k for k in parameter_type.options},
+    ) -> fields.TypedChoiceField:
+        return fields.TypedChoiceField(
+            initial=schema.default,
+            required=self.required(input_description),
+            choices={option.const: option.title for option in schema.one_of},
+            coerce=self.coerce_by_type[schema.type],
         )
-
-
-class JsonSchemaMapper:
-    def __init__(self):
-        self._mappings = {
-            extract.ProcessingParameterTypeString: StringStrategy,
-            extract.ProcessingParameterTypeBoolean: BooleanStrategy,
-            extract.ProcessingParameterTypeFloat: NumberStrategy,
-            extract.ProcessingParameterTypeInt: NumberStrategy,
-            extract.ProcessingParameterTypeExtent: ExtentStrategy,
-            extract.ProcessingParameterTypeCrs: StringStrategy,
-            extract.ProcessingParameterTypeBand: MultiStringStrategy,
-            extract.ProcessingParameterTypeField: MultiStringStrategy,
-            extract.ProcessingParameterTypeLayout: StringStrategy,
-            extract.ProcessingParameterTypeMapTheme: StringStrategy,
-            extract.ProcessingParameterTypeExpression: StringStrategy,
-            extract.ProcessingParameterTypeEnum: EnumStrategy,
-            extract.ProcessingParameterTypeVectorLayer: StringStrategy,
-            extract.ProcessingParameterTypeRasterLayer: StringStrategy,
-            extract.ProcessingParameterTypeFile: StringStrategy,
-            extract.ProcessingParameterTypeMapLayer: StringStrategy,
-            extract.ProcessingParameterTypeAnyLayer: StringStrategy,
-        }
-
-    def register(self, parameter: extract.Parameter, mapping_strategy: BaseStrategy):
-        if self._mappings.get(type(parameter.type)):
-            logging.debug(f"mapping exists already {type(parameter.type)}")
-            return
-        self._mappings[type(parameter.type)] = mapping_strategy
-
-    def map(self, parameter: extract.Parameter, **context):
-        mapping_strategy = self._mappings.get(type(parameter.type))
-
-        if mapping_strategy is None:
-            raise ValueError(f"No mapping strategy for {type(parameter.type)}")
-
-        return mapping_strategy().schema(parameter, **context)
 
 
 class HtmlInputMapper:
     def __init__(self):
         self._mappings = {
-            extract.ProcessingParameterTypeString: StringStrategy,
-            extract.ProcessingParameterTypeBoolean: BooleanStrategy,
-            extract.ProcessingParameterTypeFloat: NumberStrategy,
-            extract.ProcessingParameterTypeInt: NumberStrategy,
-            extract.ProcessingParameterTypeExtent: ExtentStrategy,
-            extract.ProcessingParameterTypeCrs: StringStrategy,
-            extract.ProcessingParameterTypeBand: MultiStringStrategy,
-            extract.ProcessingParameterTypeField: MultiStringStrategy,
-            extract.ProcessingParameterTypeLayout: StringStrategy,
-            extract.ProcessingParameterTypeMapTheme: StringStrategy,
-            extract.ProcessingParameterTypeExpression: StringStrategy,
-            extract.ProcessingParameterTypeEnum: EnumStrategy,
-            extract.ProcessingParameterTypeVectorLayer: StringStrategy,
-            extract.ProcessingParameterTypeRasterLayer: StringStrategy,
-            extract.ProcessingParameterTypeFile: StringStrategy,
-            extract.ProcessingParameterTypeMapLayer: StringStrategy,
-            extract.ProcessingParameterTypeAnyLayer: StringStrategy,
+            "string": StringStrategy,
+            "boolean": BooleanStrategy,
+            "number": NumberStrategy,
+            "integer": IntegerStrategy,
         }
 
-    def register(self, parameter: extract.Parameter, mapping_strategy: BaseStrategy):
-        if self._mappings.get(type(parameter.type)):
-            logging.debug(f"mapping exists already {type(parameter.type)}")
+    def register(self, schema_type: str, mapping_strategy: type[BaseStrategy]):
+        if self._mappings.get(schema_type):
+            logging.debug(f"mapping exists already {schema_type}")
             return
-        self._mappings[type(parameter.type)] = mapping_strategy
+        self._mappings[schema_type] = mapping_strategy
 
-    def map(self, parameter: extract.Parameter, **context):
-        mapping_strategy = self._mappings.get(type(parameter.type))
+    def map(self, input_description: InputDescription, **context):
+        if input_description.schema.one_of is not None:
+            mapping_strategy = EnumStrategy
+        else:
+            mapping_strategy = self._mappings.get(input_description.schema.type)
 
         if mapping_strategy is None:
-            raise ValueError(f"No mapping strategy for {type(parameter.type)}")
+            raise ValueError(f"No mapping strategy for {input_description.schema.type}")
 
-        return mapping_strategy().form_field(parameter, **context)
+        return mapping_strategy().form_field(input_description, **context)

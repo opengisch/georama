@@ -81,6 +81,28 @@ services:
     depends_on:
       qsl-redis:
         condition: service_healthy
+  qsl-process-worker:
+    platform: "${PLATFORM:-linux/amd64}"
+    restart: unless-stopped
+    image: opengisch/qgis-server-light:pr-40-worker
+    environment:
+      - "QSL_REDIS_URL=redis://qsl-redis:6379"
+      - "QSL_SVG_PATH=/io/svg"
+      - "QSL_DATA_ROOT=/io/data"
+      - "QSL_LOG_LEVEL=${QSL_PROCESS_WORKER_LOG_LEVEL:-info}"
+      - "QSL_ENGINE=state"
+      - "QSL_RUNNER_PLUGINS=qgis_server_light.worker.runner.process.ProcessRunner"
+      - "QSL_PROCESS_OUTPUT_DIR=/io/process_output"
+      - "PGSERVICEFILE=/io/pg_service.conf"
+    volumes:
+      - "${LOCAL_PROJECTS:-./tests/resources/projects}:/io/data"
+      - "${PG_SERVICE_CONF:-./docker/pg_service.conf}:/io/pg_service.conf"
+      - "process-output:/io/process_output"
+    deploy:
+      replicas: "${QSL_PROCESS_WORKER_REPLICAS:-1}"
+    depends_on:
+      qsl-redis:
+        condition: service_healthy
   qsl-exporter:
     platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
@@ -201,6 +223,7 @@ services:
 
 volumes:
   georama-db:
+  process-output:
   keycloak-db:
   dev-ca:
   ssh_host_keys:
