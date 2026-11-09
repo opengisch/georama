@@ -93,7 +93,7 @@ class Subscriber:
 @pydantic_dataclass
 @dataclass
 class ProcessBase(Base):
-    description: str = field()
+    description: str | None = field()
     id: str = field()
     job_control_options: list[JobControlOptions] = field(metadata={"name": "jobControlOptions"})
     output_transmission: list[TransmissionMode] = field(metadata={"name": "outputTransmission"})

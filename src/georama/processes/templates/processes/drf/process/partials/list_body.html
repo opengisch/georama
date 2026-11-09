@@ -1,6 +1,11 @@
 {% extends 'core/drf/default/partials/list_body.html' %}
 {% load static i18n %}
 {% block list_item_pills %}
+    {% if not item.served %}
+        <div class="align-content-bottom">
+            {% include 'processes/drf/process/includes/pills/stale.html' %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block list_item_title %}
