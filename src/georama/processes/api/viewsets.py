@@ -43,6 +43,9 @@ from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     Link,
     Processes,
 )
+from georama.processes.interface.ogc_api.processes.part1.v_100.serializers import (
+    OgcApiDictEncoder,
+)
 from georama.processes.models.job import Job
 from georama.processes.models.process import Process
 
@@ -105,7 +108,7 @@ class LandingView(APIView):
         if request.accepted_renderer.format == "html":
             return Response(context, template_name=self.template_name)
 
-        return Response(DictEncoder().encode(context["object"]))
+        return Response(OgcApiDictEncoder().encode(context["object"]))
 
 
 class ConformanceView(APIView):
@@ -131,7 +134,7 @@ class ConformanceView(APIView):
         if request.accepted_renderer.format == "html":
             return Response(context, template_name=self.template_name)
 
-        return Response(DictEncoder().encode(context["object"]))
+        return Response(OgcApiDictEncoder().encode(context["object"]))
 
 
 class ProcessDescriptionMixin:
@@ -264,6 +267,7 @@ class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermission
             context["breadcrumbs"].append(Breadcrumb(_("Non published processes")))
             # context["organisation"] = organisation_folder
             context["object_list"] = pqs
+            context["process_registry_empty"] = not process_descriptions.processes
             context["limit"] = self.paginator.limit
             context["list_body_partial"] = self.list_body_unpublished_partial_template_name
             context["ordering_context"] = self.build_ordering_context(
@@ -353,14 +357,14 @@ class ProcessViewSet(ProcessDescriptionMixin, GeoramaObjPermViewSetReadOnly):
                     )
                 )
 
-        return Response(DictEncoder().encode(Processes(processes=processes, links=links)))
+        return Response(OgcApiDictEncoder().encode(Processes(processes=processes, links=links)))
 
     async def aretrieve(self, request: GeoramaDrfRequest, *args, **kwargs):
         if request.accepted_renderer.format == "html":
             return await super().aretrieve(request, *args, **kwargs)
 
         process = await self.aget_object()
-        return Response(DictEncoder().encode(process.dataclass))
+        return Response(OgcApiDictEncoder().encode(process.dataclass))
 
     @action(detail=True, methods=["get", "post"], url_name="execution", url_path="execution")
     async def execution(self, request: GeoramaDrfRequest, *args, **kwargs):
@@ -409,7 +413,7 @@ class ProcessViewSet(ProcessDescriptionMixin, GeoramaObjPermViewSetReadOnly):
         if is_html:
             return redirect(reverse("processes:job-list"))
         return Response(
-            DictEncoder().encode(job.dataclass),
+            OgcApiDictEncoder().encode(job.dataclass),
             status=job_status.HTTP_201_CREATED,
             headers={
                 "Location": request.build_absolute_uri(
@@ -498,14 +502,14 @@ class JobViewSet(GeoramaObjPermViewSetReadOnly):
                         type="application/json",
                     )
                 )
-        return Response(DictEncoder().encode(Jobs(jobs=jobs, links=links)))
+        return Response(OgcApiDictEncoder().encode(Jobs(jobs=jobs, links=links)))
 
     async def aretrieve(self, request: GeoramaDrfRequest, *args, **kwargs):
         if request.accepted_renderer.format == "html":
             return await super().aretrieve(request, *args, **kwargs)
 
         job = await self.aget_object()
-        return Response(DictEncoder().encode(job.dataclass))
+        return Response(OgcApiDictEncoder().encode(job.dataclass))
 
     @action(detail=True, methods=["post"], url_name="results")
     async def results(self, request: GeoramaDrfRequest, *args, **kwargs):
