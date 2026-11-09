@@ -1,13 +1,12 @@
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from qgis_server_light.dispatcher.redis_asio import RedisQueue, RedisStateQueue
+from qgis_server_light.dispatcher.redis_asio import RedisStateQueue
 
 from georama.core.apps import GeoramaAbstractConfig
 from georama.maps.maps_config import Config
 
 central_app_label = "processes"
 
-qsl_redis_queue = RedisQueue.create(Config().redis_url)
 qsl_redis_state_queue = RedisStateQueue.create(Config().redis_url)
 
 

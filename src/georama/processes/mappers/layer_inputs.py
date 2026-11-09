@@ -1,11 +1,14 @@
 from dataclasses import replace
 
+from asgiref.sync import sync_to_async
 from qgis_server_light.interface.job.process.description import (
     InputDescription,
     ProcessDescription,
     ProcessDescriptions,
+    QslLayerMarker,
     Schema,
 )
+from qgis_server_light.interface.job.process.input import ParameterInput
 
 from georama.processes.models.process_input import ProcessInput
 
@@ -45,6 +48,30 @@ class LayerInputMapper:
         if input_description.schema.x_qsl_layer is None:
             return input_description
         return replace(input_description, schema=self.map_schema(input_description.schema))
+
+    async def amap_parameter_inputs(
+        self, process_description: ProcessDescription, values: dict
+    ) -> list[ParameterInput]:
+        layer_markers = {
+            input_description.id: input_description.schema.x_qsl_layer
+            for input_description in process_description.inputs
+        }
+        return [
+            ParameterInput(name=name, value=await self.amap_value(layer_markers[name], value))
+            for name, value in values.items()
+            # a layer input which was left empty is not passed to the process
+            if layer_markers[name] is None or value
+        ]
+
+    async def amap_value(self, layer_marker: QslLayerMarker | None, value):
+        if layer_marker is None:
+            return value
+        fitting_process_inputs = {
+            process_input.identifier: process_input
+            for process_input in self.process_inputs
+            if process_input.fits(layer_marker)
+        }
+        return await sync_to_async(fitting_process_inputs[value].to_qsl_job_layer)()
 
     def map_schema(self, schema: Schema) -> Schema:
         return replace(

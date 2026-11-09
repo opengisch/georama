@@ -26,6 +26,12 @@ class JobSerializer(serializers.ModelSerializer):
             "process",
             "job_parameters",
             "job_result",
+            "status",
+            "message",
+            "progress",
+            "finished",
+            "updated",
+            "expires",
         ]
         extra_kwargs = {
             "id": {"read_only": True},
@@ -34,6 +40,12 @@ class JobSerializer(serializers.ModelSerializer):
             "process": {"read_only": True},
             "job_parameters": {"read_only": True},
             "job_result": {"read_only": True},
+            "status": {"read_only": True},
+            "message": {"read_only": True},
+            "progress": {"read_only": True},
+            "finished": {"read_only": True},
+            "updated": {"read_only": True},
+            "expires": {"read_only": True},
         }
 
 
