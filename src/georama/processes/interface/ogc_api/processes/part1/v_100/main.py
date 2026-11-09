@@ -2,6 +2,11 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
 
+from qgis_server_light.interface.job.process.description import (
+    InputDescription,
+    OutputDescription,
+)
+
 
 @dataclass
 class Link:
@@ -36,6 +41,12 @@ class ProcessBase(Base):
     output_transmission: list[TransmissionMode] = field(metadata={"name": "outputTransmission"})
     title: str = field()
     version: str = field()
+
+
+@dataclass
+class ProcessDetail(ProcessBase):
+    inputs: list[InputDescription] = field()
+    outputs: list[OutputDescription] = field()
 
 
 @dataclass

@@ -52,7 +52,9 @@ from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
 )
 from georama.processes.interface.ogc_api.processes.part1.v_100.serializers import (
     OgcApiDictEncoder,
+    OgcApiProcessDetailDictEncoder,
 )
+from georama.processes.mappers.layer_inputs import LayerInputMapper
 from georama.processes.models.job import Job
 from georama.processes.models.process import Process
 from georama.processes.models.process_input import ProcessInput
@@ -150,8 +152,11 @@ class ProcessDescriptionMixin:
 
     async def aprocess_descriptions(self) -> ProcessDescriptions:
         if self.process_descriptions is None:
-            self.process_descriptions = await qsl_redis_state_queue.process_descriptions()
+            self.process_descriptions = await self.afetch_process_descriptions()
         return self.process_descriptions
+
+    async def afetch_process_descriptions(self) -> ProcessDescriptions:
+        return await qsl_redis_state_queue.process_descriptions()
 
     async def describe(self, processes: Iterable[Process]):
         process_descriptions = await self.aprocess_descriptions()
@@ -170,6 +175,24 @@ class ProcessDescriptionMixin:
         processes = [process async for process in page]
         await self.describe(processes)
         return processes
+
+
+class ProcessInputDescriptionMixin(ProcessDescriptionMixin):
+    process_input_perms = ["processes.use_as_process_input"]
+
+    async def afetch_process_descriptions(self) -> ProcessDescriptions:
+        process_descriptions = await super().afetch_process_descriptions()
+        process_inputs = await self.aaccessible_process_inputs()
+        return LayerInputMapper(process_inputs).map_process_descriptions(process_descriptions)
+
+    async def aaccessible_process_inputs(self) -> list[ProcessInput]:
+        queryset = await sync_to_async(ProcessInput.objects.accessible_objects)(
+            self.request.georama_organisation,
+            self.request.user,
+            self.process_input_perms,
+            include_public=True,
+        )
+        return [process_input async for process_input in queryset]
 
 
 class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermissionsViewSet):
@@ -292,7 +315,7 @@ class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermission
             return Response(context, template_name=template_name)
 
 
-class ProcessViewSet(ProcessDescriptionMixin, GeoramaObjPermViewSetReadOnly):
+class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly):
     queryset = Process.objects.all()
     serializer_class = ProcessSerializer
     required_obj_perms = [
@@ -372,7 +395,7 @@ class ProcessViewSet(ProcessDescriptionMixin, GeoramaObjPermViewSetReadOnly):
             return await super().aretrieve(request, *args, **kwargs)
 
         process = await self.aget_object()
-        return Response(OgcApiDictEncoder().encode(process.dataclass))
+        return Response(OgcApiProcessDetailDictEncoder().encode(process.detail_dataclass))
 
     @action(detail=True, methods=["get", "post"], url_name="execution", url_path="execution")
     async def execution(self, request: GeoramaDrfRequest, *args, **kwargs):

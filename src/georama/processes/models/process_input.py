@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
 from qgis_server_light.interface.job.common.input import QslJobLayer
+from qgis_server_light.interface.job.process.description import QslLayerKind, QslLayerMarker
 
 from georama.core.common.managers import OrganisationalManager
 from georama.integration.models import Datasource
@@ -71,6 +72,13 @@ class ProcessInput(models.Model):
 
     def to_qsl_job_layer(self) -> QslJobLayer:
         return self.datasource.to_qsl_job_layer(identifier=self.identifier, name=self.title)
+
+    def fits(self, marker: QslLayerMarker) -> bool:
+        if self.datasource.type != marker.kind.value:
+            return False
+        if marker.kind is QslLayerKind.VECTOR:
+            return self.datasource.vector.geometry_type_simple in marker.geometry_types
+        return True
 
 
 class UserManager(UserObjectPermissionManager, OrganisationalManager): ...
