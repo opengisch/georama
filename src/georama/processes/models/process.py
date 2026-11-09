@@ -116,7 +116,7 @@ class Process(models.Model):
         return ProcessBase(
             id=self.algorithm_id,
             description=self.description,
-            job_control_options=[JobControlOptions.SYNC],
+            job_control_options=[JobControlOptions.SYNC, JobControlOptions.ASYNC],
             output_transmission=[TransmissionMode.VALUE],
             title=self.title,
             version="1.0.0",

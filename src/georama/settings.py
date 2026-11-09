@@ -474,6 +474,12 @@ class Base(Configuration):
 
     JOB_TIMEOUT = values.FloatValue(1000, environ_prefix=GEORAMA_ENV_PREFIX)
 
+    # seconds a synchronous process execution waits for the job before it falls back to
+    # the asynchronous answer
+    PROCESSES_SYNC_EXECUTE_TIMEOUT = values.FloatValue(10.0, environ_prefix=GEORAMA_ENV_PREFIX)
+    # seconds a process job is kept, aligned with the expiry of the job hash in QSL
+    PROCESSES_JOB_EXPIRE = values.IntegerValue(86400, environ_prefix=GEORAMA_ENV_PREFIX)
+
     # The name which identifies the OGC server of Georama for the webgis app
     # it's the name which will be used in the themes.json response for GeoGirafe
     WEBGIS_OGC_SERVER_NAME = values.Value("georama.webgis", environ_prefix=GEORAMA_ENV_PREFIX)

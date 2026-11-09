@@ -71,18 +71,26 @@ class Conformance:
     )
 
 
+class StatusCode(StrEnum):
+    ACCEPTED = "accepted"
+    RUNNING = "running"
+    SUCCESSFUL = "successful"
+    FAILED = "failed"
+    DISMISSED = "dismissed"
+
+
 @dataclass
 class Job(Base):
     type: str = field()
-    job_id: str = field(metadata={"name": "jobId"})
-    process_id: str = field(metadata={"name": "processId"})
-    status: str = field()
-    message: str = field()
-    progress: int = field()
-    created: datetime = field(metadata={"format": "%Y-%m-%dT%H:%M:%S.%f%:z"})
-    started: datetime = field(metadata={"format": "%Y-%m-%dT%H:%M:%S.%f%:z"})
-    finished: datetime = field(metadata={"format": "%Y-%m-%dT%H:%M:%S.%f%:z"})
-    updated: datetime = field(metadata={"format": "%Y-%m-%dT%H:%M:%S.%f%:z"})
+    job_id: str = field(metadata={"name": "jobID"})
+    process_id: str = field(metadata={"name": "processID"})
+    status: StatusCode = field()
+    message: str | None = field(default=None)
+    progress: int | None = field(default=None)
+    created: datetime | None = field(default=None, metadata={"format": "%Y-%m-%dT%H:%M:%S.%f%:z"})
+    started: datetime | None = field(default=None, metadata={"format": "%Y-%m-%dT%H:%M:%S.%f%:z"})
+    finished: datetime | None = field(default=None, metadata={"format": "%Y-%m-%dT%H:%M:%S.%f%:z"})
+    updated: datetime | None = field(default=None, metadata={"format": "%Y-%m-%dT%H:%M:%S.%f%:z"})
 
 
 @dataclass

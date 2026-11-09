@@ -10,11 +10,9 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
+from qgis_server_light.interface.job.common.input import ExecutionMode
 from qgis_server_light.interface.job.process.description import ProcessDescriptions
-from qgis_server_light.interface.job.process.input import (
-    ParameterInput,
-    QslJobParameterExecuteProcess,
-)
+from qgis_server_light.interface.job.process.input import QslJobParameterExecuteProcess
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotAcceptable, PermissionDenied, ValidationError
@@ -42,13 +40,14 @@ from georama.processes.api.serializers import (
     ProcessSerializer,
     PublishFromDatasourceInput,
 )
-from georama.processes.apps import qsl_redis_queue, qsl_redis_state_queue
+from georama.processes.apps import qsl_redis_state_queue
 from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     Conformance,
     Jobs,
     Landing,
     Link,
     Processes,
+    StatusCode,
 )
 from georama.processes.interface.ogc_api.processes.part1.v_100.serializers import (
     OgcApiDictEncoder,
@@ -58,6 +57,7 @@ from georama.processes.mappers.layer_inputs import LayerInputMapper
 from georama.processes.models.job import Job
 from georama.processes.models.process import Process
 from georama.processes.models.process_input import ProcessInput
+from georama.processes.processes_config import Config
 
 User = get_user_model()
 
@@ -179,11 +179,13 @@ class ProcessDescriptionMixin:
 
 class ProcessInputDescriptionMixin(ProcessDescriptionMixin):
     process_input_perms = ["processes.use_as_process_input"]
+    served_process_descriptions: ProcessDescriptions | None = None
+    layer_input_mapper: LayerInputMapper | None = None
 
     async def afetch_process_descriptions(self) -> ProcessDescriptions:
-        process_descriptions = await super().afetch_process_descriptions()
-        process_inputs = await self.aaccessible_process_inputs()
-        return LayerInputMapper(process_inputs).map_process_descriptions(process_descriptions)
+        self.served_process_descriptions = await super().afetch_process_descriptions()
+        self.layer_input_mapper = LayerInputMapper(await self.aaccessible_process_inputs())
+        return self.layer_input_mapper.map_process_descriptions(self.served_process_descriptions)
 
     async def aaccessible_process_inputs(self) -> list[ProcessInput]:
         queryset = await sync_to_async(ProcessInput.objects.accessible_objects)(
@@ -422,34 +424,68 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
                 return Response(context, template_name=self.execute_template_name, status=400)
             return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        parameters = [
-            ParameterInput(name=name, value=value) for name, value in form.cleaned_data.items()
-        ]
-        job_parameters = QslJobParameterExecuteProcess(
-            process_id=context["object"].algorithm_id,
-            parameters=parameters,
+        process: Process = context["object"]
+        parameters = await self.layer_input_mapper.amap_parameter_inputs(
+            self.served_process_descriptions.process_by_id(process.algorithm_id),
+            form.cleaned_data,
         )
+        created_at = timezone.now()
+        # Georama runs in autocommit, the row is committed when `acreate` returns. So the
+        # job is only submitted afterwards and a worker never sees a job without its row.
         job = await Job.objects.acreate(
             redis_job_id=uuid.uuid4(),
             created_by=request.user,
-            created_at=timezone.now(),
-            process=context["object"],
+            created_at=created_at,
+            expires=created_at + Config().job_expire,
+            process=process,
             job_parameters=DictEncoder().encode(parameters),
         )
-        job_result, job_status = await qsl_redis_queue.post(job_parameters)
-        job.redis_job_id = uuid.UUID(job_result.id)
-        job.job_result = job_result.data
-        await job.asave()
+        job_parameter = QslJobParameterExecuteProcess(
+            process_id=process.algorithm_id,
+            parameters=parameters,
+        )
 
         if is_html:
+            await qsl_redis_state_queue.submit(str(job.redis_job_id), job_parameter)
             return redirect(reverse("processes:job-list"))
+        if self.prefers_async(request):
+            await qsl_redis_state_queue.submit(str(job.redis_job_id), job_parameter)
+            return self.job_status_response(
+                request, job, headers={"Preference-Applied": "respond-async"}
+            )
+        await qsl_redis_state_queue.submit(str(job.redis_job_id), job_parameter, ExecutionMode.SYNC)
+        job.apply_state(
+            await qsl_redis_state_queue.wait(
+                str(job.redis_job_id), to=Config().sync_execute_timeout
+            )
+        )
+        await job.asave()
+        if job.status == StatusCode.SUCCESSFUL:
+            return Response(job.results, status=status.HTTP_200_OK)
+        if job.status == StatusCode.FAILED:
+            return Response(
+                OgcApiDictEncoder().encode(job.dataclass),
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        # the job did not finish in time, the client continues as if it asked for async
+        return self.job_status_response(request, job)
+
+    @staticmethod
+    def prefers_async(request: GeoramaDrfRequest) -> bool:
+        return "respond-async" in request.headers.get("Prefer", "")
+
+    @staticmethod
+    def job_status_response(
+        request: GeoramaDrfRequest, job: Job, headers: dict | None = None
+    ) -> Response:
         return Response(
             OgcApiDictEncoder().encode(job.dataclass),
-            status=job_status.HTTP_201_CREATED,
+            status=status.HTTP_201_CREATED,
             headers={
                 "Location": request.build_absolute_uri(
                     reverse("processes:job-detail", kwargs={"pk": job.pk})
-                )
+                ),
+                **(headers or {}),
             },
         )
 
