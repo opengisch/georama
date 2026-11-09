@@ -26,6 +26,11 @@ class ProcessInput(models.Model):
         "revoke": (False, list(PERMISSIONS.values()), "revoke access"),
     }
 
+    DATASOURCE_TYPE_BY_LAYER_KIND = {
+        QslLayerKind.VECTOR: "vector",
+        QslLayerKind.RASTER: "raster",
+    }
+
     class Meta:
         verbose_name = f"{_('Process input')}"
         verbose_name_plural = f"{_('Process inputs')}"
@@ -74,7 +79,7 @@ class ProcessInput(models.Model):
         return self.datasource.to_qsl_job_layer(identifier=self.identifier, name=self.title)
 
     def fits(self, marker: QslLayerMarker) -> bool:
-        if self.datasource.type != marker.kind.value:
+        if self.datasource.type != self.DATASOURCE_TYPE_BY_LAYER_KIND[marker.kind]:
             return False
         if marker.kind is QslLayerKind.VECTOR:
             return self.datasource.vector.geometry_type_simple in marker.geometry_types
