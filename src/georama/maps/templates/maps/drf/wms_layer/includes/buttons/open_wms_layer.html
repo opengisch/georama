@@ -1,7 +1,7 @@
 {% load i18n %}
 {% with url=layer.endpoint_url_wms %}
     {% if url %}
-        {% blocktranslate asvar title %}
+        {% blocktranslate asvar title trimmed %}
             Open layer as WMS
         {% endblocktranslate %}
         <a href="{{ url }}"

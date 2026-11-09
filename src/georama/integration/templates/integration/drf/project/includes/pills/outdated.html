@@ -1,5 +1,5 @@
 {% load i18n %}
-{% blocktranslate asvar title %}
+{% blocktranslate asvar title trimmed %}
     There is a newer version of this project available, you may
     want to integrate it again
 {% endblocktranslate %}
@@ -7,5 +7,5 @@
       data-bs-toggle="tooltip"
       title="{{ title }}"
       aria-label="{{ title }}">
-    outdated
+    {% translate "outdated" %}
 </span>

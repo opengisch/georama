@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db import models
 from django.templatetags.static import static
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
 from xsdata.formats.dataclass.parsers import DictDecoder
@@ -28,8 +28,8 @@ class Theme(models.Model):
     }
 
     ACTION_MAP = {
-        "grant": (True, [PERMISSIONS["can_view"]], "grant access"),
-        "revoke": (False, list(PERMISSIONS.values()), "revoke access"),
+        "grant": (True, [PERMISSIONS["can_view"]], _("grant access")),
+        "revoke": (False, list(PERMISSIONS.values()), _("revoke access")),
     }
 
     class Meta:
@@ -48,17 +48,19 @@ class Theme(models.Model):
         Project,
         related_name="themes",
         on_delete=models.CASCADE,
+        verbose_name=_("project"),
     )
     metadata = models.ForeignKey(
         Metadata,
         related_name="themes",
         on_delete=models.CASCADE,
+        verbose_name=_("metadata"),
     )
-    public = models.BooleanField(default=False)
-    ordering = models.IntegerField()
-    theme_json = models.JSONField()
-    background_layers = models.JSONField(blank=True)
-    ogc_servers = models.JSONField(blank=True)
+    public = models.BooleanField(default=False, verbose_name=_("public"))
+    ordering = models.IntegerField(verbose_name=_("ordering"))
+    theme_json = models.JSONField(verbose_name=_("theme JSON"))
+    background_layers = models.JSONField(blank=True, verbose_name=_("background layers"))
+    ogc_servers = models.JSONField(blank=True, verbose_name=_("OGC servers"))
 
     objects = ThemeManager()
 

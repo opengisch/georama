@@ -7,6 +7,11 @@ if [ "${DEV_SYNC:-1}" = "1" ] && [ -f uv.lock ] && command -v uv >/dev/null; the
   uv sync --group dev
 fi
 
+# compiles the translation catalogs (*.po -> *.mo) of the mounted sources
+for po in src/georama/locale/*/LC_MESSAGES/django.po; do
+  msgfmt --check-format -o "${po%.po}.mo" "$po"
+done
+
 # installs mounted qsl sources editable over the locked version
 if [ -n "${DEV_QSL_SOURCES:-}" ]; then
   # uv pip ignores UV_PROJECT_ENVIRONMENT and would pick up a host .venv mounted in /app

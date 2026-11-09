@@ -1,7 +1,8 @@
-{% load static %}
+{% load i18n static %}
+{% get_current_language as LANGUAGE_CODE %}
 
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light" data-theme-default="light">
+<html lang="{{ LANGUAGE_CODE }}" data-bs-theme="light" data-theme-default="light">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -21,7 +22,7 @@
     <script src="{% static 'core/js/bootstrap.5.3.8.bundle.min.js' %}"></script>
     <script src="{% static 'core/js/htmx.2.0.10.min.js' %}"></script>
 
-    <title>Georama – Your Geospatial Data Hub</title>
+    <title>{% translate "Georama – Your Geospatial Data Hub" %}</title>
 
     {% block extra_head %}{% endblock %}
 
@@ -43,14 +44,14 @@
                     data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+                    aria-expanded="false" aria-label="{% translate "Toggle navigation" %}">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="menu-main navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item align-content-center">
                         <a class="nav-link {% if request.path == "/" %}fw-bold active{% endif %}"
-                           href="/">Home</a>
+                           href="/">{% translate "Home" %}</a>
                     </li>
                     {% for item in menu_items %}
                         <li class="nav-item align-content-center">
@@ -62,11 +63,41 @@
                         </li>
                     {% endfor %}
                     <li class="nav-item align-items-center">
+                        <form action="{% url 'set_language' %}" method="post"
+                              class="nav-link dropdown">
+                            {% csrf_token %}
+                            <input type="hidden" name="next"
+                                   value="{{ request.get_full_path }}">
+                            <button type="button"
+                                    class="btn btn-outline-secondary dropdown-toggle"
+                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                    title="{% translate "Language" %}"
+                                    aria-label="{% translate "Language" %}">
+                                <i class="fa fa-language pe-1"></i>{{ LANGUAGE_CODE|upper }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% get_available_languages as LANGUAGES %}
+                                {% get_language_info_list for LANGUAGES as languages %}
+                                {% for language in languages %}
+                                    <li>
+                                        <button type="submit" name="language"
+                                                value="{{ language.code }}"
+                                                lang="{{ language.code }}"
+                                                class="dropdown-item{% if language.code == LANGUAGE_CODE %} active{% endif %}"
+                                                {% if language.code == LANGUAGE_CODE %}aria-current="true"{% endif %}>
+                                            {{ language.name_local|capfirst }}
+                                        </button>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </form>
+                    </li>
+                    <li class="nav-item align-items-center">
                         <div class="nav-link">
                             <a id="themeToggle"
                                class="btn btn-outline-secondary"
                                role="button"
-                               aria-label="Toggle theme">
+                               aria-label="{% translate "Toggle theme" %}">
                                 <i id="themeIcon" class="bi"></i>
                             </a>
                         </div>
@@ -80,7 +111,7 @@
                                     <form method="post" action="{% url 'core:logout' %}"
                                           class="d-inline">
                                         {% csrf_token %}
-                                        <button type="submit" title="Logout"
+                                        <button type="submit" title="{% translate "Logout" %}"
                                                 class="btn btn-outline-secondary">
                                             {{ user.username }}
                                             <i class="fa fa-arrow-right-from-bracket ps-1"></i>
@@ -88,7 +119,7 @@
                                     </form>
                                 {% else %}
                                     <a class="btn btn-outline-secondary"
-                                       href="{% url 'core:login' %}">Login</a>
+                                       href="{% url 'core:login' %}">{% translate "Login" %}</a>
                                 {% endif %}
                                 </div>
                             {% endif %}
@@ -106,7 +137,7 @@
 
             <div id="breadcrumb-container"
                  class="d-flex flex-row justify-content-between align-items-center pb-4">
-                <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <nav style="--bs-breadcrumb-divider: '>';" aria-label="{% translate "Breadcrumb" %}">
                     {% block breadcrumbs %}
 
                         <!-- breadcrumbs -->
@@ -168,7 +199,7 @@
         <hr>
         <div class="container d-flex">
             <small class="text-muted ms-auto">
-                &copy; 2026 Georama.  Scalable Web Publishing for QGIS.</small>
+                &copy; 2026 Georama. {% translate "Scalable Web Publishing for QGIS." %}</small>
 
             <div class="small ms-auto">
                 <a href="https://github.com/opengisch/georama"
@@ -177,11 +208,11 @@
                 ·
                 <a href="https://docs.georama.io"
                    target="_blank"
-                   class="">Docs</a>
+                   class="">{% translate "Docs" %}</a>
                 ·
                 <a href="https://georama.io"
                    target="_blank"
-                   class="">About</a>
+                   class="">{% translate "About" %}</a>
             </div>
         </div>
 

@@ -1,3 +1,4 @@
+{% load i18n %}
 <div id="messages"
      class="toast-container position-fixed bottom-0 end-0 p-3 pb-4 mb-5"
     {% if oob %}hx-swap-oob="true"{% endif %}>
@@ -16,7 +17,8 @@
                 <button
                         type="button"
                         class="btn-close btn-close-white me-2 m-auto"
-                        data-bs-dismiss="toast">
+                        data-bs-dismiss="toast"
+                        aria-label="{% translate "Close" %}">
                 </button>
             </div>
         </div>

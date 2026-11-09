@@ -12,6 +12,7 @@ qsl_redis_queue = RedisQueue.create(Config().redis_url)
 
 class MapsConfig(GeoramaAbstractConfig):
     label = "maps"
+    verbose_name = _("Maps")
     name = "georama.maps"
     menu_order: int = 10
     description = _("Share map layers.")

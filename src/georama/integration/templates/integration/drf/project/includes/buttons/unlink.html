@@ -1,6 +1,6 @@
 {% load static i18n %}
 
-{% blocktranslate asvar title %}
+{% blocktranslate asvar title trimmed %}
     Remove QGIS project from Georama by unlinking it
 {% endblocktranslate %}
 <a href="{% url view.url_name_delete_confirm project.pk %}"

@@ -6,7 +6,7 @@
 
     <div class="align-content-center">
         <div class="btn-group" role="group"
-             aria-label="Layer actions">
+             aria-label="{% translate "Actions" %}">
             {% blocktranslate asvar title %}Ok{% endblocktranslate %}
             <button
                     type="button"
@@ -37,11 +37,11 @@
 
         {% if status != expected_status %}
             <div class="alert alert-danger" role="alert">
-                Deletion not succesful
+                {% translate "Deletion not successful" %}
             </div>
         {% else %}
             <div class="alert alert-primary" role="alert">
-                Sucessfully deleted
+                {% translate "Successfully deleted" %}
             </div>
         {% endif %}
 

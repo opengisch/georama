@@ -3,7 +3,7 @@
 
 {% block list_actions %}
 
-    <div class="btn-group" role="group" aria-label="Project actions">
+    <div class="btn-group" role="group" aria-label="{% translate "Project actions" %}">
 
 
         {% if perms.data_integration.edit_project or perms.data_integration.add_project %}
@@ -27,17 +27,17 @@
     <!-- Left Column, scrollable -->
 
     <div class="col h-100 px-4 overflow-auto">
-        {% blocktranslate asvar title %}
+        {% blocktranslate asvar title trimmed %}
             QGIS version used to save the project
         {% endblocktranslate %}
         <div class="mb-4" data-bs-toggle="tooltip"
              title="{{ title }}"
              aria-label="{{ title }}">
-            <label class="form-text">Version</label>
+            <label class="form-text">{% translate "Version" %}</label>
             <div>
-                {{ object.qgis_version|default_if_none:"unknown" }}</div>
+                {{ object.qgis_version|default_if_none:_("unknown") }}</div>
         </div>
-        {% blocktranslate asvar title %}
+        {% blocktranslate asvar title trimmed %}
             Path of the file on file system
         {% endblocktranslate %}
         <div class="mb-4" data-bs-toggle="tooltip"
@@ -46,7 +46,7 @@
             <label class="form-text">{% trans 'Path' %}</label>
             <div>{{ object.project_file.path_from_orga }}</div>
         </div>
-        {% blocktranslate asvar title %}
+        {% blocktranslate asvar title trimmed %}
             Last time the QGIS project was changed on disk
         {% endblocktranslate %}
         <div class="mb-4" data-bs-toggle="tooltip"
@@ -55,7 +55,7 @@
             <label class="form-text">{% trans 'Modification date' %}</label>
             <div>{{ object.qgis_project_file_modification_date|date:"r" }}</div>
         </div>
-        {% blocktranslate asvar title %}
+        {% blocktranslate asvar title trimmed %}
             Status information about the project
         {% endblocktranslate %}
         <div class="mb-4" data-bs-toggle="tooltip"

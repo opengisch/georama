@@ -3,7 +3,7 @@
     {% block list %}
         {% if object_list|length == 0 %}
             <div class="fs-1 fw-bold text-center">
-                No items in this list
+                {% translate "No items in this list" %}
             </div>
         {% else %}
             <div class="list-group">
@@ -47,13 +47,13 @@
                                 <div class="align-content-center ms-auto flex-shrink-0">
                                     <div class="btn-group mr-2"
                                          role="group"
-                                         aria-label="Feature actions">
+                                         aria-label="{% translate "Item actions" %}">
                                         {% block list_item_actions %}
                                             {% if not is_modal %}
                                                 {% block list_item_native_actions %}
                                                     {% if view.url_name_show %}
                                                         <!-- We know already that the user can view the item-->
-                                                        {% blocktranslate asvar title %}
+                                                        {% blocktranslate asvar title trimmed %}
                                                             Show item details
                                                         {% endblocktranslate %}
                                                         <a href="{% url view.url_name_show item.pk %}"
@@ -67,7 +67,7 @@
                                                     {% endif %}
 
                                                     {% if can_change %}
-                                                        {% blocktranslate asvar title %}
+                                                        {% blocktranslate asvar title trimmed %}
                                                             Edit item
                                                         {% endblocktranslate %}
                                                         <a href="{% url view.url_name_retrieve item.pk %}"
@@ -81,7 +81,7 @@
                                                     {% endif %}
 
                                                     {% if can_manage_permissions %}
-                                                        {% blocktranslate asvar title %}
+                                                        {% blocktranslate asvar title trimmed %}
                                                             Edit item permissions
                                                         {% endblocktranslate %}
                                                         <a href="{% url view.url_name_permissions item.pk %}?entity=groups"
@@ -96,7 +96,7 @@
                                                     {% endif %}
 
                                                     {% if can_delete %}
-                                                        {% blocktranslate asvar title %}
+                                                        {% blocktranslate asvar title trimmed %}
                                                             Delete item
                                                         {% endblocktranslate %}
                                                         <a href="{% url view.url_name_delete_confirm item.pk %}"
@@ -125,7 +125,7 @@
                             </div>
                             <small class="text-muted">
                                 {% block list_item_footnote %}
-                                    Id: {{ item.id }}
+                                    {% translate "Id:" %} {{ item.id }}
                                 {% endblock %}
                             </small>
                         </div>

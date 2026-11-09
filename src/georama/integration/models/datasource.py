@@ -32,42 +32,64 @@ class Datasource(models.Model):
         )
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the datasource.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the datasource."),
     )
     qgis_layer_id = models.CharField(
-        max_length=1000, help_text=_("Layer identifier from the source QGIS project.")
+        max_length=1000,
+        help_text=_("Layer identifier from the source QGIS project."),
+        verbose_name=_("QGIS layer ID"),
     )
-    name = models.CharField(max_length=1000, help_text=_("Name of the datasource."))
+    name = models.CharField(
+        max_length=1000, help_text=_("Name of the datasource."), verbose_name=_("name")
+    )
     bbox = models.CharField(
         max_length=1000,
         help_text=_("Bounding box of the datasource in the source coordinate reference system."),
+        verbose_name=_("bounding box"),
     )
     bbox_wgs84 = models.CharField(
-        max_length=1000, help_text=_("Bounding box of the datasource transformed to WGS84.")
+        max_length=1000,
+        help_text=_("Bounding box of the datasource transformed to WGS84."),
+        verbose_name=_("bounding box (WGS 84)"),
     )
     source = models.JSONField(
-        default=dict, help_text=_("Source configuration and connection metadata of the datasource.")
+        default=dict,
+        help_text=_("Source configuration and connection metadata of the datasource."),
+        verbose_name=_("source"),
     )
     styles = models.JSONField(
-        default=list, help_text=_("Rendered style definitions associated with this datasource.")
+        default=list,
+        help_text=_("Rendered style definitions associated with this datasource."),
+        verbose_name=_("styles"),
     )
     driver = models.CharField(
-        max_length=50, help_text=_("Provider driver name used to access the datasource.")
+        max_length=50,
+        help_text=_("Provider driver name used to access the datasource."),
+        verbose_name=_("driver"),
     )
     crs = models.JSONField(
-        default=dict, help_text=_("Coordinate reference system of the datasource.")
+        default=dict,
+        help_text=_("Coordinate reference system of the datasource."),
+        verbose_name=_("CRS"),
     )
     minimum_scale = models.FloatField(
-        null=True, help_text=_("Minimum scale at which the datasource is visible.")
+        null=True,
+        help_text=_("Minimum scale at which the datasource is visible."),
+        verbose_name=_("minimum scale"),
     )
     maximum_scale = models.FloatField(
-        null=True, help_text=_("Maximum scale at which the datasource is visible.")
+        null=True,
+        help_text=_("Maximum scale at which the datasource is visible."),
+        verbose_name=_("maximum scale"),
     )
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
         related_name="datasources",
         help_text=_("Project the datasource belongs to."),
+        verbose_name=_("project"),
     )
 
     objects = DatasourceManager()
@@ -171,9 +193,12 @@ class Vector(Datasource):
         help_text=_(
             "Simplified geometry type of the vector datasource (eg. point, line, polygon)."
         ),
+        verbose_name=_("geometry type"),
     )
     geometry_type_wkb = models.CharField(
-        max_length=1000, help_text=_("Geometry type of the vector datasource.")
+        max_length=1000,
+        help_text=_("Geometry type of the vector datasource."),
+        verbose_name=_("geometry type (WKB)"),
     )
 
     async def set_values_from_qsl(self, qsl_object: QslVector):
@@ -194,38 +219,64 @@ class VectorField(models.Model):
         verbose_name_plural = _("fields")
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the field.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the field."),
     )
     name = models.CharField(
-        max_length=1000, help_text=_("Original field name from the source datasource.")
+        max_length=1000,
+        help_text=_("Original field name from the source datasource."),
+        verbose_name=_("name"),
     )
     type = models.CharField(
-        max_length=1000, help_text=_("Original data type from the source datasource.")
+        max_length=1000,
+        help_text=_("Original data type from the source datasource."),
+        verbose_name=_("type"),
     )
     is_primary_key = models.BooleanField(
-        default=False, help_text=_("Whether this field is the datasource primary key.")
+        default=False,
+        help_text=_("Whether this field is the datasource primary key."),
+        verbose_name=_("primary key"),
     )
-    type_wfs = models.CharField(max_length=1000, help_text=_("Field datatype exposed through WFS."))
+    type_wfs = models.CharField(
+        max_length=1000,
+        help_text=_("Field datatype exposed through WFS."),
+        verbose_name=_("WFS type"),
+    )
     type_oapif = models.CharField(
-        max_length=1000, help_text=_("Field datatype exposed through OGC API Features.")
+        max_length=1000,
+        help_text=_("Field datatype exposed through OGC API Features."),
+        verbose_name=_("OAPIF type"),
     )
     type_oapif_format = models.CharField(
         null=True,
         max_length=1000,
         help_text=_("Output format for the OGC API Features field type."),
+        verbose_name=_("OAPIF format"),
     )
-    alias = models.CharField(max_length=1000, help_text=_("Human-readable field label."))
-    comment = models.CharField(max_length=1000, help_text=_("Comment or description of the field."))
+    alias = models.CharField(
+        max_length=1000, help_text=_("Human-readable field label."), verbose_name=_("alias")
+    )
+    comment = models.CharField(
+        max_length=1000,
+        help_text=_("Comment or description of the field."),
+        verbose_name=_("comment"),
+    )
     nullable = models.BooleanField(
-        default=True, help_text=_("Whether this field can store null values.")
+        default=True,
+        help_text=_("Whether this field can store null values."),
+        verbose_name=_("nullable"),
     )
-    length = models.IntegerField(null=True, help_text=_("...."))
-    precision = models.IntegerField(null=True, help_text=_("Numeric precision."))
+    length = models.IntegerField(null=True, help_text=_("...."), verbose_name=_("length"))
+    precision = models.IntegerField(
+        null=True, help_text=_("Numeric precision."), verbose_name=_("precision")
+    )
     datasource = models.ForeignKey(
         Vector,
         on_delete=models.CASCADE,
         help_text=_("Vector datasource this field belongs to."),
         related_name="fields",
+        verbose_name=_("datasource"),
     )
 
     objects = OrganisationalManager()

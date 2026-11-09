@@ -92,6 +92,11 @@ RUN uv sync --frozen --no-install-project --no-dev --group prod
 COPY ./src ./src
 COPY ./README.md ./
 
+# compiles the translation catalogs (*.po -> *.mo) before the project is installed
+RUN for po in src/georama/locale/*/LC_MESSAGES/django.po; do \
+      msgfmt --check-format -o "${po%.po}.mo" "$po" || exit 1; \
+    done
+
 ARG BUILD_BRANCH=
 ARG BUILD_COMMIT=
 

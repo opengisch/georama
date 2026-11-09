@@ -16,9 +16,11 @@ class Fence(models.Model):
         verbose_name_plural = _("fences")
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the fence.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the fence."),
     )
-    name = models.CharField(help_text=_("Name of the fence."))
+    name = models.CharField(help_text=_("Name of the fence."), verbose_name=_("name"))
     geometry = MultiPolygonField(help_text=_("Geographic boundary of the fence."))
     organisation = models.ForeignKey(
         Organisation,
@@ -27,5 +29,6 @@ class Fence(models.Model):
         on_delete=models.CASCADE,
         related_name="fences",
         help_text=_("Organisation the fence belongs to."),
+        verbose_name=_("organisation"),
     )
     objects = OrganisationalManager()

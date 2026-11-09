@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class CoreConfig(GeoramaAbstractConfig):
     label = "core"
-    verbose_name = "Core"
+    verbose_name = _("Core")
     name = "georama.core"
     description = _("The master app.")
 

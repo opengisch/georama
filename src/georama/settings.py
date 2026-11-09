@@ -188,8 +188,8 @@ class Base(Configuration):
         "django.middleware.security.SecurityMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
         "corsheaders.middleware.CorsMiddleware",
-        "django.middleware.common.CommonMiddleware",
         "django.middleware.locale.LocaleMiddleware",
+        "django.middleware.common.CommonMiddleware",
         "django.middleware.csrf.CsrfViewMiddleware",
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "georama.core.middleware.basic_auth.BasicAuthenticationMiddleware",
@@ -336,7 +336,9 @@ class Base(Configuration):
     # Internationalization
     # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-    LANGUAGE_CODE = "en-us"
+    # default and fallback language, the active one is chosen by LocaleMiddleware
+    # (language cookie set by the `set_language` view, then Accept-Language header)
+    LANGUAGE_CODE = "en"
 
     TIME_ZONE = "UTC"
 
@@ -346,7 +348,14 @@ class Base(Configuration):
 
     LANGUAGES = [
         ("en", _("English")),
+        ("fr", _("French")),
+        ("it", _("Italian")),
+        ("de", _("German")),
     ]
+
+    # one catalog for all georama apps, relative to the package so it also works
+    # when georama is installed non-editable (prod image)
+    LOCALE_PATHS = [Path(__file__).resolve().parent / "locale"]
 
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/6.0/howto/static-files/

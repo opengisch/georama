@@ -27,12 +27,21 @@ class Project(models.Model):
         )
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the project.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the project."),
     )
-    name = models.CharField(max_length=1000, help_text=_("Name of the project."))
-    path = models.CharField(max_length=None, help_text=_("Path to the qgis project."))
+    name = models.CharField(
+        max_length=1000, help_text=_("Name of the project."), verbose_name=_("name")
+    )
+    path = models.CharField(
+        max_length=None, help_text=_("Path to the qgis project."), verbose_name=_("path")
+    )
     qgis_version = models.CharField(
-        max_length=1000, blank=True, help_text=_("QGIS version the project was created with.")
+        max_length=1000,
+        blank=True,
+        help_text=_("QGIS version the project was created with."),
+        verbose_name=_("QGIS version"),
     )
     config = models.JSONField(
         blank=True,
@@ -40,6 +49,7 @@ class Project(models.Model):
             "The JSON config representation of the QGIS Project which was created by "
             "the QGIS-Server-Light exporter"
         ),
+        verbose_name=_("configuration"),
     )
     organisation = models.ForeignKey(
         Organisation,
@@ -48,9 +58,12 @@ class Project(models.Model):
         on_delete=models.CASCADE,
         related_name="projects",
         help_text=_("Organisation this project belongs to."),
+        verbose_name=_("organisation"),
     )
     integrated_at = models.DateTimeField(
-        auto_now_add=True, help_text=_("The point in time when the project was created last time.")
+        auto_now_add=True,
+        help_text=_("The point in time when the project was created last time."),
+        verbose_name=_("integrated at"),
     )
 
     objects = ProjectManager()

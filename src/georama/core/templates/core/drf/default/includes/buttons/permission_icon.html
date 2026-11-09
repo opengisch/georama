@@ -1,10 +1,10 @@
 {% comment %}
-    permission: The name of the permission or permission action defined in the model, e.g. "can_view" or "prevent_delete"
+    permission: The name of the permission or the permission action key defined in the model ACTION_MAP, e.g. "can_view" or "prevent_delete" (never a translated label)
     apply_color: [True, False] applies a meaningful color to the icon
 {% endcomment %}
 
 
-<span class="{% if not apply_color %}{% elif "prevent" in action_label %}text-muted{% elif "revoke" in action_label %}text-danger{% else %}text-primary{% endif %}">
+<span class="{% if not apply_color %}{% elif "prevent" in permission %}text-muted{% elif "revoke" in permission %}text-danger{% else %}text-primary{% endif %}">
     {% if "view" in permission %}
         <i class="fa fa-eye"></i>
     {% elif "grant" in permission %}
