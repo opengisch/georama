@@ -1,3 +1,5 @@
+import uuid
+
 from crispy_bootstrap5.bootstrap5 import Switch
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
@@ -45,10 +47,23 @@ class Process(models.Model):
             ("manage_object_permissions", "Can manage object permissions"),
             ("execute_process", "Can execute process"),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["algorithm_id", "organisation"],
+                nulls_distinct=False,
+                name="unique_process_algorithm_per_organisation",
+            ),
+        ]
 
     objects = ProcessManager()
 
-    id = models.CharField(primary_key=True)
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the process.")
+    )
+
+    algorithm_id = models.CharField(
+        help_text=_("Identifier of the QGIS processing algorithm this process publishes."),
+    )
 
     public = models.BooleanField(default=False)
 
@@ -62,14 +77,14 @@ class Process(models.Model):
     )
 
     def __str__(self):
-        return f"{self.title} ({self.id})"
+        return f"{self.title} ({self.algorithm_id})"
 
     def get_absolute_url(self):
         return reverse(f"{central_app_label}:process-detail", kwargs={"pk": self.pk})
 
     @property
     def qsl_algorithm(self) -> Algorithm:
-        return qsl_available_processes.algorithm_by_id(self.id)
+        return qsl_available_processes.algorithm_by_id(self.algorithm_id)
 
     @property
     def qsl_algorithm_params_jsonschema(self) -> list[tuple[ProcessingParameterType, dict]]:
@@ -115,7 +130,7 @@ class Process(models.Model):
     @property
     def dataclass(self):
         return ProcessBase(
-            id=self.id,
+            id=self.algorithm_id,
             description=self.qsl_algorithm.short_help_string,
             job_control_options=[JobControlOptions.SYNC],
             output_transmission=[TransmissionMode.VALUE],
