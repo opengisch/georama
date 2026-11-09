@@ -85,6 +85,22 @@ class MultiStringStrategy(BaseStrategy):
             return {"type": "array", "items": type_schema}
         return type_schema
 
+    def map_form_field(
+        self,
+        parameter: extract.Parameter,
+        parameter_type: extract.ProcessingParameterTypeBand | extract.ProcessingParameterTypeField,
+        **context,
+    ) -> fields.CharField | fields.JSONField:
+        if parameter_type.allow_multiple:
+            return fields.JSONField(
+                initial=parameter.default,
+                required=self.required(parameter),
+            )
+        return fields.CharField(
+            initial=parameter.default,
+            required=self.required(parameter),
+        )
+
 
 class BooleanStrategy(BaseStrategy):
     def map_schema(
