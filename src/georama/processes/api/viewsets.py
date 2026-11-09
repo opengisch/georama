@@ -1,4 +1,5 @@
 import uuid
+from collections.abc import Iterable
 from operator import attrgetter
 
 from asgiref.sync import sync_to_async
@@ -8,6 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
+from qgis_server_light.interface.job.process.description import ProcessDescriptions
 from qgis_server_light.interface.job.process.input import (
     ParameterInput,
     QslJobParameterExecuteProcess,
@@ -33,7 +35,7 @@ from georama.processes.api.serializers import (
     ProcessPermissionActionSerializer,
     ProcessSerializer,
 )
-from georama.processes.apps import qsl_available_processes, qsl_redis_queue
+from georama.processes.apps import qsl_redis_queue, qsl_redis_state_queue
 from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     Conformance,
     Jobs,
@@ -132,7 +134,34 @@ class ConformanceView(APIView):
         return Response(DictEncoder().encode(context["object"]))
 
 
-class ManageProcessViewSet(GeoramaManagerWithPermissionsViewSet):
+class ProcessDescriptionMixin:
+    process_descriptions: ProcessDescriptions | None = None
+
+    async def aprocess_descriptions(self) -> ProcessDescriptions:
+        if self.process_descriptions is None:
+            self.process_descriptions = await qsl_redis_state_queue.process_descriptions()
+        return self.process_descriptions
+
+    async def describe(self, processes: Iterable[Process]):
+        process_descriptions = await self.aprocess_descriptions()
+        for process in processes:
+            process.describe(process_descriptions)
+
+    async def aget_object(self):
+        process = await super().aget_object()
+        await self.describe([process])
+        return process
+
+    async def apaginate_queryset(self, queryset):
+        page = await super().apaginate_queryset(queryset)
+        if page is None:
+            return None
+        processes = [process async for process in page]
+        await self.describe(processes)
+        return processes
+
+
+class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermissionsViewSet):
     queryset = Process.objects.all()
     serializer_class = ProcessSerializer
     filter_backends = [
@@ -159,7 +188,13 @@ class ManageProcessViewSet(GeoramaManagerWithPermissionsViewSet):
         breadcrumbs[0].view_name = reverse("processes:api-landing")
         return breadcrumbs
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["process_descriptions"] = self.process_descriptions
+        return context
+
     async def acreate(self, request: GeoramaDrfRequest, *args, **kwargs):
+        await self.aprocess_descriptions()
         response = await super().acreate(request, *args, **kwargs)
         if request.accepted_renderer.format == "html":
             return redirect(reverse(self.url_name_list))
@@ -167,6 +202,7 @@ class ManageProcessViewSet(GeoramaManagerWithPermissionsViewSet):
 
     async def perform_acreate(self, serializer):
         await serializer.asave(organisation=self.request.georama_organisation)
+        await self.describe([serializer.instance])
 
     @property
     async def bread_crumb_action_context(self):
@@ -203,11 +239,12 @@ class ManageProcessViewSet(GeoramaManagerWithPermissionsViewSet):
         )
 
         search = request.query_params.get("search", "")
+        process_descriptions = await self.aprocess_descriptions()
         algorithms = [
-            algorithm
-            for algorithm in qsl_available_processes.algorithms
-            if algorithm.id not in published_algorithm_ids
-            and (not search or search in algorithm.name.lower())
+            process_description
+            for process_description in process_descriptions.processes
+            if process_description.id not in published_algorithm_ids
+            and (not search or search in process_description.id.lower())
         ]
         ordering_filter = filters.OrderingFilter()
         ordering = ordering_filter.get_ordering(request, algorithms, self) or []
@@ -218,7 +255,8 @@ class ManageProcessViewSet(GeoramaManagerWithPermissionsViewSet):
                 ),
                 reverse=ordering_field.startswith("-"),
             )
-        pqs = await self.apaginate_queryset(algorithms)
+        # the page holds process descriptions and no processes, so it is not described
+        pqs = await self.paginator.paginate_queryset(algorithms, request, view=self)
 
         if request.accepted_renderer.format == "html":
             context = await super()._prepare_many_context()
@@ -242,7 +280,7 @@ class ManageProcessViewSet(GeoramaManagerWithPermissionsViewSet):
             return Response(context, template_name=template_name)
 
 
-class ProcessViewSet(GeoramaObjPermViewSetReadOnly):
+class ProcessViewSet(ProcessDescriptionMixin, GeoramaObjPermViewSetReadOnly):
     queryset = Process.objects.all()
     serializer_class = ProcessSerializer
     required_obj_perms = [
@@ -266,15 +304,25 @@ class ProcessViewSet(GeoramaObjPermViewSetReadOnly):
         breadcrumbs[0].view_name = reverse("processes:api-landing")
         return breadcrumbs
 
+    async def afilter_queryset(self, queryset):
+        queryset = await super().afilter_queryset(queryset)
+        process_descriptions = await self.aprocess_descriptions()
+        return queryset.filter(
+            algorithm_id__in=[
+                process_description.id for process_description in process_descriptions.processes
+            ]
+        )
+
     async def alist(self, request: GeoramaDrfRequest, *args, **kwargs):
         if request.accepted_renderer.format == "html":
             return await super().alist(request, *args, **kwargs)
 
         queryset = await self.afilter_queryset(self.get_queryset())
         page = await self.apaginate_queryset(queryset)
-        processes = []
-        async for process in page if page is not None else queryset:
-            processes.append(process.dataclass)
+        if page is None:
+            page = [process async for process in queryset]
+            await self.describe(page)
+        processes = [process.dataclass for process in page]
 
         links = [
             Link(
@@ -317,7 +365,7 @@ class ProcessViewSet(GeoramaObjPermViewSetReadOnly):
     @action(detail=True, methods=["get", "post"], url_name="execution", url_path="execution")
     async def execution(self, request: GeoramaDrfRequest, *args, **kwargs):
         context = await self._prepare_single_context()
-        context["form"] = context["object"].qsl_algorithm_params_html_form
+        context["form"] = context["object"].inputs_html_form
         if request.method == "GET":
             if request.accepted_renderer.format == "html":
                 return Response(context, template_name=self.execute_template_name)
