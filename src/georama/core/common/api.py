@@ -319,10 +319,13 @@ class GeoramaTemplateViewSet(
              The remote actions filtered by the before mentioned criteria.
         """
         remote_actions = get_remote_action(self.queryset.model)
-        if self.request.META.get("GR-Src"):
-            # call came from another app, we filter for only the fitting ones:
+        source_app_label = self.request.headers.get("GR-Src")
+        if source_app_label:
+            # call came from another app, we filter for only the ones it registered:
             remote_actions = [
-                ra for ra in remote_actions if ra.name == self.request.resolver_match.app_name
+                ra
+                for ra in remote_actions
+                if apps.get_containing_app_config(ra.origin).label == source_app_label
             ]
         remote_actions = [
             ra
