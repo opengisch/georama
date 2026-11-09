@@ -42,7 +42,7 @@ class Process(models.Model):
         verbose_name = f"{_('Process')}"
         verbose_name_plural = f"{_('Processes')}"
         permissions = [
-            ("can_manage_object_permissions", "Can manage object permissions"),
+            ("manage_object_permissions", "Can manage object permissions"),
             ("execute_process", "Can execute process"),
         ]
 
