@@ -140,9 +140,10 @@ class ManageProcessViewSet(GeoramaManagerWithPermissionsViewSet):
         filters.OrderingFilter,
         DjangoFilterBackend,
     ]
-    search_fields = ["id"]
-    ordering_fields = ["id"]
+    search_fields = ["algorithm_id"]
+    ordering_fields = ["algorithm_id"]
     filterset_fields = []
+    algorithm_attribute_by_ordering_field = {"algorithm_id": "id"}
 
     permissions_serializer_class = ProcessObjectPermissionSerializer
     permissions_action_serializer_class = ProcessPermissionActionSerializer
@@ -197,22 +198,24 @@ class ManageProcessViewSet(GeoramaManagerWithPermissionsViewSet):
 
     @action(detail=False, methods=["get"], url_path="non_published")
     async def non_published(self, request: GeoramaDrfRequest, *args, **kwargs):
-        published_process_ids = set(
-            await sync_to_async(list)(Process.objects.values_list("id", flat=True))
+        published_algorithm_ids = set(
+            await sync_to_async(list)(self.get_queryset().values_list("algorithm_id", flat=True))
         )
 
         search = request.query_params.get("search", "")
         algorithms = [
             algorithm
             for algorithm in qsl_available_processes.algorithms
-            if algorithm.id not in published_process_ids
+            if algorithm.id not in published_algorithm_ids
             and (not search or search in algorithm.name.lower())
         ]
         ordering_filter = filters.OrderingFilter()
         ordering = ordering_filter.get_ordering(request, algorithms, self) or []
         for ordering_field in reversed(ordering):
             algorithms.sort(
-                key=attrgetter(ordering_field.removeprefix("-")),
+                key=attrgetter(
+                    self.algorithm_attribute_by_ordering_field[ordering_field.removeprefix("-")]
+                ),
                 reverse=ordering_field.startswith("-"),
             )
         pqs = await self.apaginate_queryset(algorithms)
@@ -250,8 +253,8 @@ class ProcessViewSet(GeoramaObjPermViewSetReadOnly):
         filters.OrderingFilter,
         DjangoFilterBackend,
     ]
-    search_fields = ["id"]
-    ordering_fields = ["id"]
+    search_fields = ["algorithm_id"]
+    ordering_fields = ["algorithm_id"]
     filterset_fields = []
 
     list_body_partial_template_name: str = "processes/drf/process/partials/list_body.html"
@@ -340,7 +343,7 @@ class ProcessViewSet(GeoramaObjPermViewSetReadOnly):
             ParameterInput(name=name, value=value) for name, value in form.cleaned_data.items()
         ]
         job_parameters = QslJobParameterExecuteProcess(
-            process_id=context["object"].pk,
+            process_id=context["object"].algorithm_id,
             parameters=parameters,
         )
         job = await Job.objects.acreate(

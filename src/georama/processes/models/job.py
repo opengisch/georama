@@ -43,7 +43,7 @@ class Job(models.Model):
         return OgcJob(
             type="process",
             job_id=str(self.pk),
-            process_id=str(self.process_id),
+            process_id=self.process.algorithm_id,
             status="accepted",
             message="Placeholder job status",
             progress=0,
