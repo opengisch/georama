@@ -20,6 +20,7 @@ from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     JobControlOptions,
     Link,
     ProcessBase,
+    ProcessDetail,
     TransmissionMode,
 )
 from georama.processes.managers.process import ProcessManager
@@ -141,6 +142,14 @@ class Process(models.Model):
                     title=gettext("Process execution"),
                 ),
             ],
+        )
+
+    @property
+    def detail_dataclass(self) -> ProcessDetail:
+        return ProcessDetail(
+            **vars(self.dataclass),
+            inputs=self.process_description.inputs,
+            outputs=self.process_description.outputs,
         )
 
 
