@@ -1,5 +1,6 @@
 from adrf import serializers
 from django.contrib.auth import get_user_model
+from rest_framework.exceptions import ValidationError
 
 from georama.core.common.serializers import (
     ObjectPermissionSerializer,
@@ -51,6 +52,19 @@ class ProcessSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "id": {"read_only": True},
         }
+
+    def get_extra_kwargs(self):
+        extra_kwargs = super().get_extra_kwargs()
+        if self.instance is not None:
+            extra_kwargs["algorithm_id"] = {"read_only": True}
+        return extra_kwargs
+
+    def validate_algorithm_id(self, value):
+        organisation = self.context["request"].georama_organisation
+        published = Process.objects.organisation_objects(organisation).filter(algorithm_id=value)
+        if published.exists():
+            raise ValidationError("Algorithm is already published in this organisation.")
+        return value
 
 
 class ProcessPermissionSerializer(serializers.Serializer):
