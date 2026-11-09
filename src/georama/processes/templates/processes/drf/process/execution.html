@@ -36,7 +36,6 @@
 
                     <form id="{{ object.id }}" method="post">
                         {% csrf_token %}
-                        {{ form.DISSOLVE. }}
                         <legend>{% trans 'Parameters' %}</legend>
                         {{ form|crispy }}
                     </form>
