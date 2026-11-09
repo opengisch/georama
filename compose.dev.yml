@@ -24,6 +24,9 @@ services:
       - ./:/app:cached
       - georama-venv:/home/appuser/.venv
       - georama-static:/georama/static
+  qsl-redis:
+    ports:
+      - "127.0.0.1:1234:6379"
 volumes:
   georama-venv:
   georama-static:
