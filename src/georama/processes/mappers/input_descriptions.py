@@ -1,6 +1,9 @@
 import logging
 
-from django.forms import fields, widgets
+from crispy_bootstrap5.bootstrap5 import Switch
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout
+from django.forms import fields, forms, widgets
 from qgis_server_light.interface.job.process.description import InputDescription, Schema
 
 
@@ -125,3 +128,16 @@ class HtmlInputMapper:
             raise ValueError(f"No mapping strategy for {input_description.schema.type}")
 
         return mapping_strategy().form_field(input_description, **context)
+
+    def form_class(self, input_descriptions: list[InputDescription]) -> type[forms.Form]:
+        attrs = {}
+        switch_fields = []
+        for input_description in input_descriptions:
+            field = self.map(input_description)
+            attrs[input_description.id] = field
+            if isinstance(field, fields.BooleanField):
+                switch_fields.append(Switch(input_description.id))
+        attrs["helper"] = FormHelper()
+        attrs["helper"].layout = Layout(*tuple(switch_fields))
+
+        return type("DynamicParamsForm", (forms.Form,), attrs)

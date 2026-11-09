@@ -1,11 +1,8 @@
 import uuid
 
-from crispy_bootstrap5.bootstrap5 import Switch
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.forms import fields, forms
+from django.forms import forms
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -26,7 +23,7 @@ from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     TransmissionMode,
 )
 from georama.processes.managers.process import ProcessManager
-from georama.processes.mappers.parameter_types import HtmlInputMapper
+from georama.processes.mappers.input_descriptions import HtmlInputMapper
 
 User = get_user_model()
 
@@ -99,19 +96,7 @@ class Process(models.Model):
 
     @property
     def inputs_html_form(self) -> type[forms.Form]:
-        mapper = HtmlInputMapper()
-        attrs = {}
-        switch_fields = []
-        for input_description in self.process_description.inputs:
-            field = mapper.map(input_description)
-            attrs[input_description.id] = field
-            if isinstance(field, fields.BooleanField):
-                switch_fields.append(Switch(input_description.id))
-        attrs["helper"] = FormHelper()
-        attrs["helper"].layout = Layout(*tuple(switch_fields))
-
-        form = type("DynamicParamsForm", (forms.Form,), attrs)
-        return form
+        return HtmlInputMapper().form_class(self.process_description.inputs)
 
     @property
     def title(self) -> str:
