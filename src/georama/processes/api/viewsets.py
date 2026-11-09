@@ -164,6 +164,9 @@ class ManageProcessViewSet(GeoramaManagerWithPermissionsViewSet):
             return redirect(reverse(self.url_name_list))
         return response
 
+    async def perform_acreate(self, serializer):
+        await serializer.asave(organisation=self.request.georama_organisation)
+
     @property
     async def bread_crumb_action_context(self):
         """Prepares the breadcrumb action to add a project.
@@ -367,7 +370,7 @@ class ProcessViewSet(GeoramaObjPermViewSetReadOnly):
 
 class ManageJobViewSet(GeoramaManagerViewSet):
     queryset = Job.objects.all()
-    serializer_class = ProcessSerializer
+    serializer_class = JobSerializer
     required_obj_perms = []
     filter_backends = [
         filters.SearchFilter,
