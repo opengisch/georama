@@ -1,0 +1,10 @@
+{% extends 'core/drf/default/partials/list_body.html' %}
+{% load static i18n %}
+{% block list_item_title %}
+    {{ item.title }}
+{% endblock %}
+{% block list_item_pills_additional %}
+    {% include "integration/drf/datasource/includes/pills/driver.html" with datasource=item.datasource %}
+{% endblock %}
+{% block list_item_image %}
+{% endblock %}

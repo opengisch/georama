@@ -6,7 +6,9 @@ from georama.processes.api.viewsets import (
     JobViewSet,
     LandingView,
     ManageJobViewSet,
+    ManageProcessInputViewSet,
     ManageProcessViewSet,
+    ProcessInputViewSet,
     ProcessViewSet,
 )
 
@@ -15,10 +17,14 @@ app_name = "processes"
 management_router = routers.SimpleRouter()
 management_router.register(r"processes", ManageProcessViewSet, basename="process-manager")
 management_router.register(r"jobs", ManageJobViewSet, basename="job-manager")
+management_router.register(
+    r"process_inputs", ManageProcessInputViewSet, basename="process-input-manager"
+)
 
 router = routers.SimpleRouter()
 router.register(r"processes", ProcessViewSet, basename="process")
 router.register(r"jobs", JobViewSet, basename="job")
+router.register(r"process_inputs", ProcessInputViewSet, basename="process-input")
 
 urlpatterns = [
     path("", include(router.urls)),

@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 from qgis_server_light.interface.job.process.description import ProcessDescriptions
 from qgis_server_light.interface.job.process.input import (
     ParameterInput,
@@ -16,7 +17,7 @@ from qgis_server_light.interface.job.process.input import (
 )
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotAcceptable, ValidationError
+from rest_framework.exceptions import NotAcceptable, PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -25,15 +26,21 @@ from xsdata.formats.dataclass.serializers import DictEncoder
 from georama.core.common.api import (
     GeoramaManagerViewSet,
     GeoramaManagerWithPermissionsViewSet,
+    GeoramaModelPermissions,
     GeoramaObjPermViewSetReadOnly,
 )
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
+from georama.integration.models import Datasource
 from georama.processes.api.serializers import (
     JobSerializer,
+    ProcessInputObjectPermissionSerializer,
+    ProcessInputPermissionActionSerializer,
+    ProcessInputSerializer,
     ProcessObjectPermissionSerializer,
     ProcessPermissionActionSerializer,
     ProcessSerializer,
+    PublishFromDatasourceInput,
 )
 from georama.processes.apps import qsl_redis_queue, qsl_redis_state_queue
 from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
@@ -48,6 +55,7 @@ from georama.processes.interface.ogc_api.processes.part1.v_100.serializers impor
 )
 from georama.processes.models.job import Job
 from georama.processes.models.process import Process
+from georama.processes.models.process_input import ProcessInput
 
 User = get_user_model()
 
@@ -421,6 +429,100 @@ class ProcessViewSet(ProcessDescriptionMixin, GeoramaObjPermViewSetReadOnly):
                 )
             },
         )
+
+
+class ManageProcessInputViewSet(GeoramaManagerWithPermissionsViewSet):
+    queryset = ProcessInput.objects.all()
+    serializer_class = ProcessInputSerializer
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend,
+    ]
+    search_fields = ["datasource__name"]
+    ordering_fields = ["datasource__name", "public"]
+    filterset_fields = []
+    list_body_partial_template_name = "processes/drf/process_input/partials/list_body.html"
+
+    permissions_serializer_class = ProcessInputObjectPermissionSerializer
+    permissions_action_serializer_class = ProcessInputPermissionActionSerializer
+
+    async def get_breadcrumbs(self):
+        breadcrumbs = await super().get_breadcrumbs()
+        breadcrumbs[0].view_name = reverse("processes:api-landing")
+        return breadcrumbs
+
+    @property
+    async def bread_crumb_action_context(self):
+        """Prepares the breadcrumb action to publish a datasource as process input.
+
+        Returns:
+            The context with an action to publish a datasource in case the user has
+            add-permission on the process input model and is permitted to view datasources.
+        """
+        context = {}
+
+        perm_checker = GeoramaModelPermissions()
+        # post is the DRF method which is used for add/create a new object
+        local_perms = perm_checker.get_required_permissions("POST", self.queryset.model)
+        # we also check if the remote data can be used (view)
+        remote_perms = perm_checker.get_required_permissions("GET", Datasource)
+        if all(
+            [
+                await self.request.user.ahas_perms(local_perms),
+                await self.request.user.ahas_perms(remote_perms),
+            ]
+        ):
+            context["breadcrumb_action"] = BreadcrumbAction(
+                url=reverse("integration:manager-datasource-list"),
+                tooltip=_("Publish a Datasource as process input"),
+                hint=_("Select a Datasource to publish it as a new process input"),
+                title=_("Process input"),
+                type=ActionType.EMBEDDED,
+                icon="fa fa-circle-plus",
+            )
+        return context
+
+    @extend_schema(
+        description="Publishes a datasource as process input, meaning, processes can be "
+        "executed with it as layer input. Publishing a datasource twice keeps the existing "
+        "process input.",
+        request=PublishFromDatasourceInput,
+    )
+    @action(detail=False, methods=["post"], url_path="publish_from_datasource")
+    async def publish_from_datasource(self, request: GeoramaDrfRequest, *args, **kwargs):
+        perms = await self._get_model_permissions()
+        if perms["can_add"]:
+            pfdi = PublishFromDatasourceInput(data=request.data)
+            pfdi.is_valid(raise_exception=True)
+            qs = Datasource.objects.organisation_objects(request.georama_organisation)
+            datasource: Datasource = await qs.aget(id=pfdi.validated_data["pk"])
+            await ProcessInput.objects.aget_or_create(datasource=datasource)
+            return redirect(reverse(self.url_name_list))
+        else:
+            raise PermissionDenied()
+
+
+class ProcessInputViewSet(GeoramaObjPermViewSetReadOnly):
+    queryset = ProcessInput.objects.all()
+    serializer_class = ProcessInputSerializer
+    required_obj_perms = [
+        "processes.use_as_process_input",
+    ]
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend,
+    ]
+    search_fields = ["datasource__name"]
+    ordering_fields = ["datasource__name", "public"]
+    filterset_fields = []
+    list_body_partial_template_name = "processes/drf/process_input/partials/list_body.html"
+
+    async def get_breadcrumbs(self):
+        breadcrumbs = await super().get_breadcrumbs()
+        breadcrumbs[0].view_name = reverse("processes:api-landing")
+        return breadcrumbs
 
 
 class ManageJobViewSet(GeoramaManagerViewSet):

@@ -12,4 +12,10 @@
         </li>
         {% endfor %}
     </ul>
+    <h4>{% trans 'Georama' %}:</h4>
+    <ul>
+        <li>
+            <a href="{% url 'processes:process-input-list' %}">{% trans 'Process inputs' %}</a>
+        </li>
+    </ul>
 {% endblock %}
