@@ -12,7 +12,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from qgis_server_light.interface.job.common.input import ExecutionMode
 from qgis_server_light.interface.job.process.description import ProcessDescriptions
-from qgis_server_light.interface.job.process.input import QslJobParameterExecuteProcess
+from qgis_server_light.interface.job.process.input import (
+    OutputFormat,
+    QslJobParameterExecuteProcess,
+)
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotAcceptable, PermissionDenied, ValidationError
@@ -335,6 +338,7 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
     list_body_partial_template_name: str = "processes/drf/process/partials/list_body.html"
     show_template_name = "processes/drf/process/detail.html"
     execute_template_name = "processes/drf/process/execution.html"
+    output_form_prefix = "outputs"
 
     async def get_breadcrumbs(self):
         breadcrumbs = await super().get_breadcrumbs()
@@ -403,6 +407,7 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
     async def execution(self, request: GeoramaDrfRequest, *args, **kwargs):
         context = await self._prepare_single_context()
         context["form"] = context["object"].inputs_html_form
+        context["output_form"] = context["object"].outputs_html_form(prefix=self.output_form_prefix)
         if request.method == "GET":
             if request.accepted_renderer.format == "html":
                 return Response(context, template_name=self.execute_template_name)
@@ -412,23 +417,44 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
         is_html = request.accepted_renderer.format == "html"
         if is_html:
             form = context["form"](request.POST)
+            output_form = context["object"].outputs_html_form(
+                request.POST, prefix=self.output_form_prefix
+            )
         else:
             inputs = request.data.get("inputs")
             if not isinstance(inputs, dict):
                 raise ValidationError({"inputs": _("Expected an object of process inputs.")})
             form = context["form"](data=inputs)
+            output_form = context["object"].outputs_html_form(
+                data=self.media_type_by_output_id(request.data.get("outputs", {}))
+            )
+            if unknown_output_ids := set(output_form.data) - set(output_form.fields):
+                raise ValidationError(
+                    {"outputs": _("Unknown outputs: %s") % ", ".join(sorted(unknown_output_ids))}
+                )
 
-        if not form.is_valid():
+        inputs_valid = form.is_valid()
+        outputs_valid = output_form.is_valid()
+        if not (inputs_valid and outputs_valid):
             if is_html:
                 context["form"] = form
+                context["output_form"] = output_form
                 return Response(context, template_name=self.execute_template_name, status=400)
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+            errors = dict(form.errors)
+            if output_form.errors:
+                errors["outputs"] = output_form.errors
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
         process: Process = context["object"]
         parameters = await self.layer_input_mapper.amap_parameter_inputs(
             self.served_process_descriptions.process_by_id(process.algorithm_id),
             form.cleaned_data,
         )
+        output_formats = [
+            OutputFormat(name=name, media_type=media_type)
+            for name, media_type in output_form.cleaned_data.items()
+            if media_type
+        ]
         created_at = timezone.now()
         # Georama runs in autocommit, the row is committed when `acreate` returns. So the
         # job is only submitted afterwards and a worker never sees a job without its row.
@@ -443,6 +469,7 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
         job_parameter = QslJobParameterExecuteProcess(
             process_id=process.algorithm_id,
             parameters=parameters,
+            output_formats=output_formats,
         )
 
         if is_html:
@@ -469,6 +496,21 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
             )
         # the job did not finish in time, the client continues as if it asked for async
         return self.job_status_response(request, job)
+
+    @staticmethod
+    def media_type_by_output_id(outputs) -> dict[str, str]:
+        if not isinstance(outputs, dict):
+            raise ValidationError({"outputs": _("Expected an object of process outputs.")})
+        try:
+            return {
+                output_id: output["format"]["mediaType"]
+                for output_id, output in outputs.items()
+                if "format" in output
+            }
+        except (KeyError, TypeError) as e:
+            raise ValidationError(
+                {"outputs": _("Expected format.mediaType for each output with a format.")}
+            ) from e
 
     @staticmethod
     def prefers_async(request: GeoramaDrfRequest) -> bool:

@@ -38,6 +38,10 @@
                         {% csrf_token %}
                         <legend>{% trans 'Parameters' %}</legend>
                         {{ form|crispy }}
+                        {% if output_form.fields %}
+                            <legend>{% trans 'Output formats' %}</legend>
+                            {{ output_form|crispy }}
+                        {% endif %}
                     </form>
 
 

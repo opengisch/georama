@@ -4,7 +4,11 @@ from crispy_bootstrap5.bootstrap5 import Switch
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
 from django.forms import fields, forms, widgets
-from qgis_server_light.interface.job.process.description import InputDescription, Schema
+from qgis_server_light.interface.job.process.description import (
+    InputDescription,
+    OutputDescription,
+    Schema,
+)
 
 
 class BaseStrategy:
@@ -141,3 +145,29 @@ class HtmlInputMapper:
         attrs["helper"].layout = Layout(*tuple(switch_fields))
 
         return type("DynamicParamsForm", (forms.Form,), attrs)
+
+
+class HtmlOutputFormatMapper:
+    """Offers the formats of the file outputs of a process as choice, the formats are the
+    `oneOf` entries with `contentMediaType` of the output schema. Without a choice the
+    worker writes the first offered format.
+    """
+
+    def map(self, output_description: OutputDescription) -> fields.ChoiceField:
+        media_types = [schema.content_media_type for schema in output_description.schema.one_of]
+        return fields.ChoiceField(
+            label=output_description.title,
+            initial=media_types[0],
+            required=False,
+            choices={media_type: media_type for media_type in media_types},
+        )
+
+    def form_class(self, output_descriptions: list[OutputDescription]) -> type[forms.Form]:
+        attrs = {
+            output_description.id: self.map(output_description)
+            for output_description in output_descriptions
+            if output_description.schema.one_of is not None
+        }
+        attrs["helper"] = FormHelper()
+        attrs["helper"].form_tag = False
+        return type("DynamicOutputFormatsForm", (forms.Form,), attrs)

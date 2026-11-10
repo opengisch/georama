@@ -24,7 +24,10 @@ from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     TransmissionMode,
 )
 from georama.processes.managers.process import ProcessManager
-from georama.processes.mappers.input_descriptions import HtmlInputMapper
+from georama.processes.mappers.input_descriptions import (
+    HtmlInputMapper,
+    HtmlOutputFormatMapper,
+)
 
 User = get_user_model()
 
@@ -98,6 +101,10 @@ class Process(models.Model):
     @property
     def inputs_html_form(self) -> type[forms.Form]:
         return HtmlInputMapper().form_class(self.process_description.inputs)
+
+    @property
+    def outputs_html_form(self) -> type[forms.Form]:
+        return HtmlOutputFormatMapper().form_class(self.process_description.outputs)
 
     @property
     def title(self) -> str:
