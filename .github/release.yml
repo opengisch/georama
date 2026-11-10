@@ -16,6 +16,9 @@ changelog:
     - title: WebGis changes
       labels:
         - webgis
+    - title: QGIS-Server-Light changes
+      labels:
+        - qsl-bump
     - title: Dependency Changes
       labels:
         - dependencies

@@ -38,5 +38,12 @@
 # Screenshots / Evidence (if applicable)
 <!-- If your changes affect the UI, please include screenshots or a short recording demonstrating the fix. -->
 
+# QGIS-Server-Light
+<!-- Only if relevant -->
+Counterpart: opengisch/qgis-server-light#
+
+- [ ] Depends on an unreleased QSL change (label `needs-qsl-release`)
+- [ ] QSL pin bumped in `pyproject.toml` and both `compose.yml` images (label `qsl-bump`)
+
 # Related Issues
 <!-- Link any related issues here (e.g., Closes #123) -->

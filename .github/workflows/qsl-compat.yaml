@@ -1,0 +1,54 @@
+name: QSLCompatibility
+on:
+  # early warning before a QSL release, also for QSL changes without impact label
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      qsl-ref:
+        description: QSL ref the suite runs against, e.g. main, v26.2 or refs/pull/<n>/head
+        default: main
+        type: string
+permissions:
+  contents: read
+jobs:
+  test-qsl:
+    name: Test georama on QSL sources
+    runs-on: ubuntu-latest
+    # builds georama and the QSL dev image (QGIS included), more than the 10 minutes of test.yaml
+    timeout-minutes: 30
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      # side by side and not nested, so neither checkout ends up in the build context of the other
+      - name: Checkout georama
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: georama
+      - name: Checkout QGIS-Server-Light
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: opengisch/qgis-server-light
+          # a schedule has no inputs
+          ref: ${{ inputs.qsl-ref || 'main' }}
+          path: qgis-server-light
+      - name: Prepare Build Environment
+        working-directory: georama
+        # same as test.yaml, plus the local qsl sources override
+        run: |
+          cp .env.example .env
+          echo "COMPOSE_FILE=compose.yml:compose.dev.yml:compose.dev_with_qsl.yml" >> .env
+          echo "LOCAL_QSL_SOURCES=${GITHUB_WORKSPACE}/qgis-server-light" >> .env
+          echo "UID=$(id -u)" >> .env
+          echo "GID=$(id -g)" >> .env
+          cat .env
+      - name: Build Georama and QGIS-Server-Light Images
+        working-directory: georama
+        run: |
+          docker compose build georama qsl-worker qsl-exporter
+      - name: Start Docker composition
+        working-directory: georama
+        run: docker compose up -d
+      - name: Run tests
+        working-directory: georama
+        run: docker compose exec georama uv run pytest
