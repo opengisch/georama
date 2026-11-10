@@ -6,7 +6,7 @@ item: the instance the action applies to, used to show how many objects the acti
 {% endcomment %}
 
 <form id="{{ action.name }}-{{ pk }}"
-      class="form-remote-action btn-group"
+      class="form-item-action btn-group"
       action="{{ action.target }}"
       method="post">
     {% csrf_token %}
