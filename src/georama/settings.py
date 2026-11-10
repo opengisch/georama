@@ -222,8 +222,15 @@ class Base(Configuration):
     OIDC_SECRET = values.Value("secret", environ_prefix=GEORAMA_ENV_PREFIX)
     OIDC_PROVIDER_ID = values.Value("keycloak", environ_prefix=GEORAMA_ENV_PREFIX)
 
+    # switches the local username/password form on the login page, when off only the
+    # identity provider buttons are shown (as long as at least one provider exists)
+    LOGIN_LOCAL_FORM_ENABLED = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+
     @property
     def SOCIALACCOUNT_PROVIDERS(self):
+        if not self.OIDC_SERVER_URL:
+            # without a server url the provider can't work, so we don't offer it at all
+            return {}
         return {
             "openid_connect": {
                 "OAUTH_PKCE_ENABLED": self.OIDC_OAUTH_PKCE_ENABLED,
