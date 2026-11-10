@@ -3,10 +3,6 @@
 action: georama.core.common.remote_actions.RemoteAction
 pk: the primary key which the form should be sent to
 item: the instance the action applies to, used to show how many objects the action created
-
-The submit button is rendered inside its own <form>, and the form itself carries the
-`btn-group` class. This way the form acts as the button-group wrapper, so the action
-button is styled and aligned like the other buttons in the row.
 {% endcomment %}
 
 <form id="{{ action.name }}-{{ pk }}"
