@@ -20,6 +20,13 @@ class CoreConfig(GeoramaAbstractConfig):
 
     @staticmethod
     def warn_about_login_without_provider():
+        """Warns at start when the local login form is switched off but no identity
+        provider is configured. The login page then shows the local form anyway, the
+        operator should know that the setting has no effect.
+
+        Since Georama runs with uvicorn/gunicorn, the django system checks (which only
+        run with manage.py commands) wouldn't be seen, so this is a plain log warning.
+        """
         # we can only see the identity provider from the settings here, SocialApps from
         # the database are not available while the apps are loaded
         if settings.LOGIN_LOCAL_FORM_ENABLED or settings.OIDC_SERVER_URL:

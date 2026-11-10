@@ -38,6 +38,23 @@ the `georama-oidc` client (see [Testing authentication](#testing-authentication)
     A standalone GeoGirafe serves its own certificate, see its README. Keycloak is still
     served with the certificate of the stack.
 
+## Login page
+
+The login page (`/login/`) shows the local username/password form and below it one
+button per configured OpenID Connect provider.
+
+Setups where everyone signs in through the provider can hide the local form with
+`GEORAMA_LOGIN_LOCAL_FORM_ENABLED=false`
+(see [Environment Variables](../environment.md)).
+The page then only shows the provider buttons and refuses a submitted local login (HTTP
+405).
+
+- If no provider is configured, the local form is shown anyway, so nobody is locked
+  out. Georama logs a warning at start about this combination.
+- Local accounts, e.g. administrators, sign in at `/admin/login/`. It stays reachable on
+  every organisation, also on organisations without public access. The session is valid
+  for the whole site afterwards.
+
 ## Starting the stack
 
 - Boot the stack with `docker compose up -d`
@@ -69,7 +86,7 @@ Check that Keycloak is running:
 ### Backend
 
 - Visit http://localhost:4242/login/
-- You should see an alternative option "Keycloak" at the bottom
+- You should see a button "Keycloak" below the form
 - Click on it, you should be redirected to the Keycloak "Ninjas" Realm
 - Log in with the user `fred.flintstone` and password `fred`
 - You should be redirected back to Georama and be logged in as `fred.flintstone`

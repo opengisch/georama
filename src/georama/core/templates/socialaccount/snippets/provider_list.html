@@ -1,3 +1,7 @@
+{% comment %}
+    Overrides allauth's provider list to render one button per identity provider.
+    Only OpenID Connect providers are installed, so they all get the OpenID icon.
+{% endcomment %}
 {% load socialaccount %}
 {% get_providers as socialaccount_providers %}
 {% if socialaccount_providers %}
