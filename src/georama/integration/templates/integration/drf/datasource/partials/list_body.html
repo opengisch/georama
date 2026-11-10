@@ -17,9 +17,3 @@
 {% block list_item_image %}
     <i class="{{ item.icon }} text-primary" style="width: 1.5em;"></i>
 {% endblock %}
-
-{% block list_item_actions %}
-    {% for action in remote_actions %}
-        {% include 'core/drf/default/includes/buttons/remote_action.html' with action=action pk=item.pk %}
-    {% endfor %}
-{% endblock %}
