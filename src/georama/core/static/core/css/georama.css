@@ -366,7 +366,7 @@ Landing Page Mind map
 }
 
 /* Button nested in (unvisible) remote action form */
-.btn-group > form.form-remote-action.btn-group {
+.btn-group > form.form-item-action.btn-group {
     > .btn {
         border-radius: var(--bs-btn-border-radius);
     }

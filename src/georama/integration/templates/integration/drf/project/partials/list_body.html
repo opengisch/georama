@@ -21,7 +21,7 @@
     {{ item.path }}
 {% endblock %}
 
-{% block list_item_actions %}
+{% block list_item_native_actions %}
     <!-- We know already that the user can view the item-->
     {% blocktranslate asvar title %}
         Show item details
@@ -42,7 +42,4 @@
     {% if can_delete %}
         {% include "integration/drf/project/includes/buttons/unlink.html" with project=item %}
     {% endif %}
-    {% for action in remote_actions %}
-        {% include 'core/drf/default/includes/buttons/remote_action.html' with action=action pk=item.pk %}
-    {% endfor %}
 {% endblock %}
