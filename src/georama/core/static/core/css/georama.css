@@ -364,3 +364,21 @@ Landing Page Mind map
         width: 360px;
     }
 }
+
+/* Button nested in (unvisible) remote action form */
+.btn-group > form.form-remote-action.btn-group {
+    > .btn {
+        border-radius: var(--bs-btn-border-radius);
+    }
+
+    &:not(:last-child) > .btn {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    &:not(:first-child) > .btn {
+        margin-left: 0;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+}

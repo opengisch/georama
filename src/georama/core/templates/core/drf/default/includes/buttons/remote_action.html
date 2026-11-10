@@ -4,27 +4,29 @@ action: georama.core.common.remote_actions.RemoteAction
 pk: the primary key which the form should be sent to
 item: the instance the action applies to, used to show how many objects the action created
 {% endcomment %}
+
 <form id="{{ action.name }}-{{ pk }}"
+      class="form-remote-action btn-group"
       action="{{ action.target }}"
       method="post">
     {% csrf_token %}
     <input id="{{ pk }}" name="pk"
            value="{{ pk }}"
            hidden>
+    <button form="{{ action.name }}-{{ pk }}"
+            type="submit"
+            class="btn btn-outline-primary position-relative"
+            role="button"
+            title="{{ action.help_text }}"
+            aria-label="{{ action.help_text }}"
+            data-bs-toggle="tooltip">
+        {% if action.icon_classes %}
+            <i class="{{ action.icon_classes }}"></i>
+        {% endif %}
+        {{ action.name }}
+        {% remote_action_count action item as count %}
+        {% if count %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-primary">{{ count }}</span>
+        {% endif %}
+    </button>
 </form>
-<button form="{{ action.name }}-{{ pk }}"
-        type="submit"
-        class="btn btn-outline-primary position-relative"
-        role="button"
-        title="{{ action.help_text }}"
-        aria-label="{{ action.help_text }}"
-        data-bs-toggle="tooltip">
-    {% if action.icon_classes %}
-        <i class="{{ action.icon_classes }}"></i>
-    {% endif %}
-    {{ action.name }}
-    {% remote_action_count action item as count %}
-    {% if count %}
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-primary">{{ count }}</span>
-    {% endif %}
-</button>

@@ -1,5 +1,5 @@
 {% load static i18n %}
-<div class="p-4 pb-0 overflow-auto flex-grow-1">
+<div class="pt-4 overflow-auto flex-grow-1">
     {% block list %}
         {% if object_list|length == 0 %}
             <div class="fs-1 fw-bold text-center">
@@ -22,7 +22,7 @@
 
                                     {% endblock %}
                                 </div>
-                                <div class="d-flex flex-column flex-grow-1 justify-content-around">
+                                <div class="d-flex flex-column flex-grow-1 justify-content-around text-break">
                                     {% block list_item_title_and_name %}
 
                                         <h4 class="mb-2">
@@ -44,7 +44,7 @@
                                         </div>
                                     {% endblock %}
                                 </div>
-                                <div class="align-content-center ms-auto">
+                                <div class="align-content-center ms-auto flex-shrink-0">
                                     <div class="btn-group mr-2"
                                          role="group"
                                          aria-label="Feature actions">
@@ -128,4 +128,3 @@
         {% endif %}
     {% endblock %}
 </div>
-
