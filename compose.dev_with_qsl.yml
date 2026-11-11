@@ -12,6 +12,16 @@ services:
         read_only: true
         bind:
           create_host_path: false
+    # healthy as soon as the entrypoint swapped the locked qsl for the mounted sources,
+    # until then the venv holds the locked version or none at all (mid install)
+    # it does not depend on the started service, so it works with DEV_AUTOSTART=0 too
+    healthcheck:
+      test: >-
+        $$UV_PROJECT_ENVIRONMENT/bin/python -c
+        "import qgis_server_light; assert qgis_server_light.__file__.startswith('$$DEV_QSL_SOURCES/')"
+      interval: 1s
+      timeout: 5s
+      retries: 120
   qsl-worker:
     image: local/qsl-worker:dev
     environment:
