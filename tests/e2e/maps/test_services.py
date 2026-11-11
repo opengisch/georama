@@ -143,3 +143,8 @@ class TestOgcService:
         assert ["geometry"] + [
             f.name for f in global_wms_layer_public_queryable.datasource.vector.fields.all()
         ] == [e.name for e in schema.complex_types[0].complex_content.extension.sequence.elements]
+
+    @pytest.mark.django_db
+    def test_ows_without_trailing_slash(self, client, global_wms_layer_public_queryable):
+        response = client.get("/maps/ows?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0")
+        assert response.status_code == 200

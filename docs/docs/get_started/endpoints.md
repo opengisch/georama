@@ -9,8 +9,8 @@ development stack on `http://localhost:4242`.
 
 | Endpoint     | Service                   | URL                                      | Trailing slash |
 | ------------ | ------------------------- | ---------------------------------------- | -------------- |
-| Maps         | WMS 1.3.0                 | <http://localhost:4242/maps/ows/>        | **required**   |
-| WebGIS       | WMS 1.3.0 (for GeoGirafe) | <http://localhost:4242/webgis/ows/>      | **required**   |
+| Maps         | WMS 1.3.0                 | <http://localhost:4242/maps/ows>         | **optional**   |
+| WebGIS       | WMS 1.3.0 (for GeoGirafe) | <http://localhost:4242/webgis/ows>       | **optional**   |
 | Features     | OGC API - Features        | <http://localhost:4242/features/api>     | **none**       |
 
 !!! warning "Trailing slash"
