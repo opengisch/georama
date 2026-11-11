@@ -542,7 +542,7 @@ msgstr "Administration"
 
 #: georama/core/templates/core/index.html
 msgid "Admin Panel"
-msgstr "Administration"
+msgstr "Panneau d'administration"
 
 #: georama/core/templates/core/index.html
 msgid "Manage data sources, users, and permissions."
@@ -562,7 +562,7 @@ msgstr "Intégrez des couches tuilées avec des requêtes standard."
 
 #: georama/core/templates/core/index.html
 msgid "WMS Capabilities"
-msgstr "Capacités WMS"
+msgstr "Capabilities  WMS"
 
 #: georama/core/templates/core/index.html
 msgid "OAPIF Features"
