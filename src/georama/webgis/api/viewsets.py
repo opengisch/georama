@@ -2,7 +2,9 @@ from django.apps import apps
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
+from django.views.decorators.gzip import gzip_page
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
@@ -173,6 +175,7 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
         )
 
     @action(detail=False, methods=["GET"], renderer_classes=[renderers.JSONRenderer])
+    @method_decorator(gzip_page)
     async def geogirafe(self, request: GeoramaDrfRequest, *args, **kwargs):
         qs = await self.public_or_object_permission(self.get_queryset())
 
