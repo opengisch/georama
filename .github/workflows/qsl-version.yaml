@@ -3,33 +3,21 @@ on:
   push:
     branches:
       - "**"
-  # release.yml calls the guard before the image is published and reads the version for the release notes
+  # release.yml calls the guard before the image is published
   workflow_call:
-    outputs:
-      version:
-        description: the pinned QSL release, e.g. v26.1
-        value: ${{ jobs.qsl-version.outputs.version }}
+    inputs:
+      require-release:
+        description: fail when the pin is a QSL PR and not a release
+        default: false
+        type: boolean
 jobs:
   qsl-version:
     name: Test the three QSL pin spots agree
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    outputs:
-      version: ${{ steps.pin.outputs.version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Compare package and image pins
-        id: pin
-        # package and images have to come from one QSL release, the interface is the contract on the queue
-        run: |
-          package=$(grep -oP 'qgis-server-light\.git@v\K[^"]+' pyproject.toml || true)
-          worker=$(grep -oP 'opengisch/qgis-server-light:\K[^"\s]+(?=-worker)' compose.yml || true)
-          exporter=$(grep -oP 'opengisch/qgis-server-light:\K[^"\s]+(?=-exporter)' compose.yml || true)
-          echo "pyproject.toml package: ${package}"
-          echo "compose.yml worker:     ${worker}"
-          echo "compose.yml exporter:   ${exporter}"
-          if [ -z "${package}" ] || [ "${package}" != "${worker}" ] || [ "${package}" != "${exporter}" ]; then
-            echo "::error::the QSL pin differs, pyproject.toml @v${package}, compose.yml ${worker}-worker / ${exporter}-exporter"
-            exit 1
-          fi
-          echo "version=v${package}" >> "${GITHUB_OUTPUT}"
+        # package and images have to come from one QSL release or one QSL PR, the interface is the contract on the queue
+        # on main a QSL PR pin slipped past qsl-release-gate.yaml, e.g. by a bypass, so it fails there too
+        run: python3 .github/scripts/qsl_pin.py ${{ (inputs.require-release || github.ref == 'refs/heads/main') && '--require-release' || '' }}

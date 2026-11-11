@@ -44,10 +44,12 @@ jobs:
     needs: check
     uses: ./.github/workflows/migrations.yaml
 
-  # a release never states a QSL pin that isn't consistent
+  # a release never states a QSL pin that isn't consistent or isn't a QSL release
   qsl-version:
     needs: check
     uses: ./.github/workflows/qsl-version.yaml
+    with:
+      require-release: true
 
   docker-image-release:
     runs-on: ubuntu-latest
@@ -112,35 +114,8 @@ jobs:
       - name: Write QGIS-Server-Light compatibility
         env:
           GH_TOKEN: ${{ github.token }}
-          QSL_VERSION: ${{ needs.qsl-version.outputs.version }}
         # answers "which QSL do I run with this georama", links every QSL release skipped on the way
-        run: |
-          qsl_releases="https://github.com/opengisch/qgis-server-light/releases/tag"
-          {
-            echo "## QGIS-Server-Light"
-            echo
-            echo "Runs with QSL [${QSL_VERSION}](${qsl_releases}/${QSL_VERSION}):"
-            echo "- \`opengisch/qgis-server-light:${QSL_VERSION#v}-worker\`"
-            echo "- \`opengisch/qgis-server-light:${QSL_VERSION#v}-exporter\`"
-            echo
-          } > qsl-compatibility.md
-
-          previous=$(git describe --tags --abbrev=0 --match 'v*' "${GITHUB_REF_NAME}^" 2>/dev/null || true)
-          previous_pin=""
-          if [ -n "${previous}" ]; then
-            previous_pin=$(git show "${previous}:pyproject.toml" | grep -oP 'qgis-server-light\.git@\Kv[^"]+' || true)
-          fi
-          if [ -n "${previous_pin}" ] && [ "${previous_pin}" != "${QSL_VERSION}" ]; then
-            # QSL releases after the previous pin up to the new one, version ordered
-            skipped=$(gh release list --repo opengisch/qgis-server-light --exclude-drafts --limit 100 --json tagName --jq '.[].tagName' \
-              | sort -V \
-              | awk -v from="${previous_pin}" -v to="${QSL_VERSION}" '$0 == from { after = 1; next } after { print } $0 == to { exit }' \
-              | sed "s|.*|[&](${qsl_releases}/&)|" \
-              | paste -sd ',' - | sed 's/,/, /g')
-            echo "QSL changed since georama ${previous} (QSL ${previous_pin}): ${skipped}." >> qsl-compatibility.md
-            echo >> qsl-compatibility.md
-          fi
-          cat qsl-compatibility.md
+        run: python3 .github/scripts/qsl_release_note.py --tag "${GITHUB_REF_NAME}" --output qsl-compatibility.md
 
       - name: Create GitHub release
         env:
