@@ -1,0 +1,12 @@
+{% load i18n %}
+{% blocktranslate asvar title %}
+    The algorithm is not served by any process-worker. The process can't be executed
+    and is hidden from the public process list.
+{% endblocktranslate %}
+<span
+        class="badge rounded-pill text-bg-danger"
+        data-bs-toggle="tooltip"
+        title="{{ title }}"
+        aria-label="{{ title }}">
+                stale
+</span>

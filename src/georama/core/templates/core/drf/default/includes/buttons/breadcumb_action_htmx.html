@@ -1,10 +1,14 @@
 {% load i18n %}
-<li class="breadcrumb-item breadcrumb-action">
+{% comment %}
+hx-headers sits on the list item so the embedded list in the modal inherits it as well.
+This way searching, ordering and paging in the modal keep telling the source app.
+{% endcomment %}
+<li class="breadcrumb-item breadcrumb-action"
+    hx-headers='{"GR-Src": "{{ request.resolver_match.app_name }}"}'>
     <span data-bs-toggle="modal" data-bs-target="#remoteActionModal">
         <button type="button" class="btn btn-primary"
                 hx-target="#list_partial_modal" hx-get="{{ breadcrumb_action.url }}"
                 hx-trigger="click"
-                hx-headers='{"GR-Src": "{{ request.resolver_match.app_name }}"}'
                 hx-push-url="false"
                 data-bs-toggle="tooltip"
                 title="{{ breadcrumb_action.tooltip }}"
