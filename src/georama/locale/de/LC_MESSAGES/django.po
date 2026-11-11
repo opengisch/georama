@@ -542,7 +542,7 @@ msgstr "Administration"
 
 #: georama/core/templates/core/index.html
 msgid "Admin Panel"
-msgstr "Administration"
+msgstr "Administrationspanel"
 
 #: georama/core/templates/core/index.html
 msgid "Manage data sources, users, and permissions."
