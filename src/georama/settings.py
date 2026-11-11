@@ -164,6 +164,7 @@ class Base(Configuration):
         "django.contrib.messages",
         "django.contrib.staticfiles",
         "django.contrib.gis",
+        "drf_redesign",
         "rest_framework",
         "rest_framework_gis",
         "drf_spectacular",

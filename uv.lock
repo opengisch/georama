@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -647,6 +647,19 @@ wheels = [
 ]
 
 [[package]]
+name = "drf-redesign"
+version = "0.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "djangorestframework" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8e/e0/b343c2497300271655cc8878b6609acedcb43b623887a7df2e1a34623be2/drf_redesign-0.6.0.tar.gz", hash = "sha256:5762977db99d81e5a3539c2bad671d5738e93d8e946013c479a7c5e8f9e51d47", size = 13720, upload-time = "2025-08-30T05:42:02.475Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9c/05/25a2ec0e316892d77e7ca046d5b532c6c1632c14415ea0c3514b663cb415/drf_redesign-0.6.0-py3-none-any.whl", hash = "sha256:c86104ed9cbf2401a2a94967b982edcb93a76ab7be2196f2f088924109000ca5", size = 36105, upload-time = "2025-08-30T05:42:01.148Z" },
+]
+
+[[package]]
 name = "drf-spectacular"
 version = "0.29.0"
 source = { registry = "https://pypi.org/simple" }
@@ -767,6 +780,7 @@ dependencies = [
     { name = "django-unfold" },
     { name = "djangorestframework" },
     { name = "djangorestframework-gis" },
+    { name = "drf-redesign" },
     { name = "drf-spectacular", extra = ["sidecar"] },
     { name = "gdal" },
     { name = "geoalchemy2" },
@@ -826,6 +840,7 @@ requires-dist = [
     { name = "django-unfold", specifier = ">=0.96.0" },
     { name = "djangorestframework", specifier = ">=3.17.1" },
     { name = "djangorestframework-gis", specifier = ">=1.2.1" },
+    { name = "drf-redesign", specifier = ">=0.6.0" },
     { name = "drf-spectacular", extras = ["sidecar"], specifier = ">=0.29.0" },
     { name = "gdal", specifier = "==3.10.3" },
     { name = "geoalchemy2", specifier = ">=0.20.0" },

@@ -78,7 +78,7 @@
                           action="{% block form_action_url %}{% url view.url_name_update object.pk %}{% endblock %}"
                           method="post">
                         {% csrf_token %}
-                        {% render_form serializer %}
+                        {% render_form serializer template_pack='rest_framework/horizontal' %}
                     </form>
 
                 </div>
