@@ -17,6 +17,16 @@
                     aria-label="{{ title }}">
                 {{ title }}
             </button>
+
+            {% blocktranslate asvar title %}Cancel{% endblocktranslate %}
+            <a href="{% url view.url_name_show object.pk %}"
+               onclick="history.back(); return false;"
+               class="btn btn-outline-secondary" role="button"
+               data-bs-toggle="tooltip"
+               title="{{ title }}"
+               aria-label="{{ title }}">
+                <i class="fa fa-xmark"></i>
+            </a>
         </div>
     </div>
     {% csrf_token %}
