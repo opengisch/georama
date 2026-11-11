@@ -19,4 +19,5 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Compare package and image pins
         # package and images have to come from one QSL release or one QSL PR, the interface is the contract on the queue
-        run: python3 .github/scripts/qsl_pin.py ${{ inputs.require-release && '--require-release' || '' }}
+        # on main a QSL PR pin slipped past qsl-release-gate.yaml, e.g. by a bypass, so it fails there too
+        run: python3 .github/scripts/qsl_pin.py ${{ (inputs.require-release || github.ref == 'refs/heads/main') && '--require-release' || '' }}

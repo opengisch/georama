@@ -4,11 +4,12 @@ on:
   pull_request:
     branches:
       - main
-    types: [ opened, reopened, synchronize ]
+    # a draft may pin a QSL PR, so the check re-runs when the draft state changes
+    types: [ opened, reopened, synchronize, ready_for_review, converted_to_draft ]
 permissions:
   contents: read
 jobs:
-  # a georama PR may run on a QSL PR, it reaches main only once that QSL change is released and pinned
+  # a georama PR may run on a QSL PR as a draft, it is ready only once that QSL change is released and pinned
   qsl-release:
     name: QSL pin is a release
     runs-on: ubuntu-latest
@@ -16,4 +17,4 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Check the QSL pin is a release
-        run: python3 .github/scripts/qsl_pin.py --require-release
+        run: python3 .github/scripts/qsl_pin.py ${{ !github.event.pull_request.draft && '--require-release' || '' }}

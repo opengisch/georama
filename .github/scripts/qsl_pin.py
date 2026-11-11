@@ -112,12 +112,12 @@ class QslPinSpots:
                 f"the QSL pin differs, pyproject.toml @{self.package_ref} expects {expected}, "
                 f"compose.yml has {found}"
             )
-        # a QSL PR pin is fine on a georama PR branch, main and releases run released QSL only
-        if require_release and isinstance(pin, QslPullRequest):
-            raise QslPinError(
-                f"pinned to QSL PR opengisch/qgis-server-light#{pin.version}, "
-                "release QSL and bump the pin to it"
-            )
+        # a QSL PR pin is fine on a draft or a branch, main and releases run released QSL only
+        if isinstance(pin, QslPullRequest):
+            pinned = f"pinned to QSL PR opengisch/qgis-server-light#{pin.version}"
+            if require_release:
+                raise QslPinError(f"{pinned}, release QSL and bump the pin to it")
+            print(f"::notice::{pinned}, it has to become a QSL release before the merge")
         return pin
 
 
