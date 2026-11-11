@@ -193,6 +193,24 @@ class TestOrganisationMiddleware:
         assert response.status_code == status.HTTP_200_OK
 
     @pytest.mark.django_db
+    def test_middleware_allows_everyone_access_admin_login(
+        self,
+        settings,
+        organisation_non_public_access,
+    ):
+        # local accounts always need a way in, also when the login page shows only
+        # provider buttons, so the admin login is never redirected to the login page
+        settings.ORGANISATION_GLOBAL_PUBLIC_ACCESS = False
+        path = reverse("admin:login")
+        client = Client()
+        response = client.get(path, SERVER_NAME="localhost")
+        assert response.status_code == status.HTTP_200_OK
+        response = client.get(
+            path, SERVER_NAME=f"{organisation_non_public_access.domain}.localhost"
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.django_db
     def test_middleware_allows_everyone_access_configured_bypass(
         self,
         organisation_public_access,

@@ -1,0 +1,16 @@
+{% comment %}
+    Overrides allauth's provider list to render one button per identity provider.
+    Only OpenID Connect providers are installed, so they all get the OpenID icon.
+{% endcomment %}
+{% load socialaccount %}
+{% get_providers as socialaccount_providers %}
+{% if socialaccount_providers %}
+    <div class="d-grid gap-2 mt-4">
+        {% for provider in socialaccount_providers %}
+            {% provider_login_url provider process=process scope=scope auth_params=auth_params as href %}
+            <a class="btn btn-outline-secondary" title="{{ provider.name }}" href="{{ href }}">
+                <i class="fa-brands fa-openid me-2"></i>{{ provider.name }}
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}

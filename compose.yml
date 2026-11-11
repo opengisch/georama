@@ -6,6 +6,7 @@ services:
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
       - "GEORAMA_WEBGISURL=https://localhost:9309"
       - "GEORAMA_OIDC_SERVER_URL=http://keycloak:7080/realms/ninjas/.well-known/openid-configuration"
+      - "GEORAMA_LOGIN_LOCAL_FORM_ENABLED=${GEORAMA_LOGIN_LOCAL_FORM_ENABLED:-True}"
       - "GEORAMA_DATA_INTEGRATION_ROOT=/io/data"
       - "GEORAMA_DB_NAME=${GEORAMA_DB_NAME?}"
       - "GEORAMA_DB_USER=${GEORAMA_DB_USER?}"
