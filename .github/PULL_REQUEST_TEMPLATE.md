@@ -40,10 +40,10 @@
 
 # QGIS-Server-Light
 <!-- Only if relevant -->
-Counterpart: opengisch/qgis-server-light#
+QSL: opengisch/qgis-server-light#
 
-- [ ] Depends on an unreleased QSL change (label `needs-qsl-release`)
-- [ ] QSL pin bumped in `pyproject.toml` and both `compose.yml` images (label `qsl-bump`)
+- [ ] Pinned to an unreleased QSL PR (`@refs/pull/<n>/head` in `pyproject.toml`, `pr-<n>-worker` / `pr-<n>-exporter` in `compose.yml`), merged once it is released and the pin is bumped
+- [ ] QSL pin bumped to a release in `pyproject.toml` and both `compose.yml` images (label `qsl-bump`)
 
 # Related Issues
 <!-- Link any related issues here (e.g., Closes #123) -->

@@ -1,0 +1,143 @@
+"""Reads the QGIS-Server-Light pin of georama and checks its three spots agree.
+
+georama pins QSL in `pyproject.toml` (the package) and twice in `compose.yml` (the worker and
+exporter images). The interface is the contract on the queue, so all three have to name the same
+QSL state: a release (`@v26.1`, `26.1-worker`) or a QSL PR (`@refs/pull/40/head`, `pr-40-worker`).
+
+Standard library only, the workflow runs it with the python of the runner.
+"""
+
+import argparse
+import re
+import sys
+import tomllib
+from dataclasses import dataclass
+from pathlib import Path
+
+
+class QslPinError(Exception):
+    pass
+
+
+@dataclass
+class QslPin:
+    version: str
+
+    IMAGE = "opengisch/qgis-server-light"
+    PATTERN = ""
+
+    @staticmethod
+    def from_package_ref(ref: str) -> "QslPin":
+        """Evaluates the version number from either vX.XX or from refs/pull/xx/head."""
+        for pin_type in (QslRelease, QslPullRequest):
+            matched = re.fullmatch(pin_type.PATTERN, ref)
+            if matched:
+                return pin_type(version=matched.group(1))
+        raise QslPinError(
+            f"the QSL package pin @{ref} is neither a release (@vYY.N) "
+            "nor a QSL PR (@refs/pull/<n>/head)"
+        )
+
+    @property
+    def image_tag_prefix(self) -> str:
+        raise NotImplementedError
+
+    def image(self, variant: str) -> str:
+        return f"{self.IMAGE}:{self.image_tag_prefix}-{variant}"
+
+
+class QslRelease(QslPin):
+    PATTERN = r"(v[0-9][^/]*)"
+
+    @property
+    def image_tag_prefix(self) -> str:
+        return self.version.removeprefix("v")
+
+
+class QslPullRequest(QslPin):
+    PATTERN = r"refs/pull/([0-9]+)/head"
+
+    @property
+    def image_tag_prefix(self) -> str:
+        return f"pr-{self.version}"
+
+
+@dataclass
+class QslPinSpots:
+    package_ref: str
+    image_tags: dict[str, set[str]]
+
+    PACKAGE_URL = "github.com/opengisch/qgis-server-light.git@"
+    VARIANTS = ("worker", "exporter")
+    IMAGE_PATTERN = re.compile(rf"{QslPin.IMAGE}:([^\"\s]+)-(worker|exporter)\b")
+
+    @classmethod
+    def from_project(cls, root: Path) -> "QslPinSpots":
+        image_tags = {variant: set() for variant in cls.VARIANTS}
+        for prefix, variant in cls.IMAGE_PATTERN.findall((root / "compose.yml").read_text()):
+            image_tags[variant].add(prefix)
+        return cls(
+            package_ref=cls.package_ref_from_pyproject((root / "pyproject.toml").read_text()),
+            image_tags=image_tags,
+        )
+
+    @classmethod
+    def package_ref_from_pyproject(cls, pyproject: str) -> str:
+        dependencies = tomllib.loads(pyproject).get("project", {}).get("dependencies", [])
+        for dependency in dependencies:
+            if cls.PACKAGE_URL in dependency:
+                return dependency.split(cls.PACKAGE_URL, 1)[1]
+        raise QslPinError("no qgis-server-light git dependency in pyproject.toml")
+
+    @classmethod
+    def read_pin(cls, root: Path, require_release: bool = False) -> QslPin:
+        spots = cls.from_project(root)
+        print(f"pyproject.toml package: @{spots.package_ref}")
+        for variant in cls.VARIANTS:
+            print(f"compose.yml {variant}: {spots.describe(variant)}")
+        return spots.pin(require_release)
+
+    def describe(self, variant: str) -> str:
+        if not self.image_tags[variant]:
+            return f"no {variant} image"
+        return ", ".join(f"{tag}-{variant}" for tag in sorted(self.image_tags[variant]))
+
+    def pin(self, require_release: bool = False) -> QslPin:
+        pin = QslPin.from_package_ref(self.package_ref)
+        # several services may run the worker image, all of them have to name the pin
+        if any(self.image_tags[variant] != {pin.image_tag_prefix} for variant in self.VARIANTS):
+            expected = " / ".join(f"{pin.image_tag_prefix}-{variant}" for variant in self.VARIANTS)
+            found = " / ".join(self.describe(variant) for variant in self.VARIANTS)
+            raise QslPinError(
+                f"the QSL pin differs, pyproject.toml @{self.package_ref} expects {expected}, "
+                f"compose.yml has {found}"
+            )
+        # a QSL PR pin is fine on a georama PR branch, main and releases run released QSL only
+        if require_release and isinstance(pin, QslPullRequest):
+            raise QslPinError(
+                f"pinned to QSL PR opengisch/qgis-server-light#{pin.version}, "
+                "release QSL and bump the pin to it"
+            )
+        return pin
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument(
+        "--require-release",
+        action="store_true",
+        help="fail when the pin is a QSL PR and not a release",
+    )
+    parser.add_argument("--root", type=Path, default=Path.cwd(), help="the georama checkout")
+    arguments = parser.parse_args()
+    try:
+        pin = QslPinSpots.read_pin(arguments.root, arguments.require_release)
+    except QslPinError as error:
+        print(f"::error::{error}")
+        return 1
+    print(f"QSL pin agrees: {pin.image('worker')}, {pin.image('exporter')}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
