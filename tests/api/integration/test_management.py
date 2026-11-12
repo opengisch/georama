@@ -62,16 +62,16 @@ def server_name(organisation):
 
 ENDPOINTS = [
     # path, fixture of the listed instance, formats
-    ("/integration/manage/projects/", "organisation_project", MANAGER_FORMATS),
-    ("/integration/manage/datasources/", "organisation_vector", MANAGER_FORMATS),
-    ("/integration/manage/vector_datasources/", "organisation_vector", MANAGER_FORMATS),
+    ("/integration/manage/projects", "organisation_project", MANAGER_FORMATS),
+    ("/integration/manage/datasources", "organisation_vector", MANAGER_FORMATS),
+    ("/integration/manage/vector_datasources", "organisation_vector", MANAGER_FORMATS),
     (
-        "/integration/manage/vector_datasource_fields/",
+        "/integration/manage/vector_datasource_fields",
         "organisation_vector_field",
         ORGANISATIONAL_FORMATS,
     ),
-    ("/integration/manage/raster_datasources/", "organisation_raster", ORGANISATIONAL_FORMATS),
-    ("/integration/manage/custom_datasources/", "organisation_custom", ORGANISATIONAL_FORMATS),
+    ("/integration/manage/raster_datasources", "organisation_raster", ORGANISATIONAL_FORMATS),
+    ("/integration/manage/custom_datasources", "organisation_custom", ORGANISATIONAL_FORMATS),
 ]
 
 ENDPOINT_FORMATS = [
@@ -111,7 +111,7 @@ class TestRendering:
     ):
         instance = request.getfixturevalue(instance_fixture)
         response = organisation_admin_client.get(
-            f"{path}{instance.pk}/",
+            f"{path}/{instance.pk}",
             {"f": response_format},
             SERVER_NAME=server_name(organisation),
         )
@@ -122,7 +122,7 @@ class TestJsonRepresentation:
     @pytest.mark.django_db
     def test_project(self, organisation, organisation_admin_client, organisation_project):
         response = organisation_admin_client.get(
-            f"/integration/manage/projects/{organisation_project.pk}/",
+            f"/integration/manage/projects/{organisation_project.pk}",
             {"f": "json"},
             SERVER_NAME=server_name(organisation),
         )
@@ -131,10 +131,10 @@ class TestJsonRepresentation:
     @pytest.mark.parametrize(
         "path,instance_fixture",
         [
-            ("/integration/manage/datasources/", "organisation_vector"),
-            ("/integration/manage/vector_datasources/", "organisation_vector"),
-            ("/integration/manage/raster_datasources/", "organisation_raster"),
-            ("/integration/manage/custom_datasources/", "organisation_custom"),
+            ("/integration/manage/datasources", "organisation_vector"),
+            ("/integration/manage/vector_datasources", "organisation_vector"),
+            ("/integration/manage/raster_datasources", "organisation_raster"),
+            ("/integration/manage/custom_datasources", "organisation_custom"),
         ],
     )
     @pytest.mark.django_db
@@ -149,7 +149,7 @@ class TestJsonRepresentation:
     ):
         instance = request.getfixturevalue(instance_fixture)
         response = organisation_admin_client.get(
-            f"{path}{instance.pk}/",
+            f"{path}/{instance.pk}",
             {"f": "json"},
             SERVER_NAME=server_name(organisation),
         )
@@ -167,7 +167,7 @@ class TestJsonRepresentation:
         organisation_vector_field,
     ):
         response = organisation_admin_client.get(
-            f"/integration/manage/vector_datasource_fields/{organisation_vector_field.pk}/",
+            f"/integration/manage/vector_datasource_fields/{organisation_vector_field.pk}",
             {"f": "json"},
             SERVER_NAME=server_name(organisation),
         )
