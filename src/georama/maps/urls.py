@@ -1,5 +1,5 @@
 from adrf import routers
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.utils.translation import gettext as _
 from drf_spectacular import views
 
@@ -39,5 +39,5 @@ urlpatterns = [
         views.SpectacularRedocView.as_view(url_name="maps:schema"),
         name="redoc",
     ),
-    path("ows/", OgcServer.as_view(), name="maps_ogc_entry"),
+    re_path(r"ows/?$", OgcServer.as_view(), name="maps_ogc_entry"),
 ]

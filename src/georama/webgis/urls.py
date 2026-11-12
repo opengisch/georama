@@ -1,5 +1,5 @@
 from adrf.routers import DefaultRouter, SimpleRouter
-from django.urls import include, path
+from django.urls import include, path, re_path
 
 from georama.webgis.api.viewsets import ManageThemeViewSet, ThemeViewSet, UrlShortenerViewSet
 from georama.webgis.views.ogc import OgcServerWebGis
@@ -19,5 +19,5 @@ urlpatterns = [
     path("", include(router.urls)),
     path("", include(short_router.urls)),
     path("manage/", include(management_router.urls)),
-    path("ows/", OgcServerWebGis.as_view(), name="ows_entry"),
+    re_path(r"ows/?$", OgcServerWebGis.as_view(), name="ows_entry"),
 ]
