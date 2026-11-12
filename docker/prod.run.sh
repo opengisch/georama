@@ -8,6 +8,7 @@ exec /app/.venv/bin/gunicorn georama.asgi:application \
   --worker-class uvicorn_worker.UvicornWorker \
   --access-logfile - \
   --error-logfile - \
+  --no-control-socket \
   --timeout 120 \
   --graceful-timeout 30 \
   --keep-alive 5
