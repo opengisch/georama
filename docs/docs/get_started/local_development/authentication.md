@@ -69,6 +69,8 @@ switch the setting back on for the time being or use `manage.py changepassword` 
     limit it in front of Georama (e.g. a rate limit on the ingress) if it is reachable
     from the internet.
 
+    Superusers can't use HTTP Basic authentication.
+
 ### Signup
 
 Nobody can create a local account themselves (`/accounts/signup/` shows a "closed"

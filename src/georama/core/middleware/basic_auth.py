@@ -93,6 +93,10 @@ class BasicAuthenticationMiddleware:
             log.debug(msg)
             raise PermissionDenied(msg)
 
+        if user.is_superuser:
+            log.debug(_("Superusers can't use basic authentication."))
+            raise PermissionDenied(_("Invalid username/password."))
+
         return user, None
 
     def authenticate_header(self, request):
