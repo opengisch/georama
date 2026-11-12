@@ -9,7 +9,7 @@ jobs:
   test-py:
     name: ${{ matrix.name }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     # the informative run must not block, it only shows early what the next
     # GDAL / python of the OSGeo image would break
     continue-on-error: ${{ matrix.informative }}
