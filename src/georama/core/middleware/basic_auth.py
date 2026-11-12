@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from georama.core.common.login_attempts import LoginAttempts, TooManyLoginAttemptsError
@@ -26,6 +27,10 @@ class BasicAuthenticationMiddleware:
 
     def __call__(self, request: HttpRequest) -> HttpResponse:
         if request.path_info.startswith(settings.STATIC_URL):
+            return self.get_response(request)
+        if request.path_info == reverse("core:health"):
+            # the health has no user, touching request.user would load the session from
+            # the database, which might be down
             return self.get_response(request)
 
         if not request.user.is_authenticated:

@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.db import transaction
 from django.http import HttpRequest
+from django.urls import reverse
 
 from georama.core.middleware.authentication import MiddlewareAuthentication
 
@@ -76,6 +77,11 @@ class GeoGirafeAuthenticationMiddleware:
         Args:
             request: The django request which is intercepted
         """
+        if request.path_info == reverse("core:health"):
+            # the health has no user, touching request.user would load the session from
+            # the database, which might be down
+            return self.get_response(request)
+
         if request.user.is_authenticated:
             # User already has a session
             return self.get_response(request)
