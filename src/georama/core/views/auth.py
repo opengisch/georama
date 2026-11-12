@@ -13,8 +13,7 @@ class Login(LoginView):
 
     With `LOGIN_LOCAL_FORM_ENABLED` switched off, the page only shows the provider
     buttons and refuses the local login. It never locks everybody out though: as long
-    as no provider exists, the local form stays. Local accounts can always sign in
-    via the admin login.
+    as no provider exists, the local form stays.
     """
 
     template_name = "core/login.html"
@@ -65,7 +64,27 @@ class Login(LoginView):
 
 
 class AdminLogin(Login):
+    """The admin login of django, put under the same rule as the login page. Otherwise
+    it would be an open back door for passwords as soon as the local form is switched
+    off.
+
+    It borrows the decision from `Login`, so both pages always agree on whether a local
+    password is accepted.
+    """
+
     def dispatch(self, request, *args, **kwargs):
+        """Hands the request to the admin login as long as the local form is offered,
+        otherwise the admin is sent to the login page of Georama. The admin keeps the
+        page they wanted to reach, so after the provider login they end up there.
+
+        Args:
+            request: The django request.
+            *args: The positional arguments django passes through.
+            **kwargs: The keyword arguments django passes through.
+
+        Returns:
+            The response of the admin login or a redirect to the login page.
+        """
         if self.local_form_enabled():
             return admin.site.login(request)
         return redirect_to_login(
