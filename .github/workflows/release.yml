@@ -91,6 +91,9 @@ jobs:
             BUILD_COMMIT=${{ github.sha }}
           tags: |
             ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version }}
+          # the SBOM (BuildKit scanner, based on syft) is attached to the image as
+          # an attestation, the github release takes it over as asset
+          sbom: true
 
       # pre-releases (v26.0-beta.1) do not move latest
       - name: Tag Image as latest
@@ -105,11 +108,30 @@ jobs:
     needs: [ check, docker-image-release, qsl-version ]
     permissions:
       contents: write
+      packages: read
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract SBOM of the released image
+        # the very SBOM attested to the image, so the asset and the image never differ
+        run: >-
+          docker buildx imagetools inspect
+          "ghcr.io/${GITHUB_REPOSITORY}:${GITHUB_REF_NAME#v}"
+          --format '{{ json .SBOM.SPDX }}'
+          > "georama-${GITHUB_REF_NAME}.spdx.json"
 
       - name: Write QGIS-Server-Light compatibility
         env:
@@ -121,4 +143,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         # notes: the QSL compatibility first, then the PRs merged since the previous tag, grouped by .github/release.yml
-        run: gh release create "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --notes-file qsl-compatibility.md --generate-notes --verify-tag --prerelease=${{ needs.check.outputs.final != 'true' }}
+        run: gh release create "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --notes-file qsl-compatibility.md --generate-notes --verify-tag --prerelease=${{ needs.check.outputs.final != 'true' }} "georama-${GITHUB_REF_NAME}.spdx.json"
