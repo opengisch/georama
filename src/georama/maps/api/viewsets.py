@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -90,6 +91,14 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
             pfdi.is_valid()
             qs = Datasource.objects.organisation_objects(request.georama_organisation)
             ds: Datasource = await qs.aget(id=pfdi.validated_data["pk"])
+            if not ds.is_spatial:
+                messages.error(
+                    request,
+                    _("'{name}' has no geometry and can't be published as WMS.").format(
+                        name=ds.name
+                    ),
+                )
+                return redirect(reverse(self.url_name_list))
             md = Metadata(title=ds.name)
             await md.asave()
             fl = WmsLayer(datasource=ds, metadata=md, extent=ds.bbox, extent_wgs84=ds.bbox_wgs84)

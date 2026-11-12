@@ -16,6 +16,7 @@ from georama.core.common.managers import OrganisationalManager
 from georama.integration.models import Project
 from georama.maps.apps import central_app_label
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import WmsLayer as GGWmsLayer
 from georama.webgis.managers.theme import ThemeManager
 from georama.webgis.models.metadata import Metadata
 
@@ -25,11 +26,32 @@ class Theme(models.Model):
 
     PERMISSIONS = {
         "can_view": "view_published_theme",
+        "can_create": "create_objects_theme_vector_layer",
+        "can_update": "update_objects_theme_vector_layer",
+        "can_delete": "delete_objects_theme_vector_layer",
     }
 
     ACTION_MAP = {
         "grant": (True, [PERMISSIONS["can_view"]], "grant access"),
-        "revoke": (False, list(PERMISSIONS.values()), "revoke access"),
+        "allow_create": (
+            True,
+            [PERMISSIONS["can_view"], PERMISSIONS["can_create"]],
+            "allow create",
+        ),
+        "allow_update": (
+            True,
+            [PERMISSIONS["can_view"], PERMISSIONS["can_update"]],
+            "allow update",
+        ),
+        "allow_delete": (
+            True,
+            [PERMISSIONS["can_view"], PERMISSIONS["can_delete"]],
+            "allow delete",
+        ),
+        "prevent_create": (False, [PERMISSIONS["can_create"]], "prevent create"),
+        "prevent_update": (False, [PERMISSIONS["can_update"]], "prevent update"),
+        "prevent_delete": (False, [PERMISSIONS["can_delete"]], "prevent delete"),
+        "revoke": (False, list(PERMISSIONS.values()), "revoke all"),
     }
 
     class Meta:
@@ -41,6 +63,9 @@ class Theme(models.Model):
             ("manage_object_permissions", "Can manage object permissions"),
             # permission which is used for the object permission evaluation on the published themes
             ("view_published_theme", "Can view published theme"),
+            ("create_objects_theme_vector_layer", "Can create items on theme vector layer"),
+            ("delete_objects_theme_vector_layer", "Can delete items on theme vector layer"),
+            ("update_objects_theme_vector_layer", "Can update items on theme vector layer"),
         ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -94,6 +119,14 @@ class Theme(models.Model):
         if len(ggtheme.location) >= 2:
             params["map_x"], params["map_y"] = ggtheme.location[0], ggtheme.location[1]
         return f"{settings.WEBGISURL}?{urlencode(params)}"
+
+
+def set_editable(children, editable_ids: set[str]) -> None:
+    for child in children:
+        if hasattr(child, "children"):
+            set_editable(child.children, editable_ids)
+        elif isinstance(child, GGWmsLayer):
+            child.editable = child.id in editable_ids
 
 
 class UserManager(UserObjectPermissionManager, OrganisationalManager): ...
