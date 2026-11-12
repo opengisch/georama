@@ -19,8 +19,10 @@ class MapsConfig(GeoramaAbstractConfig):
     app_index_page = "maps:maplayer-list"
 
     def ready(self):
+        from georama.core.common.health import register_health_check
         from georama.core.common.remote_actions import RemoteAction, register_remote_action
         from georama.integration.models.datasource import Datasource
+        from georama.maps.health import QueueHealthCheck, WorkerHealthCheck
 
         super().ready()
         rma = RemoteAction(
@@ -33,3 +35,5 @@ class MapsConfig(GeoramaAbstractConfig):
             count_relation="wms_layers",
         )
         register_remote_action(Datasource, rma)
+        register_health_check(QueueHealthCheck())
+        register_health_check(WorkerHealthCheck())
