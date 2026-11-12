@@ -3,7 +3,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, viewsets
 
 from georama.core.api.serializers import (
-    FenceSerializer,
     GroupSerializer,
     MembershipSerializer,
     OrganisationSerializer,
@@ -12,7 +11,7 @@ from georama.core.api.serializers import (
 )
 from georama.core.common.api import IsSuperuser, OrganisationalModelViewSet
 from georama.core.forms.user import GeoramaUserForm
-from georama.core.models import Fence, GeoramaUser, Membership, Organisation
+from georama.core.models import GeoramaUser, Membership, Organisation
 
 
 class MembershipViewSet(OrganisationalModelViewSet):
@@ -27,22 +26,6 @@ class MembershipViewSet(OrganisationalModelViewSet):
     search_fields = []
     ordering_fields = []
     filterset_fields = []
-
-
-class FenceViewSet(OrganisationalModelViewSet):
-    queryset = Fence.objects.all()
-    permission_classes = [IsSuperuser]
-    serializer_class = FenceSerializer
-    filter_backends = [
-        filters.SearchFilter,
-        filters.OrderingFilter,
-        DjangoFilterBackend,
-    ]
-    search_fields = ["name"]
-    ordering_fields = ["name"]
-    filterset_fields = [
-        "name",
-    ]
 
 
 class OrganisationViewSet(viewsets.ModelViewSet):

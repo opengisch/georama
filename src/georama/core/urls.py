@@ -2,7 +2,6 @@ from adrf import routers
 from django.urls import include, path
 
 from georama.core.api.view_sets import (
-    FenceViewSet,
     GroupViewSet,
     MembershipViewSet,
     OrganisationViewSet,
@@ -19,7 +18,6 @@ management_router.register(r"users", UserViewSet)
 management_router.register(r"groups", GroupViewSet)
 management_router.register(r"permissions", PermissionViewSet)
 management_router.register(r"organisations", OrganisationViewSet)
-management_router.register(r"fences", FenceViewSet)
 management_router.register(r"memberships", MembershipViewSet)
 urlpatterns = [
     path("", Index.as_view(), name="index"),

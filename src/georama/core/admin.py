@@ -8,7 +8,6 @@ from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationFo
 
 from georama.core.common.admin import OrganisationalModelAdmin
 from georama.core.common.request import GeoramaHttpRequest
-from georama.core.models.fence import Fence
 from georama.core.models.membership import Membership
 from georama.core.models.organisation import Organisation
 
@@ -59,8 +58,3 @@ class MembershipAdmin(OrganisationalModelAdmin):
 class OrganisationAdmin(ModelAdmin):
     inlines = [MembershipInlineAdmin]
     list_display = ["name", "public_access"]
-
-
-@admin.register(Fence)
-class FenceAdmin(OrganisationalModelAdmin):
-    pass
