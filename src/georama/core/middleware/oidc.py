@@ -82,7 +82,7 @@ class GeoGirafeAuthenticationMiddleware:
         # login the user and assign a session cookie
         # so on subsequent requests request.user.is_authenticated is
         # True already.
-        login(request, user)
+        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
         return self.get_response(request)
 
@@ -179,13 +179,17 @@ class GeoGirafeAuthenticationMiddleware:
             #   - issuer (iss)
             #   - expire (exp)
             # More validation might be added when necessary.
-            return jwt.decode(
+            payload = jwt.decode(
                 token,
                 signing_key.key,
                 algorithms=["RS256"],
                 audience=settings.OIDC_CLIENT_ID,
                 issuer=self.oidc_config["issuer"],
             )
+            # the audience alone doesn't tell which client the token was issued to
+            if payload.get("azp") != settings.OIDC_CLIENT_ID:
+                raise jwt.InvalidTokenError("Token was not issued to this client")
+            return payload
         except jwt.ExpiredSignatureError as e:
             raise PermissionDenied("Token expired") from e
         except jwt.InvalidTokenError as e:
