@@ -20,7 +20,10 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 
+from georama.core.views.auth import AdminLogin
+
 urlpatterns = [
+    path("admin/login/", AdminLogin.as_view()),
     path("admin/", admin.site.urls),
     path("", include("georama.core.urls")),
     path("integration/", include("georama.integration.urls")),

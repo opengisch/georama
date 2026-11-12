@@ -49,11 +49,35 @@ Setups where everyone signs in through the provider can hide the local form with
 The page then only shows the provider buttons and refuses a submitted local login (HTTP
 405).
 
-- If no provider is configured, the local form is shown anyway, so nobody is locked
-  out. Georama logs a warning at start about this combination.
-- Local accounts, e.g. administrators, sign in at `/admin/login/`. It stays reachable on
-  every organisation, also on organisations without public access. The session is valid
-  for the whole site afterwards.
+The setting covers every place in the browser where a password is entered:
+
+- The admin login (`/admin/login/`) forwards to the login page and keeps the page that
+  was requested. Administrators sign in through the provider as well.
+- The login of django-allauth (`/accounts/login/`) refuses passwords. Its signup,
+  password reset and email pages are gone.
+
+If no provider is configured, both forms are shown anyway, so nobody is locked out.
+Georama logs a warning at start about this combination. When the provider is down,
+switch the setting back on for the time being or use `manage.py changepassword` /
+`manage.py createsuperuser` in the container.
+
+!!! note "HTTP Basic authentication"
+
+    Clients like QGIS send username and password with every request (HTTP Basic
+    authentication). This keeps working with the local form switched off, it does not
+    open a session. Georama has no protection against guessing passwords there, so
+    limit it in front of Georama (e.g. a rate limit on the ingress) if it is reachable
+    from the internet.
+
+    Superusers can't use HTTP Basic authentication.
+
+### Signup
+
+Nobody can create a local account themselves (`/accounts/signup/` shows a "closed"
+page). Accounts are created by an administrator or by the first login through the
+provider. To let people sign up, set `GEORAMA_LOGIN_LOCAL_SIGNUP_ENABLED=true` (see
+[Environment Variables](../environment.md)). With the local form switched off there is
+no signup at all.
 
 ## Starting the stack
 

@@ -221,15 +221,16 @@ same files.
 Georama can delegate the login to an OpenID Connect provider (e.g. Keycloak) through
 [django-allauth](https://docs.allauth.org/en/dev/socialaccount/providers/openid_connect.html).
 
-| Variable                           | Default        | Purpose                                                                                                                                                                                            |
-|------------------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `GEORAMA_OIDC_SERVER_URL`          | _unset_        | URL of the provider, e.g. `https://sso.example.com/realms/<realm>/.well-known/openid-configuration`. Set by `compose.yml` to the `keycloak` service. Without it the login page offers no provider. |
-| `GEORAMA_OIDC_CLIENT_ID`           | `georama-oidc` | Client id registered at the provider.                                                                                                                                                              |
-| `GEORAMA_OIDC_SECRET`              | `secret`       | Client secret. **Prod**: always set it to the real secret.                                                                                                                                         |
-| `GEORAMA_OIDC_NAME`                | `Keycloak`     | Name of the provider displayed on the login page.                                                                                                                                                  |
-| `GEORAMA_OIDC_PROVIDER_ID`         | `keycloak`     | Internal identifier of the provider, used in the callback URLs.                                                                                                                                    |
-| `GEORAMA_OIDC_OAUTH_PKCE_ENABLED`  | `true`         | Use PKCE for the authorization code flow.                                                                                                                                                          |
-| `GEORAMA_LOGIN_LOCAL_FORM_ENABLED` | `true`         | Show the local username/password form on the login page. With `false` only the provider buttons are shown, see [Login page](local_development/authentication.md#login-page).                       |
+| Variable                             | Default        | Purpose                                                                                                                                                                                            |
+|--------------------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `GEORAMA_OIDC_SERVER_URL`            | _unset_        | URL of the provider, e.g. `https://sso.example.com/realms/<realm>/.well-known/openid-configuration`. Set by `compose.yml` to the `keycloak` service. Without it the login page offers no provider. |
+| `GEORAMA_OIDC_CLIENT_ID`             | `georama-oidc` | Client id registered at the provider.                                                                                                                                                              |
+| `GEORAMA_OIDC_SECRET`                | `secret`       | Client secret. **Prod**: always set it to the real secret.                                                                                                                                         |
+| `GEORAMA_OIDC_NAME`                  | `Keycloak`     | Name of the provider displayed on the login page.                                                                                                                                                  |
+| `GEORAMA_OIDC_PROVIDER_ID`           | `keycloak`     | Internal identifier of the provider, used in the callback URLs.                                                                                                                                    |
+| `GEORAMA_OIDC_OAUTH_PKCE_ENABLED`    | `true`         | Use PKCE for the authorization code flow.                                                                                                                                                          |
+| `GEORAMA_LOGIN_LOCAL_FORM_ENABLED`   | `true`         | Accept local username/password logins in the browser. With `false` only the provider buttons are shown, also for the admin, see [Login page](local_development/authentication.md#login-page).      |
+| `GEORAMA_LOGIN_LOCAL_SIGNUP_ENABLED` | `false`        | Let people create a local account themselves, see [Signup](local_development/authentication.md#signup).                                                                                            |
 
 !!! note
 

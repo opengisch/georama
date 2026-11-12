@@ -226,6 +226,23 @@ class Base(Configuration):
     # identity provider buttons are shown (as long as at least one provider exists)
     LOGIN_LOCAL_FORM_ENABLED = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
 
+    # lets people create a local account themselves under /accounts/signup/
+    LOGIN_LOCAL_SIGNUP_ENABLED = values.BooleanValue(False, environ_prefix=GEORAMA_ENV_PREFIX)
+    ACCOUNT_ADAPTER = "georama.core.adapters.AccountAdapter"
+    SOCIALACCOUNT_ADAPTER = "georama.core.adapters.SocialAccountAdapter"
+
+    @property
+    def SOCIALACCOUNT_ONLY(self):
+        # allauth brings its own username/password login under /accounts/, with the
+        # local form switched off it has to go too
+        return not self.LOGIN_LOCAL_FORM_ENABLED
+
+    @property
+    def ACCOUNT_EMAIL_VERIFICATION(self):
+        # allauth refuses to start with SOCIALACCOUNT_ONLY and any other value than
+        # "none", otherwise we stay with allauth's default
+        return "none" if self.SOCIALACCOUNT_ONLY else "optional"
+
     @property
     def SOCIALACCOUNT_PROVIDERS(self):
         if not self.OIDC_SERVER_URL:
@@ -604,6 +621,7 @@ class Test(Base):
     ORGANISATION_DOMAIN = Dev.ORGANISATION_DOMAIN
     CORS_ALLOWED_ORIGINS = Dev.CORS_ALLOWED_ORIGINS
     CSRF_TRUSTED_ORIGINS = Dev.CSRF_TRUSTED_ORIGINS
+    LOGIN_LOCAL_FORM_ENABLED = True
 
 
 class Static(Base):

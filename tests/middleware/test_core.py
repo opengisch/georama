@@ -40,6 +40,27 @@ class TestBasicAuthMiddleware:
         )
         assert response.status_code == status.HTTP_200_OK
 
+    @pytest.mark.django_db
+    def test_basic_auth_refuses_superuser(self, admin_user, admin_user_name, admin_password):
+        middleware = BasicAuthenticationMiddleware(lambda _: HttpResponse("hello"))
+        # the superuser sends the right password
+        credentials = base64.b64encode(f"{admin_user_name}:{admin_password}".encode()).decode()
+        request = RequestFactory().get("/", HTTP_AUTHORIZATION=f"Basic {credentials}")
+        request.user = AnonymousUser()
+        right_password_response = middleware(request)
+        # we expect the superuser is not logged in
+        assert right_password_response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert request.user.is_anonymous
+
+        # someone guesses the password of the superuser and fails
+        credentials = base64.b64encode(f"{admin_user_name}:wrong-guess".encode()).decode()
+        request = RequestFactory().get("/", HTTP_AUTHORIZATION=f"Basic {credentials}")
+        request.user = AnonymousUser()
+        wrong_password_response = middleware(request)
+        # both answers are the same, so the guesser can't tell when the password was right
+        assert wrong_password_response.status_code == right_password_response.status_code
+        assert wrong_password_response.text == right_password_response.text
+
 
 class TestOrganisationMiddleware:
     @pytest.mark.django_db
@@ -198,8 +219,8 @@ class TestOrganisationMiddleware:
         settings,
         organisation_non_public_access,
     ):
-        # local accounts always need a way in, also when the login page shows only
-        # provider buttons, so the admin login is never redirected to the login page
+        # the admin login is reachable for everyone, also on organisations which are
+        # not public, otherwise nobody could log in there in the first place
         settings.ORGANISATION_GLOBAL_PUBLIC_ACCESS = False
         path = reverse("admin:login")
         client = Client()

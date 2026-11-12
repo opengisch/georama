@@ -3,6 +3,8 @@ from django.test import Client
 from django.urls import reverse
 from rest_framework import status
 
+from georama.core.adapters import SocialAccountAdapter
+
 
 @pytest.fixture
 def keycloak_provider():
@@ -104,3 +106,49 @@ class TestLogin:
         )
         assert response.status_code == status.HTTP_302_FOUND
         assert client.session["_auth_user_id"] == str(user.pk)
+
+
+class TestAdminLogin:
+    @pytest.mark.django_db
+    def test_redirects_to_login_page_when_local_form_is_hidden(self, settings, keycloak_provider):
+        settings.LOGIN_LOCAL_FORM_ENABLED = False
+        settings.SOCIALACCOUNT_PROVIDERS = keycloak_provider
+        # an admin wants to open the user list and is sent to the admin login first
+        response = Client().get("/admin/login/?next=/admin/core/user/", SERVER_NAME="localhost")
+        # the admin password form is no way around the hidden local form, the admin
+        # ends up on the login page of georama and keeps the way back to the user list
+        assert response.status_code == status.HTTP_302_FOUND
+        assert response.headers["Location"] == "/login/?next=/admin/core/user/"
+
+    @pytest.mark.parametrize("login_local_form_enabled", [True, False])
+    @pytest.mark.django_db
+    def test_admin_form_is_shown_without_provider(self, settings, login_local_form_enabled):
+        # without any provider the admin form stays, otherwise nobody gets in anymore
+        settings.LOGIN_LOCAL_FORM_ENABLED = login_local_form_enabled
+        settings.SOCIALACCOUNT_PROVIDERS = {}
+        response = Client().get("/admin/login/", SERVER_NAME="localhost")
+        assert response.status_code == status.HTTP_200_OK
+        assert 'name="password"' in response.text
+
+
+class TestSignup:
+    @pytest.mark.parametrize(
+        "login_local_signup_enabled, template",
+        [
+            (False, "account/signup_closed.html"),
+            (True, "account/signup.html"),
+        ],
+    )
+    @pytest.mark.django_db
+    def test_signup_page_follows_the_setting(self, settings, login_local_signup_enabled, template):
+        settings.LOGIN_LOCAL_SIGNUP_ENABLED = login_local_signup_enabled
+        response = Client().get(reverse("account_signup"), SERVER_NAME="localhost")
+        # allauth shows its "closed" page instead of the form as long as signup is off
+        assert response.status_code == status.HTTP_200_OK
+        assert template in [used.name for used in response.templates]
+
+    def test_identity_provider_can_still_create_users(self, settings, rf):
+        settings.LOGIN_LOCAL_SIGNUP_ENABLED = False
+        # with local signup closed, the first login through keycloak must still create
+        # the user, the identity provider decides who gets in
+        assert SocialAccountAdapter().is_open_for_signup(rf.get("/"), sociallogin=None)
