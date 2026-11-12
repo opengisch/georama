@@ -107,6 +107,16 @@ Check that Keycloak is running:
 - On that client is where you would configure additional allowed redirect URIs and CORS
   origins
 
+### Keycloak login page
+
+The realm uses the login theme `georama` from `keycloak/themes`, mounted into the
+container. It only adds the Georama logo to the default Keycloak theme and an optional
+hint under the login form. The hint is empty by default, add one in the admin console
+under Realm settings > Localization > Realm overrides with the key `georamaLoginHint`.
+With an existing `keycloak-db` volume the theme has to be selected once under Realm
+settings > Themes > Login theme. How Keycloak themes work is described in the
+[Keycloak theme documentation](https://www.keycloak.org/ui-customization/themes).
+
 ### Backend
 
 - Visit http://localhost:4242/login/

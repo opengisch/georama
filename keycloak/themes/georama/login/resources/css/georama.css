@@ -1,0 +1,14 @@
+/* Georama logo in the header, ratio of main_plain.svg (150 x 136) */
+:root {
+    --keycloak-logo-url: url('../img/logo.svg');
+    --keycloak-logo-height: 68px;
+    --keycloak-logo-width: 75px;
+}
+
+.georama-login-hint {
+    margin-block-start: var(--pf-v5-global--spacer--md);
+    padding-inline-start: var(--pf-v5-global--spacer--sm);
+    border-inline-start: 3px solid var(--keycloak-card-top-color);
+    color: var(--pf-v5-global--Color--200);
+    font-size: var(--pf-v5-global--FontSize--sm);
+}
