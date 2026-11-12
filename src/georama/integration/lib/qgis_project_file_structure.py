@@ -1,5 +1,4 @@
 import glob
-import hashlib
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -11,10 +10,6 @@ from django.conf import settings
 class QgisProject:
     path: Path
     organisation: str
-
-    @property
-    def config_format(self):
-        return "json"
 
     @property
     def name(self) -> str:
@@ -39,29 +34,6 @@ class QgisProject:
     @property
     def path_from_orga(self) -> Path:
         return self.project_path.relative_to(self.integration_root)
-
-    @property
-    def config_path(self) -> Path:
-        return Path(f"{self.project_path}.{self.config_format}")
-
-    @property
-    def config_path_from_root(self) -> Path:
-        return self.config_path.relative_to(self.root_path)
-
-    @property
-    def config_path_from_orga(self) -> Path:
-        return self.config_path.relative_to(self.integration_root)
-
-    @property
-    def has_config(self) -> bool:
-        return self.config_path.exists()
-
-    @property
-    def hash(self) -> str | None:
-        if self.has_config:
-            with open(self.config_path, mode="rb") as cf:
-                return hashlib.md5(cf.read()).hexdigest()
-        return None
 
     @property
     def exists(self):

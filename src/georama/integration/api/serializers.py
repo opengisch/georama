@@ -15,13 +15,14 @@ class ProjectSerializer(serializers.ModelSerializer):
             "qgis_version",
             "path",
             "organisation_id",
+            "integrated_at",
         ]
-        extra_kwargs = {"id": {"read_only": True}}
+        extra_kwargs = {"id": {"read_only": True}, "integrated_at": {"read_only": True}}
 
 
 class FileSystemProjectSerializer(serializers.Serializer):
-    project_path = serializers.CharField()
-    config_path = serializers.CharField()
+    project_path = serializers.CharField(read_only=True)
+    modification_date = serializers.DateTimeField(read_only=True)
 
 
 class DatasourceSerializer(serializers.ModelSerializer):

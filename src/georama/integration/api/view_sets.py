@@ -8,6 +8,7 @@ from django.conf import settings
 from django.http import Http404, HttpResponseServerError
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from qgis_server_light.interface.exporter.api import ExportResult
@@ -212,6 +213,7 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             project_db.config = DictEncoder().encode(project_json)
             project_db.name = project_json.project.name
             project_db.qgis_version = project_json.project.version
+            project_db.integrated_at = timezone.now()
             await project_db.asave()
 
             await self.integrate_project(project_db, project_json)
@@ -265,7 +267,7 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                     [
                         {
                             "project_path": p.path_from_orga,
-                            "config_path": p.config_path_from_orga if p.has_config else None,
+                            "modification_date": p.modification_date,
                         }
                         for p in pqs
                     ],
@@ -277,7 +279,7 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 [
                     {
                         "project_path": p.path_from_orga,
-                        "config_path": p.config_path_from_orga if p.has_config else None,
+                        "modification_date": p.modification_date,
                     }
                     for p in filtered_file_list
                 ],
