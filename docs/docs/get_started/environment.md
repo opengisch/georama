@@ -183,19 +183,20 @@ same files.
 
 ### Georama
 
-| Variable                                                   | Default                | Purpose                                                                                                                     |
-|------------------------------------------------------------|------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `GEORAMA_LOG_LEVEL`                                        | `INFO` (Dev: `DEBUG`)  | Log level of Georama (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`, case insensitive).                                   |
-| `GEORAMA_SITE_TITLE`                                       | `Georama`              | Title displayed in the templates.                                                                                           |
-| `GEORAMA_ORGANISATION_GLOBAL_PUBLIC_ACCESS`                | `true`                 | Whether the global organisation (the bare `GEORAMA_ORGANISATION_DOMAIN`) is accessible without being logged in.             |
-| `GEORAMA_ORGANISATION_NOT_AUTHENTICATED_TARGET`            | `core:login`           | Name of the view anonymous users are redirected to when they access a non public organisation.                              |
-| `GEORAMA_ORGANISATION_GLOBAL_PUBLIC_ACCESS_BYPASS_TARGETS` | _empty_                | Space separated view names skipped by the organisation middleware. **Use with caution**, it may expose data.                |
-| `GEORAMA_DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER`      | `global`               | Name of the global organisation folder inside `GEORAMA_DATA_INTEGRATION_ROOT`.                                              |
-| `GEORAMA_JOB_TIMEOUT`                                      | `1000`                 | Timeout of the rendering jobs sent to QSL through Redis, **_in seconds_**.                                                  |
-| `GEORAMA_WEBGIS_OGC_SERVER_NAME`                           | `georama.webgis`       | Name of the Georama OGC server in the `themes.json` served to GeoGirafe.                                                    |
-| `GEORAMA_LIST_PAGE_SIZES`                                  | `10 25 50 100 200 500` | Page sizes proposed in the lists of the user interface.                                                                     |
-| `GEORAMA_MAPS_OGC_OTHER_CRS`                               | `EPSG:3857 EPSG:4326`  | Space separated crs (e.g. EPSG codes) offered by the WFS of the maps app besides the layer crs (OtherCRS), resolved by QSL. |
-| `GEORAMA_WEBGIS_OGC_OTHER_CRS`                             | `EPSG:3857 EPSG:4326`  | Same as `GEORAMA_MAPS_OGC_OTHER_CRS` for the WFS of the webgis app.                                                         |
+| Variable                                                   | Default                                | Purpose                                                                                                                     |
+|------------------------------------------------------------|----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `GEORAMA_LOG_LEVEL`                                        | `INFO` (Dev: `DEBUG`)                  | Log level of Georama (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`, case insensitive).                                   |
+| `GEORAMA_SITE_TITLE`                                       | `Georama`                              | Title displayed in the templates.                                                                                           |
+| `GEORAMA_ORGANISATION_GLOBAL_PUBLIC_ACCESS`                | `true`                                 | Whether the global organisation (the bare `GEORAMA_ORGANISATION_DOMAIN`) is accessible without being logged in.             |
+| `GEORAMA_ORGANISATION_NOT_AUTHENTICATED_TARGET`            | `core:login`                           | Name of the view anonymous users are redirected to when they access a non public organisation.                              |
+| `GEORAMA_ORGANISATION_GLOBAL_PUBLIC_ACCESS_BYPASS_TARGETS` | _empty_                                | Space separated view names skipped by the organisation middleware. **Use with caution**, it may expose data.                |
+| `GEORAMA_DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER`      | `global`                               | Name of the global organisation folder inside `GEORAMA_DATA_INTEGRATION_ROOT`.                                              |
+| `GEORAMA_JOB_TIMEOUT`                                      | `1000`                                 | Timeout of the rendering jobs sent to QSL through Redis, **_in seconds_**.                                                  |
+| `GEORAMA_WEBGIS_OGC_SERVER_NAME`                           | `georama.webgis`                       | Name of the Georama OGC server in the `themes.json` served to GeoGirafe.                                                    |
+| `GEORAMA_LIST_PAGE_SIZES`                                  | `10 25 50 100 200 500`                 | Page sizes proposed in the lists of the user interface.                                                                     |
+| `GEORAMA_MAPS_OGC_OTHER_CRS`                               | `EPSG:3857 EPSG:4326`                  | Space separated crs (e.g. EPSG codes) offered by the WFS of the maps app besides the layer crs (OtherCRS), resolved by QSL. |
+| `GEORAMA_WEBGIS_OGC_OTHER_CRS`                             | `EPSG:3857 EPSG:4326`                  | Same as `GEORAMA_MAPS_OGC_OTHER_CRS` for the WFS of the webgis app.                                                         |
+| `GEORAMA_DOCUMENTATION_URL`                                | `https://opengisch.github.io/georama/` | Georama docs url which is used in the templates.                                                                            |
 
 ### Database Tuning
 

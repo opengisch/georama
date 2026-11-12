@@ -518,6 +518,10 @@ class Base(Configuration):
     )
     WEBGIS_BACKGROUND_THUMBNAIL_CRS = values.Value("EPSG:2056", environ_prefix=GEORAMA_ENV_PREFIX)
 
+    DOCUMENTATION_URL = values.Value(
+        "https://opengisch.github.io/georama/", environ_prefix=GEORAMA_ENV_PREFIX
+    )
+
 
 class Dev(Base):
     # SECURITY WARNING: don't run with debug turned on in production!
