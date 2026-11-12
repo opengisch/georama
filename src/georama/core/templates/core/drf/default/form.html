@@ -78,8 +78,21 @@
                           action="{% block form_action_url %}{% url view.url_name_update object.pk %}{% endblock %}"
                           method="post">
                         {% csrf_token %}
-                        {% render_form serializer %}
+                        {% render_form serializer template_pack='rest_framework/horizontal' %}
                     </form>
+
+                    <script>
+                        // drf-redesign renders help texts below the input, we move them into a tooltip on the input
+                        document.getElementById("{{ object.pk }}").querySelectorAll("small.text-muted").forEach(help => {
+                            const text = help.textContent.trim();
+                            if (/^Max \d+ characters$/.test(text)) return;
+                            const control = help.closest(".mb-4")?.querySelector("input, select, textarea");
+                            if (!control) return;
+                            control.title = text;
+                            new bootstrap.Tooltip(control);
+                            help.remove();
+                        });
+                    </script>
 
                 </div>
 
