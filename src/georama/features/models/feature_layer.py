@@ -28,26 +28,26 @@ class FeatureLayer(models.Model):
     }
 
     ACTION_MAP = {
-        "grant": (True, [PERMISSIONS["can_view"]], "grant access"),
+        "grant": (True, [PERMISSIONS["can_view"]], _("grant access")),
         "allow_create": (
             True,
             [PERMISSIONS["can_view"], PERMISSIONS["can_create"]],
-            "allow create",
+            _("allow create"),
         ),
         "allow_update": (
             True,
             [PERMISSIONS["can_view"], PERMISSIONS["can_update"]],
-            "allow update",
+            _("allow update"),
         ),
         "allow_delete": (
             True,
             [PERMISSIONS["can_view"], PERMISSIONS["can_delete"]],
-            "allow delete",
+            _("allow delete"),
         ),
-        "prevent_create": (False, [PERMISSIONS["can_create"]], "prevent create"),
-        "prevent_update": (False, [PERMISSIONS["can_update"]], "prevent update"),
-        "prevent_delete": (False, [PERMISSIONS["can_delete"]], "prevent delete"),
-        "revoke": (False, list(PERMISSIONS.values()), "revoke all"),
+        "prevent_create": (False, [PERMISSIONS["can_create"]], _("prevent create")),
+        "prevent_update": (False, [PERMISSIONS["can_update"]], _("prevent update")),
+        "prevent_delete": (False, [PERMISSIONS["can_delete"]], _("prevent delete")),
+        "revoke": (False, list(PERMISSIONS.values()), _("revoke all")),
     }
 
     class Meta:
@@ -65,10 +65,12 @@ class FeatureLayer(models.Model):
         ]
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the feature layer.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the feature layer."),
     )
 
-    public = models.BooleanField(default=False)
+    public = models.BooleanField(default=False, verbose_name=_("public"))
 
     datasource = models.ForeignKey(
         Vector,
@@ -76,16 +78,19 @@ class FeatureLayer(models.Model):
         related_query_name="feature_layer",
         on_delete=models.CASCADE,
         help_text=_("Datasource the feature layer points to."),
+        verbose_name=_("datasource"),
     )
     default_items = models.IntegerField(
         default=10,
         null=True,
         help_text=_("The default number of features that should be returned for the layer."),
+        verbose_name=_("default items"),
     )
     max_items = models.IntegerField(
         default=500,
         null=True,
         help_text=_("The maximum number of features that may be returned for the layer."),
+        verbose_name=_("maximum items"),
     )
     on_exceed = models.CharField(
         default="ERROR",
@@ -93,15 +98,17 @@ class FeatureLayer(models.Model):
         max_length=10,
         null=True,
         help_text=_(
-            "Whether the server should return an error or cap the value when more than"
+            "Whether the server should return an error or cap the value when more than "
             "max_items are requested"
         ),
+        verbose_name=_("on exceed"),
     )
     metadata = models.OneToOneField(
         Metadata,
         related_name="feature_layer",
         on_delete=models.CASCADE,
         help_text=_("Metadata of the feature layer."),
+        verbose_name=_("metadata"),
     )
     objects = FeatureLayerManager()
 

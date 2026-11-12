@@ -25,9 +25,11 @@ class Organisation(models.Model):
         verbose_name_plural = _("organisations")
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the organisation.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the organisation."),
     )
-    name = models.CharField(help_text=_("Name of the organisation."))
+    name = models.CharField(help_text=_("Name of the organisation."), verbose_name=_("name"))
     domain = models.CharField(
         unique=True,
         help_text=_("Domain used to identify the organisation."),
@@ -35,9 +37,12 @@ class Organisation(models.Model):
             RegexValidator(SUBDOMAIN_REGEX),
             validate_domain_name_not_global,
         ],
+        verbose_name=_("domain"),
     )
     public_access = models.BooleanField(
-        default=False, help_text=_("Whether anonymous users can access this organisation.")
+        default=False,
+        help_text=_("Whether anonymous users can access this organisation."),
+        verbose_name=_("public access"),
     )
 
     def __str__(self):

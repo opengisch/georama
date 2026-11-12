@@ -9,6 +9,7 @@ from georama.core.common.apps import GeoramaAbstractConfig
 
 class IntegrationConfig(GeoramaAbstractConfig):
     label = "integration"
+    verbose_name = _("Integration")
     name = "georama.integration"
     menu_order: int = 10
     description = _("Integrate your QGIS projects.")

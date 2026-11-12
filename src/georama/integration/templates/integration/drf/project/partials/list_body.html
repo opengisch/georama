@@ -23,7 +23,7 @@
 
 {% block list_item_native_actions %}
     <!-- We know already that the user can view the item-->
-    {% blocktranslate asvar title %}
+    {% blocktranslate asvar title trimmed %}
         Show item details
     {% endblocktranslate %}
     <a href="{% url view.url_name_show item.pk %}"

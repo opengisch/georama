@@ -1,7 +1,7 @@
 {% load i18n %}
 {% with url=theme.endpoint_url %}
     {% if url %}
-        {% blocktranslate asvar title %}
+        {% blocktranslate asvar title trimmed %}
             Open theme in WebGIS
         {% endblocktranslate %}
         <a href="{{ url }}"

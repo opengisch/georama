@@ -1,6 +1,6 @@
 {% if layer.is_queryable %}
     {% load i18n %}
-    {% blocktranslate asvar queryable_tooltip %}
+    {% blocktranslate asvar queryable_tooltip trimmed %}
         The layer supports WFS Queries
     {% endblocktranslate %}
     <span data-bs-toggle="tooltip"

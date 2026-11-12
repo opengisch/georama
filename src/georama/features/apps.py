@@ -9,6 +9,7 @@ from georama.features.features_config import Config
 
 class FeaturesConfig(GeoramaAbstractConfig):
     label = "features"
+    verbose_name = _("Features")
     name = "georama.features"
     menu_order: int = 10
     description = _("Share feature layers.")

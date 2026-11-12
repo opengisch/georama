@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from georama.integration.models import Custom, Raster, Vector
 from georama.integration.models.datasource import Datasource
@@ -33,17 +33,20 @@ class WmsLayer(WmsLayerAbstract):
         Datasource,
         related_name="webgis_wms_layers",
         on_delete=models.CASCADE,
+        verbose_name=_("datasource"),
     )
 
     metadata = models.OneToOneField(
         Metadata,
         related_name="webgis_wms_layers",
         on_delete=models.CASCADE,
+        verbose_name=_("metadata"),
     )
     theme = models.ForeignKey(
         "Theme",
         related_name="wms_layers",
         on_delete=models.CASCADE,
+        verbose_name=_("theme"),
     )
 
     objects = WmsLayerManager()

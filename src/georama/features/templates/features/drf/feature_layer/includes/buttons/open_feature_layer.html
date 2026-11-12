@@ -1,5 +1,5 @@
 {% load i18n %}
-{% blocktranslate asvar title %}
+{% blocktranslate asvar title trimmed %}
     Open collection endpoint
 {% endblocktranslate %}
 <a href="{% url 'features:api-collection-detail' layer.identifier %}"

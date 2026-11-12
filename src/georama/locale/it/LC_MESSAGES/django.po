@@ -1,0 +1,1374 @@
+# Georama translations.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Georama\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-09 14:43+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: georama/core/apps.py
+msgid "Core"
+msgstr "Nucleo"
+
+#: georama/core/apps.py
+msgid "The master app."
+msgstr "L'applicazione principale."
+
+#: georama/core/common/api.py
+msgid "searchable fields"
+msgstr "campi di ricerca"
+
+#: georama/core/common/api.py
+#, python-brace-format
+msgid "Switch to the management GUI of {model}."
+msgstr "Passa all'interfaccia di gestione di {model}."
+
+#: georama/core/common/api.py
+msgid "Manage items on this list."
+msgstr "Gestisci gli elementi di questo elenco."
+
+#: georama/core/common/api.py
+msgid "Manage"
+msgstr "Gestisci"
+
+#: georama/core/common/api.py
+msgid "Permissions"
+msgstr "Permessi"
+
+#: georama/core/common/api.py
+msgid "searchable fields: user name"
+msgstr "campi di ricerca: nome utente"
+
+#: georama/core/common/api.py
+msgid "searchable fields: group name"
+msgstr "campi di ricerca: nome del gruppo"
+
+#: georama/core/common/models.py
+msgid "Identifier of the metadata."
+msgstr "Identificativo dei metadati."
+
+#: georama/core/common/models.py
+msgid "The verbose title of the connected item."
+msgstr "Il titolo descrittivo dell'elemento collegato."
+
+#: georama/core/common/models.py
+msgid "title"
+msgstr "titolo"
+
+#: georama/core/common/models.py
+msgid "description"
+msgstr "descrizione"
+
+#: georama/core/common/models.py
+msgid "license"
+msgstr "licenza"
+
+#: georama/core/common/models.py
+msgid "fees"
+msgstr "costi"
+
+#: georama/core/common/models.py
+msgid "access constraints"
+msgstr "vincoli di accesso"
+
+#: georama/core/middleware/basic_auth.py
+msgid "User was authenticated."
+msgstr "L'utente è stato autenticato."
+
+#: georama/core/middleware/basic_auth.py
+msgid "User was not authenticated."
+msgstr "L'utente non è stato autenticato."
+
+#: georama/core/middleware/basic_auth.py
+msgid "Invalid basic header. No credentials provided."
+msgstr "Intestazione Basic non valida. Nessuna credenziale fornita."
+
+#: georama/core/middleware/basic_auth.py
+msgid "Invalid basic header. Credentials string should not contain spaces."
+msgstr "Intestazione Basic non valida. Le credenziali non devono contenere spazi."
+
+#: georama/core/middleware/basic_auth.py
+msgid "Invalid basic header. Credentials not correctly base64 encoded."
+msgstr "Intestazione Basic non valida. Le credenziali non sono codificate correttamente in base64."
+
+#: georama/core/middleware/basic_auth.py
+msgid "Invalid username/password."
+msgstr "Nome utente o password non validi."
+
+#: georama/core/middleware/basic_auth.py
+msgid "User inactive or deleted."
+msgstr "Utente inattivo o eliminato."
+
+#: georama/core/middleware/organisation.py
+msgid "Not found"
+msgstr "Non trovato"
+
+#: georama/core/middleware/organisation.py
+msgid "No Access"
+msgstr "Accesso negato"
+
+#: georama/core/models/fence.py
+msgid "fence"
+msgstr "perimetro"
+
+#: georama/core/models/fence.py
+msgid "fences"
+msgstr "perimetri"
+
+#: georama/core/models/fence.py
+msgid "Identifier of the fence."
+msgstr "Identificativo del perimetro."
+
+#: georama/core/models/fence.py
+msgid "Name of the fence."
+msgstr "Nome del perimetro."
+
+#: georama/core/models/fence.py georama/core/models/organisation.py
+#: georama/features/models/field.py georama/integration/models/datasource.py
+#: georama/integration/models/project.py
+msgid "name"
+msgstr "nome"
+
+#: georama/core/models/fence.py
+msgid "Geographic boundary of the fence."
+msgstr "Limite geografico del perimetro."
+
+#: georama/core/models/fence.py
+msgid "Organisation the fence belongs to."
+msgstr "Organizzazione a cui appartiene il perimetro."
+
+#: georama/core/models/fence.py georama/core/models/membership.py
+#: georama/core/models/organisation.py georama/integration/models/project.py
+msgid "organisation"
+msgstr "organizzazione"
+
+#: georama/core/models/membership.py
+msgid "membership"
+msgstr "appartenenza"
+
+#: georama/core/models/membership.py
+msgid "memberships"
+msgstr "appartenenze"
+
+#: georama/core/models/membership.py
+msgid "Identifier of the membership."
+msgstr "Identificativo dell'appartenenza."
+
+#: georama/core/models/membership.py
+msgid "User associated with the membership."
+msgstr "Utente associato all'appartenenza."
+
+#: georama/core/models/membership.py georama/core/models/user.py
+msgid "user"
+msgstr "utente"
+
+#: georama/core/models/membership.py
+msgid "Organisation associated with the membership."
+msgstr "Organizzazione associata all'appartenenza."
+
+#: georama/core/models/organisation.py
+msgid "Domain name must be different from the global one: "
+msgstr "Il nome di dominio deve essere diverso da quello globale: "
+
+#: georama/core/models/organisation.py
+msgid "organisations"
+msgstr "organizzazioni"
+
+#: georama/core/models/organisation.py
+msgid "Identifier of the organisation."
+msgstr "Identificativo dell'organizzazione."
+
+#: georama/core/models/organisation.py
+msgid "Name of the organisation."
+msgstr "Nome dell'organizzazione."
+
+#: georama/core/models/organisation.py
+msgid "Domain used to identify the organisation."
+msgstr "Dominio utilizzato per identificare l'organizzazione."
+
+#: georama/core/models/organisation.py
+msgid "domain"
+msgstr "dominio"
+
+#: georama/core/models/organisation.py
+msgid "Whether anonymous users can access this organisation."
+msgstr "Indica se gli utenti anonimi possono accedere a questa organizzazione."
+
+#: georama/core/models/organisation.py
+msgid "public access"
+msgstr "accesso pubblico"
+
+#: georama/core/models/user.py
+msgid "users"
+msgstr "utenti"
+
+#: georama/core/models/user.py
+msgid "Identifier of the user."
+msgstr "Identificativo dell'utente."
+
+#: georama/core/templates/404.html georama/core/templates/core/base.html
+msgid "Home"
+msgstr "Home"
+
+#: georama/core/templates/404.html
+msgid "Not Found"
+msgstr "Non trovato"
+
+#: georama/core/templates/404.html
+msgid "Page not found"
+msgstr "Pagina non trovata"
+
+#: georama/core/templates/404.html
+msgid "The page may have moved or the URL may be incorrect."
+msgstr "La pagina potrebbe essere stata spostata o l'URL potrebbe essere errato."
+
+#: georama/core/templates/404.html
+msgid "Back to Home"
+msgstr "Torna alla home"
+
+#: georama/core/templates/404.html
+msgid "Go Back"
+msgstr "Torna indietro"
+
+#: georama/core/templates/core/base.html
+msgid "Georama – Your Geospatial Data Hub"
+msgstr "Georama – La tua piattaforma di dati geospaziali"
+
+#: georama/core/templates/core/base.html
+msgid "Toggle navigation"
+msgstr "Mostra/nascondi navigazione"
+
+#: georama/core/templates/core/base.html
+msgid "Language"
+msgstr "Lingua"
+
+#: georama/core/templates/core/base.html
+msgid "Toggle theme"
+msgstr "Cambia tema"
+
+#: georama/core/templates/core/base.html georama/core/templates/core/index.html
+msgid "Logout"
+msgstr "Esci"
+
+#: georama/core/templates/core/base.html georama/core/templates/core/index.html
+msgid "Login"
+msgstr "Accedi"
+
+#: georama/core/templates/core/base.html
+msgid "Breadcrumb"
+msgstr "Percorso di navigazione"
+
+#: georama/core/templates/core/base.html
+msgid "Scalable Web Publishing for QGIS."
+msgstr "Pubblicazione web scalabile per QGIS."
+
+#: georama/core/templates/core/base.html
+msgid "Docs"
+msgstr "Documentazione"
+
+#: georama/core/templates/core/base.html
+msgid "About"
+msgstr "Informazioni"
+
+#: georama/core/templates/core/drf/default/delete_preview.html
+#: georama/core/templates/core/drf/default/delete_status.html
+#: georama/core/templates/core/drf/default/detail.html
+#: georama/core/templates/core/drf/default/form.html
+msgid "Actions"
+msgstr "Azioni"
+
+#: georama/core/templates/core/drf/default/delete_preview.html
+msgid "Confirm"
+msgstr "Conferma"
+
+#: georama/core/templates/core/drf/default/delete_preview.html
+msgid "The project can't be deleted!"
+msgstr "Il progetto non può essere eliminato!"
+
+#: georama/core/templates/core/drf/default/delete_preview.html
+msgid "The following elements are protected:"
+msgstr "I seguenti elementi sono protetti:"
+
+#: georama/core/templates/core/drf/default/delete_preview.html
+msgid "Removing this element has an impact on the following content in Georama:"
+msgstr "La rimozione di questo elemento ha un impatto sui seguenti contenuti in Georama:"
+
+#: georama/core/templates/core/drf/default/delete_status.html
+msgid "Ok"
+msgstr "OK"
+
+#: georama/core/templates/core/drf/default/delete_status.html
+msgid "Deletion not successful"
+msgstr "Eliminazione non riuscita"
+
+#: georama/core/templates/core/drf/default/delete_status.html
+msgid "Successfully deleted"
+msgstr "Eliminato con successo"
+
+#: georama/core/templates/core/drf/default/detail.html
+msgid "Edit instance"
+msgstr "Modifica elemento"
+
+#: georama/core/templates/core/drf/default/detail.html
+#: georama/core/templates/core/drf/default/form.html
+msgid "Edit permissions"
+msgstr "Modifica permessi"
+
+#: georama/core/templates/core/drf/default/detail.html
+#: georama/core/templates/core/drf/default/form.html
+#: georama/core/templates/core/drf/default/partials/list_body.html
+msgid "Delete item"
+msgstr "Elimina elemento"
+
+#: georama/core/templates/core/drf/default/form.html
+msgid "Save changes"
+msgstr "Salva modifiche"
+
+#: georama/core/templates/core/drf/default/form.html
+msgid "Cancel"
+msgstr "Annulla"
+
+#: georama/core/templates/core/drf/default/includes/buttons/breadcumb_action_htmx.html
+#: georama/core/templates/core/drf/default/includes/messages.html
+msgid "Close"
+msgstr "Chiudi"
+
+#: georama/core/templates/core/drf/default/includes/ordering_htmx.html
+msgid "sort by"
+msgstr "ordina per"
+
+#: georama/core/templates/core/drf/default/includes/permissions_inherited_htmx.html
+msgid "User does not belong to a group"
+msgstr "L'utente non appartiene a nessun gruppo"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "filter by"
+msgstr "filtra per"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Groups"
+msgstr "Gruppi"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Show list of user permissions"
+msgstr "Mostra l'elenco dei permessi utente"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Users"
+msgstr "Utenti"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Select bulk action"
+msgstr "Seleziona un'azione multipla"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Apply to selected entries"
+msgstr "Applica alle voci selezionate"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Permission inherited from group"
+msgstr "Permesso ereditato dal gruppo"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Select all"
+msgstr "Seleziona tutto"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Name"
+msgstr "Nome"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Sort by the time access was granted"
+msgstr "Ordina per data di concessione dell'accesso"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Time granted"
+msgstr "Data di concessione"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Filter entries with view permission"
+msgstr "Filtra le voci con permesso di lettura"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "View"
+msgstr "Lettura"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Filter entries with create permission"
+msgstr "Filtra le voci con permesso di creazione"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Create"
+msgstr "Creazione"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Filter entries with update permission"
+msgstr "Filtra le voci con permesso di modifica"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Update"
+msgstr "Modifica"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Filter entries with delete permission"
+msgstr "Filtra le voci con permesso di eliminazione"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Delete"
+msgstr "Eliminazione"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+#: georama/core/templates/core/drf/default/partials/list_body.html
+msgid "No items in this list"
+msgstr "Nessun elemento in questo elenco"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+#, python-format
+msgid "%(t)s ago"
+msgstr "%(t)s fa"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Toggle create permission"
+msgstr "Attiva/disattiva il permesso di creazione"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Toggle update permission"
+msgstr "Attiva/disattiva il permesso di modifica"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Toggle delete permission"
+msgstr "Attiva/disattiva il permesso di eliminazione"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Revoke all permissions"
+msgstr "Revoca tutti i permessi"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Override group permissions with individual user permissions"
+msgstr "Sostituisci i permessi del gruppo con permessi individuali"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Override"
+msgstr "Sostituisci"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Grant access by adding view permission"
+msgstr "Concedi l'accesso aggiungendo il permesso di lettura"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Grant"
+msgstr "Concedi"
+
+#: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
+msgid "Toggle list of inherited group permissions"
+msgstr "Mostra/nascondi i permessi ereditati dai gruppi"
+
+#: georama/core/templates/core/drf/default/includes/pills/public.html
+msgid "The item is publicly available"
+msgstr "L'elemento è accessibile pubblicamente"
+
+#: georama/core/templates/core/drf/default/includes/pills/public.html
+#: georama/features/models/feature_layer.py georama/maps/models/wms_layer.py
+#: georama/webgis/models/theme.py
+msgid "public"
+msgstr "pubblico"
+
+#: georama/core/templates/core/drf/default/includes/search.html
+#: georama/core/templates/core/drf/default/includes/search_htmx.html
+msgid "Search term"
+msgstr "Termine di ricerca"
+
+#: georama/core/templates/core/drf/default/includes/search.html
+msgid "Search"
+msgstr "Cerca"
+
+#: georama/core/templates/core/drf/default/partials/list_body.html
+#: georama/integration/templates/integration/drf/project/partials/list_body.html
+#: georama/integration/templates/integration/drf/project/partials/list_body_path.html
+msgid "Logo"
+msgstr "Logo"
+
+#: georama/core/templates/core/drf/default/partials/list_body.html
+msgid "Item actions"
+msgstr "Azioni sull'elemento"
+
+#: georama/core/templates/core/drf/default/partials/list_body.html
+#: georama/integration/templates/integration/drf/project/partials/list_body.html
+msgid "Show item details"
+msgstr "Mostra i dettagli dell'elemento"
+
+#: georama/core/templates/core/drf/default/partials/list_body.html
+msgid "Edit item"
+msgstr "Modifica elemento"
+
+#: georama/core/templates/core/drf/default/partials/list_body.html
+msgid "Edit item permissions"
+msgstr "Modifica i permessi dell'elemento"
+
+#: georama/core/templates/core/drf/default/partials/list_body.html
+msgid "Id:"
+msgstr "ID:"
+
+#: georama/core/templates/core/index.html
+msgid "Explore the Modules"
+msgstr "Scopri i moduli"
+
+#: georama/core/templates/core/index.html
+msgid "Authentication"
+msgstr "Autenticazione"
+
+#: georama/core/templates/core/index.html
+msgid "Secure sign-in workflows for every user."
+msgstr "Un accesso sicuro per ogni utente."
+
+#: georama/core/templates/core/index.html
+msgid "Visit Login"
+msgstr "Accedi"
+
+#: georama/core/templates/core/index.html
+msgid "Admin"
+msgstr "Amministrazione"
+
+#: georama/core/templates/core/index.html
+msgid "Admin Panel"
+msgstr "Pannello di amministrazione"
+
+#: georama/core/templates/core/index.html
+msgid "Manage data sources, users, and permissions."
+msgstr "Gestisci sorgenti dati, utenti e permessi."
+
+#: georama/core/templates/core/index.html
+msgid "Go Admin"
+msgstr "Vai all'amministrazione"
+
+#: georama/core/templates/core/index.html
+msgid "WMS Endpoint"
+msgstr "Servizio WMS"
+
+#: georama/core/templates/core/index.html
+msgid "Integrate tiled layers with standard requests."
+msgstr "Integra layer a tasselli con richieste standard."
+
+#: georama/core/templates/core/index.html
+msgid "WMS Capabilities"
+msgstr "Capabilities WMS"
+
+#: georama/core/templates/core/index.html
+msgid "OAPIF Features"
+msgstr "Elementi OAPIF"
+
+#: georama/core/templates/core/index.html
+msgid "RESTful vector access for modern apps."
+msgstr "Accesso REST ai dati vettoriali per applicazioni moderne."
+
+#: georama/core/templates/core/index.html
+msgid "Explore OAPIF"
+msgstr "Esplora OAPIF"
+
+#: georama/core/templates/core/index.html
+msgid "Dive into the GeoGirafe frontend."
+msgstr "Scopri l'interfaccia GeoGirafe."
+
+#: georama/core/templates/core/index.html
+msgid "Open WebGIS"
+msgstr "Apri il WebGIS"
+
+#: georama/core/templates/core/index.html
+msgid "Read the Docs"
+msgstr "Leggi la documentazione"
+
+#: georama/core/templates/core/index.html
+msgid "Dive into the full documentation to get started with setup, API, and module structure."
+msgstr "Consulta la documentazione completa per iniziare: installazione, API e struttura dei moduli."
+
+#: georama/core/templates/core/index.html
+msgid "View Documentation"
+msgstr "Vedi la documentazione"
+
+#: georama/core/templates/core/login.html
+msgid "Sign in"
+msgstr "Accedi"
+
+#: georama/features/api/serializers.py
+msgid "Fields visibility"
+msgstr "Visibilità dei campi"
+
+#: georama/features/api/viewsets.py
+msgid "Publish a Vector Datasource as FeatureLayer"
+msgstr "Pubblica una sorgente dati vettoriale come FeatureLayer"
+
+#: georama/features/api/viewsets.py
+msgid "Select a Vector Datasource to publish it as a new FeatureLayer"
+msgstr "Seleziona una sorgente dati vettoriale da pubblicare come nuovo FeatureLayer"
+
+#: georama/features/api/viewsets.py georama/features/apps.py
+msgid "FeatureLayer"
+msgstr "FeatureLayer"
+
+#: georama/features/api/viewsets.py
+#, python-brace-format
+msgid "Publishing '{name}' failed: {error}"
+msgstr "Pubblicazione di «{name}» non riuscita: {error}"
+
+#: georama/features/apps.py
+msgid "Features"
+msgstr "Elementi"
+
+#: georama/features/apps.py
+msgid "Share feature layers."
+msgstr "Condividi layer di elementi."
+
+#: georama/features/apps.py
+msgid "Publishes this Vector Datasource as a new FeatureLayer in the Features app."
+msgstr "Pubblica questa sorgente dati vettoriale come nuovo FeatureLayer nell'applicazione Elementi."
+
+#: georama/features/models/feature_layer.py georama/maps/models/wms_layer.py
+#: georama/webgis/models/theme.py
+msgid "grant access"
+msgstr "concedi l'accesso"
+
+#: georama/features/models/feature_layer.py
+msgid "allow create"
+msgstr "consenti la creazione"
+
+#: georama/features/models/feature_layer.py
+msgid "allow update"
+msgstr "consenti la modifica"
+
+#: georama/features/models/feature_layer.py
+msgid "allow delete"
+msgstr "consenti l'eliminazione"
+
+#: georama/features/models/feature_layer.py
+msgid "prevent create"
+msgstr "impedisci la creazione"
+
+#: georama/features/models/feature_layer.py
+msgid "prevent update"
+msgstr "impedisci la modifica"
+
+#: georama/features/models/feature_layer.py
+msgid "prevent delete"
+msgstr "impedisci l'eliminazione"
+
+#: georama/features/models/feature_layer.py
+msgid "revoke all"
+msgstr "revoca tutto"
+
+#: georama/features/models/feature_layer.py georama/features/models/field.py
+msgid "feature layer"
+msgstr "layer di elementi"
+
+#: georama/features/models/feature_layer.py
+msgid "feature layers"
+msgstr "layer di elementi"
+
+#: georama/features/models/feature_layer.py
+msgid "Identifier of the feature layer."
+msgstr "Identificativo del layer di elementi."
+
+#: georama/features/models/feature_layer.py
+msgid "Datasource the feature layer points to."
+msgstr "Sorgente dati a cui fa riferimento il layer di elementi."
+
+#: georama/features/models/feature_layer.py
+#: georama/integration/models/datasource.py georama/maps/models/wms_layer.py
+#: georama/webgis/models/wms_layer.py
+msgid "datasource"
+msgstr "sorgente dati"
+
+#: georama/features/models/feature_layer.py
+msgid "The default number of features that should be returned for the layer."
+msgstr "Numero di elementi restituiti per impostazione predefinita per il layer."
+
+#: georama/features/models/feature_layer.py
+msgid "default items"
+msgstr "elementi predefiniti"
+
+#: georama/features/models/feature_layer.py
+msgid "The maximum number of features that may be returned for the layer."
+msgstr "Numero massimo di elementi che possono essere restituiti per il layer."
+
+#: georama/features/models/feature_layer.py
+msgid "maximum items"
+msgstr "elementi massimi"
+
+#: georama/features/models/feature_layer.py
+msgid "Whether the server should return an error or cap the value when more than max_items are requested"
+msgstr "Indica se il server deve restituire un errore o limitare il valore quando vengono richiesti più di max_items elementi"
+
+#: georama/features/models/feature_layer.py
+msgid "on exceed"
+msgstr "in caso di superamento"
+
+#: georama/features/models/feature_layer.py
+msgid "Metadata of the feature layer."
+msgstr "Metadati del layer di elementi."
+
+#: georama/features/models/feature_layer.py georama/features/models/metadata.py
+#: georama/maps/models/metadata.py georama/maps/models/wms_layer.py
+#: georama/webgis/models/metadata.py georama/webgis/models/theme.py
+#: georama/webgis/models/wms_layer.py
+msgid "metadata"
+msgstr "metadati"
+
+#: georama/features/models/field.py georama/integration/models/datasource.py
+msgid "field"
+msgstr "campo"
+
+#: georama/features/models/field.py georama/integration/models/datasource.py
+msgid "fields"
+msgstr "campi"
+
+#: georama/features/models/field.py georama/integration/models/datasource.py
+msgid "Identifier of the field."
+msgstr "Identificativo del campo."
+
+#: georama/features/models/field.py
+msgid "datasource field"
+msgstr "campo della sorgente dati"
+
+#: georama/features/models/field.py
+msgid "visible"
+msgstr "visibile"
+
+#: georama/features/templates/features/drf/feature_layer/includes/buttons/open_feature_layer.html
+msgid "Open collection endpoint"
+msgstr "Apri l'endpoint della collezione"
+
+#: georama/features/templates/features/fields.html
+msgid "No fields"
+msgstr "Nessun campo"
+
+#: georama/integration/api/view_sets.py
+msgid "Integrate projects from QGIS files available on disk"
+msgstr "Integra progetti dai file QGIS disponibili su disco"
+
+#: georama/integration/api/view_sets.py
+msgid "Select a project to integrate it into Georama"
+msgstr "Seleziona un progetto da integrare in Georama"
+
+#: georama/integration/api/view_sets.py
+msgid "QGIS Project"
+msgstr "Progetto QGIS"
+
+#: georama/integration/api/view_sets.py
+msgid "Communication with Exporter API was not successful STATUSCODE:"
+msgstr "La comunicazione con l'API di esportazione non è riuscita. Codice di stato:"
+
+#: georama/integration/api/view_sets.py
+msgid "A problem occurred while exporting."
+msgstr "Si è verificato un problema durante l'esportazione."
+
+#: georama/integration/api/view_sets.py
+msgid "Non integrated Projects"
+msgstr "Progetti non integrati"
+
+#: georama/integration/apps.py
+msgid "Integration"
+msgstr "Integrazione"
+
+#: georama/integration/apps.py
+msgid "Integrate your QGIS projects."
+msgstr "Integra i tuoi progetti QGIS."
+
+#: georama/integration/models/datasource.py
+msgid "datasources"
+msgstr "sorgenti dati"
+
+#: georama/integration/models/datasource.py
+msgid "Identifier of the datasource."
+msgstr "Identificativo della sorgente dati."
+
+#: georama/integration/models/datasource.py
+msgid "Layer identifier from the source QGIS project."
+msgstr "Identificativo del layer nel progetto QGIS di origine."
+
+#: georama/integration/models/datasource.py
+msgid "QGIS layer ID"
+msgstr "ID del layer QGIS"
+
+#: georama/integration/models/datasource.py
+msgid "Name of the datasource."
+msgstr "Nome della sorgente dati."
+
+#: georama/integration/models/datasource.py
+msgid "Bounding box of the datasource in the source coordinate reference system."
+msgstr "Estensione della sorgente dati nel sistema di riferimento delle coordinate di origine."
+
+#: georama/integration/models/datasource.py
+msgid "bounding box"
+msgstr "estensione"
+
+#: georama/integration/models/datasource.py
+msgid "Bounding box of the datasource transformed to WGS84."
+msgstr "Estensione della sorgente dati trasformata in WGS84."
+
+#: georama/integration/models/datasource.py
+msgid "bounding box (WGS 84)"
+msgstr "estensione (WGS 84)"
+
+#: georama/integration/models/datasource.py
+msgid "Source configuration and connection metadata of the datasource."
+msgstr "Configurazione di origine e metadati di connessione della sorgente dati."
+
+#: georama/integration/models/datasource.py
+msgid "source"
+msgstr "origine"
+
+#: georama/integration/models/datasource.py
+msgid "Rendered style definitions associated with this datasource."
+msgstr "Definizioni degli stili di rendering associate a questa sorgente dati."
+
+#: georama/integration/models/datasource.py
+msgid "styles"
+msgstr "stili"
+
+#: georama/integration/models/datasource.py
+msgid "Provider driver name used to access the datasource."
+msgstr "Nome del driver utilizzato per accedere alla sorgente dati."
+
+#: georama/integration/models/datasource.py
+msgid "driver"
+msgstr "driver"
+
+#: georama/integration/models/datasource.py
+msgid "Coordinate reference system of the datasource."
+msgstr "Sistema di riferimento delle coordinate della sorgente dati."
+
+#: georama/integration/models/datasource.py
+msgid "CRS"
+msgstr "SR"
+
+#: georama/integration/models/datasource.py
+msgid "Minimum scale at which the datasource is visible."
+msgstr "Scala minima alla quale la sorgente dati è visibile."
+
+#: georama/integration/models/datasource.py
+msgid "minimum scale"
+msgstr "scala minima"
+
+#: georama/integration/models/datasource.py
+msgid "Maximum scale at which the datasource is visible."
+msgstr "Scala massima alla quale la sorgente dati è visibile."
+
+#: georama/integration/models/datasource.py
+msgid "maximum scale"
+msgstr "scala massima"
+
+#: georama/integration/models/datasource.py
+msgid "Project the datasource belongs to."
+msgstr "Progetto a cui appartiene la sorgente dati."
+
+#: georama/integration/models/datasource.py georama/webgis/models/theme.py
+msgid "project"
+msgstr "progetto"
+
+#: georama/integration/models/datasource.py
+msgid "vector"
+msgstr "vettore"
+
+#: georama/integration/models/datasource.py
+msgid "vectors"
+msgstr "vettori"
+
+#: georama/integration/models/datasource.py
+msgid "Simplified geometry type of the vector datasource (eg. point, line, polygon)."
+msgstr "Tipo di geometria semplificato della sorgente dati vettoriale (ad es. punto, linea, poligono)."
+
+#: georama/integration/models/datasource.py
+msgid "geometry type"
+msgstr "tipo di geometria"
+
+#: georama/integration/models/datasource.py
+msgid "Geometry type of the vector datasource."
+msgstr "Tipo di geometria della sorgente dati vettoriale."
+
+#: georama/integration/models/datasource.py
+msgid "geometry type (WKB)"
+msgstr "tipo di geometria (WKB)"
+
+#: georama/integration/models/datasource.py
+msgid "Original field name from the source datasource."
+msgstr "Nome originale del campo nella sorgente dati."
+
+#: georama/integration/models/datasource.py
+msgid "Original data type from the source datasource."
+msgstr "Tipo di dato originale nella sorgente dati."
+
+#: georama/integration/models/datasource.py
+msgid "type"
+msgstr "tipo"
+
+#: georama/integration/models/datasource.py
+msgid "Whether this field is the datasource primary key."
+msgstr "Indica se questo campo è la chiave primaria della sorgente dati."
+
+#: georama/integration/models/datasource.py
+msgid "primary key"
+msgstr "chiave primaria"
+
+#: georama/integration/models/datasource.py
+msgid "Field datatype exposed through WFS."
+msgstr "Tipo di dato del campo esposto tramite WFS."
+
+#: georama/integration/models/datasource.py
+msgid "WFS type"
+msgstr "tipo WFS"
+
+#: georama/integration/models/datasource.py
+msgid "Field datatype exposed through OGC API Features."
+msgstr "Tipo di dato del campo esposto tramite OGC API Features."
+
+#: georama/integration/models/datasource.py
+msgid "OAPIF type"
+msgstr "tipo OAPIF"
+
+#: georama/integration/models/datasource.py
+msgid "Output format for the OGC API Features field type."
+msgstr "Formato di output del tipo di campo OGC API Features."
+
+#: georama/integration/models/datasource.py
+msgid "OAPIF format"
+msgstr "formato OAPIF"
+
+#: georama/integration/models/datasource.py
+msgid "Human-readable field label."
+msgstr "Etichetta leggibile del campo."
+
+#: georama/integration/models/datasource.py
+msgid "alias"
+msgstr "alias"
+
+#: georama/integration/models/datasource.py
+msgid "Comment or description of the field."
+msgstr "Commento o descrizione del campo."
+
+#: georama/integration/models/datasource.py
+msgid "comment"
+msgstr "commento"
+
+#: georama/integration/models/datasource.py
+msgid "Whether this field can store null values."
+msgstr "Indica se questo campo può contenere valori nulli."
+
+#: georama/integration/models/datasource.py
+msgid "nullable"
+msgstr "nullable"
+
+#: georama/integration/models/datasource.py
+msgid "...."
+msgstr "...."
+
+#: georama/integration/models/datasource.py
+msgid "length"
+msgstr "lunghezza"
+
+#: georama/integration/models/datasource.py
+msgid "Numeric precision."
+msgstr "Precisione numerica."
+
+#: georama/integration/models/datasource.py
+msgid "precision"
+msgstr "precisione"
+
+#: georama/integration/models/datasource.py
+msgid "Vector datasource this field belongs to."
+msgstr "Sorgente dati vettoriale a cui appartiene questo campo."
+
+#: georama/integration/models/datasource.py
+msgid "raster"
+msgstr "raster"
+
+#: georama/integration/models/datasource.py
+msgid "rasters"
+msgstr "raster"
+
+#: georama/integration/models/datasource.py
+msgid "custom"
+msgstr "personalizzato"
+
+#: georama/integration/models/project.py
+msgid "Project"
+msgstr "Progetto"
+
+#: georama/integration/models/project.py
+msgid "Projects"
+msgstr "Progetti"
+
+#: georama/integration/models/project.py
+msgid "Identifier of the project."
+msgstr "Identificativo del progetto."
+
+#: georama/integration/models/project.py
+msgid "Name of the project."
+msgstr "Nome del progetto."
+
+#: georama/integration/models/project.py
+msgid "Path to the qgis project."
+msgstr "Percorso del progetto QGIS."
+
+#: georama/integration/models/project.py
+msgid "path"
+msgstr "percorso"
+
+#: georama/integration/models/project.py
+msgid "QGIS version the project was created with."
+msgstr "Versione di QGIS con cui è stato creato il progetto."
+
+#: georama/integration/models/project.py
+msgid "QGIS version"
+msgstr "versione di QGIS"
+
+#: georama/integration/models/project.py
+msgid "The JSON config representation of the QGIS Project which was created by the QGIS-Server-Light exporter"
+msgstr "La rappresentazione JSON della configurazione del progetto QGIS, creata dall'esportatore QGIS-Server-Light"
+
+#: georama/integration/models/project.py
+msgid "configuration"
+msgstr "configurazione"
+
+#: georama/integration/models/project.py
+msgid "Organisation this project belongs to."
+msgstr "Organizzazione a cui appartiene questo progetto."
+
+#: georama/integration/models/project.py
+msgid "The point in time when the project was created last time."
+msgstr "Data dell'ultima creazione del progetto."
+
+#: georama/integration/models/project.py
+msgid "integrated at"
+msgstr "integrato il"
+
+#: georama/integration/templates/integration/drf/datasource/includes/pills/driver.html
+msgid "Underlying datasource driver this item is based on"
+msgstr "Driver della sorgente dati su cui si basa questo elemento"
+
+#: georama/integration/templates/integration/drf/datasource/partials/list_body.html
+msgid "Project:"
+msgstr "Progetto:"
+
+#: georama/integration/templates/integration/drf/project/includes/buttons/link.html
+msgid "Integrate QGIS project in Georama by loading it from disk"
+msgstr "Integra il progetto QGIS in Georama caricandolo dal disco"
+
+#: georama/integration/templates/integration/drf/project/includes/buttons/unlink.html
+msgid "Remove QGIS project from Georama by unlinking it"
+msgstr "Rimuovi il progetto QGIS da Georama scollegandolo"
+
+#: georama/integration/templates/integration/drf/project/includes/pills/outdated.html
+msgid "There is a newer version of this project available, you may want to integrate it again"
+msgstr "È disponibile una versione più recente di questo progetto, puoi integrarla di nuovo"
+
+#: georama/integration/templates/integration/drf/project/includes/pills/outdated.html
+msgid "outdated"
+msgstr "obsoleto"
+
+#: georama/integration/templates/integration/drf/project/includes/pills/stale.html
+msgid "The project file on the file system is missing, Georama will continue to work, but this is an unexpected inconsistency!"
+msgstr "Il file del progetto non è presente nel file system. Georama continuerà a funzionare, ma si tratta di un'incoerenza imprevista!"
+
+#: georama/integration/templates/integration/drf/project/includes/pills/stale.html
+msgid "stale"
+msgstr "orfano"
+
+#: georama/integration/templates/integration/drf/project/includes/pills/up_to_date.html
+msgid "The project in Georama is up to date with the QGIS Project on the filesystem"
+msgstr "Il progetto in Georama è aggiornato rispetto al progetto QGIS nel file system"
+
+#: georama/integration/templates/integration/drf/project/includes/pills/up_to_date.html
+msgid "up to date"
+msgstr "aggiornato"
+
+#: georama/integration/templates/integration/drf/project/partials/list_body_path.html
+msgid "The name of the organisation"
+msgstr "Il nome dell'organizzazione"
+
+#: georama/integration/templates/integration/drf/project/show.html
+msgid "Project actions"
+msgstr "Azioni sul progetto"
+
+#: georama/integration/templates/integration/drf/project/show.html
+msgid "QGIS version used to save the project"
+msgstr "Versione di QGIS utilizzata per salvare il progetto"
+
+#: georama/integration/templates/integration/drf/project/show.html
+msgid "Version"
+msgstr "Versione"
+
+#: georama/integration/templates/integration/drf/project/show.html
+msgid "unknown"
+msgstr "sconosciuta"
+
+#: georama/integration/templates/integration/drf/project/show.html
+msgid "Path of the file on file system"
+msgstr "Percorso del file nel file system"
+
+#: georama/integration/templates/integration/drf/project/show.html
+msgid "Path"
+msgstr "Percorso"
+
+#: georama/integration/templates/integration/drf/project/show.html
+msgid "Last time the QGIS project was changed on disk"
+msgstr "Ultima modifica del progetto QGIS su disco"
+
+#: georama/integration/templates/integration/drf/project/show.html
+msgid "Modification date"
+msgstr "Data di modifica"
+
+#: georama/integration/templates/integration/drf/project/show.html
+msgid "Status information about the project"
+msgstr "Informazioni sullo stato del progetto"
+
+#: georama/integration/templates/integration/drf/project/show.html
+msgid "Status"
+msgstr "Stato"
+
+#: georama/integration/templates/integration/drf/project/show.html
+msgid "Datasources"
+msgstr "Sorgenti dati"
+
+#: georama/maps/api/serializers.py
+msgid "UUID (primary key) of layer entity"
+msgstr "UUID (chiave primaria) del layer"
+
+#: georama/maps/api/serializers.py
+msgid "Collection of the layers previews were generated for."
+msgstr "Insieme dei layer per cui sono state generate le anteprime."
+
+#: georama/maps/api/serializers.py
+msgid "UUIDs (primary keys) of layer entities"
+msgstr "UUID (chiavi primarie) dei layer"
+
+#: georama/maps/api/serializers.py
+msgid "UUIDs (primary key) of the datasource the layer should be published from."
+msgstr "UUID (chiave primaria) della sorgente dati da cui pubblicare il layer."
+
+#: georama/maps/api/serializers.py
+msgid "Switch to enable/disable the automatic generation of the preview image in the moment of publishing."
+msgstr "Attiva/disattiva la generazione automatica dell'immagine di anteprima al momento della pubblicazione."
+
+#: georama/maps/api/viewsets.py
+msgid "Publish a Datasource as WmsLayer"
+msgstr "Pubblica una sorgente dati come WmsLayer"
+
+#: georama/maps/api/viewsets.py
+msgid "Select a Datasource to publish it as a new WmsLayer"
+msgstr "Seleziona una sorgente dati da pubblicare come nuovo WmsLayer"
+
+#: georama/maps/api/viewsets.py georama/maps/apps.py
+msgid "WmsLayer"
+msgstr "WmsLayer"
+
+#: georama/maps/apps.py
+msgid "Maps"
+msgstr "Mappe"
+
+#: georama/maps/apps.py
+msgid "Share map layers."
+msgstr "Condividi layer cartografici."
+
+#: georama/maps/apps.py
+msgid "Publishes this Datasource as a new WmsLayer in the Maps app."
+msgstr "Pubblica questa sorgente dati come nuovo WmsLayer nell'applicazione Mappe."
+
+#: georama/maps/models/wms_layer.py
+msgid "Identifier of the wms layer."
+msgstr "Identificativo del layer WMS."
+
+#: georama/maps/models/wms_layer.py
+msgid "Extent buffer size of the layer"
+msgstr "Dimensione del buffer attorno all'estensione del layer"
+
+#: georama/maps/models/wms_layer.py
+msgid "extent buffer"
+msgstr "buffer dell'estensione"
+
+#: georama/maps/models/wms_layer.py
+msgid "Whether GetFeature requests are allowed on this layer."
+msgstr "Indica se le richieste GetFeature sono consentite su questo layer."
+
+#: georama/maps/models/wms_layer.py
+msgid "queryable"
+msgstr "interrogabile"
+
+#: georama/maps/models/wms_layer.py
+msgid "Extent of the layer in its stored CRS."
+msgstr "Estensione del layer nel suo SR di archiviazione."
+
+#: georama/maps/models/wms_layer.py
+msgid "extent"
+msgstr "estensione"
+
+#: georama/maps/models/wms_layer.py
+msgid "Extent of the layer in WGS84 CRS."
+msgstr "Estensione del layer nel SR WGS84."
+
+#: georama/maps/models/wms_layer.py
+msgid "extent (WGS 84)"
+msgstr "estensione (WGS 84)"
+
+#: georama/maps/models/wms_layer.py
+msgid "Preview image of the layer."
+msgstr "Immagine di anteprima del layer."
+
+#: georama/maps/models/wms_layer.py
+msgid "preview"
+msgstr "anteprima"
+
+#: georama/maps/models/wms_layer.py
+msgid "Below this resolution the layer won't be drawn."
+msgstr "Al di sotto di questa risoluzione il layer non verrà visualizzato."
+
+#: georama/maps/models/wms_layer.py
+msgid "minimum resolution hint"
+msgstr "risoluzione minima indicativa"
+
+#: georama/maps/models/wms_layer.py
+msgid "Above this scale the layer won't be drawn."
+msgstr "Al di sopra di questa scala il layer non verrà visualizzato."
+
+#: georama/maps/models/wms_layer.py
+msgid "maximum resolution hint"
+msgstr "risoluzione massima indicativa"
+
+#: georama/maps/models/wms_layer.py georama/webgis/models/theme.py
+msgid "revoke access"
+msgstr "revoca l'accesso"
+
+#: georama/maps/models/wms_layer.py
+msgid "wms layer"
+msgstr "layer WMS"
+
+#: georama/maps/models/wms_layer.py
+msgid "wms layers"
+msgstr "layer WMS"
+
+#: georama/maps/templates/maps/drf/wms_layer/detail.html
+msgid "Preview image"
+msgstr "Immagine di anteprima"
+
+#: georama/maps/templates/maps/drf/wms_layer/detail.html
+msgid "Preview"
+msgstr "Anteprima"
+
+#: georama/maps/templates/maps/drf/wms_layer/detail.html
+#: georama/maps/templates/maps/drf/wms_layer/partials/preview.html
+msgid "WMS preview"
+msgstr "Anteprima WMS"
+
+#: georama/maps/templates/maps/drf/wms_layer/includes/buttons/generate_preview.html
+msgid "Generate preview image of this layer directly from the QSL"
+msgstr "Genera l'immagine di anteprima di questo layer direttamente da QSL"
+
+#: georama/maps/templates/maps/drf/wms_layer/includes/buttons/open_wms_layer.html
+msgid "Open layer as WMS"
+msgstr "Apri il layer come WMS"
+
+#: georama/maps/templates/maps/drf/wms_layer/includes/pills/queryable.html
+msgid "The layer supports WFS Queries"
+msgstr "Il layer supporta le interrogazioni WFS"
+
+#: georama/maps/templates/maps/drf/wms_layer/includes/pills/queryable.html
+msgid "Queryable"
+msgstr "Interrogabile"
+
+#: georama/maps/templates/maps/drf/wms_layer/includes/pills/type.html
+msgid "The datasource type this layer is based on"
+msgstr "Tipo della sorgente dati su cui si basa questo layer"
+
+#: georama/maps/urls.py
+msgid "Management API of the Maps app."
+msgstr "API di gestione dell'applicazione Mappe."
+
+#: georama/settings.py
+msgid "English"
+msgstr "Inglese"
+
+#: georama/settings.py
+msgid "French"
+msgstr "Francese"
+
+#: georama/settings.py
+msgid "Italian"
+msgstr "Italiano"
+
+#: georama/settings.py
+msgid "German"
+msgstr "Tedesco"
+
+#: georama/webgis/api/viewsets.py
+msgid "Publish a Project as Theme"
+msgstr "Pubblica un progetto come tema"
+
+#: georama/webgis/api/viewsets.py
+msgid "Select a project to publish it as a new Theme"
+msgstr "Seleziona un progetto da pubblicare come nuovo tema"
+
+#: georama/webgis/api/viewsets.py georama/webgis/apps.py
+#: georama/webgis/models/theme.py
+msgid "Theme"
+msgstr "Tema"
+
+#: georama/webgis/apps.py
+msgid "WebGIS"
+msgstr "WebGIS"
+
+#: georama/webgis/apps.py
+msgid "Publish your Layers in a WebGIS."
+msgstr "Pubblica i tuoi layer in un WebGIS."
+
+#: georama/webgis/apps.py
+msgid "Publishes this Project as a Theme in the WebGis app."
+msgstr "Pubblica questo progetto come tema nell'applicazione WebGIS."
+
+#: georama/webgis/models/theme.py
+msgid "Themes"
+msgstr "Temi"
+
+#: georama/webgis/models/theme.py
+msgid "ordering"
+msgstr "ordine"
+
+#: georama/webgis/models/theme.py
+msgid "theme JSON"
+msgstr "JSON del tema"
+
+#: georama/webgis/models/theme.py
+msgid "background layers"
+msgstr "layer di sfondo"
+
+#: georama/webgis/models/theme.py
+msgid "OGC servers"
+msgstr "server OGC"
+
+#: georama/webgis/models/wms_layer.py
+msgid "WMS Layer"
+msgstr "Layer WMS"
+
+#: georama/webgis/models/wms_layer.py
+msgid "WMS Layers"
+msgstr "Layer WMS"
+
+#: georama/webgis/models/wms_layer.py
+msgid "theme"
+msgstr "tema"
+
+#: georama/webgis/templates/webgis/drf/theme/includes/buttons/open_webgis.html
+msgid "Open theme in WebGIS"
+msgstr "Apri il tema nel WebGIS"
+
+#: georama/webgis/templates/webgis/drf/theme/partials/list_body.html
+msgid "Theme icon"
+msgstr "Icona del tema"

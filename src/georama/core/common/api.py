@@ -9,8 +9,10 @@ from django.contrib import messages
 from django.contrib.admin.utils import NestedObjects
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.core.exceptions import FieldDoesNotExist
 from django.db import router as djdb_router
 from django.db.models import Exists, F, JSONField, Min, OuterRef, Q, Value
+from django.db.models.constants import LOOKUP_SEP
 from django.db.models.functions import JSONObject
 from django.forms import ModelForm
 from django.shortcuts import redirect
@@ -124,9 +126,7 @@ class GeoramaTemplateViewSetReadOnly(
     async def _prepare_many_context(self) -> dict:
         search_fields = getattr(self, "search_fields", [])
         search_fields_hint = f"{_('searchable fields')}: {
-            ', '.join(
-                [_(self._prettify_field_name(field_name, True)) for field_name in search_fields]
-            )
+            ', '.join(self._translated_field_label(field_name) for field_name in search_fields)
         }"
 
         context = {
@@ -187,11 +187,15 @@ class GeoramaTemplateViewSetReadOnly(
     def url_name_list(self):
         return self.url_name("list")
 
-    @staticmethod
-    def _prettify_field_name(field_name: str, shorten: bool = False) -> str:
-        if shorten:
-            return field_name.split("_")[-1]
-        return field_name.replace("__", " ").replace("_", " ")
+    def _translated_field_label(self, field_path: str) -> str:
+        model = self.queryset.model
+        try:
+            for part in field_path.split(LOOKUP_SEP):
+                field = model._meta.get_field(part)
+                model = field.related_model
+            return str(field.verbose_name)
+        except (FieldDoesNotExist, AttributeError):
+            return field_path.split("_")[-1]
 
     @staticmethod
     def _toggle_ordering(current_ordering: list[str], field: str) -> list[str]:
@@ -232,7 +236,7 @@ class GeoramaTemplateViewSetReadOnly(
             ordering_context.append(
                 {
                     "name": ordering_field,
-                    "label": self._prettify_field_name(ordering_field, True),
+                    "label": self._translated_field_label(ordering_field),
                     "direction": direction,
                     "url": f"{request.path}?{params.urlencode()}",
                 }
@@ -488,9 +492,9 @@ class GeoramaManageableMixin:
         if await sync_to_async(perm_checker.has_permission)(self.request, self):
             context["breadcrumb_action"] = BreadcrumbAction(
                 url=reverse(self.url_name("list", manager=True)),
-                tooltip=f"{_('Switch to the management GUI of .')} {
-                    self.queryset.model._meta.verbose_name
-                }",
+                tooltip=_("Switch to the management GUI of {model}.").format(
+                    model=self.queryset.model._meta.verbose_name
+                ),
                 hint=_("Manage items on this list."),
                 title=_("Manage"),
                 type=ActionType.LINKED,
@@ -796,7 +800,7 @@ class GeoramaManagerWithPermissionsViewSet(GeoramaManagerViewSet):
         context.update(self.paginator.get_html_context())
         context["per_page_options"] = settings.LIST_PAGE_SIZES
         context["breadcrumbs"][-1].view_name = self.reverse_action("detail", [pk])
-        context["breadcrumbs"].append(Breadcrumb("Permissions"))
+        context["breadcrumbs"].append(Breadcrumb(_("Permissions")))
         context["permissions_list"] = self.permissions_list_template_name
         context["is_modal"] = self.request.query_params.get("is_modal")
 

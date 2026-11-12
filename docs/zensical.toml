@@ -23,6 +23,7 @@ nav = [
         { "Environment Variables" = "get_started/environment.md" },
         { "User Endpoints" = "get_started/endpoints.md" },
     ] },
+    { "Internationalisation" = "internationalisation.md" },
     { "Update Doc" = "update_doc.md" },
 ]
 

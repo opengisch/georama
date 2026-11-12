@@ -35,16 +35,20 @@ class WmsLayerAbstract(models.Model):
         abstract = True
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the wms layer.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the wms layer."),
     )
 
     extent_buffer = models.FloatField(
         default=0.0,
         help_text=_("Extent buffer size of the layer"),
+        verbose_name=_("extent buffer"),
     )
     queryable = models.BooleanField(
         default=True,
         help_text=_("Whether GetFeature requests are allowed on this layer."),
+        verbose_name=_("queryable"),
     )
 
     extent = models.CharField(
@@ -52,25 +56,30 @@ class WmsLayerAbstract(models.Model):
         null=True,
         blank=True,
         help_text=_("Extent of the layer in its stored CRS."),
+        verbose_name=_("extent"),
     )
     extent_wgs84 = models.CharField(
         max_length=1000,
         null=True,
         blank=True,
         help_text=_("Extent of the layer in WGS84 CRS."),
+        verbose_name=_("extent (WGS 84)"),
     )
     preview = models.BinaryField(
         null=True,
         blank=True,
         help_text=_("Preview image of the layer."),
+        verbose_name=_("preview"),
     )
     min_resolution_hint = models.FloatField(
         default=0.0,
         help_text=_("Below this resolution the layer won't be drawn."),
+        verbose_name=_("minimum resolution hint"),
     )
     max_resolution_hint = models.FloatField(
         default=999999999.0,
         help_text=_("Above this scale the layer won't be drawn."),
+        verbose_name=_("maximum resolution hint"),
     )
 
     preview_dimensions: tuple[int, int] = (250, 250)
@@ -307,8 +316,8 @@ class WmsLayer(WmsLayerAbstract):
     }
 
     ACTION_MAP = {
-        "grant": (True, [PERMISSIONS["can_view"]], "grant access"),
-        "revoke": (False, list(PERMISSIONS.values()), "revoke access"),
+        "grant": (True, [PERMISSIONS["can_view"]], _("grant access")),
+        "revoke": (False, list(PERMISSIONS.values()), _("revoke access")),
     }
 
     class Meta:
@@ -321,19 +330,21 @@ class WmsLayer(WmsLayerAbstract):
             ("view_published_wms_layer", "Can view published WMS Layer"),
         ]
 
-    public = models.BooleanField(default=False)
+    public = models.BooleanField(default=False, verbose_name=_("public"))
 
     datasource = models.ForeignKey(
         Datasource,
         related_name="wms_layers",
         related_query_name="wms_layers",
         on_delete=models.CASCADE,
+        verbose_name=_("datasource"),
     )
 
     metadata = models.OneToOneField(
         Metadata,
         related_name="wms_layer",
         on_delete=models.CASCADE,
+        verbose_name=_("metadata"),
     )
 
     objects = WmsLayerManager()

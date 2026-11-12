@@ -6,7 +6,7 @@
 
     <div class="align-content-center">
         <div class="btn-group" {% if protected %}disabled{% endif %} role="group"
-             aria-label="Layer actions">
+             aria-label="{% translate "Actions" %}">
             {% blocktranslate asvar title %}Confirm{% endblocktranslate %}
             <button
                     type="button"
@@ -59,8 +59,8 @@
 
         {% if protected %}
             <div class="alert alert-danger mt-3">
-                <strong>The project can't be deleted!</strong><br>
-                The following elements are protected:
+                <strong>{% translate "The project can't be deleted!" %}</strong><br>
+                {% translate "The following elements are protected:" %}
                 <ul>
                     {% for obj in protected %}
                         <li>{{ obj }}</li>
@@ -68,8 +68,8 @@
                 </ul>
             </div>
         {% else %}
-            <h5>Removing this Element has impact on the following content in
-                Georama:</h5>
+            <h5>{% blocktranslate trimmed %}Removing this element has an impact on the
+                following content in Georama:{% endblocktranslate %}</h5>
 
             <ul class="list-group">
                 {% include "core/drf/default/includes/nested_delete.html" with objects=related_objects %}

@@ -1,7 +1,7 @@
 from adrf import serializers
 from asgiref.sync import sync_to_async
 from django.db import transaction
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework.serializers import PrimaryKeyRelatedField
 
 from georama.core.common.serializers import (

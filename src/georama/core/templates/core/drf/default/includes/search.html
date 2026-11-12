@@ -3,7 +3,7 @@
     <input id="searchInput" class="form-control me-2" name="{{ search_param }}" type="search"
            title="{{ search_fields_hint }}"
            data-bs-toggle="tooltip"
-           placeholder={% trans 'Search term' %} aria-label={{ search_fields_hint }}
+           placeholder="{% translate "Search term" %}" aria-label="{{ search_fields_hint }}"
            value="{{ search_term }}">
     <button class="btn btn-outline-primary" type="submit">{% trans 'Search' %}</button>
 </form>

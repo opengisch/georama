@@ -20,19 +20,23 @@ class Field(models.Model):
         )
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the field.")
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the field."),
     )
     feature_layer = models.ForeignKey(
         "FeatureLayer",
         related_name="fields",
         related_query_name="field",
         on_delete=models.CASCADE,
+        verbose_name=_("feature layer"),
     )
     datasource_field = models.ForeignKey(
         DatasourceField,
         related_name="feature_layer_fields",
         related_query_name="feature_layer_field",
         on_delete=models.CASCADE,
+        verbose_name=_("datasource field"),
     )
-    name = models.CharField(max_length=None)
-    visible = models.BooleanField(default=True)
+    name = models.CharField(max_length=None, verbose_name=_("name"))
+    visible = models.BooleanField(default=True, verbose_name=_("visible"))

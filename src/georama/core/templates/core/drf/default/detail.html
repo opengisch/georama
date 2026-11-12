@@ -6,7 +6,7 @@
     <!-- Layer actions -->
 
     <div class="align-content-center">
-        <div class="btn-group" role="group" aria-label="Layer actions">
+        <div class="btn-group" role="group" aria-label="{% translate "Actions" %}">
             {% if can_change %}
                 {% blocktranslate asvar title %}Edit instance{% endblocktranslate %}
                 <a href="{% url view.url_name_retrieve object.pk %}"

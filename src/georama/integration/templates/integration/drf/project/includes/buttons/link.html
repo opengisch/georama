@@ -1,6 +1,6 @@
 {% load static i18n %}
 
-{% blocktranslate asvar title %}
+{% blocktranslate asvar title trimmed %}
     Integrate QGIS project in Georama by loading it from disk
 {% endblocktranslate %}
 <form id="{{ project_file.path_from_orga }}-link"

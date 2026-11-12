@@ -79,8 +79,8 @@
                                 >
                                 <label class="form-check-label w-100"
                                        for="bulk-action-{{ forloop.counter }}">
-                                    {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission=action_label apply_color=True%}
-                                    <span class="ps-1">{%  trans action_label %}</span>
+                                    {% include 'core/drf/default/includes/buttons/permission_icon.html' with permission=action_value apply_color=True %}
+                                    <span class="ps-1">{{ action_label }}</span>
                                 </label>
                             </div>
                         {% endfor %}

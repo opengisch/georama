@@ -6,6 +6,7 @@ from georama.core.common.apps import GeoramaAbstractConfig
 
 class WebGisConfig(GeoramaAbstractConfig):
     label = "webgis"
+    verbose_name = _("WebGIS")
     name = "georama.webgis"
     menu_order: int = 10
     description = _("Publish your Layers in a WebGIS.")
