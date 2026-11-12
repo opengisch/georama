@@ -21,7 +21,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class FileSystemProjectSerializer(serializers.Serializer):
-    project_path = serializers.CharField(read_only=True)
+    project_path = serializers.CharField(source="path_from_orga", read_only=True)
     modification_date = serializers.DateTimeField(read_only=True)
 
 

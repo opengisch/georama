@@ -263,28 +263,10 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             return Response(context, template_name=template_name)
         else:
             if pqs is not None:
-                serializer = FileSystemProjectSerializer(
-                    [
-                        {
-                            "project_path": p.path_from_orga,
-                            "modification_date": p.modification_date,
-                        }
-                        for p in pqs
-                    ],
-                    many=True,
-                )
+                serializer = FileSystemProjectSerializer(pqs, many=True)
                 data = await get_data(serializer)
                 return await self.get_apaginated_response(data)
-            serializer = FileSystemProjectSerializer(
-                [
-                    {
-                        "project_path": p.path_from_orga,
-                        "modification_date": p.modification_date,
-                    }
-                    for p in filtered_file_list
-                ],
-                many=True,
-            )
+            serializer = FileSystemProjectSerializer(filtered_file_list, many=True)
             data = await get_data(serializer)
             return Response(data, status=status.HTTP_200_OK)
 
