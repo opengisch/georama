@@ -32,7 +32,6 @@ dependencies = [
     "sqlalchemy>=2.0.51",
     "geoalchemy2>=0.20.0",
     "psycopg2-binary>=2.9.12",
-    "gdal==3.10.3",
     "httpx>=0.28.1",
     "servestatic[brotli]>=4.3.4",
     "drf-redesign>=0.6.0",
@@ -79,6 +78,12 @@ test = [
 ]
 docs = [
     "zensical>=0.0.70",
+]
+# the GDAL python binding comes with the image (ghcr.io/osgeo/gdal, system
+#   site-packages), only outside of it this group is needed and it has to
+#   match the local libgdal, keep it in line with GDAL_IMAGE in the Dockerfile!!!!
+gdal = [
+    "gdal==3.13.3",
 ]
 
 [tool.ruff]

@@ -55,3 +55,6 @@ jobs:
             BUILD_BRANCH=${{ github.ref_name }}
             BUILD_COMMIT=${{ github.sha }}
           tags: ghcr.io/${{ github.repository }}:edge
+          # the SBOM (BuildKit scanner, based on syft) is attached to the image as
+          # an attestation
+          sbom: true

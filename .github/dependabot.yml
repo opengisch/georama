@@ -16,8 +16,8 @@ updates:
       #security updates are activated on repo settings
       semver-patch-days: 3
     ignore:
-      # Python bindings are compiled against the libgdal-dev installed by apt in
-      # the Dockerfile: to be bumped manually.
+      # Python bindings come with the GDAL_IMAGE of the Dockerfile, the gdal
+      # dependency group follows its tag: to be bumped manually.
       - dependency-name: "gdal"
       # Must stay aligned with the opengisch/qgis-server-light images in compose.yml:
       # to be bumped manually.
