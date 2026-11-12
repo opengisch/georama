@@ -230,3 +230,21 @@ remote development (or use the in-container development capabilities of your IDE
 ```shell
 docker compose run --rm --entrypoint bash georama -c "uv run pytest"
 ```
+
+## Published Images
+
+The CI publishes Georama images to `ghcr.io/opengisch/georama`. Each one has to run
+with the QGIS-Server-Light images (`opengisch/qgis-server-light`) of the same QSL state,
+because the interface on the queue is the contract between both.
+
+| Tag                   | Built from                    | QGIS-Server-Light images         |
+|-----------------------|-------------------------------|----------------------------------|
+| `<version>`, `latest` | release tag (`v26.1`)         | the ones pinned in `compose.yml` |
+| `edge`                | every push to `main`          | `edge-worker`, `edge-exporter`   |
+| `pr-<number>`         | pull request (not from forks) | the ones pinned in `compose.yml` |
+
+Pre-releases does not move `latest`. The `edge` image does not use the QSL release
+pinned
+in `pyproject.toml`, the workflow switches it to the `main` branch of QSL before the
+build. So `edge` may break whenever QSL `main` changes the interface before Georama
+followed->thats the edge in it ...
