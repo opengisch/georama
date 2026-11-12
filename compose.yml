@@ -178,6 +178,7 @@ services:
       # provided by the certs service
       - ./.certs:/etc/x509/https:ro
       - ./keycloak/import:/opt/keycloak/data/import
+      - ./keycloak/themes:/opt/keycloak/themes:ro
     depends_on:
       certs:
         condition: service_completed_successfully
