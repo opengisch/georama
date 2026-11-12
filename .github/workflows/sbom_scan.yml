@@ -1,0 +1,64 @@
+name: Scan Released SBOMs
+
+# CVEs show up after a release was published, the SBOM attached to each
+# github release lets us check the published images without rebuilding them
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sbom-scan
+
+jobs:
+  releases:
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.tags.outputs.tags }}
+    steps:
+      - name: List the supported releases
+        id: tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # the three latest final releases are the ones clients run
+        run: >-
+          echo "tags=$(gh release list --repo "${GITHUB_REPOSITORY}"
+          --exclude-pre-releases --exclude-drafts --limit 3
+          --json tagName --jq '[.[].tagName]')" >> "${GITHUB_OUTPUT}"
+
+  scan:
+    runs-on: ubuntu-latest
+    needs: [ releases ]
+    if: needs.releases.outputs.tags != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: ${{ fromJSON(needs.releases.outputs.tags) }}
+    name: Scan ${{ matrix.tag }}
+    steps:
+      - name: Download the SBOM of the release
+        id: sbom
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # releases before the SBOM was introduced have no asset, they are skipped
+        run: |
+          if gh release download "${{ matrix.tag }}" --repo "${GITHUB_REPOSITORY}" \
+              --pattern "georama-${{ matrix.tag }}.spdx.json"; then
+            echo "found=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "::notice::${{ matrix.tag }} has no SBOM asset, skipped"
+          fi
+
+      # fails only on findings with an available fix, these ask for a new release
+      - name: Scan SBOM with Trivy
+        if: steps.sbom.outputs.found == 'true'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: sbom
+          scan-ref: georama-${{ matrix.tag }}.spdx.json
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: 1
