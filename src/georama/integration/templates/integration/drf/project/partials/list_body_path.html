@@ -22,11 +22,19 @@
             {{ item.path_from_orga }}
         {% endblock %}
     </h4>
-    <div class="mb-1">
+    {% blocktranslate asvar title trimmed %}
+        Last time the QGIS project was changed on disk
+    {% endblocktranslate %}
+    <div class="mb-1"
+         data-bs-toggle="tooltip"
+         title="{{ title }}"
+         aria-label="{{ title }}">
         {% block list_item_name %}
-            {{ item.config_path_from_orga }}
+            {{ item.modification_date|date:"DATETIME_FORMAT" }}
         {% endblock %}
     </div>
+{% endblock %}
+{% block list_item_footnote %}
 {% endblock %}
 {% block list_item_actions %}
     {% include 'integration/drf/project/includes/buttons/link.html' with project_file=item %}

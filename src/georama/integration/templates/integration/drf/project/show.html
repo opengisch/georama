@@ -53,7 +53,7 @@
              title="{{ title }}"
              aria-label="{{ title }}">
             <label class="form-text">{% trans 'Modification date' %}</label>
-            <div>{{ object.qgis_project_file_modification_date|date:"r" }}</div>
+            <div>{{ object.qgis_project_file_modification_date|date:"DATETIME_FORMAT" }}</div>
         </div>
         {% blocktranslate asvar title trimmed %}
             Status information about the project

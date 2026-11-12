@@ -15,13 +15,20 @@ class ProjectSerializer(serializers.ModelSerializer):
             "qgis_version",
             "path",
             "organisation_id",
+            "integrated_at",
         ]
-        extra_kwargs = {"id": {"read_only": True}}
+        extra_kwargs = {"id": {"read_only": True}, "integrated_at": {"read_only": True}}
 
 
 class FileSystemProjectSerializer(serializers.Serializer):
-    project_path = serializers.CharField()
-    config_path = serializers.CharField()
+    """A QGIS project file found on disk which is not integrated yet.
+
+    It reads straight from a QgisProject, so the view can hand over what it found
+    without building dicts first.
+    """
+
+    project_path = serializers.CharField(source="path_from_orga", read_only=True)
+    modification_date = serializers.DateTimeField(read_only=True)
 
 
 class DatasourceSerializer(serializers.ModelSerializer):

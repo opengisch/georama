@@ -8,6 +8,7 @@ from django.conf import settings
 from django.http import Http404, HttpResponseServerError
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from qgis_server_light.interface.exporter.api import ExportResult
@@ -212,6 +213,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             project_db.config = DictEncoder().encode(project_json)
             project_db.name = project_json.project.name
             project_db.qgis_version = project_json.project.version
+            # auto_now_add only sets it once, a re-integration has to refresh it on its own
+            # or the project would stay outdated forever
+            project_db.integrated_at = timezone.now()
             await project_db.asave()
 
             await self.integrate_project(project_db, project_json)
@@ -261,28 +265,10 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             return Response(context, template_name=template_name)
         else:
             if pqs is not None:
-                serializer = FileSystemProjectSerializer(
-                    [
-                        {
-                            "project_path": p.path_from_orga,
-                            "config_path": p.config_path_from_orga if p.has_config else None,
-                        }
-                        for p in pqs
-                    ],
-                    many=True,
-                )
+                serializer = FileSystemProjectSerializer(pqs, many=True)
                 data = await get_data(serializer)
                 return await self.get_apaginated_response(data)
-            serializer = FileSystemProjectSerializer(
-                [
-                    {
-                        "project_path": p.path_from_orga,
-                        "config_path": p.config_path_from_orga if p.has_config else None,
-                    }
-                    for p in filtered_file_list
-                ],
-                many=True,
-            )
+            serializer = FileSystemProjectSerializer(filtered_file_list, many=True)
             data = await get_data(serializer)
             return Response(data, status=status.HTTP_200_OK)
 

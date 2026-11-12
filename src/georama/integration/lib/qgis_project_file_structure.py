@@ -1,5 +1,4 @@
 import glob
-import hashlib
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -11,10 +10,6 @@ from django.conf import settings
 class QgisProject:
     path: Path
     organisation: str
-
-    @property
-    def config_format(self):
-        return "json"
 
     @property
     def name(self) -> str:
@@ -41,34 +36,20 @@ class QgisProject:
         return self.project_path.relative_to(self.integration_root)
 
     @property
-    def config_path(self) -> Path:
-        return Path(f"{self.project_path}.{self.config_format}")
-
-    @property
-    def config_path_from_root(self) -> Path:
-        return self.config_path.relative_to(self.root_path)
-
-    @property
-    def config_path_from_orga(self) -> Path:
-        return self.config_path.relative_to(self.integration_root)
-
-    @property
-    def has_config(self) -> bool:
-        return self.config_path.exists()
-
-    @property
-    def hash(self) -> str | None:
-        if self.has_config:
-            with open(self.config_path, mode="rb") as cf:
-                return hashlib.md5(cf.read()).hexdigest()
-        return None
-
-    @property
     def exists(self):
         return self.project_path.exists()
 
     @property
     def modification_date(self):
+        """The last time the QGIS project file was changed on disk.
+
+        The project file itself is the only thing on disk Georama still looks at, its
+        configuration lives in the database since the integration. So this date is what
+        tells if somebody touched the project after it was integrated.
+
+        Returns:
+            The modification time of the project file or None if the file is gone.
+        """
         if self.exists:
             return datetime.fromtimestamp(self.project_path.stat().st_mtime)
         else:

@@ -1072,6 +1072,14 @@ msgid "There is a newer version of this project available, you may want to integ
 msgstr "Une version plus récente de ce projet est disponible, vous pouvez l'intégrer à nouveau"
 
 #: georama/integration/templates/integration/drf/project/includes/pills/outdated.html
+msgid "on disk"
+msgstr "sur le disque"
+
+#: georama/integration/templates/integration/drf/project/includes/pills/outdated.html
+msgid "last integration"
+msgstr "dernière intégration"
+
+#: georama/integration/templates/integration/drf/project/includes/pills/outdated.html
 msgid "outdated"
 msgstr "obsolète"
 

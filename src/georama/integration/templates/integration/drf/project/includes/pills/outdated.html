@@ -3,9 +3,15 @@
     There is a newer version of this project available, you may
     want to integrate it again
 {% endblocktranslate %}
-<span class="badge rounded-pill text-bg-warning"
-      data-bs-toggle="tooltip"
-      title="{{ title }}"
-      aria-label="{{ title }}">
-    {% translate "outdated" %}
-</span>
+{% translate "on disk" as on_disk %}
+{% translate "last integration" as last_integration %}
+{% with modification_date=project.qgis_project_file_modification_date|date:"DATETIME_FORMAT" integration_date=project.integrated_at|date:"DATETIME_FORMAT" %}
+    <span class="badge rounded-pill text-bg-warning"
+          data-bs-toggle="tooltip"
+          data-bs-html="true"
+          data-bs-custom-class="tooltip-wide"
+          title="{{ title }}<dl class='tooltip-comparison'><dt>{{ on_disk }}:</dt><dd>{{ modification_date }}</dd><dt>{{ last_integration }}:</dt><dd>{{ integration_date }}</dd></dl>"
+          aria-label="{{ title }} - {{ on_disk }}: {{ modification_date }} - {{ last_integration }}: {{ integration_date }}">
+        {% translate "outdated" %}
+    </span>
+{% endwith %}
