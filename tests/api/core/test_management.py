@@ -10,7 +10,6 @@ from rest_framework.test import APIClient
         "/manage/groups/",
         "/manage/permissions/",
         "/manage/organisations/",
-        "/manage/fences/",
         "/manage/memberships/",
     ],
 )

@@ -1,7 +1,6 @@
 from adrf import serializers
 from django.contrib.auth.models import Group, Permission
 from rest_framework.serializers import PrimaryKeyRelatedField
-from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 from georama.core.models import Fence, GeoramaUser, Membership, Organisation
 
@@ -87,18 +86,6 @@ class OrganisationSerializer(serializers.ModelSerializer):
             "domain",
             "fences",
             "memberships",
-        ]
-        extra_kwargs = {"id": {"read_only": True}}
-
-
-class FenceSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = Fence
-        geo_field = "geometry"
-        fields = [
-            "id",
-            "name",
-            "organisation_id",
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
