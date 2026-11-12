@@ -198,8 +198,8 @@ class TestOrganisationMiddleware:
         settings,
         organisation_non_public_access,
     ):
-        # local accounts always need a way in, also when the login page shows only
-        # provider buttons, so the admin login is never redirected to the login page
+        # the admin login is reachable for everyone, also on organisations which are
+        # not public, otherwise nobody could log in there in the first place
         settings.ORGANISATION_GLOBAL_PUBLIC_ACCESS = False
         path = reverse("admin:login")
         client = Client()
