@@ -1,5 +1,7 @@
 ARG PYTHON_VERSION=3.12
-FROM python:${PYTHON_VERSION} AS base
+# trixie is pinned in all stages, the python binding gdal==3.10.3 has to match
+#   libgdal of debian trixie (3.10.3) at build and at run time
+FROM python:${PYTHON_VERSION}-trixie AS base
 LABEL org.opencontainers.image.authors="OPENGIS.ch <info@opengis.ch>"
 LABEL org.opencontainers.image.vendor="opengis.ch"
 LABEL org.opencontainers.image.title="Georama Base Image"
@@ -80,6 +82,9 @@ FROM builder-base AS prod-builder
 
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
+# the venv must point to /usr/local/bin/python of the official image,
+#   the slim runtime has the very same path, a uv managed python is not there
+ENV UV_PYTHON_DOWNLOADS=never
 
 WORKDIR /app/tests/resources/projects
 WORKDIR /static
@@ -106,25 +111,56 @@ RUN python3 /usr/local/bin/generate-build-info.py \
     --branch "$BUILD_BRANCH" \
     --commit "$BUILD_COMMIT"
 
-RUN uv sync --frozen --no-dev --no-editable --group prod
-RUN DJANGO_CONFIGURATION=Static \
-    uv run manage collectstatic --noinput
+# georama lands as a regular package in the venv, the sources are not needed
+#   at run time anymore, the translation sources neither
+RUN uv sync --frozen --no-dev --no-editable --group prod \
+ && find /app/.venv -path "*/georama/locale/*" -name "*.po" -delete
 
-FROM base
+# the venv script is called directly, `uv run` would sync the default group
+#   (dev) into the venv again and install georama editable on top
+RUN DJANGO_CONFIGURATION=Static \
+    DJANGO_STATIC_ROOT=/static \
+    /app/.venv/bin/manage collectstatic --noinput
+
+# the runtime is slim on purpose: python and bash for debugging, the shared
+#   libraries the venv really loads and nothing else
+FROM python:${PYTHON_VERSION}-slim-trixie AS prod-base
+ARG PYTHON_VERSION
 ARG UID=1001
 ARG USER=app
+LABEL org.opencontainers.image.authors="OPENGIS.ch <info@opengis.ch>"
+LABEL org.opencontainers.image.vendor="opengis.ch"
+LABEL org.opencontainers.image.title="Georama"
+
+# libgdal36: python binding gdal (osgeo) and GeoDjango
+# libgeos-c1t64: GeoDjango (loaded via ctypes)
+# libproj25: GeoDjango / GDAL coordinate transformations, brings proj.db
+# pip and the bundled wheels of ensurepip are not used by the venv
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      libgdal36 \
+      libgeos-c1t64 \
+      libproj25 \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/* \
+ && python -m pip uninstall --yes pip \
+ && rm -rf /usr/local/lib/python${PYTHON_VERSION}/ensurepip/_bundled
 
 ENV GEORAMA_DATA_INTEGRATION_ROOT=/io
 # georama serves the static files itself (ServeStatic) from here
 ENV DJANGO_STATIC_ROOT=/static
+# python and the libraries resolve the home of arbitrary uids (OpenShift)
+#   through HOME, so no entry in /etc/passwd is needed
+ENV HOME=/tmp
+# native crashes (GDAL/GEOS) print a python traceback instead of a silent
+#   dying worker
+ENV PYTHONFAULTHANDLER=1
+ENV PATH="/app/.venv/bin:$PATH"
 
-WORKDIR /static
-WORKDIR $GEORAMA_DATA_INTEGRATION_ROOT
-WORKDIR /app
+# app files belong to root and are read only for the app user,
+#   only the data integration root is writable (group 0 for arbitrary uids)
 COPY --from=prod-builder /app/.venv /app/.venv
-COPY --from=prod-builder /app/.static /static
-COPY --from=prod-builder /app/src /app/src
-COPY docker/prod.uid_entrypoint.sh /usr/local/bin/
+COPY --from=prod-builder /static /static
 COPY docker/prod.run.sh /usr/local/bin/
 
 RUN useradd \
@@ -135,24 +171,33 @@ RUN useradd \
       --no-create-home \
       --no-user-group \
       --password '*' \
-      $USER && \
-    mkdir -p /data && \
-    chown $USER:0 /data && \
-    chmod g=u /data && \
-    mkdir -p /auth && \
-    chown $USER:0 /auth && \
-    chown $USER:0 /io && \
-    chmod g=u /auth && \
-    chgrp 0 /etc/passwd && \
-    chmod g=u /etc/passwd && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/*
+      $USER \
+ && mkdir -p $GEORAMA_DATA_INTEGRATION_ROOT \
+ && chown $UID:0 $GEORAMA_DATA_INTEGRATION_ROOT \
+ && chmod g=u $GEORAMA_DATA_INTEGRATION_ROOT \
+ && rm -rf /tmp/*
 
-ENTRYPOINT [ "/usr/local/bin/prod.uid_entrypoint.sh" ]
-
-ENV PATH="/app/.venv/bin:$PATH"
+WORKDIR /app
 
 CMD [ "/usr/local/bin/prod.run.sh" ]
 
-USER $USER
+USER $UID:0
+
+# only for emergencies of ops in client infrastructures, published as
+#   <version>-debug and never as latest
+FROM prod-base AS debug
+ARG UID=1001
+
+USER root
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      curl \
+      iputils-ping \
+      jq \
+      postgresql-client \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+USER $UID:0
+
+# the prod image stays the last stage, so a build without --target results in it
+FROM prod-base AS prod
