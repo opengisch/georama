@@ -110,6 +110,16 @@ class HealthViewSet(ViewSet):
     check_timeout = 2
 
     async def list(self, request):
+        """Runs all registered checks at once, so the slowest check decides the answer
+        time, not the sum of them.
+
+        Args:
+            request: The DRF request, only its accepted format is of interest.
+
+        Returns:
+            The health answer, 200 when all checks are ok, 503 otherwise. The status code
+            is the same for JSON and HTML, probes only need the code.
+        """
         results = await asyncio.gather(
             *(check.run(self.check_timeout) for check in get_health_checks())
         )
@@ -129,8 +139,24 @@ class HealthViewSet(ViewSet):
 
     @staticmethod
     def status_name(healthy: bool) -> str:
+        """The answer knows only two words, a fixed vocabulary keeps it easy to probe.
+
+        Args:
+            healthy: The state to name.
+
+        Returns:
+            `ok` or `down`.
+        """
         return "ok" if healthy else "down"
 
     @classmethod
     def check_data(cls, result: HealthCheckResult) -> dict:
+        """Puts a single check into the shape of the answer.
+
+        Args:
+            result: The result of a single check.
+
+        Returns:
+            The status of the check together with its public details.
+        """
         return {"status": cls.status_name(result.healthy), **result.details}

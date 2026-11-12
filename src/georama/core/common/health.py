@@ -39,9 +39,25 @@ class HealthCheck(ABC):
 
     @abstractmethod
     async def check(self) -> HealthCheckResult:
+        """Looks at the resource. A check does not need to care about failures, it may
+        simply raise, `run` turns that into a down.
+
+        Returns:
+            The result of the check.
+        """
         pass
 
     async def run(self, timeout: float) -> HealthCheckResult:
+        """Runs the check so it can never break the health answer. A resource which
+        hangs or raises is just down, what exactly happened is only told to the log,
+        the public answer would otherwise disclose hostnames and the like.
+
+        Args:
+            timeout: Seconds the check may take before it counts as down.
+
+        Returns:
+            The result of the check, unhealthy if it failed or took too long.
+        """
         try:
             return await asyncio.wait_for(self.check(), timeout)
         except Exception:  # noqa: BLE001
@@ -51,19 +67,38 @@ class HealthCheck(ABC):
 
 
 class DatabaseHealthCheck(HealthCheck):
+    """Asks the default database the simplest question there is. It belongs to `core`
+    since every app depends on the database.
+    """
+
     name = "database"
 
     async def check(self) -> HealthCheckResult:
+        """Runs `SELECT 1` on the default database.
+
+        Returns:
+            A healthy result, if the database could not answer this raises.
+        """
         await sync_to_async(self.select_one)()
         return HealthCheckResult(name=self.name, healthy=True)
 
     @staticmethod
     def select_one():
+        """The ORM is sync only, so the query lives in its own function to be handed to
+        `sync_to_async`.
+        """
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1")
 
 
 def register_health_check(check: HealthCheck):
+    """Adds a check to the health answer. Apps call this in their `ready()`, the same
+    way they register remote actions. A second check with the same name is skipped,
+    the name is the key in the answer and has to stay unique.
+
+    Args:
+        check: The check to register.
+    """
     if check.name not in HEALTH_CHECKS:
         HEALTH_CHECKS[check.name] = check
     else:
@@ -71,4 +106,9 @@ def register_health_check(check: HealthCheck):
 
 
 def get_health_checks() -> list[HealthCheck]:
+    """Hands out the checks the health answer is made of.
+
+    Returns:
+        All registered checks in the order they were registered.
+    """
     return list(HEALTH_CHECKS.values())
