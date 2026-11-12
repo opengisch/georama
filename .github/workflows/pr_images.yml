@@ -3,9 +3,7 @@ name: Build Docker Images for PullRequests
 on:
   pull_request:
     branches:
-      - master
       - main
-      - refactoring
     types: [ opened, reopened, synchronize, closed ]
 
 permissions:
