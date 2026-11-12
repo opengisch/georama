@@ -1,13 +1,12 @@
-from adrf import routers
-from adrf.routers import DefaultRouter
 from django.urls import include, path
 
+from georama.core.common.routers import DefaultRouter, SimpleRouter
 from georama.features.api.viewsets import FeatureLayerViewSet, ManageFeatureLayerViewSet
 from georama.features.views.pygeoapi import PygeoapiServer
 
 app_name = "features"
 
-management_router = routers.SimpleRouter()
+management_router = SimpleRouter()
 management_router.register(r"feature_layers", ManageFeatureLayerViewSet, basename="feature-manager")
 
 router = DefaultRouter()

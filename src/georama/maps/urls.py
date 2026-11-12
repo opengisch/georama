@@ -1,17 +1,17 @@
-from adrf import routers
 from django.urls import include, path, re_path
 from django.utils.translation import gettext as _
 from drf_spectacular import views
 
+from georama.core.common.routers import SimpleRouter
 from georama.maps.api.viewsets import ManageWmsLayerViewSet, WmsLayerViewSet
 from georama.maps.views.ogc import OgcServer
 
 app_name = "maps"
 
-management_router = routers.SimpleRouter()
+management_router = SimpleRouter()
 management_router.register(r"map_layers", ManageWmsLayerViewSet, basename="maplayer-manager")
 
-router = routers.SimpleRouter()
+router = SimpleRouter()
 router.register(r"map_layers", WmsLayerViewSet, basename="maplayer")
 
 urlpatterns = [

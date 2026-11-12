@@ -20,7 +20,7 @@ def admin_client(admin_user, admin_user_name, admin_password):
 
 
 def permissions_path(theme):
-    return f"/webgis/manage/themes/{theme.pk}/permissions/"
+    return f"/webgis/manage/themes/{theme.pk}/permissions"
 
 
 class TestPermissionsJsonRepresentation:

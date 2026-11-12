@@ -6,7 +6,7 @@
     "translations": {
       "de": [
         "i18n/de.json",
-        "http://localhost:4242/webgis/themes/translation/de/"
+        "http://localhost:4242/webgis/themes/translation/de"
       ]
     },
     "defaultLanguage": "de"
@@ -15,7 +15,7 @@
     "defaultSelectionComponent": "grid"
   },
   "themes": {
-    "url": "http://localhost:4242/webgis/themes/geogirafe/",
+    "url": "http://localhost:4242/webgis/themes/geogirafe",
     "defaultTheme": "",
     "selectionMode": "replace"
   },
