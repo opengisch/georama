@@ -155,19 +155,19 @@ msgstr "Organisation"
 
 #: georama/core/models/membership.py
 msgid "membership"
-msgstr "Mitgliedschaft"
+msgstr "Zugehörigkeit"
 
 #: georama/core/models/membership.py
 msgid "memberships"
-msgstr "Mitgliedschaften"
+msgstr "Zugehörigkeiten"
 
 #: georama/core/models/membership.py
 msgid "Identifier of the membership."
-msgstr "Kennung der Mitgliedschaft."
+msgstr "Kennung der Zugehörigkeit."
 
 #: georama/core/models/membership.py
 msgid "User associated with the membership."
-msgstr "Der Mitgliedschaft zugeordneter Benutzer."
+msgstr "Benutzer, der der Organisation zugehörig ist."
 
 #: georama/core/models/membership.py georama/core/models/user.py
 msgid "user"
@@ -175,7 +175,7 @@ msgstr "Benutzer"
 
 #: georama/core/models/membership.py
 msgid "Organisation associated with the membership."
-msgstr "Der Mitgliedschaft zugeordnete Organisation."
+msgstr "Organisation, der der Benutzer zugehörig ist."
 
 #: georama/core/models/organisation.py
 msgid "Domain name must be different from the global one: "
