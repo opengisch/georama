@@ -688,6 +688,9 @@ class Dev(Base):
             "silk.middleware.SilkyMiddleware",
         ]
 
+    # silk writes every request into the database, the health has to work without it
+    SILKY_IGNORE_PATHS = ["/health/"]
+
     ORGANISATION_DOMAIN = "localhost"
 
 
