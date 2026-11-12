@@ -1,6 +1,6 @@
-from adrf.routers import DefaultRouter, SimpleRouter
 from django.urls import include, path, re_path
 
+from georama.core.common.routers import DefaultRouter, SimpleRouter
 from georama.webgis.api.viewsets import ManageThemeViewSet, ThemeViewSet, UrlShortenerViewSet
 from georama.webgis.views.ogc import OgcServerWebGis
 from georama.webgis.views.pygeoapi import PygeoapiServerWebGIS
@@ -13,7 +13,7 @@ management_router.register(r"themes", ManageThemeViewSet, basename="theme-manage
 router = DefaultRouter()
 router.register(r"themes", ThemeViewSet, basename="theme")
 
-short_router = SimpleRouter(trailing_slash=False)
+short_router = SimpleRouter()
 short_router.register(r"short", UrlShortenerViewSet, basename="short")
 
 urlpatterns = [
