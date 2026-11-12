@@ -1,7 +1,10 @@
 from allauth.socialaccount.adapter import get_adapter
 from django.conf import settings
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib import admin
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.views import LoginView, LogoutView, redirect_to_login
 from django.http import HttpResponseNotAllowed
+from django.urls import reverse
 
 
 class Login(LoginView):
@@ -59,6 +62,15 @@ class Login(LoginView):
             return True
         # without any identity provider the local form is the only way in, so we keep it
         return not get_adapter(self.request).list_providers(self.request)
+
+
+class AdminLogin(Login):
+    def dispatch(self, request, *args, **kwargs):
+        if self.local_form_enabled():
+            return admin.site.login(request)
+        return redirect_to_login(
+            request.GET.get(REDIRECT_FIELD_NAME, reverse("admin:index")), "core:login"
+        )
 
 
 class Logout(LogoutView):
