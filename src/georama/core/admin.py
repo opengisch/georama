@@ -37,6 +37,13 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
             .prefetch_related("memberships__organisation")
         )
 
+    def get_readonly_fields(self, request, obj=None):
+        """Make is_superuser read-only for non-superuser staff members."""
+        readonly_fields = super().get_readonly_fields(request, obj)
+        if not request.user.is_superuser:
+            return (*readonly_fields, "is_superuser")
+        return readonly_fields
+
 
 @admin.register(Group)
 class DjangoGroupAdmin(BaseGroupAdmin, ModelAdmin):
