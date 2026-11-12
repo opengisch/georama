@@ -43,7 +43,7 @@ services:
   georama-db:
     platform: "linux/amd64"
     restart: unless-stopped
-    image: postgis/postgis:17-3.5
+    image: postgis/postgis:17-3.6
     volumes:
       - "georama-db:/var/lib/postgresql/data"
     environment:
@@ -57,7 +57,7 @@ services:
       retries: 50
   qsl-redis:
     platform: "${PLATFORM:-linux/amd64}"
-    image: redis:8.8.0
+    image: redis:8.10.3
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 1s
@@ -131,7 +131,7 @@ services:
         condition: service_completed_successfully
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.5
+    image: quay.io/keycloak/keycloak:26.8
     platform: "${PLATFORM:-linux/amd64}"
     environment:
       # browsers reach keycloak with https (geogirafe requires it), georama within the
