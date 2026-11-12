@@ -213,6 +213,8 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             project_db.config = DictEncoder().encode(project_json)
             project_db.name = project_json.project.name
             project_db.qgis_version = project_json.project.version
+            # auto_now_add only sets it once, a re-integration has to refresh it on its own
+            # or the project would stay outdated forever
             project_db.integrated_at = timezone.now()
             await project_db.asave()
 

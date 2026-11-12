@@ -41,6 +41,15 @@ class QgisProject:
 
     @property
     def modification_date(self):
+        """The last time the QGIS project file was changed on disk.
+
+        The project file itself is the only thing on disk Georama still looks at, its
+        configuration lives in the database since the integration. So this date is what
+        tells if somebody touched the project after it was integrated.
+
+        Returns:
+            The modification time of the project file or None if the file is gone.
+        """
         if self.exists:
             return datetime.fromtimestamp(self.project_path.stat().st_mtime)
         else:

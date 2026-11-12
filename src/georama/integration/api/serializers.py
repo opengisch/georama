@@ -21,6 +21,12 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class FileSystemProjectSerializer(serializers.Serializer):
+    """A QGIS project file found on disk which is not integrated yet.
+
+    It reads straight from a QgisProject, so the view can hand over what it found
+    without building dicts first.
+    """
+
     project_path = serializers.CharField(source="path_from_orga", read_only=True)
     modification_date = serializers.DateTimeField(read_only=True)
 
