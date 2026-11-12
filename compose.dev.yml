@@ -9,7 +9,9 @@ services:
     build:
       target: dev
       args:
-        PYTHON_VERSION: "${PYTHON_VERSION:-3.12}"
+        # only passed if set in the environment, otherwise the pinned default
+        # of the Dockerfile applies
+        GDAL_IMAGE:
         UID: "${UID:-1000}"
         GID: "${GID:-1000}"
     develop:

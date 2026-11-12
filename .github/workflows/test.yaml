@@ -7,14 +7,25 @@ on:
   workflow_call:
 jobs:
   test-py:
-    name: Test Python
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # the informative run must not block, it only shows early what the next
+    # GDAL / python of the OSGeo image would break
+    continue-on-error: ${{ matrix.informative }}
     strategy:
+      fail-fast: false
       matrix:
-        python-version:
-          - '3.12'
-          - '3.13'
+        include:
+          # GDAL_IMAGE pinned in the Dockerfile (GDAL 3.13, python 3.12)
+          - name: Test Python
+            gdal-image: ""
+            informative: false
+          # development build of OSGeo (GDAL 3.14, alpine 3.24, python 3.14),
+          # deliberately not pinned
+          - name: Test Python (informative, GDAL latest)
+            gdal-image: "ghcr.io/osgeo/gdal:alpine-normal-latest"
+            informative: true
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
@@ -23,10 +34,14 @@ jobs:
         run: |
           cp .env.example .env
           echo "COMPOSE_FILE=compose.yml:compose.dev.yml" >> .env
-          echo "PYTHON_VERSION=${{ matrix.python-version }}" >> .env
           echo "UID=$(id -u)" >> .env
           echo "GID=$(id -g)" >> .env
           cat .env
+          # compose passes the build arg only if it is set in the environment,
+          # otherwise the pinned default of the Dockerfile applies
+          if [ -n "${{ matrix.gdal-image }}" ]; then
+            echo "GDAL_IMAGE=${{ matrix.gdal-image }}" >> "$GITHUB_ENV"
+          fi
       - name: Build Georama Image
         run: |
           docker compose build georama
