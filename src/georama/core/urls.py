@@ -3,6 +3,7 @@ from django.urls import include, path
 
 from georama.core.api.view_sets import (
     GroupViewSet,
+    HealthViewSet,
     MembershipViewSet,
     OrganisationViewSet,
     PermissionViewSet,
@@ -23,6 +24,8 @@ urlpatterns = [
     path("", Index.as_view(), name="index"),
     path("login/", auth.Login.as_view(), name="login"),
     path("logout/", auth.Logout.as_view(), name="logout"),
+    # not through the router, its routes live under manage/
+    path("health/", HealthViewSet.as_view({"get": "list"}), name="health"),
     path("manage/", include(management_router.urls)),
     path(
         "manage/schema/",

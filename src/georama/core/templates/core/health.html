@@ -1,0 +1,92 @@
+{% load i18n static %}
+{% get_current_language as LANGUAGE_CODE %}
+
+{% comment %}
+    Standalone on purpose, it does not extend core/base.html. The page has to render while
+    the database is down, base.html needs the menu and the user, both from the database.
+{% endcomment %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" data-bs-theme="light" data-theme-default="light">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <link rel="icon" type="image/svg+xml" href="{% static 'core/images/favicon.svg' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'core/images/favicon.ico' %}">
+
+    <link rel="stylesheet" href="{% static 'core/css/variables.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/bootstrap.overwrites.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/georama.css' %}">
+
+    <title>{% translate "Health" %} – {{ site_title }}</title>
+</head>
+<body>
+
+<header class="main-header">
+    <nav class="navbar bg-body border-bottom">
+        <div class="container">
+            <span class="navbar-brand d-flex align-items-center">
+                <img src="{% static 'core/images/main_plain.svg' %}" alt="Georama"
+                     class="d-inline-block align-text-top">
+                <span class="navbar-brand-domain text-nowrap ms-2">{{ site_title }}</span>
+            </span>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <div class="container py-4">
+
+        <h1 class="h3 d-flex align-items-center gap-2">
+            {% translate "Health" %}
+            <span class="badge {% if status == 'ok' %}text-bg-success{% else %}text-bg-danger{% endif %}">{{ status }}</span>
+        </h1>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">{% translate "Check" %}</th>
+                <th scope="col">{% translate "Status" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for name, check in checks.items %}
+                <tr>
+                    <td>{{ name }}</td>
+                    <td>
+                        <span class="badge {% if check.status == 'ok' %}text-bg-success{% else %}text-bg-danger{% endif %}">{{ check.status }}</span>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <h2 class="h5">{% translate "Alive workers" %}</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">{% translate "Id" %}</th>
+                <th scope="col">{% translate "Last seen" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for worker in checks.workers.workers %}
+                <tr>
+                    <td>{{ worker.id }}</td>
+                    <td>{{ worker.last_seen|date:"Y-m-d H:i:s e" }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2">{% translate "No alive worker." %}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</main>
+
+</body>
+</html>
