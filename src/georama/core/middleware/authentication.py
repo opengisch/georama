@@ -16,6 +16,14 @@ class MiddlewareAuthentication(BaseAuthentication):
     request_flag = "georama_header_authenticated"
 
     def authenticate(self, request: Request):
+        """Picks up the user the middleware put on the request, if it was one of ours.
+
+        Args:
+            request: The request of the REST framework.
+
+        Returns:
+            The user and no token, or None so the next authentication class is asked.
+        """
         if getattr(request._request, self.request_flag, False):
             return request._request.user, None
         return None

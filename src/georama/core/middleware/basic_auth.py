@@ -49,6 +49,14 @@ class BasicAuthenticationMiddleware:
         return self.get_response(request)
 
     def unauthorized_response(self, request: HttpRequest) -> HttpResponse:
+        """The 401 with the challenge, the same for every reason a login failed.
+
+        Args:
+            request: The django request.
+
+        Returns:
+            The 401 response.
+        """
         response = HttpResponse("Unauthorized", status=401)
         # without the challenge clients don't know they may ask for credentials again
         response["WWW-Authenticate"] = self.authenticate_header(request)
@@ -123,6 +131,14 @@ class BasicAuthenticationMiddleware:
         return user, None
 
     def authenticate_header(self, request):
+        """Builds the challenge of the 401, it names Georama as the protection space.
+
+        Args:
+            request: The django request.
+
+        Returns:
+            The value of the WWW-Authenticate header.
+        """
         # the realm names the protection space, clients keep their credentials per realm
         realm = settings.SITE_TITLE.replace("\\", "\\\\").replace('"', '\\"')
         return f'Basic realm="{realm}"'

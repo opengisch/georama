@@ -61,6 +61,15 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
 
     @admin.display(description=_("provider account"))
     def provider_accounts(self, user) -> str:
+        """Shows which identity providers a user is linked to, a dash for a local
+        account only.
+
+        Args:
+            user: The user of the row.
+
+        Returns:
+            The provider ids, comma separated.
+        """
         return ", ".join(account.provider for account in user.socialaccount_set.all()) or "–"
 
     def get_readonly_fields(self, request, obj=None):

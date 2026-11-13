@@ -30,10 +30,26 @@ class LoginAttempts:
 
     @classmethod
     def blocked(cls, request: HttpRequest, username: str) -> bool:
+        """Asks without counting, so we know before checking a password whether it is
+        worth checking at all.
+
+        Args:
+            request: The django request.
+            username: The username the client tries to log in with.
+
+        Returns:
+            True if the username reached the limit.
+        """
         return not cls.consume(request, username, dry_run=True)
 
     @classmethod
     def count_failure(cls, request: HttpRequest, username: str) -> None:
+        """Counts one failed login and tells the operator once the limit is reached.
+
+        Args:
+            request: The django request.
+            username: The username of the failed login.
+        """
         cls.consume(request, username, dry_run=False)
         if cls.blocked(request, username):
             # once when the limit is reached, so the reason for a refused login is
@@ -53,6 +69,17 @@ class LoginAttempts:
     def guard(
         cls, request: HttpRequest, username: str, login: Callable[[], HttpResponse]
     ) -> HttpResponse:
+        """Wraps a login view: a blocked username gets the 429 page, a login which ends
+        without a logged in user is counted.
+
+        Args:
+            request: The django request.
+            username: The username sent with the form.
+            login: The login view, ready to be called.
+
+        Returns:
+            The response of the login view or the 429 page.
+        """
         if cls.blocked(request, username):
             return ratelimit.respond_429(request)
         response = login()
@@ -62,6 +89,16 @@ class LoginAttempts:
 
     @classmethod
     def consume(cls, request: HttpRequest, username: str, dry_run: bool) -> bool:
+        """Hands the attempt to allauth's rate limiting, with Georama's rate.
+
+        Args:
+            request: The django request.
+            username: The username of the attempt.
+            dry_run: Only look, don't count.
+
+        Returns:
+            True if the attempt is still within the limit.
+        """
         usage = ratelimit.consume(
             request,
             app=cls.app,
