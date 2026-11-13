@@ -58,3 +58,16 @@ jobs:
           # the SBOM (BuildKit scanner, based on syft) is attached to the image as
           # an attestation
           sbom: true
+
+      # prod plus the ops tooling for emergencies, follows edge like its release twin
+      - name: Build and push Edge sam Image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: sam
+          push: true
+          build-args: |
+            BUILD_BRANCH=${{ github.ref_name }}
+            BUILD_COMMIT=${{ github.sha }}
+          tags: ghcr.io/${{ github.repository }}:edge-sam
+          sbom: true
