@@ -14,6 +14,7 @@ from pathlib import Path
 
 from configurations import Configuration, values
 from corsheaders.defaults import default_headers
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
 LIST_ENV_SEPARATOR = " "
@@ -77,6 +78,16 @@ class Base(Configuration):
     # Proxy "X-Forwarded-..." headers
     # https://docs.djangoproject.com/en/6.0/ref/settings/#secure-proxy-ssl-header
     SECURE_PROXY_SSL_HEADER = values.TupleValue(None)
+
+    # session and CSRF cookie only over HTTPS
+    # https://docs.djangoproject.com/en/6.0/ref/settings/#session-cookie-secure
+    SESSION_COOKIE_SECURE = values.BooleanValue(True)
+    CSRF_COOKIE_SECURE = values.BooleanValue(True)
+    # lifetime of a session in seconds, two weeks (django's default)
+    SESSION_COOKIE_AGE = values.IntegerValue(60 * 60 * 24 * 14)
+    # HSTS header, for setups without a proxy which sets it already (0 means off)
+    # https://docs.djangoproject.com/en/6.0/ref/settings/#secure-hsts-seconds
+    SECURE_HSTS_SECONDS = values.IntegerValue(0)
 
     DEBUG = False
 
@@ -228,9 +239,11 @@ class Base(Configuration):
 
     OIDC_NAME = values.Value("Keycloak", environ_prefix=GEORAMA_ENV_PREFIX)
     OIDC_SERVER_URL = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
-    OIDC_CLIENT_ID = values.Value("georama-oidc", environ_prefix=GEORAMA_ENV_PREFIX)
+    # no defaults which only fit the dev realm, a production setup must name its client
+    OIDC_CLIENT_ID = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
     OIDC_OAUTH_PKCE_ENABLED = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
-    OIDC_SECRET = values.Value("secret", environ_prefix=GEORAMA_ENV_PREFIX)
+    # empty for public clients (PKCE), confidential clients need their secret here
+    OIDC_SECRET = values.Value("", environ_prefix=GEORAMA_ENV_PREFIX)
     OIDC_PROVIDER_ID = values.Value("keycloak", environ_prefix=GEORAMA_ENV_PREFIX)
 
     # switches the local username/password form on the login page, when off only the
@@ -277,6 +290,10 @@ class Base(Configuration):
         if not self.OIDC_SERVER_URL:
             # without a server url the provider can't work, so we don't offer it at all
             return {}
+        if not self.OIDC_CLIENT_ID:
+            raise ImproperlyConfigured(
+                "GEORAMA_OIDC_SERVER_URL is set, but GEORAMA_OIDC_CLIENT_ID is missing."
+            )
         return {
             "openid_connect": {
                 "OAUTH_PKCE_ENABLED": self.OIDC_OAUTH_PKCE_ENABLED,
@@ -622,6 +639,13 @@ class Dev(Base):
 
     BASIC_AUTH_ENABLED = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
 
+    # the dev setup runs on plain http
+    SESSION_COOKIE_SECURE = values.BooleanValue(False)
+    CSRF_COOKIE_SECURE = values.BooleanValue(False)
+
+    # public client of the dev realm (keycloak/import/ninjas-realm.json)
+    OIDC_CLIENT_ID = values.Value("georama-oidc", environ_prefix=GEORAMA_ENV_PREFIX)
+
     @property
     def MIDDLEWARE(self):
         return super().MIDDLEWARE + [
@@ -675,6 +699,9 @@ class Test(Base):
     CSRF_TRUSTED_ORIGINS = Dev.CSRF_TRUSTED_ORIGINS
     LOGIN_LOCAL_FORM_ENABLED = True
     BASIC_AUTH_ENABLED = True
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    OIDC_CLIENT_ID = Dev.OIDC_CLIENT_ID
 
 
 class Static(Base):
