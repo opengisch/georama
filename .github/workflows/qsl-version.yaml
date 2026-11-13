@@ -3,6 +3,11 @@ on:
   push:
     branches:
       - "**"
+  # a PR from a fork runs its push in the fork, without this the required checks would never report
+  # no paths filter: a required check skipped by a paths filter stays pending forever
+  pull_request:
+    branches:
+      - main
   # release.yml calls the guard before the image is published
   workflow_call:
     inputs:
@@ -21,3 +26,21 @@ jobs:
         # package and images have to come from one QSL release or one QSL PR, the interface is the contract on the queue
         # on main a QSL PR pin slipped past qsl-release-gate.yaml, e.g. by a bypass, so it fails there too
         run: python3 .github/scripts/qsl_pin.py ${{ (inputs.require-release || github.ref == 'refs/heads/main') && '--require-release' || '' }}
+  # its own job so a stale lock shows up as its own failed check and not midst the pin check
+  uv-lock:
+    name: Test uv.lock matches pyproject.toml
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - name: Compare uv.lock with pyproject.toml
+        # the image installs with uv sync --frozen, which never checks the lock, so a stale lock ships silently
+        # on a mismatch the lock is rewritten in the runner, the diff names exactly what is off
+        run: |
+          if ! uv lock --locked; then
+            uv lock
+            echo "::error file=uv.lock::uv.lock does not match pyproject.toml, run uv lock and commit it"
+            git diff uv.lock
+            exit 1
+          fi
