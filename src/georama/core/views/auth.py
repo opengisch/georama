@@ -1,3 +1,5 @@
+from functools import partial
+
 from allauth.socialaccount.adapter import get_adapter
 from django.conf import settings
 from django.contrib import admin
@@ -5,6 +7,8 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import LoginView, LogoutView, redirect_to_login
 from django.http import HttpResponseNotAllowed
 from django.urls import reverse
+
+from georama.core.common.login_attempts import LoginAttempts
 
 
 class Login(LoginView):
@@ -48,7 +52,11 @@ class Login(LoginView):
         """
         if not self.local_form_enabled():
             return HttpResponseNotAllowed(["GET"])
-        return super().post(request, *args, **kwargs)
+        return LoginAttempts.guard(
+            request,
+            request.POST.get("username", ""),
+            partial(super().post, request, *args, **kwargs),
+        )
 
     def local_form_enabled(self) -> bool:
         """Decides if the local form is offered. The setting wins, unless there is no
@@ -86,6 +94,12 @@ class AdminLogin(Login):
             The response of the admin login or a redirect to the login page.
         """
         if self.local_form_enabled():
+            if request.method == "POST":
+                return LoginAttempts.guard(
+                    request,
+                    request.POST.get("username", ""),
+                    partial(admin.site.login, request),
+                )
             return admin.site.login(request)
         return redirect_to_login(
             request.GET.get(REDIRECT_FIELD_NAME, reverse("admin:index")), "core:login"

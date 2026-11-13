@@ -14,6 +14,7 @@ from pathlib import Path
 
 from configurations import Configuration, values
 from corsheaders.defaults import default_headers
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
 LIST_ENV_SEPARATOR = " "
@@ -77,6 +78,16 @@ class Base(Configuration):
     # Proxy "X-Forwarded-..." headers
     # https://docs.djangoproject.com/en/6.0/ref/settings/#secure-proxy-ssl-header
     SECURE_PROXY_SSL_HEADER = values.TupleValue(None)
+
+    # session and CSRF cookie only over HTTPS
+    # https://docs.djangoproject.com/en/6.0/ref/settings/#session-cookie-secure
+    SESSION_COOKIE_SECURE = values.BooleanValue(True)
+    CSRF_COOKIE_SECURE = values.BooleanValue(True)
+    # lifetime of a session in seconds, two weeks (django's default)
+    SESSION_COOKIE_AGE = values.IntegerValue(60 * 60 * 24 * 14)
+    # HSTS header, for setups without a proxy which sets it already (0 means off)
+    # https://docs.djangoproject.com/en/6.0/ref/settings/#secure-hsts-seconds
+    SECURE_HSTS_SECONDS = values.IntegerValue(0)
 
     DEBUG = False
 
@@ -184,21 +195,38 @@ class Base(Configuration):
         "crispy_bootstrap5",
     ]
 
-    MIDDLEWARE = [
-        "django.middleware.security.SecurityMiddleware",
-        "django.contrib.sessions.middleware.SessionMiddleware",
-        "corsheaders.middleware.CorsMiddleware",
-        "django.middleware.locale.LocaleMiddleware",
-        "django.middleware.common.CommonMiddleware",
-        "django.middleware.csrf.CsrfViewMiddleware",
-        "django.contrib.auth.middleware.AuthenticationMiddleware",
-        "georama.core.middleware.basic_auth.BasicAuthenticationMiddleware",
-        "georama.core.middleware.oidc.GeoGirafeAuthenticationMiddleware",
-        "django.contrib.messages.middleware.MessageMiddleware",
-        "django.middleware.clickjacking.XFrameOptionsMiddleware",
-        "allauth.account.middleware.AccountMiddleware",
-        "georama.core.middleware.organisation.OrganisationMiddleware",
-    ]
+    # loads HTTP Basic authentication (username/password with every request, e.g. QGIS),
+    # when off it is not part of the middleware and the REST framework at all
+    BASIC_AUTH_ENABLED = values.BooleanValue(False, environ_prefix=GEORAMA_ENV_PREFIX)
+
+    @property
+    def MIDDLEWARE(self):
+        basic_authentication = (
+            ["georama.core.middleware.basic_auth.BasicAuthenticationMiddleware"]
+            if self.BASIC_AUTH_ENABLED
+            else []
+        )
+        # bearer tokens of GeoGirafe can only be checked with an identity provider
+        bearer_authentication = (
+            ["georama.core.middleware.oidc.GeoGirafeAuthenticationMiddleware"]
+            if self.OIDC_SERVER_URL
+            else []
+        )
+        return [
+            "django.middleware.security.SecurityMiddleware",
+            "django.contrib.sessions.middleware.SessionMiddleware",
+            "corsheaders.middleware.CorsMiddleware",
+            "django.middleware.locale.LocaleMiddleware",
+            "django.middleware.common.CommonMiddleware",
+            "django.middleware.csrf.CsrfViewMiddleware",
+            "django.contrib.auth.middleware.AuthenticationMiddleware",
+            *basic_authentication,
+            *bearer_authentication,
+            "django.contrib.messages.middleware.MessageMiddleware",
+            "django.middleware.clickjacking.XFrameOptionsMiddleware",
+            "allauth.account.middleware.AccountMiddleware",
+            "georama.core.middleware.organisation.OrganisationMiddleware",
+        ]
 
     AUTHENTICATION_BACKENDS = (
         "django.contrib.auth.backends.ModelBackend",  # this is default
@@ -208,19 +236,48 @@ class Base(Configuration):
     # Django allauth's social account configuration
     # https://docs.allauth.org/en/dev/socialaccount/configuration.html
     SOCIALACCOUNT_QUERY_EMAIL = True
-    SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+    # signing in an existing local account by the email the provider reports is off for
+    # all providers, it's switched on per provider app ("email_authentication" in its
+    # settings, see SOCIALACCOUNT_PROVIDERS). Only trust a provider with it which
+    # verifies emails honestly, otherwise its users can take over local accounts.
+    SOCIALACCOUNT_EMAIL_AUTHENTICATION = False
+    # when a provider signs in by email, the provider account is connected to the local
+    # one, so the next login (and the bearer tokens of GeoGirafe) find it by the
+    # provider's id
     SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
-    SOCIALACCOUNT_LOGIN_ON_GET = True
+    # the provider login starts with a POST (buttons with CSRF token), so a link on a
+    # third party page can't start a login flow (allauth's default)
+    SOCIALACCOUNT_LOGIN_ON_GET = False
 
     # important to prevent normal redirect to /account/profile (which we don't have yet)
     LOGIN_REDIRECT_URL = "/"
 
     OIDC_NAME = values.Value("Keycloak", environ_prefix=GEORAMA_ENV_PREFIX)
     OIDC_SERVER_URL = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
-    OIDC_CLIENT_ID = values.Value("georama-oidc", environ_prefix=GEORAMA_ENV_PREFIX)
+    # no defaults which only fit the dev realm, a production setup must name its client
+    OIDC_CLIENT_ID = values.Value(environ_prefix=GEORAMA_ENV_PREFIX)
     OIDC_OAUTH_PKCE_ENABLED = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
-    OIDC_SECRET = values.Value("secret", environ_prefix=GEORAMA_ENV_PREFIX)
+    # empty for public clients (PKCE), confidential clients need their secret here
+    OIDC_SECRET = values.Value("", environ_prefix=GEORAMA_ENV_PREFIX)
     OIDC_PROVIDER_ID = values.Value("keycloak", environ_prefix=GEORAMA_ENV_PREFIX)
+    # seconds Georama waits for the provider (configuration and signing keys), it must
+    # never block Georama for long
+    OIDC_TIMEOUT_SECONDS = values.IntegerValue(5, environ_prefix=GEORAMA_ENV_PREFIX)
+    # while the provider is not reachable, bearer tokens are refused and the provider
+    # is only asked again after these seconds, so not every request waits for it
+    OIDC_RETRY_SECONDS = values.IntegerValue(30, environ_prefix=GEORAMA_ENV_PREFIX)
+    # when the provider's username of a new token user already exists locally:
+    # "suffix" creates a new user with a number appended, "connect" links the token to
+    # the existing local account. Only use "connect" with a provider where people can't
+    # choose their username themselves, otherwise anyone can take over a local account.
+    OIDC_USERNAME_CONFLICT = values.Value("suffix", environ_prefix=GEORAMA_ENV_PREFIX)
+    # a login through the provider signs in the existing local account with the same
+    # (by the provider verified) email and connects both. Only with a provider which
+    # verifies emails honestly, otherwise its users can take over local accounts.
+    OIDC_EMAIL_AUTHENTICATION = values.BooleanValue(False, environ_prefix=GEORAMA_ENV_PREFIX)
+    # superusers may use GeoGirafe with their token. Off by default: the token lives in
+    # the browser and would carry superuser rights (for the request only, never a session)
+    GEOGIRAFE_SUPERUSER_ENABLED = values.BooleanValue(False, environ_prefix=GEORAMA_ENV_PREFIX)
 
     # switches the local username/password form on the login page, when off only the
     # identity provider buttons are shown (as long as at least one provider exists)
@@ -228,6 +285,24 @@ class Base(Configuration):
 
     # lets people create a local account themselves under /accounts/signup/
     LOGIN_LOCAL_SIGNUP_ENABLED = values.BooleanValue(False, environ_prefix=GEORAMA_ENV_PREFIX)
+
+    # failed password logins per username (login page, admin login, HTTP Basic) until
+    # the username is blocked, and for how long. Limits per ip are left to the security
+    # layer in front of Georama: behind a proxy all clients share its ip.
+    LOGIN_ATTEMPTS_LIMIT = values.IntegerValue(5, environ_prefix=GEORAMA_ENV_PREFIX)
+    LOGIN_ATTEMPTS_BLOCKED_MINUTES = values.IntegerValue(5, environ_prefix=GEORAMA_ENV_PREFIX)
+
+    @property
+    def LOGIN_ATTEMPTS_RATE(self):
+        # in allauth's notation: attempts / time window / counted per key (the username)
+        return f"{self.LOGIN_ATTEMPTS_LIMIT}/{self.LOGIN_ATTEMPTS_BLOCKED_MINUTES * 60}s/key"
+
+    @property
+    def ACCOUNT_RATE_LIMITS(self):
+        # allauth's own login page counts with the same rate, so both share one counter
+        # per username, the limit per ip stays allauth's default there
+        return {"login_failed": f"10/m/ip,{self.LOGIN_ATTEMPTS_RATE}"}
+
     ACCOUNT_ADAPTER = "georama.core.adapters.AccountAdapter"
     SOCIALACCOUNT_ADAPTER = "georama.core.adapters.SocialAccountAdapter"
 
@@ -248,6 +323,10 @@ class Base(Configuration):
         if not self.OIDC_SERVER_URL:
             # without a server url the provider can't work, so we don't offer it at all
             return {}
+        if not self.OIDC_CLIENT_ID:
+            raise ImproperlyConfigured(
+                "GEORAMA_OIDC_SERVER_URL is set, but GEORAMA_OIDC_CLIENT_ID is missing."
+            )
         return {
             "openid_connect": {
                 "OAUTH_PKCE_ENABLED": self.OIDC_OAUTH_PKCE_ENABLED,
@@ -258,6 +337,7 @@ class Base(Configuration):
                     "secret": self.OIDC_SECRET,
                     "settings": {
                         "server_url": self.OIDC_SERVER_URL,
+                        "email_authentication": self.OIDC_EMAIL_AUTHENTICATION,
                     },
                 },
             },
@@ -401,19 +481,32 @@ class Base(Configuration):
     ######################
     # Django Restframework => https://www.django-rest-framework.org/api-guide/settings/
     ######################
-    REST_FRAMEWORK = {
-        "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-        "PAGE_SIZE": 10,
-        "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-        "DEFAULT_FILTER_BACKENDS": [
-            "django_filters.rest_framework.DjangoFilterBackend",
-        ],
-        "DEFAULT_RENDERER_CLASSES": [
-            "rest_framework.renderers.JSONRenderer",
-            "rest_framework.renderers.BrowsableAPIRenderer",
-        ],
-        "URL_FORMAT_OVERRIDE": "f",
-    }
+    @property
+    def REST_FRAMEWORK(self):
+        # the middlewares check the credentials, the REST framework only takes their
+        # user over
+        header_authentication = (
+            ["georama.core.middleware.authentication.MiddlewareAuthentication"]
+            if self.BASIC_AUTH_ENABLED or self.OIDC_SERVER_URL
+            else []
+        )
+        return {
+            "DEFAULT_AUTHENTICATION_CLASSES": [
+                *header_authentication,
+                "rest_framework.authentication.SessionAuthentication",
+            ],
+            "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+            "PAGE_SIZE": 10,
+            "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+            "DEFAULT_FILTER_BACKENDS": [
+                "django_filters.rest_framework.DjangoFilterBackend",
+            ],
+            "DEFAULT_RENDERER_CLASSES": [
+                "rest_framework.renderers.JSONRenderer",
+                "rest_framework.renderers.BrowsableAPIRenderer",
+            ],
+            "URL_FORMAT_OVERRIDE": "f",
+        }
 
     SPECTACULAR_SETTINGS = {
         "SERVE_PUBLIC": False,
@@ -579,9 +672,21 @@ class Dev(Base):
         "django_extensions",
     ]
 
-    MIDDLEWARE = Base.MIDDLEWARE + [
-        "silk.middleware.SilkyMiddleware",
-    ]
+    BASIC_AUTH_ENABLED = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+    GEOGIRAFE_SUPERUSER_ENABLED = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+
+    # the dev setup runs on plain http
+    SESSION_COOKIE_SECURE = values.BooleanValue(False)
+    CSRF_COOKIE_SECURE = values.BooleanValue(False)
+
+    # public client of the dev realm (keycloak/import/ninjas-realm.json)
+    OIDC_CLIENT_ID = values.Value("georama-oidc", environ_prefix=GEORAMA_ENV_PREFIX)
+
+    @property
+    def MIDDLEWARE(self):
+        return super().MIDDLEWARE + [
+            "silk.middleware.SilkyMiddleware",
+        ]
 
     ORGANISATION_DOMAIN = "localhost"
 
@@ -591,13 +696,16 @@ class Prod(Base):
     # must be before django.contrib.staticfiles
     INSTALLED_APPS.insert(INSTALLED_APPS.index("django.contrib.staticfiles"), "servestatic")
 
-    MIDDLEWARE = copy.copy(Base.MIDDLEWARE)
-    # must be right after SecurityMiddleware so static files are served
-    # before any session/auth/organisation handling happens
-    MIDDLEWARE.insert(
-        MIDDLEWARE.index("django.middleware.security.SecurityMiddleware") + 1,
-        "servestatic.middleware.ServeStaticMiddleware",
-    )
+    @property
+    def MIDDLEWARE(self):
+        middleware = super().MIDDLEWARE
+        # must be right after SecurityMiddleware so static files are served
+        # before any session/auth/organisation handling happens
+        middleware.insert(
+            middleware.index("django.middleware.security.SecurityMiddleware") + 1,
+            "servestatic.middleware.ServeStaticMiddleware",
+        )
+        return middleware
 
     STORAGES = {
         "default": {
@@ -626,6 +734,10 @@ class Test(Base):
     CORS_ALLOWED_ORIGINS = Dev.CORS_ALLOWED_ORIGINS
     CSRF_TRUSTED_ORIGINS = Dev.CSRF_TRUSTED_ORIGINS
     LOGIN_LOCAL_FORM_ENABLED = True
+    BASIC_AUTH_ENABLED = True
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    OIDC_CLIENT_ID = Dev.OIDC_CLIENT_ID
 
 
 class Static(Base):

@@ -1380,3 +1380,77 @@ msgstr "Apri il tema nel WebGIS"
 #: georama/webgis/templates/webgis/drf/theme/partials/list_body.html
 msgid "Theme icon"
 msgstr "Icona del tema"
+
+#: georama/core/admin.py
+msgid "provider account"
+msgstr "account del provider"
+
+#: georama/core/admin.py
+msgid "linked"
+msgstr "collegato"
+
+#: georama/core/admin.py
+msgid "not linked"
+msgstr "non collegato"
+
+#: georama/core/common/login_attempts.py
+#, python-format
+msgid "Too many failed login attempts for %s, blocked for up to %s minutes. Remote address: %s, X-Forwarded-For: %r"
+msgstr "Troppi tentativi di accesso non riusciti per %s, bloccato fino a %s minuti. Indirizzo remoto: %s, X-Forwarded-For: %r"
+
+#: georama/core/middleware/basic_auth.py
+msgid "Too many failed login attempts."
+msgstr "Troppi tentativi di accesso non riusciti."
+
+#: georama/core/middleware/basic_auth.py
+#, python-format
+msgid "Superuser %s tried basic authentication, use a non superuser account."
+msgstr "Il superutente %s ha tentato l'autenticazione Basic, usare un account senza diritti di superutente."
+
+#: georama/core/templates/400.html
+msgid "Bad request"
+msgstr "Richiesta non valida"
+
+#: georama/core/templates/400.html
+msgid "The request could not be understood by the server."
+msgstr "Il server non ha potuto comprendere la richiesta."
+
+#: georama/core/templates/403.html
+msgid "Forbidden"
+msgstr "Vietato"
+
+#: georama/core/templates/403.html
+msgid "Access denied"
+msgstr "Accesso negato"
+
+#: georama/core/templates/403.html
+msgid "You don't have permission to access this page."
+msgstr "Nessuna autorizzazione per accedere a questa pagina."
+
+#: georama/core/templates/403_csrf.html
+msgid "The form could not be verified"
+msgstr "Non è stato possibile verificare il modulo"
+
+#: georama/core/templates/403_csrf.html
+msgid "The form may have expired. Please reload the page and try again."
+msgstr "Il modulo potrebbe essere scaduto. Ricaricare la pagina e riprovare."
+
+#: georama/core/templates/429.html
+msgid "Too Many Requests"
+msgstr "Troppe richieste"
+
+#: georama/core/templates/429.html
+msgid "Too many failed login attempts"
+msgstr "Troppi tentativi di accesso non riusciti"
+
+#: georama/core/templates/429.html
+msgid "Please wait a few minutes before you try again."
+msgstr "Attendere qualche minuto prima di riprovare."
+
+#: georama/core/templates/500.html
+msgid "Server error"
+msgstr "Errore del server"
+
+#: georama/core/templates/500.html
+msgid "Something went wrong on our side. Please try again later."
+msgstr "Si è verificato un errore da parte nostra. Riprovare più tardi."

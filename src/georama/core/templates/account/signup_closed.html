@@ -1,0 +1,15 @@
+{% extends "core/entrance.html" %}
+{% load i18n %}
+
+{% comment %}
+    Overrides allauth's page for a closed signup (GEORAMA_LOGIN_LOCAL_SIGNUP_ENABLED is
+    off). The texts are allauth's own, so its translations apply.
+{% endcomment %}
+
+{% block entrance_content %}
+    <h2>{% trans "Sign Up Closed" %}</h2>
+    <p class="text-muted">{% trans "We are sorry, but the sign up is currently closed." %}</p>
+    <div class="d-grid mt-4">
+        <a href="{% url 'core:login' %}" class="btn btn-outline-secondary">{% trans "Sign In" %}</a>
+    </div>
+{% endblock %}

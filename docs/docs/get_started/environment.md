@@ -216,22 +216,39 @@ same files.
 | `DJANGO_CORS_ALLOW_CREDENTIALS`  | `true`                                       | Allow cookies in cross-origin requests.                                                                                                                                                                                                                 |
 | `DJANGO_CORS_ALLOW_METHODS`      | `DELETE HEAD GET OPTIONS PATCH POST PUT`     | HTTP methods allowed in cross-origin requests.                                                                                                                                                                                                          |
 | `DJANGO_CORS_ALLOW_HEADERS`      | django-cors-headers defaults + `content-crs` | Headers allowed in cross-origin requests.                                                                                                                                                                                                               |
+| `DJANGO_SESSION_COOKIE_SECURE`   | `true` (Dev, `compose.yml`: `false`)         | Send the session cookie over HTTPS only. Keep `true` behind HTTPS, also when TLS ends at a proxy. See [Security Settings](production.md#security-settings).                                                                                             |
+| `DJANGO_CSRF_COOKIE_SECURE`      | `true` (Dev, `compose.yml`: `false`)         | Same for the CSRF cookie.                                                                                                                                                                                                                               |
+| `DJANGO_SESSION_COOKIE_AGE`      | `1209600` (two weeks)                        | Lifetime of a session in seconds.                                                                                                                                                                                                                       |
+| `DJANGO_SECURE_HSTS_SECONDS`     | `0` (off)                                    | Send the HSTS header for that many seconds. Needs `DJANGO_SECURE_PROXY_SSL_HEADER` behind a proxy, Django only sends it on requests it knows were HTTPS.                                                                                                |
 
 ### Authentication with OpenID Connect
 
 Georama can delegate the login to an OpenID Connect provider (e.g. Keycloak) through
 [django-allauth](https://docs.allauth.org/en/dev/socialaccount/providers/openid_connect.html).
 
-| Variable                             | Default        | Purpose                                                                                                                                                                                            |
-|--------------------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `GEORAMA_OIDC_SERVER_URL`            | _unset_        | URL of the provider, e.g. `https://sso.example.com/realms/<realm>/.well-known/openid-configuration`. Set by `compose.yml` to the `keycloak` service. Without it the login page offers no provider. |
-| `GEORAMA_OIDC_CLIENT_ID`             | `georama-oidc` | Client id registered at the provider.                                                                                                                                                              |
-| `GEORAMA_OIDC_SECRET`                | `secret`       | Client secret. **Prod**: always set it to the real secret.                                                                                                                                         |
-| `GEORAMA_OIDC_NAME`                  | `Keycloak`     | Name of the provider displayed on the login page.                                                                                                                                                  |
-| `GEORAMA_OIDC_PROVIDER_ID`           | `keycloak`     | Internal identifier of the provider, used in the callback URLs.                                                                                                                                    |
-| `GEORAMA_OIDC_OAUTH_PKCE_ENABLED`    | `true`         | Use PKCE for the authorization code flow.                                                                                                                                                          |
-| `GEORAMA_LOGIN_LOCAL_FORM_ENABLED`   | `true`         | Accept local username/password logins in the browser. With `false` only the provider buttons are shown, also for the admin, see [Login page](local_development/authentication.md#login-page).      |
-| `GEORAMA_LOGIN_LOCAL_SIGNUP_ENABLED` | `false`        | Let people create a local account themselves, see [Signup](local_development/authentication.md#signup).                                                                                            |
+| Variable                              | Default                       | Purpose                                                                                                                                                                                            |
+|---------------------------------------|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `GEORAMA_OIDC_SERVER_URL`             | _unset_                       | URL of the provider, e.g. `https://sso.example.com/realms/<realm>/.well-known/openid-configuration`. Set by `compose.yml` to the `keycloak` service. Without it the login page offers no provider. |
+| `GEORAMA_OIDC_CLIENT_ID`              | _unset_ (Dev: `georama-oidc`) | Client id registered at the provider. **Required** with `GEORAMA_OIDC_SERVER_URL`, Georama doesn't start without it. `compose.yml` sets the client of the dev realm.                               |
+| `GEORAMA_OIDC_SECRET`                 | _empty_                       | Client secret of a confidential client. Empty for a public client with PKCE, like `georama-oidc` of the dev realm.                                                                                 |
+| `GEORAMA_OIDC_NAME`                   | `Keycloak`                    | Name of the provider displayed on the login page.                                                                                                                                                  |
+| `GEORAMA_OIDC_PROVIDER_ID`            | `keycloak`                    | Internal identifier of the provider, used in the callback URLs.                                                                                                                                    |
+| `GEORAMA_OIDC_OAUTH_PKCE_ENABLED`     | `true`                        | Use PKCE for the authorization code flow.                                                                                                                                                          |
+| `GEORAMA_LOGIN_LOCAL_FORM_ENABLED`    | `true`                        | Accept local username/password logins in the browser. With `false` only the provider buttons are shown, also for the admin, see [Login page](local_development/authentication.md#login-page).      |
+| `GEORAMA_LOGIN_LOCAL_SIGNUP_ENABLED`  | `false`                       | Let people create a local account themselves, see [Signup](local_development/authentication.md#signup).                                                                                            |
+| `GEORAMA_OIDC_EMAIL_AUTHENTICATION`   | `false`                       | The first provider login signs into the existing local account with the same email, if the provider marks the email as verified. See [Security Settings](production.md#security-settings).         |
+| `GEORAMA_OIDC_USERNAME_CONFLICT`      | `suffix`                      | GeoGirafe token of a new user whose username exists locally: `suffix` creates a new user with a number appended, `connect` uses the local account.                                                 |
+| `GEORAMA_GEOGIRAFE_SUPERUSER_ENABLED` | `false` (Dev: `true`)         | Superusers may use GeoGirafe with their token.                                                                                                                                                     |
+| `GEORAMA_OIDC_TIMEOUT_SECONDS`        | `5`                           | Seconds Georama waits for the provider when it checks a GeoGirafe token.                                                                                                                           |
+| `GEORAMA_OIDC_RETRY_SECONDS`          | `30`                          | While the provider is unreachable, GeoGirafe tokens are refused and the provider is asked again after these seconds.                                                                               |
+
+### Passwords and HTTP Basic
+
+| Variable                                 | Default               | Purpose                                                                                                                                   |
+|------------------------------------------|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `GEORAMA_BASIC_AUTH_ENABLED`             | `false` (Dev: `true`) | Accept username and password with every request (HTTP Basic, e.g. QGIS). Off means it isn't loaded at all.                                |
+| `GEORAMA_LOGIN_ATTEMPTS_LIMIT`           | `5`                   | Failed password logins per username (login page, admin login, HTTP Basic) until the username is blocked. `0` blocks every password login. |
+| `GEORAMA_LOGIN_ATTEMPTS_BLOCKED_MINUTES` | `5`                   | How long the failures count, a blocked username is free again once its oldest failure is older.                                           |
 
 !!! note
 
@@ -282,6 +299,9 @@ the stack. They have no effect on the production image itself.
 | `GEORAMA_ORGANISATION_DOMAIN`   | ignored (`localhost`)                | **required**                            |
 | `GEORAMA_WEBGISURL`             | set by `compose.yml`                 | **required**                            |
 | `GEORAMA_DATA_INTEGRATION_ROOT` | set by `compose.yml`                 | **required**, set to `/io` by the image |
+| `GEORAMA_BASIC_AUTH_ENABLED`    | `true`                               | `false`, set `true` for QGIS clients    |
+| `DJANGO_*_COOKIE_SECURE`        | `false`                              | `true`                                  |
+| `GEORAMA_OIDC_CLIENT_ID`        | `georama-oidc`                       | **required** with a provider            |
 | Docker Compose variables        | Linux (`UID`, `GID`) / optional      | not used                                |
 
 ### Production Example

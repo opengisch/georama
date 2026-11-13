@@ -1,0 +1,25 @@
+{% extends "core/entrance.html" %}
+{% load i18n %}
+
+{% comment %}
+    Overrides allauth's signup page of a provider login. allauth sends users here when
+    their account can't be created automatically, e.g. because a local account already
+    has the email of the provider. The texts are allauth's own, so its translations apply.
+{% endcomment %}
+
+{% block entrance_content %}
+    <h2>{% trans "Sign Up" %}</h2>
+    <p class="text-muted">
+        {% blocktrans with provider_name=account.get_provider.name site_name=site.name %}You are about to use your {{provider_name}} account to login to
+{{site_name}}. As a final step, please complete the following form:{% endblocktrans %}
+    </p>
+    {% url 'socialaccount_signup' as action_url %}
+    <form method="post" action="{{ action_url }}">
+        {% csrf_token %}
+        {{ redirect_field }}
+        {% include "core/form_fields.html" %}
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-outline-secondary">{% trans "Sign Up" %}</button>
+        </div>
+    </form>
+{% endblock %}

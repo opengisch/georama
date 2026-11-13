@@ -1,0 +1,7 @@
+{% extends "core/error.html" %}
+{% load i18n %}
+
+{% block error_breadcrumb %}{% translate "Too Many Requests" %}{% endblock %}
+{% block error_code %}429{% endblock %}
+{% block error_title %}{% translate "Too many failed login attempts" %}{% endblock %}
+{% block error_message %}{% translate "Please wait a few minutes before you try again." %}{% endblock %}

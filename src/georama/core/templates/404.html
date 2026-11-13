@@ -1,29 +1,7 @@
-{% extends "core/base.html" %}
+{% extends "core/error.html" %}
 {% load i18n %}
 
-{% block breadcrumbs %}
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">{% translate "Home" %}</a></li>
-        <li class="breadcrumb-item active" aria-current="page">{% translate "Not Found" %}</li>
-    </ol>
-{% endblock %}
-
-{% block content %}
-    <section class="row justify-content-center py-5">
-        <div class="col-12 col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-body p-4 p-md-5 text-center">
-                    <div class="text-danger fw-bold display-3 mb-2">404</div>
-                    <h1 class="h4 mb-2">{% translate "Page not found" %}</h1>
-                    <p class="text-muted mb-4">
-                        {% translate "The page may have moved or the URL may be incorrect." %}
-                    </p>
-                    <div class="d-flex flex-wrap justify-content-center gap-2">
-                        <a href="/" class="btn btn-outline-secondary">{% translate "Back to Home" %}</a>
-                        <button type="button" class="btn btn-outline-primary" onclick="history.back()">{% translate "Go Back" %}</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-{% endblock %}
+{% block error_breadcrumb %}{% translate "Not Found" %}{% endblock %}
+{% block error_code %}404{% endblock %}
+{% block error_title %}{% translate "Page not found" %}{% endblock %}
+{% block error_message %}{% translate "The page may have moved or the URL may be incorrect." %}{% endblock %}

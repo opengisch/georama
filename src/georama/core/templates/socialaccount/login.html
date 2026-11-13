@@ -1,0 +1,29 @@
+{% extends "core/entrance.html" %}
+{% load i18n %}
+
+{% comment %}
+    Overrides allauth's intermediate page of the provider login. It is shown when the
+    provider login url is opened with GET (a direct link or a bookmark), since the login
+    only starts with a POST (SOCIALACCOUNT_LOGIN_ON_GET is off). The texts are allauth's
+    own, so its translations apply.
+{% endcomment %}
+
+{% block entrance_content %}
+    {% if process == "connect" %}
+        <h2>{% blocktrans with provider.name as provider %}Connect {{ provider }}{% endblocktrans %}</h2>
+        <p class="text-muted">
+            {% blocktrans with provider.name as provider %}You are about to connect a new third-party account from {{ provider }}.{% endblocktrans %}
+        </p>
+    {% else %}
+        <h2>{% blocktrans with provider.name as provider %}Sign In Via {{ provider }}{% endblocktrans %}</h2>
+        <p class="text-muted">
+            {% blocktrans with provider.name as provider %}You are about to sign in using a third-party account from {{ provider }}.{% endblocktrans %}
+        </p>
+    {% endif %}
+    <form method="post" class="d-grid mt-4">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-secondary">
+            <i class="fa-brands fa-openid me-2"></i>{% trans "Continue" %}
+        </button>
+    </form>
+{% endblock %}

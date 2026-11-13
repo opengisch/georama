@@ -1,0 +1,32 @@
+{% comment %}
+    The fields of a form in Georama's look, shared by the login and signup pages.
+    Expects `form` in the context.
+{% endcomment %}
+{% if form.non_field_errors %}
+    <div class="alert alert-danger" role="alert">
+        {% for error in form.non_field_errors %}
+            <div>{{ error }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% for field in form %}
+    <div class="mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+        <input
+            type="{{ field.field.widget.input_type|default:'text' }}"
+            name="{{ field.html_name }}"
+            id="{{ field.id_for_label }}"
+            value="{% if field.value and field.field.widget.input_type != 'password' %}{{ field.value }}{% endif %}"
+            class="form-control{% if field.errors %} is-invalid{% endif %}"
+            {% if field.field.required %}required{% endif %}
+            {% if forloop.first %}autofocus{% endif %}
+            autocomplete="{% if field.name == 'username' %}username{% elif field.name == 'email' %}email{% elif field.name == 'password' %}current-password{% else %}new-password{% endif %}"
+        >
+        {% for error in field.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+        {% if field.help_text %}
+            <div class="form-text">{{ field.help_text|safe }}</div>
+        {% endif %}
+    </div>
+{% endfor %}

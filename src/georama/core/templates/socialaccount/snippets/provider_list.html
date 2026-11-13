@@ -1,6 +1,8 @@
 {% comment %}
     Overrides allauth's provider list to render one button per identity provider.
     Only OpenID Connect providers are installed, so they all get the OpenID icon.
+    Each button is a small POST form with the CSRF token, the provider login doesn't
+    start on GET (SOCIALACCOUNT_LOGIN_ON_GET is off).
 {% endcomment %}
 {% load socialaccount %}
 {% get_providers as socialaccount_providers %}
@@ -8,9 +10,12 @@
     <div class="d-grid gap-2 mt-4">
         {% for provider in socialaccount_providers %}
             {% provider_login_url provider process=process scope=scope auth_params=auth_params as href %}
-            <a class="btn btn-outline-secondary" title="{{ provider.name }}" href="{{ href }}">
-                <i class="fa-brands fa-openid me-2"></i>{{ provider.name }}
-            </a>
+            <form method="post" action="{{ href }}" class="d-grid">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-secondary" title="{{ provider.name }}">
+                    <i class="fa-brands fa-openid me-2"></i>{{ provider.name }}
+                </button>
+            </form>
         {% endfor %}
     </div>
 {% endif %}

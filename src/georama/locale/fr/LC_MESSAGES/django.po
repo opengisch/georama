@@ -1380,3 +1380,77 @@ msgstr "Ouvrir le thème dans le WebGIS"
 #: georama/webgis/templates/webgis/drf/theme/partials/list_body.html
 msgid "Theme icon"
 msgstr "Icône du thème"
+
+#: georama/core/admin.py
+msgid "provider account"
+msgstr "compte du fournisseur"
+
+#: georama/core/admin.py
+msgid "linked"
+msgstr "lié"
+
+#: georama/core/admin.py
+msgid "not linked"
+msgstr "non lié"
+
+#: georama/core/common/login_attempts.py
+#, python-format
+msgid "Too many failed login attempts for %s, blocked for up to %s minutes. Remote address: %s, X-Forwarded-For: %r"
+msgstr "Trop de tentatives de connexion échouées pour %s, bloqué jusqu'à %s minutes. Adresse distante : %s, X-Forwarded-For : %r"
+
+#: georama/core/middleware/basic_auth.py
+msgid "Too many failed login attempts."
+msgstr "Trop de tentatives de connexion échouées."
+
+#: georama/core/middleware/basic_auth.py
+#, python-format
+msgid "Superuser %s tried basic authentication, use a non superuser account."
+msgstr "Le superutilisateur %s a tenté l'authentification Basic, utiliser un compte sans droits de superutilisateur."
+
+#: georama/core/templates/400.html
+msgid "Bad request"
+msgstr "Requête invalide"
+
+#: georama/core/templates/400.html
+msgid "The request could not be understood by the server."
+msgstr "Le serveur n'a pas pu comprendre la requête."
+
+#: georama/core/templates/403.html
+msgid "Forbidden"
+msgstr "Interdit"
+
+#: georama/core/templates/403.html
+msgid "Access denied"
+msgstr "Accès refusé"
+
+#: georama/core/templates/403.html
+msgid "You don't have permission to access this page."
+msgstr "Aucune autorisation pour accéder à cette page."
+
+#: georama/core/templates/403_csrf.html
+msgid "The form could not be verified"
+msgstr "Le formulaire n'a pas pu être vérifié"
+
+#: georama/core/templates/403_csrf.html
+msgid "The form may have expired. Please reload the page and try again."
+msgstr "Le formulaire a peut-être expiré. Veuillez recharger la page et réessayer."
+
+#: georama/core/templates/429.html
+msgid "Too Many Requests"
+msgstr "Trop de requêtes"
+
+#: georama/core/templates/429.html
+msgid "Too many failed login attempts"
+msgstr "Trop de tentatives de connexion échouées"
+
+#: georama/core/templates/429.html
+msgid "Please wait a few minutes before you try again."
+msgstr "Veuillez patienter quelques minutes avant de réessayer."
+
+#: georama/core/templates/500.html
+msgid "Server error"
+msgstr "Erreur du serveur"
+
+#: georama/core/templates/500.html
+msgid "Something went wrong on our side. Please try again later."
+msgstr "Une erreur s'est produite de notre côté. Veuillez réessayer plus tard."

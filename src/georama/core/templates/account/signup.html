@@ -1,0 +1,30 @@
+{% extends "core/entrance.html" %}
+{% load i18n %}
+
+{% comment %}
+    Overrides allauth's signup page for local accounts (open with
+    GEORAMA_LOGIN_LOCAL_SIGNUP_ENABLED). The texts are allauth's own, so its
+    translations apply. The sign in link leads to Georama's login page.
+{% endcomment %}
+
+{% block entrance_content %}
+    <h2>{% trans "Sign Up" %}</h2>
+    {% url 'core:login' as login_url %}
+    <p class="text-muted">
+        {% blocktranslate with link='<a href="'|add:login_url|add:'">'|safe end_link='</a>'|safe %}Already have an account? Then please {{ link }}sign in{{ end_link }}.{% endblocktranslate %}
+    </p>
+    {% if not SOCIALACCOUNT_ONLY %}
+        {% url 'account_signup' as action_url %}
+        <form method="post" action="{{ action_url }}">
+            {% csrf_token %}
+            {{ redirect_field }}
+            {% include "core/form_fields.html" %}
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-outline-secondary">{% trans "Sign Up" %}</button>
+            </div>
+        </form>
+    {% endif %}
+    {% if SOCIALACCOUNT_ENABLED %}
+        {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+    {% endif %}
+{% endblock %}

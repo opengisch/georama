@@ -1,4 +1,5 @@
 import base64
+import logging
 
 import pytest
 from django.conf import settings
@@ -7,6 +8,8 @@ from django.http import HttpResponse
 from django.test import Client, RequestFactory
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.request import Request
+from rest_framework.settings import api_settings
 
 from georama.core.middleware.basic_auth import BasicAuthenticationMiddleware
 from georama.core.middleware.organisation import OrganisationMiddleware
@@ -60,6 +63,101 @@ class TestBasicAuthMiddleware:
         # both answers are the same, so the guesser can't tell when the password was right
         assert wrong_password_response.status_code == right_password_response.status_code
         assert wrong_password_response.text == right_password_response.text
+
+    @pytest.mark.parametrize(
+        "site_title,challenge",
+        [
+            ("Georama", 'Basic realm="Georama"'),
+            # quotes in the title must not end the realm early
+            ('My "Geo"', 'Basic realm="My \\"Geo\\""'),
+        ],
+    )
+    @pytest.mark.django_db
+    def test_unauthorized_answer_asks_for_credentials(self, settings, site_title, challenge):
+        settings.SITE_TITLE = site_title
+        middleware = BasicAuthenticationMiddleware(lambda _: HttpResponse("hello"))
+        credentials = base64.b64encode(b"nobody:wrong-guess").decode()
+        request = RequestFactory().get("/", HTTP_AUTHORIZATION=f"Basic {credentials}")
+        request.user = AnonymousUser()
+        response = middleware(request)
+        # without the challenge browsers and QGIS wouldn't ask for credentials again
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.headers["WWW-Authenticate"] == challenge
+
+    @pytest.mark.django_db
+    def test_too_many_failed_attempts_block_the_username(
+        self, settings, user, user_user_name, user_password
+    ):
+        # 2 trys, then block for 300s
+        settings.LOGIN_ATTEMPTS_RATE = "2/300s/key"
+        middleware = BasicAuthenticationMiddleware(lambda _: HttpResponse("hello"))
+        wrong = base64.b64encode(f"{user_user_name}:wrong-guess".encode()).decode()
+        right = base64.b64encode(f"{user_user_name}:{user_password}".encode()).decode()
+
+        # someone guesses twice and fails
+        for _ in range(2):
+            request = RequestFactory().get("/", HTTP_AUTHORIZATION=f"Basic {wrong}")
+            request.user = AnonymousUser()
+            assert middleware(request).status_code == status.HTTP_401_UNAUTHORIZED
+
+        # now even the right password is refused, the password isn't checked anymore
+        request = RequestFactory().get("/", HTTP_AUTHORIZATION=f"Basic {right}")
+        request.user = AnonymousUser()
+        assert middleware(request).status_code == status.HTTP_429_TOO_MANY_REQUESTS
+        assert request.user.is_anonymous
+
+    @pytest.mark.django_db
+    def test_successful_logins_are_not_counted(self, settings, user, user_user_name, user_password):
+        settings.LOGIN_ATTEMPTS_RATE = "2/300s/key"
+        middleware = BasicAuthenticationMiddleware(lambda _: HttpResponse("hello"))
+        right = base64.b64encode(f"{user_user_name}:{user_password}".encode()).decode()
+        # QGIS sends the credentials with every tile, far more often than the limit
+        for _ in range(5):
+            request = RequestFactory().get("/", HTTP_AUTHORIZATION=f"Basic {right}")
+            request.user = AnonymousUser()
+            assert middleware(request).status_code == status.HTTP_200_OK
+
+    @pytest.mark.django_db
+    def test_superuser_is_counted_like_a_wrong_password(
+        self, settings, caplog, admin_user, admin_user_name, admin_password
+    ):
+        settings.LOGIN_ATTEMPTS_RATE = "2/300s/key"
+        middleware = BasicAuthenticationMiddleware(lambda _: HttpResponse("hello"))
+        right = base64.b64encode(f"{admin_user_name}:{admin_password}".encode()).decode()
+        with caplog.at_level(logging.WARNING, logger="georama.core.middleware.basic_auth"):
+            for _ in range(2):
+                request = RequestFactory().get("/", HTTP_AUTHORIZATION=f"Basic {right}")
+                request.user = AnonymousUser()
+                assert middleware(request).status_code == status.HTTP_401_UNAUTHORIZED
+        # the operator learns why, the client doesn't
+        assert (
+            f"Superuser {admin_user_name} tried basic authentication, use a non superuser "
+            f"account." in caplog.messages
+        )
+        # the right password counted like a wrong one, a guesser can't tell the difference
+        request = RequestFactory().get("/", HTTP_AUTHORIZATION=f"Basic {right}")
+        request.user = AnonymousUser()
+        assert middleware(request).status_code == status.HTTP_429_TOO_MANY_REQUESTS
+
+    @pytest.mark.django_db
+    def test_rest_framework_takes_the_user_over_without_csrf_token(
+        self, user, user_user_name, user_password
+    ):
+        middleware = BasicAuthenticationMiddleware(lambda _: HttpResponse("hello"))
+        credentials = base64.b64encode(f"{user_user_name}:{user_password}".encode()).decode()
+        # QGIS writes a feature, it never has a CSRF token
+        request = RequestFactory().post("/", HTTP_AUTHORIZATION=f"Basic {credentials}")
+        request.user = AnonymousUser()
+        middleware(request)
+        # the REST framework asks its configured authentication classes in order, the
+        # session authentication would refuse the POST for the missing CSRF token
+        drf_request = Request(
+            request,
+            authenticators=[
+                authentication() for authentication in api_settings.DEFAULT_AUTHENTICATION_CLASSES
+            ],
+        )
+        assert drf_request.user == user
 
 
 class TestOrganisationMiddleware:
@@ -234,6 +332,7 @@ class TestOrganisationMiddleware:
     @pytest.mark.django_db
     def test_middleware_allows_everyone_access_configured_bypass(
         self,
+        settings,
         organisation_public_access,
         organisation_non_public_access,
     ):
