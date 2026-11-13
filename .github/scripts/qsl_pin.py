@@ -2,7 +2,8 @@
 
 georama pins QSL in `pyproject.toml` (the package) and twice in `compose.yml` (the worker and
 exporter images). The interface is the contract on the queue, so all three have to name the same
-QSL state: a release (`@v26.1`, `26.1-worker`) or a QSL PR (`@refs/pull/40/head`, `pr-40-worker`).
+QSL state: a release (`@v26.1`, `26.1-worker`), a QSL PR (`@refs/pull/40/head`, `pr-40-worker`) or
+QSL main (`@main`, `edge-worker`).
 
 Standard library only, the workflow runs it with the python of the runner.
 """
@@ -29,17 +30,21 @@ class QslPin:
     @staticmethod
     def from_package_ref(ref: str) -> "QslPin":
         """Evaluates the version number from either vX.XX or from refs/pull/xx/head."""
-        for pin_type in (QslRelease, QslPullRequest):
+        for pin_type in (QslRelease, QslPullRequest, QslEdge):
             matched = re.fullmatch(pin_type.PATTERN, ref)
             if matched:
                 return pin_type(version=matched.group(1))
         raise QslPinError(
-            f"the QSL package pin @{ref} is neither a release (@vYY.N) "
-            "nor a QSL PR (@refs/pull/<n>/head)"
+            f"the QSL package pin @{ref} is neither a release (@vYY.N), "
+            "a QSL PR (@refs/pull/<n>/head) nor QSL main (@main)"
         )
 
     @property
     def image_tag_prefix(self) -> str:
+        raise NotImplementedError
+
+    @property
+    def description(self) -> str:
         raise NotImplementedError
 
     def image(self, variant: str) -> str:
@@ -53,6 +58,10 @@ class QslRelease(QslPin):
     def image_tag_prefix(self) -> str:
         return self.version.removeprefix("v")
 
+    @property
+    def description(self) -> str:
+        return f"QSL release {self.version}"
+
 
 class QslPullRequest(QslPin):
     PATTERN = r"refs/pull/([0-9]+)/head"
@@ -60,6 +69,22 @@ class QslPullRequest(QslPin):
     @property
     def image_tag_prefix(self) -> str:
         return f"pr-{self.version}"
+
+    @property
+    def description(self) -> str:
+        return f"QSL PR opengisch/qgis-server-light#{self.version}"
+
+
+class QslEdge(QslPin):
+    PATTERN = r"(main)"
+
+    @property
+    def image_tag_prefix(self) -> str:
+        return "edge"
+
+    @property
+    def description(self) -> str:
+        return "QSL main"
 
 
 @dataclass
@@ -112,9 +137,9 @@ class QslPinSpots:
                 f"the QSL pin differs, pyproject.toml @{self.package_ref} expects {expected}, "
                 f"compose.yml has {found}"
             )
-        # a QSL PR pin is fine on a draft or a branch, main and releases run released QSL only
-        if isinstance(pin, QslPullRequest):
-            pinned = f"pinned to QSL PR opengisch/qgis-server-light#{pin.version}"
+        # a QSL PR or main pin is fine on a draft or a branch, main and releases run released QSL
+        if not isinstance(pin, QslRelease):
+            pinned = f"pinned to {pin.description}"
             if require_release:
                 raise QslPinError(f"{pinned}, release QSL and bump the pin to it")
             print(f"::notice::{pinned}, it has to become a QSL release before the merge")
