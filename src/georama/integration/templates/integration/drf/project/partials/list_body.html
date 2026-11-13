@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block list_item_image %}
-    <img alt="{% trans 'Logo' %}"
-         class="rounded img-thumbnail preview-image"
-         src="{% static 'integration/images/qgis.png' %}"
+    <img alt="{% trans 'Project preview' %}"
+         class="rounded img-thumbnail preview-image-lg"
+         src="{{ item.preview_image }}"
     />
 {% endblock %}
 

@@ -1,5 +1,7 @@
+import json
 import logging
 import uuid
+from pathlib import Path
 from typing import Literal
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,6 +13,7 @@ from qgis_server_light.interface.exporter.extract import DataSource
 from qgis_server_light.interface.exporter.extract import Field as QSlField
 from qgis_server_light.interface.exporter.extract import Raster as QslRaster
 from qgis_server_light.interface.exporter.extract import Vector as QslVector
+from qgis_server_light.interface.job.common.input import QslJobLayer
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder
@@ -93,6 +96,12 @@ class Datasource(models.Model):
         null=True,
         help_text=_("Maximum scale at which the datasource is visible."),
         verbose_name=_("maximum scale"),
+    )
+    preview = models.BinaryField(
+        null=True,
+        blank=True,
+        help_text=_("Preview image of the datasource."),
+        verbose_name=_("preview"),
     )
     project = models.ForeignKey(
         Project,
@@ -200,6 +209,43 @@ class Datasource(models.Model):
         db_objct.is_spatial = qsl_object.is_spatial
         db_objct.minimum_scale = qsl_object.minimum_scale
         db_objct.maximum_scale = qsl_object.maximum_scale
+
+    def to_qsl_job_layer(self, style_name: str | None = None):
+        """Convert datasource to QSL job layer for rendering."""
+        source_definition = self.source_to_qsl.definition
+        if style_name is not None:
+            style = self.get_style_by_name(style_name)
+        else:
+            style = self.get_default_style()
+        return QslJobLayer(
+            id=str(self.id),
+            name=self.name,
+            source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
+            driver=self.driver,
+            style=style,
+            remote=source_definition.remote,
+            folder_name=str(
+                Path(self.project.organisation_folder) / Path(self.project.path).parent
+            ),
+        )
+
+    @property
+    def extent_in_axis_order(self) -> BBox:
+        """The extent in the axis order of its crs, as WMS 1.3.0 expects it for BBOX and
+        BoundingBox (e.g. lat/lon for EPSG:4326). The stored extent is always x/y as QSL
+        delivers it.
+        """
+        extent = BBox.from_string(self.bbox)
+        if not self.crs_to_qsl.axis_inverted:
+            return extent
+        return BBox(
+            x_min=extent.y_min,
+            y_min=extent.x_min,
+            z_min=extent.z_min,
+            x_max=extent.y_max,
+            y_max=extent.x_max,
+            z_max=extent.z_max,
+        )
 
 
 class Vector(Datasource):

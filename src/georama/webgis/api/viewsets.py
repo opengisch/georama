@@ -1,3 +1,4 @@
+from asgiref.sync import sync_to_async
 from django.apps import apps
 from django.conf import settings
 from django.shortcuts import redirect
@@ -21,7 +22,10 @@ from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.models import Project
 from georama.maps.services.wfs_2_0_0 import WfsOperation
-from georama.webgis.adapters.qsl import WmsLayerIndex, theme_json_from_project_config
+from georama.webgis.adapters.qsl import (
+    WmsLayerIndex,
+    theme_json_from_project_config,
+)
 from georama.webgis.api.serializers import (
     ThemeObjectPermissionSerializer,
     ThemePermissionActionSerializer,
@@ -56,6 +60,7 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
     list_body_partial_template_name = "webgis/drf/theme/partials/list_body.html"
+    show_template_name = "webgis/drf/theme/detail.html"
 
     permissions_serializer_class = ThemeObjectPermissionSerializer
     permissions_action_serializer_class = ThemePermissionActionSerializer
@@ -134,9 +139,11 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
             [wms_layer.metadata for wms_layer in wms_layer_index.values()]
         )
         await WmsLayer.objects.abulk_create(wms_layer_index.values())
-        gg_theme, background_layers, ogc_servers = await theme_json_from_project_config(
-            str(theme.id), theme.icon_default, project.config_as_dataclass, wms_layer_index
+        project_config = project.config_as_dataclass
+        gg_theme, background_layers, ogc_servers, _ = await theme_json_from_project_config(
+            str(theme.id), theme.icon_default, project_config, wms_layer_index
         )
+        theme.preview = project.preview
         theme.theme_json = DictEncoder().encode(gg_theme)
         theme.background_layers = DictEncoder().encode(background_layers)
         theme.ogc_servers = {
@@ -159,6 +166,7 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
     list_body_partial_template_name = "webgis/drf/theme/partials/list_body.html"
+    show_template_name = "webgis/drf/theme/detail.html"
 
     async def get_breadcrumbs(self):
         app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()

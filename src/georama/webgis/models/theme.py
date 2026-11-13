@@ -1,3 +1,4 @@
+import base64
 import uuid
 from urllib.parse import urlencode
 
@@ -82,6 +83,12 @@ class Theme(models.Model):
     )
     public = models.BooleanField(default=False, verbose_name=_("public"))
     ordering = models.IntegerField(verbose_name=_("ordering"))
+    preview = models.BinaryField(
+        null=True,
+        blank=True,
+        help_text=_("Preview image of the theme."),
+        verbose_name=_("preview"),
+    )
     theme_json = models.JSONField(verbose_name=_("theme JSON"))
     background_layers = models.JSONField(blank=True, verbose_name=_("background layers"))
     ogc_servers = models.JSONField(blank=True, verbose_name=_("OGC servers"))
@@ -95,6 +102,12 @@ class Theme(models.Model):
     @property
     def icon_default(self):
         return static("webgis/images/georama-logo-geogirafe.svg")
+
+    @property
+    def preview_image(self):
+        if self.preview is not None:
+            return f"data:image/png;base64,{base64.b64encode(self.preview).decode()}"
+        return self.icon_default
 
     def __str__(self):
         return self.metadata.title

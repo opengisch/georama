@@ -262,8 +262,7 @@ class WmsLayerAbstract(models.Model):
         """
         if self.preview is not None:
             return f"data:image/png;base64,{base64.b64encode(self.preview).decode()}"
-        else:
-            return static("core/images/main_plain.svg")
+        return static("core/images/main_plain.svg")
 
     @property
     def preview_width(self):

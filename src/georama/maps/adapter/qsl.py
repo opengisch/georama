@@ -4,22 +4,20 @@ from pathlib import Path
 import httpx
 from asgiref.sync import sync_to_async
 from django.conf import settings
-from httpx import RequestError
 from httpx._models import Response as HttpxResponse
-from qgis_server_light.interface.common import BBox, Crs
+from qgis_server_light.interface.common import Crs
 from qgis_server_light.interface.dispatcher.common import Status
 from qgis_server_light.interface.exporter.api import ExportParameters
 from qgis_server_light.interface.job.crs.input import QslJobParameterCrs
 from qgis_server_light.interface.job.crs.output import CrsCollection
-from qgis_server_light.interface.job.render.input import QslJobParameterRender
 from xsdata.formats.dataclass.parsers import JsonParser
 from xsdata.formats.dataclass.serializers import JsonSerializer
 
+from georama.core.qsl_utils import render_image
 from georama.maps.apps import qsl_redis_queue
 from georama.maps.exception.job import JobExecutionError
 from georama.maps.maps_config import Config
 from georama.maps.models import WmsLayer
-from georama.maps.models.wms_layer import WmsLayerAbstract
 
 
 async def call_qsl_exporter(path: Path) -> HttpxResponse:
@@ -46,60 +44,13 @@ async def generate_preview_image(wms_layer: WmsLayer) -> bytes | None:
     datasource = await sync_to_async(lambda: wms_layer.get_datasource)()
     # QSL expects the bbox in the axis order of the crs like WMS 1.3.0
     bbox = await sync_to_async(lambda: wms_layer.extent_in_axis_order)()
+    qsl_layer = await sync_to_async(lambda: wms_layer.to_qsl_job_layer())()
     return await render_image(
-        wms_layer,
+        [qsl_layer],
         bbox,
         datasource.crs_to_qsl.auth_id,
         *wms_layer.preview_dimensions,
     )
-
-
-async def render_image(
-    wms_layer: WmsLayerAbstract, bbox: BBox, crs: str, width: int, height: int
-) -> bytes | None:
-    """Renders a png of the layer through QSL.
-
-    Args:
-        wms_layer: The layer to render.
-        bbox: The extent to render, in the axis order of `crs`.
-        crs: The auth id of the crs to render in, e.g. `EPSG:2056`.
-        width: The width of the image in pixel.
-        height: The height of the image in pixel.
-
-    Returns:
-        The png or `None` if the job could not be created.
-
-    Raises:
-        RequestError: In case QSL did not render the image successfully.
-    """
-    qsl_job_layer = await sync_to_async(wms_layer.to_qsl_job_layer)()
-    # this way we always set a style, or it will fail if list has no styles
-    # we could make that configurable in admin gui easily
-    get_map_job = QslJobParameterRender(
-        bbox=bbox,
-        crs=crs,
-        width=width,
-        height=height,
-        dpi=72,
-        format="image/png",
-        layers=[qsl_job_layer],
-    )
-    try:
-        result_tuple = await qsl_redis_queue.post(get_map_job, Config().job_timeout)
-        result, status = result_tuple
-        if status == Status.SUCCESS.value:
-            return result.data
-        else:
-            logging.error(
-                f"Preview image generation through QSL was not successful. "
-                f"Status: {status} Result: {result}"
-            )
-            raise RequestError(f"The request to QSL returned non successful. Status: {status}")
-    except ValueError as e:
-        logging.exception(f"Error while generating preview image: {e}")
-    except PermissionError as e:
-        logging.exception(f"Permission error while generating preview image: {e}")
-    return None
 
 
 async def resolve_other_crs(appname: str) -> list[Crs]:

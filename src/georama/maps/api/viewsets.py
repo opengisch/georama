@@ -101,10 +101,13 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
                 return redirect(reverse(self.url_name_list))
             md = Metadata(title=ds.name)
             await md.asave()
-            fl = WmsLayer(datasource=ds, metadata=md, extent=ds.bbox, extent_wgs84=ds.bbox_wgs84)
-            if pfdi.validated_data["create_preview"]:
-                image: bytes = await generate_preview_image(fl)
-                fl.preview = image
+            fl = WmsLayer(
+                datasource=ds,
+                metadata=md,
+                extent=ds.bbox,
+                extent_wgs84=ds.bbox_wgs84,
+                preview=ds.preview,
+            )
             await fl.asave()
             return redirect(reverse(self.url_name_list))
         else:

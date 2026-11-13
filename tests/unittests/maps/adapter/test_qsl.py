@@ -45,7 +45,7 @@ class TestRenderImage:
     ):
         posted_jobs.answer = render_job_result
 
-        image = async_to_sync(qsl.render_image)(wms_layer, bbox, "EPSG:2056", 220, 120)
+        image = async_to_sync(qsl.render_image)([wms_layer], bbox, "EPSG:2056", 220, 120)
 
         assert image == b"png"
         assert posted_jobs == [
@@ -59,6 +59,16 @@ class TestRenderImage:
             )
         ]
 
+    def test_multiple_layers_rendered_together(
+        self, posted_jobs, render_job_result, qsl_job_layer, wms_layer, bbox
+    ):
+        posted_jobs.answer = render_job_result
+
+        image = async_to_sync(qsl.render_image)([wms_layer, wms_layer], bbox, "EPSG:2056", 220, 120)
+
+        assert image == b"png"
+        assert posted_jobs[0].layers == [qsl_job_layer, qsl_job_layer]
+
     @pytest.mark.parametrize(
         "render_job_result",
         [(JobResult(id="job", data="error", content_type="text/plain"), Status.FAILURE.value)],
@@ -67,7 +77,7 @@ class TestRenderImage:
         posted_jobs.answer = render_job_result
 
         with pytest.raises(RequestError):
-            async_to_sync(qsl.render_image)(wms_layer, bbox, "EPSG:2056", 220, 120)
+            async_to_sync(qsl.render_image)([wms_layer], bbox, "EPSG:2056", 220, 120)
 
 
 class TestGeneratePreviewImage:
