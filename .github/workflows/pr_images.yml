@@ -84,24 +84,37 @@ jobs:
           build-args: *build-args
           tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}
 
-      - name: Delete PR image
+      # prod plus the ops tooling for emergencies, pushed under the same rules as the PR image
+      - name: Push PR sam Image
+        if: github.event.action != 'closed' && env.PUSH == 'true' && github.actor != 'dependabot[bot]'
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: sam
+          push: true
+          build-args: *build-args
+          tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}-sam
+
+      - name: Delete PR images
         if: github.event.action == 'closed'
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: pr-${{ github.event.pull_request.number }}
+          PR_TAG: pr-${{ github.event.pull_request.number }}
           PACKAGE: georama
         run: |
-          ID=$(gh api \
-            "/orgs/${{ github.repository_owner }}/packages/container/$PACKAGE/versions" \
-            --paginate \
-            --jq ".[] | select(.metadata.container.tags | index(\"$TAG\")) | .id")
-          
-          if [ -n "$ID" ]; then
-            echo "Deleting package version $ID for tag $TAG"
-          
-            gh api \
-              --method DELETE \
-              "/orgs/${{ github.repository_owner }}/packages/container/$PACKAGE/versions/$ID"
-          else
-            echo "No package version found for tag $TAG"
-          fi
+          for TAG in "$PR_TAG" "$PR_TAG-sam"; do
+            ID=$(gh api \
+              "/orgs/${{ github.repository_owner }}/packages/container/$PACKAGE/versions" \
+              --paginate \
+              --jq ".[] | select(.metadata.container.tags | index(\"$TAG\")) | .id")
+
+            if [ -n "$ID" ]; then
+              echo "Deleting package version $ID for tag $TAG"
+
+              gh api \
+                --method DELETE \
+                "/orgs/${{ github.repository_owner }}/packages/container/$PACKAGE/versions/$ID"
+            else
+              echo "No package version found for tag $TAG"
+            fi
+          done

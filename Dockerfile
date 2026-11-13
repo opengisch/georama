@@ -117,10 +117,10 @@ CMD [ "/usr/local/bin/prod.run.sh" ]
 USER $UID:0
 
 # only for emergencies of ops in client infrastructures, published as
-# <version>-debug and never as latest
-FROM prod AS debug
+# <version>-sam and never as latest
+FROM prod AS sam
 ARG UID=1001
-LABEL org.opencontainers.image.title="Georama (debug)"
+LABEL org.opencontainers.image.title="Georama (sam)"
 
 USER root
 RUN apk add --no-cache \

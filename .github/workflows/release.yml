@@ -95,6 +95,21 @@ jobs:
           # an attestation, the github release takes it over as asset
           sbom: true
 
+      # the sam image is prod plus the ops tooling for emergencies in client
+      # infrastructures, it rides along every release but never becomes latest
+      - name: Build sam Image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: sam
+          push: true
+          build-args: |
+            BUILD_BRANCH=${{ github.ref_name }}
+            BUILD_COMMIT=${{ github.sha }}
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version }}-sam
+          sbom: true
+
       # pre-releases (v26.0-beta.1) do not move latest
       - name: Tag Image as latest
         if: needs.check.outputs.final == 'true'
