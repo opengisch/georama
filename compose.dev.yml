@@ -6,6 +6,7 @@ services:
     environment:
       - "DEV_AUTOSTART=${GEORAMA_DEV_AUTOSTART:-1}"
       - "DJANGO_CONFIGURATION=Dev"
+      - "GEORAMA_BASIC_AUTH_ENABLED=${GEORAMA_BASIC_AUTH_ENABLED:-True}"
     build:
       target: dev
       args:

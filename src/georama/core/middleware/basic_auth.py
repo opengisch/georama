@@ -8,6 +8,10 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.utils.translation import gettext_lazy as _
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.request import Request
+
+from georama.core.common.login_attempts import LoginAttempts, TooManyLoginAttemptsError
 
 # Header encoding (see RFC5987)
 HTTP_HEADER_ENCODING = "iso-8859-1"
@@ -17,8 +21,6 @@ log = logging.getLogger(__name__)
 
 class BasicAuthenticationMiddleware:
     """HTTP Basic authentication against username/password."""
-
-    www_authenticate_realm = "api"
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -33,11 +35,19 @@ class BasicAuthenticationMiddleware:
                 if user_token is not None:
                     log.debug(_("User was authenticated."))
                     request.user = user_token[0]
+                    # the REST framework takes the user over from here, see
+                    # MiddlewareBasicAuthentication
+                    request.georama_basic_authenticated = True
+            except TooManyLoginAttemptsError:
+                log.debug(_("Too many failed login attempts."))
+                return HttpResponse("Too Many Requests", status=429)
             except PermissionDenied:
                 # AuthenticationFailed: there was a http auth header,
                 # but auth failed: consider the user unlogged.
                 log.debug(_("User was not authenticated."))
-                return HttpResponse("Unauthorized", status=401)
+                response = HttpResponse("Unauthorized", status=401)
+                response["WWW-Authenticate"] = self.authenticate_header(request)
+                return response
             except Exception as e:  # noqa: BLE001
                 log.error(e)
         return self.get_response(request)
@@ -80,27 +90,40 @@ class BasicAuthenticationMiddleware:
         """Authenticate the userid and password against username and password
         with optional request for context.
         """
+        if LoginAttempts.blocked(request, userid):
+            raise TooManyLoginAttemptsError
+
         credentials = {get_user_model().USERNAME_FIELD: userid, "password": password}
         user = authenticate(request=request, **credentials)
 
         if user is None:
+            LoginAttempts.count_failure(request, userid)
             msg = _("Invalid username/password.")
             log.debug(msg)
             raise PermissionDenied(msg)
 
         if not user.is_active:
+            LoginAttempts.count_failure(request, userid)
             msg = _("User inactive or deleted.")
             log.debug(msg)
             raise PermissionDenied(msg)
 
         if user.is_superuser:
-            log.debug(_("Superusers can't use basic authentication."))
+            # counted like a wrong password, otherwise the count would tell a guesser
+            # when the password of a superuser was right
+            LoginAttempts.count_failure(request, userid)
+            log.warning(
+                _("Superuser %s tried basic authentication, use a non superuser account."),
+                userid,
+            )
             raise PermissionDenied(_("Invalid username/password."))
 
         return user, None
 
     def authenticate_header(self, request):
-        return f'Basic realm="{self.www_authenticate_realm}"'
+        # the realm names the protection space, clients keep their credentials per realm
+        realm = settings.SITE_TITLE.replace("\\", "\\\\").replace('"', '\\"')
+        return f'Basic realm="{realm}"'
 
     @staticmethod
     def get_authorization_header(request: HttpRequest):
@@ -113,3 +136,18 @@ class BasicAuthenticationMiddleware:
             # Work around django test client oddness
             auth = auth.encode(HTTP_HEADER_ENCODING)
         return auth
+
+
+class MiddlewareBasicAuthentication(BaseAuthentication):
+    """Takes the user of `BasicAuthenticationMiddleware` over into the REST framework.
+
+    The middleware already checked the credentials, so the password isn't checked a
+    second time here. Without this class the session authentication of the REST
+    framework would take the user and ask for a CSRF token, which a client sending its
+    credentials in a header never has.
+    """
+
+    def authenticate(self, request: Request):
+        if getattr(request._request, "georama_basic_authenticated", False):
+            return request._request.user, None
+        return None

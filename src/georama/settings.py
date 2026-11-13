@@ -184,21 +184,32 @@ class Base(Configuration):
         "crispy_bootstrap5",
     ]
 
-    MIDDLEWARE = [
-        "django.middleware.security.SecurityMiddleware",
-        "django.contrib.sessions.middleware.SessionMiddleware",
-        "corsheaders.middleware.CorsMiddleware",
-        "django.middleware.locale.LocaleMiddleware",
-        "django.middleware.common.CommonMiddleware",
-        "django.middleware.csrf.CsrfViewMiddleware",
-        "django.contrib.auth.middleware.AuthenticationMiddleware",
-        "georama.core.middleware.basic_auth.BasicAuthenticationMiddleware",
-        "georama.core.middleware.oidc.GeoGirafeAuthenticationMiddleware",
-        "django.contrib.messages.middleware.MessageMiddleware",
-        "django.middleware.clickjacking.XFrameOptionsMiddleware",
-        "allauth.account.middleware.AccountMiddleware",
-        "georama.core.middleware.organisation.OrganisationMiddleware",
-    ]
+    # loads HTTP Basic authentication (username/password with every request, e.g. QGIS),
+    # when off it is not part of the middleware and the REST framework at all
+    BASIC_AUTH_ENABLED = values.BooleanValue(False, environ_prefix=GEORAMA_ENV_PREFIX)
+
+    @property
+    def MIDDLEWARE(self):
+        basic_authentication = (
+            ["georama.core.middleware.basic_auth.BasicAuthenticationMiddleware"]
+            if self.BASIC_AUTH_ENABLED
+            else []
+        )
+        return [
+            "django.middleware.security.SecurityMiddleware",
+            "django.contrib.sessions.middleware.SessionMiddleware",
+            "corsheaders.middleware.CorsMiddleware",
+            "django.middleware.locale.LocaleMiddleware",
+            "django.middleware.common.CommonMiddleware",
+            "django.middleware.csrf.CsrfViewMiddleware",
+            "django.contrib.auth.middleware.AuthenticationMiddleware",
+            *basic_authentication,
+            "georama.core.middleware.oidc.GeoGirafeAuthenticationMiddleware",
+            "django.contrib.messages.middleware.MessageMiddleware",
+            "django.middleware.clickjacking.XFrameOptionsMiddleware",
+            "allauth.account.middleware.AccountMiddleware",
+            "georama.core.middleware.organisation.OrganisationMiddleware",
+        ]
 
     AUTHENTICATION_BACKENDS = (
         "django.contrib.auth.backends.ModelBackend",  # this is default
@@ -401,19 +412,31 @@ class Base(Configuration):
     ######################
     # Django Restframework => https://www.django-rest-framework.org/api-guide/settings/
     ######################
-    REST_FRAMEWORK = {
-        "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-        "PAGE_SIZE": 10,
-        "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-        "DEFAULT_FILTER_BACKENDS": [
-            "django_filters.rest_framework.DjangoFilterBackend",
-        ],
-        "DEFAULT_RENDERER_CLASSES": [
-            "rest_framework.renderers.JSONRenderer",
-            "rest_framework.renderers.BrowsableAPIRenderer",
-        ],
-        "URL_FORMAT_OVERRIDE": "f",
-    }
+    @property
+    def REST_FRAMEWORK(self):
+        # the middleware checks the credentials, the REST framework only takes its user over
+        basic_authentication = (
+            ["georama.core.middleware.basic_auth.MiddlewareBasicAuthentication"]
+            if self.BASIC_AUTH_ENABLED
+            else []
+        )
+        return {
+            "DEFAULT_AUTHENTICATION_CLASSES": [
+                *basic_authentication,
+                "rest_framework.authentication.SessionAuthentication",
+            ],
+            "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+            "PAGE_SIZE": 10,
+            "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+            "DEFAULT_FILTER_BACKENDS": [
+                "django_filters.rest_framework.DjangoFilterBackend",
+            ],
+            "DEFAULT_RENDERER_CLASSES": [
+                "rest_framework.renderers.JSONRenderer",
+                "rest_framework.renderers.BrowsableAPIRenderer",
+            ],
+            "URL_FORMAT_OVERRIDE": "f",
+        }
 
     SPECTACULAR_SETTINGS = {
         "SERVE_PUBLIC": False,
@@ -579,9 +602,13 @@ class Dev(Base):
         "django_extensions",
     ]
 
-    MIDDLEWARE = Base.MIDDLEWARE + [
-        "silk.middleware.SilkyMiddleware",
-    ]
+    BASIC_AUTH_ENABLED = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+
+    @property
+    def MIDDLEWARE(self):
+        return super().MIDDLEWARE + [
+            "silk.middleware.SilkyMiddleware",
+        ]
 
     ORGANISATION_DOMAIN = "localhost"
 
@@ -591,13 +618,16 @@ class Prod(Base):
     # must be before django.contrib.staticfiles
     INSTALLED_APPS.insert(INSTALLED_APPS.index("django.contrib.staticfiles"), "servestatic")
 
-    MIDDLEWARE = copy.copy(Base.MIDDLEWARE)
-    # must be right after SecurityMiddleware so static files are served
-    # before any session/auth/organisation handling happens
-    MIDDLEWARE.insert(
-        MIDDLEWARE.index("django.middleware.security.SecurityMiddleware") + 1,
-        "servestatic.middleware.ServeStaticMiddleware",
-    )
+    @property
+    def MIDDLEWARE(self):
+        middleware = super().MIDDLEWARE
+        # must be right after SecurityMiddleware so static files are served
+        # before any session/auth/organisation handling happens
+        middleware.insert(
+            middleware.index("django.middleware.security.SecurityMiddleware") + 1,
+            "servestatic.middleware.ServeStaticMiddleware",
+        )
+        return middleware
 
     STORAGES = {
         "default": {
@@ -626,6 +656,7 @@ class Test(Base):
     CORS_ALLOWED_ORIGINS = Dev.CORS_ALLOWED_ORIGINS
     CSRF_TRUSTED_ORIGINS = Dev.CSRF_TRUSTED_ORIGINS
     LOGIN_LOCAL_FORM_ENABLED = True
+    BASIC_AUTH_ENABLED = True
 
 
 class Static(Base):

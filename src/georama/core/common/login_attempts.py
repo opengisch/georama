@@ -1,0 +1,81 @@
+import logging
+from collections.abc import Callable
+
+from allauth.core.internal import ratelimit
+from django.contrib.sites.shortcuts import get_current_site
+from django.http import HttpRequest, HttpResponse
+from django.utils.translation import gettext_lazy as _
+
+from georama.core.exceptions.base import GeoramaBaseError
+
+log = logging.getLogger(__name__)
+
+
+class TooManyLoginAttemptsError(GeoramaBaseError):
+    """Raised when a username failed to log in too often in a short time."""
+
+
+class LoginAttempts:
+    """Counts failed password logins with the rate limits of allauth, so every way a
+    password reaches Georama (login page, admin login, HTTP Basic) shares one counter
+    per username with allauth's own login page.
+
+    allauth's public helper skips GET requests, but HTTP Basic authentication mostly
+    arrives as GET (GetMap, GetFeature), so the internal one is used on purpose.
+    """
+
+    app = "allauth.account"
+    action = "login_failed"
+    # only allauth's default per username, the limit per ip is left to the security
+    # layer in front of Georama: behind a proxy all clients share its ip and would
+    # lock each other out
+    rates = {"login_failed": "5/300s/key"}
+
+    @classmethod
+    def blocked(cls, request: HttpRequest, username: str) -> bool:
+        return not cls.consume(request, username, dry_run=True)
+
+    @classmethod
+    def count_failure(cls, request: HttpRequest, username: str) -> None:
+        cls.consume(request, username, dry_run=False)
+        if cls.blocked(request, username):
+            # once when the limit is reached, so the reason for a refused login is
+            # in the log but blocked requests don't flood it
+            log.warning(
+                _(
+                    "Too many failed login attempts for %s, blocked for 5 minutes. "
+                    "Remote address: %s, X-Forwarded-For: %r"
+                ),
+                username,
+                request.META.get("REMOTE_ADDR"),
+                request.headers.get("X-Forwarded-For"),
+            )
+
+    @classmethod
+    def guard(
+        cls, request: HttpRequest, username: str, login: Callable[[], HttpResponse]
+    ) -> HttpResponse:
+        if cls.blocked(request, username):
+            return ratelimit.respond_429(request)
+        response = login()
+        if not request.user.is_authenticated:
+            cls.count_failure(request, username)
+        return response
+
+    @classmethod
+    def consume(cls, request: HttpRequest, username: str, dry_run: bool) -> bool:
+        usage = ratelimit.consume(
+            request,
+            app=cls.app,
+            action=cls.action,
+            config=cls.rates,
+            key=cls.key(request, username),
+            limit_get=True,
+            dry_run=dry_run,
+        )
+        return usage is not None
+
+    @staticmethod
+    def key(request: HttpRequest, username: str) -> str:
+        # same key as allauth's own login, so both count into the same history
+        return f"{get_current_site(request).domain}:{username.lower()}"
