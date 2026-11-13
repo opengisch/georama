@@ -41,7 +41,9 @@ the `georama-oidc` client (see [Testing authentication](#testing-authentication)
 ## Login page
 
 The login page (`/login/`) shows the local username/password form and below it one
-button per configured OpenID Connect provider.
+button per configured OpenID Connect provider. The buttons send a POST with the CSRF
+token, so only Georama's own pages can start a login at the provider. A direct link to
+`/accounts/oidc/<provider>/login/` shows a page which asks before going there.
 
 Setups where everyone signs in through the provider can hide the local form with
 `GEORAMA_LOGIN_LOCAL_FORM_ENABLED=false`
@@ -61,15 +63,40 @@ Georama logs a warning at start about this combination. When the provider is dow
 switch the setting back on for the time being or use `manage.py changepassword` /
 `manage.py createsuperuser` in the container.
 
+Failed password logins are counted per username, after
+`GEORAMA_LOGIN_ATTEMPTS_LIMIT` failures the username is refused for a while (HTTP 429),
+see [Security Settings](../production.md#security-settings).
+
 !!! note "HTTP Basic authentication"
 
     Clients like QGIS send username and password with every request (HTTP Basic
-    authentication). This keeps working with the local form switched off, it does not
-    open a session. Georama has no protection against guessing passwords there, so
-    limit it in front of Georama (e.g. a rate limit on the ingress) if it is reachable
-    from the internet.
+    authentication), it doesn't open a session. It is off by default and switched on with
+    `GEORAMA_BASIC_AUTH_ENABLED=true` (on in the dev setup). It keeps working with the
+    local form switched off and counts failed logins like the login page.
 
     Superusers can't use HTTP Basic authentication.
+
+!!! note "Logout"
+
+    Logging out of Georama doesn't end the session at Keycloak. The next click on the
+    provider button signs in again without a password as long as the Keycloak session
+    lasts (realm settings, session timeouts).
+
+### First login through the provider
+
+The first login through the provider creates the user, later logins find it by the
+provider's user id. If a local account already has the same email, the user gets a form
+to complete the signup with another email, unless `GEORAMA_OIDC_EMAIL_AUTHENTICATION` is
+on. Georama logs a warning in that case, and the admin's user list shows the local
+accounts concerned with the filter "provider account: not linked".
+
+### GeoGirafe tokens
+
+GeoGirafe sends the token of the provider with its requests. Georama checks it for each
+request and doesn't open a session. Deactivated users are refused, superusers too unless
+`GEORAMA_GEOGIRAFE_SUPERUSER_ENABLED` is on (on in the dev setup). While the provider is
+unreachable, tokens are refused and the requests go on as anonymous; Georama logs a
+warning and asks the provider again after `GEORAMA_OIDC_RETRY_SECONDS`.
 
 ### Signup
 
