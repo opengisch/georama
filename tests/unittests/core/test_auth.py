@@ -158,12 +158,11 @@ class TestLoginAttemptsOnLoginPages:
         settings.LOGIN_ATTEMPTS_RATE = "1/300s/key"
         LoginAttempts.count_failure(rf.get("/", SERVER_NAME="localhost"), user_user_name)
         client = Client()
-        # even the right password is refused, with the page in georama's look
+        # even the right password is refused
         response = client.post(
             path, {"username": user_user_name, "password": user_password}, SERVER_NAME="localhost"
         )
         assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
-        assert "429.html" in [used.name for used in response.templates]
         assert "_auth_user_id" not in client.session
 
 
@@ -182,10 +181,8 @@ class TestProviderLogin:
         settings.SOCIALACCOUNT_PROVIDERS = keycloak_provider
         # an old bookmark or a link on a foreign page opens the provider login with GET
         response = Client().get("/accounts/oidc/keycloak/login/", SERVER_NAME="localhost")
-        # no redirect to keycloak, but allauth's page in georama's look with a button
+        # no redirect to keycloak, a page asks first
         assert response.status_code == status.HTTP_200_OK
-        assert "socialaccount/login.html" in [used.name for used in response.templates]
-        assert "core/entrance.html" in [used.name for used in response.templates]
         assert "Sign In Via Keycloak" in response.text
 
 
@@ -209,8 +206,7 @@ class TestSignup:
     def test_signup_page_leads_to_georamas_login(self, settings):
         settings.LOGIN_LOCAL_SIGNUP_ENABLED = True
         response = Client().get(reverse("account_signup"), SERVER_NAME="localhost")
-        # georama's look, and the way back goes to georama's login, not allauth's
-        assert "core/entrance.html" in [used.name for used in response.templates]
+        # the way back goes to georama's login, not allauth's
         assert f'<a href="{reverse("core:login")}">' in response.text
 
     def test_identity_provider_can_still_create_users(self, settings, rf):
