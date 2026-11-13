@@ -1,6 +1,11 @@
+import logging
+
 from allauth.account.adapter import DefaultAccountAdapter
+from allauth.account.internal.flows.manage_email import assess_unique_email
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 class AccountAdapter(DefaultAccountAdapter):
@@ -38,3 +43,30 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         # allauth asks the account adapter by default, but the identity provider
         # decides who gets in, so the first login there still creates the user
         return True
+
+    def is_auto_signup_allowed(self, request, sociallogin) -> bool:
+        """Leaves the decision to allauth, but tells the operator when allauth won't
+        create the user automatically because a local account already has the email of
+        the provider. The user then lands on the signup form and has to enter another
+        email, without the log nobody would guess why.
+
+        Args:
+            request: The django request.
+            sociallogin: The login allauth is about to finish.
+
+        Returns:
+            allauth's decision.
+        """
+        allowed = super().is_auto_signup_allowed(request, sociallogin)
+        for address in sociallogin.email_addresses[:1]:
+            # the same check allauth does next, internal but the only way to know it
+            if assess_unique_email(address.email) is not True:
+                logger.warning(
+                    f"Provider login of {sociallogin.account.provider} user "
+                    f"{sociallogin.account.uid} with email {address.email}: a local account "
+                    f"already uses this email, so the user is asked to complete the signup "
+                    f"with another email. To sign such users into the local account, see "
+                    f"GEORAMA_OIDC_EMAIL_AUTHENTICATION (the provider must mark the email "
+                    f"as verified)."
+                )
+        return allowed

@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+
+{% comment %}
+    The narrow card of the pages where people sign in or up: Georama's login page and
+    the pages of allauth which are overridden in Georama's look.
+{% endcomment %}
+
+{% block content %}
+    <div class="row justify-content-center mt-5">
+        <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    {% block entrance_content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

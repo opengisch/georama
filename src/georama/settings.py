@@ -236,7 +236,14 @@ class Base(Configuration):
     # Django allauth's social account configuration
     # https://docs.allauth.org/en/dev/socialaccount/configuration.html
     SOCIALACCOUNT_QUERY_EMAIL = True
-    SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+    # signing in an existing local account by the email the provider reports is off for
+    # all providers, it's switched on per provider app ("email_authentication" in its
+    # settings, see SOCIALACCOUNT_PROVIDERS). Only trust a provider with it which
+    # verifies emails honestly, otherwise its users can take over local accounts.
+    SOCIALACCOUNT_EMAIL_AUTHENTICATION = False
+    # when a provider signs in by email, the provider account is connected to the local
+    # one, so the next login (and the bearer tokens of GeoGirafe) find it by the
+    # provider's id
     SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
     # the provider login starts with a POST (buttons with CSRF token), so a link on a
     # third party page can't start a login flow (allauth's default)
@@ -264,6 +271,10 @@ class Base(Configuration):
     # the existing local account. Only use "connect" with a provider where people can't
     # choose their username themselves, otherwise anyone can take over a local account.
     OIDC_USERNAME_CONFLICT = values.Value("suffix", environ_prefix=GEORAMA_ENV_PREFIX)
+    # a login through the provider signs in the existing local account with the same
+    # (by the provider verified) email and connects both. Only with a provider which
+    # verifies emails honestly, otherwise its users can take over local accounts.
+    OIDC_EMAIL_AUTHENTICATION = values.BooleanValue(False, environ_prefix=GEORAMA_ENV_PREFIX)
     # superusers may use GeoGirafe with their token. Off by default: the token lives in
     # the browser and would carry superuser rights (for the request only, never a session)
     GEOGIRAFE_SUPERUSER_ENABLED = values.BooleanValue(False, environ_prefix=GEORAMA_ENV_PREFIX)
@@ -326,6 +337,7 @@ class Base(Configuration):
                     "secret": self.OIDC_SECRET,
                     "settings": {
                         "server_url": self.OIDC_SERVER_URL,
+                        "email_authentication": self.OIDC_EMAIL_AUTHENTICATION,
                     },
                 },
             },
