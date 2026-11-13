@@ -238,7 +238,9 @@ class Base(Configuration):
     SOCIALACCOUNT_QUERY_EMAIL = True
     SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
     SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
-    SOCIALACCOUNT_LOGIN_ON_GET = True
+    # the provider login starts with a POST (buttons with CSRF token), so a link on a
+    # third party page can't start a login flow (allauth's default)
+    SOCIALACCOUNT_LOGIN_ON_GET = False
 
     # important to prevent normal redirect to /account/profile (which we don't have yet)
     LOGIN_REDIRECT_URL = "/"
