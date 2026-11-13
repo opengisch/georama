@@ -9,6 +9,7 @@ on:
 permissions:
   contents: read
   packages: write
+  pull-requests: write
   security-events: write
 
 concurrency:
@@ -51,15 +52,55 @@ jobs:
           cache-from: type=gha,scope=pr${{ github.event.pull_request.number }}
           cache-to: type=gha,mode=max,scope=pr${{ github.event.pull_request.number }}
 
+      # scanned once into json, sarif and the PR report are converted from it
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         if: github.event.action != 'closed'
         with:
           image-ref: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}
-          format: sarif
-          output: trivy-georama-image.sarif
+          format: json
+          output: trivy-georama-image.json
           severity: CRITICAL,HIGH
           exit-code: 0
+
+      # trivy-action put the trivy binary on the PATH, the markdown report lands
+      # in the job summary for every PR, forks and dependabot included
+      - name: Convert Trivy results
+        if: >-
+          !cancelled()
+          && github.event.action != 'closed'
+          && hashFiles('trivy-georama-image.json') != ''
+        env:
+          # read by the template
+          REPORT: trivy-georama-image
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          trivy convert --quiet --format sarif --output "$REPORT.sarif" "$REPORT.json"
+          trivy convert --quiet --format template --template "@.github/trivy-report.md.tpl" \
+            --output "$REPORT.md" "$REPORT.json"
+          cat "$REPORT.md" >> "${GITHUB_STEP_SUMMARY}"
+
+      # one comment per image, found by its marker and updated on every push,
+      # dependabot or fork PRs have readonly tokens, so we prevent comments
+      - name: Comment Trivy results on PR
+        if: >-
+          !cancelled()
+          && env.PUSH == 'true'
+          && github.actor != 'dependabot[bot]'
+          && hashFiles('trivy-georama-image.md') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPORT: trivy-georama-image
+          COMMENTS: repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
+        run: |
+          COMMENT_ID=$(gh api "$COMMENTS" --paginate \
+            --jq ".[] | select(.body | startswith(\"<!-- $REPORT -->\")) | .id" | head -n 1)
+          if [ -n "$COMMENT_ID" ]; then
+            gh api --method PATCH "repos/${{ github.repository }}/issues/comments/$COMMENT_ID" \
+              -F body=@"$REPORT.md"
+          else
+            gh api --method POST "$COMMENTS" -F body=@"$REPORT.md"
+          fi
 
       - name: Upload Trivy results
         # dependebot or fork PRs have readonly tokens, so we prevent uploads
