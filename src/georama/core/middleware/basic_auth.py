@@ -8,10 +8,9 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.utils.translation import gettext_lazy as _
-from rest_framework.authentication import BaseAuthentication
-from rest_framework.request import Request
 
 from georama.core.common.login_attempts import LoginAttempts, TooManyLoginAttemptsError
+from georama.core.middleware.authentication import MiddlewareAuthentication
 
 # Header encoding (see RFC5987)
 HTTP_HEADER_ENCODING = "iso-8859-1"
@@ -35,9 +34,8 @@ class BasicAuthenticationMiddleware:
                 if user_token is not None:
                     log.debug(_("User was authenticated."))
                     request.user = user_token[0]
-                    # the REST framework takes the user over from here, see
-                    # MiddlewareBasicAuthentication
-                    request.georama_basic_authenticated = True
+                    # the REST framework takes the user over from here
+                    setattr(request, MiddlewareAuthentication.request_flag, True)
             except TooManyLoginAttemptsError:
                 log.debug(_("Too many failed login attempts."))
                 return HttpResponse("Too Many Requests", status=429)
@@ -140,18 +138,3 @@ class BasicAuthenticationMiddleware:
             # Work around django test client oddness
             auth = auth.encode(HTTP_HEADER_ENCODING)
         return auth
-
-
-class MiddlewareBasicAuthentication(BaseAuthentication):
-    """Takes the user of `BasicAuthenticationMiddleware` over into the REST framework.
-
-    The middleware already checked the credentials, so the password isn't checked a
-    second time here. Without this class the session authentication of the REST
-    framework would take the user and ask for a CSRF token, which a client sending its
-    credentials in a header never has.
-    """
-
-    def authenticate(self, request: Request):
-        if getattr(request._request, "georama_basic_authenticated", False):
-            return request._request.user, None
-        return None

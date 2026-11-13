@@ -1,13 +1,17 @@
 import logging
+import time
 
 import jwt
 import requests
-from allauth.socialaccount.adapter import get_adapter
+from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
-from django.contrib.auth import get_user_model, login
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.db import transaction
 from django.http import HttpRequest
+
+from georama.core.middleware.authentication import MiddlewareAuthentication
 
 logger = logging.getLogger(__name__)
 
@@ -24,32 +28,40 @@ class GeoGirafeAuthenticationMiddleware:
     - allauth.account.middleware.AccountMiddleware
     - django.contrib.messages.middleware.MessageMiddleware
 
-    This middleware looks for an Access token in the Authorization header, extracts
-    it, and then validates the token against the public key of the provider.
+    It is only loaded when `OIDC_SERVER_URL` is configured. It looks for an Access
+    token in the Authorization header, extracts it, and then validates the token
+    against the public key of the provider. The user is set for this request only, a
+    token never turns into a session.
 
     Attributes:
-        oidc_config: We only load that info once at server start
-            (when this class is instantiated) since we consider it static.
+        oidc_config: The provider's configuration, loaded with the first token and
+            then kept, since we consider it static.
         jwks_client: PyJWKClient caches keys automatically and handles key rotation on provider
-            side, so we create one at server start too and use its cache.
+            side, so we create one with the configuration and use its cache.
         get_response: This is a callable, since middlewares are chained callables this callable
             some not reliably specified callable of the middleware active before this dedicated
             one. Only thing we have to do here, is to call it and pass the response as arg.
     """
 
+    # what happens when the provider's username already exists locally
+    username_conflict_modes = ("suffix", "connect")
+
     def __init__(self, get_response):
-        """The middleware is instantiated once at server start.
+        """The middleware is instantiated once at server start. Nothing is fetched from
+        the provider here, an unreachable provider must not keep Georama from starting.
 
         Args:
             get_response: The callable in from the previously loaded middleware in the chain.
         """
+        if settings.OIDC_USERNAME_CONFLICT not in self.username_conflict_modes:
+            raise ImproperlyConfigured(
+                f"GEORAMA_OIDC_USERNAME_CONFLICT must be one of "
+                f"{', '.join(self.username_conflict_modes)}."
+            )
         self.get_response = get_response
-        # we only set attributes if the URL is available through config actually, it turns
-        # out we have problems with tests otherwise, since this class is instantiated
-        # always.
-        if settings.OIDC_SERVER_URL:
-            self.oidc_config = requests.get(settings.OIDC_SERVER_URL).json()
-            self.jwks_client = jwt.PyJWKClient(self.oidc_config["jwks_uri"])
+        self.oidc_config = None
+        self.jwks_client = None
+        self.provider_retry_at = 0.0
 
     def __call__(self, request: HttpRequest):
         """Detect and extract HTTP headers intended for OIDC auth.
@@ -73,18 +85,60 @@ class GeoGirafeAuthenticationMiddleware:
             # No token found, nothing for us to do
             return self.get_response(request)
 
-        try:
-            payload = self.verify_token(access_token)
-        except Exception:  # noqa: BLE001
+        if not self.load_provider():
+            # the token can't be checked right now, the request goes on as anonymous
             return self.get_response(request)
 
-        user = self.get_or_create_user(payload)
-        # login the user and assign a session cookie
-        # so on subsequent requests request.user.is_authenticated is
-        # True already.
-        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+        try:
+            payload = self.verify_token(access_token)
+            user = self.get_or_create_user(payload)
+        except Exception as e:  # noqa: BLE001
+            logger.debug(f"Bearer token refused: {e}")
+            return self.get_response(request)
 
+        if not user.is_active:
+            logger.info(f"Deactivated user {user.username} sent a bearer token, refused.")
+            return self.get_response(request)
+        if user.is_superuser and not settings.GEOGIRAFE_SUPERUSER_ENABLED:
+            # a token lives in the browser of GeoGirafe, by default it must not carry
+            # superuser rights
+            logger.warning(
+                f"Superuser {user.username} sent a bearer token, refused. "
+                f"Use a non superuser account in GeoGirafe."
+            )
+            return self.get_response(request)
+
+        # for this request only, no session: the next request brings its token again
+        request.user = user
+        setattr(request, MiddlewareAuthentication.request_flag, True)
         return self.get_response(request)
+
+    def load_provider(self) -> bool:
+        """Loads the provider's configuration and signing keys client, once. If the
+        provider can't be reached, we log it and try again after a while.
+
+        Returns:
+            True if tokens can be checked.
+        """
+        if self.jwks_client is not None:
+            return True
+        if time.monotonic() < self.provider_retry_at:
+            return False
+        try:
+            response = requests.get(settings.OIDC_SERVER_URL, timeout=settings.OIDC_TIMEOUT_SECONDS)
+            response.raise_for_status()
+            self.oidc_config = response.json()
+            self.jwks_client = jwt.PyJWKClient(
+                self.oidc_config["jwks_uri"], timeout=settings.OIDC_TIMEOUT_SECONDS
+            )
+        except (requests.RequestException, ValueError, KeyError) as e:
+            self.provider_retry_at = time.monotonic() + settings.OIDC_RETRY_SECONDS
+            logger.warning(
+                f"Identity provider {settings.OIDC_SERVER_URL} not reachable, bearer tokens "
+                f"are refused for the next {settings.OIDC_RETRY_SECONDS} seconds: {e}"
+            )
+            return False
+        return True
 
     def create_user_via_allauth(self, payload: dict):
         """Creates a new user and links it to the socialaccount django-allauth ecosystem.
@@ -95,28 +149,44 @@ class GeoGirafeAuthenticationMiddleware:
         Returns:
             The newly created user object.
         """
-        adapter = get_adapter()
         User = get_user_model()  # noqa: N806
 
-        user = User(
-            username=payload["preferred_username"],
-            email=payload.get("email"),
-            first_name=payload.get("given_name"),
-            last_name=payload.get("family_name"),
+        user = self.local_user_to_connect(payload) or User(
+            # the preferred username might be taken by a local account already, then
+            # allauth appends a number
+            username=get_account_adapter().generate_unique_username(
+                [payload.get("preferred_username"), payload.get("email"), "user"]
+            ),
+            email=payload.get("email") or "",
+            first_name=payload.get("given_name") or "",
+            last_name=payload.get("family_name") or "",
         )
-
-        adapter.populate_user(None, user, payload)
-        user.save()
-
-        social_account = SocialAccount(
-            user=user,
-            provider=settings.OIDC_PROVIDER_ID,
-            uid=payload["sub"],
-            extra_data=payload,
-        )
-        social_account.save()
+        with transaction.atomic():
+            if user._state.adding:
+                user.save()
+            SocialAccount.objects.create(
+                user=user,
+                provider=settings.OIDC_PROVIDER_ID,
+                uid=payload["sub"],
+                extra_data=payload,
+            )
 
         return user
+
+    @staticmethod
+    def local_user_to_connect(payload: dict):
+        """Finds the local account with the provider's username, when the setting says
+        both are the same person.
+
+        Args:
+            payload: The decoded token.
+
+        Returns:
+            The local user to connect or None.
+        """
+        if settings.OIDC_USERNAME_CONFLICT != "connect" or not payload.get("preferred_username"):
+            return None
+        return get_user_model().objects.filter(username=payload["preferred_username"]).first()
 
     def get_or_create_user(self, payload: dict):
         """Tries to find user in socialaccount django-allauth system or initiates
@@ -129,7 +199,7 @@ class GeoGirafeAuthenticationMiddleware:
             The found or freshly created user.
         """
         try:
-            social = SocialAccount.objects.get(
+            social = SocialAccount.objects.select_related("user").get(
                 provider=settings.OIDC_PROVIDER_ID,
                 uid=payload["sub"],
             )

@@ -206,6 +206,12 @@ class Base(Configuration):
             if self.BASIC_AUTH_ENABLED
             else []
         )
+        # bearer tokens of GeoGirafe can only be checked with an identity provider
+        bearer_authentication = (
+            ["georama.core.middleware.oidc.GeoGirafeAuthenticationMiddleware"]
+            if self.OIDC_SERVER_URL
+            else []
+        )
         return [
             "django.middleware.security.SecurityMiddleware",
             "django.contrib.sessions.middleware.SessionMiddleware",
@@ -215,7 +221,7 @@ class Base(Configuration):
             "django.middleware.csrf.CsrfViewMiddleware",
             "django.contrib.auth.middleware.AuthenticationMiddleware",
             *basic_authentication,
-            "georama.core.middleware.oidc.GeoGirafeAuthenticationMiddleware",
+            *bearer_authentication,
             "django.contrib.messages.middleware.MessageMiddleware",
             "django.middleware.clickjacking.XFrameOptionsMiddleware",
             "allauth.account.middleware.AccountMiddleware",
@@ -245,6 +251,20 @@ class Base(Configuration):
     # empty for public clients (PKCE), confidential clients need their secret here
     OIDC_SECRET = values.Value("", environ_prefix=GEORAMA_ENV_PREFIX)
     OIDC_PROVIDER_ID = values.Value("keycloak", environ_prefix=GEORAMA_ENV_PREFIX)
+    # seconds Georama waits for the provider (configuration and signing keys), it must
+    # never block Georama for long
+    OIDC_TIMEOUT_SECONDS = values.IntegerValue(5, environ_prefix=GEORAMA_ENV_PREFIX)
+    # while the provider is not reachable, bearer tokens are refused and the provider
+    # is only asked again after these seconds, so not every request waits for it
+    OIDC_RETRY_SECONDS = values.IntegerValue(30, environ_prefix=GEORAMA_ENV_PREFIX)
+    # when the provider's username of a new token user already exists locally:
+    # "suffix" creates a new user with a number appended, "connect" links the token to
+    # the existing local account. Only use "connect" with a provider where people can't
+    # choose their username themselves, otherwise anyone can take over a local account.
+    OIDC_USERNAME_CONFLICT = values.Value("suffix", environ_prefix=GEORAMA_ENV_PREFIX)
+    # superusers may use GeoGirafe with their token. Off by default: the token lives in
+    # the browser and would carry superuser rights (for the request only, never a session)
+    GEOGIRAFE_SUPERUSER_ENABLED = values.BooleanValue(False, environ_prefix=GEORAMA_ENV_PREFIX)
 
     # switches the local username/password form on the login page, when off only the
     # identity provider buttons are shown (as long as at least one provider exists)
@@ -449,15 +469,16 @@ class Base(Configuration):
     ######################
     @property
     def REST_FRAMEWORK(self):
-        # the middleware checks the credentials, the REST framework only takes its user over
-        basic_authentication = (
-            ["georama.core.middleware.basic_auth.MiddlewareBasicAuthentication"]
-            if self.BASIC_AUTH_ENABLED
+        # the middlewares check the credentials, the REST framework only takes their
+        # user over
+        header_authentication = (
+            ["georama.core.middleware.authentication.MiddlewareAuthentication"]
+            if self.BASIC_AUTH_ENABLED or self.OIDC_SERVER_URL
             else []
         )
         return {
             "DEFAULT_AUTHENTICATION_CLASSES": [
-                *basic_authentication,
+                *header_authentication,
                 "rest_framework.authentication.SessionAuthentication",
             ],
             "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
@@ -638,6 +659,7 @@ class Dev(Base):
     ]
 
     BASIC_AUTH_ENABLED = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+    GEOGIRAFE_SUPERUSER_ENABLED = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
 
     # the dev setup runs on plain http
     SESSION_COOKIE_SECURE = values.BooleanValue(False)
