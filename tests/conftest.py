@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 import psycopg
 import pytest
 from django.conf import settings
+from django.core.cache import cache
 from faker import Faker
 from faker.utils.loading import find_available_providers
 from guardian.shortcuts import assign_perm
@@ -482,6 +483,14 @@ def crs_factory():
         )
 
     yield create_crs
+
+
+@pytest.fixture(autouse=True)
+def empty_cache():
+    """The counters of failed logins live in the cache, every test starts without any."""
+    cache.clear()
+    yield
+    cache.clear()
 
 
 @pytest.fixture(autouse=True)
