@@ -239,6 +239,24 @@ class Base(Configuration):
 
     # lets people create a local account themselves under /accounts/signup/
     LOGIN_LOCAL_SIGNUP_ENABLED = values.BooleanValue(False, environ_prefix=GEORAMA_ENV_PREFIX)
+
+    # failed password logins per username (login page, admin login, HTTP Basic) until
+    # the username is blocked, and for how long. Limits per ip are left to the security
+    # layer in front of Georama: behind a proxy all clients share its ip.
+    LOGIN_ATTEMPTS_LIMIT = values.IntegerValue(5, environ_prefix=GEORAMA_ENV_PREFIX)
+    LOGIN_ATTEMPTS_BLOCKED_MINUTES = values.IntegerValue(5, environ_prefix=GEORAMA_ENV_PREFIX)
+
+    @property
+    def LOGIN_ATTEMPTS_RATE(self):
+        # in allauth's notation: attempts / time window / counted per key (the username)
+        return f"{self.LOGIN_ATTEMPTS_LIMIT}/{self.LOGIN_ATTEMPTS_BLOCKED_MINUTES * 60}s/key"
+
+    @property
+    def ACCOUNT_RATE_LIMITS(self):
+        # allauth's own login page counts with the same rate, so both share one counter
+        # per username, the limit per ip stays allauth's default there
+        return {"login_failed": f"10/m/ip,{self.LOGIN_ATTEMPTS_RATE}"}
+
     ACCOUNT_ADAPTER = "georama.core.adapters.AccountAdapter"
     SOCIALACCOUNT_ADAPTER = "georama.core.adapters.SocialAccountAdapter"
 

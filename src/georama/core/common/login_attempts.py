@@ -2,6 +2,7 @@ import logging
 from collections.abc import Callable
 
 from allauth.core.internal import ratelimit
+from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpRequest, HttpResponse
 from django.utils.translation import gettext_lazy as _
@@ -26,10 +27,6 @@ class LoginAttempts:
 
     app = "allauth.account"
     action = "login_failed"
-    # only allauth's default per username, the limit per ip is left to the security
-    # layer in front of Georama: behind a proxy all clients share its ip and would
-    # lock each other out
-    rates = {"login_failed": "5/300s/key"}
 
     @classmethod
     def blocked(cls, request: HttpRequest, username: str) -> bool:
@@ -43,10 +40,11 @@ class LoginAttempts:
             # in the log but blocked requests don't flood it
             log.warning(
                 _(
-                    "Too many failed login attempts for %s, blocked for 5 minutes. "
+                    "Too many failed login attempts for %s, blocked for up to %s minutes. "
                     "Remote address: %s, X-Forwarded-For: %r"
                 ),
                 username,
+                settings.LOGIN_ATTEMPTS_BLOCKED_MINUTES,
                 request.META.get("REMOTE_ADDR"),
                 request.headers.get("X-Forwarded-For"),
             )
@@ -68,7 +66,7 @@ class LoginAttempts:
             request,
             app=cls.app,
             action=cls.action,
-            config=cls.rates,
+            config={cls.action: settings.LOGIN_ATTEMPTS_RATE},
             key=cls.key(request, username),
             limit_get=True,
             dry_run=dry_run,

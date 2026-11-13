@@ -45,12 +45,16 @@ class BasicAuthenticationMiddleware:
                 # AuthenticationFailed: there was a http auth header,
                 # but auth failed: consider the user unlogged.
                 log.debug(_("User was not authenticated."))
-                response = HttpResponse("Unauthorized", status=401)
-                response["WWW-Authenticate"] = self.authenticate_header(request)
-                return response
+                return self.unauthorized_response(request)
             except Exception as e:  # noqa: BLE001
                 log.error(e)
         return self.get_response(request)
+
+    def unauthorized_response(self, request: HttpRequest) -> HttpResponse:
+        response = HttpResponse("Unauthorized", status=401)
+        # without the challenge clients don't know they may ask for credentials again
+        response["WWW-Authenticate"] = self.authenticate_header(request)
+        return response
 
     def authenticate(self, request) -> tuple[AbstractUser, None] | None:
         """Returns a `User` if a correct username and password have been supplied
