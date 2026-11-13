@@ -1,0 +1,6 @@
+{% extends "core/error_standalone.html" %}
+{% load i18n %}
+
+{% block error_code %}400{% endblock %}
+{% block error_title %}{% translate "Bad request" %}{% endblock %}
+{% block error_message %}{% translate "The request could not be understood by the server." %}{% endblock %}

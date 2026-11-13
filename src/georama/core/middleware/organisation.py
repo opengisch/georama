@@ -1,7 +1,8 @@
 import logging
 
 from django.conf import settings
-from django.http import HttpResponseForbidden, HttpResponseNotFound
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -40,7 +41,8 @@ class OrganisationMiddleware:
                     public_access = matched_organisation.public_access
                 except Organisation.DoesNotExist:
                     logging.debug(f"Organisation not found in database. Domain: {subdomains}")
-                    return HttpResponseNotFound(_("Not found"))
+                    # raised instead of returned, so django renders its 404 page
+                    raise Http404(_("Not found")) from None
             logging.debug(f"Organisation offers public access: {public_access}")
             superuser = request.user.is_superuser if hasattr(request, "user") else False
             logging.debug(f"Requesting user is superuser: {superuser}")
@@ -52,7 +54,7 @@ class OrganisationMiddleware:
                         for membership in request.user.memberships.all()
                     ):
                         logging.debug("User has no membership of the requested organisation")
-                        return HttpResponseForbidden(_("No Access"))
+                        raise PermissionDenied(_("No Access"))
                 else:
                     logging.debug(
                         f"User was not authenticated, "

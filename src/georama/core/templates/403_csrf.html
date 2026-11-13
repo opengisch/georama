@@ -1,0 +1,7 @@
+{% extends "core/error.html" %}
+{% load i18n %}
+
+{% block error_breadcrumb %}{% translate "Forbidden" %}{% endblock %}
+{% block error_code %}403{% endblock %}
+{% block error_title %}{% translate "The form could not be verified" %}{% endblock %}
+{% block error_message %}{% translate "The form may have expired. Please reload the page and try again." %}{% endblock %}

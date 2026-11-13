@@ -1,0 +1,6 @@
+{% extends "core/error_standalone.html" %}
+{% load i18n %}
+
+{% block error_code %}500{% endblock %}
+{% block error_title %}{% translate "Server error" %}{% endblock %}
+{% block error_message %}{% translate "Something went wrong on our side. Please try again later." %}{% endblock %}

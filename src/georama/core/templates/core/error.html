@@ -1,0 +1,29 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">{% translate "Home" %}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{% block error_breadcrumb %}{% endblock %}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <section class="row justify-content-center py-5">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4 p-md-5 text-center">
+                    <div class="text-danger fw-bold display-3 mb-2">{% block error_code %}{% endblock %}</div>
+                    <h1 class="h4 mb-2">{% block error_title %}{% endblock %}</h1>
+                    <p class="text-muted mb-4">
+                        {% block error_message %}{% endblock %}
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a href="/" class="btn btn-outline-secondary">{% translate "Back to Home" %}</a>
+                        <button type="button" class="btn btn-outline-primary" onclick="history.back()">{% translate "Go Back" %}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

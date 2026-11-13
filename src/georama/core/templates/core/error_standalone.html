@@ -1,0 +1,58 @@
+{% load i18n static %}
+{% comment %}
+    The look of core/error.html for errors which are rendered before or without the
+    request being complete (400, 500). Django renders 500.html without any request,
+    and a 400 can happen before the user is known, so nothing here may need the
+    request or the context processors of core/base.html.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <link rel="icon" type="image/svg+xml" href="{% static 'core/images/favicon.svg' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'core/images/favicon.ico' %}">
+
+    <link rel="stylesheet" href="{% static 'core/css/variables.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/bootstrap.overwrites.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/georama.css' %}">
+
+    <title>{% translate "Georama – Your Geospatial Data Hub" %}</title>
+</head>
+<body>
+
+<header class="main-header">
+    <nav class="navbar bg-body border-bottom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="{% static 'core/images/main_plain.svg' %}" alt="Georama"
+                     class="d-inline-block align-text-top">
+            </a>
+        </div>
+    </nav>
+</header>
+
+<main class="container">
+    <section class="row justify-content-center py-5">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4 p-md-5 text-center">
+                    <div class="text-danger fw-bold display-3 mb-2">{% block error_code %}{% endblock %}</div>
+                    <h1 class="h4 mb-2">{% block error_title %}{% endblock %}</h1>
+                    <p class="text-muted mb-4">
+                        {% block error_message %}{% endblock %}
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a href="/" class="btn btn-outline-secondary">{% translate "Back to Home" %}</a>
+                        <button type="button" class="btn btn-outline-primary" onclick="history.back()">{% translate "Go Back" %}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>
