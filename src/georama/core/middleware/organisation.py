@@ -23,6 +23,9 @@ class OrganisationMiddleware:
             reverse(settings.ORGANISATION_NOT_AUTHENTICATED_TARGET),
             # local accounts always need a way in, also when the login page has no local form
             reverse("admin:login"),
+            # probes and humans need the health also when the database is down, so no
+            # organisation lookup and no user, not configurable on purpose
+            reverse("core:health"),
         ] + [
             reverse(view_name)
             for view_name in settings.ORGANISATION_GLOBAL_PUBLIC_ACCESS_BYPASS_TARGETS

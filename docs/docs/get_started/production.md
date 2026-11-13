@@ -149,3 +149,18 @@ These defaults changed and need a look when an existing installation is upgraded
 - Superusers can't use GeoGirafe with their token
   (`GEORAMA_GEOGIRAFE_SUPERUSER_ENABLED`).
 - GeoGirafe tokens no longer open a session in Georama.
+
+## Health probing
+
+Probes (compose, kubernetes, load balancers) use `/health/` and only need the status
+code: `200` healthy, `503` not, see [User Endpoints](endpoints.md#health). The compose
+file already probes it from inside the container.
+
+- A reverse proxy which replaces the body of `5xx` answers with its own error page
+  (nginx `proxy_intercept_errors`, a Traefik errors middleware) has to let `/health/`
+  through unchanged, otherwise humans see the proxy page instead of the health page.
+- The health page is public, also when the global organisation is not. Restrict it at
+  the reverse proxy if that is not wanted.
+- Set `connect_timeout` in `GEORAMA_DB_OPTIONS` (e.g. `{"connect_timeout": 3}`), so a
+  database which does not answer at all is reported as down fast.
+

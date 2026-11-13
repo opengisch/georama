@@ -1,4 +1,7 @@
 services:
+  qsl-redis:
+    ports:
+      - "127.0.0.1:${HOST_QSL_REDIS_PORT:-1234}:6379"
   georama-db:
     ports:
       - "127.0.0.1:${HOST_GEORAMA_DB_PORT:-5432}:5432"

@@ -15,8 +15,11 @@ class CoreConfig(GeoramaAbstractConfig):
     description = _("The master app.")
 
     def ready(self):
+        from georama.core.common.health import DatabaseHealthCheck, register_health_check
+
         # We don't want to register a menu for Core on the Page
         self.warn_about_login_without_provider()
+        register_health_check(DatabaseHealthCheck())
 
     @staticmethod
     def warn_about_login_without_provider():
