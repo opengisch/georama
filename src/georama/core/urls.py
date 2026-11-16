@@ -28,17 +28,17 @@ urlpatterns = [
     path("health/", HealthViewSet.as_view({"get": "list"}), name="health"),
     path("manage/", include(management_router.urls)),
     path(
-        "manage/schema/",
+        "manage/schema",
         schema.GeoramaAdminSchemaView.as_view(urlconf=management_router.urls),
         name="schema",
     ),
     path(
-        "manage/schema/swagger-ui/",
+        "manage/schema/swagger-ui",
         schema.GeoramaAdminSwaggerView.as_view(url_name="core:schema"),
         name="swagger",
     ),
     path(
-        "manage/schema/redoc/",
+        "manage/schema/redoc",
         schema.GeoramaAdminRedocView.as_view(url_name="core:schema"),
         name="redoc",
     ),
