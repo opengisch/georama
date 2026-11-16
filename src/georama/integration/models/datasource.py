@@ -1,24 +1,22 @@
 import logging
 import uuid
+from typing import Literal
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from qgis_server_light.interface.common import BBox
-from qgis_server_light.interface.common import Crs
-from qgis_server_light.interface.common import Style
+from qgis_server_light.interface.common import BBox, Crs, Style
 from qgis_server_light.interface.exporter.extract import Custom as QslCustom
 from qgis_server_light.interface.exporter.extract import DataSource
 from qgis_server_light.interface.exporter.extract import Field as QSlField
 from qgis_server_light.interface.exporter.extract import Raster as QslRaster
 from qgis_server_light.interface.exporter.extract import Vector as QslVector
-from typing import Literal
 from xsdata.formats.dataclass.parsers import DictDecoder
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.core.common.managers import OrganisationalManager
-from georama.integration.managers.datasource import DatasourceManager
-from georama.integration.managers.datasource import VectorManager
+from georama.integration.managers.datasource import DatasourceManager, VectorManager
 from georama.integration.models.project import Project
 
 
@@ -27,9 +25,7 @@ class BaseDatasource(models.Model):
         abstract = True
 
     id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        help_text=_("Identifier of the datasource.")
+        primary_key=True, default=uuid.uuid4, help_text=_("Identifier of the datasource.")
     )
     qgis_layer_id = models.CharField(
         max_length=1000,
@@ -73,9 +69,7 @@ class Datasource(BaseDatasource):
         max_length=1000,
         null=True,
         blank=True,
-        help_text=_(
-            "Bounding box of the datasource in the source coordinate reference system."
-        ),
+        help_text=_("Bounding box of the datasource in the source coordinate reference system."),
         verbose_name=_("bounding box"),
     )
     bbox_wgs84 = models.CharField(
@@ -126,16 +120,12 @@ class Datasource(BaseDatasource):
 
     @property
     def get_parser_config(self):
-        return ParserConfig(
-            fail_on_unknown_attributes=False, fail_on_unknown_properties=False
-        )
+        return ParserConfig(fail_on_unknown_attributes=False, fail_on_unknown_properties=False)
 
     @property
     def source_to_qsl(self) -> DataSource:
         # TODO: Implement an ENV Django app to manipulate datasources in a hookable way
-        datasource = DictDecoder(config=self.get_parser_config).decode(
-            self.source, DataSource
-        )
+        datasource = DictDecoder(config=self.get_parser_config).decode(self.source, DataSource)
         return datasource
 
     @property
@@ -179,9 +169,7 @@ class Datasource(BaseDatasource):
 
     @property
     def styles_to_qsl(self) -> list[Style]:
-        return DictDecoder(config=self.get_parser_config).decode(
-            self.styles, list[Style]
-        )
+        return DictDecoder(config=self.get_parser_config).decode(self.styles, list[Style])
 
     @property
     def type(self) -> Literal["vector", "raster", "custom"]:

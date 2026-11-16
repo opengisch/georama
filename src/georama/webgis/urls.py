@@ -21,7 +21,6 @@ urlpatterns = [
     path("", include(short_router.urls)),
     path("manage/", include(management_router.urls)),
     re_path(r"ows/?$", OgcServerWebGis.as_view(), name="ows_entry"),
-
     path("api", PygeoapiServerWebGIS.as_view(action="landing"), name="landing"),
     path(
         "api/conformance",
