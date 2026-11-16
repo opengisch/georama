@@ -50,4 +50,9 @@ class TestPermissionsJsonRepresentation:
         assert response.status_code == status.HTTP_200_OK
         rows = response.json()["results"]
         assert rows
-        assert all(row["inherited_permissions"] == {"can_view": False} for row in rows)
+        # one entry per permission of the theme, the user is in no group which has any
+        assert all(
+            row["inherited_permissions"]
+            == {"can_view": False, "can_create": False, "can_update": False, "can_delete": False}
+            for row in rows
+        )
