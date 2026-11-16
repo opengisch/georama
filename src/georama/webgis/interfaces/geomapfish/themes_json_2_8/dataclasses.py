@@ -64,10 +64,11 @@ class OgcServer(AbstractSchema):
     credential: bool = field(metadata={"type": "Element", "required": True})
     image_type: str = field(metadata={"name": "imageType", "type": "Element", "required": True})
     wfs_support: bool = field(metadata={"name": "wfsSupport", "type": "Element", "required": True})
-    is_single_tile: bool = field(
-        metadata={"name": "isSingleTile", "type": "Element", "required": True}
-    )
     namespace: str = field(metadata={"type": "Element", "required": True})
+    # obsolete and can be removed once we tidy up here
+    is_single_tile: bool | None = field(
+        default=None, metadata={"name": "isSingleTile", "type": "Element", "required": False}
+    )
     name: str = field(default=None, metadata={"type": "Element", "required": False})
     url_wfs: str = field(
         default=None, metadata={"name": "urlWfs", "type": "Element", "required": False}
@@ -75,9 +76,11 @@ class OgcServer(AbstractSchema):
     uses: OgcServerUses | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
+    # obsolete and can be removed once we tidy up here
     oapif_support: bool | None = field(
         default=None, metadata={"name": "oapifSupport", "type": "Element", "required": False}
     )
+    # obsolete and can be removed once we tidy up here
     url_oapif: str | None = field(
         default=None, metadata={"name": "urlOapif", "type": "Element", "required": False}
     )
@@ -233,6 +236,7 @@ class WmsLayer:
     dimensions: Dimensions | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
+    # obsolete and can be removed once we tidy up here
     editable: bool | None = field(default=None, metadata={"type": "Element", "required": False})
     style: str = field(default=None, metadata={"type": "Element", "required": False})
     time: Time | None = field(default=None, metadata={"type": "Element", "required": False})
