@@ -18,7 +18,7 @@ urlpatterns = [
     path("", include(router.urls)),
     path("manage/", include(management_router.urls)),
     path(
-        "manage/schema/",
+        "manage/schema",
         views.SpectacularAPIView.as_view(
             urlconf=management_router.urls,
             custom_settings={
@@ -30,12 +30,12 @@ urlpatterns = [
         name="schema",
     ),
     path(
-        "manage/schema/swagger/",
+        "manage/schema/swagger",
         views.SpectacularSwaggerView.as_view(url_name="maps:schema"),
         name="swagger",
     ),
     path(
-        "manage/schema/redoc/",
+        "manage/schema/redoc",
         views.SpectacularRedocView.as_view(url_name="maps:schema"),
         name="redoc",
     ),
