@@ -134,8 +134,7 @@ services:
       - ./.certs:/certs
       - dev-ca:/ca
   geogirafe:
-    # image: geogirafe/viewer:1.2.1
-    image: docker.io/local/gg-viewer
+    image: geogirafe/viewer@sha256:c82f79fd9b57318265f0488be79af2828febc6abefcb93dae515d7607d3505b1 # latest 1.3.0 dev => includes advanced editing
     platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
     healthcheck:
