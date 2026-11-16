@@ -237,6 +237,13 @@ class Vector(Datasource):
         verbose_name=_("geometry type (WKB)"),
     )
 
+    @property
+    def primary_key_field_name(self) -> str | None:
+        for vector_field in self.fields.all():
+            if vector_field.definition and vector_field.field_definition_qsl.is_primary_key:
+                return vector_field.name
+        return None
+
     async def set_values_from_qsl(self, qsl_object: QslVector):
         await self.set_common_values_from_qsl(qsl_object, self)
         self.geometry_type_simple = qsl_object.geometry_type_simple

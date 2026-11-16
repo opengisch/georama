@@ -8,6 +8,7 @@ import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
 from django.conf import settings
 from django.core.exceptions import BadRequest, PermissionDenied, ValidationError
+from django.db.models import QuerySet
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -25,7 +26,7 @@ from georama.features.config_server import ServerConfig
 from georama.features.features_config import Config
 from georama.features.geometry_type import UnsupportedGeometryTypeError, geojson_geometry_type
 from georama.features.models import FeatureLayer, Field
-from georama.features.references import ReferenceTarget, reference_keywords
+from georama.features.references import ReferenceResolver, ReferenceTarget
 from georama.integration.models import Vector
 
 if TYPE_CHECKING:
@@ -42,10 +43,6 @@ class _NoCache(dict):
 
 
 l10n._cfg_cache = _NoCache()
-
-
-WORLD_BBOX = [-180.0, -90.0, 180.0, 90.0]
-CRS84_URI = "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
 
 
 def get_collection_schema_with_geometry_format(
@@ -108,6 +105,9 @@ class PygeoapiServer(View):
     perm_create = "create_objects_on_published_layer"
     perm_update = "update_objects_on_published_layer"
     perm_delete = "delete_objects_on_published_layer"
+    # we want to make this configurable soon (orga level?)
+    WORLD_BBOX = [-180.0, -90.0, 180.0, 90.0]
+    CRS84_URI = "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
 
     @classmethod
     def urls(cls):
@@ -220,11 +220,8 @@ class PygeoapiServer(View):
         feature_layer = self.get_collection_or_404_or_403(
             collection_id, self.perm_view, include_public=True
         ).get()
-        geom_type = (
-            self.get_vector(feature_layer).geometry_type_wkb
-            if self.get_vector(feature_layer).is_spatial
-            else None
-        )
+        vector = self.get_vector(feature_layer)
+        geom_type = vector.geometry_type_wkb if vector.is_spatial else None
         return self.execute_from_django(
             # a bit hacky, but we use
             # https://docs.python.org/3/library/functools.html#functools.partial
@@ -471,25 +468,16 @@ class PygeoapiServer(View):
         if crs not in runtime_api.DEFAULT_CRS_LIST:
             runtime_api.DEFAULT_CRS_LIST.append(crs)
 
-    @staticmethod
-    def get_primary_key_name(vector: Vector) -> str:
-        """The OGR provider needs the name of the identifier column. OGR sources have no key
-        in the QSL export, so it is taken from the primary key field of the datasource.
-        """
-        for vector_field in vector.fields.all():
-            if vector_field.definition and vector_field.field_definition_qsl.is_primary_key:
-                return vector_field.name
-        return "fid"
-
     def create_ogr_provider(
         self,
         feature_layer: FeatureLayer,
         editable: bool,
         features_properties: list[Field],
     ) -> dict:
-        source = self.get_vector(feature_layer).source_to_qsl
+        vector = self.get_vector(feature_layer)
+        source = vector.source_to_qsl
 
-        crs = self.get_vector(feature_layer).crs_to_qsl
+        crs = vector.crs_to_qsl
         available_crs_list = self.get_available_crs_list(crs)
 
         # TODO: make this configurable
@@ -497,7 +485,7 @@ class PygeoapiServer(View):
 
         # The geometry column name may differ, setting it to None works for all cases
         geom_field = None
-        geom_type = self.get_vector(feature_layer).geometry_type_wkb
+        geom_type = vector.geometry_type_wkb
 
         field_constraints = self.get_field_constraints(feature_layer, features_properties)
 
@@ -508,16 +496,18 @@ class PygeoapiServer(View):
                 "source_type": driver_lookup[source.ogr.path.split(".")[-1].upper()],
                 "source": os.path.join(
                     Config().path,
-                    self.get_vector(feature_layer).project.organisation_folder,
-                    os.path.dirname(self.get_vector(feature_layer).project.path),
+                    vector.project.organisation_folder,
+                    os.path.dirname(vector.project.path),
                     source.ogr.path,
                 ),
                 "source_capabilities": {"paging": True},
             },
             "editable": editable,
             "crs": available_crs_list,
-            "storage_crs": crs.ogc_uri if crs is not None else CRS84_URI,
-            "id_field": self.get_primary_key_name(self.get_vector(feature_layer)),
+            "storage_crs": crs.ogc_uri if crs is not None else self.CRS84_URI,
+            # OGR sources have no key in the QSL export, the OGR provider needs the name of
+            # the identifier column anyway
+            "id_field": vector.primary_key_field_name or "fid",
             "layer": (
                 source.ogr.layer_name
                 if source.ogr.layer_name is not None
@@ -537,15 +527,14 @@ class PygeoapiServer(View):
         editable: bool,
         features_properties: list[Field],
     ) -> dict:
-        source = self.get_vector(feature_layer).source_to_qsl
+        vector = self.get_vector(feature_layer)
+        source = vector.source_to_qsl
 
-        crs = self.get_vector(feature_layer).crs_to_qsl
+        crs = vector.crs_to_qsl
         available_crs_list = self.get_available_crs_list(crs)
 
-        geom_field = (
-            source.postgres.geometry_column if self.get_vector(feature_layer).is_spatial else None
-        )
-        geom_type = self.get_vector(feature_layer).geometry_type_wkb
+        geom_field = source.postgres.geometry_column if vector.is_spatial else None
+        geom_type = vector.geometry_type_wkb
 
         field_constraints = self.get_field_constraints(feature_layer, features_properties)
 
@@ -582,7 +571,7 @@ class PygeoapiServer(View):
             "options": options,
             "editable": editable,
             "crs": available_crs_list,
-            "storage_crs": crs.ogc_uri if crs is not None else CRS84_URI,
+            "storage_crs": crs.ogc_uri if crs is not None else self.CRS84_URI,
             "id_field": source.postgres.key,
             "table": source.postgres.table,
             "geom_field": geom_field,
@@ -620,9 +609,10 @@ class PygeoapiServer(View):
 
         features_properties = self.get_visible_fields(feature_layer)
 
-        if self.get_vector(feature_layer).driver.upper() == "POSTGRES":
+        vector = self.get_vector(feature_layer)
+        if vector.driver.upper() == "POSTGRES":
             provider = self.create_postgres_provider(feature_layer, editable, features_properties)
-        elif self.get_vector(feature_layer).driver.upper() == "OGR":
+        elif vector.driver.upper() == "OGR":
             provider = self.create_ogr_provider(feature_layer, editable, features_properties)
         else:
             raise NotImplementedError
@@ -647,8 +637,8 @@ class PygeoapiServer(View):
             "extents": {
                 "spatial": {
                     # geometryless datasources have no bbox, pygeoapi needs an extent anyway
-                    "bbox": self.get_vector(feature_layer).bbox_to_list or WORLD_BBOX,
-                    "crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
+                    "bbox": vector.bbox_to_list or self.WORLD_BBOX,
+                    "crs": self.CRS84_URI,
                 }
             },
             "providers": [provider],
@@ -674,13 +664,14 @@ class PygeoapiServer(View):
         return feature_layer.datasource
 
     def get_field_constraints(self, feature_layer: FeatureLayer, features_properties: list) -> dict:
-        datasource = self.get_vector(feature_layer)
-        return get_dataset_field_constraints(
-            features_properties,
-            datasource.geometry_type_wkb,
-            datasource.qgis_layer_id,
-            self.get_relations(datasource.project),
-            self.get_reference_targets(datasource.project),
+        vector = self.get_vector(feature_layer)
+        reference_resolver = ReferenceResolver(
+            layer_id=vector.qgis_layer_id,
+            relations=self.get_relations(vector.project),
+            targets=self.get_reference_targets(vector.project),
+        )
+        return DatasetFieldConstraints.create(
+            features_properties, vector.geometry_type_wkb, reference_resolver
         )
 
     @staticmethod
@@ -690,29 +681,27 @@ class PygeoapiServer(View):
             return []
         return project.config_as_dataclass.relations
 
-    @staticmethod
-    def get_reference_targets(project) -> dict[str, ReferenceTarget]:
-        """The feature layers of the project published on this mount, keyed by QGIS layer id.
+    def get_reference_targets(self, project) -> dict[str, ReferenceTarget]:
+        """The layers of the project published on this mount, keyed by QGIS layer id.
         Only layers with a primary key field can be referenced.
         """
         targets: dict[str, ReferenceTarget] = {}
-        layers = (
-            FeatureLayer.objects.filter(datasource__project=project)
+        for layer in self.get_reference_target_layers(project):
+            vector = self.get_vector(layer)
+            key_field = vector.primary_key_field_name
+            if key_field is not None:
+                targets[vector.qgis_layer_id] = ReferenceTarget(
+                    self.collection_key(layer), key_field
+                )
+        return targets
+
+    def get_reference_target_layers(self, project) -> QuerySet[FeatureLayer]:
+        """The layers of the project which are served on this mount."""
+        return (
+            self.model.objects.filter(datasource__project=project)
             .select_related("datasource")
             .prefetch_related("datasource__fields")
         )
-        for layer in layers:
-            key_field = next(
-                (
-                    f.name
-                    for f in layer.datasource.fields.all()
-                    if f.definition and f.field_definition_qsl.is_primary_key
-                ),
-                None,
-            )
-            if key_field is not None:
-                targets[layer.datasource.qgis_layer_id] = ReferenceTarget(str(layer.id), key_field)
-        return targets
 
     def get_visible_fields(self, feature_layer: FeatureLayer) -> list[Field]:
         return [p for p in feature_layer.fields.all() if p.visible]
@@ -741,16 +730,26 @@ class PygeoapiServer(View):
         return available_crs_list
 
 
-def get_dataset_field_constraints(
-    field_properties: list[Field],
-    geom_type: str,
-    layer_id: str,
-    relations: list[Relation],
-    targets: dict[str, ReferenceTarget],
-):
-    field_constraints: dict[str, dict] = {}
+class DatasetFieldConstraints:
+    VALUE_MAP_CASTS = {"integer": int, "number": float}
 
-    for properties in field_properties:
+    @staticmethod
+    def create(
+        field_properties: list[Field],
+        geom_type: str,
+        reference_resolver: ReferenceResolver,
+    ) -> dict:
+        field_constraints: dict[str, dict] = {}
+
+        for properties in field_properties:
+            field_constraints[str(properties.name)] = DatasetFieldConstraints.create_schema(
+                properties, reference_resolver
+            )
+
+        return field_constraints
+
+    @staticmethod
+    def create_schema(properties: Field, reference_resolver: ReferenceResolver) -> dict:
         field: DatasourceField = properties.datasource_field
 
         schema: dict[str, str | int | float | bool] = {
@@ -797,46 +796,43 @@ def get_dataset_field_constraints(
                 schema["readOnly"] = True
             widget = qsl_field.editor_widget
             if widget is not None and widget.value_map is not None:
-                schema.update(value_map_constraints(widget.value_map, field.type_oapif))
+                schema.update(
+                    DatasetFieldConstraints.value_map_constraints(
+                        widget.value_map, field.type_oapif
+                    )
+                )
             if widget is not None and widget.range is not None:
-                schema.update(range_constraints(widget.range))
-            schema.update(
-                reference_keywords(str(properties.name), layer_id, widget, relations, targets)
-            )
+                schema.update(DatasetFieldConstraints.range_constraints(widget.range))
+            schema.update(reference_resolver.keywords(str(properties.name), widget))
 
-        field_constraints[str(properties.name)] = schema
+        return schema
 
-    return field_constraints
+    @staticmethod
+    def value_map_constraints(value_map: ValueMap, type_oapif: str) -> dict:
+        """Maps a QGIS ValueMap to `oneOf`, `enum` only where key and description are equal.
 
+        Keys are cast to the schema type, a key which does not fit is left out of the list.
+        """
+        cast = DatasetFieldConstraints.VALUE_MAP_CASTS.get(type_oapif, str)
+        entries = []
+        for entry in value_map.entries:
+            try:
+                entries.append((cast(entry.key), entry))
+            except ValueError:
+                continue
 
-VALUE_MAP_CASTS = {"integer": int, "number": float}
+        constraints: dict = {
+            "oneOf": [{"const": key, "title": entry.description} for key, entry in entries],
+        }
+        if entries and all(entry.key == entry.description for _, entry in entries):
+            constraints["enum"] = [key for key, _ in entries]
+        return constraints
 
-
-def value_map_constraints(value_map: "ValueMap", type_oapif: str) -> dict:
-    """Maps a QGIS ValueMap to `oneOf`, `enum` only where key and description are equal.
-
-    Keys are cast to the schema type, a key which does not fit is left out of the list.
-    """
-    cast = VALUE_MAP_CASTS.get(type_oapif, str)
-    entries = []
-    for entry in value_map.entries:
-        try:
-            entries.append((cast(entry.key), entry))
-        except ValueError:
-            continue
-
-    constraints: dict = {
-        "oneOf": [{"const": key, "title": entry.description} for key, entry in entries],
-    }
-    if entries and all(entry.key == entry.description for _, entry in entries):
-        constraints["enum"] = [key for key, _ in entries]
-    return constraints
-
-
-def range_constraints(widget_range: "Range") -> dict:
-    constraints = {}
-    if widget_range.minimum is not None:
-        constraints["minimum"] = widget_range.minimum
-    if widget_range.maximum is not None:
-        constraints["maximum"] = widget_range.maximum
-    return constraints
+    @staticmethod
+    def range_constraints(widget_range: Range) -> dict:
+        constraints = {}
+        if widget_range.minimum is not None:
+            constraints["minimum"] = widget_range.minimum
+        if widget_range.maximum is not None:
+            constraints["maximum"] = widget_range.maximum
+        return constraints
