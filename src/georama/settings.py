@@ -616,6 +616,10 @@ class Base(Configuration):
     )
     WEBGIS_BACKGROUND_THUMBNAIL_CRS = values.Value("EPSG:2056", environ_prefix=GEORAMA_ENV_PREFIX)
 
+    # OGC API Features items deliver the label of ValueMap fields instead of the stored
+    # value, as QGIS Server does. Writes always take the stored value.
+    FEATURES_REPRESENT_VALUES = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
+
     DOCUMENTATION_URL = values.Value(
         "https://opengisch.github.io/georama/", environ_prefix=GEORAMA_ENV_PREFIX
     )

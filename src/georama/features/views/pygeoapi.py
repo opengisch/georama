@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
+from django.conf import settings
 from django.core.exceptions import BadRequest, PermissionDenied, ValidationError
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
@@ -594,9 +595,29 @@ class PygeoapiServer(View):
             "geom_type": geom_type,
             "properties": [f.name for f in features_properties],
             "field_constraints": field_constraints,
+            "field_representations": self.get_field_representations(features_properties),
         }
 
         return provider_definition
+
+    @staticmethod
+    def get_field_representations(features_properties: list) -> dict:
+        """The labels stored values are delivered with on read, as QGIS Server does for
+        ValueMap widgets. Empty when switched off by setting.
+        """
+        if not settings.FEATURES_REPRESENT_VALUES:
+            return {}
+        representations = {}
+        for properties in features_properties:
+            field: DatasourceField = properties.datasource_field
+            if not field.definition or field.field_definition_qsl.editor_widget is None:
+                continue
+            value_map = field.field_definition_qsl.editor_widget.value_map
+            if value_map is not None:
+                representations[str(properties.name)] = {
+                    entry.key: entry.description for entry in value_map.entries
+                }
+        return representations
 
     def create_resource(
         self, feature_layer: FeatureLayer, permission_checker: ObjectPermissionChecker

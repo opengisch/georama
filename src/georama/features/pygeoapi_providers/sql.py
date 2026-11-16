@@ -13,6 +13,7 @@ class GeoramaSqlProvider(PostgreSQLProvider):
         super().__init__(provider_def)
 
         self._fields = provider_def.get("field_constraints", {})
+        self._representations = provider_def.get("field_representations", {})
 
     def _select_properties_clause(self, select_properties, skip_geometry):
         # geometryless tables have no geometry column to select
@@ -32,3 +33,24 @@ class GeoramaSqlProvider(PostgreSQLProvider):
         :returns: dict of fields
         """
         return self._fields
+
+    def query(self, *args, **kwargs):
+        feature_collection = super().query(*args, **kwargs)
+        for feature in feature_collection["features"]:
+            self.represent(feature)
+        return feature_collection
+
+    def get(self, identifier, crs_transform_spec=None, **kwargs):
+        feature = super().get(identifier, crs_transform_spec, **kwargs)
+        self.represent(feature)
+        return feature
+
+    def represent(self, feature: dict):
+        """Replaces stored values by their label, as QGIS Server does for ValueMap widgets.
+        Values without a label stay as they are.
+        """
+        properties = feature["properties"]
+        for name, labels in self._representations.items():
+            value = properties.get(name)
+            if value is not None:
+                properties[name] = labels.get(str(value), value)
