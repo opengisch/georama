@@ -3,8 +3,10 @@ from http import HTTPStatus
 from types import SimpleNamespace
 
 import psycopg2
+import pygeoapi.api as core_api
 import pytest
 from django.test import RequestFactory
+from osgeo import ogr
 from psycopg2.extensions import make_dsn, parse_dsn
 from pygeoapi import l10n
 from pygeoapi.provider import sql
@@ -22,12 +24,14 @@ from qgis_server_light.interface.exporter.extract import (
 )
 from qgis_server_light.interface.exporter.extract import Field as QslField
 
+from georama.features.pygeoapi_providers.ogr import GeoramaOgcProvider
 from georama.features.pygeoapi_providers.sql import GeoramaSqlProvider
 from georama.features.references import ReferenceResolver, ReferenceTarget
 from georama.features.views.pygeoapi import (
     DatasetFieldConstraints,
     PygeoapiServer,
     _NoCache,
+    get_collection_schema_with_geometry_format,
 )
 from georama.integration.models import VectorField
 
@@ -511,3 +515,109 @@ class TestValueViolation:
             content_type="application/geo+json",
         )
         assert server.get_value_violation(request, "parcels") is None
+
+
+class TestGeometrylessSchema:
+    """pygeoapi always puts a `geometry` property into the schema. A geometryless
+    datasource (no WKB geometry type) has none, so it is removed again.
+    """
+
+    @pytest.fixture(autouse=True)
+    def pygeoapi_schema(self, monkeypatch):
+        # what pygeoapi generates for a collection, the rest of the API is not needed
+        monkeypatch.setattr(
+            core_api,
+            "get_collection_schema",
+            lambda api, request, dataset: (
+                {"Content-Type": "application/schema+json"},
+                HTTPStatus.OK,
+                json.dumps(
+                    {
+                        "properties": {
+                            "geometry": {"format": "geometry-any"},
+                            "code": {"type": "string", "required": True},
+                        }
+                    }
+                ),
+            ),
+        )
+
+    def test_geometry_is_removed_without_geometry_type(self):
+        api = SimpleNamespace(pretty_print=False)
+        headers, status, content = get_collection_schema_with_geometry_format(
+            api, None, "land_use_types", None
+        )
+        assert status == HTTPStatus.OK
+        assert json.loads(content) == {
+            "properties": {"code": {"type": "string", "required": True}},
+            "required": ["code"],
+        }
+
+    def test_geometry_gets_its_format_with_geometry_type(self):
+        api = SimpleNamespace(pretty_print=False)
+        headers, status, content = get_collection_schema_with_geometry_format(
+            api, None, "parcels", "Polygon"
+        )
+        assert json.loads(content)["properties"]["geometry"] == {"format": "geometry-polygon"}
+
+
+class TestGeometrylessOgrProvider:
+    """pygeoapi's OGR provider reprojects the geometry of every feature it delivers, a
+    table without geometry would fail there. The items come without geometry instead.
+    """
+
+    @pytest.fixture
+    def land_use_types_gpkg(self, tmp_path):
+        # a GeoPackage attribute table, it has no geometry column
+        path = str(tmp_path / "lookup.gpkg")
+        datasource = ogr.GetDriverByName("GPKG").CreateDataSource(path)
+        layer = datasource.CreateLayer("land_use_types", geom_type=ogr.wkbNone)
+        layer.CreateField(ogr.FieldDefn("code", ogr.OFTString))
+        layer.CreateField(ogr.FieldDefn("label", ogr.OFTString))
+        for code, label in [("F", "Forest"), ("M", "Meadow")]:
+            feature = ogr.Feature(layer.GetLayerDefn())
+            feature["code"] = code
+            feature["label"] = label
+            layer.CreateFeature(feature)
+        # closes and writes the GeoPackage
+        datasource = None
+        yield path
+
+    @pytest.fixture
+    def provider(self, land_use_types_gpkg):
+        yield GeoramaOgcProvider(
+            {
+                "name": "OGR",
+                "type": "feature",
+                "data": {"source_type": "GPKG", "source": land_use_types_gpkg},
+                "id_field": "fid",
+                "layer": "land_use_types",
+                # only the code is published, the label is dropped
+                "properties": ["code"],
+                "field_constraints": {},
+            }
+        )
+
+    def test_query(self, provider):
+        assert provider.query()["features"] == [
+            {"type": "Feature", "id": 1, "geometry": None, "properties": {"code": "F"}},
+            {"type": "Feature", "id": 2, "geometry": None, "properties": {"code": "M"}},
+        ]
+
+    def test_get(self, provider):
+        assert provider.get(2) == {
+            "type": "Feature",
+            "id": 2,
+            "geometry": None,
+            "properties": {"code": "M"},
+        }
+
+
+class TestGeometrylessSqlProvider:
+    """A table without geometry column can't be filtered by bbox, all items are kept."""
+
+    def test_bbox_filter_is_always_true(self):
+        # the provider is not instantiated, that would connect to the database
+        provider = SimpleNamespace(geom=None)
+        bbox_filter = GeoramaSqlProvider._get_bbox_filter(provider, [7.0, 46.0, 8.0, 47.0])
+        assert str(bbox_filter) == "true"
