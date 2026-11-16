@@ -155,12 +155,6 @@ class PygeoapiServer(View):
     def get_collection_or_404_or_403(
         self, collection_id: str, perm: str, include_public: bool = False
     ):
-        print(
-            self.request.user,
-            self.request.georama_organisation,
-            perm,
-            self.collection_identifier(collection_id),
-        )
         try:
             return self.model.objects.accessible_layers(
                 self.request.georama_organisation,
