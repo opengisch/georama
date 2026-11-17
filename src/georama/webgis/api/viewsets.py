@@ -1,4 +1,3 @@
-from asgiref.sync import sync_to_async
 from django.apps import apps
 from django.conf import settings
 from django.shortcuts import redirect
