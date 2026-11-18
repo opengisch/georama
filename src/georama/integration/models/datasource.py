@@ -46,11 +46,15 @@ class Datasource(models.Model):
     )
     bbox = models.CharField(
         max_length=1000,
+        null=True,
+        blank=True,
         help_text=_("Bounding box of the datasource in the source coordinate reference system."),
         verbose_name=_("bounding box"),
     )
     bbox_wgs84 = models.CharField(
         max_length=1000,
+        null=True,
+        blank=True,
         help_text=_("Bounding box of the datasource transformed to WGS84."),
         verbose_name=_("bounding box (WGS 84)"),
     )
@@ -71,8 +75,14 @@ class Datasource(models.Model):
     )
     crs = models.JSONField(
         default=dict,
+        null=True,
         help_text=_("Coordinate reference system of the datasource."),
         verbose_name=_("CRS"),
+    )
+    is_spatial = models.BooleanField(
+        default=True,
+        help_text=_("Whether the datasource has geometries."),
+        verbose_name=_("is spatial"),
     )
     minimum_scale = models.FloatField(
         null=True,
@@ -108,15 +118,23 @@ class Datasource(models.Model):
         return datasource
 
     @property
-    def crs_to_qsl(self) -> Crs:
+    def crs_to_qsl(self) -> Crs | None:
+        if not self.crs:
+            # geometryless datasources have no CRS
+            return None
         return DictDecoder(config=self.get_parser_config).decode(self.crs, Crs)
 
     @property
-    def bbox_to_list(self) -> list:
+    def bbox_to_list(self) -> list | None:
+        if not self.bbox:
+            # geometryless datasources have no bbox
+            return None
         return BBox.from_string(self.bbox).to_list()
 
     @property
-    def bbox_2d_string(self) -> str:
+    def bbox_2d_string(self) -> str | None:
+        if not self.bbox:
+            return None
         return BBox.from_string(self.bbox).to_2d_string()
 
     def get_default_style(self) -> Style:
@@ -155,6 +173,8 @@ class Datasource(models.Model):
     @property
     def icon(self):
         match self.type:
+            case "vector" if not self.is_spatial:
+                return "fa fa-table"
             case "vector":
                 return "fa fa-bezier-curve"
             case "raster":
@@ -170,13 +190,14 @@ class Datasource(models.Model):
         db_objct: "Vector|Raster|Custom",
     ):
         db_objct.name = qsl_object.title
-        db_objct.bbox = qsl_object.bbox.to_string()
-        db_objct.bbox_wgs84 = qsl_object.bbox_wgs84.to_string()
+        db_objct.bbox = qsl_object.bbox.to_string() if qsl_object.bbox else None
+        db_objct.bbox_wgs84 = qsl_object.bbox_wgs84.to_string() if qsl_object.bbox_wgs84 else None
         db_objct.styles = DictEncoder().encode(qsl_object.styles)
-        db_objct.driver = qsl_object.driver
         db_objct.source = DictEncoder().encode(qsl_object.source)
+        db_objct.driver = qsl_object.driver
         db_objct.qgis_layer_id = qsl_object.id
-        db_objct.crs = DictEncoder().encode(qsl_object.crs)
+        db_objct.crs = DictEncoder().encode(qsl_object.crs) if qsl_object.crs else None
+        db_objct.is_spatial = qsl_object.is_spatial
         db_objct.minimum_scale = qsl_object.minimum_scale
         db_objct.maximum_scale = qsl_object.maximum_scale
 
@@ -190,6 +211,8 @@ class Vector(Datasource):
 
     geometry_type_simple = models.CharField(
         max_length=1000,
+        null=True,
+        blank=True,
         help_text=_(
             "Simplified geometry type of the vector datasource (eg. point, line, polygon)."
         ),
@@ -197,9 +220,18 @@ class Vector(Datasource):
     )
     geometry_type_wkb = models.CharField(
         max_length=1000,
+        null=True,
+        blank=True,
         help_text=_("Geometry type of the vector datasource."),
         verbose_name=_("geometry type (WKB)"),
     )
+
+    @property
+    def primary_key_field_name(self) -> str | None:
+        for vector_field in self.fields.all():
+            if vector_field.definition and vector_field.field_definition_qsl.is_primary_key:
+                return vector_field.name
+        return None
 
     async def set_values_from_qsl(self, qsl_object: QslVector):
         await self.set_common_values_from_qsl(qsl_object, self)
@@ -278,11 +310,24 @@ class VectorField(models.Model):
         related_name="fields",
         verbose_name=_("datasource"),
     )
+    definition = models.JSONField(
+        blank=True,
+        help_text=_("The JSON definition as defined by the QSL intreface dataclasses"),
+        default=dict,
+    )
 
     objects = OrganisationalManager()
 
     def __str__(self):
         return f"{self.alias} ({self.name})"
+
+    @property
+    def field_definition_qsl(self) -> QSlField:
+        config = ParserConfig(fail_on_unknown_attributes=False, fail_on_unknown_properties=False)
+        return DictDecoder(config).decode(self.definition, QSlField)
+
+    def set_definition_from_qsl(self, field: QSlField):
+        self.definition = DictEncoder().encode(field)
 
     async def set_values_from_qsl(self, qsl_object: QSlField):
         self.name = qsl_object.name
@@ -296,6 +341,7 @@ class VectorField(models.Model):
         self.nullable = qsl_object.nullable
         self.length = qsl_object.length
         self.precision = qsl_object.precision
+        self.set_definition_from_qsl(qsl_object)
 
 
 class Raster(Datasource):

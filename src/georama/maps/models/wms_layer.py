@@ -209,7 +209,7 @@ class WmsLayerAbstract(models.Model):
         if self.has_datasource_extent(datasource):
             # QSL calculated the wgs84 extent of the datasource already on export
             self.extent_wgs84 = BBox.from_string(datasource.bbox_wgs84).to_2d_string()
-        elif datasource.crs_to_qsl.auth_id:
+        elif datasource.crs_to_qsl and datasource.crs_to_qsl.auth_id:
             # we do not handle layers which have no CRS definition!
             bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
             self.extent_wgs84 = bbox_wgs84.to_2d_string()

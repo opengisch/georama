@@ -280,6 +280,38 @@ def global_vector_dataset(project_global_organisation, db_schema, schema_name, d
 
 
 @pytest.fixture
+def global_geometryless_vector(project_global_organisation):
+    # a lookup table, it has no geometry and so no crs and no bbox either
+    vector = VectorFactory.create(
+        project=project_global_organisation,
+        name="land_use_types",
+        fields=[],
+        driver="ogr",
+        is_spatial=False,
+        crs=None,
+        bbox=None,
+        bbox_wgs84=None,
+        geometry_type_simple=None,
+        geometry_type_wkb=None,
+        styles=[],
+    )
+    yield vector
+    vector.delete()
+
+
+@pytest.fixture
+def global_wms_layer_public_queryable_geometryless(global_geometryless_vector):
+    layer = WmsLayerFactory.create(
+        public=True,
+        queryable=True,
+        datasource=global_geometryless_vector,
+        metadata=MapsWmsLayerMetadataFactory.create(title="Global Public Queryable Geometryless"),
+    )
+    yield layer
+    layer.delete()
+
+
+@pytest.fixture
 def global_wms_layer_public_queryable(global_vector_dataset):
     layer = WmsLayerFactory.create(
         public=True,

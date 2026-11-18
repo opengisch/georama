@@ -6,8 +6,10 @@ from typing import TYPE_CHECKING
 
 import pygeoapi.api as core_api
 import pygeoapi.api.itemtypes as itemtypes_api
+from django.conf import settings
 from django.core.exceptions import BadRequest, PermissionDenied, ValidationError
-from django.http import Http404, HttpRequest, HttpResponse
+from django.db.models import QuerySet
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -17,12 +19,15 @@ from pygeoapi import l10n
 from pygeoapi.api import API, APIRequest, apply_gzip
 from pygeoapi.openapi import get_oas
 from pygeoapi.util import to_json
+from qgis_server_light.interface.exporter.extract import Range, Relation, ValueMap
 
 from georama.features.apps import FeaturesConfig
 from georama.features.config_server import ServerConfig
 from georama.features.features_config import Config
 from georama.features.geometry_type import UnsupportedGeometryTypeError, geojson_geometry_type
 from georama.features.models import FeatureLayer, Field
+from georama.features.references import ReferenceResolver, ReferenceTarget
+from georama.integration.models import Vector
 
 if TYPE_CHECKING:
     from georama.integration.models import VectorField as DatasourceField
@@ -58,16 +63,18 @@ def get_collection_schema_with_geometry_format(
 
     The geometry type of QSL is mapped to its GeoJSON type.
     """
-    try:
-        geometry_format = f"geometry-{geojson_geometry_type(geometry_type_wkb).lower()}"
-    except UnsupportedGeometryTypeError as e:
-        return api.get_exception(
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-            request.get_response_headers(**api.api_headers),
-            request.format,
-            "NoApplicableCode",
-            str(e),
-        )
+    geometry_format = None
+    if geometry_type_wkb is not None:
+        try:
+            geometry_format = f"geometry-{geojson_geometry_type(geometry_type_wkb).lower()}"
+        except UnsupportedGeometryTypeError as e:
+            return api.get_exception(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                request.get_response_headers(**api.api_headers),
+                request.format,
+                "NoApplicableCode",
+                str(e),
+            )
 
     headers, status, content = core_api.get_collection_schema(api, request, dataset)
     if status != HTTPStatus.OK or headers.get("Content-Type") != "application/schema+json":
@@ -76,7 +83,10 @@ def get_collection_schema_with_geometry_format(
     schema = json.loads(content)
     schema["required"] = []
     geometry = schema["properties"].get("geometry")
-    if geometry is not None:
+    if geometry is not None and geometry_format is None:
+        # geometryless datasources have no geometry property at all
+        del schema["properties"]["geometry"]
+    elif geometry is not None:
         geometry["format"] = geometry_format
     for key in schema["properties"]:
         v = schema["properties"][key]
@@ -90,6 +100,14 @@ def get_collection_schema_with_geometry_format(
 class PygeoapiServer(View):
     action = None
     model = FeatureLayer
+    landing_url_name = "features:landing"
+    perm_view = "view_objects_on_published_layer"
+    perm_create = "create_objects_on_published_layer"
+    perm_update = "update_objects_on_published_layer"
+    perm_delete = "delete_objects_on_published_layer"
+    # we want to make this configurable soon (orga level?)
+    WORLD_BBOX = [-180.0, -90.0, 180.0, 90.0]
+    CRS84_URI = "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
 
     @classmethod
     def urls(cls):
@@ -142,7 +160,7 @@ class PygeoapiServer(View):
                 self.request.georama_organisation,
                 self.request.user,
                 [perm],
-                [collection_id],
+                [self.collection_identifier(collection_id)],
                 include_public,
             )
         except self.model.DoesNotExist as e:
@@ -200,9 +218,10 @@ class PygeoapiServer(View):
         :returns: Django HTTP Response
         """
         feature_layer = self.get_collection_or_404_or_403(
-            collection_id, "view_objects_on_published_layer", include_public=True
+            collection_id, self.perm_view, include_public=True
         ).get()
-        geom_type = feature_layer.datasource.geometry_type_wkb
+        vector = self.get_vector(feature_layer)
+        geom_type = vector.geometry_type_wkb if vector.is_spatial else None
         return self.execute_from_django(
             # a bit hacky, but we use
             # https://docs.python.org/3/library/functools.html#functools.partial
@@ -222,9 +241,7 @@ class PygeoapiServer(View):
 
         :returns: Django HTTP Response
         """
-        _ = self.get_collection_or_404_or_403(
-            collection_id, "view_objects_on_published_layer", include_public=True
-        )
+        _ = self.get_collection_or_404_or_403(collection_id, self.perm_view, include_public=True)
         return self.execute_from_django(
             itemtypes_api.get_collection_queryables,
             request,
@@ -242,7 +259,7 @@ class PygeoapiServer(View):
         """
         if request.method == "GET":
             _ = self.get_collection_or_404_or_403(
-                collection_id, "view_objects_on_published_layer", include_public=True
+                collection_id, self.perm_view, include_public=True
             )
             response_ = self.execute_from_django(
                 itemtypes_api.get_collection_items,
@@ -252,9 +269,10 @@ class PygeoapiServer(View):
                 collection_id=collection_id,
             )
         elif request.method == "POST":
-            _ = self.get_collection_or_404_or_403(
-                collection_id, "create_objects_on_published_layer"
-            )
+            _ = self.get_collection_or_404_or_403(collection_id, self.perm_create)
+            violation = self.get_value_violation(request, collection_id)
+            if violation is not None:
+                return violation
             if request.content_type is not None:
                 if request.content_type == "application/geo+json":
                     response_ = self.execute_from_django(
@@ -278,7 +296,7 @@ class PygeoapiServer(View):
                 raise BadRequest()
         elif request.method == "OPTIONS":
             _ = self.get_collection_or_404_or_403(
-                collection_id, "view_objects_on_published_layer", include_public=True
+                collection_id, self.perm_view, include_public=True
             )
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
@@ -306,7 +324,7 @@ class PygeoapiServer(View):
         """
         if request.method == "GET":
             _ = self.get_collection_or_404_or_403(
-                collection_id, "view_objects_on_published_layer", include_public=True
+                collection_id, self.perm_view, include_public=True
             )
             response_ = self.execute_from_django(
                 itemtypes_api.get_collection_item,
@@ -316,9 +334,10 @@ class PygeoapiServer(View):
                 collection_id=collection_id,
             )
         elif request.method == "PUT":
-            _ = self.get_collection_or_404_or_403(
-                collection_id, "update_objects_on_published_layer"
-            )
+            _ = self.get_collection_or_404_or_403(collection_id, self.perm_update)
+            violation = self.get_value_violation(request, collection_id)
+            if violation is not None:
+                return violation
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
                 request,
@@ -329,9 +348,7 @@ class PygeoapiServer(View):
                 collection_id=collection_id,
             )
         elif request.method == "DELETE":
-            _ = self.get_collection_or_404_or_403(
-                collection_id, "delete_objects_on_published_layer"
-            )
+            _ = self.get_collection_or_404_or_403(collection_id, self.perm_delete)
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
                 request,
@@ -343,7 +360,7 @@ class PygeoapiServer(View):
             )
         elif request.method == "OPTIONS":
             _ = self.get_collection_or_404_or_403(
-                collection_id, "view_objects_on_published_layer", include_public=True
+                collection_id, self.perm_view, include_public=True
             )
             response_ = self.execute_from_django(
                 itemtypes_api.manage_collection_item,
@@ -358,6 +375,44 @@ class PygeoapiServer(View):
             raise BadRequest()
 
         return response_
+
+    def get_value_violation(self, request: HttpRequest, collection_id: str) -> HttpResponse | None:
+        """Answers 400 if a property of the written item is not in the `oneOf` / `enum`
+        list of its field. The database does not check value lists, so this is the check.
+
+        :returns: Django HTTP Response on violation, None otherwise
+        """
+        try:
+            payload = json.loads(request.body)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            # malformed bodies are answered by pygeoapi
+            return None
+        feature_layers = self.accessible_feature_layers(request, collection_id)
+        if not feature_layers or not isinstance(payload, dict):
+            return None
+
+        feature_layer = feature_layers[0]
+        constraints = self.get_field_constraints(
+            feature_layer, self.get_visible_fields(feature_layer)
+        )
+        properties = payload.get("properties") or {}
+        for name, schema in constraints.items():
+            value = properties.get(name)
+            if value is None:
+                continue
+            if "oneOf" in schema:
+                allowed = [option["const"] for option in schema["oneOf"]]
+            else:
+                allowed = schema.get("enum")
+            if allowed is not None and value not in allowed:
+                return JsonResponse(
+                    {
+                        "code": "InvalidParameterValue",
+                        "description": f"Value {value!r} is not allowed for {name}",
+                    },
+                    status=HTTPStatus.BAD_REQUEST,
+                )
+        return None
 
     def handle_runtime_config(
         self, request: HttpRequest, collection_id: str | None = None, with_openapi=False
@@ -376,14 +431,14 @@ class PygeoapiServer(View):
         """
         server_config = ServerConfig().get()
         server_config["server"]["url"] = (
-            f"{request.scheme}://{request.get_host()}{reverse('features:landing')}"
+            f"{request.scheme}://{request.get_host()}{reverse(self.landing_url_name)}"
         )
         feature_layers = self.accessible_feature_layers(request, collection_id)
         permission_checker = ObjectPermissionChecker(request.user)
         if feature_layers:
             permission_checker.prefetch_perms(feature_layers)
         for feature_layer in feature_layers:
-            server_config["resources"][feature_layer.identifier] = self.create_resource(
+            server_config["resources"][self.collection_key(feature_layer)] = self.create_resource(
                 feature_layer, permission_checker
             )
         openapi_config = get_oas(server_config) if with_openapi else {}
@@ -392,19 +447,36 @@ class PygeoapiServer(View):
     def accessible_feature_layers(
         self, request: HttpRequest, collection_id: str | None = None
     ) -> list[FeatureLayer]:
-        feature_layers = self.model.objects.accessible_layers(
-            self.request.georama_organisation,
-            request.user,
-            ["view_objects_on_published_layer"],
-            include_public=True,
-        ).prefetch_related("fields__datasource_field")
+        feature_layers = self.refine_accessible_layers(
+            self.model.objects.accessible_layers(
+                self.request.georama_organisation,
+                request.user,
+                [self.perm_view],
+                include_public=True,
+            )
+        )
         if collection_id is not None:
             try:
-                feature_layers = feature_layers.filter(id=collection_id)
+                feature_layers = feature_layers.filter(id=self.collection_identifier(collection_id))
             except ValidationError:
                 # not a valid identifier, pygeoapi answers with 404
                 return []
         return list(feature_layers)
+
+    def refine_accessible_layers(self, feature_layers: QuerySet) -> QuerySet:
+        """Narrows the accessible layers down to the ones the mount serves as collections.
+
+        The permission check is done already, this is only about what a mount is able to
+        serve and what it reads later on, so it prefetches that in one go. Other mounts
+        override it, e.g. the webgis one keeps only the layers on a vector datasource.
+
+        Args:
+            feature_layers: the layers the user may view
+
+        Returns:
+            the layers served as collections, with their fields prefetched
+        """
+        return feature_layers.prefetch_related("fields__datasource_field")
 
     @staticmethod
     def handle_crs_setting(crs: str):
@@ -419,9 +491,10 @@ class PygeoapiServer(View):
         editable: bool,
         features_properties: list[Field],
     ) -> dict:
-        source = feature_layer.datasource.source_to_qsl
+        vector = self.get_vector(feature_layer)
+        source = vector.source_to_qsl
 
-        crs = feature_layer.datasource.crs_to_qsl
+        crs = vector.crs_to_qsl
         available_crs_list = self.get_available_crs_list(crs)
 
         # TODO: make this configurable
@@ -429,9 +502,9 @@ class PygeoapiServer(View):
 
         # The geometry column name may differ, setting it to None works for all cases
         geom_field = None
-        geom_type = feature_layer.datasource.geometry_type_wkb
+        geom_type = vector.geometry_type_wkb
 
-        field_constraints = get_dataset_field_constraints(features_properties, geom_type)
+        field_constraints = self.get_field_constraints(feature_layer, features_properties)
 
         provider_definition = {
             "type": "feature",
@@ -440,16 +513,18 @@ class PygeoapiServer(View):
                 "source_type": driver_lookup[source.ogr.path.split(".")[-1].upper()],
                 "source": os.path.join(
                     Config().path,
-                    feature_layer.datasource.project.organisation_folder,
-                    os.path.dirname(feature_layer.datasource.project.path),
+                    vector.project.organisation_folder,
+                    os.path.dirname(vector.project.path),
                     source.ogr.path,
                 ),
                 "source_capabilities": {"paging": True},
             },
             "editable": editable,
             "crs": available_crs_list,
-            "storage_crs": crs.ogc_uri,
-            "id_field": "fid",
+            "storage_crs": crs.ogc_uri if crs is not None else self.CRS84_URI,
+            # OGR sources have no key in the QSL export, the OGR provider needs the name of
+            # the identifier column anyway
+            "id_field": vector.primary_key_field_name or "fid",
             "layer": (
                 source.ogr.layer_name
                 if source.ogr.layer_name is not None
@@ -469,15 +544,16 @@ class PygeoapiServer(View):
         editable: bool,
         features_properties: list[Field],
     ) -> dict:
-        source = feature_layer.datasource.source_to_qsl
+        vector = self.get_vector(feature_layer)
+        source = vector.source_to_qsl
 
-        crs = feature_layer.datasource.crs_to_qsl
+        crs = vector.crs_to_qsl
         available_crs_list = self.get_available_crs_list(crs)
 
-        geom_field = source.postgres.geometry_column
-        geom_type = feature_layer.datasource.geometry_type_wkb
+        geom_field = source.postgres.geometry_column if vector.is_spatial else None
+        geom_type = vector.geometry_type_wkb
 
-        field_constraints = get_dataset_field_constraints(features_properties, geom_type)
+        field_constraints = self.get_field_constraints(feature_layer, features_properties)
 
         # Layers using a pg_service only carry the service name: QSL does not resolve it
         # at export so that no credentials end up stored in the database. The connection
@@ -512,34 +588,48 @@ class PygeoapiServer(View):
             "options": options,
             "editable": editable,
             "crs": available_crs_list,
-            "storage_crs": crs.ogc_uri,
+            "storage_crs": crs.ogc_uri if crs is not None else self.CRS84_URI,
             "id_field": source.postgres.key,
             "table": source.postgres.table,
             "geom_field": geom_field,
             "geom_type": geom_type,
             "properties": [f.name for f in features_properties],
             "field_constraints": field_constraints,
+            "field_representations": self.get_field_representations(features_properties),
         }
 
         return provider_definition
 
+    @staticmethod
+    def get_field_representations(features_properties: list) -> dict:
+        """The labels stored values are delivered with on read, as QGIS Server does for
+        ValueMap widgets. Empty when switched off by setting.
+        """
+        if not settings.FEATURES_REPRESENT_VALUES:
+            return {}
+        representations = {}
+        for properties in features_properties:
+            field: DatasourceField = properties.datasource_field
+            if not field.definition or field.field_definition_qsl.editor_widget is None:
+                continue
+            value_map = field.field_definition_qsl.editor_widget.value_map
+            if value_map is not None:
+                representations[str(properties.name)] = {
+                    entry.key: entry.description for entry in value_map.entries
+                }
+        return representations
+
     def create_resource(
         self, feature_layer: FeatureLayer, permission_checker: ObjectPermissionChecker
     ) -> dict:
-        editable = any(
-            p in permission_checker.get_perms(feature_layer)
-            for p in (
-                "create_objects_on_published_layer",
-                "update_objects_on_published_layer",
-                "delete_objects_on_published_layer",
-            )
-        )
+        editable = self.is_editable(feature_layer, permission_checker)
 
-        features_properties = [p for p in feature_layer.fields.all() if p.visible]
+        features_properties = self.get_visible_fields(feature_layer)
 
-        if feature_layer.datasource.driver.upper() == "POSTGRES":
+        vector = self.get_vector(feature_layer)
+        if vector.driver.upper() == "POSTGRES":
             provider = self.create_postgres_provider(feature_layer, editable, features_properties)
-        elif feature_layer.datasource.driver.upper() == "OGR":
+        elif vector.driver.upper() == "OGR":
             provider = self.create_ogr_provider(feature_layer, editable, features_properties)
         else:
             raise NotImplementedError
@@ -563,22 +653,90 @@ class PygeoapiServer(View):
             "links": [],
             "extents": {
                 "spatial": {
-                    "bbox": feature_layer.datasource.bbox_to_list,
-                    "crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
+                    # geometryless datasources have no bbox, pygeoapi needs an extent anyway
+                    "bbox": vector.bbox_to_list or self.WORLD_BBOX,
+                    "crs": self.CRS84_URI,
                 }
             },
             "providers": [provider],
-            "limits": {
-                "on_exceed": feature_layer.on_exceed,
-                "max_items": feature_layer.max_items,
-                "default_items": feature_layer.default_items,
-            },
+            "limits": self.get_limits(feature_layer),
+        }
+
+    def collection_identifier(self, collection_id: str) -> str:
+        """The identifier of the layer behind a collection id, the same by default."""
+        return collection_id
+
+    def collection_key(self, feature_layer) -> str:
+        """The collection id a layer is served with."""
+        return str(feature_layer.identifier)
+
+    def is_editable(self, feature_layer, permission_checker: ObjectPermissionChecker) -> bool:
+        return any(
+            p in permission_checker.get_perms(feature_layer)
+            for p in (self.perm_create, self.perm_update, self.perm_delete)
+        )
+
+    def get_vector(self, feature_layer) -> Vector:
+        """The vector datasource the collection is served from."""
+        return feature_layer.datasource
+
+    def get_field_constraints(self, feature_layer: FeatureLayer, features_properties: list) -> dict:
+        vector = self.get_vector(feature_layer)
+        reference_resolver = ReferenceResolver(
+            layer_id=vector.qgis_layer_id,
+            relations=self.get_relations(vector.project),
+            targets=self.get_reference_targets(vector.project),
+        )
+        return DatasetFieldConstraints.create(
+            features_properties, vector.geometry_type_wkb, reference_resolver
+        )
+
+    @staticmethod
+    def get_relations(project) -> list[Relation]:
+        if not project.config:
+            # a project without export has no relations
+            return []
+        return project.config_as_dataclass.relations
+
+    def get_reference_targets(self, project) -> dict[str, ReferenceTarget]:
+        """The layers of the project published on this mount, keyed by QGIS layer id.
+        Only layers with a primary key field can be referenced.
+        """
+        targets: dict[str, ReferenceTarget] = {}
+        for layer in self.get_reference_target_layers(project):
+            vector = self.get_vector(layer)
+            key_field = vector.primary_key_field_name
+            if key_field is not None:
+                targets[vector.qgis_layer_id] = ReferenceTarget(
+                    self.collection_key(layer), key_field
+                )
+        return targets
+
+    def get_reference_target_layers(self, project) -> QuerySet[FeatureLayer]:
+        """The layers of the project which are served on this mount."""
+        return (
+            self.model.objects.filter(datasource__project=project)
+            .select_related("datasource")
+            .prefetch_related("datasource__fields")
+        )
+
+    def get_visible_fields(self, feature_layer: FeatureLayer) -> list[Field]:
+        return [p for p in feature_layer.fields.all() if p.visible]
+
+    def get_limits(self, feature_layer: FeatureLayer) -> dict:
+        return {
+            "on_exceed": feature_layer.on_exceed,
+            "max_items": feature_layer.max_items,
+            "default_items": feature_layer.default_items,
         }
 
     def get_available_crs_list(self, crs):
-        self.handle_crs_setting(crs.ogc_uri)
-        available_crs_list = [
-            crs.ogc_uri,
+        if crs is None:
+            available_crs_list = []
+        else:
+            self.handle_crs_setting(crs.ogc_uri)
+            available_crs_list = [crs.ogc_uri]
+        available_crs_list += [
             "http://www.opengis.net/def/crs/OGC/0/CRS84",
             "https://www.opengis.net/def/crs/OGC/0/CRS84",
         ]
@@ -589,10 +747,26 @@ class PygeoapiServer(View):
         return available_crs_list
 
 
-def get_dataset_field_constraints(field_properties: list[Field], geom_type: str):
-    field_constraints: dict[str, dict] = {}
+class DatasetFieldConstraints:
+    VALUE_MAP_CASTS = {"integer": int, "number": float}
 
-    for properties in field_properties:
+    @staticmethod
+    def create(
+        field_properties: list[Field],
+        geom_type: str,
+        reference_resolver: ReferenceResolver,
+    ) -> dict:
+        field_constraints: dict[str, dict] = {}
+
+        for properties in field_properties:
+            field_constraints[str(properties.name)] = DatasetFieldConstraints.create_schema(
+                properties, reference_resolver
+            )
+
+        return field_constraints
+
+    @staticmethod
+    def create_schema(properties: Field, reference_resolver: ReferenceResolver) -> dict:
         field: DatasourceField = properties.datasource_field
 
         schema: dict[str, str | int | float | bool] = {
@@ -631,6 +805,51 @@ def get_dataset_field_constraints(field_properties: list[Field], geom_type: str)
             except KeyError:
                 pass
 
-        field_constraints[str(properties.name)] = schema
+        if field.definition:
+            qsl_field = field.field_definition_qsl
+            if qsl_field.is_primary_key and qsl_field.is_generated:
+                # generated identifier, the client must not send it
+                schema.pop("required", None)
+                schema["readOnly"] = True
+            widget = qsl_field.editor_widget
+            if widget is not None and widget.value_map is not None:
+                schema.update(
+                    DatasetFieldConstraints.value_map_constraints(
+                        widget.value_map, field.type_oapif
+                    )
+                )
+            if widget is not None and widget.range is not None:
+                schema.update(DatasetFieldConstraints.range_constraints(widget.range))
+            schema.update(reference_resolver.keywords(str(properties.name), widget))
 
-    return field_constraints
+        return schema
+
+    @staticmethod
+    def value_map_constraints(value_map: ValueMap, type_oapif: str) -> dict:
+        """Maps a QGIS ValueMap to `oneOf`, `enum` only where key and description are equal.
+
+        Keys are cast to the schema type, a key which does not fit is left out of the list.
+        """
+        cast = DatasetFieldConstraints.VALUE_MAP_CASTS.get(type_oapif, str)
+        entries = []
+        for entry in value_map.entries:
+            try:
+                entries.append((cast(entry.key), entry))
+            except ValueError:
+                continue
+
+        constraints: dict = {
+            "oneOf": [{"const": key, "title": entry.description} for key, entry in entries],
+        }
+        if entries and all(entry.key == entry.description for _, entry in entries):
+            constraints["enum"] = [key for key, _ in entries]
+        return constraints
+
+    @staticmethod
+    def range_constraints(widget_range: Range) -> dict:
+        constraints = {}
+        if widget_range.minimum is not None:
+            constraints["minimum"] = widget_range.minimum
+        if widget_range.maximum is not None:
+            constraints["maximum"] = widget_range.maximum
+        return constraints

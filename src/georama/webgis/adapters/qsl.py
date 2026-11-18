@@ -104,7 +104,6 @@ async def handle_dataset(
                     credential=False,
                     image_type=source_format,
                     wfs_support=False,
-                    is_single_tile=False,
                     namespace="",
                 )
                 ogc_servers[ogc_server.name] = ogc_server
@@ -138,7 +137,6 @@ async def handle_dataset(
                             )
                         ],
                         ogc_server=ogc_server.name,
-                        editable=False,
                         style=source.styles or "default",
                         metadata=MetaData(),
                     )

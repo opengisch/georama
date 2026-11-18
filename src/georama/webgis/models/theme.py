@@ -25,10 +25,31 @@ class Theme(models.Model):
 
     PERMISSIONS = {
         "can_view": "view_published_theme",
+        "can_create": "create_objects_theme_vector_layer",
+        "can_update": "update_objects_theme_vector_layer",
+        "can_delete": "delete_objects_theme_vector_layer",
     }
 
     ACTION_MAP = {
         "grant": (True, [PERMISSIONS["can_view"]], _("grant access")),
+        "allow_create": (
+            True,
+            [PERMISSIONS["can_view"], PERMISSIONS["can_create"]],
+            _("allow create"),
+        ),
+        "allow_update": (
+            True,
+            [PERMISSIONS["can_view"], PERMISSIONS["can_update"]],
+            _("allow update"),
+        ),
+        "allow_delete": (
+            True,
+            [PERMISSIONS["can_view"], PERMISSIONS["can_delete"]],
+            _("allow delete"),
+        ),
+        "prevent_create": (False, [PERMISSIONS["can_create"]], _("prevent create")),
+        "prevent_update": (False, [PERMISSIONS["can_update"]], _("prevent update")),
+        "prevent_delete": (False, [PERMISSIONS["can_delete"]], _("prevent delete")),
         "revoke": (False, list(PERMISSIONS.values()), _("revoke access")),
     }
 
@@ -41,6 +62,9 @@ class Theme(models.Model):
             ("manage_object_permissions", "Can manage object permissions"),
             # permission which is used for the object permission evaluation on the published themes
             ("view_published_theme", "Can view published theme"),
+            ("create_objects_theme_vector_layer", "Can create items on theme vector layer"),
+            ("delete_objects_theme_vector_layer", "Can delete items on theme vector layer"),
+            ("update_objects_theme_vector_layer", "Can update items on theme vector layer"),
         ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
