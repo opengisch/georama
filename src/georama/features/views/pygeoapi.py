@@ -464,7 +464,18 @@ class PygeoapiServer(View):
         return list(feature_layers)
 
     def refine_accessible_layers(self, feature_layers: QuerySet) -> QuerySet:
-        """The accessible layers as the mount serves them, with what it reads prefetched."""
+        """Narrows the accessible layers down to the ones the mount serves as collections.
+
+        The permission check is done already, this is only about what a mount is able to
+        serve and what it reads later on, so it prefetches that in one go. Other mounts
+        override it, e.g. the webgis one keeps only the layers on a vector datasource.
+
+        Args:
+            feature_layers: the layers the user may view
+
+        Returns:
+            the layers served as collections, with their fields prefetched
+        """
         return feature_layers.prefetch_related("fields__datasource_field")
 
     @staticmethod
