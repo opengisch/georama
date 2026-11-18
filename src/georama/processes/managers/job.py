@@ -10,10 +10,4 @@ class JobManager(OrganisationalManager):
         Returns:
             the filtered QuerySet
         """
-        return (
-            super()
-            .get_queryset()
-            .prefetch_related(
-                # "jobs",
-            )
-        )
+        return super().get_queryset().select_related("process", "created_by")

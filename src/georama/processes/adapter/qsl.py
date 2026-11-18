@@ -58,5 +58,9 @@ async def submit_job(
     await qsl_redis_state_queue.submit(job_id, job_parameter, execution_mode)
 
 
+async def job_state(job_id: str) -> JobState | None:
+    return await qsl_redis_state_queue.state(job_id)
+
+
 async def wait_for_job(job_id: str) -> JobState | None:
     return await qsl_redis_state_queue.wait(job_id, to=Config().sync_execute_timeout)

@@ -3,6 +3,7 @@ from operator import attrgetter
 
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
+from django.http import FileResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -17,7 +18,12 @@ from qgis_server_light.interface.job.process.input import (
 )
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotAcceptable, PermissionDenied, ValidationError
+from rest_framework.exceptions import (
+    NotAcceptable,
+    NotFound,
+    PermissionDenied,
+    ValidationError,
+)
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -45,6 +51,8 @@ from georama.processes.api.serializers import (
 )
 from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     Conformance,
+    ExceptionDocument,
+    ExceptionType,
     Jobs,
     Landing,
     Link,
@@ -140,6 +148,7 @@ class ConformanceView(APIView):
                     "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/core",
                     "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/ogc-process-description",
                     "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/json",
+                    "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/job-list",
                 ]
             ),
         }
@@ -464,7 +473,7 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
 
         if is_html:
             await qsl.submit_job(str(job.redis_job_id), job_parameter)
-            return redirect(reverse("processes:job-list"))
+            return redirect(reverse("processes:job-detail", kwargs={"pk": job.pk}))
         if self.prefers_async(request):
             await qsl.submit_job(str(job.redis_job_id), job_parameter)
             return self.job_status_response(
@@ -474,10 +483,10 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
         job.apply_state(await qsl.wait_for_job(str(job.redis_job_id)))
         await job.asave()
         if job.status == StatusCode.SUCCESSFUL:
-            return Response(job.results, status=status.HTTP_200_OK)
+            return Response(job.results(request.build_absolute_uri), status=status.HTTP_200_OK)
         if job.status == StatusCode.FAILED:
             return Response(
-                OgcApiDictEncoder().encode(job.dataclass),
+                OgcApiDictEncoder().encode(job.status_info(request.build_absolute_uri)),
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
         # the job did not finish in time, the client continues as if it asked for async
@@ -507,7 +516,7 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
         request: GeoramaDrfRequest, job: Job, headers: dict | None = None
     ) -> Response:
         return Response(
-            OgcApiDictEncoder().encode(job.dataclass),
+            OgcApiDictEncoder().encode(job.status_info(request.build_absolute_uri)),
             status=status.HTTP_201_CREATED,
             headers={
                 "Location": request.build_absolute_uri(
@@ -647,11 +656,39 @@ class JobViewSet(GeoramaObjPermViewSetReadOnly):
     filterset_fields = []
 
     list_body_partial_template_name: str = "processes/drf/job/partials/list_body.html"
+    show_template_name: str = "processes/drf/job/detail.html"
 
     async def get_breadcrumbs(self):
         breadcrumbs = await super().get_breadcrumbs()
         breadcrumbs[0].view_name = reverse("processes:api-landing")
         return breadcrumbs
+
+    async def public_or_object_permission(self, queryset):
+        # jobs are neither public nor have object permissions, they belong to their issuer
+        if self.request.user.is_superuser:
+            return queryset
+        if self.request.user.is_authenticated:
+            return queryset.filter(created_by=self.request.user)
+        return queryset.none()
+
+    async def aprepare_page(self, page) -> list[Job]:
+        jobs = [job async for job in page]
+        for job in jobs:
+            await self.arefresh_state(job)
+        return jobs
+
+    async def aget_object(self):
+        job = await super().aget_object()
+        await self.arefresh_state(job)
+        return job
+
+    @staticmethod
+    async def arefresh_state(job: Job):
+        # lazy sync, finished jobs don't change anymore
+        if job.is_finished:
+            return
+        job.apply_state(await qsl.job_state(str(job.redis_job_id)))
+        await job.asave()
 
     async def alist(self, request: GeoramaDrfRequest, *args, **kwargs):
         if request.accepted_renderer.format == "html":
@@ -659,9 +696,10 @@ class JobViewSet(GeoramaObjPermViewSetReadOnly):
 
         queryset = await self.afilter_queryset(self.get_queryset())
         page = await self.apaginate_queryset(queryset)
-        jobs = []
-        async for job in page if page is not None else queryset:
-            jobs.append(job.dataclass)
+        jobs = [
+            job.status_info(request.build_absolute_uri)
+            for job in await self.aprepare_page(page if page is not None else queryset)
+        ]
 
         links = [
             Link(
@@ -698,10 +736,61 @@ class JobViewSet(GeoramaObjPermViewSetReadOnly):
             return await super().aretrieve(request, *args, **kwargs)
 
         job = await self.aget_object()
-        return Response(OgcApiDictEncoder().encode(job.dataclass))
+        return Response(OgcApiDictEncoder().encode(job.status_info(request.build_absolute_uri)))
 
-    @action(detail=True, methods=["post"], url_name="results")
+    @action(detail=True, methods=["get"], url_name="results")
     async def results(self, request: GeoramaDrfRequest, *args, **kwargs):
-        _job = await self.aget_object()
-        # result = _job.result()
-        return Response("OK", status=status.HTTP_201_CREATED)
+        if request.accepted_renderer.format == "html":
+            # the job page shows the results next to the status
+            return await self.aretrieve(request, *args, **kwargs)
+
+        job = await self.aget_object()
+        if job.status == StatusCode.SUCCESSFUL:
+            return Response(job.results(request.build_absolute_uri))
+        if job.status in (StatusCode.FAILED, StatusCode.DISMISSED):
+            return self.exception_response(
+                ExceptionType.JOB_RESULTS_FAILED,
+                _("The job did not succeed, it has no results."),
+                job.message,
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        return self.exception_response(
+            ExceptionType.RESULT_NOT_READY,
+            _("The job is not finished yet."),
+            job.message,
+            status.HTTP_404_NOT_FOUND,
+        )
+
+    @action(
+        detail=True,
+        methods=["get"],
+        url_name="output",
+        url_path=r"results/(?P<output_name>[^/]+)",
+    )
+    async def output(self, request: GeoramaDrfRequest, output_name: str, *args, **kwargs):
+        job = await self.aget_object()
+        file_output = job.file_output(output_name)
+        if file_output is None:
+            raise NotFound(_("The job has no file output %s.") % output_name)
+        path = job.file_output_path(file_output)
+        if path is None or not path.is_file():
+            raise NotFound(_("The file of output %s is not available.") % output_name)
+        return FileResponse(
+            path.open("rb"),
+            as_attachment=True,
+            filename=path.name,
+            content_type=file_output.media_type,
+        )
+
+    @staticmethod
+    def exception_response(
+        exception_type: ExceptionType, title: str, detail: str | None, status_code: int
+    ) -> Response:
+        return Response(
+            OgcApiDictEncoder().encode(
+                ExceptionDocument(
+                    type=exception_type, title=title, status=status_code, detail=detail
+                )
+            ),
+            status=status_code,
+        )

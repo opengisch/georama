@@ -59,8 +59,9 @@ class LayerInputMapper:
         return [
             ParameterInput(name=name, value=await self.amap_value(layer_markers[name], value))
             for name, value in values.items()
-            # a layer input which was left empty is not passed to the process
-            if layer_markers[name] is None or value
+            # an input which was left empty is not passed to the process, QGIS takes its
+            # default then
+            if value not in (None, "", [])
         ]
 
     async def amap_value(self, layer_marker: QslLayerMarker | None, value):
