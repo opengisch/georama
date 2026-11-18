@@ -99,7 +99,7 @@ class GeoGirafeAuthenticationMiddleware:
             payload = self.verify_token(access_token)
             user = self.get_or_create_user(payload)
         except Exception as e:  # noqa: BLE001
-            logger.debug(f"Bearer token refused: {e}")
+            logger.warning(f"Bearer token refused: {e}", exc_info=True)
             return self.get_response(request)
 
         if not user.is_active:
@@ -141,7 +141,8 @@ class GeoGirafeAuthenticationMiddleware:
             self.provider_retry_at = time.monotonic() + settings.OIDC_RETRY_SECONDS
             logger.warning(
                 f"Identity provider {settings.OIDC_SERVER_URL} not reachable, bearer tokens "
-                f"are refused for the next {settings.OIDC_RETRY_SECONDS} seconds: {e}"
+                f"are refused for the next {settings.OIDC_RETRY_SECONDS} seconds: {e}",
+                exc_info=True
             )
             return False
         return True
