@@ -18,6 +18,7 @@ services:
       - "GEORAMA_LOGIN_ATTEMPTS_LIMIT=${GEORAMA_LOGIN_ATTEMPTS_LIMIT:-5}"
       - "GEORAMA_LOGIN_ATTEMPTS_BLOCKED_MINUTES=${GEORAMA_LOGIN_ATTEMPTS_BLOCKED_MINUTES:-5}"
       - "GEORAMA_DATA_INTEGRATION_ROOT=/io/data"
+      - "GEORAMA_PROCESSES_OUTPUT_DIR=/io/process_output"
       - "GEORAMA_DB_NAME=${GEORAMA_DB_NAME?}"
       - "GEORAMA_DB_USER=${GEORAMA_DB_USER?}"
       - "GEORAMA_DB_PW=${GEORAMA_DB_PW?}"
@@ -49,6 +50,7 @@ services:
     volumes:
       - "${LOCAL_PROJECTS:-./tests/resources/projects}:/io/data"
       - "${PG_SERVICE_CONF:-./docker/pg_service.conf}:/io/pg_service.conf"
+      - "process-output:/io/process_output"
     depends_on:
       georama-db:
         condition: service_healthy
@@ -115,6 +117,7 @@ services:
       - "QSL_LOG_LEVEL=${QSL_PROCESS_WORKER_LOG_LEVEL:-info}"
       - "QSL_ENGINE=state"
       - "QSL_RUNNER_PLUGINS=qgis_server_light.worker.runner.process.ProcessRunner"
+      - "QSL_PROCESS_ALLOWLIST=${QSL_PROCESS_ALLOWLIST:-native:buffer,native:centroids}"
       - "QSL_PROCESS_OUTPUT_DIR=/io/process_output"
       - "PGSERVICEFILE=/io/pg_service.conf"
     volumes:
