@@ -1,3 +1,6 @@
+from collections.abc import Callable
+from pathlib import Path
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
@@ -5,7 +8,11 @@ from django.utils import timezone
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.dispatcher.common import JobState, Status
-from qgis_server_light.interface.job.process.output import FileOutput, ProcessResult
+from qgis_server_light.interface.job.process.output import (
+    FileOutput,
+    ParameterOutput,
+    ProcessResult,
+)
 from xsdata.formats.dataclass.parsers import DictDecoder, JsonParser
 from xsdata.formats.dataclass.serializers import DictEncoder
 
@@ -20,6 +27,7 @@ from georama.processes.interface.ogc_api.processes.part1.v_100.serializers impor
     OgcApiDictEncoder,
 )
 from georama.processes.managers.job import JobManager
+from georama.processes.processes_config import Config
 
 User = get_user_model()
 
@@ -57,6 +65,9 @@ class Job(models.Model):
         verbose_name = f"{_('Job')}"
         verbose_name_plural = f"{_('Jobs')}"
 
+    def __str__(self):
+        return str(self.redis_job_id)
+
     @property
     def title(self):
         return self.process.title
@@ -89,19 +100,68 @@ class Job(models.Model):
     def results_url(self) -> str:
         return reverse("processes:job-results", kwargs={"pk": self.pk})
 
-    @property
-    def results(self) -> dict:
+    def output_url(self, output_name: str) -> str:
+        return reverse("processes:job-output", kwargs={"pk": self.pk, "output_name": output_name})
+
+    def results(self, absolute_uri: Callable[[str], str]) -> dict:
         return {
-            output.name: self.output_value(output.value) for output in self.process_result.outputs
+            output.name: self.output_value(output, absolute_uri)
+            for output in self.process_result.outputs
         }
 
-    def output_value(self, value: FileOutput | str | int | float | bool):
-        if isinstance(value, FileOutput):
-            return OgcApiDictEncoder().encode(Link(href=self.results_url, type=value.media_type))
-        return value
+    def output_value(self, output: ParameterOutput, absolute_uri: Callable[[str], str]):
+        if isinstance(output.value, FileOutput):
+            return OgcApiDictEncoder().encode(
+                Link(href=absolute_uri(self.output_url(output.name)), type=output.value.media_type)
+            )
+        return output.value
 
-    @property
-    def dataclass(self):
+    def file_output(self, output_name: str) -> FileOutput | None:
+        if self.status != StatusCode.SUCCESSFUL:
+            return None
+        for output in self.process_result.outputs:
+            if output.name == output_name and isinstance(output.value, FileOutput):
+                return output.value
+        return None
+
+    @staticmethod
+    def file_output_path(file_output: FileOutput) -> Path | None:
+        output_dir = Config().output_dir.resolve()
+        path = (output_dir / file_output.path).resolve()
+        # the path comes from the worker, still a file outside the output dir is never served
+        if not path.is_relative_to(output_dir):
+            return None
+        return path
+
+    def status_info(self, absolute_uri: Callable[[str], str]) -> OgcJob:
+        links = [
+            Link(
+                rel="self",
+                href=absolute_uri(reverse("processes:job-detail", kwargs={"pk": self.pk})),
+                type="application/json",
+                title="Job status",
+            )
+        ]
+        if self.status == StatusCode.SUCCESSFUL:
+            links.append(
+                Link(
+                    rel="http://www.opengis.net/def/rel/ogc/1.0/results",
+                    href=absolute_uri(self.results_url),
+                    type="application/json",
+                    title="Job results",
+                )
+            )
+            # the files can be downloaded right from the status, without the results first
+            links.extend(
+                Link(
+                    rel="enclosure",
+                    href=absolute_uri(self.output_url(output.name)),
+                    type=output.value.media_type,
+                    title=output.name,
+                )
+                for output in self.process_result.outputs
+                if isinstance(output.value, FileOutput)
+            )
         return OgcJob(
             type="process",
             job_id=str(self.pk),
@@ -112,12 +172,5 @@ class Job(models.Model):
             created=self.created_at,
             finished=self.finished,
             updated=self.updated,
-            links=[
-                Link(
-                    rel="self",
-                    href=reverse("processes:job-detail", kwargs={"pk": self.pk}),
-                    type="application/json",
-                    title="Job status",
-                )
-            ],
+            links=links,
         )

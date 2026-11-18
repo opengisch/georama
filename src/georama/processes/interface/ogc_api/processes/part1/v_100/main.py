@@ -96,3 +96,21 @@ class Job(Base):
 @dataclass
 class Jobs(Base):
     jobs: list[Job] = field()
+
+
+class ExceptionType(StrEnum):
+    RESULT_NOT_READY = (
+        "http://www.opengis.net/def/exceptions/ogcapi-processes-1/1.0/result-not-ready"
+    )
+    JOB_RESULTS_FAILED = (
+        "http://www.opengis.net/def/exceptions/ogcapi-processes-1/1.0/job-results-failed"
+    )
+
+
+@dataclass
+class ExceptionDocument:
+    type: ExceptionType = field()
+    title: str | None = field(default=None)
+    status: int | None = field(default=None)
+    detail: str | None = field(default=None)
+    instance: str | None = field(default=None)
