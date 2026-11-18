@@ -256,12 +256,15 @@ class GeoramaTemplateViewSetReadOnly(
             )
         return ordering_context
 
+    async def aprepare_page(self, page):
+        return page
+
     async def alist(self, request, *args, **kwargs):
         if request.accepted_renderer.format in ["html"]:
             qs = await self.afilter_queryset(self.get_queryset())
             context = await self._prepare_many_context()
             pqs = await self.apaginate_queryset(qs)
-            context["object_list"] = pqs
+            context["object_list"] = await self.aprepare_page(pqs)
             context["limit"] = self.paginator.limit
             context["ordering_context"] = self.build_ordering_context(
                 request=request,
@@ -277,7 +280,15 @@ class GeoramaTemplateViewSetReadOnly(
                 template = self.list_template_name
             return Response(context, template_name=template)
         else:
-            return await super().alist(request, *args, **kwargs)
+            queryset = await self.afilter_queryset(self.get_queryset())
+            page = await self.apaginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(await self.aprepare_page(page), many=True)
+                data = await get_data(serializer)
+                return await self.get_apaginated_response(data)
+            serializer = self.get_serializer(await self.aprepare_page(queryset), many=True)
+            data = await get_data(serializer)
+            return Response(data, status=status.HTTP_200_OK)
 
     @property
     def url_name_show(self):
