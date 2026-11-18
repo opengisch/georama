@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 
-from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
-from django.http import HttpRequest
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
+from georama.features.models import FeatureLayer
 from georama.features.views.pygeoapi import PygeoapiServer
 from georama.integration.models import Vector
 from georama.integration.models.datasource import VectorField
@@ -33,26 +32,11 @@ class PygeoapiServerWebGIS(PygeoapiServer):
     perm_update = "webgis.update_objects_theme_vector_layer"
     perm_delete = "webgis.delete_objects_theme_vector_layer"
 
-    def accessible_feature_layers(
-        self, request: HttpRequest, collection_id: str | None = None
-    ) -> list[WmsLayer]:
-        feature_layers = (
-            self.model.objects.accessible_layers(
-                self.request.georama_organisation,
-                request.user,
-                [self.perm_view],
-                include_public=True,
-            )
-            .filter(datasource__vector__isnull=False)
-            .prefetch_related("datasource__vector__fields")
+    def refine_accessible_layers(self, feature_layers: QuerySet) -> QuerySet:
+        # only WMS layers on a vector datasource can be served as collection
+        return feature_layers.filter(datasource__vector__isnull=False).prefetch_related(
+            "datasource__vector__fields"
         )
-        if collection_id is not None:
-            try:
-                feature_layers = feature_layers.filter(id=self.collection_identifier(collection_id))
-            except ValidationError:
-                # not a valid identifier, pygeoapi answers with 404
-                return []
-        return list(feature_layers)
 
     def get_reference_target_layers(self, project) -> QuerySet[WmsLayer]:
         # the collection is the WMS layer itself, served from its vector datasource
@@ -86,5 +70,8 @@ class PygeoapiServerWebGIS(PygeoapiServer):
         ]
 
     def get_limits(self, feature_layer: WmsLayer) -> dict:
-        # defaults of features.FeatureLayer, WmsLayer has no limits yet
-        return {"on_exceed": "throttle", "max_items": 500, "default_items": 10}
+        # WmsLayer has no limits yet, the defaults of a FeatureLayer apply
+        return {
+            name: FeatureLayer._meta.get_field(name).default
+            for name in ("on_exceed", "max_items", "default_items")
+        }

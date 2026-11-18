@@ -7,9 +7,7 @@ class WmsOperation(OgcOperation):
         if layer_ids is not None:
             # GeoGirafe requests filtered layers by their WFS feature type name
             layer_ids = [self.decode_layer_name(layer_id) for layer_id in layer_ids]
-        layers = self.model.objects.accessible_layers(
-            self.organisation, self.user, self.perms, layer_ids, include_public=True
-        ).filter(datasource__is_spatial=True)
+        layers = super().obtain_accessible_layers(layer_ids)
         if layer_ids is None:
             return list(layers)
         layers_revmap = {layer.identifier: layer for layer in layers}

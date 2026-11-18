@@ -447,19 +447,25 @@ class PygeoapiServer(View):
     def accessible_feature_layers(
         self, request: HttpRequest, collection_id: str | None = None
     ) -> list[FeatureLayer]:
-        feature_layers = self.model.objects.accessible_layers(
-            self.request.georama_organisation,
-            request.user,
-            [self.perm_view],
-            include_public=True,
-        ).prefetch_related("fields__datasource_field")
+        feature_layers = self.refine_accessible_layers(
+            self.model.objects.accessible_layers(
+                self.request.georama_organisation,
+                request.user,
+                [self.perm_view],
+                include_public=True,
+            )
+        )
         if collection_id is not None:
             try:
-                feature_layers = feature_layers.filter(id=collection_id)
+                feature_layers = feature_layers.filter(id=self.collection_identifier(collection_id))
             except ValidationError:
                 # not a valid identifier, pygeoapi answers with 404
                 return []
         return list(feature_layers)
+
+    def refine_accessible_layers(self, feature_layers: QuerySet) -> QuerySet:
+        """The accessible layers as the mount serves them, with what it reads prefetched."""
+        return feature_layers.prefetch_related("fields__datasource_field")
 
     @staticmethod
     def handle_crs_setting(crs: str):

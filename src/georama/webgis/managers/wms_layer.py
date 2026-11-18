@@ -32,13 +32,10 @@ class WmsLayerManager(MapsWmsLayerManager):
         user,
         perms: list[str],
     ) -> OrganisationalQuerySet:
-        # this is a special form of the normal wms layers, since the permission
-        # of the layer is derived by the theme it belongs to
-        from georama.webgis.models.theme import Theme
-
-        themes_qs = Theme.objects.organisation_objects(organisation)
-        themes_qs = get_objects_for_user(user, perms, themes_qs) | themes_qs.filter(public=True)
-        return self.organisation_objects(organisation).filter(theme__in=themes_qs)
+        # the permitted layers plus the ones of public themes
+        return self.get_permitted(organisation, user, perms) | self.organisation_objects(
+            organisation
+        ).filter(theme__public=True)
 
     def get_permitted(
         self,
@@ -46,7 +43,9 @@ class WmsLayerManager(MapsWmsLayerManager):
         user,
         perms: list[str],
     ) -> OrganisationalQuerySet:
-        # same as above, without the public themes: writes are never public
+        # this is a special form of the normal wms layers, since the permission
+        # of the layer is derived by the theme it belongs to. Writes only use this
+        # one, they are never public.
         from georama.webgis.models.theme import Theme
 
         themes_qs = get_objects_for_user(
