@@ -1,5 +1,4 @@
 import uuid
-from collections.abc import Iterable
 from operator import attrgetter
 
 from asgiref.sync import sync_to_async
@@ -33,6 +32,7 @@ from georama.core.common.api import (
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.models import Datasource
+from georama.processes.adapter import qsl
 from georama.processes.api.serializers import (
     JobSerializer,
     ProcessInputObjectPermissionSerializer,
@@ -43,7 +43,6 @@ from georama.processes.api.serializers import (
     ProcessSerializer,
     PublishFromDatasourceInput,
 )
-from georama.processes.apps import qsl_redis_state_queue
 from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     Conformance,
     Jobs,
@@ -151,44 +150,38 @@ class ConformanceView(APIView):
 
 
 class ProcessDescriptionMixin:
-    process_descriptions: ProcessDescriptions | None = None
-
-    async def aprocess_descriptions(self) -> ProcessDescriptions:
-        if self.process_descriptions is None:
-            self.process_descriptions = await self.afetch_process_descriptions()
-        return self.process_descriptions
-
-    async def afetch_process_descriptions(self) -> ProcessDescriptions:
-        return await qsl_redis_state_queue.process_descriptions()
-
-    async def describe(self, processes: Iterable[Process]):
-        process_descriptions = await self.aprocess_descriptions()
-        for process in processes:
-            process.describe(process_descriptions)
+    async def aprepare_page(self, page) -> list[Process]:
+        return await page.adescribed()
 
     async def aget_object(self):
         process = await super().aget_object()
-        await self.describe([process])
+        process.process_description = await qsl.process_description(process.algorithm_id)
         return process
-
-    async def apaginate_queryset(self, queryset):
-        page = await super().apaginate_queryset(queryset)
-        if page is None:
-            return None
-        processes = [process async for process in page]
-        await self.describe(processes)
-        return processes
 
 
 class ProcessInputDescriptionMixin(ProcessDescriptionMixin):
     process_input_perms = ["processes.use_as_process_input"]
-    served_process_descriptions: ProcessDescriptions | None = None
-    layer_input_mapper: LayerInputMapper | None = None
 
-    async def afetch_process_descriptions(self) -> ProcessDescriptions:
-        self.served_process_descriptions = await super().afetch_process_descriptions()
-        self.layer_input_mapper = LayerInputMapper(await self.aaccessible_process_inputs())
-        return self.layer_input_mapper.map_process_descriptions(self.served_process_descriptions)
+    async def aprepare_page(self, page) -> list[Process]:
+        processes = await super().aprepare_page(page)
+        await self.amap_layer_inputs(processes)
+        return processes
+
+    async def aget_object(self):
+        process = await super().aget_object()
+        await self.amap_layer_inputs([process])
+        return process
+
+    async def alayer_input_mapper(self) -> LayerInputMapper:
+        return LayerInputMapper(await self.aaccessible_process_inputs())
+
+    async def amap_layer_inputs(self, processes: list[Process]):
+        layer_input_mapper = await self.alayer_input_mapper()
+        for process in processes:
+            if process.process_description is not None:
+                process.process_description = layer_input_mapper.map_process_description(
+                    process.process_description
+                )
 
     async def aaccessible_process_inputs(self) -> list[ProcessInput]:
         queryset = await sync_to_async(ProcessInput.objects.accessible_objects)(
@@ -221,6 +214,7 @@ class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermission
         "processes/drf/process/partials/list_body_unpublished.html"
     )
     show_template_name = "processes/drf/process/detail.html"
+    process_descriptions: ProcessDescriptions | None = None
 
     async def get_breadcrumbs(self):
         breadcrumbs = await super().get_breadcrumbs()
@@ -233,7 +227,7 @@ class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermission
         return context
 
     async def acreate(self, request: GeoramaDrfRequest, *args, **kwargs):
-        await self.aprocess_descriptions()
+        self.process_descriptions = await qsl.process_descriptions()
         response = await super().acreate(request, *args, **kwargs)
         if request.accepted_renderer.format == "html":
             return redirect(reverse(self.url_name_list))
@@ -241,7 +235,9 @@ class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermission
 
     async def perform_acreate(self, serializer):
         await serializer.asave(organisation=self.request.georama_organisation)
-        await self.describe([serializer.instance])
+        serializer.instance.process_description = await qsl.process_description(
+            serializer.instance.algorithm_id
+        )
 
     @property
     async def bread_crumb_action_context(self):
@@ -278,13 +274,10 @@ class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermission
         )
 
         search = request.query_params.get("search", "")
-        process_descriptions = await self.aprocess_descriptions()
-        algorithms = [
-            process_description
-            for process_description in process_descriptions.processes
-            if process_description.id not in published_algorithm_ids
-            and (not search or search in process_description.id.lower())
-        ]
+        process_descriptions = await qsl.process_descriptions()
+        algorithms = qsl.non_published_process_descriptions(
+            process_descriptions, published_algorithm_ids, search
+        )
         ordering_filter = filters.OrderingFilter()
         ordering = ordering_filter.get_ordering(request, algorithms, self) or []
         for ordering_field in reversed(ordering):
@@ -347,12 +340,7 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
 
     async def afilter_queryset(self, queryset):
         queryset = await super().afilter_queryset(queryset)
-        process_descriptions = await self.aprocess_descriptions()
-        return queryset.filter(
-            algorithm_id__in=[
-                process_description.id for process_description in process_descriptions.processes
-            ]
-        )
+        return queryset.filter(algorithm_id__in=await qsl.served_algorithm_ids())
 
     async def alist(self, request: GeoramaDrfRequest, *args, **kwargs):
         if request.accepted_renderer.format == "html":
@@ -360,10 +348,10 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
 
         queryset = await self.afilter_queryset(self.get_queryset())
         page = await self.apaginate_queryset(queryset)
-        if page is None:
-            page = [process async for process in queryset]
-            await self.describe(page)
-        processes = [process.dataclass for process in page]
+        processes = [
+            process.dataclass
+            for process in await self.aprepare_page(page if page is not None else queryset)
+        ]
 
         links = [
             Link(
@@ -446,8 +434,10 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
         process: Process = context["object"]
-        parameters = await self.layer_input_mapper.amap_parameter_inputs(
-            self.served_process_descriptions.process_by_id(process.algorithm_id),
+        # the layer markers are only in the unmapped description, so it is fetched again
+        layer_input_mapper = await self.alayer_input_mapper()
+        parameters = await layer_input_mapper.amap_parameter_inputs(
+            await qsl.process_description(process.algorithm_id),
             form.cleaned_data,
         )
         output_formats = [
@@ -473,19 +463,15 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
         )
 
         if is_html:
-            await qsl_redis_state_queue.submit(str(job.redis_job_id), job_parameter)
+            await qsl.submit_job(str(job.redis_job_id), job_parameter)
             return redirect(reverse("processes:job-list"))
         if self.prefers_async(request):
-            await qsl_redis_state_queue.submit(str(job.redis_job_id), job_parameter)
+            await qsl.submit_job(str(job.redis_job_id), job_parameter)
             return self.job_status_response(
                 request, job, headers={"Preference-Applied": "respond-async"}
             )
-        await qsl_redis_state_queue.submit(str(job.redis_job_id), job_parameter, ExecutionMode.SYNC)
-        job.apply_state(
-            await qsl_redis_state_queue.wait(
-                str(job.redis_job_id), to=Config().sync_execute_timeout
-            )
-        )
+        await qsl.submit_job(str(job.redis_job_id), job_parameter, ExecutionMode.SYNC)
+        job.apply_state(await qsl.wait_for_job(str(job.redis_job_id)))
         await job.asave()
         if job.status == StatusCode.SUCCESSFUL:
             return Response(job.results, status=status.HTTP_200_OK)

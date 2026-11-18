@@ -8,10 +8,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
-from qgis_server_light.interface.job.process.description import (
-    ProcessDescription,
-    ProcessDescriptions,
-)
+from qgis_server_light.interface.job.process.description import ProcessDescription
 
 from georama.core.common.managers import OrganisationalManager
 from georama.core.models.organisation import Organisation
@@ -87,12 +84,6 @@ class Process(models.Model):
 
     def get_absolute_url(self):
         return reverse(f"{central_app_label}:process-detail", kwargs={"pk": self.pk})
-
-    def describe(self, process_descriptions: ProcessDescriptions):
-        try:
-            self.process_description = process_descriptions.process_by_id(self.algorithm_id)
-        except LookupError:
-            self.process_description = None
 
     @property
     def served(self) -> bool:
