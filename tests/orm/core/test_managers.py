@@ -136,7 +136,7 @@ class TestLayerManager:
                 None,
                 AnonymousUser,
                 ["view_published_wms_layer"],
-                layer_ids=[str(uuid4())],
+                object_ids=[str(uuid4())],
                 include_public=True,
             )
 
@@ -149,7 +149,7 @@ class TestLayerManager:
                 None,
                 AnonymousUser,
                 ["view_published_wms_layer"],
-                layer_ids=[str(uuid4()), global_wms_layer_public_queryable.id],
+                object_ids=[str(uuid4()), global_wms_layer_public_queryable.id],
                 include_public=True,
             )
 
@@ -163,7 +163,7 @@ class TestLayerManager:
                 None,
                 AnonymousUser,
                 ["view_published_wms_layer"],
-                layer_ids=[str(global_wms_layer_public_queryable.id)],
+                object_ids=[str(global_wms_layer_public_queryable.id)],
                 include_public=True,
             ).count()
             == 1
@@ -178,7 +178,7 @@ class TestLayerManager:
                 None,
                 AnonymousUser,
                 ["view_published_wms_layer"],
-                layer_ids=[str(global_wms_layer_non_public_queryable.id)],
+                object_ids=[str(global_wms_layer_non_public_queryable.id)],
                 include_public=True,
             )
 
@@ -195,7 +195,7 @@ class TestLayerManager:
                 None,
                 user_with_membership_global_wms_layer_permission,
                 ["view_published_wms_layer"],
-                layer_ids=[
+                object_ids=[
                     str(global_wms_layer_non_public_queryable.id),
                     str(global_wms_layer_public_queryable.id),
                     str(global_wms_layer_public_non_queryable.id),
@@ -209,7 +209,7 @@ class TestLayerManager:
                 None,
                 user_with_membership_global_wms_layer_permission,
                 ["view_published_wms_layer"],
-                layer_ids=[
+                object_ids=[
                     str(global_wms_layer_non_public_queryable.id),
                     str(global_wms_layer_public_non_queryable.id),
                 ],
@@ -222,7 +222,7 @@ class TestLayerManager:
                 None,
                 user_with_membership_global_wms_layer_permission,
                 ["view_published_wms_layer"],
-                layer_ids=[
+                object_ids=[
                     str(global_wms_layer_public_non_queryable.id),
                 ],
                 include_public=True,
@@ -243,7 +243,7 @@ class TestLayerManager:
                 None,
                 user_with_membership_global_wms_layer_permission,
                 ["view_published_wms_layer"],
-                layer_ids=[
+                object_ids=[
                     str(uuid4()),
                 ],
                 include_public=True,
