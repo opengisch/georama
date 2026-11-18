@@ -603,6 +603,9 @@ class Base(Configuration):
     PROCESSES_SYNC_EXECUTE_TIMEOUT = values.FloatValue(10.0, environ_prefix=GEORAMA_ENV_PREFIX)
     # seconds a process job is kept, aligned with the expiry of the job hash in QSL
     PROCESSES_JOB_EXPIRE = values.IntegerValue(86400, environ_prefix=GEORAMA_ENV_PREFIX)
+    # the dir the process-workers write the job outputs to (QSL_PROCESS_OUTPUT_DIR), shared
+    # with Georama so it can serve the files
+    PROCESSES_OUTPUT_DIR = values.Value("/io/process_output", environ_prefix=GEORAMA_ENV_PREFIX)
 
     # The name which identifies the OGC server of Georama for the webgis app
     # it's the name which will be used in the themes.json response for GeoGirafe
