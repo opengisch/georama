@@ -1,9 +1,12 @@
+from uuid import UUID
+
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm
 
+from georama.integration.factories import RasterFactory
 from georama.webgis.factories import MetadataFactory, WmsLayerFactory
 from georama.webgis.models import WmsLayer
 from georama.webgis.views.pygeoapi import PygeoapiServerWebGIS
@@ -94,3 +97,81 @@ class TestGeometrylessCollections:
             global_webgis_wms_layer_public_theme.id,
             geometryless_layer.id,
         }
+
+
+class TestCollectionLookup:
+    """Each item read and write on the webgis mount looks up its single collection by
+    the id GeoGirafe sends. Only layers on a vector datasource are collections at all.
+    """
+
+    @pytest.mark.django_db
+    @pytest.mark.parametrize(
+        "collection_id",
+        [
+            # the name the mount serves the collection with
+            "_1ddbab8a-3a1f-4c3e-9d7e-6f1d2c3b4a59",
+            # the plain identifier is understood as well
+            "1ddbab8a-3a1f-4c3e-9d7e-6f1d2c3b4a59",
+        ],
+    )
+    def test_collection_is_found_by_its_id(
+        self, global_vector_dataset, global_webgis_theme_public, collection_id
+    ):
+        layer = WmsLayerFactory.create(
+            id=UUID("1ddbab8a-3a1f-4c3e-9d7e-6f1d2c3b4a59"),
+            queryable=True,
+            datasource=global_vector_dataset,
+            metadata=MetadataFactory.create(title="Parcels"),
+            theme=global_webgis_theme_public,
+        )
+        request = RequestFactory().get(f"/webgis/api/collections/{collection_id}")
+        request.user = AnonymousUser()
+        request.georama_organisation = None
+        server = PygeoapiServerWebGIS()
+        server.request = request
+        # exactly the requested layer is the collection
+        assert server.accessible_feature_layers(request, collection_id) == [layer]
+
+    @pytest.mark.django_db
+    @pytest.mark.parametrize(
+        "collection_id",
+        [
+            # not an identifier at all, pygeoapi answers with 404 then
+            "parcels",
+            # a valid identifier, but no layer behind it
+            "_00000000-0000-0000-0000-000000000000",
+        ],
+    )
+    def test_unknown_collection_is_not_found(
+        self, global_webgis_wms_layer_public_theme, collection_id
+    ):
+        request = RequestFactory().get(f"/webgis/api/collections/{collection_id}")
+        request.user = AnonymousUser()
+        request.georama_organisation = None
+        server = PygeoapiServerWebGIS()
+        server.request = request
+        assert server.accessible_feature_layers(request, collection_id) == []
+
+    @pytest.mark.django_db
+    def test_raster_layer_is_no_collection(
+        self, project_global_organisation, global_webgis_theme_public
+    ):
+        # a raster layer of the very same public theme, visible on the map
+        WmsLayerFactory.create(
+            id=UUID("7c0f3e2a-5b1d-4e8f-9a6c-2d4b8e1f3a57"),
+            queryable=True,
+            datasource=RasterFactory.create(project=project_global_organisation),
+            metadata=MetadataFactory.create(title="Orthophoto"),
+            theme=global_webgis_theme_public,
+        )
+        request = RequestFactory().get(
+            "/webgis/api/collections/_7c0f3e2a-5b1d-4e8f-9a6c-2d4b8e1f3a57"
+        )
+        request.user = AnonymousUser()
+        request.georama_organisation = None
+        server = PygeoapiServerWebGIS()
+        server.request = request
+        # but it has no features, so the mount does not serve it as collection
+        assert (
+            server.accessible_feature_layers(request, "_7c0f3e2a-5b1d-4e8f-9a6c-2d4b8e1f3a57") == []
+        )
