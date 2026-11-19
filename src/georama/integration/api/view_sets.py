@@ -221,7 +221,7 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             msg = result.content if settings.DEBUG else _("A problem occurred while exporting.")
             return HttpResponseServerError(msg)
 
-        if request.accepted_renderer.format == "json":
+        if request.accepted_renderer.format != "html":
             return Response(
                 {"result": asdict(export_failure)},
                 status=status.HTTP_400_BAD_REQUEST,

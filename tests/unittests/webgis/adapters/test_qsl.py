@@ -8,6 +8,7 @@ from qgis_server_light.interface.exporter.extract import (
     Config,
     Datasets,
     DataSource,
+    Exporter,
     Group,
     MetaData,
     Project,
@@ -85,6 +86,7 @@ FAILED_RENDER_JOB_RESULT = (
 def project_config(tree, datasets):
     yield Config(
         project=Project(version="3.44", name="project"),
+        exporter=Exporter(qgis_version="3.44"),
         meta_data=MetaData(service=Service(contact_organization=None, contact_mail=None)),
         tree=tree,
         datasets=datasets,
