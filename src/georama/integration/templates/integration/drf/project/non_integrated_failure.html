@@ -1,0 +1,43 @@
+{% extends 'core/drf/default/form.html' %}
+{% load i18n %}
+
+{% block list_actions %}
+    <div class="btn-group" role="group" aria-label="{% translate "Integration actions" %}">
+        <form action="{% url view.non_integrated_url_name %}" method="post" class="btn-group form-item-action">
+            {% csrf_token %}
+            <input type="hidden" name="path" value="{{ project_path }}">
+            <button type="submit" class="btn btn-outline-primary">
+                <i class="fa fa-rotate-right" aria-hidden="true"></i>
+                {% translate "Retry" %}
+            </button>
+        </form>
+        {% blocktranslate asvar title %}Cancel{% endblocktranslate %}
+        <a href="{% url view.non_integrated_url_name %}"
+           class="btn btn-outline-secondary"
+           role="button"
+           title="{{ title }}"
+           aria-label="{{ title }}">
+            <i class="fa fa-xmark"></i>
+        </a>
+    </div>
+{% endblock %}
+
+{% block form_details %}
+    <div class="col h-100 overflow-auto">
+        <h4 class="text-danger">{% translate "The project could not be integrated." %}</h4>
+        <p><strong>{% translate "Project" %}:</strong> <code>{{ project_path }}</code></p>
+        <p class="text-muted">
+            {% translate "Resolve the reported problems, then retry the integration." %}
+        </p>
+        {% include "integration/drf/project/partials/export_messages.html" with messages=error_messages only %}
+        {% if non_error_messages %}
+            <section class="mt-4" aria-labelledby="export-warnings-title">
+                <h5 id="export-warnings-title">{% translate "Other messages" %}</h5>
+                <p class="text-muted">
+                    {% translate "These warnings did not cause the integration to fail." %}
+                </p>
+                {% include "integration/drf/project/partials/export_messages.html" with messages=non_error_messages only %}
+            </section>
+        {% endif %}
+    </div>
+{% endblock %}

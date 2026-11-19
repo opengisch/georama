@@ -1,10 +1,12 @@
 import logging
+from dataclasses import asdict
 from operator import attrgetter
 from pathlib import Path
 
 from adrf.mixins import get_data
 from django.apps import apps
 from django.conf import settings
+from django.contrib import messages
 from django.http import Http404, HttpResponseServerError
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -12,7 +14,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from qgis_server_light.interface.exporter.api import ExportResult
-from qgis_server_light.interface.exporter.extract import Config
+from qgis_server_light.interface.exporter.extract import Config, ExportMessage, ResultWithMessages
 from qgis_server_light.interface.exporter.extract import Custom as QslCustom
 from qgis_server_light.interface.exporter.extract import Raster as QslRaster
 from qgis_server_light.interface.exporter.extract import Vector as QslVector
@@ -178,48 +180,109 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
     def non_integrated_url_name(self):
         return self.url_name("non-integrated")
 
+    async def _export_failure_response(
+        self,
+        request: GeoramaDrfRequest,
+        project_path: str,
+        result: ExportResult,
+    ):
+        try:
+            export_failure = JsonParser().from_string(result.content, ResultWithMessages)
+        except ValueError:
+            msg = result.content if settings.DEBUG else _("A problem occurred while exporting.")
+            return HttpResponseServerError(msg)
+
+        if request.accepted_renderer.format == "json":
+            return Response(
+                {"result": asdict(export_failure)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        context = await super()._prepare_many_context()
+        context["breadcrumbs"][-1].view_name = self.reverse_action("list")
+        context["breadcrumbs"].append(Breadcrumb(_("Integration failed")))
+        context["project_path"] = project_path
+        context["error_messages"] = [
+            message
+            for message in export_failure.messages
+            if message.level == ExportMessage.Level.ERROR
+        ]
+        context["non_error_messages"] = [
+            message
+            for message in export_failure.messages
+            if message.level != ExportMessage.Level.ERROR
+        ]
+        return Response(
+            context,
+            status=status.HTTP_400_BAD_REQUEST,
+            template_name="integration/drf/project/non_integrated_failure.html",
+        )
+
+    async def _save_exported_project(
+        self,
+        request: GeoramaDrfRequest,
+        project_path: str,
+        project_json: Config,
+    ) -> Project:
+        qs = Project.objects.filter(
+            path=project_path,
+            organisation=request.georama_organisation,
+        )
+        if await qs.aexists():
+            project_db = await qs.aget()
+        else:
+            project_db = Project(
+                path=project_path,
+                organisation=request.georama_organisation,
+            )
+        project_db.config = DictEncoder().encode(project_json)
+        project_db.name = project_json.project.name
+        project_db.qgis_version = project_json.project.version
+        # auto_now_add only sets it once, a re-integration has to refresh it on its own
+        # or the project would stay outdated forever
+        project_db.integrated_at = timezone.now()
+        await project_db.asave()
+        await self.integrate_project(project_db, project_json)
+        return project_db
+
+    async def _non_integrated_post(
+        self,
+        request: GeoramaDrfRequest,
+        organisation_folder: str,
+    ):
+        project_path = request.data["path"]
+        project_file = QgisProject(path=project_path, organisation=organisation_folder)
+        if not project_file.project_path.exists():
+            raise Http404(f"Project with path {project_file.project_path} not found")
+
+        response = await call_qsl_exporter(project_file.path_from_root)
+        if response.status_code != status.HTTP_200_OK:
+            msg = _("Communication with Exporter API was not successful STATUSCODE:")
+            return HttpResponseServerError(f"{msg} {response.status_code}")
+
+        result = DictDecoder().decode(response.json(), ExportResult)
+        if not result.successful:
+            return await self._export_failure_response(request, project_path, result)
+
+        project_json = JsonParser().from_string(result.content, Config)
+        project_db = await self._save_exported_project(request, project_path, project_json)
+        if project_json.messages:
+            messages.warning(
+                request,
+                _("The project was integrated with warnings."),
+            )
+        else:
+            messages.success(request, _("The project was successfully integrated."))
+        return redirect(reverse("integration:manager-project-ashow", kwargs={"pk": project_db.pk}))
+
     @action(detail=False, methods=["get", "post"], url_path="non_integrated")
     async def non_integrated(self, request: GeoramaDrfRequest, *args, **kwargs):
         organisation_folder = settings.DATA_INTEGRATION_GLOBAL_ORGANISATION_FOLDER
         if request.georama_organisation:
             organisation_folder = request.georama_organisation.domain
 
-        if request.POST:
-            project_path = request.data["path"]
-            project_file = QgisProject(path=project_path, organisation=organisation_folder)  # noqa: F841
-            if not project_file.project_path.exists():
-                raise Http404(f"Project with path {project_file.project_path} not found")
-            response = await call_qsl_exporter(project_file.path_from_root)
-            if response.status_code != status.HTTP_200_OK:
-                msg = _("Communication with Exporter API was not successful STATUSCODE:")
-                return HttpResponseServerError(f"{msg} {response.status_code}")
-            else:
-                result = DictDecoder().decode(response.json(), ExportResult)
-            if not result.successful:
-                msg = result.content if settings.DEBUG else _("A problem occurred while exporting.")
-                return HttpResponseServerError(msg)
-            project_json = JsonParser().from_string(result.content, Config)
-            qs = Project.objects.filter(
-                path=project_path,
-                organisation=request.georama_organisation,
-            )
-            if await qs.aexists():
-                project_db = await qs.aget()
-            else:
-                project_db = Project(
-                    path=project_path,
-                    organisation=request.georama_organisation,
-                )
-            project_db.config = DictEncoder().encode(project_json)
-            project_db.name = project_json.project.name
-            project_db.qgis_version = project_json.project.version
-            # auto_now_add only sets it once, a re-integration has to refresh it on its own
-            # or the project would stay outdated forever
-            project_db.integrated_at = timezone.now()
-            await project_db.asave()
-
-            await self.integrate_project(project_db, project_json)
-            return redirect(reverse("integration:manager-project-non-integrated"))
+        if request.method == "POST":
+            return await self._non_integrated_post(request, organisation_folder)
 
         existing_project_paths = {
             Path(p)
