@@ -1,7 +1,19 @@
+from dataclasses import asdict
+from types import SimpleNamespace
+
 import pytest
+from qgis_server_light.interface.exporter.api import ExportResult
+from qgis_server_light.interface.exporter.extract import (
+    Exporter,
+    ExportMessage,
+    Project,
+    ResultWithMessages,
+)
 from rest_framework import status
 from rest_framework.test import APIClient
+from xsdata.formats.dataclass.serializers import JsonSerializer
 
+from georama.integration.api import view_sets
 from georama.integration.factories import (
     CustomFactory,
     FieldFactory,
@@ -58,6 +70,46 @@ def organisation_admin_client(admin_user, admin_user_name, admin_password):
 
 def server_name(organisation):
     return f"{organisation.domain}.localhost"
+
+
+def mock_export_result(monkeypatch, result):
+    response = SimpleNamespace(status_code=status.HTTP_200_OK, json=lambda: asdict(result))
+
+    async def call_exporter(project_path):
+        return response
+
+    monkeypatch.setattr(view_sets, "call_qsl_exporter", call_exporter)
+
+
+@pytest.fixture
+def non_integrated_project_file(settings, tmp_path, organisation):
+    settings.DATA_INTEGRATION_ROOT = tmp_path
+    organisation_folder = tmp_path / organisation.domain
+    organisation_folder.mkdir()
+    project_file = organisation_folder / "broken.qgz"
+    project_file.touch()
+    return project_file
+
+
+@pytest.fixture
+def export_failure():
+    return ResultWithMessages(
+        project=Project(version="3.44", name="Broken project"),
+        exporter=Exporter(qgis_version="3.44"),
+        messages=[
+            ExportMessage(
+                level=ExportMessage.Level.ERROR,
+                message="The project version is not supported.",
+                code=ExportMessage.Code.PROJECT_VERSION_UNSUPPORTED,
+            ),
+            ExportMessage(
+                level=ExportMessage.Level.WARNING,
+                message="The layer is empty.",
+                code=ExportMessage.Code.LAYER_EMPTY,
+                layer_id="empty-layer",
+            ),
+        ],
+    )
 
 
 ENDPOINTS = [
@@ -175,3 +227,97 @@ class TestJsonRepresentation:
         assert data["organisation_id"] == str(organisation.pk)
         assert data["project_id"] == str(organisation_project.pk)
         assert data["datasource_id"] == str(organisation_vector.pk)
+
+
+class TestExportMessages:
+    @pytest.mark.django_db
+    def test_failed_export_returns_structured_json(
+        self,
+        monkeypatch,
+        organisation,
+        organisation_admin_client,
+        non_integrated_project_file,
+        export_failure,
+    ):
+        mock_export_result(
+            monkeypatch,
+            ExportResult(successful=False, content=JsonSerializer().render(export_failure)),
+        )
+
+        response = organisation_admin_client.post(
+            "/integration/manage/projects/non_integrated/",
+            {"path": non_integrated_project_file.name},
+            query_params={"f": "json"},
+            SERVER_NAME=server_name(organisation),
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json()["result"]["messages"] == [
+            {
+                "level": "error",
+                "message": "The project version is not supported.",
+                "code": "project_version_unsupported",
+                "layer_id": None,
+            },
+            {
+                "level": "warning",
+                "message": "The layer is empty.",
+                "code": "layer_empty",
+                "layer_id": "empty-layer",
+            },
+        ]
+
+    @pytest.mark.django_db
+    def test_failed_export_renders_messages(
+        self,
+        monkeypatch,
+        organisation,
+        organisation_admin_client,
+        non_integrated_project_file,
+        export_failure,
+    ):
+        mock_export_result(
+            monkeypatch,
+            ExportResult(successful=False, content=JsonSerializer().render(export_failure)),
+        )
+
+        response = organisation_admin_client.post(
+            "/integration/manage/projects/non_integrated/",
+            {"path": non_integrated_project_file.name},
+            SERVER_NAME=server_name(organisation),
+        )
+        content = response.text
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "The project could not be integrated." in content
+        assert "The project version is not supported." in content
+        assert "The layer is empty." in content
+        assert "empty-layer" in content
+        assert "Retry" in content
+
+    @pytest.mark.django_db
+    def test_project_detail_renders_export_warnings(
+        self, organisation, organisation_admin_client, organisation_project
+    ):
+        organisation_project.config |= {
+            "messages": [
+                {
+                    "level": "warning",
+                    "message": "The layer is empty.",
+                    "code": "layer_empty",
+                    "layer_id": "empty-layer",
+                }
+            ]
+        }
+        organisation_project.save(update_fields=["config"])
+
+        response = organisation_admin_client.get(
+            f"/integration/manage/projects/{organisation_project.pk}/ashow/",
+            SERVER_NAME=server_name(organisation),
+        )
+        content = response.text
+
+        assert response.status_code == status.HTTP_200_OK
+        assert "Empty layer" in content
+        assert "The layer is empty." in content
+        assert "empty-layer" in content
