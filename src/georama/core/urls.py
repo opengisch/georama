@@ -1,4 +1,3 @@
-from adrf import routers
 from django.urls import include, path
 
 from georama.core.api.view_sets import (
@@ -9,12 +8,13 @@ from georama.core.api.view_sets import (
     PermissionViewSet,
     UserViewSet,
 )
+from georama.core.common.routers import SimpleRouter
 from georama.core.views import auth, schema
 from georama.core.views.index import Index
 
 app_name = "core"
 
-management_router = routers.SimpleRouter()
+management_router = SimpleRouter()
 management_router.register(r"users", UserViewSet)
 management_router.register(r"groups", GroupViewSet)
 management_router.register(r"permissions", PermissionViewSet)
@@ -28,17 +28,17 @@ urlpatterns = [
     path("health/", HealthViewSet.as_view({"get": "list"}), name="health"),
     path("manage/", include(management_router.urls)),
     path(
-        "manage/schema/",
+        "manage/schema",
         schema.GeoramaAdminSchemaView.as_view(urlconf=management_router.urls),
         name="schema",
     ),
     path(
-        "manage/schema/swagger-ui/",
+        "manage/schema/swagger-ui",
         schema.GeoramaAdminSwaggerView.as_view(url_name="core:schema"),
         name="swagger",
     ),
     path(
-        "manage/schema/redoc/",
+        "manage/schema/redoc",
         schema.GeoramaAdminRedocView.as_view(url_name="core:schema"),
         name="redoc",
     ),

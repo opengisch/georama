@@ -1,24 +1,24 @@
-from adrf import routers
 from django.urls import include, path, re_path
 from django.utils.translation import gettext as _
 from drf_spectacular import views
 
+from georama.core.common.routers import SimpleRouter
 from georama.maps.api.viewsets import ManageWmsLayerViewSet, WmsLayerViewSet
 from georama.maps.views.ogc import OgcServer
 
 app_name = "maps"
 
-management_router = routers.SimpleRouter()
+management_router = SimpleRouter()
 management_router.register(r"map_layers", ManageWmsLayerViewSet, basename="maplayer-manager")
 
-router = routers.SimpleRouter()
+router = SimpleRouter()
 router.register(r"map_layers", WmsLayerViewSet, basename="maplayer")
 
 urlpatterns = [
     path("", include(router.urls)),
     path("manage/", include(management_router.urls)),
     path(
-        "manage/schema/",
+        "manage/schema",
         views.SpectacularAPIView.as_view(
             urlconf=management_router.urls,
             custom_settings={
@@ -30,12 +30,12 @@ urlpatterns = [
         name="schema",
     ),
     path(
-        "manage/schema/swagger/",
+        "manage/schema/swagger",
         views.SpectacularSwaggerView.as_view(url_name="maps:schema"),
         name="swagger",
     ),
     path(
-        "manage/schema/redoc/",
+        "manage/schema/redoc",
         views.SpectacularRedocView.as_view(url_name="maps:schema"),
         name="redoc",
     ),

@@ -6,11 +6,11 @@ from rest_framework.test import APIClient
 @pytest.mark.parametrize(
     "path",
     [
-        "/manage/users/",
-        "/manage/groups/",
-        "/manage/permissions/",
-        "/manage/organisations/",
-        "/manage/memberships/",
+        "/manage/users",
+        "/manage/groups",
+        "/manage/permissions",
+        "/manage/organisations",
+        "/manage/memberships",
     ],
 )
 class TestAccess:
