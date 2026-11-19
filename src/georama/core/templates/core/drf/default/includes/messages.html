@@ -7,16 +7,18 @@
         <div
                 class="toast align-items-center text-bg-{% if message.level_tag == 'error' %}danger{% else %}{{ message.tags }}{% endif %} border-0"
                 role="alert"
-                data-bs-delay="8000">
+                data-bs-delay="8000"
+                data-bs-autohide="{% if message.level_tag == 'warning' or message.level_tag == 'error' %}false{% else %}true{% endif %}"
+        >
 
             <div class="d-flex">
-                <div class="toast-body">
+                <div class="toast-body overflow-hidden">
                     {{ message }}
                 </div>
 
                 <button
                         type="button"
-                        class="btn-close btn-close-white me-2 m-auto"
+                        class="btn-close btn-close-white me-2 m-auto flex-shrink-0"
                         data-bs-dismiss="toast"
                         aria-label="{% translate "Close" %}">
                 </button>
