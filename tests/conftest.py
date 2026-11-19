@@ -306,6 +306,8 @@ def global_wms_layer_public_queryable_geometryless(global_geometryless_vector):
         queryable=True,
         datasource=global_geometryless_vector,
         metadata=MapsWmsLayerMetadataFactory.create(title="Global Public Queryable Geometryless"),
+        extent=None,
+        extent_wgs84=None,
     )
     yield layer
     layer.delete()

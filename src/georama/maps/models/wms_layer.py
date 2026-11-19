@@ -12,7 +12,7 @@ from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
-from osgeo import osr as osgeo_osr
+from pyproj import Transformer
 from qgis_server_light.interface.common import BBox
 from qgis_server_light.interface.job.common.input import QslJobLayer
 
@@ -84,7 +84,6 @@ class WmsLayerAbstract(models.Model):
 
     preview_dimensions: tuple[int, int] = (250, 250)
     preview_dimensions_new_tab: tuple[int, int] = (1500, 1500)
-    crs_transform_to_wgs84 = None
 
     @property
     def identifier(self):
@@ -206,13 +205,11 @@ class WmsLayerAbstract(models.Model):
         datasource = self.get_datasource
         if not self.extent:
             self.extent = datasource.bbox_2d_string
-        if self.has_datasource_extent(datasource):
-            # QSL calculated the wgs84 extent of the datasource already on export
-            self.extent_wgs84 = BBox.from_string(datasource.bbox_wgs84).to_2d_string()
-        elif datasource.crs_to_qsl and datasource.crs_to_qsl.auth_id:
-            # we do not handle layers which have no CRS definition!
-            bbox_wgs84 = self._to_wgs84_extent(BBox.from_string(self.extent))
-            self.extent_wgs84 = bbox_wgs84.to_2d_string()
+
+        # If extent_wgs84 is updated, convert it back to extent
+        if self.extent_wgs84 and datasource.crs_to_qsl.auth_id:
+            bbox_extent = self._from_wgs84_extent(BBox.from_string(self.extent_wgs84))
+            self.extent = bbox_extent.to_2d_string()
 
     def has_datasource_extent(self, datasource: Datasource) -> bool:
         if not datasource.bbox or not datasource.bbox_wgs84:
@@ -247,25 +244,13 @@ class WmsLayerAbstract(models.Model):
             update_fields=update_fields,
         )
 
-    def _to_wgs84_extent(self, bbox: BBox) -> BBox:
-        if not self.crs_transform_to_wgs84:
-            source = self._get_spatial_ref(self.get_datasource.crs_to_qsl.auth_id)
-            target = self._get_spatial_ref(4326)
-            self.crs_transform_to_wgs84 = osgeo_osr.CoordinateTransformation(source, target)
-        ll_corner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_min, bbox.y_min)
-        ur_corner = self.crs_transform_to_wgs84.TransformPoint(bbox.x_max, bbox.y_max)
+    def _from_wgs84_extent(self, bbox: BBox) -> BBox:
+        """Convert from WGS84 extent back to the layer's native CRS extent."""
+        dest_crs = self.get_datasource.crs_to_qsl.auth_id
+        transformer = Transformer.from_crs("EPSG:4326", dest_crs, always_xy=True)
+        ll_corner = transformer.transform(bbox.x_min, bbox.y_min)
+        ur_corner = transformer.transform(bbox.x_max, bbox.y_max)
         return BBox.from_list([*ll_corner, *ur_corner])
-
-    @staticmethod
-    def _get_spatial_ref(epsg_code: int | str):
-        if isinstance(epsg_code, str):
-            epsg_code = int(epsg_code.split(":")[1])
-        spatial_ref = osgeo_osr.SpatialReference()
-        # extents are always x/y (east/north) as QSL delivers them, independent of the
-        # axis order of the crs, the wgs84 extent is lon/lat
-        spatial_ref.SetAxisMappingStrategy(osgeo_osr.OAMS_TRADITIONAL_GIS_ORDER)
-        spatial_ref.ImportFromEPSG(epsg_code)
-        return spatial_ref
 
     @property
     def preview_image(self):

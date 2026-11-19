@@ -44,3 +44,5 @@ class WmsLayerFactory(factory.django.DjangoModelFactory):
     metadata = factory.SubFactory(MetadataFactory)
     datasource = factory.SubFactory(VectorFactory)
     theme = factory.SubFactory(ThemeFactory)
+    extent = factory.LazyAttribute(lambda obj: obj.datasource.bbox)
+    extent_wgs84 = factory.LazyAttribute(lambda obj: obj.datasource.bbox_wgs84)

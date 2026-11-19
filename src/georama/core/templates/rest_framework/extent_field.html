@@ -1,0 +1,147 @@
+{% load i18n %}
+
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.11.0/dist/ol.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.11.0/ol.css">
+
+<div class="form-group mb-4 {% if field.errors %}has-error{% endif %}">
+  <div class="form-floating">
+    <input id="{{ field.name }}" name="{{ field.name }}" type="text" class="form-control " pattern="^-?[0-9]+\.?[0-9]*(?:,-?[0-9]+\.?[0-9]*){3,5}$" {% if field.value %}value="{{ field.value|escapejs }}"{% endif %}>
+    <label for="{{ field.name }}" class="form-label">
+      {{ field.label }}
+    </label>
+  </div>
+  <!-- BBox Map Drawing Widget -->
+  <div id="bbox-map-{{ field.name }}" style="height: 400px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px;"></div>
+    
+  {% if field.errors %}
+    {% for error in field.errors %}
+      <span class="help-block">{{ error }}</span>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<script>
+(function() {
+  const fieldName = '{{ field.name }}';
+  const mapContainer = document.getElementById('bbox-map-' + fieldName);
+  const extentInput = document.getElementById(fieldName);
+  
+  // Create OpenLayers map
+  const map = new ol.Map({
+    target: 'bbox-map-' + fieldName,
+    layers: [
+      new ol.layer.Tile({
+        source: new ol.source.OSM({
+          url: 'https://{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png',
+          attributions: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 17
+        })
+      })
+    ],
+    view: new ol.View({
+      center: ol.proj.fromLonLat([0, 20]),
+      zoom: 2
+    })
+  });
+  
+  // Vector layer for drawing rectangle
+  const vectorSource = new ol.source.Vector();
+  const vectorLayer = new ol.layer.Vector({
+    source: vectorSource,
+    style: new ol.style.Style({
+      stroke: new ol.style.Stroke({
+        color: '#3388ff',
+        width: 2
+      })
+    })
+  });
+  map.addLayer(vectorLayer);
+  
+  let rectangle = null;
+
+  function loadBboxFromInput() {
+    if (extentInput.value) {
+      try {
+        const bbox = JSON.parse("[" + extentInput.value + "]");
+        vectorSource.clear();
+        
+        // Extract coordinates based on 4-value or 6-value format
+        const minLon = bbox[0];
+        const minLat = bbox[1];
+        const maxLon = bbox.length === 6 ? bbox[3] : bbox[2];
+        const maxLat = bbox.length === 6 ? bbox[4] : bbox[3];
+        
+        // Create rectangle feature
+        const extent = ol.extent.boundingExtent([
+          ol.proj.fromLonLat([minLon, minLat]),
+          ol.proj.fromLonLat([maxLon, maxLat])
+        ]);
+        
+        const polygon = ol.geom.Polygon.fromExtent(extent);
+        rectangle = new ol.Feature({
+          geometry: polygon
+        });
+        vectorSource.addFeature(rectangle);
+        
+        // Fit view to extent
+        map.getView().fit(extent, { padding: [50, 50, 50, 50] });
+      } catch (e) {
+        console.error('Invalid bbox format:', extentInput.value, e);
+      }
+    }
+  }
+  
+  // Load existing bbox if available
+  loadBboxFromInput();
+  
+  // Listen for manual changes to the input field
+  extentInput.addEventListener('change', loadBboxFromInput);
+  
+  // Rectangle drawing tool (shift+click drag)
+  let isDrawing = false;
+  let startCoord = null;
+  
+  map.on('pointerdown', function(evt) {
+    if (evt.originalEvent.shiftKey) {
+      evt.originalEvent.preventDefault();
+      isDrawing = true;
+      startCoord = evt.coordinate;
+    }
+  });
+  
+  map.on('pointermove', function(evt) {
+    if (isDrawing && startCoord) {
+      const endCoord = evt.coordinate;
+      
+      // Create rectangle from start to end
+      const extent = ol.extent.boundingExtent([startCoord, endCoord]);
+      const polygon = ol.geom.Polygon.fromExtent(extent);
+      
+      vectorSource.clear();
+      rectangle = new ol.Feature({
+        geometry: polygon
+      });
+      vectorSource.addFeature(rectangle);
+    }
+  });
+  
+  map.on('pointerup', function(evt) {
+    if (isDrawing && rectangle) {
+      isDrawing = false;
+      
+      // Get bounds from rectangle
+      const extent = rectangle.getGeometry().getExtent();
+      const [minX, minY, maxX, maxY] = extent;
+      
+      // Convert from map projection (Web Mercator) to WGS84
+      const [minLon, minLat] = ol.proj.toLonLat([minX, minY]);
+      const [maxLon, maxLat] = ol.proj.toLonLat([maxX, maxY]);
+      
+      const bbox = [minLon, minLat, maxLon, maxLat];
+      const jsonValue = bbox.join(",");
+      extentInput.value = jsonValue;
+      console.log('BBox updated:', jsonValue, 'Input value:', extentInput.value);
+    }
+  });
+})();
+</script>

@@ -1,5 +1,4 @@
 import pytest
-from qgis_server_light.interface.common import BBox
 from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.integration.models import Vector
@@ -37,8 +36,3 @@ class TestWmsLayerHasDatasourceExtent:
     def test_custom_extent(self, wms_layer_factory):
         wms_layer = wms_layer_factory(2056, False, "2500000,1100000,2700000,1200000")
         assert wms_layer.has_datasource_extent(wms_layer.datasource) is False
-
-    def test_datasource_extent_wgs84_is_taken(self, wms_layer_factory):
-        wms_layer = wms_layer_factory(2056, False, "2480000,1070000,2840000,1300000")
-        wms_layer._prepare_save()
-        assert BBox.from_string(wms_layer.extent_wgs84).to_2d_list() == [5.9, 45.8, 10.5, 47.8]
