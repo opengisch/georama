@@ -57,11 +57,15 @@ class LayerInputMapper:
             for input_description in process_description.inputs
         }
         return [
-            ParameterInput(name=name, value=await self.amap_value(layer_markers[name], value))
+            ParameterInput(
+                name=name, value=await self.amap_value(layer_markers[name], single_value)
+            )
             for name, value in values.items()
             # an input which was left empty is not passed to the process, QGIS takes its
             # default then
             if value not in (None, "", [])
+            # an input taking multiple values is passed once per value, QSL collects them
+            for single_value in (value if isinstance(value, list) else [value])
         ]
 
     async def amap_value(self, layer_marker: QslLayerMarker | None, value):

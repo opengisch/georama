@@ -107,6 +107,23 @@ class EnumStrategy(BaseStrategy):
         )
 
 
+class MultipleChoiceStrategy(EnumStrategy):
+    """An input taking more than one value of its options, like multiple layers."""
+
+    def map_form_field(
+        self,
+        input_description: InputDescription,
+        schema: Schema,
+        **context,
+    ) -> fields.TypedMultipleChoiceField:
+        return fields.TypedMultipleChoiceField(
+            initial=schema.default,
+            required=self.required(input_description),
+            choices={option.const: option.title for option in schema.one_of},
+            coerce=self.coerce_by_type[schema.type],
+        )
+
+
 class HtmlInputMapper:
     def __init__(self):
         self._mappings = {
@@ -123,7 +140,9 @@ class HtmlInputMapper:
         self._mappings[schema_type] = mapping_strategy
 
     def map(self, input_description: InputDescription, **context):
-        if input_description.schema.one_of is not None:
+        if input_description.schema.one_of is not None and input_description.max_occurs != 1:
+            mapping_strategy = MultipleChoiceStrategy
+        elif input_description.schema.one_of is not None:
             mapping_strategy = EnumStrategy
         else:
             mapping_strategy = self._mappings.get(input_description.schema.type)
