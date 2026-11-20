@@ -26,3 +26,15 @@ class TestWmsLayerManager:
             ).count()
             == 0
         )
+
+    @pytest.mark.django_db
+    def test_accessible_layers_queryable_geometryless_layer_denied(
+        self, global_wms_layer_public_queryable_geometryless
+    ):
+        # a geometryless layer has nothing to query on the map
+        assert (
+            WmsLayer.objects.accessible_layers_queryable(
+                None, AnonymousUser, ["view_published_wms_layer"]
+            ).count()
+            == 0
+        )

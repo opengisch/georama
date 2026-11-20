@@ -32,6 +32,10 @@ from georama.webgis.api.serializers import (
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     OgcServer as GGOgcServer,
 )
+from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
+    OgcServerService,
+    OgcServerUses,
+)
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import Theme as GGTheme
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     ThemesJson as GGThemesJson,
@@ -115,6 +119,8 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
         project = await qs.aget(id=request.data["pk"])
         wms_layer_index: WmsLayerIndex = {}
         theme = await self.transfer_to_theme(project)
+        # geometryless datasources get a WMS layer too, it only backs their OAPIF collection:
+        # the theme json and the OGC services leave them out
         async for ds in project.datasources.all():
             wl = WmsLayer(
                 datasource=ds,
@@ -168,10 +174,15 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
             type=settings.WEBGIS_OGC_SERVER_NAME,
             credential=False,
             image_type="image/png",
-            is_single_tile=False,
             name=settings.WEBGIS_OGC_SERVER_NAME,
             namespace=WfsOperation.own_namespace_domain,
             wfs_support=True,
+            uses=OgcServerUses(
+                edit=OgcServerService(
+                    protocol="OGC API - Features",
+                    url=request.build_absolute_uri(reverse("webgis:landing")),
+                ),
+            ),
         )
 
     @action(detail=False, methods=["GET"], renderer_classes=[renderers.JSONRenderer])

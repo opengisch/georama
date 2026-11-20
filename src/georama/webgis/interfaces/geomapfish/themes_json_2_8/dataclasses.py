@@ -45,19 +45,44 @@ class LinkedLayer(AbstractSchema):
 
 
 @dataclass
+class OgcServerService(AbstractSchema):
+    protocol: str = field(metadata={"type": "Element", "required": True})
+    url: str = field(metadata={"type": "Element", "required": True})
+
+
+@dataclass
+class OgcServerUses(AbstractSchema):
+    edit: OgcServerService | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+
+
+@dataclass
 class OgcServer(AbstractSchema):
     url: str = field(metadata={"type": "Element", "required": True})
     type: str = field(metadata={"type": "Element", "required": True})
     credential: bool = field(metadata={"type": "Element", "required": True})
     image_type: str = field(metadata={"name": "imageType", "type": "Element", "required": True})
     wfs_support: bool = field(metadata={"name": "wfsSupport", "type": "Element", "required": True})
-    is_single_tile: bool = field(
-        metadata={"name": "isSingleTile", "type": "Element", "required": True}
-    )
     namespace: str = field(metadata={"type": "Element", "required": True})
+    # obsolete and can be removed once we tidy up here
+    is_single_tile: bool | None = field(
+        default=None, metadata={"name": "isSingleTile", "type": "Element", "required": False}
+    )
     name: str = field(default=None, metadata={"type": "Element", "required": False})
     url_wfs: str = field(
         default=None, metadata={"name": "urlWfs", "type": "Element", "required": False}
+    )
+    uses: OgcServerUses | None = field(
+        default=None, metadata={"type": "Element", "required": False}
+    )
+    # obsolete and can be removed once we tidy up here
+    oapif_support: bool | None = field(
+        default=None, metadata={"name": "oapifSupport", "type": "Element", "required": False}
+    )
+    # obsolete and can be removed once we tidy up here
+    url_oapif: str | None = field(
+        default=None, metadata={"name": "urlOapif", "type": "Element", "required": False}
     )
     # TODO: make this correctly typed
     attributes: list[LinkedLayer] = field(
@@ -211,6 +236,7 @@ class WmsLayer:
     dimensions: Dimensions | None = field(
         default=None, metadata={"type": "Element", "required": False}
     )
+    # obsolete and can be removed once we tidy up here
     editable: bool | None = field(default=None, metadata={"type": "Element", "required": False})
     style: str = field(default=None, metadata={"type": "Element", "required": False})
     time: Time | None = field(default=None, metadata={"type": "Element", "required": False})

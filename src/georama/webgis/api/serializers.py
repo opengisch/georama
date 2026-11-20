@@ -60,6 +60,9 @@ class WmsLayerSerializer(serializers.ModelSerializer):
 
 class ThemePermissionSerializer(serializers.Serializer):
     can_view = serializers.BooleanField()
+    can_create = serializers.BooleanField()
+    can_update = serializers.BooleanField()
+    can_delete = serializers.BooleanField()
 
 
 class ThemeObjectPermissionSerializer(ObjectPermissionSerializer):

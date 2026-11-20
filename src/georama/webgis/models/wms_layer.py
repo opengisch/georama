@@ -98,7 +98,6 @@ class WmsLayer(WmsLayerAbstract):
             ],
             ogc_server=settings.WEBGIS_OGC_SERVER_NAME,
             dimensions=None,
-            editable=False,
             style="default",
             time=None,
             path=None,

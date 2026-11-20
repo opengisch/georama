@@ -74,6 +74,11 @@ class Base(Configuration):
         ],
         separator=LIST_ENV_SEPARATOR,
     )
+    # clients like GeoGirafe read the allowed OAPIF write methods from the `Allow` header
+    CORS_EXPOSE_HEADERS = values.ListValue(
+        ["Allow"],
+        separator=LIST_ENV_SEPARATOR,
+    )
 
     # Proxy "X-Forwarded-..." headers
     # https://docs.djangoproject.com/en/6.0/ref/settings/#secure-proxy-ssl-header
@@ -610,6 +615,10 @@ class Base(Configuration):
         "2457000,1075000,2862000,1296000", environ_prefix=GEORAMA_ENV_PREFIX
     )
     WEBGIS_BACKGROUND_THUMBNAIL_CRS = values.Value("EPSG:2056", environ_prefix=GEORAMA_ENV_PREFIX)
+
+    # OGC API Features items deliver the label of ValueMap fields instead of the stored
+    # value, as QGIS Server does. Writes always take the stored value.
+    FEATURES_REPRESENT_VALUES = values.BooleanValue(True, environ_prefix=GEORAMA_ENV_PREFIX)
 
     DOCUMENTATION_URL = values.Value(
         "https://opengisch.github.io/georama/", environ_prefix=GEORAMA_ENV_PREFIX
