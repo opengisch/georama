@@ -17,15 +17,14 @@
     --bs-primary-text-emphasis: var(--georama-green-dark);
     --bs-secondary-text-emphasis: var(--georama-yellow-dark);
     --bs-success-text-emphasis: var(--georama-green-dark);
-    --bs-warning-text-emphasis: #663503;
     --bs-light-text-emphasis: #495057;
     --bs-dark-text-emphasis: #495057;
     
     --bs-primary-bg-subtle: #e6f0d9;
     --bs-primary-border-subtle: #cde1b3;
     /* TODO PI: Define more subtle colors */
-    --bs-warning-bg-subtle: #ffe2cd;
-    --bs-warning-border-subtle: #ffbf9c;
+    /* --bs-warning-bg-subtle: #ffe2cd; */
+    /* --bs-warning-border-subtle: #ffbf9c; */
 
     --bs-font-sans-serif: "Georama", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 

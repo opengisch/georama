@@ -1,0 +1,23 @@
+{% load export_messages i18n %}
+
+{% for message in messages %}
+    <div class="alert {% if message.level == 'error' %}alert-danger{% else %}alert-warning{% endif %} py-2 mb-2"
+         role="alert">
+        <div class="d-flex align-items-start gap-2">
+            <i class="fa {% if message.level == 'error' %}fa-circle-exclamation{% else %}fa-triangle-exclamation{% endif %} mt-1"
+               aria-hidden="true"></i>
+            <div class="flex-grow-1">
+                <strong>{{ message.code|export_message_category }}</strong>
+                <div class="small mt-1">{{ message.message }}</div>
+                <dl class="mb-0 mt-1 small">
+                    {% if message.layer_id %}
+                        <div class="d-flex gap-1">
+                            <dt>Layer:</dt>
+                            <dd class="mb-0 text-break"><code>{{ message.layer_id }}</code></dd>
+                        </div>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+    </div>
+{% endfor %}
