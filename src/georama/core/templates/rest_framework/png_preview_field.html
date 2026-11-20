@@ -3,25 +3,6 @@
 <div class="form-group mb-4 {% if field.errors %}has-error{% endif %}">
     <label class="form-label">{{ field.label|capfirst }}</label>
     <input id="{{ field.name }}" name="{{ field.name }}" type="hidden" value="">
-    <style>
-        .png-preview-upload {
-            opacity: 0.6;
-            transition: opacity 0.15s ease-in-out;
-        }
-
-        .png-preview:hover .png-preview-upload, .png-preview-upload:focus-visible {
-            opacity: 1;
-        }
-
-        .png-preview-upload-label {
-            display: none;
-        }
-
-        .png-preview-upload:hover .png-preview-upload-label,
-        .png-preview-upload:focus-visible .png-preview-upload-label {
-            display: inline;
-        }
-    </style>
     <div class="png-preview position-relative rounded img-thumbnail d-flex align-items-center justify-content-center"
          style="width: {{ width }}px; height: {{ height }}px;">
         <img id="preview-image-{{ field.name }}"
@@ -76,8 +57,8 @@ file from the standard browser file selection dialogue
                         aria-label="{% translate 'Close' %}"></button>
             </div>
             <div class="modal-body">
-                <cropper-canvas id="crop-canvas-{{ field.name }}" background
-                                style="height: 400px;">
+                <cropper-canvas id="crop-canvas-{{ field.name }}" class="png-preview-crop-canvas"
+                                background>
                     <cropper-image id="crop-image-{{ field.name }}" rotatable scalable
                                    translatable></cropper-image>
                     <cropper-shade></cropper-shade>
