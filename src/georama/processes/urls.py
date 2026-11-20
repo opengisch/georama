@@ -1,5 +1,7 @@
 from adrf import routers
 from django.urls import include, path
+from django.utils.translation import gettext as _
+from drf_spectacular import views
 
 from georama.processes.api.viewsets import (
     ConformanceView,
@@ -31,4 +33,26 @@ urlpatterns = [
     path("", LandingView.as_view(), name="api-landing"),
     path("conformance/", ConformanceView.as_view(), name="api-conformance"),
     path("manage/", include(management_router.urls)),
+    path(
+        "manage/schema/",
+        views.SpectacularAPIView.as_view(
+            urlconf=management_router.urls,
+            custom_settings={
+                "TITLE": _("Management API of the Processes app."),
+                "SCHEMA_PATH_PREFIX": "",
+                "SCHEMA_PATH_PREFIX_INSERT": "processes/manage",
+            },
+        ),
+        name="schema",
+    ),
+    path(
+        "manage/schema/swagger/",
+        views.SpectacularSwaggerView.as_view(url_name="processes:schema"),
+        name="swagger",
+    ),
+    path(
+        "manage/schema/redoc/",
+        views.SpectacularRedocView.as_view(url_name="processes:schema"),
+        name="redoc",
+    ),
 ]
