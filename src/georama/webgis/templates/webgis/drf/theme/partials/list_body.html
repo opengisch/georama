@@ -1,9 +1,9 @@
 {% extends 'core/drf/default/partials/list_body.html' %}
 {% load i18n %}
 {% block list_item_image %}
-    <img alt="{% trans 'Theme icon' %}"
-         class="rounded img-thumbnail preview-image"
-         src="{{ item.icon_default }}"
+    <img alt="{% trans 'Theme preview' %}"
+         class="rounded img-thumbnail preview-image-lg"
+         src="{{ item.preview_image }}"
     />
 {% endblock %}
 {% block list_item_actions_additional %}

@@ -3,6 +3,7 @@ from operator import attrgetter
 from pathlib import Path
 
 from adrf.mixins import get_data
+from asgiref.sync import sync_to_async
 from django.apps import apps
 from django.conf import settings
 from django.http import Http404, HttpResponseServerError
@@ -29,6 +30,7 @@ from georama.core.common.api import (
 )
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
+from georama.core.qsl_utils import render_image
 from georama.integration.api.serializers import (
     CustomDatasourceSerializer,
     DatasourceSerializer,
@@ -123,6 +125,26 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 f" ✓ Dataset {layer.name} (qgis-layer-id: {layer.id})"
                 f" was written to DB successfully."
             )
+            # Generate preview for the datasource
+            qsl_layer = await sync_to_async(lambda ds: ds.to_qsl_job_layer())(datasource)
+            preview = await render_image(
+                [qsl_layer],
+                datasource.extent_in_axis_order,
+                datasource.crs_to_qsl.auth_id,
+                250,
+                250,
+            )
+            if preview:
+                datasource.preview = preview
+                await datasource.asave()
+                logging.debug(
+                    f" ✓ Preview generated for dataset {layer.name} (qgis-layer-id: {layer.id})"
+                )
+            else:
+                logging.debug(
+                    f" × No preview generated for dataset {layer.name}"
+                    f" (qgis-layer-id: {layer.id})"
+                )
             if isinstance(datasource, Vector):
                 logging.debug(" Handling of related fields.")
                 layer: QslVector
@@ -172,6 +194,13 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 )
                 await datasource_db.adelete()
         logging.debug(" ✓ Finished - Cleaning out old datasources.")
+
+        preview = await project_db.generate_preview_image()
+        if preview:
+            project_db.preview = preview
+            await project_db.asave()
+            logging.debug(f" ✓ Preview generated for project {project_db.name}")
+
         return None
 
     @property

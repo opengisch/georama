@@ -62,11 +62,11 @@
 
                 {% block detail_content %}
                     {% field_name_and_value object as fields %}
-                    {% for name, help_text, value in fields %}
+                    {% for name, label, help_text, value in fields %}
 
                         <div class="mb-4" data-bs-toggle="tooltip"
                              title="{{ help_text }}">
-                            <label class="form-text">{{ name|capfirst }}</label>
+                            <label class="form-text">{{ label|capfirst }}</label>
                             <div>{{ value }}</div>
                         </div>
                     {% endfor %}

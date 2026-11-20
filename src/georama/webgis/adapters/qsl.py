@@ -2,6 +2,7 @@ import base64
 import math
 from urllib.parse import unquote
 
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from httpx import RequestError
 from qgis_server_light.interface.common import BBox
@@ -14,7 +15,7 @@ from qgis_server_light.interface.exporter.extract import (
     XYZSource,
 )
 
-from georama.maps.adapter.qsl import render_image
+from georama.core.qsl_utils import render_image
 from georama.maps.services.wfs_2_0_0 import WfsOperation
 from georama.webgis.interfaces.geomapfish.themes_json_2_8.dataclasses import (
     LayerGroup,
@@ -55,8 +56,9 @@ async def render_background_thumbnail(wms_layer: GeoramaWmsLayer) -> str | None:
         The png as data url or `None` if rendering failed.
     """
     try:
+        qsl_layer = await sync_to_async(lambda: wms_layer.to_qsl_job_layer())()
         image = await render_image(
-            wms_layer,
+            [qsl_layer],
             BBox.from_string(settings.WEBGIS_BACKGROUND_THUMBNAIL_EXTENT),
             settings.WEBGIS_BACKGROUND_THUMBNAIL_CRS,
             *BACKGROUND_THUMBNAIL_DIMENSIONS,
@@ -206,8 +208,8 @@ async def theme_json_from_project_config(
     icon: str,
     project_config: Config,
     wms_layer_index: WmsLayerIndex,
-) -> tuple[Theme, list[WmsLayer | WmtsLayer], OgcServers]:
-    bbox = BBox(math.inf, math.inf, -math.inf, -math.inf)
+) -> tuple[Theme, list[WmsLayer | WmtsLayer], OgcServers, BBox]:
+    bbox = BBox(x_min=math.inf, y_min=math.inf, x_max=-math.inf, y_max=-math.inf)
     children = []
     background_layers: list[WmsLayer | WmtsLayer] = []
     ogc_servers: OgcServers = {}
@@ -234,4 +236,4 @@ async def theme_json_from_project_config(
         zoom=4,
         location=location,
     )
-    return gg_theme, background_layers, ogc_servers
+    return gg_theme, background_layers, ogc_servers, bbox

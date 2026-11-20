@@ -1,6 +1,8 @@
+import base64
 import uuid
 
 from django.db import models, transaction
+from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
 from guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
@@ -110,6 +112,12 @@ class FeatureLayer(models.Model):
         help_text=_("Metadata of the feature layer."),
         verbose_name=_("metadata"),
     )
+    preview = models.BinaryField(
+        null=True,
+        blank=True,
+        help_text=_("Preview image of the feature layer."),
+        verbose_name=_("preview"),
+    )
     objects = FeatureLayerManager()
 
     def save(self, *args, **kwargs):
@@ -135,6 +143,19 @@ class FeatureLayer(models.Model):
     @property
     def title(self):
         return self.metadata.title
+
+    @property
+    def preview_image(self):
+        """Encodes a preview image.
+
+        Returns:
+            The data encoded preview image or the absolute path to the static fallback
+            image.
+        """
+        if self.preview is not None:
+            return f"data:image/png;base64,{base64.b64encode(self.preview).decode()}"
+        else:
+            return static("core/images/main_plain.svg")
 
     def __str__(self):
         return self.metadata.title

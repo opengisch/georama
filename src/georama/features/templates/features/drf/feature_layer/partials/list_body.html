@@ -4,3 +4,6 @@
 {% block list_item_actions_additional %}
     {% include 'features/drf/feature_layer/includes/buttons/open_feature_layer.html' with layer=item %}
 {% endblock %}
+{% block list_item_image %}
+    {% include "features/drf/feature_layer/partials/preview.html" %}
+{% endblock %}

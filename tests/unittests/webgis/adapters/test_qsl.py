@@ -98,6 +98,7 @@ def wms_layer_index(datasets, qsl_job_layer):
         ds.id: SimpleNamespace(
             identifier=ds.id,
             extent=None,
+            extent_wgs84=None,
             metadata=SimpleNamespace(title=ds.id),
             as_gg_wms_layer=WmsLayer(
                 id=ds.id,
@@ -231,7 +232,7 @@ class TestEmptyGroups:
         ],
     )
     def test_group_is_dropped(self, themes_json, background_layer_names):
-        theme, background_layers, _ = themes_json
+        theme, background_layers, _, _ = themes_json
 
         assert names(theme.children) == ["rivers"]
         assert names(background_layers) == background_layer_names
@@ -270,7 +271,7 @@ class TestEmptyGroups:
         ],
     )
     def test_mixed_group_keeps_its_position_and_non_background_layers(self, themes_json):
-        theme, background_layers, _ = themes_json
+        theme, background_layers, _, _ = themes_json
 
         assert names(theme.children) == ["Water", "roads"]
         assert names(theme.children[0].children) == ["rivers"]
@@ -292,7 +293,7 @@ class TestBackgroundThumbnail:
     def test_rendered_over_configured_extent(
         self, settings, themes_json, posted_jobs, qsl_job_layer
     ):
-        _, background_layers, _ = themes_json
+        _, background_layers, _, _ = themes_json
 
         assert posted_jobs == [
             QslJobParameterRender(
@@ -311,14 +312,14 @@ class TestBackgroundThumbnail:
         [(BACKGROUND_ONLY_TREE, Datasets(raster=[ORTHO]), FAILED_RENDER_JOB_RESULT)],
     )
     def test_failed_rendering(self, themes_json):
-        _, background_layers, _ = themes_json
+        _, background_layers, _, _ = themes_json
 
         assert names(background_layers) == ["ortho"]
         assert background_layers[0].metadata.thumbnail is None
 
     @pytest.mark.parametrize("tree, datasets", [(NO_BACKGROUND_TREE, Datasets(vector=[RIVERS]))])
     def test_not_rendered_for_other_layers(self, themes_json, posted_jobs):
-        theme, _, _ = themes_json
+        theme, _, _, _ = themes_json
 
         assert posted_jobs == []
         assert theme.children[0].metadata.thumbnail is None

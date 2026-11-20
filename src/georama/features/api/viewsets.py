@@ -39,6 +39,7 @@ class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
     list_body_partial_template_name = "features/drf/feature_layer/partials/list_body.html"
+    show_template_name = "features/drf/feature_layer/detail.html"
 
     permissions_serializer_class = FeatureLayerObjectPermissionSerializer
     permissions_action_serializer_class = FeatureLayerPermissionActionSerializer
@@ -88,7 +89,7 @@ class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
                 return redirect(reverse("integration:manager-vector-list"))
         md = Metadata(title=vector.name)
         await md.asave()
-        fl = FeatureLayer(datasource=vector, metadata=md)
+        fl = FeatureLayer(datasource=vector, metadata=md, preview=vector.preview)
         await sync_to_async(fl.save)()
         return redirect(reverse(self.url_name_list))
 
@@ -111,3 +112,4 @@ class FeatureLayerViewSet(GeoramaObjPermViewSetReadOnly):
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
     list_body_partial_template_name = "features/drf/feature_layer/partials/list_body.html"
+    show_template_name = "features/drf/feature_layer/detail.html"

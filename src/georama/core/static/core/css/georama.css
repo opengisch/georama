@@ -176,6 +176,34 @@ Change List and detail forms
 
 
 /*
+PNG preview upload field
+ */
+
+/* Symbol-only buttons on the preview, they show their label on hover */
+.png-preview-upload {
+    opacity: 0.6;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.png-preview:hover .png-preview-upload, .png-preview-upload:focus-visible {
+    opacity: 1;
+}
+
+.png-preview-upload-label {
+    display: none;
+}
+
+.png-preview-upload:hover .png-preview-upload-label,
+.png-preview-upload:focus-visible .png-preview-upload-label {
+    display: inline;
+}
+
+.png-preview-crop-canvas {
+    height: 400px;
+}
+
+
+/*
 Icon buttons for permission pages
  */
 

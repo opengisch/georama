@@ -1,7 +1,9 @@
 from django.apps import apps
 from django.conf import settings
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.cache import patch_cache_control
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.decorators.gzip import gzip_page
@@ -21,7 +23,10 @@ from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.models import Project
 from georama.maps.services.wfs_2_0_0 import WfsOperation
-from georama.webgis.adapters.qsl import WmsLayerIndex, theme_json_from_project_config
+from georama.webgis.adapters.qsl import (
+    WmsLayerIndex,
+    theme_json_from_project_config,
+)
 from georama.webgis.api.serializers import (
     ThemeObjectPermissionSerializer,
     ThemePermissionActionSerializer,
@@ -56,6 +61,7 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
     list_body_partial_template_name = "webgis/drf/theme/partials/list_body.html"
+    show_template_name = "webgis/drf/theme/detail.html"
 
     permissions_serializer_class = ThemeObjectPermissionSerializer
     permissions_action_serializer_class = ThemePermissionActionSerializer
@@ -134,8 +140,10 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
             [wms_layer.metadata for wms_layer in wms_layer_index.values()]
         )
         await WmsLayer.objects.abulk_create(wms_layer_index.values())
-        gg_theme, background_layers, ogc_servers = await theme_json_from_project_config(
-            str(theme.id), theme.icon_default, project.config_as_dataclass, wms_layer_index
+        project_config = project.config_as_dataclass
+        theme.preview = project.preview
+        gg_theme, background_layers, ogc_servers, _ = await theme_json_from_project_config(
+            str(theme.id), theme.icon_url, project_config, wms_layer_index
         )
         theme.theme_json = DictEncoder().encode(gg_theme)
         theme.background_layers = DictEncoder().encode(background_layers)
@@ -159,6 +167,7 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
     ordering_fields = ["metadata__title", "public"]
     filterset_fields = []
     list_body_partial_template_name = "webgis/drf/theme/partials/list_body.html"
+    show_template_name = "webgis/drf/theme/detail.html"
 
     async def get_breadcrumbs(self):
         app_menu = apps.get_app_config(self.queryset.model._meta.app_label).app_menu()
@@ -205,13 +214,27 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
             if theme.theme_json != {}:
                 # NOTE: We use a special extended encoder here, not the default XSData variant!
                 gg_theme = CustomDictDecoder().decode(theme.theme_json, GGTheme)
-                gg_theme.icon = request.build_absolute_uri(gg_theme.icon)
+                gg_theme.icon = request.build_absolute_uri(theme.icon_url)
                 themes_json.themes.append(gg_theme)
                 themes_json.background_layers.extend(theme.background_layers)
                 themes_json.ogc_servers.update(theme.ogc_servers)
         data = DictEncoder().encode(themes_json)
         data["ogcServers"] = themes_json.ogc_servers
         return Response(data=data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["GET"])
+    async def preview(self, request: GeoramaDrfRequest, *args, **kwargs):
+        theme: Theme = await self.aget_object()
+        if theme.preview is None:
+            return redirect(theme.icon_default)
+        # cache busting
+        if request.query_params.get("v") != theme.preview_hash:
+            return redirect(theme.icon_url)
+        response = HttpResponse(bytes(theme.preview), content_type="image/png")
+        # cache handling, with private and public separation
+        visibility = "public" if theme.public else "private"
+        patch_cache_control(response, **{visibility: True}, max_age=31536000, immutable=True)
+        return response
 
     @action(
         detail=False,
