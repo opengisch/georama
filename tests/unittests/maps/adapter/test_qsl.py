@@ -25,7 +25,9 @@ def crs_job_result(crs: list, status: str = Status.SUCCESS.value) -> tuple[JobRe
 def wms_layer(qsl_job_layer, monkeypatch):
     crs = Crs(auth_id="EPSG:4326", axis_inverted=True)
     wms_layer = WmsLayer(
-        datasource=Vector(crs=DictEncoder().encode(crs)), extent="5.9,45.8,10.5,47.8"
+        datasource=Vector(crs=DictEncoder().encode(crs)),
+        extent="5.9,45.8,10.5,47.8",
+        extent_wgs84="5.9,45.8,10.5,47.8",
     )
     # the job layer needs the project of the datasource from the DB
     monkeypatch.setattr(wms_layer, "to_qsl_job_layer", lambda: qsl_job_layer)

@@ -85,6 +85,8 @@ class TestGeometrylessCollections:
             datasource=global_geometryless_vector,
             metadata=MetadataFactory.create(title="Land use types"),
             theme=global_webgis_theme_public,
+            extent=None,
+            extent_wgs84=None,
         )
         request = RequestFactory().get("/webgis/api/collections")
         request.user = AnonymousUser()

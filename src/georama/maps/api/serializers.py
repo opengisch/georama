@@ -35,7 +35,7 @@ class WmsLayerSerializer(serializers.ModelSerializer):
             "id",
             "public",
             "datasource",
-            "extent",
+            "extent_wgs84",
             "is_queryable",
             "metadata",
         ]

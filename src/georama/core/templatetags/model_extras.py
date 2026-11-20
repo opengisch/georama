@@ -1,5 +1,7 @@
 from django import template
 
+from georama.core.renderers import CustomHTMLFormRenderer
+
 register = template.Library()
 
 
@@ -42,3 +44,10 @@ def querystring_remove(context, *keys):
     if params:
         return "?" + params.urlencode()
     return ""
+
+
+@register.simple_tag
+def render_custom_form(serializer, template_pack=None):
+    style = {"template_pack": template_pack} if template_pack else {}
+    renderer = CustomHTMLFormRenderer()
+    return renderer.render(serializer.data, None, {"style": style})

@@ -916,7 +916,13 @@ class DatasourceFactory(factory.django.DjangoModelFactory):
     source = {}
     styles = []
     driver = factory.Iterator(["ogr", "gdal", "postgres"])
-    crs = {}
+    crs = {
+        "auth_id": "EPSG:2056",
+        "ogc_uri": "http://www.opengis.net/def/crs/EPSG/0/2056",
+        "ogc_urn": "urn:ogc:def:crs:EPSG::2056",
+        "postgis_srid": 2056,
+        "axis_inverted": False,
+    }
     minimum_scale = factory.Faker("pyfloat", min_value=10.0, max_value=80000.0, positive=True)
     maximum_scale = factory.Faker("pyfloat", min_value=85000.0, max_value=1000000.0, positive=True)
     project = factory.SubFactory(ProjectFactory)
