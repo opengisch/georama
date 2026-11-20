@@ -6,6 +6,9 @@
 {% if not object.served %}
     {% include 'processes/drf/process/includes/pills/stale.html' %}
 {% endif %}
+{% if object.process_warning %}
+    {% include 'processes/drf/process/includes/pills/out_of_sync.html' with warning=object.process_warning %}
+{% endif %}
 <p> {{ object.description|default_if_none:'' }}</p>
 
 <table class="table table-striped">

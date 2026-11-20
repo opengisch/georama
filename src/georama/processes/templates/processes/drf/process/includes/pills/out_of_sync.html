@@ -1,0 +1,18 @@
+{% load i18n %}
+{% blocktranslate asvar title trimmed %}
+    The process-workers serving this algorithm don't agree on it, a job may behave
+    differently depending on the worker which takes it. The deployment needs to be
+    corrected.
+{% endblocktranslate %}
+{% translate "QGIS versions" as qgis_versions %}
+{% translate "descriptions differ" as descriptions_differ %}
+{% with versions=warning.qgis_versions|join:", " differ=warning.descriptions_differ|yesno %}
+    <span class="badge rounded-pill text-bg-warning"
+          data-bs-toggle="tooltip"
+          data-bs-html="true"
+          data-bs-custom-class="tooltip-wide"
+          title="{{ title }}<dl class='tooltip-comparison'><dt>{{ qgis_versions }}:</dt><dd>{{ versions }}</dd><dt>{{ descriptions_differ }}:</dt><dd>{{ differ }}</dd></dl>"
+          aria-label="{{ title }} - {{ qgis_versions }}: {{ versions }} - {{ descriptions_differ }}: {{ differ }}">
+        {% translate "out of sync" %}
+    </span>
+{% endwith %}

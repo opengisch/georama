@@ -14,6 +14,13 @@
 {% endblock %}
 
 {% block list_item_pills %}
+    {% for warning in process_warnings %}
+        {% if warning.process_id == item.id %}
+            <div class="align-content-bottom">
+                {% include 'processes/drf/process/includes/pills/out_of_sync.html' %}
+            </div>
+        {% endif %}
+    {% endfor %}
 {% endblock %}
 
 {% block list_item_title %}

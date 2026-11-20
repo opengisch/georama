@@ -1,6 +1,7 @@
 import uuid
 from operator import attrgetter
 
+from adrf.mixins import get_data
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from django.http import FileResponse
@@ -41,6 +42,7 @@ from georama.integration.models import Datasource
 from georama.processes.adapter import qsl
 from georama.processes.api.serializers import (
     JobSerializer,
+    NonPublishedProcessSerializer,
     ProcessInputObjectPermissionSerializer,
     ProcessInputPermissionActionSerializer,
     ProcessInputSerializer,
@@ -168,6 +170,24 @@ class ProcessDescriptionMixin:
         return process
 
 
+class ProcessWarningMixin(ProcessDescriptionMixin):
+    """Only for managing, the public OGC API doesn't tell about the deployment."""
+
+    async def aprepare_page(self, page) -> list[Process]:
+        processes = await super().aprepare_page(page)
+        process_warnings = await qsl.process_warnings_by_algorithm_id(
+            process.algorithm_id for process in processes
+        )
+        for process in processes:
+            process.process_warning = process_warnings.get(process.algorithm_id)
+        return processes
+
+    async def aget_object(self):
+        process = await super().aget_object()
+        process.process_warning = await qsl.process_warning(process.algorithm_id)
+        return process
+
+
 class ProcessInputDescriptionMixin(ProcessDescriptionMixin):
     process_input_perms = ["processes.use_as_process_input"]
 
@@ -202,7 +222,7 @@ class ProcessInputDescriptionMixin(ProcessDescriptionMixin):
         return [process_input async for process_input in queryset]
 
 
-class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermissionsViewSet):
+class ManageProcessViewSet(ProcessWarningMixin, GeoramaManagerWithPermissionsViewSet):
     queryset = Process.objects.all()
     serializer_class = ProcessSerializer
     filter_backends = [
@@ -217,6 +237,7 @@ class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermission
 
     permissions_serializer_class = ProcessObjectPermissionSerializer
     permissions_action_serializer_class = ProcessPermissionActionSerializer
+    non_published_serializer_class = NonPublishedProcessSerializer
 
     list_body_partial_template_name: str = "processes/drf/process/partials/list_body.html"
     list_body_unpublished_partial_template_name: str = (
@@ -245,6 +266,9 @@ class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermission
     async def perform_acreate(self, serializer):
         await serializer.asave(organisation=self.request.georama_organisation)
         serializer.instance.process_description = await qsl.process_description(
+            serializer.instance.algorithm_id
+        )
+        serializer.instance.process_warning = await qsl.process_warning(
             serializer.instance.algorithm_id
         )
 
@@ -306,6 +330,7 @@ class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermission
             # context["organisation"] = organisation_folder
             context["object_list"] = pqs
             context["process_registry_empty"] = not process_descriptions.processes
+            context["process_warnings"] = process_descriptions.warnings
             context["limit"] = self.paginator.limit
             context["list_body_partial"] = self.list_body_unpublished_partial_template_name
             context["ordering_context"] = self.build_ordering_context(
@@ -320,6 +345,11 @@ class ManageProcessViewSet(ProcessDescriptionMixin, GeoramaManagerWithPermission
             else:
                 template_name = self.list_template_name
             return Response(context, template_name=template_name)
+
+        serializer = self.non_published_serializer_class(
+            pqs, many=True, context={"process_warnings": process_descriptions.warnings}
+        )
+        return await self.get_apaginated_response(await get_data(serializer))
 
 
 class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly):

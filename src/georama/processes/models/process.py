@@ -8,7 +8,10 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from guardian.managers import GroupObjectPermissionManager, UserObjectPermissionManager
 from guardian.models import GroupObjectPermissionBase, UserObjectPermissionBase
-from qgis_server_light.interface.job.process.description import ProcessDescription
+from qgis_server_light.interface.job.process.description import (
+    ProcessDescription,
+    ProcessWarning,
+)
 
 from georama.core.common.managers import OrganisationalManager
 from georama.core.models.organisation import Organisation
@@ -78,6 +81,7 @@ class Process(models.Model):
     )
 
     process_description: ProcessDescription | None = None
+    process_warning: ProcessWarning | None = None
 
     def __str__(self):
         return f"{self.title} ({self.algorithm_id})"

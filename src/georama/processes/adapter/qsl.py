@@ -5,6 +5,7 @@ from qgis_server_light.interface.job.common.input import ExecutionMode
 from qgis_server_light.interface.job.process.description import (
     ProcessDescription,
     ProcessDescriptions,
+    ProcessWarning,
 )
 from qgis_server_light.interface.job.process.input import QslJobParameterExecuteProcess
 
@@ -29,6 +30,21 @@ async def process_descriptions_by_algorithm_id(
 
 async def process_description(algorithm_id: str) -> ProcessDescription | None:
     return (await process_descriptions_by_algorithm_id([algorithm_id])).get(algorithm_id)
+
+
+async def process_warnings_by_algorithm_id(
+    algorithm_ids: Iterable[str],
+) -> dict[str, ProcessWarning]:
+    algorithm_ids = set(algorithm_ids)
+    return {
+        process_warning.process_id: process_warning
+        for process_warning in (await process_descriptions()).warnings
+        if process_warning.process_id in algorithm_ids
+    }
+
+
+async def process_warning(algorithm_id: str) -> ProcessWarning | None:
+    return (await process_warnings_by_algorithm_id([algorithm_id])).get(algorithm_id)
 
 
 async def served_algorithm_ids() -> set[str]:

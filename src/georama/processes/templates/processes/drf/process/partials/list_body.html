@@ -6,6 +6,11 @@
             {% include 'processes/drf/process/includes/pills/stale.html' %}
         </div>
     {% endif %}
+    {% if item.process_warning %}
+        <div class="align-content-bottom">
+            {% include 'processes/drf/process/includes/pills/out_of_sync.html' with warning=item.process_warning %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block list_item_title %}

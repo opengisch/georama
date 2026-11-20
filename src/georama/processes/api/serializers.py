@@ -3,11 +3,9 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import PrimaryKeyRelatedField
+from xsdata.formats.dataclass.serializers import DictEncoder
 
-from georama.core.common.serializers import (
-    ObjectPermissionSerializer,
-    PermissionActionSerializer,
-)
+from georama.core.common.serializers import ObjectPermissionSerializer, PermissionActionSerializer
 from georama.processes.models.job import Job
 from georama.processes.models.process import Process
 from georama.processes.models.process_input import ProcessInput
@@ -52,6 +50,7 @@ class JobSerializer(serializers.ModelSerializer):
 class ProcessSerializer(serializers.ModelSerializer):
     title = serializers.CharField(read_only=True)
     description = serializers.CharField(read_only=True)
+    process_warning = serializers.SerializerMethodField()
 
     class Meta:
         model = Process
@@ -61,10 +60,16 @@ class ProcessSerializer(serializers.ModelSerializer):
             "public",
             "title",
             "description",
+            "process_warning",
         ]
         extra_kwargs = {
             "id": {"read_only": True},
         }
+
+    async def get_process_warning(self, obj):
+        if obj.process_warning is None:
+            return None
+        return DictEncoder().encode(obj.process_warning)
 
     def get_extra_kwargs(self):
         extra_kwargs = super().get_extra_kwargs()
@@ -82,6 +87,19 @@ class ProcessSerializer(serializers.ModelSerializer):
         if published.exists():
             raise ValidationError("Algorithm is already published in this organisation.")
         return value
+
+
+class NonPublishedProcessSerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)
+    title = serializers.CharField(read_only=True)
+    description = serializers.CharField(read_only=True, allow_null=True)
+    process_warning = serializers.SerializerMethodField()
+
+    async def get_process_warning(self, obj):
+        for process_warning in self.context["process_warnings"]:
+            if process_warning.process_id == obj.id:
+                return DictEncoder().encode(process_warning)
+        return None
 
 
 class ProcessPermissionSerializer(serializers.Serializer):
