@@ -101,7 +101,7 @@ class TestLayerManager:
     @pytest.mark.django_db
     def test_accessible_layers_does_not_evaluate_public(self, global_wms_layer_public_queryable):
         assert (
-            WmsLayer.objects.accessible_layers(
+            WmsLayer.objects.accessible_objects(
                 None, AnonymousUser, ["view_published_wms_layer"], include_public=False
             ).count()
             == 0
@@ -110,7 +110,7 @@ class TestLayerManager:
     @pytest.mark.django_db
     def test_accessible_layers_evaluate_public(self, global_wms_layer_public_queryable):
         assert (
-            WmsLayer.objects.accessible_layers(
+            WmsLayer.objects.accessible_objects(
                 None, AnonymousUser, ["view_published_wms_layer"], include_public=True
             ).count()
             == 1
@@ -121,7 +121,7 @@ class TestLayerManager:
         self, global_wms_layer_public_queryable, global_wms_layer_public_non_queryable
     ):
         assert (
-            WmsLayer.objects.accessible_layers(
+            WmsLayer.objects.accessible_objects(
                 None, AnonymousUser, ["view_published_wms_layer"], include_public=True
             ).count()
             == 2
@@ -132,11 +132,11 @@ class TestLayerManager:
         self, global_wms_layer_public_queryable, global_wms_layer_public_non_queryable
     ):
         with pytest.raises(WmsLayer.DoesNotExist) as _:
-            assert WmsLayer.objects.accessible_layers(
+            assert WmsLayer.objects.accessible_objects(
                 None,
                 AnonymousUser,
                 ["view_published_wms_layer"],
-                layer_ids=[str(uuid4())],
+                object_ids=[str(uuid4())],
                 include_public=True,
             )
 
@@ -145,11 +145,11 @@ class TestLayerManager:
         self, global_wms_layer_public_queryable, global_wms_layer_public_non_queryable
     ):
         with pytest.raises(WmsLayer.DoesNotExist) as _:
-            WmsLayer.objects.accessible_layers(
+            WmsLayer.objects.accessible_objects(
                 None,
                 AnonymousUser,
                 ["view_published_wms_layer"],
-                layer_ids=[str(uuid4()), global_wms_layer_public_queryable.id],
+                object_ids=[str(uuid4()), global_wms_layer_public_queryable.id],
                 include_public=True,
             )
 
@@ -159,11 +159,11 @@ class TestLayerManager:
     ):
         assert WmsLayer.objects.count() == 2
         assert (
-            WmsLayer.objects.accessible_layers(
+            WmsLayer.objects.accessible_objects(
                 None,
                 AnonymousUser,
                 ["view_published_wms_layer"],
-                layer_ids=[str(global_wms_layer_public_queryable.id)],
+                object_ids=[str(global_wms_layer_public_queryable.id)],
                 include_public=True,
             ).count()
             == 1
@@ -174,11 +174,11 @@ class TestLayerManager:
         self, global_wms_layer_public_queryable, global_wms_layer_non_public_queryable
     ):
         with pytest.raises(PermissionError):
-            WmsLayer.objects.accessible_layers(
+            WmsLayer.objects.accessible_objects(
                 None,
                 AnonymousUser,
                 ["view_published_wms_layer"],
-                layer_ids=[str(global_wms_layer_non_public_queryable.id)],
+                object_ids=[str(global_wms_layer_non_public_queryable.id)],
                 include_public=True,
             )
 
@@ -191,11 +191,11 @@ class TestLayerManager:
         user_with_membership_global_wms_layer_permission,
     ):
         assert (
-            WmsLayer.objects.accessible_layers(
+            WmsLayer.objects.accessible_objects(
                 None,
                 user_with_membership_global_wms_layer_permission,
                 ["view_published_wms_layer"],
-                layer_ids=[
+                object_ids=[
                     str(global_wms_layer_non_public_queryable.id),
                     str(global_wms_layer_public_queryable.id),
                     str(global_wms_layer_public_non_queryable.id),
@@ -205,11 +205,11 @@ class TestLayerManager:
             == 3
         )
         assert (
-            WmsLayer.objects.accessible_layers(
+            WmsLayer.objects.accessible_objects(
                 None,
                 user_with_membership_global_wms_layer_permission,
                 ["view_published_wms_layer"],
-                layer_ids=[
+                object_ids=[
                     str(global_wms_layer_non_public_queryable.id),
                     str(global_wms_layer_public_non_queryable.id),
                 ],
@@ -218,11 +218,11 @@ class TestLayerManager:
             == 2
         )
         assert (
-            WmsLayer.objects.accessible_layers(
+            WmsLayer.objects.accessible_objects(
                 None,
                 user_with_membership_global_wms_layer_permission,
                 ["view_published_wms_layer"],
-                layer_ids=[
+                object_ids=[
                     str(global_wms_layer_public_non_queryable.id),
                 ],
                 include_public=True,
@@ -239,11 +239,11 @@ class TestLayerManager:
         user_with_membership_global_wms_layer_permission,
     ):
         with pytest.raises(WmsLayer.DoesNotExist):
-            WmsLayer.objects.accessible_layers(
+            WmsLayer.objects.accessible_objects(
                 None,
                 user_with_membership_global_wms_layer_permission,
                 ["view_published_wms_layer"],
-                layer_ids=[
+                object_ids=[
                     str(uuid4()),
                 ],
                 include_public=True,

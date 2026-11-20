@@ -833,7 +833,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.4" },
     { name = "psycopg2-binary", specifier = ">=2.9.12" },
     { name = "pygeoapi", specifier = "==0.21.0" },
-    { name = "qgis-server-light", extras = ["dispatcher"], git = "https://github.com/opengisch/qgis-server-light.git?rev=v26.3" },
+    { name = "qgis-server-light", extras = ["dispatcher"], git = "https://github.com/opengisch/qgis-server-light.git?rev=refs%2Fpull%2F40%2Fhead" },
     { name = "servestatic", extras = ["brotli"], specifier = ">=4.3.4" },
     { name = "sqlalchemy", specifier = ">=2.0.51" },
     { name = "xsdata", specifier = ">=26.2" },
@@ -1740,7 +1740,7 @@ wheels = [
 [[package]]
 name = "qgis-server-light"
 version = "0.0.0"
-source = { git = "https://github.com/opengisch/qgis-server-light.git?rev=v26.3#09210362c75e5179e7e6e71e1b2668a8e74bdf96" }
+source = { git = "https://github.com/opengisch/qgis-server-light.git?rev=refs%2Fpull%2F40%2Fhead#0668843cb5378e62ae19220d08c425aad6f1d854" }
 
 [package.optional-dependencies]
 dispatcher = [

@@ -153,6 +153,11 @@ class Base(Configuration):
                     "level": log_level,
                     "propagate": False,
                 },
+                "processes": {
+                    "handlers": ["console"],
+                    "level": log_level,
+                    "propagate": False,
+                },
             },
         }
 
@@ -192,6 +197,7 @@ class Base(Configuration):
         "georama.features.apps.FeaturesConfig",
         "georama.maps.apps.MapsConfig",
         "georama.webgis.apps.WebGisConfig",
+        "georama.processes.apps.ProcessConfig",
         "allauth",
         "allauth.account",
         "allauth.socialaccount",
@@ -591,6 +597,15 @@ class Base(Configuration):
     )
 
     JOB_TIMEOUT = values.FloatValue(1000, environ_prefix=GEORAMA_ENV_PREFIX)
+
+    # seconds a synchronous process execution waits for the job before it falls back to
+    # the asynchronous answer
+    PROCESSES_SYNC_EXECUTE_TIMEOUT = values.FloatValue(10.0, environ_prefix=GEORAMA_ENV_PREFIX)
+    # seconds a process job is kept, aligned with the expiry of the job hash in QSL
+    PROCESSES_JOB_EXPIRE = values.IntegerValue(86400, environ_prefix=GEORAMA_ENV_PREFIX)
+    # the dir the process-workers write the job outputs to (QSL_PROCESS_OUTPUT_DIR), shared
+    # with Georama so it can serve the files
+    PROCESSES_OUTPUT_DIR = values.Value("/io/process_output", environ_prefix=GEORAMA_ENV_PREFIX)
 
     # The name which identifies the OGC server of Georama for the webgis app
     # it's the name which will be used in the themes.json response for GeoGirafe

@@ -1,0 +1,7 @@
+{% if job.status == 'successful' %}
+    <span class="badge rounded-pill text-bg-success">{{ job.status }}</span>
+{% elif job.status == 'failed' or job.status == 'dismissed' %}
+    <span class="badge rounded-pill text-bg-danger">{{ job.status }}</span>
+{% else %}
+    <span class="badge rounded-pill text-bg-secondary">{{ job.status }}</span>
+{% endif %}

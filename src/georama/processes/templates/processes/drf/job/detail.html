@@ -1,0 +1,54 @@
+{% extends 'core/drf/default/detail.html' %}
+{% load static i18n %}
+
+{% block detail_content %}
+<h1> {{ object.title }}</h1>
+{% include 'processes/drf/job/includes/pills/status.html' with job=object %}
+<p> {{ object.message|default_if_none:'' }}</p>
+
+<table class="table table-striped">
+    <tbody>
+        <tr>
+            <th>{% trans 'Process' %}</th>
+            <td><a href="{% url 'processes:process-detail' object.process.pk %}">{{ object.process.algorithm_id }}</a></td>
+        </tr>
+        <tr>
+            <th>{% trans 'Created' %}</th>
+            <td>{{ object.created_at }}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'Finished' %}</th>
+            <td>{{ object.finished|default_if_none:'' }}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'Expires' %}</th>
+            <td>{{ object.expires }}</td>
+        </tr>
+    </tbody>
+</table>
+
+{% if object.status == 'successful' %}
+<h2>{% trans 'Results' %}</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans 'Output' %}</th>
+            <th>{% trans 'Value' %}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for output in object.process_result.outputs %}
+        <tr>
+            <td>{{ output.name }}</td>
+            {% if output.value.media_type %}
+                <td><a href="{% url 'processes:job-output' object.pk output.name %}">{% trans 'Download' %}</a> ({{ output.value.media_type }})</td>
+            {% else %}
+                <td>{{ output.value }}</td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% endblock %}

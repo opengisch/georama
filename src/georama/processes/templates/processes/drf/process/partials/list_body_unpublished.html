@@ -1,0 +1,47 @@
+{% extends 'core/drf/default/partials/list_body.html' %}
+{% load static i18n %}
+{% block list %}
+    {% if process_registry_empty %}
+        <div class="fs-1 fw-bold text-center">
+            {% trans "No process-worker serves any process" %}
+        </div>
+        <div class="text-center text-muted">
+            {% trans "The processes are announced by the running process-workers. Check that at least one is running and connected to the same redis." %}
+        </div>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+{% block list_item_pills %}
+{% endblock %}
+
+{% block list_item_title %}
+    {{ item.title }}
+{% endblock %}
+{% block list_item_name %}
+{% endblock %}
+
+{% block list_item_image %}
+{% endblock %}
+
+{% block list_item_actions %}
+    {% blocktranslate asvar title %}
+        Publish QGIS algorithm
+    {% endblocktranslate %}
+    <form id="process-{{ item.id }}"
+        action="{% url view.url_name_list %}" method="post">
+        {% csrf_token %}
+        <input name="algorithm_id" value="{{ item.id }}" hidden>
+    </form>
+    <button form="process-{{ item.id }}"
+            type="submit"
+            class="btn btn-outline-primary"
+            role="button"
+            title="{{ title }}"
+            aria-label="{{ title }}"
+            data-bs-toggle="tooltip">
+        <i class="fa fa-link"></i>
+    </button>
+
+{% endblock %}
