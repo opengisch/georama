@@ -1,0 +1,211 @@
+{% load i18n static %}
+
+<div class="form-group mb-4 {% if field.errors %}has-error{% endif %}">
+    <label class="form-label">{{ field.label|capfirst }}</label>
+    <input id="{{ field.name }}" name="{{ field.name }}" type="hidden" value="">
+    <style>
+        .png-preview-upload {
+            opacity: 0.6;
+            transition: opacity 0.15s ease-in-out;
+        }
+
+        .png-preview:hover .png-preview-upload, .png-preview-upload:focus-visible {
+            opacity: 1;
+        }
+
+        .png-preview-upload-label {
+            display: none;
+        }
+
+        .png-preview-upload:hover .png-preview-upload-label,
+        .png-preview-upload:focus-visible .png-preview-upload-label {
+            display: inline;
+        }
+    </style>
+    <div class="png-preview position-relative rounded img-thumbnail d-flex align-items-center justify-content-center"
+         style="width: {{ width }}px; height: {{ height }}px;">
+        <img id="preview-image-{{ field.name }}"
+             class="w-100 h-100 {% if not field.value %}d-none{% endif %}"
+             src="{{ field.value|default:'' }}"
+             alt="{% translate 'Preview' %}">
+        <span id="preview-empty-{{ field.name }}"
+              class="form-text {% if field.value %}d-none{% endif %}">
+      {% translate "No preview image available." %}
+    </span>
+        <div class="position-absolute top-0 start-0 m-2 d-flex gap-1">
+            <button type="button" id="upload-{{ field.name }}"
+                    class="png-preview-upload btn btn-secondary btn-sm"
+                    aria-label="{% translate 'Upload image' %}">
+                <i class="fa fa-upload"></i><span
+                    class="png-preview-upload-label ms-2">{% translate "Upload image" %}</span>
+            </button>
+            {% if project_preview %}
+                <button type="button" id="reset-{{ field.name }}"
+                        class="png-preview-upload btn btn-secondary btn-sm"
+                        data-preview="{{ project_preview }}"
+                        aria-label="{% translate 'Reset to project preview' %}">
+                    <i class="fa fa-clock-rotate-left"></i><span
+                        class="png-preview-upload-label ms-2">{% translate "Reset to project preview" %}</span>
+                </button>
+            {% endif %}
+        </div>
+        <input id="file-{{ field.name }}" type="file" accept="image/png" class="d-none">
+    </div>
+    <span class="small"><i>{% blocktranslate %}Hint: Only PNG images are accepted. The
+        image is cut to {{ width }}×{{ height }} pixels in the next step. It is stored
+        when the form is saved.{% endblocktranslate %}</i></span>
+
+    {% if field.errors %}
+        {% for error in field.errors %}
+            <span class="help-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- Crop dialog https://fengyuanchen.github.io/cropperjs/playground.html
+hidden on start and opened on button click of upload-<field-name> and the selected
+file from the standard browser file selection dialogue
+-->
+<div class="modal fade" id="crop-modal-{{ field.name }}" tabindex="-1"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% translate "Adapt preview image" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="{% translate 'Close' %}"></button>
+            </div>
+            <div class="modal-body">
+                <cropper-canvas id="crop-canvas-{{ field.name }}" background
+                                style="height: 400px;">
+                    <cropper-image id="crop-image-{{ field.name }}" rotatable scalable
+                                   translatable></cropper-image>
+                    <cropper-shade></cropper-shade>
+                    <cropper-handle action="move" plain></cropper-handle>
+                    <!-- the frame is fixed, we move the image only -->
+                    <cropper-selection id="crop-selection-{{ field.name }}"
+                                       initial-coverage="0.8" outlined>
+                        <cropper-grid role="grid" bordered covered></cropper-grid>
+                        <cropper-handle action="move" plain></cropper-handle>
+                    </cropper-selection>
+                </cropper-canvas>
+                <span class="small"><i>{% translate "Hint: Drag the image to move it and use the mouse wheel to zoom. The frame marks the part which becomes the preview." %}</i></span>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group me-auto" role="group">
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-crop-action="rotate-left"
+                            title="{% translate 'Rotate left' %}"><i
+                            class="fa fa-rotate-left"></i></button>
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-crop-action="rotate-right"
+                            title="{% translate 'Rotate right' %}"><i
+                            class="fa fa-rotate-right"></i></button>
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-crop-action="zoom-in"
+                            title="{% translate 'Zoom in' %}"><i
+                            class="fa fa-magnifying-glass-plus"></i></button>
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-crop-action="zoom-out"
+                            title="{% translate 'Zoom out' %}"><i
+                            class="fa fa-magnifying-glass-minus"></i></button>
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-crop-action="reset" title="{% translate 'Reset' %}"><i
+                            class="fa fa-arrows-rotate"></i></button>
+                </div>
+                <button type="button" class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+                <button type="button" id="crop-apply-{{ field.name }}"
+                        class="btn btn-primary">{% translate "Apply" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- loaded after the crop dialog=>IMPORTANT -->
+<script src="{% static 'core/js/cropper.2.3.1.min.js' %}"></script>
+
+<script>
+    (function () {
+        const fieldName = '{{ field.name }}';
+        const width = {{ width }};
+        const height = {{ height }};
+        const previewInput = document.getElementById(fieldName);
+        const previewImage = document.getElementById('preview-image-' + fieldName);
+        const previewEmpty = document.getElementById('preview-empty-' + fieldName);
+        const fileInput = document.getElementById('file-' + fieldName);
+        const cropModalElement = document.getElementById('crop-modal-' + fieldName);
+        const cropModal = new bootstrap.Modal(cropModalElement);
+        const cropImage = document.getElementById('crop-image-' + fieldName);
+        const cropSelection = document.getElementById('crop-selection-' + fieldName);
+        cropSelection.aspectRatio = width / height;
+
+        document.getElementById('upload-' + fieldName).addEventListener('click', () => fileInput.click());
+
+        const showPreview = (dataUrl) => {
+            previewInput.value = dataUrl;
+            previewImage.src = dataUrl;
+            previewImage.classList.remove('d-none');
+            previewEmpty.classList.add('d-none');
+        };
+
+        // the project preview is taken over like an upload=>stored on save as with the other way
+        const resetButton = document.getElementById('reset-' + fieldName);
+        if (resetButton) {
+            resetButton.addEventListener('click', () => showPreview(resetButton.dataset.preview));
+        }
+
+        fileInput.addEventListener('change', function () {
+            const file = fileInput.files[0];
+            if (!file) return;
+            if (file.type !== 'image/png') {
+                alert('{{ _("Only PNG images are accepted.")|escapejs }}');
+                fileInput.value = '';
+                return;
+            }
+            cropImage.src = URL.createObjectURL(file);
+            cropModal.show();
+        });
+
+        // fitted again from scratch, centered and sized from the now visible image
+        const fitCropper = () => {
+            cropImage.$resetTransform();
+            cropImage.$center('contain');
+            cropSelection.$initSelection(true, true);
+        };
+
+        cropModalElement.addEventListener('shown.bs.modal', function () {
+            cropImage.$ready(fitCropper);
+        });
+
+        cropModalElement.addEventListener('hidden.bs.modal', function () {
+            URL.revokeObjectURL(cropImage.src);
+            fileInput.value = '';
+        });
+
+        const cropActions = {
+            'rotate-left': () => cropImage.$rotate('-90deg'),
+            'rotate-right': () => cropImage.$rotate('90deg'),
+            'zoom-in': () => cropImage.$zoom(0.1),
+            'zoom-out': () => cropImage.$zoom(-0.1),
+            'reset': fitCropper,
+        };
+        cropModalElement.querySelectorAll('[data-crop-action]').forEach(button => {
+            console.log(button);
+            button.addEventListener('click', () => cropActions[button.dataset.cropAction]());
+        });
+
+        document.getElementById('crop-apply-' + fieldName).addEventListener('click', async function () {
+            const croppedCanvas = await cropSelection.$toCanvas({
+                width: width,
+                height: height
+            });
+            const targetCanvas = document.createElement('canvas');
+            targetCanvas.width = width;
+            targetCanvas.height = height;
+            targetCanvas.getContext('2d').drawImage(croppedCanvas, 0, 0, width, height);
+            showPreview(targetCanvas.toDataURL('image/png'));
+            cropModal.hide();
+        });
+    })();
+</script>

@@ -111,12 +111,16 @@ class Theme(models.Model):
         return self.icon_default
 
     @property
+    def preview_hash(self) -> str:
+        return hashlib.md5(self.preview).hexdigest()
+
+    @property
     def icon_url(self) -> str:
         if self.preview is None:
             return self.icon_default
         url = reverse("webgis:theme-preview", kwargs={"pk": self.pk})
-        # the content hash changes with every new preview, so browsers drop their cached copy
-        return f"{url}?{urlencode({'v': hashlib.md5(self.preview).hexdigest()})}"
+        # reset the cache buster
+        return f"{url}?{urlencode({'v': self.preview_hash})}"
 
     def __str__(self):
         return self.metadata.title

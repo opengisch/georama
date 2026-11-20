@@ -3,11 +3,13 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils.crypto import get_random_string
+from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
 from georama.core.common.serializers import (
     ObjectPermissionSerializer,
     PermissionActionSerializer,
+    PngPreviewField,
 )
 from georama.webgis.models import Theme, UrlShortener
 from georama.webgis.models.metadata import Metadata
@@ -29,6 +31,8 @@ class MetadataSerializer(serializers.ModelSerializer):
 
 
 class ThemeSerializer(serializers.ModelSerializer):
+    preview = PngPreviewField(width=250, height=250, required=False, label=_("preview"))
+
     class Meta:
         model = Theme
         fields = [
@@ -37,6 +41,7 @@ class ThemeSerializer(serializers.ModelSerializer):
             "metadata_id",
             "public",
             "ordering",
+            "preview",
             "theme_json",
             "background_layers",
         ]

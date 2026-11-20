@@ -214,7 +214,7 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
             if theme.theme_json != {}:
                 # NOTE: We use a special extended encoder here, not the default XSData variant!
                 gg_theme = CustomDictDecoder().decode(theme.theme_json, GGTheme)
-                gg_theme.icon = request.build_absolute_uri(gg_theme.icon)
+                gg_theme.icon = request.build_absolute_uri(theme.icon_url)
                 themes_json.themes.append(gg_theme)
                 themes_json.background_layers.extend(theme.background_layers)
                 themes_json.ogc_servers.update(theme.ogc_servers)
@@ -227,9 +227,11 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
         theme: Theme = await self.aget_object()
         if theme.preview is None:
             return redirect(theme.icon_default)
+        # cache busting
+        if request.query_params.get("v") != theme.preview_hash:
+            return redirect(theme.icon_url)
         response = HttpResponse(bytes(theme.preview), content_type="image/png")
-        # the icon url carries a content hash (?v=...), a new preview gets a new url
-        # protected themes must not end up in shared caches
+        # cache handling, with private and public separation
         visibility = "public" if theme.public else "private"
         patch_cache_control(response, **{visibility: True}, max_age=31536000, immutable=True)
         return response
