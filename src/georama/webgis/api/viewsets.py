@@ -1,7 +1,9 @@
 from django.apps import apps
 from django.conf import settings
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.cache import patch_cache_control
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.decorators.gzip import gzip_page
@@ -139,10 +141,10 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
         )
         await WmsLayer.objects.abulk_create(wms_layer_index.values())
         project_config = project.config_as_dataclass
-        gg_theme, background_layers, ogc_servers, _ = await theme_json_from_project_config(
-            str(theme.id), theme.icon_default, project_config, wms_layer_index
-        )
         theme.preview = project.preview
+        gg_theme, background_layers, ogc_servers, _ = await theme_json_from_project_config(
+            str(theme.id), theme.icon_url, project_config, wms_layer_index
+        )
         theme.theme_json = DictEncoder().encode(gg_theme)
         theme.background_layers = DictEncoder().encode(background_layers)
         theme.ogc_servers = {
@@ -219,6 +221,18 @@ class ThemeViewSet(GeoramaObjPermViewSetReadOnly):
         data = DictEncoder().encode(themes_json)
         data["ogcServers"] = themes_json.ogc_servers
         return Response(data=data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["GET"])
+    async def preview(self, request: GeoramaDrfRequest, *args, **kwargs):
+        theme: Theme = await self.aget_object()
+        if theme.preview is None:
+            return redirect(theme.icon_default)
+        response = HttpResponse(bytes(theme.preview), content_type="image/png")
+        # the icon url carries a content hash (?v=...), a new preview gets a new url
+        # protected themes must not end up in shared caches
+        visibility = "public" if theme.public else "private"
+        patch_cache_control(response, **{visibility: True}, max_age=31536000, immutable=True)
+        return response
 
     @action(
         detail=False,

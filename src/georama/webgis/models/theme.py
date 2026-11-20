@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import uuid
 from urllib.parse import urlencode
 
@@ -108,6 +109,14 @@ class Theme(models.Model):
         if self.preview is not None:
             return f"data:image/png;base64,{base64.b64encode(self.preview).decode()}"
         return self.icon_default
+
+    @property
+    def icon_url(self) -> str:
+        if self.preview is None:
+            return self.icon_default
+        url = reverse("webgis:theme-preview", kwargs={"pk": self.pk})
+        # the content hash changes with every new preview, so browsers drop their cached copy
+        return f"{url}?{urlencode({'v': hashlib.md5(self.preview).hexdigest()})}"
 
     def __str__(self):
         return self.metadata.title
