@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
@@ -17,8 +18,30 @@ admin.site.unregister(Group)
 User = get_user_model()
 
 
+class MembershipForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "organisation" in self.fields:
+            self.fields["organisation"].empty_label = "GLOBAL"
+
+    def has_changed(self):
+        # New memberships submitted via "Add row" are always considered changed,
+        # so they are validated and saved even if organization is empty/NULL.
+        if self.instance._state.adding:
+            return True
+        return super().has_changed()
+
+
 class MembershipInlineAdmin(TabularInline):
     model = Membership
+    form = MembershipForm
+    extra = 0
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        field = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        if db_field.name == "organisation":
+            field.empty_label = "GLOBAL"
+        return field
 
 
 class ProviderAccountListFilter(admin.SimpleListFilter):
@@ -88,6 +111,7 @@ class DjangoGroupAdmin(BaseGroupAdmin, ModelAdmin):
 @admin.register(Membership)
 class MembershipAdmin(OrganisationalModelAdmin):
     search_fields = ("user__username", "organisation__name")
+    form = MembershipForm
 
 
 @admin.register(Organisation)
