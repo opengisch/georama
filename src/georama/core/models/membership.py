@@ -14,10 +14,13 @@ class Membership(models.Model):
     class Meta:
         verbose_name = _("membership")
         verbose_name_plural = _("memberships")
-        unique_together = (
-            "organisation",
-            "user",
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organisation", "user"],
+                name="unique_membership",
+                nulls_distinct=False,  # requires PostgreSQL >= 15
+            ),
+        ]
 
     id = models.UUIDField(
         primary_key=True,
