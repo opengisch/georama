@@ -144,8 +144,7 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 )
             else:
                 logging.debug(
-                    f" × No preview generated for dataset {layer.name}"
-                    f" (qgis-layer-id: {layer.id})"
+                    f" × No preview generated for dataset {layer.name} (qgis-layer-id: {layer.id})"
                 )
             if isinstance(datasource, Vector):
                 logging.debug(" Handling of related fields.")

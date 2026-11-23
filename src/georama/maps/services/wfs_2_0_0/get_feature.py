@@ -809,6 +809,54 @@ class WfsGetFeature(WfsOperation):
             else:
                 return GeometryMember(polygon=polygons[0])
 
+    @staticmethod
+    def make_feature_dataclass(
+        feature_type_name: str,
+        gml_identifier_field: str,
+        signature: tuple[tuple[str, type], ...],
+        meta: type,
+    ) -> type:
+        fields = []
+        for attribute_index, (attribute_name, type_name) in enumerate(signature):
+            # attribute names come from the datasource and are not necessarily valid
+            # python identifiers (e.g. "my field", "1a", "class", "geometry"), so the
+            # dataclass field gets a generated name and the element keeps the original
+            field_metadata = {"name": attribute_name}
+            if type_name is bytes:
+                field_metadata["format"] = "base64"
+            fields.append(
+                (
+                    f"attribute_{attribute_index}",
+                    type_name,
+                    field(default=None, metadata=field_metadata),
+                )
+            )
+        # this field ends up in the xml as attribute gml:id
+        # e.g.:
+        # <member>
+        #         <georama:_0977c25f-a3a9-40f4-ab38-3cd80777feef
+        #                 gml:id="_0977c25f-a3a9-40f4-ab38-3cd80777feef.0">
+        fields.append(
+            (
+                gml_identifier_field,
+                str,
+                field(
+                    default=None,
+                    metadata={
+                        "type": "Attribute",
+                        "namespace": "http://www.opengis.net/gml/3.2",
+                        "nillable": True,
+                        "name": "id",
+                    },
+                ),
+            )
+        )
+        # finally we add the geometry field
+        fields.append(("geometry", GeometryMember | GeometryMembers, field(default=None)))
+        feature_dataclass = make_dataclass(feature_type_name, fields=fields)
+        feature_dataclass.Meta = meta
+        return feature_dataclass
+
     def get_feature(self, result: JobResult):
         qsl_query_collection = JsonParser().from_bytes(result.data, QueryCollection)
         wfs_feature_collection = FeatureCollection(
@@ -826,62 +874,37 @@ class WfsGetFeature(WfsOperation):
             gml_identifier_field = (
                 f"{self.own_namespace}_{feature_collection.name.replace('-', '_')}_identifier"
             )
+            # the dataclass of a feature depends on the python types of its values (None is
+            # typed str, bytes are base64), which can differ from feature to feature in the
+            # same collection. Features sharing the same attribute signature share one
+            # dataclass, so that make_dataclass and the xsdata metadata build of the class
+            # happen once per signature instead of once per feature.
+            feature_dataclasses: dict[tuple[tuple[str, type], ...], type] = {}
             for feature_sequence, feature in enumerate(feature_collection.features):
-                fields = []
-                feature_dict = {}
-                for attribute_index, attribute in enumerate(feature.attributes):
-                    if attribute.value is not None:  # noqa: SIM108
-                        type_name = type(attribute.value)
-                    else:
-                        # we take a save exit here, since we do not want to validate
-                        # data in this step we
-                        # define all None values to be str, which can be None then -.-
-                        type_name = str
-                    # attribute names come from the datasource and are not necessarily valid
-                    # python identifiers (e.g. "my field", "1a", "class", "geometry"), so the
-                    # dataclass field gets a generated name and the element keeps the original
-                    attribute_field = f"attribute_{attribute_index}"
-                    field_metadata = {"name": attribute.name}
-                    if isinstance(attribute.value, bytes):
-                        field_metadata["format"] = "base64"
-                    fields.append(
-                        (
-                            attribute_field,
-                            type_name,
-                            field(default=None, metadata=field_metadata),
-                        )
-                    )
-                    if attribute.value is None:
-                        # related to: https://github.com/tefra/xsdata/issues/408
-                        feature_dict[attribute_field] = ""
-                    else:
-                        feature_dict[attribute_field] = attribute.value
-                # this field ends up in the xml as attribute gml:id
-                # e.g.:
-                # <member>
-                #         <georama:_0977c25f-a3a9-40f4-ab38-3cd80777feef
-                #                 gml:id="_0977c25f-a3a9-40f4-ab38-3cd80777feef.0">
-                fields.append(
+                # we take a save exit here, since we do not want to validate data in this
+                # step we define all None values to be str, which can be None then -.-
+                signature = tuple(
                     (
-                        gml_identifier_field,
-                        str,
-                        field(
-                            default=None,
-                            metadata={
-                                "type": "Attribute",
-                                "namespace": "http://www.opengis.net/gml/3.2",
-                                "nillable": True,
-                                "name": "id",
-                            },
-                        ),
+                        attribute.name,
+                        type(attribute.value) if attribute.value is not None else str,
                     )
+                    for attribute in feature.attributes
                 )
+                feature_dataclass = feature_dataclasses.get(signature)
+                if feature_dataclass is None:
+                    feature_dataclass = self.make_feature_dataclass(
+                        feature_type_name, gml_identifier_field, signature, GeoramaMeta
+                    )
+                    feature_dataclasses[signature] = feature_dataclass
+                feature_dict = {
+                    # related to: https://github.com/tefra/xsdata/issues/408
+                    f"attribute_{attribute_index}": (
+                        "" if attribute.value is None else attribute.value
+                    )
+                    for attribute_index, attribute in enumerate(feature.attributes)
+                }
                 # gml:id is a xs:ID (NCName), so no namespace prefix with colon here
                 feature_dict[gml_identifier_field] = f"{feature_type_name}.{feature_sequence}"
-                # finally we add the geometry field
-                fields.append(("geometry", GeometryMember | GeometryMembers, field(default=None)))
-                feature_dataclass = make_dataclass(feature_type_name, fields=fields)
-                feature_dataclass.Meta = GeoramaMeta
                 feature_object = feature_dataclass(**feature_dict)
                 start = time.time()
 
