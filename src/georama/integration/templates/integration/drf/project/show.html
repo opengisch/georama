@@ -70,11 +70,11 @@
         {% blocktranslate asvar title trimmed %}
             Messages produced during the integration process
         {% endblocktranslate %}
-        <div class="mb-4" data-bs-toggle="tooltip"
+        <div data-bs-toggle="tooltip"
              title="{{ title }}"
              aria-label="{{ title }}">
             <label class="form-text">{% trans 'Export Messages' %}</label>
-            <div>
+            <div class="overflow-auto border rounded p-2" style="max-height: max(20rem, calc(100vh - 40rem));">
                 {% if object.config.messages %}
                     {% include "integration/drf/project/partials/export_messages.html" with messages=object.config.messages only %}
                 {% else %}
