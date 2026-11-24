@@ -129,23 +129,24 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             )
             # Generate preview for the datasource
             qsl_layer = await sync_to_async(lambda ds: ds.to_qsl_job_layer())(datasource)
-            preview = await render_image(
-                [qsl_layer],
-                datasource.extent_in_axis_order,
-                datasource.crs_to_qsl.auth_id,
-                250,
-                250,
-            )
-            if preview:
-                datasource.preview = preview
-                await datasource.asave()
-                logging.debug(
-                    f" ✓ Preview generated for dataset {layer.name} (qgis-layer-id: {layer.id})"
+            if datasource.is_spatial:
+                preview = await render_image(
+                    [qsl_layer],
+                    datasource.extent_in_axis_order,
+                    datasource.crs_to_qsl.auth_id,
+                    250,
+                    250,
                 )
-            else:
-                logging.debug(
-                    f" × No preview generated for dataset {layer.name} (qgis-layer-id: {layer.id})"
-                )
+                if preview:
+                    datasource.preview = preview
+                    await datasource.asave()
+                    logging.debug(
+                        f" ✓ Preview generated for dataset {layer.name} (qgis-layer-id: {layer.id})"
+                    )
+                else:
+                    logging.debug(
+                        f" × No preview generated for dataset {layer.name} (qgis-layer-id: {layer.id})"
+                    )
             if isinstance(datasource, Vector):
                 logging.debug(" Handling of related fields.")
                 layer: QslVector
