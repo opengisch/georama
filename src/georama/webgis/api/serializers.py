@@ -32,18 +32,16 @@ class MetadataSerializer(serializers.ModelSerializer):
 
 class ThemeSerializer(serializers.ModelSerializer):
     preview = PngPreviewField(width=250, height=250, required=False, label=_("preview"))
+    metadata = MetadataSerializer()
 
     class Meta:
         model = Theme
         fields = [
             "id",
             "project_id",
-            "metadata_id",
             "public",
-            "ordering",
             "preview",
-            "theme_json",
-            "background_layers",
+            "metadata",
         ]
         extra_kwargs = {"id": {"read_only": True}}
 
