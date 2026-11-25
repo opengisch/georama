@@ -98,6 +98,10 @@ class GeoGirafeAuthenticationMiddleware:
         try:
             payload = self.verify_token(access_token)
             user = self.get_or_create_user(payload)
+        except PermissionDenied as e:
+            # expired or invalid tokens are daily business, no trace needed
+            logger.debug(f"Bearer token refused: {e}")
+            return self.get_response(request)
         except Exception as e:  # noqa: BLE001
             logger.warning(f"Bearer token refused: {e}", exc_info=True)
             return self.get_response(request)
@@ -142,7 +146,7 @@ class GeoGirafeAuthenticationMiddleware:
             logger.warning(
                 f"Identity provider {settings.OIDC_SERVER_URL} not reachable, bearer tokens "
                 f"are refused for the next {settings.OIDC_RETRY_SECONDS} seconds: {e}",
-                exc_info=True
+                exc_info=True,
             )
             return False
         return True
