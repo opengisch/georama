@@ -1,4 +1,3 @@
-from asgiref.sync import sync_to_async
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -15,6 +14,7 @@ from georama.core.common.api import (
     GeoramaManagerWithPermissionsViewSet,
     GeoramaModelPermissions,
     GeoramaObjPermViewSetReadOnly,
+    GeoramaPreviewMixin,
 )
 from georama.core.common.menu import ActionType, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
@@ -32,7 +32,7 @@ from georama.maps.api.serializers import (
 from georama.maps.models import Metadata, WmsLayer
 
 
-class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
+class ManageWmsLayerViewSet(GeoramaPreviewMixin, GeoramaManagerWithPermissionsViewSet):
     queryset = WmsLayer.objects.all()
     serializer_class = WmsLayerSerializer
     filter_backends = [
@@ -128,16 +128,9 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
         perms = await self._get_model_permissions()
         if perms["can_change"]:
             wms_layer: WmsLayer = await self.aget_object()
-            try:
-                image = await generate_preview_image(wms_layer)
-            except RequestError:
-                image = None
-                messages.warning(
-                    request,
-                    _("The preview of '{name}' could not be generated.").format(
-                        name=await sync_to_async(str)(wms_layer)
-                    ),
-                )
+            image = await self.preview_or_warning(
+                request, wms_layer, generate_preview_image(wms_layer)
+            )
             # a failed rendering must not wipe out the preview the layer already has
             if image:
                 wms_layer.preview = image

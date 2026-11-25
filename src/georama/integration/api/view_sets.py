@@ -14,7 +14,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from httpx import RequestError
 from qgis_server_light.interface.exporter.api import ExportResult
 from qgis_server_light.interface.exporter.extract import Config, ExportMessage, ResultWithMessages
 from qgis_server_light.interface.exporter.extract import Custom as QslCustom
@@ -29,6 +28,7 @@ from xsdata.formats.dataclass.serializers import DictEncoder
 from georama.core.common.api import (
     GeoramaManagerViewSet,
     GeoramaModelPermissions,
+    GeoramaPreviewMixin,
     OrganisationalModelViewSet,
 )
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
@@ -51,7 +51,7 @@ from georama.integration.models.datasource import (
 from georama.maps.adapter.qsl import call_qsl_exporter
 
 
-class ManageProjectViewSet(GeoramaManagerViewSet):
+class ManageProjectViewSet(GeoramaPreviewMixin, GeoramaManagerViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     filter_backends = [
@@ -92,9 +92,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             )
         return context
 
-    @staticmethod
+    @classmethod
     async def integrate_project(
-        request: GeoramaDrfRequest, project_db: Project, project_json: Config
+        cls, request: GeoramaDrfRequest, project_db: Project, project_json: Config
     ):
         project_json_datasets = (
             project_json.datasets.vector
@@ -131,25 +131,20 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 f" was written to DB successfully."
             )
             # Generate preview for the datasource
-            qsl_layer = await sync_to_async(lambda ds: ds.to_qsl_job_layer())(datasource)
             if datasource.is_spatial:
+                qsl_layer = await sync_to_async(lambda ds: ds.to_qsl_job_layer())(datasource)
                 # a missing preview is no reason to stop the integration halfway
-                try:
-                    preview = await render_image(
+                preview = await cls.preview_or_warning(
+                    request,
+                    datasource,
+                    render_image(
                         [qsl_layer],
                         datasource.extent_in_axis_order,
                         datasource.crs_to_qsl.auth_id,
                         250,
                         250,
-                    )
-                except RequestError:
-                    preview = None
-                    messages.warning(
-                        request,
-                        _("The preview of '{name}' could not be generated.").format(
-                            name=layer.name
-                        ),
-                    )
+                    ),
+                )
                 if preview:
                     datasource.preview = preview
                     await datasource.asave()
@@ -211,14 +206,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 await datasource_db.adelete()
         logging.debug(" ✓ Finished - Cleaning out old datasources.")
 
-        try:
-            preview = await project_db.generate_preview_image()
-        except RequestError:
-            preview = None
-            messages.warning(
-                request,
-                _("The preview of '{name}' could not be generated.").format(name=project_db.name),
-            )
+        preview = await cls.preview_or_warning(
+            request, project_db, project_db.generate_preview_image()
+        )
         if preview:
             project_db.preview = preview
             await project_db.asave()

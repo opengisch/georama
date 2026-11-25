@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING
+from collections.abc import Coroutine
+from typing import TYPE_CHECKING, Any
 
 from adrf import mixins, viewsets
 from adrf.mixins import get_data
@@ -11,7 +12,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.exceptions import FieldDoesNotExist
 from django.db import router as djdb_router
-from django.db.models import Exists, F, JSONField, Min, OuterRef, Q, Value
+from django.db.models import Exists, F, JSONField, Min, Model, OuterRef, Q, Value
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.functions import JSONObject
 from django.forms import ModelForm
@@ -20,6 +21,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from drf_spectacular.plumbing import build_mock_request as original_build_mock_request
 from guardian.shortcuts import assign_perm, get_objects_for_user, remove_perm
+from httpx import RequestError
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, BasePermission, DjangoModelPermissions
@@ -541,6 +543,40 @@ class GeoramaObjPermMixin:
         """
         queryset = await super().afilter_queryset(queryset)
         return await self.public_or_object_permission(queryset)
+
+
+class GeoramaPreviewMixin:
+    """This mixin is for viewsets of entities which get a preview rendered through QSL.
+
+    A preview is a nice to have, so a failing rendering must never break the action
+    which asked for it. The user is told about it instead.
+    """
+
+    @staticmethod
+    async def preview_or_warning(
+        request: GeoramaDrfRequest, entity: Model, preview: Coroutine[Any, Any, bytes | None]
+    ) -> bytes | None:
+        """Waits for the preview and turns a failed rendering into a warning for the user.
+
+        Args:
+            request: The request the warning is attached to.
+            entity: The entity the preview is rendered for, its string representation
+                names it in the warning.
+            preview: The not yet awaited rendering of the preview.
+
+        Returns:
+            The png or `None` if QSL could not render it.
+        """
+        try:
+            return await preview
+        except RequestError:
+            messages.warning(
+                request,
+                _("The preview of '{name}' could not be generated.").format(
+                    name=await sync_to_async(str)(entity)
+                ),
+            )
+            return None
 
 
 class OrganisationalModelViewSet(GeoramaOrganisationalMixin, viewsets.ModelViewSet):
