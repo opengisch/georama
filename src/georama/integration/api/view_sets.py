@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
+from httpx import RequestError
 from qgis_server_light.interface.exporter.api import ExportResult
 from qgis_server_light.interface.exporter.extract import Config, ExportMessage, ResultWithMessages
 from qgis_server_light.interface.exporter.extract import Custom as QslCustom
@@ -92,7 +93,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
         return context
 
     @staticmethod
-    async def integrate_project(project_db: Project, project_json: Config):
+    async def integrate_project(
+        request: GeoramaDrfRequest, project_db: Project, project_json: Config
+    ):
         project_json_datasets = (
             project_json.datasets.vector
             + project_json.datasets.raster
@@ -129,7 +132,8 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             )
             # Generate preview for the datasource
             qsl_layer = await sync_to_async(lambda ds: ds.to_qsl_job_layer())(datasource)
-            if datasource.is_spatial:
+            # a missing preview is no reason to stop the integration halfway
+            try:
                 preview = await render_image(
                     [qsl_layer],
                     datasource.extent_in_axis_order,
@@ -137,17 +141,22 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                     250,
                     250,
                 )
-                if preview:
-                    datasource.preview = preview
-                    await datasource.asave()
-                    logging.debug(
-                        f" ✓ Preview generated for dataset {layer.name} (qgis-layer-id: {layer.id})"
-                    )
-                else:
-                    logging.debug(
-                        f" × No preview generated for dataset {layer.name} "
-                        f"(qgis-layer-id: {layer.id})"
-                    )
+            except RequestError:
+                preview = None
+                messages.warning(
+                    request,
+                    _("The preview of '{name}' could not be generated.").format(name=layer.name),
+                )
+            if preview:
+                datasource.preview = preview
+                await datasource.asave()
+                logging.debug(
+                    f" ✓ Preview generated for dataset {layer.name} (qgis-layer-id: {layer.id})"
+                )
+            else:
+                logging.debug(
+                    f" × No preview generated for dataset {layer.name} (qgis-layer-id: {layer.id})"
+                )
             if isinstance(datasource, Vector):
                 logging.debug(" Handling of related fields.")
                 layer: QslVector
@@ -198,7 +207,14 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 await datasource_db.adelete()
         logging.debug(" ✓ Finished - Cleaning out old datasources.")
 
-        preview = await project_db.generate_preview_image()
+        try:
+            preview = await project_db.generate_preview_image()
+        except RequestError:
+            preview = None
+            messages.warning(
+                request,
+                _("The preview of '{name}' could not be generated.").format(name=project_db.name),
+            )
         if preview:
             project_db.preview = preview
             await project_db.asave()
@@ -272,7 +288,7 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
         # or the project would stay outdated forever
         project_db.integrated_at = timezone.now()
         await project_db.asave()
-        await self.integrate_project(project_db, project_json)
+        await self.integrate_project(request, project_db, project_json)
         return project_db
 
     async def _non_integrated_post(
