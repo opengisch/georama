@@ -185,12 +185,12 @@ like. Both are contracts, just quieter ones than the queue.
 
 Everything GeoGirafe shows comes from Georama over HTTP:
 
-| What              | Endpoint                                | Format                                                 |
-|-------------------|-----------------------------------------|--------------------------------------------------------|
-| Themes            | `webgis/themes/geogirafe/`              | `themes.json`                                          |
-| Translations      | `webgis/themes/translation/<language>/` | the titles of themes and layers, keyed by the language |
-| Short URLs        | `webgis/short`                          | the share links of GeoGirafe                           |
-| Maps and features | `webgis/ows`, `webgis/api`              | WMS 1.3.0, WFS 2.0.0, OGC API - Features               |
+| What              | Endpoint                               | Format                                                 |
+|-------------------|----------------------------------------|--------------------------------------------------------|
+| Themes            | `webgis/themes/geogirafe`              | `themes.json`                                          |
+| Translations      | `webgis/themes/translation/<language>` | the titles of themes and layers, keyed by the language |
+| Short URLs        | `webgis/short`                         | the share links of GeoGirafe                           |
+| Maps and features | `webgis/ows`, `webgis/api`             | WMS 1.3.0, WFS 2.0.0, OGC API - Features               |
 
 The OGC services are described in [User Endpoints](get_started/endpoints.md).
 
