@@ -2,10 +2,23 @@ import logging
 
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.account.internal.flows.manage_email import assess_unique_email
+from allauth.account.signals import user_logged_in
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.conf import settings
+from django.dispatch import receiver
+
+from georama.core.models import Membership
 
 logger = logging.getLogger(__name__)
+
+
+@receiver(user_logged_in)
+def add_social_user_to_organisation(sender, request, user, sociallogin=None, **kwargs):
+    if sociallogin:
+        Membership.objects.get_or_create(
+            user=user,
+            organisation=request.georama_organisation,
+        )
 
 
 class AccountAdapter(DefaultAccountAdapter):

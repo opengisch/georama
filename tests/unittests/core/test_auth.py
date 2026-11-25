@@ -2,12 +2,17 @@ import logging
 from types import SimpleNamespace
 
 import pytest
+from allauth.core import context as allauth_context
+from allauth.socialaccount.adapter import get_adapter
+from allauth.socialaccount.helpers import complete_social_login
+from allauth.socialaccount.models import SocialAccount
 from django.test import Client
 from django.urls import reverse
 from rest_framework import status
 
 from georama.core.adapters import SocialAccountAdapter
 from georama.core.common.login_attempts import LoginAttempts
+from georama.core.models.user import GeoramaUser
 
 
 @pytest.fixture
@@ -237,3 +242,58 @@ class TestProviderSignup:
         with caplog.at_level(logging.WARNING, logger="georama.core.adapters"):
             SocialAccountAdapter().is_auto_signup_allowed(rf.get("/"), sociallogin)
         assert ("a local account already uses this email" in caplog.text) is logged
+
+    @pytest.mark.django_db
+    def test_provider_login_creates_user_and_membership(
+        self, settings, keycloak_provider, organisation_public_access
+    ):
+        settings.LOGIN_LOCAL_SIGNUP_ENABLED = False
+        settings.SOCIALACCOUNT_PROVIDERS = keycloak_provider
+
+        # TODO: should not require public access
+        # but currently /login on org with non-public access does not set "georama_organisation"
+        hostname = f"{organisation_public_access.domain}.localhost"
+        request = Client().get("/", SERVER_NAME=hostname).wsgi_request
+
+        provider = get_adapter().get_provider(request, "keycloak")
+        sociallogin = provider.sociallogin_from_response(
+            request,
+            {
+                "sub": "f3c1",
+                "preferred_username": "kcuser",
+                "email": "kcuser@example.org",
+                "email_verified": True,
+                "given_name": "Key",
+                "family_name": "Cloak",
+            },
+        )
+        with allauth_context.request_context(request):
+            response = complete_social_login(request, sociallogin)
+
+        assert response.status_code == status.HTTP_302_FOUND
+        user = GeoramaUser.objects.get(username="kcuser")
+        assert user.email == "kcuser@example.org"
+        assert user.first_name == "Key"
+        assert user.last_name == "Cloak"
+        assert not user.has_usable_password()
+        assert SocialAccount.objects.filter(user=user, provider="keycloak", uid="f3c1").exists()
+        assert user.memberships.count() == 1
+        assert user.memberships.get().organisation == organisation_public_access
+
+        # The Membership is also created on successful login
+        user.memberships.all().delete()
+        sociallogin = provider.sociallogin_from_response(
+            request,
+            {
+                "sub": "f3c1",
+                "preferred_username": "kcuser",
+                "email": "kcuser@example.org",
+                "email_verified": True,
+                "given_name": "Key",
+                "family_name": "Cloak",
+            },
+        )
+        with allauth_context.request_context(request):
+            complete_social_login(request, sociallogin)
+
+        assert user.memberships.get().organisation == organisation_public_access
