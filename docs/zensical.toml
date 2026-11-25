@@ -24,6 +24,7 @@ nav = [
         { "User Endpoints" = "get_started/endpoints.md" },
     ] },
     { "Internationalisation" = "internationalisation.md" },
+    { "Contracts" = "contracts.md" },
     { "Update Doc" = "update_doc.md" },
 ]
 
