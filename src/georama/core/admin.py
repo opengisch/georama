@@ -37,12 +37,6 @@ class MembershipInlineAdmin(TabularInline):
     form = MembershipForm
     extra = 0
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        field = super().formfield_for_foreignkey(db_field, request, **kwargs)
-        if db_field.name == "organisation":
-            field.empty_label = "GLOBAL"
-        return field
-
 
 class ProviderAccountListFilter(admin.SimpleListFilter):
     """Tells local accounts apart from accounts linked to an identity provider. The
@@ -81,6 +75,14 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
             .filter(memberships__organisation=request.georama_organisation)
             .prefetch_related("memberships__organisation", "socialaccount_set")
         )
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        if not change and not form.instance.memberships.exists():
+            Membership.objects.create(
+                user=form.instance,
+                organisation=request.georama_organisation,
+            )
 
     @admin.display(description=_("provider account"))
     def provider_accounts(self, user) -> str:
