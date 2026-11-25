@@ -1,6 +1,6 @@
-from adrf import routers
 from django.urls import include, path
 
+from georama.core.common.routers import SimpleRouter
 from georama.integration.api.view_sets import (
     ManageCustomDatasourceViewSet,
     ManageDatasourceViewSet,
@@ -12,7 +12,7 @@ from georama.integration.api.view_sets import (
 
 app_name = "integration"
 
-management_router = routers.SimpleRouter()
+management_router = SimpleRouter()
 management_router.register(r"projects", ManageProjectViewSet, basename="manager-project")
 management_router.register(r"datasources", ManageDatasourceViewSet, basename="manager-datasource")
 management_router.register(

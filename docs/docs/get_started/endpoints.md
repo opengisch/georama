@@ -18,7 +18,9 @@ development stack on `http://localhost:4242`.
 
     `APPEND_SLASH` is disabled, Georama does not redirect between both forms. A URL with
     the wrong trailing slash answers with `404`. This also applies to the paths below
-    `features/api` and `webgis/api`, e.g. `features/api/collections/<collection_id>/items`.
+    `features/api` and `webgis/api`, e.g. `features/api/collections/<collection_id>/items`,
+    and to the REST routes (themes, translations, short URLs and everything below
+    `manage`, e.g. `webgis/themes/geogirafe` or `integration/manage/projects/<id>`).
 
 ## WebGIS OGC API - Features
 
