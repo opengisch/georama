@@ -887,7 +887,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
 
     name = factory.LazyAttribute(lambda a: fake.word().capitalize())
     qgis_version = random.choice(["Qgis 3.44", "Qgis 3.40", "Qgis 3.28"])
-    config = {}
+    config = factory.Dict({})
     path = factory.LazyAttribute(
         lambda a: fake.file_path(
             depth=random.randint(0, 4), absolute=False, extension=["qgs", "qgz"]

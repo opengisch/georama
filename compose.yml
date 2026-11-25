@@ -89,7 +89,7 @@ services:
   qsl-worker:
     platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
-    image: opengisch/qgis-server-light:26.3-worker
+    image: opengisch/qgis-server-light:26.4-worker
     environment:
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
       - "QSL_SVG_PATH=/io/svg"
@@ -107,7 +107,7 @@ services:
   qsl-exporter:
     platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
-    image: opengisch/qgis-server-light:26.3-exporter
+    image: opengisch/qgis-server-light:26.4-exporter
     environment:
       - "QSL_DATA_ROOT=/io/data"
       - "QSL_EXPORTER_LOG_LEVEL=${QSL_LOG_LEVEL:-info}"
