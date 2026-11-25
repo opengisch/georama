@@ -147,7 +147,7 @@ class ManageWmsLayerViewSet(GeoramaPreviewMixin, GeoramaManagerWithPermissionsVi
                     status=status.HTTP_502_BAD_GATEWAY,
                 )
             else:
-                data = PreviewGeneratorResult({"layer_id": wms_layer.id})
+                data = PreviewGeneratorResult({"layer_id": wms_layer.id}).data
                 return Response(data, status=status.HTTP_201_CREATED)
         else:
             raise PermissionDenied()

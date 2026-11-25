@@ -2,12 +2,23 @@ from dataclasses import asdict
 from types import SimpleNamespace
 
 import pytest
+from django.contrib.messages import get_messages
+from qgis_server_light.interface.common import BBox, Crs
 from qgis_server_light.interface.exporter.api import ExportResult
 from qgis_server_light.interface.exporter.extract import (
+    Config,
+    Datasets,
+    DataSource,
     Exporter,
     ExportMessage,
+    MetaData,
+    OgrSource,
     Project,
     ResultWithMessages,
+    Service,
+    Tree,
+    TreeGroup,
+    Vector,
 )
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -21,6 +32,7 @@ from georama.integration.factories import (
     RasterFactory,
     VectorFactory,
 )
+from georama.integration.models import Datasource
 
 MANAGER_FORMATS = ["html", "json", "api"]
 ORGANISATIONAL_FORMATS = ["json", "api"]
@@ -109,6 +121,35 @@ def export_failure():
                 layer_id="empty-layer",
             ),
         ],
+    )
+
+
+@pytest.fixture
+def rivers_export():
+    return Config(
+        project=Project(version="3.44", name="Rivers project"),
+        exporter=Exporter(qgis_version="3.44"),
+        meta_data=MetaData(service=Service(contact_organization=None, contact_mail=None)),
+        tree=Tree(
+            members=[
+                TreeGroup(id="", name="", is_checked=True, children=["rivers"], is_expanded=True)
+            ]
+        ),
+        datasets=Datasets(
+            vector=[
+                Vector(
+                    id="rivers",
+                    name="rivers",
+                    title="Rivers",
+                    is_checked=True,
+                    source=DataSource(ogr=OgrSource(path="rivers.gpkg")),
+                    driver="ogr",
+                    bbox=BBox.from_string("2457000,1075000,2862000,1296000"),
+                    bbox_wgs84=BBox.from_string("5.9,45.8,10.5,47.8"),
+                    crs=Crs(auth_id="EPSG:2056", postgis_srid=2056, axis_inverted=False),
+                )
+            ]
+        ),
     )
 
 
@@ -321,3 +362,43 @@ class TestExportMessages:
         assert "Empty layer" in content
         assert "The layer is empty." in content
         assert "empty-layer" in content
+
+
+class TestPreviewFailureDuringIntegration:
+    @pytest.mark.django_db
+    def test_integration_finishes_with_warnings(
+        self,
+        monkeypatch,
+        posted_jobs,
+        failed_render_job_result,
+        organisation,
+        organisation_admin_client,
+        non_integrated_project_file,
+        rivers_export,
+    ):
+        mock_export_result(
+            monkeypatch,
+            ExportResult(successful=True, content=JsonSerializer().render(rivers_export)),
+        )
+        # QSL fails on every rendering, the datasource preview as the project preview
+        posted_jobs.answer = failed_render_job_result
+
+        response = organisation_admin_client.post(
+            "/integration/manage/projects/non_integrated",
+            {"path": non_integrated_project_file.name},
+            SERVER_NAME=server_name(organisation),
+        )
+
+        # a missing preview does not stop the integration, we land on the project
+        assert response.status_code == status.HTTP_302_FOUND
+        assert len(posted_jobs) == 2
+        rivers = Datasource.objects.get(qgis_layer_id="rivers")
+        assert rivers.project.name == "Rivers project"
+        assert not rivers.preview
+        assert not rivers.project.preview
+        # the user is told which previews are missing
+        assert [str(message) for message in get_messages(response.wsgi_request)] == [
+            "The preview of 'Rivers' could not be generated.",
+            "The preview of 'Rivers project' could not be generated.",
+            "The project was successfully integrated.",
+        ]
