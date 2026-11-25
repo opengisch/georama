@@ -245,7 +245,7 @@ class TestExportMessages:
         )
 
         response = organisation_admin_client.post(
-            "/integration/manage/projects/non_integrated/",
+            "/integration/manage/projects/non_integrated",
             {"path": non_integrated_project_file.name},
             query_params={"f": "json"},
             SERVER_NAME=server_name(organisation),
@@ -282,7 +282,7 @@ class TestExportMessages:
         )
 
         response = organisation_admin_client.post(
-            "/integration/manage/projects/non_integrated/",
+            "/integration/manage/projects/non_integrated",
             {"path": non_integrated_project_file.name},
             SERVER_NAME=server_name(organisation),
         )
@@ -312,7 +312,7 @@ class TestExportMessages:
         organisation_project.save(update_fields=["config"])
 
         response = organisation_admin_client.get(
-            f"/integration/manage/projects/{organisation_project.pk}/ashow/",
+            f"/integration/manage/projects/{organisation_project.pk}/ashow",
             SERVER_NAME=server_name(organisation),
         )
         content = response.text
