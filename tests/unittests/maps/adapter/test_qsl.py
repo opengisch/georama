@@ -79,7 +79,8 @@ class TestRenderImage:
         posted_jobs.answer = render_job_result
 
         qsl_job_layer = wms_layer.to_qsl_job_layer
-        with pytest.raises(RequestError):
+        # the reason QSL gives is passed on, so the log tells why the rendering failed
+        with pytest.raises(RequestError, match="Reason: error"):
             async_to_sync(qsl.render_image)([qsl_job_layer], bbox, "EPSG:2056", 220, 120)
 
 

@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
+from httpx import RequestError
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -13,6 +14,7 @@ from georama.core.common.api import (
     GeoramaManagerWithPermissionsViewSet,
     GeoramaModelPermissions,
     GeoramaObjPermViewSetReadOnly,
+    GeoramaPreviewMixin,
 )
 from georama.core.common.menu import ActionType, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
@@ -30,7 +32,7 @@ from georama.maps.api.serializers import (
 from georama.maps.models import Metadata, WmsLayer
 
 
-class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
+class ManageWmsLayerViewSet(GeoramaPreviewMixin, GeoramaManagerWithPermissionsViewSet):
     queryset = WmsLayer.objects.all()
     serializer_class = WmsLayerSerializer
     filter_backends = [
@@ -126,17 +128,26 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
         perms = await self._get_model_permissions()
         if perms["can_change"]:
             wms_layer: WmsLayer = await self.aget_object()
-            image: bytes = await generate_preview_image(wms_layer)
-            wms_layer.preview = image
-            await wms_layer.asave()
+            image = await self.preview_or_warning(
+                request, wms_layer, generate_preview_image(wms_layer)
+            )
+            # a failed rendering must not wipe out the preview the layer already has
+            if image:
+                wms_layer.preview = image
+                await wms_layer.asave()
             if request.accepted_renderer.format == "html":
                 return Response(
                     data={"item": wms_layer},
-                    template_name="maps/drf/wms_layer/partials/preview.html",
+                    template_name="maps/drf/wms_layer/partials/preview_htmx.html",
                     status=status.HTTP_200_OK,
                 )
+            elif image is None:
+                return Response(
+                    {"error": "The preview could not be generated."},
+                    status=status.HTTP_502_BAD_GATEWAY,
+                )
             else:
-                data = PreviewGeneratorResult({"layer_id": wms_layer.id})
+                data = PreviewGeneratorResult({"layer_id": wms_layer.id}).data
                 return Response(data, status=status.HTTP_201_CREATED)
         else:
             raise PermissionDenied()
@@ -166,13 +177,21 @@ class ManageWmsLayerViewSet(GeoramaManagerWithPermissionsViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             results: list[dict] = []
+            failed: list[dict] = []
             async for layer in self.get_queryset().filter(id__in=pgi.validated_data["layer_ids"]):
-                image: bytes = await generate_preview_image(layer)
-                layer.preview = image
-                await layer.asave()
-                results.append({"layer_id": layer.id})
+                # one failing layer must not keep the others from getting their preview
+                try:
+                    image = await generate_preview_image(layer)
+                except RequestError:
+                    image = None
+                if image:
+                    layer.preview = image
+                    await layer.asave()
+                    results.append({"layer_id": layer.id})
+                else:
+                    failed.append({"layer_id": layer.id})
 
-            data = PreviewGeneratorBulkResult({"results": results}).data
+            data = PreviewGeneratorBulkResult({"results": results, "failed": failed}).data
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             raise PermissionDenied()

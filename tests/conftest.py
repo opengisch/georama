@@ -560,6 +560,12 @@ def render_job_result():
 
 
 @pytest.fixture
+def failed_render_job_result():
+    """Answer of QSL for render jobs it could not render, see `posted_jobs`."""
+    yield JobResult(id="job", data="error", content_type="text/plain"), Status.FAILURE.value
+
+
+@pytest.fixture
 def qsl_job_layer():
     yield QslJobLayer(
         id="layer", name="layer", source="{}", remote=True, folder_name="", driver="wms"

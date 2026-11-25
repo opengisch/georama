@@ -28,6 +28,7 @@ from xsdata.formats.dataclass.serializers import DictEncoder
 from georama.core.common.api import (
     GeoramaManagerViewSet,
     GeoramaModelPermissions,
+    GeoramaPreviewMixin,
     OrganisationalModelViewSet,
 )
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
@@ -50,7 +51,7 @@ from georama.integration.models.datasource import (
 from georama.maps.adapter.qsl import call_qsl_exporter
 
 
-class ManageProjectViewSet(GeoramaManagerViewSet):
+class ManageProjectViewSet(GeoramaPreviewMixin, GeoramaManagerViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     filter_backends = [
@@ -91,8 +92,10 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
             )
         return context
 
-    @staticmethod
-    async def integrate_project(project_db: Project, project_json: Config):
+    @classmethod
+    async def integrate_project(
+        cls, request: GeoramaDrfRequest, project_db: Project, project_json: Config
+    ):
         project_json_datasets = (
             project_json.datasets.vector
             + project_json.datasets.raster
@@ -128,14 +131,19 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 f" was written to DB successfully."
             )
             # Generate preview for the datasource
-            qsl_layer = await sync_to_async(lambda ds: ds.to_qsl_job_layer())(datasource)
             if datasource.is_spatial:
-                preview = await render_image(
-                    [qsl_layer],
-                    datasource.extent_in_axis_order,
-                    datasource.crs_to_qsl.auth_id,
-                    250,
-                    250,
+                qsl_layer = await sync_to_async(lambda ds: ds.to_qsl_job_layer())(datasource)
+                # a missing preview is no reason to stop the integration halfway
+                preview = await cls.preview_or_warning(
+                    request,
+                    datasource,
+                    render_image(
+                        [qsl_layer],
+                        datasource.extent_in_axis_order,
+                        datasource.crs_to_qsl.auth_id,
+                        250,
+                        250,
+                    ),
                 )
                 if preview:
                     datasource.preview = preview
@@ -198,7 +206,9 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
                 await datasource_db.adelete()
         logging.debug(" ✓ Finished - Cleaning out old datasources.")
 
-        preview = await project_db.generate_preview_image()
+        preview = await cls.preview_or_warning(
+            request, project_db, project_db.generate_preview_image()
+        )
         if preview:
             project_db.preview = preview
             await project_db.asave()
@@ -272,7 +282,7 @@ class ManageProjectViewSet(GeoramaManagerViewSet):
         # or the project would stay outdated forever
         project_db.integrated_at = timezone.now()
         await project_db.asave()
-        await self.integrate_project(project_db, project_json)
+        await self.integrate_project(request, project_db, project_json)
         return project_db
 
     async def _non_integrated_post(

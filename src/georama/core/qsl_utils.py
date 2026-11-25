@@ -55,7 +55,10 @@ async def render_image(
                 f"Preview image generation through QSL was not successful. "
                 f"Status: {status} Result: {result}"
             )
-            raise RequestError(f"The request to QSL returned non successful. Status: {status}")
+            raise RequestError(
+                f"The request to QSL returned non successful. Status: {status}, "
+                f"Reason: {result.data}"
+            )
     except ValueError as e:
         logging.exception(f"Error while generating preview image: {e}")
     except PermissionError as e:

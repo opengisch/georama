@@ -65,6 +65,11 @@ class PreviewGeneratorBulkResult(serializers.Serializer):
         read_only=True,
         help_text=_("Collection of the layers previews were generated for."),
     )
+    failed = PreviewGeneratorResult(
+        many=True,
+        read_only=True,
+        help_text=_("Collection of the layers previews could not be generated for."),
+    )
 
 
 class PreviewGeneratorInput(serializers.Serializer):
