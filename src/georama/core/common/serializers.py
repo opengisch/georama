@@ -81,3 +81,8 @@ class PermissionActionSerializer(serializers.Serializer):
         child=serializers.IntegerField(),
         default=list,
     )
+
+
+class BulkActionSerializer(serializers.Serializer):
+    action = serializers.ChoiceField(choices=["delete", "make-public"])
+    ids = serializers.ListField(child=serializers.CharField(), allow_empty=False)

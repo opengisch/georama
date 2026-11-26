@@ -7,11 +7,46 @@
             </div>
         {% else %}
             <div class="list-group">
+                {% block list_header %}
+                    {% if not is_modal %}
+                    {% if can_change or can_delete %}
+                    <div class="list-group-item p-4 bg-light-subtle">
+                        <div class="d-flex w-100 align-items-center gap-3">
+                            <div>
+                                <input class="form-check-input" type="checkbox" id="select-all" 
+                                       onchange="select_all()">
+                                <label class="form-check-label ps-3" for="select-all">
+                                    {% trans "Select all" %}
+                                </label>
+                            </div>
+                            {% block list_header_additional %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                {% endblock %}
                 {% for item in object_list %}
                     {% block change_list_item %}
                         <div class="list-group-item list-group-item-action p-4">
 
                             <div class="d-flex w-100 justify-content-between">
+                                {% if not is_modal %}
+                                {% if can_change or can_delete %}
+                                <div class="me-3 flex-shrink-0">
+                                    {% block list_item_checkbox %}
+                                        <div class="d-flex align-items-center">
+                                            <input class="form-check-input item-checkbox ms-0 me-2" 
+                                                   type="checkbox" 
+                                                   name="ids" 
+                                                   value="{{ item.pk }}"
+                                                   onchange="toggle_bulk_action_visibility()"
+                                                   form="bulk-action-form">
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                                {% endif %}
+                                {% endif %}
 
                                 <div class="me-3 flex-shrink-0">
                                     {% block list_item_image %}
@@ -135,3 +170,28 @@
         {% endif %}
     {% endblock %}
 </div>
+
+<script>
+    /**
+     * Toggle the selection state of all rows of the list
+     */
+    function select_all() {
+        const selectAllCheckbox = document.getElementById('select-all');
+        const itemCheckboxes = document.querySelectorAll('input[type="checkbox"][name="ids"]');
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+        toggle_bulk_action_visibility();
+    }
+
+    function toggle_bulk_action_visibility() {
+        const itemCheckboxes = document.querySelectorAll('input[type="checkbox"][name="ids"]');
+        const checkedItemCheckboxes = document.querySelectorAll('input[type="checkbox"][name="ids"]:checked');
+        const selectAllCheckbox = document.getElementById('select-all');
+        const bulkActionContainer = document.getElementById('bulk-action-container');
+        selectAllCheckbox.checked = checkedItemCheckboxes.length == itemCheckboxes.length;
+        bulkActionContainer.classList.toggle('d-none', checkedItemCheckboxes.length === 0);
+    }
+
+    toggle_bulk_action_visibility();
+</script>

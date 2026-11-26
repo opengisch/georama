@@ -68,6 +68,16 @@ class ManageProjectViewSet(GeoramaPreviewMixin, GeoramaManagerViewSet):
     list_body_partial_template_name: str = "integration/drf/project/partials/list_body.html"
     show_template_name = "integration/drf/project/show.html"
 
+    async def _get_model_permissions(self) -> dict[str, bool]:
+        """We are calculating the permissions based on the DRF permission class.
+
+        Projects cannot be directly edited inside Georama, so we patch the
+        permissions here.
+        """
+        permissions = await super()._get_model_permissions()
+        permissions["can_change"] = False
+        return permissions
+
     @property
     async def bread_crumb_action_context(self):
         """Prepares the breadcrumb action to add a project.
@@ -359,7 +369,6 @@ class ManageProjectViewSet(GeoramaPreviewMixin, GeoramaManagerViewSet):
                 queryset=filtered_file_list,
                 ordering_filter=ordering_filter,
             )
-            context.update(await self._get_model_permissions())
             context.update(self.paginator.get_html_context())
             if request.META.get("HTTP_HX_REQUEST") == "true":
                 template_name = self.list_partial_template_name

@@ -415,12 +415,11 @@
         function toggle_bulk_action_visibility() {
             const entityField = "{{ permissions_entity_field|escapejs }}";
             const checkedEntityCheckboxes = document.querySelectorAll(`input[type="checkbox"][name="${entityField}"]:checked`);
+            const entityCheckboxes = document.querySelectorAll(`input[type="checkbox"][name="${entityField}"]`);
+            const bulkActionSelectAll = document.getElementById('bulk-select-all')
             const bulkActionContainer = document.getElementById('bulk-action-container');
-            if (Array.from(checkedEntityCheckboxes).length > 0) {
-                bulkActionContainer.classList.remove('d-none');
-            } else {
-                bulkActionContainer.classList.add('d-none');
-            }
+            bulkActionSelectAll.checked = checkedEntityCheckboxes.length == entityCheckboxes.length;
+            bulkActionContainer.classList.toggle('d-none', checkedEntityCheckboxes.length == 0);
         }
 
         toggle_bulk_action_visibility();

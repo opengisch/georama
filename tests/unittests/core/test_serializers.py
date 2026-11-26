@@ -3,8 +3,9 @@ import asyncio
 import pytest
 from adrf import serializers
 from adrf.mixins import get_data
+from django.http import QueryDict
 
-from georama.core.common.serializers import ObjectPermissionSerializer
+from georama.core.common.serializers import BulkActionSerializer, ObjectPermissionSerializer
 
 
 class InheritedPermissionSerializer(serializers.Serializer):
@@ -41,3 +42,32 @@ class TestObjectPermissionSerializer:
     def test_keeps_inherited_permissions(self, represent):
         data = represent(permission_row({"can_view": True}))
         assert data["inherited_permissions"] == {"can_view": True}
+
+
+class TestBulkActionSerializer:
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {"action": "delete", "ids": ["1", "abc"]},
+            QueryDict("action=delete&ids=1&ids=abc"),
+        ],
+    )
+    def test_accepts_multiple_ids(self, data):
+        serializer = BulkActionSerializer(data=data)
+
+        assert serializer.is_valid(), serializer.errors
+        assert serializer.validated_data == {"action": "delete", "ids": ["1", "abc"]}
+
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {},
+            {"action": "delete", "ids": []},
+            {"action": "delete", "ids": [""]},
+            {"action": "unknown", "ids": ["1"]},
+        ],
+    )
+    def test_rejects_invalid_actions(self, data):
+        serializer = BulkActionSerializer(data=data)
+
+        assert not serializer.is_valid()

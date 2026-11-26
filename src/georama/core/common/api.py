@@ -24,13 +24,23 @@ from guardian.shortcuts import assign_perm, get_objects_for_user, remove_perm
 from httpx import RequestError
 from rest_framework import filters, renderers, status
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, BasePermission, DjangoModelPermissions
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import (
+    AllowAny,
+    BasePermission,
+    DjangoModelPermissions,
+    IsAuthenticated,
+)
 from rest_framework.response import Response
 
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.remote_actions import RemoteAction, get_remote_action
 from georama.core.common.request import GeoramaDrfRequest
-from georama.core.common.serializers import ObjectPermissionSerializer, PermissionActionSerializer
+from georama.core.common.serializers import (
+    BulkActionSerializer,
+    ObjectPermissionSerializer,
+    PermissionActionSerializer,
+)
 from georama.core.patches.adrf import pagination
 
 if TYPE_CHECKING:
@@ -307,12 +317,14 @@ class GeoramaTemplateViewSet(
             has no default and must be set.
         delete_template_name: The path of the template which use used to render the delete
             preview. This is an intermediate step to let the user confirm the delete action.
+        bulk_confirm_template_name: The template used to confirm a bulk action.
 
     """
 
     form_template_name: str = "core/drf/default/form.html"
     form: ModelForm
     delete_template_name: str = "core/drf/default/delete_preview.html"
+    bulk_confirm_template_name: str = "core/drf/default/bulk_action_preview.html"
 
     def bound_remote_actions(self) -> list[RemoteAction]:
         """Gets the registered remote actions for the model of this viewset.
@@ -451,6 +463,14 @@ class GeoramaTemplateViewSet(
         return self.url_name("adelete-confirm")
 
     @property
+    def url_name_bulk(self):
+        return self.url_name("bulk-action")
+
+    @property
+    def url_name_bulk_confirm(self):
+        return self.url_name("bulk-confirm")
+
+    @property
     def url_name_destroy(self):
         return self.url_name("detail")
 
@@ -467,6 +487,91 @@ class GeoramaTemplateViewSet(
             return response
         else:
             return response
+
+    async def _check_bulk_permissions(self, action):
+        """Check bulk actions against the model permissions shown in the management UI."""
+        permissions = await self._get_model_permissions()
+        if action == "delete" and not permissions["can_delete"]:
+            raise PermissionDenied()
+        if action == "make-public" and not permissions["can_change"]:
+            raise PermissionDenied()
+
+    @action(
+        detail=False,
+        methods=["post"],
+        name="Confirm bulk actions",
+        permission_classes=[IsAuthenticated],
+        renderer_classes=[renderers.TemplateHTMLRenderer],
+    )
+    async def bulk_confirm(self, request, *args, **kwargs):
+        """Preview a bulk action without modifying the selected objects."""
+        serializer = BulkActionSerializer(data=request.data)
+        if not serializer.is_valid():
+            messages.error(request, serializer.errors)
+            return redirect(self.url_name_list)
+
+        action = serializer.validated_data["action"]
+        await self._check_bulk_permissions(action)
+        queryset = await self.afilter_queryset(self.get_queryset())
+        objects = [obj async for obj in queryset.filter(pk__in=serializer.validated_data["ids"])]
+        context = await self._prepare_many_context()
+        context["bulk_action"] = serializer.validated_data
+        if action == "delete":
+            context["confirmation_title"] = _("Confirm deletion")
+            context["confirmation_text"] = _(
+                "Removing the selected items has an impact on the following content in Georama:"
+            )
+            context["action_type"] = "danger"
+            using = djdb_router.db_for_write(self.queryset.model)
+            collector = NestedObjects(using=using)
+            await sync_to_async(collector.collect)(objects)
+            context["related_objects"] = collector.nested()
+            context["protected"] = collector.protected
+        elif action == "make-public":
+            context["confirmation_title"] = _("Confirm making public")
+            context["confirmation_text"] = _(
+                "The following selected items will become publicly accessible:"
+            )
+            context["action_type"] = "warning"
+            context["related_objects"] = objects
+            context["protected"] = []
+
+        context["breadcrumbs"][-1].view_name = reverse(self.url_name_list)
+        context["breadcrumbs"].append(Breadcrumb(context["confirmation_title"]))
+        return Response(context, template_name=self.bulk_confirm_template_name)
+
+    @action(
+        detail=False,
+        methods=["post"],
+        name="Bulk actions",
+        url_path="bulk",
+        permission_classes=[IsAuthenticated],
+        renderer_classes=[renderers.TemplateHTMLRenderer],
+    )
+    async def bulk_action(self, request, *args, **kwargs):
+        """Handle bulk actions on multiple objects."""
+        serializer = BulkActionSerializer(data=request.data)
+        if not serializer.is_valid():
+            if request.accepted_renderer.format == "html":
+                messages.error(request, serializer.errors)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            action = serializer.validated_data["action"]
+            await self._check_bulk_permissions(action)
+            ids = serializer.validated_data["ids"]
+
+            if action == "delete":
+                queryset = await self.afilter_queryset(self.get_queryset())
+                await queryset.filter(pk__in=ids).adelete()
+            if action == "make-public":
+                queryset = await self.afilter_queryset(self.get_queryset())
+                await queryset.filter(pk__in=ids).aupdate(public=True)
+
+        if request.accepted_renderer.format == "html":
+            return redirect(self.url_name_list)
+
+        return Response({"status": "success"}, status=status.HTTP_200_OK)
 
 
 class GeoramaManageableMixin:
@@ -633,9 +738,8 @@ class GeoramaManagerViewSet(GeoramaOrganisationalMixin, GeoramaTemplateViewSet):
     for object permissions. It is prepared to be used as a management GUI/API for a model.
 
     Attributes:
-        permission_classes: This view should only have one
-            permission class - `GeoramaModelPermissions` this permission class is used
-            to check for permissions on different places of the viewset.
+        permission_classes: The default permission class is `GeoramaModelPermissions`.
+            Bulk endpoints require authentication and check action-specific model permissions.
     """
 
     permission_classes = [GeoramaModelPermissions]
