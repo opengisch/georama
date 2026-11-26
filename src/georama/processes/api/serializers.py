@@ -18,7 +18,6 @@ class JobSerializer(serializers.ModelSerializer):
         model = Job
         fields = [
             "id",
-            "redis_job_id",
             "created_by",
             "created_at",
             "process",

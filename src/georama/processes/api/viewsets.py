@@ -1,4 +1,3 @@
-import uuid
 from operator import attrgetter
 
 from adrf.mixins import get_data
@@ -488,7 +487,6 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
         # Georama runs in autocommit, the row is committed when `acreate` returns. So the
         # job is only submitted afterwards and a worker never sees a job without its row.
         job = await Job.objects.acreate(
-            redis_job_id=uuid.uuid4(),
             created_by=request.user,
             created_at=created_at,
             expires=created_at + Config().job_expire,
@@ -502,15 +500,15 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
         )
 
         if is_html:
-            await qsl.submit_job(str(job.redis_job_id), job_parameter)
+            await qsl.submit_job(str(job.id), job_parameter)
             return redirect(reverse("processes:job-detail", kwargs={"pk": job.pk}))
         if self.prefers_async(request):
-            await qsl.submit_job(str(job.redis_job_id), job_parameter)
+            await qsl.submit_job(str(job.id), job_parameter)
             return self.job_status_response(
                 request, job, headers={"Preference-Applied": "respond-async"}
             )
-        await qsl.submit_job(str(job.redis_job_id), job_parameter, ExecutionMode.SYNC)
-        job.apply_state(await qsl.wait_for_job(str(job.redis_job_id)))
+        await qsl.submit_job(str(job.id), job_parameter, ExecutionMode.SYNC)
+        job.apply_state(await qsl.wait_for_job(str(job.id)))
         await job.asave()
         if job.status == StatusCode.SUCCESSFUL:
             return Response(job.results(request.build_absolute_uri), status=status.HTTP_200_OK)
@@ -717,7 +715,7 @@ class JobViewSet(GeoramaObjPermViewSetReadOnly):
         # lazy sync, finished jobs don't change anymore
         if job.is_finished:
             return
-        job.apply_state(await qsl.job_state(str(job.redis_job_id)))
+        job.apply_state(await qsl.job_state(str(job.id)))
         await job.asave()
 
     async def alist(self, request: GeoramaDrfRequest, *args, **kwargs):

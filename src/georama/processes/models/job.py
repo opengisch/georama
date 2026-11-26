@@ -1,4 +1,5 @@
 import shutil
+import uuid
 from collections.abc import Callable
 from pathlib import Path
 
@@ -43,7 +44,11 @@ class Job(models.Model):
         Status.FAILURE: StatusCode.FAILED,
     }
 
-    redis_job_id = models.UUIDField(db_index=True)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("Identifier of the job, also used as job id in QGIS-Server-Light."),
+    )
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_created=True)
     process = models.ForeignKey("Process", on_delete=models.CASCADE)
@@ -67,7 +72,7 @@ class Job(models.Model):
         verbose_name_plural = f"{_('Jobs')}"
 
     def __str__(self):
-        return str(self.redis_job_id)
+        return str(self.id)
 
     @property
     def title(self):
@@ -128,7 +133,7 @@ class Job(models.Model):
     @property
     def output_dir(self) -> Path:
         # the process-workers write every job into its own dir named by the job id
-        return Config().output_dir / str(self.redis_job_id)
+        return Config().output_dir / str(self.id)
 
     @staticmethod
     def remove_output_dir(sender, instance: "Job", **kwargs):
