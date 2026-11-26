@@ -43,6 +43,11 @@ class Membership(models.Model):
         help_text=_("Organisation associated with the membership."),
         verbose_name=_("organisation"),
     )
+    is_active = models.BooleanField(
+        default=True,
+        help_text=_("Whether the membership is active."),
+        verbose_name=_("active"),
+    )
 
     objects = MembershipManager()
 

@@ -245,15 +245,13 @@ class TestProviderSignup:
 
     @pytest.mark.django_db
     def test_provider_login_creates_user_and_membership(
-        self, settings, keycloak_provider, organisation_public_access
+        self, settings, keycloak_provider, organisation_non_public_access
     ):
         settings.LOGIN_LOCAL_SIGNUP_ENABLED = False
         settings.SOCIALACCOUNT_PROVIDERS = keycloak_provider
 
-        # TODO: should not require public access
-        # but currently /login on org with non-public access does not set "georama_organisation"
-        hostname = f"{organisation_public_access.domain}.localhost"
-        request = Client().get("/", SERVER_NAME=hostname).wsgi_request
+        hostname = f"{organisation_non_public_access.domain}.localhost"
+        request = Client().get("/login/", SERVER_NAME=hostname).wsgi_request
 
         provider = get_adapter().get_provider(request, "keycloak")
         sociallogin = provider.sociallogin_from_response(
@@ -278,7 +276,8 @@ class TestProviderSignup:
         assert not user.has_usable_password()
         assert SocialAccount.objects.filter(user=user, provider="keycloak", uid="f3c1").exists()
         assert user.memberships.count() == 1
-        assert user.memberships.get().organisation == organisation_public_access
+        assert user.memberships.get().organisation == organisation_non_public_access
+        assert user.memberships.get().is_active is False
 
         # The Membership is also created on successful login
         user.memberships.all().delete()
@@ -296,4 +295,5 @@ class TestProviderSignup:
         with allauth_context.request_context(request):
             complete_social_login(request, sociallogin)
 
-        assert user.memberships.get().organisation == organisation_public_access
+        assert user.memberships.get().organisation == organisation_non_public_access
+        assert user.memberships.get().is_active is False

@@ -23,7 +23,7 @@ from georama.core.models import GeoramaUser, Membership, Organisation
 
 
 class MembershipViewSet(OrganisationalModelViewSet):
-    queryset = Membership.objects.all()
+    queryset = Membership.objects.filter(is_active=True)
     permission_classes = [IsSuperuser]
     serializer_class = MembershipSerializer
     filter_backends = [

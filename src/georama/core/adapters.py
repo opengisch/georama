@@ -13,11 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 @receiver(user_logged_in)
-def add_social_user_to_organisation(sender, request, user, sociallogin=None, **kwargs):
+def add_oidc_user_to_organisation(sender, request, user, sociallogin=None, **kwargs):
     if sociallogin:
         Membership.objects.get_or_create(
             user=user,
             organisation=request.georama_organisation,
+            defaults={"is_active": False},
         )
 
 

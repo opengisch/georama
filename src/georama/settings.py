@@ -560,9 +560,9 @@ class Base(Configuration):
     ORGANISATION_NOT_AUTHENTICATED_TARGET = values.Value(
         "core:login", environ_prefix=GEORAMA_ENV_PREFIX
     )
-    # view names which should be accessable without middleware handling
+    # view names which should be accessible without organisation membership
     # use this with CAUTION because it might expose data unwanted!
-    ORGANISATION_GLOBAL_PUBLIC_ACCESS_BYPASS_TARGETS = values.ListValue(
+    ORGANISATION_MEMBERSHIP_EXEMPT_VIEWS = values.ListValue(
         [],
         environ_prefix=GEORAMA_ENV_PREFIX,
         separator=LIST_ENV_SEPARATOR,

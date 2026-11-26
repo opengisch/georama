@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
 
+from georama.core.factories import MembershipFactory
 from georama.core.middleware.basic_auth import BasicAuthenticationMiddleware
 from georama.core.middleware.organisation import OrganisationMiddleware
 
@@ -255,6 +256,24 @@ class TestOrganisationMiddleware:
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @pytest.mark.django_db
+    def test_middleware_shows_inactive_membership_message_in_403_page(
+        self,
+        organisation_non_public_access,
+        user,
+        user_password,
+    ):
+        MembershipFactory(
+            user=user,
+            organisation=organisation_non_public_access,
+            is_active=False,
+        )
+        client = Client()
+        client.login(username=user.username, password=user_password)
+        response = client.get("", SERVER_NAME=f"{organisation_non_public_access.domain}.localhost")
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert "An administrator needs to approve it." in response.text
+
+    @pytest.mark.django_db
     def test_middleware_allows_access_authenticated_member_user_on_non_public_organisation(
         self,
         organisation_non_public_access,
@@ -337,7 +356,7 @@ class TestOrganisationMiddleware:
         organisation_non_public_access,
     ):
         accessible_view_name = "core:index"
-        settings.ORGANISATION_GLOBAL_PUBLIC_ACCESS_BYPASS_TARGETS = [
+        settings.ORGANISATION_MEMBERSHIP_EXEMPT_VIEWS = [
             accessible_view_name,
         ]
         path = reverse(accessible_view_name)

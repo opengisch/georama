@@ -44,7 +44,7 @@ class UserSerializer(serializers.ModelSerializer):
     )
     memberships = PrimaryKeyRelatedField(
         many=True,
-        queryset=Membership.objects.all(),
+        queryset=Membership.objects.filter(is_active=True),
     )
 
     class Meta:
@@ -75,7 +75,7 @@ class OrganisationSerializer(serializers.ModelSerializer):
     )
     memberships = PrimaryKeyRelatedField(
         many=True,
-        queryset=Membership.objects.all(),
+        queryset=Membership.objects.filter(is_active=True),
     )
 
     class Meta:
