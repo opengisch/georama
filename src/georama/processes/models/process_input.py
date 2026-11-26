@@ -79,9 +79,12 @@ class ProcessInput(models.Model):
         return self.datasource.to_qsl_job_layer(identifier=self.identifier, name=self.title)
 
     def fits(self, marker: QslLayerMarker) -> bool:
-        if self.datasource.type != self.DATASOURCE_TYPE_BY_LAYER_KIND[marker.kind]:
+        accepted_datasource_types = [
+            self.DATASOURCE_TYPE_BY_LAYER_KIND[kind] for kind in marker.kinds
+        ]
+        if self.datasource.type not in accepted_datasource_types:
             return False
-        if marker.kind is QslLayerKind.VECTOR:
+        if self.datasource.type == self.DATASOURCE_TYPE_BY_LAYER_KIND[QslLayerKind.VECTOR]:
             return self.datasource.vector.geometry_type_simple in marker.geometry_types
         return True
 
