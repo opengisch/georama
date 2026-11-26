@@ -22,6 +22,16 @@ services:
       interval: 1s
       timeout: 5s
       retries: 120
+  georama-housekeeping:
+    # shares the venv of georama, whose editable qsl install points to /qsl, without
+    # DEV_QSL_SOURCES so the entrypoint does not install it a second time at once
+    volumes:
+      - type: bind
+        source: "${LOCAL_QSL_SOURCES:?set LOCAL_QSL_SOURCES to your local qgis-server-light checkout}"
+        target: "/qsl"
+        read_only: true
+        bind:
+          create_host_path: false
   qsl-worker:
     image: local/qsl-worker:dev
     environment:
