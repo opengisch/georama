@@ -243,10 +243,12 @@ class TestProviderSignup:
             SocialAccountAdapter().is_auto_signup_allowed(rf.get("/"), sociallogin)
         assert ("a local account already uses this email" in caplog.text) is logged
 
+    @pytest.mark.parametrize("auto_approve", [False, True])
     @pytest.mark.django_db
     def test_provider_login_creates_user_and_membership(
-        self, settings, keycloak_provider, organisation_non_public_access
+        self, settings, keycloak_provider, organisation_non_public_access, auto_approve
     ):
+        settings.ORGANISATION_OIDC_AUTO_APPROVE_MEMBERSHIP = auto_approve
         settings.LOGIN_LOCAL_SIGNUP_ENABLED = False
         settings.SOCIALACCOUNT_PROVIDERS = keycloak_provider
 
@@ -277,7 +279,7 @@ class TestProviderSignup:
         assert SocialAccount.objects.filter(user=user, provider="keycloak", uid="f3c1").exists()
         assert user.memberships.count() == 1
         assert user.memberships.get().organisation == organisation_non_public_access
-        assert user.memberships.get().is_active is False
+        assert user.memberships.get().is_active is auto_approve
 
         # The Membership is also created on successful login
         user.memberships.all().delete()
@@ -296,4 +298,4 @@ class TestProviderSignup:
             complete_social_login(request, sociallogin)
 
         assert user.memberships.get().organisation == organisation_non_public_access
-        assert user.memberships.get().is_active is False
+        assert user.memberships.get().is_active is auto_approve

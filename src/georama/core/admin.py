@@ -112,8 +112,25 @@ class DjangoGroupAdmin(BaseGroupAdmin, ModelAdmin):
 
 @admin.register(Membership)
 class MembershipAdmin(OrganisationalModelAdmin):
-    search_fields = ("user__username", "organisation__name")
+    list_display = ("user", "organisation", "is_active")
+    list_editable = ("is_active",)
+    list_filter = ("is_active",)
+    autocomplete_fields = ("user",)
+    list_select_related = ("user", "organisation")
+    ordering = ("is_active", "organisation__name", "user__username")
+    search_fields = ("user__username", "user__email", "organisation__name")
+    actions = ("activate_memberships", "deactivate_memberships")
     form = MembershipForm
+
+    @admin.action(description=_("Activate selected memberships"))
+    def activate_memberships(self, request, queryset):
+        updated = queryset.update(is_active=True)
+        self.message_user(request, _("%(count)d membership(s) activated.") % {"count": updated})
+
+    @admin.action(description=_("Deactivate selected memberships"))
+    def deactivate_memberships(self, request, queryset):
+        updated = queryset.update(is_active=False)
+        self.message_user(request, _("%(count)d membership(s) deactivated.") % {"count": updated})
 
 
 @admin.register(Organisation)

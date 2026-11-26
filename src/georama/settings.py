@@ -560,6 +560,11 @@ class Base(Configuration):
     ORGANISATION_NOT_AUTHENTICATED_TARGET = values.Value(
         "core:login", environ_prefix=GEORAMA_ENV_PREFIX
     )
+    # activate the membership created on OIDC login right away, otherwise an
+    # administrator needs to approve it
+    ORGANISATION_OIDC_AUTO_APPROVE_MEMBERSHIP = values.BooleanValue(
+        False, environ_prefix=GEORAMA_ENV_PREFIX
+    )
     # view names which should be accessible without organisation membership
     # use this with CAUTION because it might expose data unwanted!
     ORGANISATION_MEMBERSHIP_EXEMPT_VIEWS = values.ListValue(

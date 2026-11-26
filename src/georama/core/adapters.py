@@ -18,7 +18,7 @@ def add_oidc_user_to_organisation(sender, request, user, sociallogin=None, **kwa
         Membership.objects.get_or_create(
             user=user,
             organisation=request.georama_organisation,
-            defaults={"is_active": False},
+            defaults={"is_active": settings.ORGANISATION_OIDC_AUTO_APPROVE_MEMBERSHIP},
         )
 
 
