@@ -83,6 +83,22 @@ interest in network and information security).
 The secure flag is about the connection between the browser and the first server it
 talks to. The hop from a proxy to Georama may be plain HTTP.
 
+### Organisation access
+
+An organisation without public access (`GEORAMA_ORGANISATION_GLOBAL_PUBLIC_ACCESS=false`
+for the global one, the setting of the organisation otherwise) is only open to superusers
+and to users with an active membership of it. A user with an inactive membership is
+refused with a message that an administrator needs to approve it. Memberships are managed
+in the admin (Memberships, filter "active").
+
+In an organisation with public access everybody gets in, whatever the state of their
+membership.
+
+The state of a membership only decides whether a user may enter an organisation without
+public access. It doesn't grant or remove any permission on objects (themes, layers,
+...): those are assigned separately and stay as they are when a membership is activated
+or deactivated.
+
 ### Identity provider
 
 #### `GEORAMA_OIDC_CLIENT_ID` and `GEORAMA_OIDC_SECRET`
@@ -106,6 +122,21 @@ talks to. The hop from a proxy to Georama may be plain HTTP.
 |------------------------------------------------------------------------------------|--------------------|
 | Usernames at the provider can be chosen freely                                     | `suffix` (default) |
 | The provider's usernames are the same people as the local ones and can't be chosen | `connect`          |
+
+#### `GEORAMA_ORGANISATION_OIDC_AUTO_APPROVE_MEMBERSHIP`
+
+| Situation                                                                           | Setting           |
+|-------------------------------------------------------------------------------------|-------------------|
+| Anybody who can sign in at the provider shouldn't get in without an approval        | `false` (default) |
+| The provider only knows the people who may use Georama (e.g. company Keycloak)      | `true`            |
+
+The first login through the provider creates the user and a membership of the
+organisation of the requested host. With `false` the membership is inactive: the user is
+refused with a message that an administrator needs to approve it, until someone
+activates the membership in the admin (Memberships, filter "active: No"). This only
+matters for organisations which don't allow public access.
+
+See [Organisation access](#organisation-access) for what the approval covers.
 
 #### `GEORAMA_GEOGIRAFE_SUPERUSER_ENABLED`
 
@@ -149,6 +180,9 @@ These defaults changed and need a look when an existing installation is upgraded
 - Superusers can't use GeoGirafe with their token
   (`GEORAMA_GEOGIRAFE_SUPERUSER_ENABLED`).
 - GeoGirafe tokens no longer open a session in Georama.
+- `GEORAMA_ORGANISATION_GLOBAL_PUBLIC_ACCESS_BYPASS_TARGETS` was renamed to
+  `GEORAMA_ORGANISATION_MEMBERSHIP_EXEMPT_VIEWS`. Installations which set it need to rename the
+  variable. The listed views are reachable without an organisation membership on all organisations.
 
 ## Health probing
 
