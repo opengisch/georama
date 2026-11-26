@@ -1,7 +1,7 @@
 services:
   georama:
     init: true
-    environment:
+    environment: &georama-environment
       - "GEORAMA_QSL_EXPORTER_URL=http://qsl-exporter:5000/export"
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
       - "GEORAMA_WEBGISURL=https://localhost:9309"
@@ -65,6 +65,22 @@ services:
       timeout: 6s
       retries: 3
       start_period: 30s
+  georama-housekeeping:
+    # runs the periodic management commands with the prod image and the settings of
+    # georama, on Kubernetes this becomes a CronJob with the same image and command
+    init: true
+    environment: *georama-environment
+    platform: "${PLATFORM:-linux/amd64}"
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: [ "sh", "-c", "while true; do manage delete_expired_jobs; sleep 3600; done" ]
+    volumes:
+      - "process-output:/io/process_output"
+    depends_on:
+      georama-db:
+        condition: service_healthy
   georama-db:
     platform: "linux/amd64"
     restart: unless-stopped

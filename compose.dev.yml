@@ -31,6 +31,32 @@ services:
       - ./:/app:cached
       - georama-venv:/home/appuser/.venv
       - georama-static:/georama/static
+  georama-housekeeping:
+    environment:
+      - "DEV_AUTOSTART=${GEORAMA_DEV_AUTOSTART:-1}"
+      - "DJANGO_CONFIGURATION=Dev"
+      - "GEORAMA_BASIC_AUTH_ENABLED=${GEORAMA_BASIC_AUTH_ENABLED:-True}"
+      - "GEORAMA_GEOGIRAFE_SUPERUSER_ENABLED=${GEORAMA_GEOGIRAFE_SUPERUSER_ENABLED:-True}"
+    build:
+      target: dev
+      args:
+        # only passed if set in the environment, otherwise the pinned default
+        # of the Dockerfile applies
+        GDAL_IMAGE:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    develop:
+      watch:
+        - action: rebuild
+          path: Dockerfile
+        - action: rebuild
+          path: ./docker/dev.debug.entrypoint.sh
+        - action: rebuild
+          path: ./docker/dev.start.georama.sh
+    volumes:
+      - ./:/app:cached
+      - georama-venv:/home/appuser/.venv
+      - georama-static:/georama/static
 volumes:
   georama-venv:
   georama-static:

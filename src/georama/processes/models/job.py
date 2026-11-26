@@ -1,8 +1,9 @@
+import shutil
 from collections.abc import Callable
 from pathlib import Path
 
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext
@@ -123,6 +124,18 @@ class Job(models.Model):
             if output.name == output_name and isinstance(output.value, FileOutput):
                 return output.value
         return None
+
+    @property
+    def output_dir(self) -> Path:
+        # the process-workers write every job into its own dir named by the job id
+        return Config().output_dir / str(self.redis_job_id)
+
+    @staticmethod
+    def remove_output_dir(sender, instance: "Job", **kwargs):
+        # connected to post_delete, so cascades and queryset deletes take the dir along too
+        output_dir = instance.output_dir
+        # a rolled back delete keeps its files
+        transaction.on_commit(lambda: shutil.rmtree(output_dir, ignore_errors=True))
 
     @staticmethod
     def file_output_path(file_output: FileOutput) -> Path | None:

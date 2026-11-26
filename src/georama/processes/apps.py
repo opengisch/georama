@@ -1,3 +1,4 @@
+from django.db.models.signals import post_delete
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.dispatcher.redis_asio import RedisStateQueue
@@ -20,8 +21,10 @@ class ProcessConfig(GeoramaAbstractConfig):
     def ready(self):
         from georama.core.common.remote_actions import RemoteAction, register_remote_action
         from georama.integration.models.datasource import Datasource
+        from georama.processes.models.job import Job
 
         super().ready()
+        post_delete.connect(Job.remove_output_dir, sender=Job)
         rma = RemoteAction(
             target=reverse("processes:process-input-manager-publish-from-datasource"),
             name=_("ProcessInput"),
