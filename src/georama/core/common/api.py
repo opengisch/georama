@@ -318,6 +318,7 @@ class GeoramaTemplateViewSet(
         delete_template_name: The path of the template which use used to render the delete
             preview. This is an intermediate step to let the user confirm the delete action.
         bulk_confirm_template_name: The template used to confirm a bulk action.
+        bulk_action_serializer_class: The serializer validating available bulk actions and IDs.
 
     """
 
@@ -325,6 +326,7 @@ class GeoramaTemplateViewSet(
     form: ModelForm
     delete_template_name: str = "core/drf/default/delete_preview.html"
     bulk_confirm_template_name: str = "core/drf/default/bulk_action_preview.html"
+    bulk_action_serializer_class = BulkActionSerializer
 
     def bound_remote_actions(self) -> list[RemoteAction]:
         """Gets the registered remote actions for the model of this viewset.
@@ -505,7 +507,7 @@ class GeoramaTemplateViewSet(
     )
     async def bulk_confirm(self, request, *args, **kwargs):
         """Preview a bulk action without modifying the selected objects."""
-        serializer = BulkActionSerializer(data=request.data)
+        serializer = self.bulk_action_serializer_class(data=request.data)
         if not serializer.is_valid():
             messages.error(request, serializer.errors)
             return redirect(self.url_name_list)
@@ -550,7 +552,7 @@ class GeoramaTemplateViewSet(
     )
     async def bulk_action(self, request, *args, **kwargs):
         """Handle bulk actions on multiple objects."""
-        serializer = BulkActionSerializer(data=request.data)
+        serializer = self.bulk_action_serializer_class(data=request.data)
         if not serializer.is_valid():
             if request.accepted_renderer.format == "html":
                 messages.error(request, serializer.errors)

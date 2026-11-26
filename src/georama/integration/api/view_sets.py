@@ -39,6 +39,7 @@ from georama.integration.api.serializers import (
     DatasourceSerializer,
     FieldSerializer,
     FileSystemProjectSerializer,
+    ProjectBulkActionSerializer,
     ProjectSerializer,
     RasterDatasourceSerializer,
     VectorDatasourceSerializer,
@@ -54,6 +55,7 @@ from georama.maps.adapter.qsl import call_qsl_exporter
 class ManageProjectViewSet(GeoramaPreviewMixin, GeoramaManagerViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    bulk_action_serializer_class = ProjectBulkActionSerializer
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,

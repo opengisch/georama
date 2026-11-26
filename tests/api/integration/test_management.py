@@ -392,6 +392,23 @@ def test_bulk_rejects_invalid_action(
     assert Project.objects.filter(pk=organisation_project.pk).exists()
 
 
+@pytest.mark.django_db
+@pytest.mark.parametrize("endpoint", ["bulk_confirm", "bulk"])
+def test_project_bulk_rejects_make_public(
+    organisation, organisation_admin_client, organisation_project, endpoint
+):
+    response = organisation_admin_client.post(
+        f"/integration/manage/projects/{endpoint}",
+        {"action": "make-public", "ids": [str(organisation_project.pk)]},
+        SERVER_NAME=server_name(organisation),
+    )
+
+    assert response.status_code == status.HTTP_302_FOUND
+    assert response["Location"] == "/integration/manage/projects"
+    assert any("make-public" in str(message) for message in get_messages(response.wsgi_request))
+    assert Project.objects.filter(pk=organisation_project.pk).exists()
+
+
 class TestJsonRepresentation:
     @pytest.mark.django_db
     def test_project(self, organisation, organisation_admin_client, organisation_project):

@@ -5,12 +5,14 @@ from unittest.mock import AsyncMock, Mock
 from django.http import QueryDict
 
 from georama.core.common.api import GeoramaTemplateViewSet
+from georama.core.common.serializers import BulkActionSerializer
 
 
 def test_bulk_deletes_selected_form_ids():
     queryset = Mock()
     queryset.filter.return_value.adelete = AsyncMock()
     view = Mock()
+    view.bulk_action_serializer_class = BulkActionSerializer
     view.afilter_queryset = AsyncMock(return_value=queryset)
     view._check_bulk_permissions = AsyncMock()
     request = SimpleNamespace(
@@ -32,6 +34,7 @@ def test_bulk_reports_invalid_html_action(monkeypatch):
     redirect = Mock()
     monkeypatch.setattr("georama.core.common.api.redirect", redirect)
     view = Mock()
+    view.bulk_action_serializer_class = BulkActionSerializer
     request = SimpleNamespace(
         data=QueryDict("action=unknown&ids=1"),
         accepted_renderer=SimpleNamespace(format="html"),
