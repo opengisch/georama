@@ -33,10 +33,9 @@ services:
       - georama-static:/georama/static
   georama-housekeeping:
     environment:
-      - "DEV_AUTOSTART=${GEORAMA_DEV_AUTOSTART:-1}"
       - "DJANGO_CONFIGURATION=Dev"
-      - "GEORAMA_BASIC_AUTH_ENABLED=${GEORAMA_BASIC_AUTH_ENABLED:-True}"
-      - "GEORAMA_GEOGIRAFE_SUPERUSER_ENABLED=${GEORAMA_GEOGIRAFE_SUPERUSER_ENABLED:-True}"
+      # georama syncs the shared venv, a second sync at the same time would race
+      - "DEV_SYNC=0"
     build:
       target: dev
       args:
@@ -45,18 +44,14 @@ services:
         GDAL_IMAGE:
         UID: "${UID:-1000}"
         GID: "${GID:-1000}"
-    develop:
-      watch:
-        - action: rebuild
-          path: Dockerfile
-        - action: rebuild
-          path: ./docker/dev.debug.entrypoint.sh
-        - action: rebuild
-          path: ./docker/dev.start.georama.sh
     volumes:
       - ./:/app:cached
       - georama-venv:/home/appuser/.venv
-      - georama-static:/georama/static
+    # the venv is synced once georama is healthy, with GEORAMA_DEV_AUTOSTART=0 it never
+    # gets healthy, then the command is called by hand
+    depends_on:
+      georama:
+        condition: service_healthy
 volumes:
   georama-venv:
   georama-static:
