@@ -323,7 +323,7 @@ class ManageProjectViewSet(GeoramaPreviewMixin, GeoramaManagerViewSet):
             )
         else:
             messages.success(request, _("The project was successfully integrated."))
-        return redirect(reverse("integration:manager-project-ashow", kwargs={"pk": project_db.pk}))
+        return redirect(reverse(self.url_name_show, kwargs={"pk": project_db.pk}))
 
     @action(detail=False, methods=["get", "post"], url_path="non_integrated")
     async def non_integrated(self, request: GeoramaDrfRequest, *args, **kwargs):

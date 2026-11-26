@@ -170,16 +170,23 @@ class Datasource(models.Model):
         return DictDecoder(config=self.get_parser_config).decode(self.styles, list[Style])
 
     def to_qsl_job_layer(
-        self, identifier: str, name: str, style_name: str | None = None
+        self,
+        identifier: str | None = None,
+        name: str | None = None,
+        style_name: str | None = None,
     ) -> QslJobLayer:
+        """Convert datasource to QSL job layer for rendering. Publishing layers (WMS layer,
+        process input) pass their own identifier and name, without them the datasource
+        speaks for itself.
+        """
         source_definition = self.source_to_qsl.definition
         if style_name is not None:
             style = self.get_style_by_name(style_name)
         else:
             style = self.get_default_style()
         return QslJobLayer(
-            id=identifier,
-            name=name,
+            id=identifier if identifier is not None else str(self.id),
+            name=name if name is not None else self.name,
             source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
             driver=self.driver,
             style=style,
@@ -229,25 +236,6 @@ class Datasource(models.Model):
         db_objct.is_spatial = qsl_object.is_spatial
         db_objct.minimum_scale = qsl_object.minimum_scale
         db_objct.maximum_scale = qsl_object.maximum_scale
-
-    def to_qsl_job_layer(self, style_name: str | None = None):
-        """Convert datasource to QSL job layer for rendering."""
-        source_definition = self.source_to_qsl.definition
-        if style_name is not None:
-            style = self.get_style_by_name(style_name)
-        else:
-            style = self.get_default_style()
-        return QslJobLayer(
-            id=str(self.id),
-            name=self.name,
-            source=json.dumps(source_definition.to_qgis_decoded_uri),  # noqa: F821
-            driver=self.driver,
-            style=style,
-            remote=source_definition.remote,
-            folder_name=str(
-                Path(self.project.organisation_folder) / Path(self.project.path).parent
-            ),
-        )
 
     @property
     def extent_in_axis_order(self) -> BBox:
