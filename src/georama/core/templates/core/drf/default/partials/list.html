@@ -16,7 +16,7 @@
         
         <!-- Bulk actions dropdown -->
         {% if not is_modal %}
-        {% if can_change or can_delete %}
+        {% if bulk_actions %}
         <div id="bulk-action-container" class="nav-item d-flex gap-2 align-items-center d-none">
         
             <form method="post" id="bulk-action-form"
@@ -38,40 +38,23 @@
                 </button>
 
                 <div class="dropdown-menu p-3" aria-labelledby="bulk-action-dropdown" style="z-index: 1050;">
-                    {% if can_delete %}
+                    {% for bulk_action in bulk_actions %}
                     <div class="dropdown-item form-check form-check-inline">
                         <input
                                 class="form-check-input ms-0 me-2"
                                 type="radio"
-                                id="bulk-action-delete"
+                                id="bulk-action-{{ bulk_action.name }}"
                                 name="action"
-                                value="delete"
+                                value="{{ bulk_action.name }}"
                                 form="bulk-action-form"
                         >
                         <label class="form-check-label w-100"
-                               for="bulk-action-delete">
-                            <i class="fa fa-trash-alt text-danger"></i>
-                            <span class="ps-1">{% trans "Delete" %}</span>
+                               for="bulk-action-{{ bulk_action.name }}">
+                            <i class="{{ bulk_action.icon_classes }}"></i>
+                            <span class="ps-1">{{ bulk_action.label }}</span>
                         </label>
                     </div>
-                    {% endif %}
-                    {% if can_change %}
-                    <div class="dropdown-item form-check form-check-inline">
-                        <input
-                                class="form-check-input ms-0 me-2"
-                                type="radio"
-                                id="bulk-action-make-public"
-                                name="action"
-                                value="make-public"
-                                form="bulk-action-form"
-                        >
-                        <label class="form-check-label w-100"
-                               for="bulk-action-make-public">
-                            <i class="fa fa-unlock text-success"></i>
-                            <span class="ps-1">{% trans "Make public" %}</span>
-                        </label>
-                    </div>
-                    {% endif %}
+                    {% endfor %}
                     <button type="submit" form="bulk-action-form" class="btn btn-outline-primary mt-2 text-nowrap"
                             onclick="bootstrap.Dropdown.getOrCreateInstance(this.closest('.dropdown').querySelector('[data-bs-toggle=dropdown]')).hide()">
                         {% trans "Apply to selected entries" %}

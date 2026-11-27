@@ -16,6 +16,11 @@ from georama.core.common.api import (
     GeoramaObjPermViewSetReadOnly,
     GeoramaPreviewMixin,
 )
+from georama.core.common.bulk_actions import (
+    DeleteBulkAction,
+    MakeNonPublicBulkAction,
+    MakePublicBulkAction,
+)
 from georama.core.common.menu import ActionType, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.models import Datasource
@@ -45,6 +50,7 @@ class ManageWmsLayerViewSet(GeoramaPreviewMixin, GeoramaManagerWithPermissionsVi
     filterset_fields = []
     list_body_partial_template_name = "maps/drf/wms_layer/partials/list_body.html"
     show_template_name = "maps/drf/wms_layer/detail.html"
+    bulk_actions = [DeleteBulkAction(), MakePublicBulkAction(), MakeNonPublicBulkAction()]
 
     permissions_serializer_class = WmsLayerObjectPermissionSerializer
     permissions_action_serializer_class = WmsLayerPermissionActionSerializer

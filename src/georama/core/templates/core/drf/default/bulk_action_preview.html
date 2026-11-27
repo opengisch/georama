@@ -5,17 +5,17 @@
     <form method="post" id="bulk-confirm-form"
           action="{% url view.url_name_bulk %}">
         {% csrf_token %}
-        <input type="hidden" name="action" value="{{ bulk_action.action }}">
-        {% for id in bulk_action.ids %}
+        <input type="hidden" name="action" value="{{ bulk_action.name }}">
+        {% for id in ids %}
             <input type="hidden" name="ids" value="{{ id }}">
         {% endfor %}
     </form>
     <div class="align-content-center">
         <div class="btn-group" role="group" aria-label="{% translate 'Actions' %}">
             <button type="submit" form="bulk-confirm-form"
-                    class="btn btn-outline-{{ action_type }}"
+                    class="btn btn-outline-{{ bulk_action.action_type }}"
                     {% if protected %}disabled{% endif %}>
-                {{ confirmation_title }}
+                {{ bulk_action.confirmation_title }}
             </button>
             <a href="{% url view.url_name_list %}"
                class="btn btn-outline-secondary" role="button">
@@ -38,7 +38,7 @@
                 </ul>
             </div>
         {% else %}
-            <h5>{{ confirmation_text }}</h5>
+            <h5>{{ bulk_action.confirmation_text }}</h5>
             <ul class="list-group">
                 {% include "core/drf/default/includes/nested_delete.html" with objects=related_objects %}
             </ul>

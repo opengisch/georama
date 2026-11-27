@@ -372,9 +372,13 @@ msgstr "Utilisateurs"
 msgid "Select bulk action"
 msgstr "Choisir une action groupée"
 
-#: georama/core/templates/core/drf/default/partials/list.html
+#: georama/core/common/bulk_actions.py
 msgid "Make public"
 msgstr "Rendre public"
+
+#: georama/core/common/bulk_actions.py
+msgid "Make non-public"
+msgstr "Rendre non public"
 
 #: georama/core/templates/core/drf/default/includes/permissions_list_htmx.html
 msgid "Apply to selected entries"

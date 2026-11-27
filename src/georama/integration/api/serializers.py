@@ -1,12 +1,7 @@
 from adrf import serializers
 
-from georama.core.common.serializers import BulkActionSerializer
 from georama.integration.models import Custom, Datasource, Project, Raster, Vector
 from georama.integration.models.datasource import VectorField
-
-
-class ProjectBulkActionSerializer(BulkActionSerializer):
-    action = serializers.ChoiceField(choices=["delete"])
 
 
 class ProjectSerializer(serializers.ModelSerializer):

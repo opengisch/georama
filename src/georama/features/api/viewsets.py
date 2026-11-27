@@ -13,6 +13,11 @@ from georama.core.common.api import (
     GeoramaModelPermissions,
     GeoramaObjPermViewSetReadOnly,
 )
+from georama.core.common.bulk_actions import (
+    DeleteBulkAction,
+    MakeNonPublicBulkAction,
+    MakePublicBulkAction,
+)
 from georama.core.common.menu import ActionType, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.features.api.serializers import (
@@ -40,6 +45,7 @@ class ManageFeatureLayerViewSet(GeoramaManagerWithPermissionsViewSet):
     filterset_fields = []
     list_body_partial_template_name = "features/drf/feature_layer/partials/list_body.html"
     show_template_name = "features/drf/feature_layer/detail.html"
+    bulk_actions = [DeleteBulkAction(), MakePublicBulkAction(), MakeNonPublicBulkAction()]
 
     permissions_serializer_class = FeatureLayerObjectPermissionSerializer
     permissions_action_serializer_class = FeatureLayerPermissionActionSerializer

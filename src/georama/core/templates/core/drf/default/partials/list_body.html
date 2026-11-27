@@ -9,7 +9,7 @@
             <div class="list-group">
                 {% block list_header %}
                     {% if not is_modal %}
-                    {% if can_change or can_delete %}
+                    {% if bulk_actions %}
                     <div class="list-group-item p-4 bg-light-subtle">
                         <div class="d-flex w-100 align-items-center gap-3">
                             <div>
@@ -32,7 +32,7 @@
 
                             <div class="d-flex w-100 justify-content-between">
                                 {% if not is_modal %}
-                                {% if can_change or can_delete %}
+                                {% if bulk_actions %}
                                 <div class="me-3 flex-shrink-0">
                                     {% block list_item_checkbox %}
                                         <div class="d-flex align-items-center">
@@ -171,6 +171,7 @@
     {% endblock %}
 </div>
 
+{% if object_list and bulk_actions and not is_modal %}
 <script>
     /**
      * Toggle the selection state of all rows of the list
@@ -195,3 +196,4 @@
 
     toggle_bulk_action_visibility();
 </script>
+{% endif %}

@@ -19,6 +19,11 @@ from georama.core.common.api import (
     GeoramaModelPermissions,
     GeoramaObjPermViewSetReadOnly,
 )
+from georama.core.common.bulk_actions import (
+    DeleteBulkAction,
+    MakeNonPublicBulkAction,
+    MakePublicBulkAction,
+)
 from georama.core.common.menu import ActionType, Breadcrumb, BreadcrumbAction
 from georama.core.common.request import GeoramaDrfRequest
 from georama.integration.models import Project
@@ -62,6 +67,7 @@ class ManageThemeViewSet(GeoramaManagerWithPermissionsViewSet):
     filterset_fields = []
     list_body_partial_template_name = "webgis/drf/theme/partials/list_body.html"
     show_template_name = "webgis/drf/theme/detail.html"
+    bulk_actions = [DeleteBulkAction(), MakePublicBulkAction(), MakeNonPublicBulkAction()]
 
     permissions_serializer_class = ThemeObjectPermissionSerializer
     permissions_action_serializer_class = ThemePermissionActionSerializer

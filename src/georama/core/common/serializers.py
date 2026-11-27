@@ -84,5 +84,19 @@ class PermissionActionSerializer(serializers.Serializer):
 
 
 class BulkActionSerializer(serializers.Serializer):
-    action = serializers.ChoiceField(choices=["delete", "make-public"])
+    """Validates a bulk action request against the actions passed as context
+    `bulk_actions`. The validated `action` is the matching bulk action itself.
+    """
+
+    action = serializers.ChoiceField(choices=[])
     ids = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bulk_actions = {
+            bulk_action.name: bulk_action for bulk_action in self.context["bulk_actions"]
+        }
+        self.fields["action"].choices = list(self.bulk_actions)
+
+    def validate_action(self, value):
+        return self.bulk_actions[value]
