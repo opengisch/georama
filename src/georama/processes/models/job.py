@@ -19,11 +19,9 @@ from xsdata.formats.dataclass.parsers import DictDecoder, JsonParser
 from xsdata.formats.dataclass.serializers import DictEncoder
 
 from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
-    Job as OgcJob,
-)
-from georama.processes.interface.ogc_api.processes.part1.v_100.main import (
     Link,
     StatusCode,
+    StatusInfo,
 )
 from georama.processes.interface.ogc_api.processes.part1.v_100.serializers import (
     OgcApiDictEncoder,
@@ -153,7 +151,7 @@ class Job(models.Model):
             return None
         return path
 
-    def status_info(self, absolute_uri: Callable[[str], str]) -> OgcJob:
+    def status_info(self, absolute_uri: Callable[[str], str]) -> StatusInfo:
         links = [
             Link(
                 rel="self",
@@ -182,7 +180,7 @@ class Job(models.Model):
                 for output in self.process_result.outputs
                 if isinstance(output.value, Reference)
             )
-        return OgcJob(
+        return StatusInfo(
             type="process",
             job_id=str(self.pk),
             process_id=self.process.algorithm_id,

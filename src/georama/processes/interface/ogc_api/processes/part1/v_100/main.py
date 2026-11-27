@@ -80,7 +80,7 @@ class StatusCode(StrEnum):
 
 
 @dataclass
-class Job(Base):
+class StatusInfo(Base):
     type: str = field()
     job_id: str = field(metadata={"name": "jobID"})
     process_id: str = field(metadata={"name": "processID"})
@@ -95,7 +95,7 @@ class Job(Base):
 
 @dataclass
 class Jobs(Base):
-    jobs: list[Job] = field()
+    jobs: list[StatusInfo] = field()
 
 
 class ExceptionType(StrEnum):
