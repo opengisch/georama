@@ -1,4 +1,5 @@
 from django import template
+from django.db.models import JSONField
 
 from georama.core.renderers import CustomHTMLFormRenderer
 
@@ -24,6 +25,8 @@ def get_dict_value_by_key(dictionary, key):
 def field_name_and_value(obj):
     result = []
     for field in obj._meta.fields:
+        if isinstance(field, JSONField):
+            continue
         result.append([field.name, field.verbose_name, field.help_text, getattr(obj, field.name)])
     return result
 
