@@ -13,7 +13,8 @@ from drf_spectacular.utils import extend_schema
 from qgis_server_light.interface.job.common.input import ExecutionMode
 from qgis_server_light.interface.job.process.description import ProcessDescriptions
 from qgis_server_light.interface.job.process.input import (
-    OutputFormat,
+    ExecuteOutput,
+    Format,
     QslJobParameterExecuteProcess,
 )
 from rest_framework import filters, renderers, status
@@ -474,15 +475,18 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
         process: Process = context["object"]
         # the layer markers are only in the unmapped description, so it is fetched again
         layer_input_mapper = await self.alayer_input_mapper()
-        parameters = await layer_input_mapper.amap_parameter_inputs(
-            await qsl.process_description(process.algorithm_id),
-            form.cleaned_data,
+        job_parameter = QslJobParameterExecuteProcess(
+            process_id=process.algorithm_id,
+            inputs=await layer_input_mapper.amap_execute_inputs(
+                await qsl.process_description(process.algorithm_id),
+                form.cleaned_data,
+            ),
+            outputs=[
+                ExecuteOutput(id=output_id, format=Format(media_type=media_type))
+                for output_id, media_type in output_form.cleaned_data.items()
+                if media_type
+            ],
         )
-        output_formats = [
-            OutputFormat(name=name, media_type=media_type)
-            for name, media_type in output_form.cleaned_data.items()
-            if media_type
-        ]
         created_at = timezone.now()
         # Georama runs in autocommit, the row is committed when `acreate` returns. So the
         # job is only submitted afterwards and a worker never sees a job without its row.
@@ -491,12 +495,7 @@ class ProcessViewSet(ProcessInputDescriptionMixin, GeoramaObjPermViewSetReadOnly
             created_at=created_at,
             expires=created_at + Config().job_expire,
             process=process,
-            job_parameters=DictEncoder().encode(parameters),
-        )
-        job_parameter = QslJobParameterExecuteProcess(
-            process_id=process.algorithm_id,
-            parameters=parameters,
-            output_formats=output_formats,
+            job_parameters=DictEncoder().encode(job_parameter),
         )
 
         if is_html:
@@ -793,21 +792,21 @@ class JobViewSet(GeoramaObjPermViewSetReadOnly):
         detail=True,
         methods=["get"],
         url_name="output",
-        url_path=r"results/(?P<output_name>[^/]+)",
+        url_path=r"results/(?P<output_id>[^/]+)",
     )
-    async def output(self, request: GeoramaDrfRequest, output_name: str, *args, **kwargs):
+    async def output(self, request: GeoramaDrfRequest, output_id: str, *args, **kwargs):
         job = await self.aget_object()
-        file_output = job.file_output(output_name)
-        if file_output is None:
-            raise NotFound(_("The job has no file output %s.") % output_name)
-        path = job.file_output_path(file_output)
+        reference = job.reference(output_id)
+        if reference is None:
+            raise NotFound(_("The job has no file output %s.") % output_id)
+        path = job.reference_path(reference)
         if path is None or not path.is_file():
-            raise NotFound(_("The file of output %s is not available.") % output_name)
+            raise NotFound(_("The file of output %s is not available.") % output_id)
         return FileResponse(
             path.open("rb"),
             as_attachment=True,
             filename=path.name,
-            content_type=file_output.media_type,
+            content_type=reference.type,
         )
 
     @staticmethod

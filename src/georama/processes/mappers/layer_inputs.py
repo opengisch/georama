@@ -8,7 +8,7 @@ from qgis_server_light.interface.job.process.description import (
     QslLayerMarker,
     Schema,
 )
-from qgis_server_light.interface.job.process.input import ParameterInput
+from qgis_server_light.interface.job.process.input import ExecuteInput
 
 from georama.processes.models.process_input import ProcessInput
 
@@ -49,23 +49,26 @@ class LayerInputMapper:
             return input_description
         return replace(input_description, schema=self.map_schema(input_description.schema))
 
-    async def amap_parameter_inputs(
+    async def amap_execute_inputs(
         self, process_description: ProcessDescription, values: dict
-    ) -> list[ParameterInput]:
+    ) -> list[ExecuteInput]:
         layer_markers = {
             input_description.id: input_description.schema.x_qsl_layer
             for input_description in process_description.inputs
         }
         return [
-            ParameterInput(
-                name=name, value=await self.amap_value(layer_markers[name], single_value)
+            ExecuteInput(
+                id=input_id,
+                # QSL takes every input as list of values, a single value is a list of one
+                value=[
+                    await self.amap_value(layer_markers[input_id], single_value)
+                    for single_value in (value if isinstance(value, list) else [value])
+                ],
             )
-            for name, value in values.items()
+            for input_id, value in values.items()
             # an input which was left empty is not passed to the process, QGIS takes its
             # default then
             if value not in (None, "", [])
-            # an input taking multiple values is passed once per value, QSL collects them
-            for single_value in (value if isinstance(value, list) else [value])
         ]
 
     async def amap_value(self, layer_marker: QslLayerMarker | None, value):

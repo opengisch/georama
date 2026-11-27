@@ -11,9 +11,9 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from qgis_server_light.interface.dispatcher.common import JobState, Status
 from qgis_server_light.interface.job.process.output import (
-    FileOutput,
-    ParameterOutput,
     ProcessResult,
+    Reference,
+    ResultOutput,
 )
 from xsdata.formats.dataclass.parsers import DictDecoder, JsonParser
 from xsdata.formats.dataclass.serializers import DictEncoder
@@ -106,27 +106,29 @@ class Job(models.Model):
     def results_url(self) -> str:
         return reverse("processes:job-results", kwargs={"pk": self.pk})
 
-    def output_url(self, output_name: str) -> str:
-        return reverse("processes:job-output", kwargs={"pk": self.pk, "output_name": output_name})
+    def output_url(self, output_id: str) -> str:
+        return reverse("processes:job-output", kwargs={"pk": self.pk, "output_id": output_id})
 
     def results(self, absolute_uri: Callable[[str], str]) -> dict:
+        # the results of OGC API - Processes are a map by output id, QSL ships a list
         return {
-            output.name: self.output_value(output, absolute_uri)
+            output.id: self.output_value(output, absolute_uri)
             for output in self.process_result.outputs
         }
 
-    def output_value(self, output: ParameterOutput, absolute_uri: Callable[[str], str]):
-        if isinstance(output.value, FileOutput):
+    def output_value(self, output: ResultOutput, absolute_uri: Callable[[str], str]):
+        if isinstance(output.value, Reference):
+            # the reference is relative to the output dir, the client gets the download url
             return OgcApiDictEncoder().encode(
-                Link(href=absolute_uri(self.output_url(output.name)), type=output.value.media_type)
+                Link(href=absolute_uri(self.output_url(output.id)), type=output.value.type)
             )
         return output.value
 
-    def file_output(self, output_name: str) -> FileOutput | None:
+    def reference(self, output_id: str) -> Reference | None:
         if self.status != StatusCode.SUCCESSFUL:
             return None
         for output in self.process_result.outputs:
-            if output.name == output_name and isinstance(output.value, FileOutput):
+            if output.id == output_id and isinstance(output.value, Reference):
                 return output.value
         return None
 
@@ -143,9 +145,9 @@ class Job(models.Model):
         transaction.on_commit(lambda: shutil.rmtree(output_dir, ignore_errors=True))
 
     @staticmethod
-    def file_output_path(file_output: FileOutput) -> Path | None:
+    def reference_path(reference: Reference) -> Path | None:
         output_dir = Config().output_dir.resolve()
-        path = (output_dir / file_output.path).resolve()
+        path = (output_dir / reference.href).resolve()
         # the path comes from the worker, still a file outside the output dir is never served
         if not path.is_relative_to(output_dir):
             return None
@@ -173,12 +175,12 @@ class Job(models.Model):
             links.extend(
                 Link(
                     rel="enclosure",
-                    href=absolute_uri(self.output_url(output.name)),
-                    type=output.value.media_type,
-                    title=output.name,
+                    href=absolute_uri(self.output_url(output.id)),
+                    type=output.value.type,
+                    title=output.id,
                 )
                 for output in self.process_result.outputs
-                if isinstance(output.value, FileOutput)
+                if isinstance(output.value, Reference)
             )
         return OgcJob(
             type="process",

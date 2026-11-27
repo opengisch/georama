@@ -39,9 +39,9 @@
     <tbody>
     {% for output in object.process_result.outputs %}
         <tr>
-            <td>{{ output.name }}</td>
-            {% if output.value.media_type %}
-                <td><a href="{% url 'processes:job-output' object.pk output.name %}">{% trans 'Download' %}</a> ({{ output.value.media_type }})</td>
+            <td>{{ output.id }}</td>
+            {% if output.value.href %}
+                <td><a href="{% url 'processes:job-output' object.pk output.id %}">{% trans 'Download' %}</a> ({{ output.value.type }})</td>
             {% else %}
                 <td>{{ output.value }}</td>
             {% endif %}
