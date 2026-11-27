@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 from django.contrib.messages import get_messages
+from guardian.shortcuts import assign_perm
 from qgis_server_light.interface.common import BBox, Crs
 from qgis_server_light.interface.exporter.api import ExportResult
 from qgis_server_light.interface.exporter.extract import (
@@ -13,17 +14,19 @@ from qgis_server_light.interface.exporter.extract import (
     ExportMessage,
     MetaData,
     OgrSource,
-    Project,
     ResultWithMessages,
     Service,
     Tree,
     TreeGroup,
-    Vector,
 )
+from qgis_server_light.interface.exporter.extract import Project as QslProject
+from qgis_server_light.interface.exporter.extract import Vector as QslVector
 from rest_framework import status
 from rest_framework.test import APIClient
 from xsdata.formats.dataclass.serializers import JsonSerializer
 
+from georama.features.factories import FeatureLayerFactory
+from georama.features.models import FeatureLayer
 from georama.integration.api import view_sets
 from georama.integration.factories import (
     CustomFactory,
@@ -32,7 +35,8 @@ from georama.integration.factories import (
     RasterFactory,
     VectorFactory,
 )
-from georama.integration.models import Datasource
+from georama.integration.models import Datasource, Project, Vector
+from tests.api.common import perm
 
 MANAGER_FORMATS = ["html", "json", "api"]
 ORGANISATIONAL_FORMATS = ["json", "api"]
@@ -106,7 +110,7 @@ def non_integrated_project_file(settings, tmp_path, organisation):
 @pytest.fixture
 def export_failure():
     return ResultWithMessages(
-        project=Project(version="3.44", name="Broken project"),
+        project=QslProject(version="3.44", name="Broken project"),
         exporter=Exporter(qgis_version="3.44"),
         messages=[
             ExportMessage(
@@ -127,7 +131,7 @@ def export_failure():
 @pytest.fixture
 def rivers_export():
     return Config(
-        project=Project(version="3.44", name="Rivers project"),
+        project=QslProject(version="3.44", name="Rivers project"),
         exporter=Exporter(qgis_version="3.44"),
         meta_data=MetaData(service=Service(contact_organization=None, contact_mail=None)),
         tree=Tree(
@@ -137,7 +141,7 @@ def rivers_export():
         ),
         datasets=Datasets(
             vector=[
-                Vector(
+                QslVector(
                     id="rivers",
                     name="rivers",
                     title="Rivers",
@@ -209,6 +213,236 @@ class TestRendering:
             SERVER_NAME=server_name(organisation),
         )
         assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("htmx", [False, True])
+def test_bulk_delete_confirmation(organisation, organisation_admin_client, htmx):
+    deleted = ProjectFactory.create(organisation=organisation, name="bulk-match-delete")
+    also_deleted = ProjectFactory.create(organisation=organisation, name="bulk-match-delete-too")
+    datasource = VectorFactory.create(project=deleted, name="bulk-related-datasource", fields=[])
+    remaining = ProjectFactory.create(organisation=organisation, name="bulk-match-keep")
+    ProjectFactory.create(organisation=organisation, name="bulk-match-next")
+    ProjectFactory.create(organisation=organisation, name="bulk-other")
+    path = "/integration/manage/projects"
+    params = "?search=bulk-match&ordering=name&limit=1"
+    headers = {"HTTP_HX_REQUEST": "true"} if htmx else {}
+
+    list_response = organisation_admin_client.get(
+        path + params, SERVER_NAME=server_name(organisation), **headers
+    )
+    payload = {"action": "delete", "ids": [str(deleted.pk), str(also_deleted.pk)]}
+    confirmation = organisation_admin_client.post(
+        f"{path}/bulk_confirm{params}",
+        payload,
+        SERVER_NAME=server_name(organisation),
+    )
+
+    assert confirmation.status_code == status.HTTP_200_OK
+    content = confirmation.content.decode()
+    assert "bulk-match-delete" in content
+    assert "bulk-related-datasource" in content
+    assert "bulk-match-keep" not in content
+    assert "Confirm deletion" in content
+    assert "btn-outline-danger" in content
+    assert 'type="hidden" name="action" value="delete"' in content
+    for pk in payload["ids"]:
+        assert f'type="hidden" name="ids" value="{pk}"' in content
+    assert f'action="{path}/bulk"' in content
+    assert f'href="{path}"' in content
+    assert Project.objects.filter(pk__in=payload["ids"]).count() == 2
+    assert Vector.objects.filter(pk=datasource.pk).exists()
+
+    response = organisation_admin_client.post(
+        f"{path}/bulk{params}",
+        payload,
+        SERVER_NAME=server_name(organisation),
+    )
+    assert response.status_code == status.HTTP_302_FOUND
+    assert response["Location"] == path
+    assert "HX-Trigger" not in response
+    assert not Project.objects.filter(pk__in=payload["ids"]).exists()
+    assert not Vector.objects.filter(pk=datasource.pk).exists()
+
+    response = organisation_admin_client.get(
+        path + params, SERVER_NAME=server_name(organisation), **headers
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert "Location" not in response
+    assert response.template_name == (
+        "core/drf/default/partials/list.html" if htmx else "core/drf/default/list.html"
+    )
+    content = response.content.decode()
+    assert "bulk-match-keep" in content
+    assert str(remaining.pk) in content
+    assert "bulk-match-delete" not in content
+    assert "bulk-other" not in content
+    assert 'id="bulk-action-delete"' in content
+    assert "bulkListUpdated" not in content
+    assert f'hx-get="{path}?' in content
+    assert f'hx-get="{path}/bulk' not in content
+    assert f"{path}?" in response.data["next_url"]
+    assert "/bulk/" not in response.data["next_url"]
+    assert "offset=1" in response.data["next_url"]
+    assert f'action="{path}/bulk_confirm"' in list_response.content.decode()
+
+
+@pytest.mark.django_db
+def test_bulk_make_public_confirmation(
+    organisation, organisation_admin_client, organisation_vector
+):
+    field = FieldFactory.create(datasource=organisation_vector, name="bulk-related-field")
+    selected = FeatureLayerFactory.create(
+        datasource=organisation_vector, public=False, metadata__title="bulk-public-selected"
+    )
+    untouched = FeatureLayerFactory.create(
+        datasource=organisation_vector, public=False, metadata__title="bulk-public-untouched"
+    )
+    path = "/features/manage/feature_layers"
+    payload = {"action": "make-public", "ids": [str(selected.pk)]}
+
+    confirmation = organisation_admin_client.post(
+        f"{path}/bulk_confirm", payload, SERVER_NAME=server_name(organisation)
+    )
+
+    assert confirmation.status_code == status.HTTP_200_OK
+    content = confirmation.content.decode()
+    assert "Confirm making public" in content
+    assert "publicly accessible" in content
+    assert "btn-outline-warning" in content
+    assert "bulk-public-selected" in content
+    assert "bulk-public-untouched" not in content
+    assert "bulk-related-field" not in content
+    assert "Confirm deletion" not in content
+    assert 'name="action" value="make-public"' in content
+    assert confirmation.data["related_objects"] == [selected]
+    assert not confirmation.data["protected"]
+    selected.refresh_from_db()
+    assert not selected.public
+
+    response = organisation_admin_client.post(
+        f"{path}/bulk", payload, SERVER_NAME=server_name(organisation)
+    )
+
+    assert response.status_code == status.HTTP_302_FOUND
+    assert response["Location"] == path
+    selected.refresh_from_db()
+    untouched.refresh_from_db()
+    assert selected.public
+    assert not untouched.public
+    assert FeatureLayer.objects.filter(pk__in=[selected.pk, untouched.pk]).count() == 2
+    assert selected.fields.filter(datasource_field=field).exists()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("endpoint", ["bulk_confirm", "bulk"])
+@pytest.mark.parametrize(
+    "action,required_permission",
+    [("delete", "delete"), ("make-public", "change"), ("make-non-public", "change")],
+)
+@pytest.mark.parametrize("granted_permission", [None, "add", "change", "delete"])
+def test_bulk_requires_action_permission(
+    organisation,
+    organisation_vector,
+    user,
+    endpoint,
+    action,
+    required_permission,
+    granted_permission,
+):
+    organisation.public_access = True
+    organisation.save(update_fields=["public_access"])
+    selected = FeatureLayerFactory.create(datasource=organisation_vector, public=False)
+    client = APIClient()
+    if granted_permission:
+        user.user_permissions.add(perm(FeatureLayer, granted_permission))
+        client.force_login(user)
+
+    response = client.post(
+        f"/features/manage/feature_layers/{endpoint}",
+        {"action": action, "ids": [str(selected.pk)]},
+        SERVER_NAME=server_name(organisation),
+    )
+
+    allowed = granted_permission == required_permission
+    expected_status = status.HTTP_403_FORBIDDEN
+    if allowed:
+        expected_status = (
+            status.HTTP_200_OK if endpoint == "bulk_confirm" else status.HTTP_302_FOUND
+        )
+    assert response.status_code == expected_status
+    deleted = allowed and endpoint == "bulk" and action == "delete"
+    assert FeatureLayer.objects.filter(pk=selected.pk).exists() is not deleted
+    if not deleted:
+        selected.refresh_from_db()
+        assert selected.public is (allowed and endpoint == "bulk" and action == "make-public")
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "selection,expected_status",
+    [("permitted", status.HTTP_302_FOUND), ("both", status.HTTP_403_FORBIDDEN)],
+)
+def test_bulk_accepts_object_permission(
+    organisation, organisation_vector, user, selection, expected_status
+):
+    organisation.public_access = True
+    organisation.save(update_fields=["public_access"])
+    permitted = FeatureLayerFactory.create(datasource=organisation_vector, public=False)
+    forbidden = FeatureLayerFactory.create(datasource=organisation_vector, public=False)
+    # the user has no model permission, only the object permission on one layer
+    assign_perm("features.change_featurelayer", user, permitted)
+    client = APIClient()
+    client.force_login(user)
+    ids = [str(permitted.pk)]
+    if selection == "both":
+        ids.append(str(forbidden.pk))
+
+    response = client.post(
+        "/features/manage/feature_layers/bulk",
+        {"action": "make-public", "ids": ids},
+        SERVER_NAME=server_name(organisation),
+    )
+
+    assert response.status_code == expected_status
+    permitted.refresh_from_db()
+    forbidden.refresh_from_db()
+    # one forbidden object in the selection stops the whole action
+    assert permitted.public is (expected_status == status.HTTP_302_FOUND)
+    assert not forbidden.public
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("endpoint", ["bulk_confirm", "bulk"])
+def test_bulk_rejects_invalid_action(
+    organisation, organisation_admin_client, organisation_project, endpoint
+):
+    response = organisation_admin_client.post(
+        f"/integration/manage/projects/{endpoint}?search=example",
+        {"action": "unknown", "ids": [str(organisation_project.pk)]},
+        SERVER_NAME=server_name(organisation),
+    )
+
+    assert response.status_code == status.HTTP_302_FOUND
+    assert response["Location"] == "/integration/manage/projects"
+    assert Project.objects.filter(pk=organisation_project.pk).exists()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("endpoint", ["bulk_confirm", "bulk"])
+def test_project_bulk_rejects_make_public(
+    organisation, organisation_admin_client, organisation_project, endpoint
+):
+    response = organisation_admin_client.post(
+        f"/integration/manage/projects/{endpoint}",
+        {"action": "make-public", "ids": [str(organisation_project.pk)]},
+        SERVER_NAME=server_name(organisation),
+    )
+
+    assert response.status_code == status.HTTP_302_FOUND
+    assert response["Location"] == "/integration/manage/projects"
+    assert any("make-public" in str(message) for message in get_messages(response.wsgi_request))
+    assert Project.objects.filter(pk=organisation_project.pk).exists()
 
 
 class TestJsonRepresentation:

@@ -1,3 +1,4 @@
+{% load i18n %}
 {% block list_nav %}
     <nav class="navbar navbar-expand gap-4 flex-wrap">
 
@@ -12,7 +13,57 @@
                 {% include "core/drf/default/includes/ordering_htmx.html" %}
             {% endblock %}
         {% endif %}
+        
+        <!-- Bulk actions dropdown -->
+        {% if not is_modal %}
+        {% if bulk_actions %}
+        <div id="bulk-action-container" class="nav-item d-flex gap-2 align-items-center d-none">
+        
+            <form method="post" id="bulk-action-form"
+                  action="{% url view.url_name_bulk_confirm %}">
+                {% csrf_token %}
+            </form>
+        
+            <div class="dropdown">
+                <button
+                        class="btn btn-outline-primary dropdown-toggle"
+                        type="button"
+                        id="bulk-action-dropdown"
+                        data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside"
+                        aria-expanded="false"
+                >
+                    <i class="fa fa-list"></i>
+                    {% trans "Select bulk action" %}
+                </button>
 
+                <div class="dropdown-menu p-3" aria-labelledby="bulk-action-dropdown" style="z-index: 1050;">
+                    {% for bulk_action in bulk_actions %}
+                    <div class="dropdown-item form-check form-check-inline">
+                        <input
+                                class="form-check-input ms-0 me-2"
+                                type="radio"
+                                id="bulk-action-{{ bulk_action.name }}"
+                                name="action"
+                                value="{{ bulk_action.name }}"
+                                form="bulk-action-form"
+                        >
+                        <label class="form-check-label w-100"
+                               for="bulk-action-{{ bulk_action.name }}">
+                            <i class="{{ bulk_action.icon_classes }}"></i>
+                            <span class="ps-1">{{ bulk_action.label }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                    <button type="submit" form="bulk-action-form" class="btn btn-outline-primary mt-2 text-nowrap"
+                            onclick="bootstrap.Dropdown.getOrCreateInstance(this.closest('.dropdown').querySelector('[data-bs-toggle=dropdown]')).hide()">
+                        {% trans "Apply to selected entries" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
     </nav>
 {% endblock %}
 

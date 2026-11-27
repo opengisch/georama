@@ -81,3 +81,25 @@ class PermissionActionSerializer(serializers.Serializer):
         child=serializers.IntegerField(),
         default=list,
     )
+
+
+class BulkActionSerializer(serializers.Serializer):
+    """Validates a bulk action request against the actions passed as context
+    `bulk_actions`. The validated `action` is the matching bulk action itself.
+
+    The choices are set per instance, so each viewset only accepts the actions it was
+    configured with and nobody has to overwrite this serializer for that.
+    """
+
+    action = serializers.ChoiceField(choices=[])
+    ids = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bulk_actions = {
+            bulk_action.name: bulk_action for bulk_action in self.context["bulk_actions"]
+        }
+        self.fields["action"].choices = list(self.bulk_actions)
+
+    def validate_action(self, value):
+        return self.bulk_actions[value]
