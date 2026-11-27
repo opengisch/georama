@@ -14,10 +14,13 @@ class Membership(models.Model):
     class Meta:
         verbose_name = _("membership")
         verbose_name_plural = _("memberships")
-        unique_together = (
-            "organisation",
-            "user",
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organisation", "user"],
+                name="unique_membership",
+                nulls_distinct=False,  # requires PostgreSQL >= 15
+            ),
+        ]
 
     id = models.UUIDField(
         primary_key=True,
@@ -39,6 +42,11 @@ class Membership(models.Model):
         related_name="memberships",
         help_text=_("Organisation associated with the membership."),
         verbose_name=_("organisation"),
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text=_("Whether the membership is active."),
+        verbose_name=_("active"),
     )
 
     objects = MembershipManager()

@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
@@ -17,8 +18,24 @@ admin.site.unregister(Group)
 User = get_user_model()
 
 
+class MembershipForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "organisation" in self.fields:
+            self.fields["organisation"].empty_label = "GLOBAL"
+
+    def has_changed(self):
+        # New memberships submitted via "Add row" are always considered changed,
+        # so they are validated and saved even if organization is empty/NULL.
+        if self.instance._state.adding:
+            return True
+        return super().has_changed()
+
+
 class MembershipInlineAdmin(TabularInline):
     model = Membership
+    form = MembershipForm
+    extra = 0
 
 
 class ProviderAccountListFilter(admin.SimpleListFilter):
@@ -59,6 +76,14 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
             .prefetch_related("memberships__organisation", "socialaccount_set")
         )
 
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        if not change and not form.instance.memberships.exists():
+            Membership.objects.create(
+                user=form.instance,
+                organisation=request.georama_organisation,
+            )
+
     @admin.display(description=_("provider account"))
     def provider_accounts(self, user) -> str:
         """Shows which identity providers a user is linked to, a dash for a local
@@ -87,7 +112,25 @@ class DjangoGroupAdmin(BaseGroupAdmin, ModelAdmin):
 
 @admin.register(Membership)
 class MembershipAdmin(OrganisationalModelAdmin):
-    search_fields = ("user__username", "organisation__name")
+    list_display = ("user", "organisation", "is_active")
+    list_editable = ("is_active",)
+    list_filter = ("is_active",)
+    autocomplete_fields = ("user",)
+    list_select_related = ("user", "organisation")
+    ordering = ("is_active", "organisation__name", "user__username")
+    search_fields = ("user__username", "user__email", "organisation__name")
+    actions = ("activate_memberships", "deactivate_memberships")
+    form = MembershipForm
+
+    @admin.action(description=_("Activate selected memberships"))
+    def activate_memberships(self, request, queryset):
+        updated = queryset.update(is_active=True)
+        self.message_user(request, _("%(count)d membership(s) activated.") % {"count": updated})
+
+    @admin.action(description=_("Deactivate selected memberships"))
+    def deactivate_memberships(self, request, queryset):
+        updated = queryset.update(is_active=False)
+        self.message_user(request, _("%(count)d membership(s) deactivated.") % {"count": updated})
 
 
 @admin.register(Organisation)

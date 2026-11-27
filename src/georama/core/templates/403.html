@@ -4,4 +4,4 @@
 {% block error_breadcrumb %}{% translate "Forbidden" %}{% endblock %}
 {% block error_code %}403{% endblock %}
 {% block error_title %}{% translate "Access denied" %}{% endblock %}
-{% block error_message %}{% translate "You don't have permission to access this page." %}{% endblock %}
+{% block error_message %}{% if exception %}{{ exception }}{% else %}{% translate "You don't have permission to access this page." %}{% endif %}{% endblock %}
