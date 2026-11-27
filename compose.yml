@@ -136,6 +136,7 @@ services:
       - "QSL_ENGINE=state"
       - "QSL_RUNNER_PLUGINS=qgis_server_light.worker.runner.process.ProcessRunner"
       - "QSL_PROCESS_ALLOWLIST=${QSL_PROCESS_ALLOWLIST:-native:buffer,native:centroids}"
+      - "QSL_PROCESS_INTERNAL_ALLOWLIST=${QSL_PROCESS_INTERNAL_ALLOWLIST:-}"
       - "QSL_PROCESS_OUTPUT_DIR=/io/process_output"
       - "PGSERVICEFILE=/io/pg_service.conf"
     volumes:

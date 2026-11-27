@@ -14,7 +14,31 @@ from georama.processes.processes_config import Config
 
 
 async def process_descriptions() -> ProcessDescriptions:
-    return await qsl_redis_state_queue.process_descriptions()
+    # processes for internal use are never handed to the publishing side of georama, they
+    # are called by georama itself through `submit_job`
+    return publishable_process_descriptions(await qsl_redis_state_queue.process_descriptions())
+
+
+def publishable_process_descriptions(
+    process_descriptions: ProcessDescriptions,
+) -> ProcessDescriptions:
+    internal_algorithm_ids = {
+        process_description.id
+        for process_description in process_descriptions.processes
+        if process_description.internal
+    }
+    return ProcessDescriptions(
+        processes=[
+            process_description
+            for process_description in process_descriptions.processes
+            if process_description.id not in internal_algorithm_ids
+        ],
+        warnings=[
+            process_warning
+            for process_warning in process_descriptions.warnings
+            if process_warning.process_id not in internal_algorithm_ids
+        ],
+    )
 
 
 async def process_descriptions_by_algorithm_id(
