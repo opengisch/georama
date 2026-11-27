@@ -1740,7 +1740,7 @@ wheels = [
 [[package]]
 name = "qgis-server-light"
 version = "0.0.0"
-source = { git = "https://github.com/opengisch/qgis-server-light.git?rev=refs%2Fpull%2F40%2Fhead#c0ef1a853484ae0ce57c4f2a468e4c408b54d369" }
+source = { git = "https://github.com/opengisch/qgis-server-light.git?rev=refs%2Fpull%2F40%2Fhead#19f1ede2b1e122e8ce8b36091ad1ffebdf05bef5" }
 
 [package.optional-dependencies]
 dispatcher = [
