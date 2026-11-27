@@ -5,6 +5,7 @@ from adrf import serializers
 from adrf.mixins import get_data
 from django.http import QueryDict
 
+from georama.core.common.bulk_actions import DeleteBulkAction
 from georama.core.common.serializers import BulkActionSerializer, ObjectPermissionSerializer
 
 
@@ -45,6 +46,10 @@ class TestObjectPermissionSerializer:
 
 
 class TestBulkActionSerializer:
+    @pytest.fixture
+    def delete_bulk_action(self):
+        return DeleteBulkAction()
+
     @pytest.mark.parametrize(
         "data",
         [
@@ -52,11 +57,12 @@ class TestBulkActionSerializer:
             QueryDict("action=delete&ids=1&ids=abc"),
         ],
     )
-    def test_accepts_multiple_ids(self, data):
-        serializer = BulkActionSerializer(data=data)
+    def test_accepts_multiple_ids(self, data, delete_bulk_action):
+        serializer = BulkActionSerializer(data=data, context={"bulk_actions": [delete_bulk_action]})
 
         assert serializer.is_valid(), serializer.errors
-        assert serializer.validated_data == {"action": "delete", "ids": ["1", "abc"]}
+        # the action name is resolved to the action the viewset offers
+        assert serializer.validated_data == {"action": delete_bulk_action, "ids": ["1", "abc"]}
 
     @pytest.mark.parametrize(
         "data",
@@ -65,9 +71,11 @@ class TestBulkActionSerializer:
             {"action": "delete", "ids": []},
             {"action": "delete", "ids": [""]},
             {"action": "unknown", "ids": ["1"]},
+            # a known action which the viewset does not offer
+            {"action": "make-public", "ids": ["1"]},
         ],
     )
-    def test_rejects_invalid_actions(self, data):
-        serializer = BulkActionSerializer(data=data)
+    def test_rejects_invalid_actions(self, data, delete_bulk_action):
+        serializer = BulkActionSerializer(data=data, context={"bulk_actions": [delete_bulk_action]})
 
         assert not serializer.is_valid()

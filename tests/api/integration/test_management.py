@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 from django.contrib.messages import get_messages
+from guardian.shortcuts import assign_perm
 from qgis_server_light.interface.common import BBox, Crs
 from qgis_server_light.interface.exporter.api import ExportResult
 from qgis_server_light.interface.exporter.extract import (
@@ -254,7 +255,7 @@ def test_bulk_delete_confirmation(organisation, organisation_admin_client, htmx)
 
     response = organisation_admin_client.post(
         f"{path}/bulk{params}",
-        confirmation.data["bulk_action"],
+        payload,
         SERVER_NAME=server_name(organisation),
     )
     assert response.status_code == status.HTTP_302_FOUND
@@ -320,7 +321,7 @@ def test_bulk_make_public_confirmation(
     assert not selected.public
 
     response = organisation_admin_client.post(
-        f"{path}/bulk", confirmation.data["bulk_action"], SERVER_NAME=server_name(organisation)
+        f"{path}/bulk", payload, SERVER_NAME=server_name(organisation)
     )
 
     assert response.status_code == status.HTTP_302_FOUND
@@ -336,7 +337,8 @@ def test_bulk_make_public_confirmation(
 @pytest.mark.django_db
 @pytest.mark.parametrize("endpoint", ["bulk_confirm", "bulk"])
 @pytest.mark.parametrize(
-    "action,required_permission", [("delete", "delete"), ("make-public", "change")]
+    "action,required_permission",
+    [("delete", "delete"), ("make-public", "change"), ("make-non-public", "change")],
 )
 @pytest.mark.parametrize("granted_permission", [None, "add", "change", "delete"])
 def test_bulk_requires_action_permission(
@@ -374,6 +376,40 @@ def test_bulk_requires_action_permission(
     if not deleted:
         selected.refresh_from_db()
         assert selected.public is (allowed and endpoint == "bulk" and action == "make-public")
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "selection,expected_status",
+    [("permitted", status.HTTP_302_FOUND), ("both", status.HTTP_403_FORBIDDEN)],
+)
+def test_bulk_accepts_object_permission(
+    organisation, organisation_vector, user, selection, expected_status
+):
+    organisation.public_access = True
+    organisation.save(update_fields=["public_access"])
+    permitted = FeatureLayerFactory.create(datasource=organisation_vector, public=False)
+    forbidden = FeatureLayerFactory.create(datasource=organisation_vector, public=False)
+    # the user has no model permission, only the object permission on one layer
+    assign_perm("features.change_featurelayer", user, permitted)
+    client = APIClient()
+    client.force_login(user)
+    ids = [str(permitted.pk)]
+    if selection == "both":
+        ids.append(str(forbidden.pk))
+
+    response = client.post(
+        "/features/manage/feature_layers/bulk",
+        {"action": "make-public", "ids": ids},
+        SERVER_NAME=server_name(organisation),
+    )
+
+    assert response.status_code == expected_status
+    permitted.refresh_from_db()
+    forbidden.refresh_from_db()
+    # one forbidden object in the selection stops the whole action
+    assert permitted.public is (expected_status == status.HTTP_302_FOUND)
+    assert not forbidden.public
 
 
 @pytest.mark.django_db
