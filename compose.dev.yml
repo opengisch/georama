@@ -31,6 +31,27 @@ services:
       - ./:/app:cached
       - georama-venv:/home/appuser/.venv
       - georama-static:/georama/static
+  georama-housekeeping:
+    environment:
+      - "DJANGO_CONFIGURATION=Dev"
+      # georama syncs the shared venv, a second sync at the same time would race
+      - "DEV_SYNC=0"
+    build:
+      target: dev
+      args:
+        # only passed if set in the environment, otherwise the pinned default
+        # of the Dockerfile applies
+        GDAL_IMAGE:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    volumes:
+      - ./:/app:cached
+      - georama-venv:/home/appuser/.venv
+    # the venv is synced once georama is healthy, with GEORAMA_DEV_AUTOSTART=0 it never
+    # gets healthy, then the command is called by hand
+    depends_on:
+      georama:
+        condition: service_healthy
 volumes:
   georama-venv:
   georama-static:

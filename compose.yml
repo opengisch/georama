@@ -1,7 +1,7 @@
 services:
   georama:
     init: true
-    environment:
+    environment: &georama-environment
       - "GEORAMA_QSL_EXPORTER_URL=http://qsl-exporter:5000/export"
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
       - "GEORAMA_WEBGISURL=https://localhost:9309"
@@ -18,6 +18,7 @@ services:
       - "GEORAMA_LOGIN_ATTEMPTS_LIMIT=${GEORAMA_LOGIN_ATTEMPTS_LIMIT:-5}"
       - "GEORAMA_LOGIN_ATTEMPTS_BLOCKED_MINUTES=${GEORAMA_LOGIN_ATTEMPTS_BLOCKED_MINUTES:-5}"
       - "GEORAMA_DATA_INTEGRATION_ROOT=/io/data"
+      - "GEORAMA_PROCESSES_OUTPUT_DIR=/io/process_output"
       - "GEORAMA_DB_NAME=${GEORAMA_DB_NAME?}"
       - "GEORAMA_DB_USER=${GEORAMA_DB_USER?}"
       - "GEORAMA_DB_PW=${GEORAMA_DB_PW?}"
@@ -41,7 +42,7 @@ services:
       - "PGSERVICEFILE=/io/pg_service.conf"
     platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
-    build:
+    build: &georama-build
       context: .
       dockerfile: Dockerfile
     ports:
@@ -49,6 +50,7 @@ services:
     volumes:
       - "${LOCAL_PROJECTS:-./tests/resources/projects}:/io/data"
       - "${PG_SERVICE_CONF:-./docker/pg_service.conf}:/io/pg_service.conf"
+      - "process-output:/io/process_output"
     depends_on:
       georama-db:
         condition: service_healthy
@@ -63,6 +65,24 @@ services:
       timeout: 6s
       retries: 3
       start_period: 30s
+  georama-housekeeping:
+    # runs the periodic management commands with the prod image and the settings of
+    # georama, on Kubernetes this becomes a CronJob with the same image and command
+    init: true
+    environment: *georama-environment
+    platform: "${PLATFORM:-linux/amd64}"
+    restart: unless-stopped
+    build: *georama-build
+    # a failing run (database not reachable, migrations missing) is retried after a
+    # minute instead of waiting for the next regular hour
+    command: [ "sh", "-c", "while true; do if manage delete_expired_jobs; then sleep 3600; else sleep 60; fi; done" ]
+    volumes:
+      # the settings check the data integration root exists, housekeeping only reads it
+      - "${LOCAL_PROJECTS:-./tests/resources/projects}:/io/data:ro"
+      - "process-output:/io/process_output"
+    depends_on:
+      georama-db:
+        condition: service_healthy
   georama-db:
     platform: "linux/amd64"
     restart: unless-stopped
@@ -89,7 +109,7 @@ services:
   qsl-worker:
     platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
-    image: opengisch/qgis-server-light:26.4-worker
+    image: opengisch/qgis-server-light:pr-40-worker
     environment:
       - "QSL_REDIS_URL=redis://qsl-redis:6379"
       - "QSL_SVG_PATH=/io/svg"
@@ -104,10 +124,34 @@ services:
     depends_on:
       qsl-redis:
         condition: service_healthy
+  qsl-process-worker:
+    platform: "${PLATFORM:-linux/amd64}"
+    restart: unless-stopped
+    image: opengisch/qgis-server-light:pr-40-worker
+    environment:
+      - "QSL_REDIS_URL=redis://qsl-redis:6379"
+      - "QSL_SVG_PATH=/io/svg"
+      - "QSL_DATA_ROOT=/io/data"
+      - "QSL_LOG_LEVEL=${QSL_PROCESS_WORKER_LOG_LEVEL:-info}"
+      - "QSL_ENGINE=state"
+      - "QSL_RUNNER_PLUGINS=qgis_server_light.worker.runner.process.ProcessRunner"
+      - "QSL_PROCESS_ALLOWLIST=${QSL_PROCESS_ALLOWLIST:-native:buffer,native:centroids}"
+      - "QSL_PROCESS_INTERNAL_ALLOWLIST=${QSL_PROCESS_INTERNAL_ALLOWLIST:-}"
+      - "QSL_PROCESS_OUTPUT_DIR=/io/process_output"
+      - "PGSERVICEFILE=/io/pg_service.conf"
+    volumes:
+      - "${LOCAL_PROJECTS:-./tests/resources/projects}:/io/data"
+      - "${PG_SERVICE_CONF:-./docker/pg_service.conf}:/io/pg_service.conf"
+      - "process-output:/io/process_output"
+    deploy:
+      replicas: "${QSL_PROCESS_WORKER_REPLICAS:-1}"
+    depends_on:
+      qsl-redis:
+        condition: service_healthy
   qsl-exporter:
     platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
-    image: opengisch/qgis-server-light:26.4-exporter
+    image: opengisch/qgis-server-light:pr-40-exporter
     environment:
       - "QSL_DATA_ROOT=/io/data"
       - "QSL_EXPORTER_LOG_LEVEL=${QSL_LOG_LEVEL:-info}"
@@ -225,6 +269,7 @@ services:
 
 volumes:
   georama-db:
+  process-output:
   keycloak-db:
   dev-ca:
   ssh_host_keys:

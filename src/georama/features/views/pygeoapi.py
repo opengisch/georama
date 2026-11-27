@@ -156,7 +156,7 @@ class PygeoapiServer(View):
         self, collection_id: str, perm: str, include_public: bool = False
     ):
         try:
-            return self.model.objects.accessible_layers(
+            return self.model.objects.accessible_objects(
                 self.request.georama_organisation,
                 self.request.user,
                 [perm],
@@ -448,7 +448,7 @@ class PygeoapiServer(View):
         self, request: HttpRequest, collection_id: str | None = None
     ) -> list[FeatureLayer]:
         feature_layers = self.refine_accessible_layers(
-            self.model.objects.accessible_layers(
+            self.model.objects.accessible_objects(
                 self.request.georama_organisation,
                 request.user,
                 [self.perm_view],

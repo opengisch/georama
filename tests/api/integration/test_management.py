@@ -587,7 +587,7 @@ class TestExportMessages:
         organisation_project.save(update_fields=["config"])
 
         response = organisation_admin_client.get(
-            f"/integration/manage/projects/{organisation_project.pk}/ashow",
+            f"/integration/manage/projects/{organisation_project.pk}",
             SERVER_NAME=server_name(organisation),
         )
         content = response.text

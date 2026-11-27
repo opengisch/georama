@@ -1,0 +1,17 @@
+{% extends 'core/drf/default/partials/list_body.html' %}
+{% load static i18n %}
+{% block list_item_pills %}
+    <div class="align-content-bottom">
+        {% include 'processes/drf/job/includes/pills/status.html' with job=item %}
+    </div>
+{% endblock %}
+
+{% block list_item_title %}
+    {{ item.title }}
+{% endblock %}
+{% block list_item_name %}
+    {{ item.created_at }} {% trans 'by' %} {{ item.created_by }}
+{% endblock %}
+
+{% block list_item_image %}
+{% endblock %}
