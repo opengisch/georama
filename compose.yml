@@ -73,7 +73,9 @@ services:
     platform: "${PLATFORM:-linux/amd64}"
     restart: unless-stopped
     build: *georama-build
-    command: [ "sh", "-c", "while true; do manage delete_expired_jobs; sleep 3600; done" ]
+    # a failing run (database not reachable, migrations missing) is retried after a
+    # minute instead of waiting for the next regular hour
+    command: [ "sh", "-c", "while true; do if manage delete_expired_jobs; then sleep 3600; else sleep 60; fi; done" ]
     volumes:
       # the settings check the data integration root exists, housekeeping only reads it
       - "${LOCAL_PROJECTS:-./tests/resources/projects}:/io/data:ro"
