@@ -10,6 +10,15 @@ from rest_framework.exceptions import PermissionDenied
 class BulkAction:
     """An action which is applied to several selected objects of a list at once.
 
+    A viewset lists the actions it offers in its `bulk_actions` attribute, everything
+    else - the radio button in the list, the confirmation step, the permission check and
+    the execution - is driven by the action itself. So adding a new action means writing
+    one subclass and putting it into the list of the viewsets which should offer it.
+
+    Each step is a method which can be overwritten. Most actions only need `execute`,
+    the others are there for the ones which do not fit the default, like the deletion
+    which wants to show everything that goes down with the selected objects.
+
     Attributes:
         name: The value which identifies the action in the form and the API.
         label: The text shown for the action in the list.
@@ -18,8 +27,9 @@ class BulkAction:
         confirmation_title: The title of the confirmation step.
         confirmation_text: The text explaining the impact in the confirmation step.
         permissions: The permissions the user needs, either on the model or on each
-            selected object. Placeholders `%(app_label)s` and `%(model_name)s` are
-            filled with the model of the queryset.
+            selected object. The placeholders `%(app_label)s` and `%(model_name)s` are
+            the same as in the `perms_map` of DRF and are filled with the model of the
+            queryset, so one action serves every model.
     """
 
     name: str
@@ -31,6 +41,14 @@ class BulkAction:
     permissions: list[str]
 
     def required_permissions(self, queryset: QuerySet) -> list[str]:
+        """Fills the placeholders of the permissions with the model of the queryset.
+
+        Args:
+            queryset: The queryset the action runs on.
+
+        Returns:
+            The fully qualified permission names.
+        """
         kwargs = {
             "app_label": queryset.model._meta.app_label,
             "model_name": queryset.model._meta.model_name,
@@ -38,32 +56,96 @@ class BulkAction:
         return [permission % kwargs for permission in self.permissions]
 
     async def permitted(self, user, queryset: QuerySet) -> QuerySet:
-        """Model permissions grant all objects, otherwise object permissions decide."""
+        """Filters the queryset to the objects the user may run this action on.
+
+        A user holding the model permissions gets all objects, otherwise the object
+        permissions decide one by one. Guardian does both in one go for us, so the action
+        doesn't need to care which kind of permission was granted.
+
+        Args:
+            user: The requesting user.
+            queryset: The objects to be filtered.
+
+        Returns:
+            The objects the user is permitted to run this action on.
+        """
         return await sync_to_async(get_objects_for_user)(
             user, self.required_permissions(queryset), klass=queryset
         )
 
     async def is_available(self, user, queryset: QuerySet) -> bool:
+        """Tells if the action is worth offering in the list at all.
+
+        Args:
+            user: The requesting user.
+            queryset: The objects of the list.
+
+        Returns:
+            True if the user may run the action on at least one object.
+        """
         return await (await self.permitted(user, queryset)).aexists()
 
     async def resolve(self, view, ids: list[str]) -> QuerySet:
+        """Turns the selected ids into the objects the action runs on.
+
+        By default these are rows of the viewsets queryset. Actions working on something
+        else, like files on disk waiting for their integration, overwrite this.
+
+        Args:
+            view: The viewset the action was called on.
+            ids: The selected ids.
+
+        Returns:
+            The selected objects, filtered the same way the list is.
+        """
         queryset = await view.afilter_queryset(view.get_queryset())
         return queryset.filter(pk__in=ids)
 
     async def check_permissions(self, user, queryset: QuerySet):
+        """Makes sure the user may run the action on every selected object.
+
+        We refuse the whole selection rather than silently skipping objects, else a user
+        might wonder why half of the selection stayed untouched.
+
+        Args:
+            user: The requesting user.
+            queryset: The selected objects.
+
+        Raises:
+            PermissionDenied: If at least one selected object is not permitted.
+        """
         permitted = await self.permitted(user, queryset)
         if await permitted.acount() != await queryset.acount():
             raise PermissionDenied()
 
     async def preview(self, queryset: QuerySet) -> tuple[list, list]:
-        """Returns the objects affected by the action and those which block it."""
+        """Collects what the confirmation step shows to the user.
+
+        Args:
+            queryset: The selected objects.
+
+        Returns:
+            The objects affected by the action and those which block it. By default the
+            selected objects are affected and nothing blocks.
+        """
         return [obj async for obj in queryset], []
 
     async def execute(self, request, queryset: QuerySet):
+        """Does the actual work, this is the one method every action has to bring.
+
+        Args:
+            request: The request which triggered the action, handy for messages.
+            queryset: The selected objects, permissions already checked.
+
+        Raises:
+            NotImplementedError: If a subclass forgot to implement it.
+        """
         raise NotImplementedError
 
 
 class DeleteBulkAction(BulkAction):
+    """Deletes the selected objects, the same way the single delete does."""
+
     name = "delete"
     label = _("Delete")
     icon_classes = "fa fa-trash-alt text-danger"
@@ -75,6 +157,17 @@ class DeleteBulkAction(BulkAction):
     permissions = ["%(app_label)s.delete_%(model_name)s"]
 
     async def preview(self, queryset: QuerySet) -> tuple[list, list]:
+        """Collects everything which goes down with the selected objects.
+
+        Like the Django admin does it, a deletion shows the cascade and the protected
+        objects which would stop it, nobody likes surprises on that one.
+
+        Args:
+            queryset: The selected objects.
+
+        Returns:
+            The nested related objects and the protected objects.
+        """
         collector = NestedObjects(using=djdb_router.db_for_write(queryset.model))
         await sync_to_async(collector.collect)([obj async for obj in queryset])
         return collector.nested(), collector.protected
@@ -84,7 +177,8 @@ class DeleteBulkAction(BulkAction):
 
 
 class PublicBulkAction(BulkAction):
-    """Base for actions switching the `public` flag of the selected objects.
+    """Base for actions switching the `public` flag of the selected objects. Only offer
+    its subclasses on models which have such a flag.
 
     Attributes:
         public: The value the `public` flag is set to.
@@ -99,6 +193,8 @@ class PublicBulkAction(BulkAction):
 
 
 class MakePublicBulkAction(PublicBulkAction):
+    """Makes the selected objects publicly accessible."""
+
     name = "make-public"
     label = _("Make public")
     icon_classes = "fa fa-unlock text-success"
@@ -108,6 +204,8 @@ class MakePublicBulkAction(PublicBulkAction):
 
 
 class MakeNonPublicBulkAction(PublicBulkAction):
+    """Takes the public access away from the selected objects."""
+
     name = "make-non-public"
     label = _("Make non-public")
     icon_classes = "fa fa-lock text-secondary"

@@ -86,6 +86,9 @@ class PermissionActionSerializer(serializers.Serializer):
 class BulkActionSerializer(serializers.Serializer):
     """Validates a bulk action request against the actions passed as context
     `bulk_actions`. The validated `action` is the matching bulk action itself.
+
+    The choices are set per instance, so each viewset only accepts the actions it was
+    configured with and nobody has to overwrite this serializer for that.
     """
 
     action = serializers.ChoiceField(choices=[])

@@ -329,6 +329,13 @@ class GeoramaTemplateViewSet(
     bulk_actions: list[BulkAction] = [DeleteBulkAction()]
 
     async def _available_bulk_actions(self) -> list[BulkAction]:
+        """Filters the bulk actions of this viewset to those the requesting user may run
+        on at least one object of the list. An action which would only end in a refusal
+        has no business in the dropdown.
+
+        Returns:
+            The bulk actions which are offered in the list.
+        """
         queryset = await self.afilter_queryset(self.get_queryset())
         return [
             bulk_action
@@ -500,10 +507,30 @@ class GeoramaTemplateViewSet(
             return response
 
     def _bulk_action_serializer(self, request) -> BulkActionSerializer:
+        """Creates the serializer which knows the bulk actions of this viewset. So a
+        model only accepts the actions it was configured with and no serializer has
+        to be overwritten for that.
+
+        Args:
+            request: The request carrying the action name and the selected ids.
+
+        Returns:
+            The serializer bound to the request data.
+        """
         return BulkActionSerializer(data=request.data, context={"bulk_actions": self.bulk_actions})
 
     async def _resolve_bulk_action(self, validated_data) -> tuple[BulkAction, QuerySet]:
-        """Resolves the selected objects and checks the permissions of the action on them."""
+        """Resolves the selected objects and checks the permissions of the action on them.
+
+        Both steps are left to the action itself, since not every action works on the
+        rows of this viewset in the same way.
+
+        Args:
+            validated_data: The validated data of the bulk action serializer.
+
+        Returns:
+            The bulk action and the queryset of the selected objects it may run on.
+        """
         bulk_action = validated_data["action"]
         queryset = await bulk_action.resolve(self, validated_data["ids"])
         await bulk_action.check_permissions(self.request.user, queryset)
@@ -517,7 +544,11 @@ class GeoramaTemplateViewSet(
         renderer_classes=[renderers.TemplateHTMLRenderer],
     )
     async def bulk_confirm(self, request, *args, **kwargs):
-        """Preview a bulk action without modifying the selected objects."""
+        """Previews a bulk action without modifying the selected objects.
+
+        This is the intermediate step which lets the user see what the action will
+        touch before it happens, it carries the selection on to `bulk_action`.
+        """
         serializer = self._bulk_action_serializer(request)
         if not serializer.is_valid():
             messages.error(request, serializer.errors)
@@ -541,7 +572,11 @@ class GeoramaTemplateViewSet(
         renderer_classes=[renderers.TemplateHTMLRenderer],
     )
     async def bulk_action(self, request, *args, **kwargs):
-        """Handle bulk actions on multiple objects."""
+        """Executes the selected bulk action on the selected objects.
+
+        The viewset doesn't know what the action does, it only makes sure the action is
+        offered here and allowed on every selected object before it hands over.
+        """
         serializer = self._bulk_action_serializer(request)
         if not serializer.is_valid():
             if request.accepted_renderer.format == "html":
@@ -723,7 +758,8 @@ class GeoramaManagerViewSet(GeoramaOrganisationalMixin, GeoramaTemplateViewSet):
 
     Attributes:
         permission_classes: The default permission class is `GeoramaModelPermissions`.
-            Bulk endpoints require authentication and check action-specific model permissions.
+            Bulk endpoints require authentication and leave the rest to the permissions of
+            the bulk action, which accepts model as well as object permissions.
     """
 
     permission_classes = [GeoramaModelPermissions]
